@@ -17,6 +17,7 @@ export const environment = {
   PRODUCT_ORDER: '/ordering',
   BILLING: '/billing',
   CHARGING: '/charging',
+  SOFTWARE: '/software',
 
   searchOrganizationsEndpoint: '/search-bck/api/searchOrganizations',
   providerCountriesUrl: 'https://raw.githubusercontent.com/DOME-Marketplace/eu-eea-countries/refs/heads/main/countries.json',
@@ -95,6 +96,7 @@ export const environment = {
   analyticsGuestTokenEndpoint: '/analytics/guest-token',
   feedbackCampaign: false,
   feedbackCampaignExpiration: 0,
+  DEPLOYMENT_SCHEMA_LOCATION: 'https://gist.githubusercontent.com/vramperez/e50df47dde789a05e0a4bdca39cf7349/raw/54a6b39beffc0c309db08f7e80c6a532a0ce9765/deployment-definition.json',
   SELLER_ROLE: 'Seller',
   BUYER_ROLE: 'Buyer',
   ADMIN_ROLE: 'Admin',

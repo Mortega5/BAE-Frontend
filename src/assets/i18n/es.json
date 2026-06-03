@@ -907,6 +907,27 @@
       "_no_billing_rates": "No billing rates found",
       "_period_coverage": "Period Coverage"
     },
+    "CREATE_SOFTWARE": {
+      "_back": "Atrás",
+      "_create": "Crear Software",
+      "_status": "Estado",
+      "_new": "Nuevo Software",
+      "_steps": "Pasos",
+      "_general": "General",
+      "_general_info": "Software's general information",
+      "_actions": "Acciones",
+      "_type": "Tipo",
+      "_preview": "Preview",
+      "_show_preview": "Mostrar preview",
+      "_name": "Nombre",
+      "_description": "Descripcion",
+      "_next": "Siguiente",
+      "_summary": "Resumen",
+      "_finish": "Terminar"
+    },
+    "UPDATE_SOFTWARE": {
+      "_save": "Guardar"
+    },
     "CREATE_CATALOG": {
       "_back": "Back",
       "_create": "Create catalogue",
@@ -1142,7 +1163,10 @@
       "_description": "Description",
       "_next": "Next",
       "_finish": "Finish",
-      "_create_res": "Create resource"
+      "_create_res": "Create resource",
+      "_base_template": "Plantilla",
+      "_configurable": "Configurable",
+      "_no_config": "No se requiere configuración para la plantilla seleccionada."
     },
     "UPDATE_RES_SPEC": {
       "_back": "Back",
@@ -1171,7 +1195,8 @@
       "_description": "Description",
       "_next": "Next",
       "_finish": "Finish",
-      "_update_res": "Update resource"
+      "_update_res": "Update resource",
+      "_no_config": "No se requiere configuración para la plantilla seleccionada."
     },
     "CREATE_SERV_SPEC": {
       "_back": "Back",
@@ -1433,12 +1458,14 @@
     },
     "OFFERINGS": {
       "_catalogs": "Catalogues",
+      "_softwares": "Software",
       "_offers": "Offer",
       "_no_offer": "No offerings included.",
       "_no_offerings": "There's no product offerings.",
       "_no_prod": "There's no product specifications.",
       "_no_prod_rel": "There's no product specifications, so you can't create relationships.",
       "_no_cat": "There's no catalogues.",
+      "_no_software": "No hay softwares.",
       "_no_categories": "There's no categories.",
       "_no_res": "There's no resource specifications",
       "_no_serv": "There's no service specifications",
@@ -1470,6 +1497,7 @@
       "_prod_offer": "Product offer",
       "_add_new_offer": "Add new product offer",
       "_add_new_catalog": "Add new catalogue",
+      "_add_new_software": "Añadir nuevo Software",
       "_filter_role": "Filter by role",
       "_seller": "Seller",
       "_owner": "Owner",
@@ -2090,6 +2118,33 @@
     "_finish": "Finish",
     "_create_error": "There was an error while creating the catalog!"
   },
+  "CREATE_SOFTWARE": {
+    "_back": "Atrás",
+    "_create": "Crear Software",
+    "_status": "Estado",
+    "_new": "Nuevo Software",
+    "_steps": "Pasos",
+    "_general": "General",
+    "_general_info": "Software's general information",
+    "_actions": "Acciones",
+    "_type": "Tipo",
+    "_preview": "Preview",
+    "_show_preview": "Mostrar preview",
+    "_name": "Nombre",
+    "_description": "Descripcion",
+    "_next": "Siguiente",
+    "_summary": "Resumen",
+    "_finish": "Terminar",
+    "_no_chars": "No se han añadido características",
+    "_new_char": "Crear nueva características",
+    "_values": "Valores",
+    "_add_char_value": "Añadir valor",
+    "_save_char": "Guardar características",
+    "_range": "Rango"
+  },
+  "UPDATE_SOFTWARE": {
+    "_save": "Save"
+  },
   "UPDATE_CATALOG": {
     "_back": "Back",
     "_create": "Update catalogue",
@@ -2193,8 +2248,8 @@
     "_file_check": "You need to upload a file before proceeding.",
     "_self_attestation": "Self Attestation:",
     "_close_modal": "Close modal",
-    "_cancel": "Cancel",
-    "_upload": "Upload",
+    "_cancel": "Cancelar",
+    "_upload": "Actualizar",
     "_name": "Name",
     "_description": "Description",
     "_general_info_desc": "Provide the basic identification details for your product, including its name, a brief overview, and visual assets.",
@@ -2534,7 +2589,10 @@
     "_validate_success": "Resource specification successfully validated",
     "_create_error": "There was an error while creating the resource!",
     "_update_error": "There was an error while updating the resource!",
-    "_validate_error": "There was an error while validating the resource!"
+    "_validate_error": "There was an error while validating the resource!",
+    "_base_template": "Template",
+    "_configurable": "Configurable",
+    "_no_config": "No se requiere configuración para la plantilla seleccionada."
   },
   "UPDATE_RES_SPEC": {
     "_back": "Back",
@@ -2563,7 +2621,8 @@
     "_description": "Description",
     "_next": "Next",
     "_finish": "Finish",
-    "_update_res": "Update resource"
+    "_update_res": "Update resource",
+    "_no_config": "No se requiere configuración para la plantilla seleccionada."
   },
   "CREATE_SERV_SPEC": {
     "_back": "Back",
@@ -3053,12 +3112,14 @@
   },
   "OFFERINGS": {
     "_catalogs": "Catalogues",
+    "_softwares": "Software",
     "_offers": "Offer",
     "_no_offer": "No offerings included.",
     "_no_offerings": "There's no product offerings.",
     "_no_prod": "There's no product specifications.",
     "_no_prod_rel": "There's no product specifications, so you can't create relationships.",
     "_no_cat": "There's no catalogues.",
+    "_no_software": "No hay softwares.",
     "_no_categories": "There's no categories.",
     "_no_res": "There's no resource specifications",
     "_no_serv": "There's no service specifications",
@@ -3090,6 +3151,7 @@
     "_prod_offer": "Product offer",
     "_add_new_offer": "Add new product offer",
     "_add_new_catalog": "Add new catalogue",
+    "_add_new_software": "Añadir nuevo Software",
     "_filter_role": "Filter by role",
     "_seller": "Seller",
     "_owner": "Owner",

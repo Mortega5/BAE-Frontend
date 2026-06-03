@@ -907,6 +907,27 @@
       "_no_billing_rates": "No billing rates found",
       "_period_coverage": "Period Coverage"
     },
+    "CREATE_SOFTWARE": {
+      "_back": "Back",
+      "_create": "Create Software",
+      "_status": "Status",
+      "_new": "New Software",
+      "_steps": "Steps",
+      "_general": "General",
+      "_general_info": "Software's general information",
+      "_actions": "Actions",
+      "_type": "Type",
+      "_preview": "Preview",
+      "_show_preview": "Show preview",
+      "_name": "Name",
+      "_description": "Description",
+      "_next": "Next",
+      "_summary": "Software's summary",
+      "_finish": "Finish"
+    },
+    "UPDATE_SOFTWARE": {
+      "_save": "Save"
+    },
     "CREATE_CATALOG": {
       "_back": "Back",
       "_create": "Create catalogue",
@@ -1142,7 +1163,9 @@
       "_description": "Description",
       "_next": "Next",
       "_finish": "Finish",
-      "_create_res": "Create resource"
+      "_create_res": "Create resource",
+      "_base_template": "Template",
+      "_no_config": "No configuration required for the selected template."
     },
     "UPDATE_RES_SPEC": {
       "_back": "Back",
@@ -1171,7 +1194,8 @@
       "_description": "Description",
       "_next": "Next",
       "_finish": "Finish",
-      "_update_res": "Update resource"
+      "_update_res": "Update resource",
+      "_no_config": "No configuration required for the selected template."
     },
     "CREATE_SERV_SPEC": {
       "_back": "Back",
@@ -1433,12 +1457,14 @@
     },
     "OFFERINGS": {
       "_catalogs": "Catalogues",
+      "_softwares": "Software",
       "_offers": "Offer",
       "_no_offer": "No offerings included.",
       "_no_offerings": "There's no product offerings.",
       "_no_prod": "There's no product specifications.",
       "_no_prod_rel": "There's no product specifications, so you can't create relationships.",
       "_no_cat": "There's no catalogues.",
+      "_no_software": "There's no softwares.",
       "_no_categories": "There's no categories.",
       "_no_res": "There's no resource specifications",
       "_no_serv": "There's no service specifications",
@@ -1485,7 +1511,8 @@
       "_resources": "Resources",
       "_need_help": "Need help?",
       "_explore_guidelines": "Explore our offering guidelines",
-      "_view_kb": "View Knowledge Base"
+      "_view_kb": "View Knowledge Base",
+      "_add_new_software": "Add new Software"
     },
     "ADMIN": {
       "_admin": "Administration",
@@ -2090,6 +2117,33 @@
     "_finish": "Finish",
     "_create_error": "There was an error while creating the catalog!"
   },
+  "CREATE_SOFTWARE": {
+    "_back": "Back",
+    "_create": "Create Software",
+    "_status": "Status",
+    "_new": "New Software",
+    "_steps": "Steps",
+    "_general": "General",
+    "_general_info": "Software's general information",
+    "_actions": "Actions",
+    "_type": "Type",
+    "_preview": "Preview",
+    "_show_preview": "Show preview",
+    "_name": "Name",
+    "_description": "Description",
+    "_next": "Next",
+    "_summary": "Software's summary",
+    "_finish": "Finish",
+    "_no_chars": "No characteristics included.",
+    "_new_char": "Create new characteristic",
+    "_values": "Values",
+    "_add_char_value": "Add value",
+    "_save_char": "Save characteristic",
+    "_range": "Range"
+  },
+  "UPDATE_SOFTWARE": {
+    "_save": "Save"
+  },
   "UPDATE_CATALOG": {
     "_back": "Back",
     "_create": "Update catalogue",
@@ -2534,7 +2588,10 @@
     "_validate_success": "Resource specification successfully validated",
     "_create_error": "There was an error while creating the resource!",
     "_update_error": "There was an error while updating the resource!",
-    "_validate_error": "There was an error while validating the resource!"
+    "_validate_error": "There was an error while validating the resource!",
+    "_base_template": "Template",
+    "_configurable": "Configurable",
+    "_no_config": "No configuration required for the selected template."
   },
   "UPDATE_RES_SPEC": {
     "_back": "Back",
@@ -2563,7 +2620,8 @@
     "_description": "Description",
     "_next": "Next",
     "_finish": "Finish",
-    "_update_res": "Update resource"
+    "_update_res": "Update resource",
+    "_no_config": "No configuration required for the selected template."
   },
   "CREATE_SERV_SPEC": {
     "_back": "Back",
@@ -3053,12 +3111,14 @@
   },
   "OFFERINGS": {
     "_catalogs": "Catalogues",
+    "_softwares": "Software",
     "_offers": "Offer",
     "_no_offer": "No offerings included.",
     "_no_offerings": "There's no product offerings.",
     "_no_prod": "There's no product specifications.",
     "_no_prod_rel": "There's no product specifications, so you can't create relationships.",
     "_no_cat": "There's no catalogues.",
+    "_no_software": "There's no softwares.",
     "_no_categories": "There's no categories.",
     "_no_res": "There's no resource specifications",
     "_no_serv": "There's no service specifications",
@@ -3090,6 +3150,7 @@
     "_prod_offer": "Product offer",
     "_add_new_offer": "Add new product offer",
     "_add_new_catalog": "Add new catalogue",
+    "_add_new_software": "Add new Software",
     "_filter_role": "Filter by role",
     "_seller": "Seller",
     "_owner": "Owner",

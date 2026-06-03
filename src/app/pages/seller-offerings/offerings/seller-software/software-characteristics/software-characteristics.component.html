@@ -1,0 +1,190 @@
+<div class="flex flex-col gap-4">
+
+  @if (characteristics.length === 0) {
+  <div class="flex justify-center w-full">
+    <div
+      class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
+      role="alert">
+      <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+        fill="currentColor" viewBox="0 0 20 20">
+        <path
+          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+      </svg>
+      <div>{{ 'CREATE_SOFTWARE._no_chars' | translate }}</div>
+    </div>
+  </div>
+  } @else {
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-200">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+        <tr>
+          <th scope="col" class="px-6 py-3">{{ 'CREATE_SOFTWARE._name' | translate }}</th>
+          <th scope="col" class="px-6 py-3">{{ 'CREATE_SOFTWARE._type' | translate }}</th>
+          <th scope="col" class="px-6 py-3">{{ 'CREATE_SOFTWARE._values' | translate }}</th>
+          <th scope="col" class="px-6 py-3">{{ 'CREATE_SOFTWARE._actions' | translate }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (char of characteristics; track char.id) {
+        <tr class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
+          <td class="px-6 py-4 break-words">{{ char.name }}</td>
+          <td class="px-6 py-4">
+            <span
+              class="text-xs font-medium px-2 py-0.5 rounded bg-gray-100 dark:bg-secondary-200 text-gray-700 dark:text-gray-200">
+              {{ char.valueType }}
+            </span>
+          </td>
+          <td class="px-6 py-4 break-all text-gray-500 dark:text-gray-300">{{ displayValue(char) }}</td>
+          <td class="px-6 py-4">
+            <button type="button" (click)="deleteChar(char)"
+              class="font-bold text-white bg-red-500 hover:bg-red-600 rounded-3xl p-1">
+              <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M6 18 17.94 6M18 18 6.06 6" />
+              </svg>
+            </button>
+          </td>
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+
+  @if (!showAddForm) {
+  <div class="flex w-full justify-center">
+    <button type="button" (click)="showAddForm = true"
+      class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center items-center">
+      {{ 'CREATE_SOFTWARE._new_char' | translate }}
+      <svg class="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 24 24">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M5 12h14m-7 7V5" />
+      </svg>
+    </button>
+  </div>
+  } @else {
+
+  <div
+    class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-secondary-200 flex flex-col gap-4">
+    <h4 class="text-base font-bold dark:text-white">{{ 'CREATE_SOFTWARE._new_char' | translate }}</h4>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+      <div>
+        <label class="font-bold text-lg dark:text-white">
+          {{ 'CREATE_SOFTWARE._name' | translate }} <span class="text-red-500">*</span>
+        </label>
+        <input type="text" [(ngModel)]="charName" maxlength="100"
+          class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+      </div>
+
+      <div>
+        <label class="font-bold text-lg dark:text-white">
+          {{ 'CREATE_SOFTWARE._type' | translate }}
+        </label>
+        <select [ngModel]="charType" (ngModelChange)="onTypeChange($event)"
+          class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+          @for (opt of charTypeOptions; track opt.value) {
+          <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    @if (charType === 'string') {
+    <div class="flex flex-col gap-2">
+      <label class="font-bold text-lg dark:text-white">{{ 'CREATE_SOFTWARE._values' | translate
+        }}</label>
+      <div class="flex gap-2">
+        <input type="text" [(ngModel)]="stringValue" placeholder="Add a value..." (keyup.enter)="addStringValue()"
+          class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 flex-1" />
+        <button type="button" (click)="addStringValue()" [disabled]="!stringValue.trim()"
+          class="px-4 py-2 text-sm font-medium text-white bg-primary-100 rounded-lg hover:bg-primary-50 disabled:opacity-50">
+          {{ 'CREATE_SOFTWARE._add_char_value' | translate }}
+        </button>
+      </div>
+      @if (pendingValues.length > 0) {
+      <div class="flex flex-wrap gap-2">
+        @for (pv of pendingValues; track pv; let i = $index) {
+        <span
+          class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-blue-100 dark:bg-secondary-300 text-blue-800 dark:text-white">
+          {{ pv.value }}
+          <button type="button" (click)="removePending(i)"
+            class="ml-1 text-blue-500 dark:text-gray-300 hover:text-red-500">✕</button>
+        </span>
+        }
+      </div>
+      }
+    </div>
+
+    } @else if (charType === 'number') {
+    <div class="flex flex-col gap-2">
+      <label class="font-bold text-lg dark:text-white">{{ 'CREATE_SOFTWARE._values' | translate
+        }}</label>
+      <div class="flex gap-2 flex-wrap">
+        <input type="number" [(ngModel)]="numberValue" placeholder="Amount"
+          class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 flex-1 min-w-24" />
+        <input type="text" [(ngModel)]="numberUnit" placeholder="Unit"
+          class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 w-28" />
+        <button type="button" (click)="addNumberValue()" [disabled]="!numberValue || !numberUnit.trim()"
+          class="px-4 py-2 text-sm font-medium text-white bg-primary-100 rounded-lg hover:bg-primary-50 disabled:opacity-50">
+          {{ 'CREATE_SOFTWARE._add_char_value' | translate }}
+        </button>
+      </div>
+      @if (pendingValues.length > 0) {
+      <div class="flex flex-wrap gap-2">
+        @for (pv of pendingValues; track pv; let i = $index) {
+        <span
+          class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-blue-100 dark:bg-secondary-300 text-blue-800 dark:text-white">
+          {{ pv.value }} ({{ pv.unit }})
+          <button type="button" (click)="removePending(i)"
+            class="ml-1 text-blue-500 dark:text-gray-300 hover:text-red-500">✕</button>
+        </span>
+        }
+      </div>
+      }
+    </div>
+
+    } @else if (charType === 'range') {
+    <div class="flex flex-col gap-2">
+      <label class="font-bold text-lg dark:text-white">{{ 'CREATE_SOFTWARE._range' | translate
+        }}</label>
+      <div class="flex gap-2 flex-wrap">
+        <input type="number" [(ngModel)]="fromValue" placeholder="From"
+          class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 flex-1 min-w-24" />
+        <input type="number" [(ngModel)]="toValue" placeholder="To"
+          class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 flex-1 min-w-24" />
+        <input type="text" [(ngModel)]="rangeUnit" placeholder="Unit"
+          class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 w-28" />
+        <button type="button" (click)="setRangeValue()" [disabled]="!fromValue || !toValue || !rangeUnit.trim()"
+          class="px-4 py-2 text-sm font-medium text-white bg-primary-100 rounded-lg hover:bg-primary-50 disabled:opacity-50">
+          Set
+        </button>
+      </div>
+      @if (pendingValues.length > 0) {
+      <p class="text-xs text-gray-600 dark:text-gray-300">
+        {{ pendingValues[0].from }} - {{ pendingValues[0].to }} ({{ pendingValues[0].unit }})
+      </p>
+      }
+    </div>
+
+    } @else if (charType === 'deployment') {
+    <app-package-deployment (formReady)="onDeploymentFormReady($event)" />
+    }
+
+    <div class="flex gap-3 justify-end pt-2 border-t border-gray-200 dark:border-gray-700">
+      <button type="button" (click)="showAddForm = false"
+        class="px-4 py-2 text-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50">
+        {{ 'CANCEL' | translate }}
+      </button>
+      <button type="button" (click)="saveChar()" [disabled]="!canSave"
+        class="px-5 py-2 text-sm font-medium text-white bg-primary-100 rounded-lg hover:bg-primary-50 disabled:opacity-50">
+        {{ 'CREATE_SOFTWARE._save_char' | translate }}
+      </button>
+    </div>
+  </div>
+  }
+
+</div>

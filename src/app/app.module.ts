@@ -101,9 +101,14 @@ import { QuotesModule } from "src/app/features/quotes/quotes.module";
 import { AboutDomeComponent } from "src/app/pages/about-dome/about-dome.component";
 import { OperatorRevenueSharingComponent } from "src/app/pages/admin/operator-revenue-sharing/operator-revenue-sharing.component";
 import { ProviderRevenueSharingComponent } from "src/app/pages/user-profile/profile-sections/provider-revenue-sharing/provider-revenue-sharing.component";
+import { DynamicFormComponent } from "src/app/shared/forms/dynamic-form/dynamic-form.component";
 import { MarkdownTextareaComponent } from "src/app/shared/forms/markdown-textarea/markdown-textarea.component";
 import { RequestValidationModalComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/request-validation-modal/request-validation-modal.component';
 import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
+import { CreateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/create-software/create-software.component';
+import { UpdateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/update-software/update-software.component';
+import { SellerSoftware } from './pages/seller-offerings/offerings/seller-software/seller-software';
+import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offerings/seller-software/software-characteristics/software-characteristics.component';
 
 @NgModule({
   declarations: [
@@ -171,7 +176,10 @@ import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.c
     FaqComponent,
     NewPricePlanComponent,
     UpdatePricePlanComponent,
-    RequestValidationModalComponent
+    RequestValidationModalComponent,
+    SellerSoftware,
+    CreateSoftwareComponent,
+    UpdateSoftwareComponent
   ],
   imports: [
     BrowserModule,
@@ -208,11 +216,13 @@ import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.c
     CustomOfferComponent,
     AboutDomeComponent,
     MarkdownTextareaComponent,
+    DynamicFormComponent,
     ProviderRevenueSharingComponent,
     OperatorRevenueSharingComponent,
     CreateUsageSpecComponent,
     UpdateUsageSpecComponent,
-    ConfirmDialogComponent
+    ConfirmDialogComponent,
+    SoftwareCharacteristicsComponent
   ],
   providers: [
     AppInitService,

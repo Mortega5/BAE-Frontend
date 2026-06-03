@@ -2,14 +2,18 @@ interface BaseFormField {
   name: string;
   label: string;
   required?: boolean;
+  readonly?: boolean;
   colSpan?: number;
   defaultValue?: any;
 }
 
-export interface StringFormField extends BaseFormField {
-  type: 'string';
+interface TextBaseFormField extends BaseFormField {
   maxLength?: number;
   placeholder?: string;
+}
+
+export interface StringFormField extends TextBaseFormField {
+  type: 'string';
 }
 
 export interface NumberFormField extends BaseFormField {
@@ -20,7 +24,7 @@ export interface NumberFormField extends BaseFormField {
 }
 
 export interface SelectOption {
-  value: string;
+  value: any;
   label: string;
 }
 
@@ -34,4 +38,14 @@ export interface BooleanFormField extends BaseFormField {
   type: 'boolean';
 }
 
-export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField;
+export interface MarkdownTextareaFormField extends TextBaseFormField {
+  type: 'markdownTextarea';
+  rows?: number;
+}
+
+export interface TextareaFormField extends TextBaseFormField {
+  type: 'textarea';
+  rows?: number;
+}
+
+export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField;

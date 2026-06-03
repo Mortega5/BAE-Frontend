@@ -1,0 +1,12 @@
+<div [formGroup]="form" class="flex flex-col gap-6">
+
+  <app-dynamic-form [fields]="topFields" [formGroup]="form" [columns]="2"></app-dynamic-form>
+
+  <div>
+    <h3 class="text-base font-bold dark:text-white mb-3">
+      {{ form.get('type')?.value === 'docker' ? 'Docker' : 'Helm' }} Properties
+    </h3>
+    <app-dynamic-form [fields]="propertiesFields" [formGroup]="propertiesForm" [columns]="4"></app-dynamic-form>
+  </div>
+
+</div>

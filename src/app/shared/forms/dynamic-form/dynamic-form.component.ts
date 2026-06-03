@@ -3,12 +3,13 @@ import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormField, SelectableFormField } from 'src/app/models/formFields/form-field.model';
+import { MarkdownTextareaComponent } from '../markdown-textarea/markdown-textarea.component';
 
 @Component({
   selector: 'app-dynamic-form',
   templateUrl: './dynamic-form.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent],
 })
 export class DynamicFormComponent {
   @Input() fields: FormField[] = [];
