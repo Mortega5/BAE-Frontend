@@ -1111,7 +1111,8 @@
       "_description": "Description",
       "_next": "Next",
       "_finish": "Finish",
-      "_create_res": "Create resource"
+      "_create_res": "Create resource",
+      "_base_template": "Template"
     },
     "UPDATE_RES_SPEC": {
       "_back": "Back",
@@ -2183,7 +2184,9 @@
     "_description": "Description",
     "_next": "Next",
     "_finish": "Finish",
-    "_create_res": "Create resource"
+    "_create_res": "Create resource",
+    "_base_template": "Template",
+    "_configurable": "Configurable"
   },
   "UPDATE_RES_SPEC": {
     "_back": "Back",

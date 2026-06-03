@@ -18,8 +18,8 @@ export const environment = {
   PRODUCT_ORDER: '/ordering',
   CHARGING: '/charging',
   BILLING: '/billing',
-
   searchOrganizationsEndpoint: '/search-bck/api/searchOrganizations',
+  SOFTWARE: '/software',
   providerCountriesUrl: 'https://raw.githubusercontent.com/DOME-Marketplace/eu-eea-countries/refs/heads/main/countries.json',
 
   CUSTOMER_BILLING: '/customerBill',

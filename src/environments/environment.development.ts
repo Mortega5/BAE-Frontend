@@ -1,6 +1,6 @@
 export const environment = {
   //BASE_URL: 'https://dome-marketplace.org',
-  BASE_URL: 'http://proxy.docker:8004',
+  BASE_URL: 'http://localhost:8004',
   isProduction: false,
   PAYMENT_URL: '/revenue',
   //API_PORT: 8004,
@@ -18,6 +18,7 @@ export const environment = {
   PRODUCT_ORDER: '/ordering',
   BILLING: '/billing',
   CHARGING: '/charging',
+  SOFTWARE: '/software',
 
   searchOrganizationsEndpoint: '/search-bck/api/searchOrganizations',
   providerCountriesUrl: 'https://raw.githubusercontent.com/DOME-Marketplace/eu-eea-countries/refs/heads/main/countries.json',
