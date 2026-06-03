@@ -17,6 +17,7 @@ export const environment = {
   PRODUCT_ORDER: '/ordering',
   BILLING: '/billing',
   CHARGING: '/charging',
+  SOFTWARE: '/software',
 
   searchOrganizationsEndpoint: '/search-bck/api/searchOrganizations',
   providerCountriesUrl: 'https://raw.githubusercontent.com/DOME-Marketplace/eu-eea-countries/refs/heads/main/countries.json',

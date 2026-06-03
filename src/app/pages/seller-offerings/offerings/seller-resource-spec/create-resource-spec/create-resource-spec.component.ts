@@ -1,17 +1,19 @@
-import { Component, OnInit, ChangeDetectorRef, HostListener, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import {LocalStorageService} from "src/app/services/local-storage.service";
-import {EventMessageService} from "src/app/services/event-message.service";
-import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
-import { LoginInfo } from 'src/app/models/interfaces';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
 import moment from 'moment';
-import { v4 as uuidv4 } from 'uuid';
-import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { LoginInfo } from 'src/app/models/interfaces';
+import { EventMessageService } from "src/app/services/event-message.service";
+import { LocalStorageService } from "src/app/services/local-storage.service";
+import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/resource-spec-service.service';
+import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { noWhitespaceValidator } from 'src/app/validators/validators';
+import { v4 as uuidv4 } from 'uuid';
 
-import {components} from "src/app/models/resource-catalog";
+import { components } from "src/app/models/resource-catalog";
 import { environment } from 'src/environments/environment';
 type ResourceSpecification_Create = components["schemas"]["ResourceSpecification_Create"];
 type CharacteristicValueSpecification = components["schemas"]["ResourceSpecificationCharacteristicValue"];
@@ -24,55 +26,80 @@ type ResourceSpecificationCharacteristic = components["schemas"]["ResourceSpecif
 })
 export class CreateResourceSpecComponent implements OnInit, OnDestroy {
 
-  partyId:any='';
+  partyId: any = '';
 
-  resourceToCreate:ResourceSpecification_Create | undefined;
+  resourceToCreate: ResourceSpecification_Create | undefined;
 
-  stepsElements:string[]=['general-info','chars','summary'];
-  stepsCircles:string[]=['general-circle','chars-circle','summary-circle'];
+  stepsElements: string[] = ['general-info', 'chars', 'config', 'summary'];
+  stepsCircles: string[] = ['general-circle', 'chars-circle', 'config-circle', 'summary-circle'];
   currentStep = 0;
   highestStep = 0;
   steps = [
     'General Info',
     'Characteristics',
+    'Configuration',
     'Summary'
   ];
 
   //markdown variables:
-  showPreview:boolean=false;
-  showEmoji:boolean=false;
-  description:string='';  
+  showPreview: boolean = false;
+  showEmoji: boolean = false;
+  description: string = '';
 
   //CONTROL VARIABLES:
-  showGeneral:boolean=true;
-  showChars:boolean=false;
-  showSummary:boolean=false;
+  showGeneral: boolean = true;
+  showChars: boolean = false;
+  showSummary: boolean = false;
   //Check if step was done
-  generalDone:boolean=false;
-  charsDone:boolean=false;
-  finishDone:boolean=false;
+  generalDone: boolean = false;
+  charsDone: boolean = false;
+  finishDone: boolean = false;
+
+  baseTemplateOptions = [
+    { value: '', label: 'None' },
+    { value: 'SoftwareSupportPackageSpecification', label: 'Software Support Package', api: 'software' },
+    { value: 'SoftwareSpecification', label: 'Software Specification', api: 'software' },
+  ];
+
+  resourceConfiguration: Partial<Record<ResourceSpecType, FormField[]>> = {
+    'SoftwareSpecification': [
+      { name: 'isDistributable', label: 'Distributable', type: 'boolean', required: false, colSpan: 1 },
+      { name: 'isExperimental', label: 'Experimental', type: 'boolean', required: false, colSpan: 1 },
+      { name: 'numUsersMax', label: 'Max number of users', type: 'number', required: false, colSpan: 1 },
+      { name: 'maintenanceVersion', label: 'Maintenance Version', type: 'string', required: false, colSpan: 1 },
+      { name: 'majorVersion', label: 'Major Version', type: 'string', required: false, colSpan: 1 },
+      { name: 'minorVersion', label: 'Minor Version', type: 'string', required: false, colSpan: 1 },
+      { name: 'numberProcessActiveTotal', label: 'Max number of total processes', type: 'number', required: false },
+    ],
+    'SoftwareSupportPackageSpecification': [],
+  };
+
+  templateConfigFields: FormField[] = [];
+  templateConfigForm: FormGroup = new FormGroup({});
 
   //SERVICE GENERAL INFO:
   generalForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
     description: new FormControl('', Validators.maxLength(100000)),
+    baseTemplate: new FormControl(''),
   });
 
   //CHARS INFO
   charsForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
-    description: new FormControl('')
+    description: new FormControl(''),
+    configurable: new FormControl('false'),
   });
-  stringCharSelected:boolean=true;
-  numberCharSelected:boolean=false;
-  rangeCharSelected:boolean=false;
-  prodChars:ResourceSpecificationCharacteristic[]=[];
-  creatingChars:CharacteristicValueSpecification[]=[];
-  showCreateChar:boolean=false;
+  stringCharSelected: boolean = true;
+  numberCharSelected: boolean = false;
+  rangeCharSelected: boolean = false;
+  prodChars: ResourceSpecificationCharacteristic[] = [];
+  creatingChars: CharacteristicValueSpecification[] = [];
+  showCreateChar: boolean = false;
 
-  errorMessage:any='';
-  showError:boolean=false;
-  loading:boolean=false;
+  errorMessage: any = '';
+  showError: boolean = false;
+  loading: boolean = false;
 
   //CHARS
   stringValue: string = '';
@@ -92,35 +119,42 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
     private resSpecService: ResourceSpecServiceService,
   ) {
     this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'ChangedSession') {
-        this.initPartyInfo();
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'ChangedSession') {
+          this.initPartyInfo();
+        }
+      })
   }
 
   @HostListener('document:click')
   onClick() {
-    if(this.showEmoji==true){
-      this.showEmoji=false;
+    if (this.showEmoji == true) {
+      this.showEmoji = false;
       this.cdr.detectChanges();
     }
   }
 
   ngOnInit() {
     this.initPartyInfo();
+    // Rebuild the template config form whenever the user changes the base template in step 0
+    this.generalForm.get('baseTemplate')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((value: string | null) => {
+        this.templateConfigFields = (value ? this.resourceConfiguration[value as ResourceSpecType] : undefined) ?? [];
+        this.templateConfigForm = buildFormGroup(this.templateConfigFields);
+      });
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  initPartyInfo(){
+  initPartyInfo() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
-      if(aux.logged_as==aux.id){
+    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+      if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
       } else {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
@@ -133,165 +167,171 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
     this.eventMessage.emitSellerResourceSpec(true);
   }
 
-  toggleGeneral(){
-    this.selectStep('general-info','general-circle');
-    this.showGeneral=true;
-    this.showChars=false;
-    this.showSummary=false;
-    this.showPreview=false;
+  toggleGeneral() {
+    this.selectStep('general-info', 'general-circle');
+    this.showGeneral = true;
+    this.showChars = false;
+    this.showSummary = false;
+    this.showPreview = false;
     this.refreshChars();
   }
 
-  toggleChars(){
-    this.selectStep('chars','chars-circle');
-    this.showGeneral=false;
-    this.showChars=true;
-    this.showSummary=false;
-    this.showPreview=false;
+  toggleChars() {
+    this.selectStep('chars', 'chars-circle');
+    this.showGeneral = false;
+    this.showChars = true;
+    this.showSummary = false;
+    this.showPreview = false;
     this.refreshChars();
   }
 
   onTypeChange(event: any) {
-    if(event.target.value=='string'){
-      this.stringCharSelected=true;
-      this.numberCharSelected=false;
-      this.rangeCharSelected=false;
-    }else if (event.target.value=='number'){
-      this.stringCharSelected=false;
-      this.numberCharSelected=true;
-      this.rangeCharSelected=false;
-    }else{
-      this.stringCharSelected=false;
-      this.numberCharSelected=false;
-      this.rangeCharSelected=true;
+    if (event.target.value == 'string') {
+      this.stringCharSelected = true;
+      this.numberCharSelected = false;
+      this.rangeCharSelected = false;
+    } else if (event.target.value == 'number') {
+      this.stringCharSelected = false;
+      this.numberCharSelected = true;
+      this.rangeCharSelected = false;
+    } else {
+      this.stringCharSelected = false;
+      this.numberCharSelected = false;
+      this.rangeCharSelected = true;
     }
-    this.creatingChars=[];
+    this.creatingChars = [];
   }
 
-  addCharValue(){
-    if(this.stringCharSelected){
+  addCharValue() {
+    if (this.stringCharSelected) {
       console.log('string')
-      if(this.creatingChars.length==0){
+      if (this.creatingChars.length == 0) {
         this.creatingChars.push({
-          isDefault:true,
-          value:this.stringValue as any
+          isDefault: true,
+          value: this.stringValue as any
         })
-      } else{
-        this.creatingChars.push({
-          isDefault:false,
-          value:this.stringValue as any
-        })
-      }
-      this.stringValue='';  
-    } else if (this.numberCharSelected){
-      console.log('number')
-      if(this.creatingChars.length==0){
-        this.creatingChars.push({
-          isDefault:true,
-          value:this.numberValue as any,
-          unitOfMeasure:this.numberUnit
-        })
-      } else{
-        this.creatingChars.push({
-          isDefault:false,
-          value:this.numberValue as any,
-          unitOfMeasure:this.numberUnit
-        })
-      }
-      this.numberUnit='';
-      this.numberValue='';
-    }else{
-      console.log('range')
-      if(this.creatingChars.length==0){
-        this.creatingChars.push({
-          isDefault:true,
-          valueFrom:this.fromValue as any,
-          valueTo:this.toValue as any,
-          unitOfMeasure:this.rangeUnit
-        })
-      } else{
-        this.creatingChars.push({
-          isDefault:false,
-          valueFrom:this.fromValue as any,
-          valueTo:this.toValue as any,
-          unitOfMeasure:this.rangeUnit})
-      } 
-    }
-    this.fromValue='';
-    this.toValue='';
-    this.rangeUnit='';
-  }
-
-  selectDefaultChar(char:any,idx:any){
-    for(let i=0;i<this.creatingChars.length;i++){
-      if(i==idx){
-        this.creatingChars[i].isDefault=true;
       } else {
-        this.creatingChars[i].isDefault=false;
+        this.creatingChars.push({
+          isDefault: false,
+          value: this.stringValue as any
+        })
+      }
+      this.stringValue = '';
+    } else if (this.numberCharSelected) {
+      console.log('number')
+      if (this.creatingChars.length == 0) {
+        this.creatingChars.push({
+          isDefault: true,
+          value: this.numberValue as any,
+          unitOfMeasure: this.numberUnit
+        })
+      } else {
+        this.creatingChars.push({
+          isDefault: false,
+          value: this.numberValue as any,
+          unitOfMeasure: this.numberUnit
+        })
+      }
+      this.numberUnit = '';
+      this.numberValue = '';
+    } else {
+      console.log('range')
+      if (this.creatingChars.length == 0) {
+        this.creatingChars.push({
+          isDefault: true,
+          valueFrom: this.fromValue as any,
+          valueTo: this.toValue as any,
+          unitOfMeasure: this.rangeUnit
+        })
+      } else {
+        this.creatingChars.push({
+          isDefault: false,
+          valueFrom: this.fromValue as any,
+          valueTo: this.toValue as any,
+          unitOfMeasure: this.rangeUnit
+        })
+      }
+    }
+    this.fromValue = '';
+    this.toValue = '';
+    this.rangeUnit = '';
+  }
+
+  selectDefaultChar(char: any, idx: any) {
+    for (let i = 0; i < this.creatingChars.length; i++) {
+      if (i == idx) {
+        this.creatingChars[i].isDefault = true;
+      } else {
+        this.creatingChars[i].isDefault = false;
       }
     }
   }
 
-  saveChar(){
-    if(this.charsForm.value.name!=null){
+  saveChar() {
+    if (this.charsForm.value.name != null) {
       this.prodChars.push({
-        id: 'urn:ngsi-ld:characteristic:'+uuidv4(),
+        id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
         name: this.charsForm.value.name,
         description: this.charsForm.value.description != null ? this.charsForm.value.description : '',
+        configurable: this.charsForm.value.configurable == 'true' ? true : false,
         resourceSpecCharacteristicValue: this.creatingChars
       })
     }
 
     this.charsForm.reset();
-    this.creatingChars=[];
-    this.showCreateChar=false;
-    this.stringCharSelected=true;
-    this.numberCharSelected=false;
-    this.rangeCharSelected=false;
+    this.creatingChars = [];
+    this.showCreateChar = false;
+    this.stringCharSelected = true;
+    this.numberCharSelected = false;
+    this.rangeCharSelected = false;
     this.refreshChars();
     this.cdr.detectChanges();
   }
 
-  removeCharValue(char:any,idx:any){
+  removeCharValue(char: any, idx: any) {
     console.log(this.creatingChars)
     this.creatingChars.splice(idx, 1);
     console.log(this.creatingChars)
   }
 
-  deleteChar(char:any){
+  deleteChar(char: any) {
     const index = this.prodChars.findIndex(item => item.id === char.id);
     if (index !== -1) {
       console.log('eliminar')
       this.prodChars.splice(index, 1);
-    }   
+    }
     this.cdr.detectChanges();
-    console.log(this.prodChars)    
+    console.log(this.prodChars)
   }
 
-  showFinish(){
-    this.charsDone=true;
-    this.finishDone=true;
-    if(this.generalForm.value.name!=null){
-      this.resourceToCreate={
+  showFinish() {
+    this.charsDone = true;
+    this.finishDone = true;
+    if (this.generalForm.value.name != null) {
+      this.resourceToCreate = Object.assign({}, {
         name: this.generalForm.value.name,
         description: this.generalForm.value.description != null ? this.generalForm.value.description : '',
         lifecycleStatus: "Active",
         resourceSpecCharacteristic: this.prodChars,
         relatedParty: [
           {
-              id: this.partyId,
-              //href: "http://proxy.docker:8004/party/individual/urn:ngsi-ld:individual:803ee97b-1671-4526-ba3f-74681b22ccf3",
-              role: environment.SELLER_ROLE,
-              "@referredType": ''
+            id: this.partyId,
+            //href: "http://proxy.docker:8004/party/individual/urn:ngsi-ld:individual:803ee97b-1671-4526-ba3f-74681b22ccf3",
+            role: environment.SELLER_ROLE,
+            "@referredType": ''
           }
         ],
+      }, this.templateConfigForm.value);
+      if (this.generalForm.value.baseTemplate) {
+        this.resourceToCreate!['@type'] = this.generalForm.value.baseTemplate;
+        this.resourceToCreate!['@baseType'] = 'ResourceSpecification';
       }
       console.log('SERVICE TO CREATE:')
       console.log(this.resourceToCreate)
-      this.showChars=false;
-      this.showGeneral=false;
-      this.showSummary=true;
-      this.selectStep('summary','summary-circle');
+      this.showChars = false;
+      this.showGeneral = false;
+      this.showSummary = true;
+      this.selectStep('summary', 'summary-circle');
       this.refreshChars();
       /*this.resSpecService.postResSpec(this.resourceToCreate).subscribe({
         next: data => {
@@ -303,27 +343,27 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
         }
       });*/
     }
-    this.showPreview=false;
+    this.showPreview = false;
   }
 
-  createResource(){
-    this.loading=true;
-    this.resSpecService.postResSpec(this.resourceToCreate).subscribe({
-      next: data => {
-        this.loading=false;
+  createResource() {
+    this.loading = true;
+    this.resSpecService.postResSpec(this.resourceToCreate!, this.resourceToCreate!['@type'] as ResourceSpecType).subscribe({
+      next: () => {
+        this.loading = false;
         this.goBack();
         console.log('serv created')
       },
       error: error => {
         console.error('There was an error while creating!', error);
-        if(error.error.error){
+        if (error.error.error) {
           console.log(error)
-          this.errorMessage='Error: '+error.error.error;
+          this.errorMessage = 'Error: ' + error.error.error;
         } else {
-          this.errorMessage='There was an error while creating the resource!';
+          this.errorMessage = 'There was an error while creating the resource!';
         }
-        this.loading=false;
-        this.showError=true;
+        this.loading = false;
+        this.showError = true;
         setTimeout(() => {
           this.showError = false;
         }, 3000);
@@ -331,70 +371,70 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
     })
   }
 
-  refreshChars(){
-    this.stringValue= '';
+  refreshChars() {
+    this.stringValue = '';
     this.numberValue = '';
     this.numberUnit = '';
     this.fromValue = '';
     this.toValue = '';
     this.rangeUnit = '';
-    this.stringCharSelected=true;
-    this.numberCharSelected=false;
-    this.rangeCharSelected=false;
-    this.creatingChars=[];
+    this.stringCharSelected = true;
+    this.numberCharSelected = false;
+    this.rangeCharSelected = false;
+    this.creatingChars = [];
   }
 
   //STEPS METHODS
-  removeClass(elem: HTMLElement, cls:string) {
+  removeClass(elem: HTMLElement, cls: string) {
     var str = " " + elem.className + " ";
     elem.className = str.replace(" " + cls + " ", " ").replace(/^\s+|\s+$/g, "");
   }
 
-  addClass(elem: HTMLElement, cls:string) {
-      elem.className += (" " + cls);
+  addClass(elem: HTMLElement, cls: string) {
+    elem.className += (" " + cls);
   }
 
-  unselectMenu(elem:HTMLElement | null,cls:string){
-    if(elem != null){
-      if(elem.className.match(cls)){
-        this.removeClass(elem,cls)
+  unselectMenu(elem: HTMLElement | null, cls: string) {
+    if (elem != null) {
+      if (elem.className.match(cls)) {
+        this.removeClass(elem, cls)
       } else {
         console.log('already unselected')
       }
     }
   }
 
-  selectMenu(elem:HTMLElement| null,cls:string){
-    if(elem != null){
-      if(elem.className.match(cls)){
+  selectMenu(elem: HTMLElement | null, cls: string) {
+    if (elem != null) {
+      if (elem.className.match(cls)) {
         console.log('already selected')
       } else {
-        this.addClass(elem,cls)
+        this.addClass(elem, cls)
       }
     }
   }
 
   //STEPS CSS EFFECTS:
-  selectStep(step:string,stepCircle:string){
+  selectStep(step: string, stepCircle: string) {
     const index = this.stepsElements.findIndex(item => item === step);
     if (index !== -1) {
       this.stepsElements.splice(index, 1);
-      this.selectMenu(document.getElementById(step),'text-primary-100 dark:text-primary-50')
-      this.unselectMenu(document.getElementById(step),'text-gray-500') 
-      for(let i=0; i<this.stepsElements.length;i++){
-        this.unselectMenu(document.getElementById(this.stepsElements[i]),'text-primary-100 dark:text-primary-50')
-        this.selectMenu(document.getElementById(this.stepsElements[i]),'text-gray-500') 
+      this.selectMenu(document.getElementById(step), 'text-primary-100 dark:text-primary-50')
+      this.unselectMenu(document.getElementById(step), 'text-gray-500')
+      for (let i = 0; i < this.stepsElements.length; i++) {
+        this.unselectMenu(document.getElementById(this.stepsElements[i]), 'text-primary-100 dark:text-primary-50')
+        this.selectMenu(document.getElementById(this.stepsElements[i]), 'text-gray-500')
       }
       this.stepsElements.push(step);
     }
     const circleIndex = this.stepsCircles.findIndex(item => item === stepCircle);
     if (index !== -1) {
       this.stepsCircles.splice(circleIndex, 1);
-      this.selectMenu(document.getElementById(stepCircle),'border-primary-100 dark:border-primary-50')
-      this.unselectMenu(document.getElementById(stepCircle),'border-gray-400');
-      for(let i=0; i<this.stepsCircles.length;i++){
-        this.unselectMenu(document.getElementById(this.stepsCircles[i]),'border-primary-100 dark:border-primary-50')
-        this.selectMenu(document.getElementById(this.stepsCircles[i]),'border-gray-400');
+      this.selectMenu(document.getElementById(stepCircle), 'border-primary-100 dark:border-primary-50')
+      this.unselectMenu(document.getElementById(stepCircle), 'border-gray-400');
+      for (let i = 0; i < this.stepsCircles.length; i++) {
+        this.unselectMenu(document.getElementById(this.stepsCircles[i]), 'border-primary-100 dark:border-primary-50')
+        this.selectMenu(document.getElementById(this.stepsCircles[i]), 'border-gray-400');
       }
       this.stepsCircles.push(stepCircle);
     }
@@ -415,78 +455,78 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
     });
   }
 
-  addList(){
+  addList() {
     const currentText = this.generalForm.value.description;
     this.generalForm.patchValue({
       description: currentText + '\n- First item\n- Second item'
-    });    
+    });
   }
 
-  addOrderedList(){
+  addOrderedList() {
     const currentText = this.generalForm.value.description;
     this.generalForm.patchValue({
       description: currentText + '\n1. First item\n2. Second item'
-    });    
+    });
   }
 
-  addCode(){
+  addCode() {
     const currentText = this.generalForm.value.description;
     this.generalForm.patchValue({
       description: currentText + '\n`code`'
-    });    
+    });
   }
 
-  addCodeBlock(){
+  addCodeBlock() {
     const currentText = this.generalForm.value.description;
     this.generalForm.patchValue({
       description: currentText + '\n```\ncode\n```'
-    }); 
+    });
   }
 
-  addBlockquote(){
+  addBlockquote() {
     const currentText = this.generalForm.value.description;
     this.generalForm.patchValue({
       description: currentText + '\n> blockquote'
-    });    
+    });
   }
 
-  addLink(){
+  addLink() {
     const currentText = this.generalForm.value.description;
     this.generalForm.patchValue({
       description: currentText + ' [title](https://www.example.com) '
-    });    
-  } 
+    });
+  }
 
-  addTable(){
+  addTable() {
     const currentText = this.generalForm.value.description;
     this.generalForm.patchValue({
       description: currentText + '\n| Syntax | Description |\n| ----------- | ----------- |\n| Header | Title |\n| Paragraph | Text |'
     });
   }
 
-  addEmoji(event:any){
+  addEmoji(event: any) {
     console.log(event)
-    this.showEmoji=false;
+    this.showEmoji = false;
     const currentText = this.generalForm.value.description;
     this.generalForm.patchValue({
       description: currentText + event.emoji.native
     });
   }
 
-  togglePreview(){
-    if(this.generalForm.value.description){
-      this.description=this.generalForm.value.description;
+  togglePreview() {
+    if (this.generalForm.value.description) {
+      this.description = this.generalForm.value.description;
     } else {
-      this.description=''
-    }  
+      this.description = ''
+    }
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
-    if(str){
+    if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
   }
 
   goToStep(index: number) {
@@ -498,14 +538,13 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
         return; // No permitir avanzar si el paso actual no es válido
       }
     }
-    
+
     this.currentStep = index;
-    if(this.currentStep>this.highestStep){
-      this.highestStep=this.currentStep
+    if (this.currentStep > this.highestStep) {
+      this.highestStep = this.currentStep
     }
     this.refreshChars();
-    //finish
-    if(this.currentStep==2){
+    if (this.currentStep == 3) {
       this.showFinish();
     }
   }
@@ -514,14 +553,16 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
     switch (this.currentStep) {
       case 0: // General Info
         return this.generalForm?.valid || false;
+      case 2: // Configuration — valid if no fields or all required fields filled
+        return this.templateConfigFields.length === 0 || this.templateConfigForm.valid;
       default:
         return true;
     }
   }
 
   canNavigate(index: number) {
-      return (this.generalForm?.valid &&  (index <= this.currentStep)) || (this.generalForm?.valid &&  (index <= this.highestStep));
-  }  
+    return (this.generalForm?.valid && (index <= this.currentStep)) || (this.generalForm?.valid && (index <= this.highestStep));
+  }
 
   handleStepClick(index: number): void {
     if (this.canNavigate(index)) {
