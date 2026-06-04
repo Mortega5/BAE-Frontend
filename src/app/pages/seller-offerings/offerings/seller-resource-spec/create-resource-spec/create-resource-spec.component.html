@@ -52,26 +52,7 @@
     <div class="md:p-8">
       <div>
         @if (currentStep === 0) {
-        <form class="m-4 gap-4" [formGroup]="generalForm">
-          <label for="prod-name" class="font-bold text-lg dark:text-white">{{ 'CREATE_RES_SPEC._name' | translate
-            }}</label>
-          <input data-cy="resSpecName" formControlName="name" type="text" id="prod-name" maxLength="100"
-            [ngClass]="generalForm.get('name')?.invalid == true && generalForm.value.name!='' ? 'border-red-600' : 'border-gray-300'"
-            class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-
-          <label for="base-template" class="font-bold text-lg dark:text-white">{{ 'CREATE_RES_SPEC._base_template' |
-            translate }}</label>
-          <select id="base-template" formControlName="baseTemplate"
-            class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-            @for (option of baseTemplateOptions; track option.value) {
-            <option [value]="option.value">{{ option.label }}</option>
-            }
-          </select>
-          <label for="prod-name" class="font-bold text-lg dark:text-white">{{ 'CREATE_RES_SPEC._description' | translate
-            }}</label>
-          <app-markdown-textarea data-cy="resSpecDescription" formControlName="description"></app-markdown-textarea>
-
-        </form>
+        <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" />
         <!--<div class="flex w-full justify-items-end justify-end">
                         <button data-cy="resSpecNextGeneral" type="button" (click)="goToStep(currentStep + 1)" [disabled]="!generalForm.valid" [ngClass]="!generalForm.valid ? 'opacity-50' : 'hover:bg-primary-50'" class="flex text-white justify-end bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
                             {{ 'CREATE_RES_SPEC._next' | translate }}

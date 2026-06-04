@@ -1,6 +1,5 @@
-import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -31,8 +30,6 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
 
   resourceToCreate: ResourceSpecification_Create | undefined;
 
-  stepsElements: string[] = ['general-info', 'chars', 'config', 'summary'];
-  stepsCircles: string[] = ['general-circle', 'chars-circle', 'config-circle', 'summary-circle'];
   currentStep = 0;
   highestStep = 0;
   steps = [
@@ -42,30 +39,21 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
     'Summary'
   ];
 
-  //markdown variables:
-  showPreview: boolean = false;
-  showEmoji: boolean = false;
-  description: string = '';
-
-  //CONTROL VARIABLES:
-  showGeneral: boolean = true;
-  showChars: boolean = false;
-  showSummary: boolean = false;
-  //Check if step was done
-  generalDone: boolean = false;
-  charsDone: boolean = false;
-  finishDone: boolean = false;
-
   baseTemplateOptions = [
     { value: '', label: 'None' },
     { value: 'SoftwareSupportPackageSpecification', label: 'Software Support Package', api: 'software' },
     { value: 'SoftwareSpecification', label: 'Software Specification', api: 'software' },
   ];
 
+  generalFormFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'CREATE_RES_SPEC._name', required: true, maxLength: 100 },
+    { type: 'select', name: 'baseTemplate', label: 'CREATE_RES_SPEC._base_template', options: this.baseTemplateOptions },
+    { type: 'markdownTextarea', name: 'description', label: 'CREATE_RES_SPEC._description' },
+  ];
+
   resourceConfiguration = resourceConfiguration;
 
   templateConfigFields: FormField[] = [];
-  templateConfigColumnCount: number = 1;
   templateConfigForm: FormGroup = new FormGroup({});
 
   //SERVICE GENERAL INFO:
@@ -102,11 +90,9 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
-    private router: Router,
     private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
-    private elementRef: ElementRef,
     private resSpecService: ResourceSpecServiceService,
   ) {
     this.eventMessage.messages$
@@ -118,14 +104,6 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
       })
   }
 
-  @HostListener('document:click')
-  onClick() {
-    if (this.showEmoji == true) {
-      this.showEmoji = false;
-      this.cdr.detectChanges();
-    }
-  }
-
   ngOnInit() {
     this.initPartyInfo();
     // Rebuild the template config form whenever the user changes the base template in step 0
@@ -135,7 +113,6 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
         const templateConfig = value ? this.resourceConfiguration[value as ResourceSpecType] : undefined;
 
         this.templateConfigFields = templateConfig ? templateConfig.fields : [];
-        this.templateConfigColumnCount = templateConfig ? templateConfig.columnCount : 1;
         this.templateConfigForm = buildFormGroup(this.templateConfigFields);
       });
   }
@@ -159,24 +136,6 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
 
   goBack() {
     this.eventMessage.emitSellerResourceSpec(true);
-  }
-
-  toggleGeneral() {
-    this.selectStep('general-info', 'general-circle');
-    this.showGeneral = true;
-    this.showChars = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
-  }
-
-  toggleChars() {
-    this.selectStep('chars', 'chars-circle');
-    this.showGeneral = false;
-    this.showChars = true;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
   }
 
   onTypeChange(event: any) {
@@ -299,8 +258,6 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
   }
 
   showFinish() {
-    this.charsDone = true;
-    this.finishDone = true;
     if (this.generalForm.value.name != null) {
       this.resourceToCreate = Object.assign({}, {
         name: this.generalForm.value.name,
@@ -310,7 +267,6 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
         relatedParty: [
           {
             id: this.partyId,
-            //href: "http://proxy.docker:8004/party/individual/urn:ngsi-ld:individual:803ee97b-1671-4526-ba3f-74681b22ccf3",
             role: environment.SELLER_ROLE,
             "@referredType": ''
           }
@@ -320,24 +276,8 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
         this.resourceToCreate!['@type'] = this.generalForm.value.baseTemplate;
         this.resourceToCreate!['@baseType'] = 'ResourceSpecification';
       }
-      console.log('SERVICE TO CREATE:')
-      console.log(this.resourceToCreate)
-      this.showChars = false;
-      this.showGeneral = false;
-      this.showSummary = true;
-      this.selectStep('summary', 'summary-circle');
       this.refreshChars();
-      /*this.resSpecService.postResSpec(this.resourceToCreate).subscribe({
-        next: data => {
-          this.goBack();
-          console.log('serv created')
-        },
-        error: error => {
-          console.error('There was an error while updating!', error);
-        }
-      });*/
     }
-    this.showPreview = false;
   }
 
   createResource() {
@@ -376,143 +316,6 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
     this.numberCharSelected = false;
     this.rangeCharSelected = false;
     this.creatingChars = [];
-  }
-
-  //STEPS METHODS
-  removeClass(elem: HTMLElement, cls: string) {
-    var str = " " + elem.className + " ";
-    elem.className = str.replace(" " + cls + " ", " ").replace(/^\s+|\s+$/g, "");
-  }
-
-  addClass(elem: HTMLElement, cls: string) {
-    elem.className += (" " + cls);
-  }
-
-  unselectMenu(elem: HTMLElement | null, cls: string) {
-    if (elem != null) {
-      if (elem.className.match(cls)) {
-        this.removeClass(elem, cls)
-      } else {
-        console.log('already unselected')
-      }
-    }
-  }
-
-  selectMenu(elem: HTMLElement | null, cls: string) {
-    if (elem != null) {
-      if (elem.className.match(cls)) {
-        console.log('already selected')
-      } else {
-        this.addClass(elem, cls)
-      }
-    }
-  }
-
-  //STEPS CSS EFFECTS:
-  selectStep(step: string, stepCircle: string) {
-    const index = this.stepsElements.findIndex(item => item === step);
-    if (index !== -1) {
-      this.stepsElements.splice(index, 1);
-      this.selectMenu(document.getElementById(step), 'text-primary-100 dark:text-primary-50')
-      this.unselectMenu(document.getElementById(step), 'text-gray-500')
-      for (let i = 0; i < this.stepsElements.length; i++) {
-        this.unselectMenu(document.getElementById(this.stepsElements[i]), 'text-primary-100 dark:text-primary-50')
-        this.selectMenu(document.getElementById(this.stepsElements[i]), 'text-gray-500')
-      }
-      this.stepsElements.push(step);
-    }
-    const circleIndex = this.stepsCircles.findIndex(item => item === stepCircle);
-    if (index !== -1) {
-      this.stepsCircles.splice(circleIndex, 1);
-      this.selectMenu(document.getElementById(stepCircle), 'border-primary-100 dark:border-primary-50')
-      this.unselectMenu(document.getElementById(stepCircle), 'border-gray-400');
-      for (let i = 0; i < this.stepsCircles.length; i++) {
-        this.unselectMenu(document.getElementById(this.stepsCircles[i]), 'border-primary-100 dark:border-primary-50')
-        this.selectMenu(document.getElementById(this.stepsCircles[i]), 'border-gray-400');
-      }
-      this.stepsCircles.push(stepCircle);
-    }
-  }
-
-  //Markdown actions:
-  addBold() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' **bold text** '
-    });
-  }
-
-  addItalic() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' _italicized text_ '
-    });
-  }
-
-  addList() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n- First item\n- Second item'
-    });
-  }
-
-  addOrderedList() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n1. First item\n2. Second item'
-    });
-  }
-
-  addCode() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n`code`'
-    });
-  }
-
-  addCodeBlock() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n```\ncode\n```'
-    });
-  }
-
-  addBlockquote() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n> blockquote'
-    });
-  }
-
-  addLink() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' [title](https://www.example.com) '
-    });
-  }
-
-  addTable() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n| Syntax | Description |\n| ----------- | ----------- |\n| Header | Title |\n| Paragraph | Text |'
-    });
-  }
-
-  addEmoji(event: any) {
-    console.log(event)
-    this.showEmoji = false;
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + event.emoji.native
-    });
-  }
-
-  togglePreview() {
-    if (this.generalForm.value.description) {
-      this.description = this.generalForm.value.description;
-    } else {
-      this.description = ''
-    }
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
