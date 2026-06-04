@@ -1,15 +1,32 @@
-import { FormField } from './form-field.model';
 import { ResourceSpecType } from '../../services/resource-spec-service.service';
+import { FormField } from './form-field.model';
 
-export const resourceConfiguration: Partial<Record<ResourceSpecType, FormField[]>> = {
-  'SoftwareSpecification': [
-    { name: 'isDistributable', label: 'Distributable', type: 'boolean', required: false, colSpan: 1 },
-    { name: 'isExperimental', label: 'Experimental', type: 'boolean', required: false, colSpan: 1 },
-    { name: 'numUsersMax', label: 'Max number of users', type: 'number', required: false, colSpan: 1 },
-    { name: 'maintenanceVersion', label: 'Maintenance Version', type: 'string', required: false, colSpan: 1 },
-    { name: 'majorVersion', label: 'Major Version', type: 'string', required: false, colSpan: 1 },
-    { name: 'minorVersion', label: 'Minor Version', type: 'string', required: false, colSpan: 1 },
-    { name: 'numberProcessActiveTotal', label: 'Max number of total processes', type: 'number', required: false },
-  ],
-  'SoftwareSupportPackageSpecification': [],
+
+export interface ResourceConfig {
+  columnCount: number;
+  fields: FormField[];
+}
+
+export const resourceConfiguration: Partial<Record<ResourceSpecType, ResourceConfig>> = {
+  'SoftwareSpecification': {
+    columnCount: 3,
+    fields: [
+      { name: 'isDistributable', label: 'Distributable', type: 'boolean', required: false, colSpan: 1 },
+      { name: 'isExperimental', label: 'Experimental', type: 'boolean', required: false, colSpan: 1 },
+      { name: 'numUsersMax', label: 'Max number of users', type: 'number', required: false, colSpan: 1 },
+      { name: 'maintenanceVersion', label: 'Maintenance Version', type: 'string', required: false, colSpan: 1 },
+      { name: 'majorVersion', label: 'Major Version', type: 'string', required: false, colSpan: 1 },
+      { name: 'minorVersion', label: 'Minor Version', type: 'string', required: false, colSpan: 1 },
+      { name: 'numberProcessActiveTotal', label: 'Max number of total processes', type: 'number', required: false },
+    ]
+  },
+  'SoftwareSupportPackageSpecification': {
+    columnCount: 2,
+    fields: [
+      { name: 'model', label: 'Model', type: 'string', required: false, colSpan: 1 },
+      { name: 'part', label: 'Part Number', type: 'string', required: false, colSpan: 1 },
+      { name: 'sku', label: 'Stock Keeping Unit', type: 'string', required: false, colSpan: 1 },
+      { name: 'vendor', label: 'Vendor', type: 'string', required: false, colSpan: 1 },
+    ]
+  },
 };

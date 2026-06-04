@@ -7,7 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
-import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
+import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/resource-spec-service.service';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -15,6 +15,7 @@ import { initFlowbite } from 'flowbite';
 import { components } from "src/app/models/resource-catalog";
 import { FormField } from '../../../../../models/formFields/form-field.model';
 import { resourceConfiguration } from '../../../../../models/formFields/software-resource-fields';
+import { buildFormGroup } from '../../../../../shared/forms/dynamic-form/build-form-group.util';
 type ResourceSpecification_Update = components["schemas"]["ResourceSpecification_Update"];
 type CharacteristicValueSpecification = components["schemas"]["ResourceSpecificationCharacteristicValue"];
 type ResourceSpecificationCharacteristic = components["schemas"]["ResourceSpecificationCharacteristic"];
@@ -38,6 +39,8 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
   resourceConfiguration = resourceConfiguration;
 
   templateConfigFields: FormField[] = [];
+  templateConfigColumnCount: number = 1;
+
   templateConfigForm: FormGroup = new FormGroup({});
 
   resourceToUpdate: ResourceSpecification_Update | undefined;
@@ -146,6 +149,8 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
   }
 
   populateResInfo() {
+
+    const baseType = (this.res['@baseType'] || '') as ResourceSpecType;
     //GENERAL INFORMATION
     this.generalForm.controls['name'].setValue(this.res.name);
     this.generalForm.controls['description'].setValue(this.res.description);
@@ -154,6 +159,13 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
 
     //CHARS
     this.prodChars = this.res.resourceSpecCharacteristic;
+
+    // CONFIG
+    const templateConfig = baseType ? this.resourceConfiguration[baseType] : undefined;
+
+    this.templateConfigFields = templateConfig ? templateConfig.fields : [];
+    this.templateConfigColumnCount = templateConfig ? templateConfig.columnCount : 1;
+    this.templateConfigForm = buildFormGroup(this.templateConfigFields);
   }
 
   goBack() {

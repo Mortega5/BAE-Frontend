@@ -474,7 +474,8 @@
             <span>{{ 'UPDATE_RES_SPEC._no_config' | translate }}</span>
           </div>
           } @else {
-          <app-dynamic-form [fields]="templateConfigFields" [formGroup]="templateConfigForm" [columns]="3" />
+          <app-dynamic-form class="w-full block" [fields]="templateConfigFields" [formGroup]="templateConfigForm"
+            [columns]="templateConfigColumnCount" />
           }
         </div>
         }
