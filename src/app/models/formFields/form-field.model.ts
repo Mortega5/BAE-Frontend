@@ -2,6 +2,7 @@ interface BaseFormField {
   name: string;
   label: string;
   required?: boolean;
+  readonly?: boolean;
   colSpan?: number;
   defaultValue?: any;
 }

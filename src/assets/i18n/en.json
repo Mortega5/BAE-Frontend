@@ -1112,7 +1112,8 @@
       "_next": "Next",
       "_finish": "Finish",
       "_create_res": "Create resource",
-      "_base_template": "Template"
+      "_base_template": "Template",
+      "_no_config": "No configuration required for the selected template."
     },
     "UPDATE_RES_SPEC": {
       "_back": "Back",
@@ -1141,7 +1142,8 @@
       "_description": "Description",
       "_next": "Next",
       "_finish": "Finish",
-      "_update_res": "Update resource"
+      "_update_res": "Update resource",
+      "_no_config": "No configuration required for the selected template."
     },
     "CREATE_SERV_SPEC": {
       "_back": "Back",
@@ -2186,7 +2188,8 @@
     "_finish": "Finish",
     "_create_res": "Create resource",
     "_base_template": "Template",
-    "_configurable": "Configurable"
+    "_configurable": "Configurable",
+    "_no_config": "No configuration required for the selected template."
   },
   "UPDATE_RES_SPEC": {
     "_back": "Back",
@@ -2215,7 +2218,8 @@
     "_description": "Description",
     "_next": "Next",
     "_finish": "Finish",
-    "_update_res": "Update resource"
+    "_update_res": "Update resource",
+    "_no_config": "No configuration required for the selected template."
   },
   "CREATE_SERV_SPEC": {
     "_back": "Back",
