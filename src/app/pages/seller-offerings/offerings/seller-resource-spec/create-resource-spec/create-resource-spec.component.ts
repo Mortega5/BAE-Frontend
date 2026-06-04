@@ -15,6 +15,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { components } from "src/app/models/resource-catalog";
 import { environment } from 'src/environments/environment';
+import { resourceConfiguration } from '../../../../../models/formFields/software-resource-fields';
 type ResourceSpecification_Create = components["schemas"]["ResourceSpecification_Create"];
 type CharacteristicValueSpecification = components["schemas"]["ResourceSpecificationCharacteristicValue"];
 type ResourceSpecificationCharacteristic = components["schemas"]["ResourceSpecificationCharacteristic"];
@@ -61,18 +62,7 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
     { value: 'SoftwareSpecification', label: 'Software Specification', api: 'software' },
   ];
 
-  resourceConfiguration: Partial<Record<ResourceSpecType, FormField[]>> = {
-    'SoftwareSpecification': [
-      { name: 'isDistributable', label: 'Distributable', type: 'boolean', required: false, colSpan: 1 },
-      { name: 'isExperimental', label: 'Experimental', type: 'boolean', required: false, colSpan: 1 },
-      { name: 'numUsersMax', label: 'Max number of users', type: 'number', required: false, colSpan: 1 },
-      { name: 'maintenanceVersion', label: 'Maintenance Version', type: 'string', required: false, colSpan: 1 },
-      { name: 'majorVersion', label: 'Major Version', type: 'string', required: false, colSpan: 1 },
-      { name: 'minorVersion', label: 'Minor Version', type: 'string', required: false, colSpan: 1 },
-      { name: 'numberProcessActiveTotal', label: 'Max number of total processes', type: 'number', required: false },
-    ],
-    'SoftwareSupportPackageSpecification': [],
-  };
+  resourceConfiguration = resourceConfiguration;
 
   templateConfigFields: FormField[] = [];
   templateConfigForm: FormGroup = new FormGroup({});

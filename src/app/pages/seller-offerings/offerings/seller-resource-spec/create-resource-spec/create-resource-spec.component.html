@@ -404,7 +404,7 @@
         }
 
         @if (currentStep === 2) {
-        <div class="m-8">
+        <div class="flex justify-center w-full m-4">
           @if (templateConfigFields.length === 0) {
           <div
             class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
@@ -414,7 +414,7 @@
               <path
                 d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
             </svg>
-            <span>No configuration required for the selected template.</span>
+            <span>{{ 'CREATE_RES_SPEC._no_config' | translate }}</span>
           </div>
           } @else {
           <app-dynamic-form [fields]="templateConfigFields" [formGroup]="templateConfigForm" [columns]="3" />
