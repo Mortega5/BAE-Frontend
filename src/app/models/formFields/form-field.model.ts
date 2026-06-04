@@ -7,10 +7,13 @@ interface BaseFormField {
   defaultValue?: any;
 }
 
-export interface StringFormField extends BaseFormField {
-  type: 'string';
+interface TextBaseFormField extends BaseFormField {
   maxLength?: number;
   placeholder?: string;
+}
+
+export interface StringFormField extends TextBaseFormField {
+  type: 'string';
 }
 
 export interface NumberFormField extends BaseFormField {
@@ -35,4 +38,9 @@ export interface BooleanFormField extends BaseFormField {
   type: 'boolean';
 }
 
-export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField;
+export interface MarkdownTextareaFormField extends TextBaseFormField {
+  type: 'markdownTextarea';
+  rows?: number;
+}
+
+export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField;

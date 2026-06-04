@@ -43,6 +43,9 @@
     </select>
     }
     }
+    @if (field.type === 'markdownTextarea') {
+    <app-markdown-textarea [id]="field.name" [formControlName]="field.name" [placeholder]="$any(field).placeholder ?? 'Write your description here...'" [rows]="$any(field).rows ?? 8" class="block w-full"></app-markdown-textarea>
+    }
   </div>
   }
 </div>
