@@ -128,22 +128,24 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
 
   populateResInfo() {
 
-    const baseType = (this.res['@baseType'] || '') as ResourceSpecType;
+    const type = (this.res['@baseType'] ? this.res['@type'] : '') as ResourceSpecType;
     //GENERAL INFORMATION
     this.generalForm.controls['name'].setValue(this.res.name);
     this.generalForm.controls['description'].setValue(this.res.description);
-    this.generalForm.controls['baseTemplate'].setValue(this.res['@baseType'] || '');
+    const baseTemplate = this.res['@baseType'] ? this.res['@type'] : '';
+    this.generalForm.controls['baseTemplate'].setValue(baseTemplate);
     this.resStatus = this.res.lifecycleStatus;
 
     //CHARS
     this.prodChars = this.res.resourceSpecCharacteristic;
 
     // CONFIG
-    const templateConfig = baseType ? this.resourceConfiguration[baseType] : undefined;
+    const templateConfig = type ? this.resourceConfiguration[type] : undefined;
 
     this.templateConfigFields = templateConfig ? templateConfig.fields : [];
     this.templateConfigColumnCount = templateConfig ? templateConfig.columnCount : 1;
     this.templateConfigForm = buildFormGroup(this.templateConfigFields);
+    this.templateConfigForm.patchValue(this.res);
   }
 
   goBack() {
@@ -281,13 +283,17 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
         lifecycleStatus: this.resStatus,
         resourceSpecCharacteristic: this.prodChars
       }, this.templateConfigForm.value);
+      if (this.res['@baseType']) {
+        this.resourceToUpdate!['@type'] = this.res['@type'];
+        this.resourceToUpdate!['@baseType'] = this.res['@baseType'];
+      }
     }
   }
 
   updateResource() {
     this.setResourceData();
     this.loading = true;
-    this.resSpecService.updateResSpec(this.resourceToUpdate, this.res.id).subscribe({
+    this.resSpecService.updateResSpec(this.resourceToUpdate, this.res.id, this.res?.['@type'] as ResourceSpecType).subscribe({
       next: data => {
         this.loading = false;
         this.goBack();
