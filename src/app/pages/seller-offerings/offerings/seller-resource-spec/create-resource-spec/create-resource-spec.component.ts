@@ -65,6 +65,7 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
   resourceConfiguration = resourceConfiguration;
 
   templateConfigFields: FormField[] = [];
+  templateConfigColumnCount: number = 1;
   templateConfigForm: FormGroup = new FormGroup({});
 
   //SERVICE GENERAL INFO:
@@ -131,7 +132,10 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
     this.generalForm.get('baseTemplate')!.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe((value: string | null) => {
-        this.templateConfigFields = (value ? this.resourceConfiguration[value as ResourceSpecType] : undefined) ?? [];
+        const templateConfig = value ? this.resourceConfiguration[value as ResourceSpecType] : undefined;
+
+        this.templateConfigFields = templateConfig ? templateConfig.fields : [];
+        this.templateConfigColumnCount = templateConfig ? templateConfig.columnCount : 1;
         this.templateConfigForm = buildFormGroup(this.templateConfigFields);
       });
   }
