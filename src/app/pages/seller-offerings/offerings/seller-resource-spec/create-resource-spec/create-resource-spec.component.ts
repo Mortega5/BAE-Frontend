@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { FormField } from 'src/app/models/formFields/form-field.model';
+import { FormField, SelectableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
@@ -41,7 +41,6 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
 
   baseTemplateOptions = [
     { value: '', label: 'None' },
-    { value: 'SoftwareSupportPackageSpecification', label: 'Software Support Package', api: 'software' },
     { value: 'SoftwareSpecification', label: 'Software Specification', api: 'software' },
   ];
 
@@ -112,8 +111,16 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
       .subscribe((value: string | null) => {
         const templateConfig = value ? this.resourceConfiguration[value as ResourceSpecType] : undefined;
 
-        this.templateConfigFields = templateConfig ? templateConfig.fields : [];
+        this.templateConfigFields = templateConfig ? [...templateConfig.fields] : [];
         this.templateConfigForm = buildFormGroup(this.templateConfigFields);
+
+        if (value === 'SoftwareSpecification') {
+          this.resSpecService.getSoftwareSupportPackages()
+            .subscribe(packages => {
+              const field = this.templateConfigFields.find(f => f.name === 'softwareSupportPackage') as SelectableFormField;
+              if (field) field.options = packages.map(p => ({ value: p.id, label: p.name }));
+            });
+        }
       });
   }
 

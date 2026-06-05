@@ -18,15 +18,7 @@ export const resourceConfiguration: Partial<Record<ResourceSpecType, ResourceCon
       { name: 'majorVersion', label: 'Major Version', type: 'string', required: false, colSpan: 1 },
       { name: 'minorVersion', label: 'Minor Version', type: 'string', required: false, colSpan: 1 },
       { name: 'numberProcessActiveTotal', label: 'Max number of total processes', type: 'number', required: false },
+      { name: 'softwareSupportPackage', label: 'Software Support Package', type: 'select', options: [], colSpan: 3 },
     ]
-  },
-  'SoftwareSupportPackageSpecification': {
-    columnCount: 2,
-    fields: [
-      { name: 'model', label: 'Model', type: 'string', required: false, colSpan: 1 },
-      { name: 'part', label: 'Part Number', type: 'string', required: false, colSpan: 1 },
-      { name: 'sku', label: 'Stock Keeping Unit', type: 'string', required: false, colSpan: 1 },
-      { name: 'vendor', label: 'Vendor', type: 'string', required: false, colSpan: 1 },
-    ]
-  },
+  }
 };
