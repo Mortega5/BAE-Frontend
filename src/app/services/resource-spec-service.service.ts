@@ -1,14 +1,21 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { lastValueFrom } from 'rxjs';
+import { Observable, lastValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { components } from "../models/resource-catalog";
+import { SoftwareSupportPackage } from "../models/software.model";
 import { LocalStorageService } from "./local-storage.service";
 
 type ResourceSpecification_Create = components["schemas"]["ResourceSpecification_Create"];
 
 export type ResourceSpecType = 'ResourceSpecification' | 'SoftwareSpecification';
 
+export interface PaginationParams<T = Record<string, any>> {
+  page?: number;
+  limit?: number;
+  sort?: string;
+  filter?: Partial<Record<keyof T | 'q', any>>;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -26,6 +33,10 @@ export class ResourceSpecServiceService {
     SoftwareSpecification: {
       resource: environment.SOFTWARE,
       spec: environment.RESOURCE_SPEC
+    },
+    SoftwareSupportPackage: {
+      resource: environment.SOFTWARE,
+      spec: environment.RESOURCE
     }
   } as const;
   constructor(private http: HttpClient, private localStorage: LocalStorageService) { }
@@ -66,7 +77,7 @@ export class ResourceSpecServiceService {
     const spec = this.RESOURCE_API[type].spec;
     let url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}/${id}`;
 
-    return lastValueFrom(this.http.get<any>(url)); 1
+    return lastValueFrom(this.http.get<any>(url));
   }
 
   postResSpec(body: ResourceSpecification_Create, type: ResourceSpecType = 'ResourceSpecification') {
@@ -84,4 +95,26 @@ export class ResourceSpecServiceService {
     return this.http.patch<any>(url, body);
   }
 
+  // TODO: review partyId
+  getSoftwareSupportPackages(partyId: string, pagination: PaginationParams<SoftwareSupportPackage> = {}): Observable<SoftwareSupportPackage[]> {
+    const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackage'];
+    const limit = pagination.limit || ResourceSpecServiceService.RES_SPEC_LIMIT;
+    const page = pagination.page || 0;
+
+    const params: Record<string, string> = {
+      usageState: 'active',
+      ...pagination.filter,
+      'relatedParty.id': partyId,
+      '@type': 'SoftwareSupportPackage',
+      limit: limit.toString(),
+      offset: page.toString(),
+    };
+
+    if (pagination.sort) {
+      params['sort'] = pagination.sort;
+    }
+
+    const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}`;
+    return this.http.get<SoftwareSupportPackage[]>(url, { params });
+  }
 }

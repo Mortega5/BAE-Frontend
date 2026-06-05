@@ -114,11 +114,12 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
         this.templateConfigFields = templateConfig ? [...templateConfig.fields] : [];
         this.templateConfigForm = buildFormGroup(this.templateConfigFields);
 
+        // TODO: get all packages
         if (value === 'SoftwareSpecification') {
-          this.resSpecService.getSoftwareSupportPackages()
+          this.resSpecService.getSoftwareSupportPackages(this.partyId)
             .subscribe(packages => {
               const field = this.templateConfigFields.find(f => f.name === 'softwareSupportPackage') as SelectableFormField;
-              if (field) field.options = packages.map(p => ({ value: p.id, label: p.name }));
+              if (field) field.options = packages.map(p => ({ value: { id: p.id }, label: `${p.name}` }));
             });
         }
       });

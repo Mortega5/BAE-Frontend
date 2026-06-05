@@ -1,17 +1,16 @@
 import { Injectable } from '@angular/core';
-import {Subject} from "rxjs";
-import {Category, cartProduct, FormChangeState, PricePlanChangeState, SubformType} from "../models/interfaces";
+import { Subject } from "rxjs";
 import { LoginInfo } from 'src/app/models/interfaces';
+import { cartProduct, Category, FormChangeState, PricePlanChangeState } from "../models/interfaces";
 
 export interface EventMessage {
   type: 'AddedFilter' | 'RemovedFilter' | 'AddedCartItem' | 'RemovedCartItem' | 'FilterShown' | 'ToggleCartDrawer' | 'LoginProcess' | 'BillAccChanged' |
-  'SellerProductSpec' | 'SellerCreateProductSpec' |  'SellerServiceSpec' | 'SellerCreateServiceSpec' | 'SellerResourceSpec' | 'SellerCreateResourceSpec' |
+  'SellerProductSpec' | 'SellerCreateProductSpec' | 'SellerServiceSpec' | 'SellerCreateServiceSpec' | 'SellerResourceSpec' | 'SellerCreateResourceSpec' |
   'SellerOffer' | 'SellerCreateOffer' | 'SellerUpdateProductSpec' | 'SellerUpdateServiceSpec' | 'SellerUpdateResourceSpec' | 'SellerUpdateOffer' | 'SellerCreateCustomOffer' |
-  'SellerCatalog' | 'SellerCatalogCreate' | 'SellerCatalogUpdate' | 'CategoryAdded' | 'CategoryRemoved' | 'ChangedSession' | 'CloseCartCard'|
+  'SellerCatalog' | 'SellerCatalogCreate' | 'SellerCatalogUpdate' | 'CategoryAdded' | 'CategoryRemoved' | 'ChangedSession' | 'CloseCartCard' |
   'AdminCategories' | 'CreateCategory' | 'UpdateCategory' | 'ShowCartToast' | 'HideCartToast' | 'CloseContact' | 'OpenServiceDetails' | 'OpenResourceDetails' | 'OpenProductInvDetails' |
   'SavePricePlan' | 'UpdatePricePlan' | 'ToggleEditPrice' | 'ToggleNewPrice' |
-  'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'UpdateUsageSpec' | 'UsageSpecList' | 'CreateUsageSpec' | 'AiSearchFacets' | 'AiSearchCleared' |
-  'FiltersCommitted';
+  'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'UpdateUsageSpec' | 'UsageSpecList' | 'CreateUsageSpec' | 'AiSearchFacets' | 'AiSearchCleared' | 'FiltersCommitted' | 'SellerSoftware' | 'SellerSoftwareUpdate';
   text?: string,
   value?: object | boolean | FormChangeState | PricePlanChangeState
 }
@@ -50,186 +49,193 @@ export class EventMessageService {
     this.eventMessageSubject.next({ type: 'FilterShown', value: shown });
   }
 
-  emitToggleDrawer(shown: boolean){
+  emitToggleDrawer(shown: boolean) {
     this.eventMessageSubject.next({ type: 'ToggleCartDrawer', value: shown });
   }
 
-  emitLogin(info: LoginInfo){
+  emitLogin(info: LoginInfo) {
     this.eventMessageSubject.next({ type: 'LoginProcess', value: info });
   }
 
-  emitBillAccChange(changed:boolean){
+  emitBillAccChange(changed: boolean) {
     this.eventMessageSubject.next({ type: 'BillAccChanged', value: changed });
   }
 
-  emitSellerProductSpec(show:boolean){
+  emitSellerProductSpec(show: boolean) {
     this.eventMessageSubject.next({ type: 'SellerProductSpec', value: show });
   }
 
-  emitSellerCreateProductSpec(show:boolean){
+  emitSellerCreateProductSpec(show: boolean) {
     this.eventMessageSubject.next({ type: 'SellerCreateProductSpec', value: show });
   }
 
-  emitSellerUpdateProductSpec(prod:any){
+  emitSellerUpdateProductSpec(prod: any) {
     this.eventMessageSubject.next({ type: 'SellerUpdateProductSpec', value: prod });
   }
 
-  emitSellerServiceSpec(show:boolean){
+  emitSellerServiceSpec(show: boolean) {
     this.eventMessageSubject.next({ type: 'SellerServiceSpec', value: show });
   }
 
-  emitSellerCreateServiceSpec(show:boolean){
+  emitSellerCreateServiceSpec(show: boolean) {
     this.eventMessageSubject.next({ type: 'SellerCreateServiceSpec', value: show });
   }
 
-  emitSellerUpdateServiceSpec(serv:any){
+  emitSellerUpdateServiceSpec(serv: any) {
     this.eventMessageSubject.next({ type: 'SellerUpdateServiceSpec', value: serv });
   }
 
-  emitSellerResourceSpec(show:boolean){
+  emitSellerResourceSpec(show: boolean) {
     this.eventMessageSubject.next({ type: 'SellerResourceSpec', value: show });
   }
 
-  emitSellerCreateResourceSpec(show:boolean){
+  emitSellerCreateResourceSpec(show: boolean) {
     this.eventMessageSubject.next({ type: 'SellerCreateResourceSpec', value: show });
   }
 
-  emitSellerUpdateResourceSpec(res:any){
+  emitSellerUpdateResourceSpec(res: any) {
     this.eventMessageSubject.next({ type: 'SellerUpdateResourceSpec', value: res });
   }
 
-  emitSellerOffer(show:boolean){
+  emitSellerOffer(show: boolean) {
     this.eventMessageSubject.next({ type: 'SellerOffer', value: show });
   }
 
-  emitSellerCreateOffer(show:boolean){
+  emitSellerCreateOffer(show: boolean) {
     this.eventMessageSubject.next({ type: 'SellerCreateOffer', value: show });
   }
 
-  emitSellerUpdateOffer(offer:any){
+  emitSellerUpdateOffer(offer: any) {
     this.eventMessageSubject.next({ type: 'SellerUpdateOffer', value: offer });
   }
 
-  emitSellerCreateCustomOffer(offer:any, partyId?:string){
-    this.eventMessageSubject.next({type: 'SellerCreateCustomOffer', value: {offer, partyId}})
+  emitSellerCreateCustomOffer(offer: any, partyId?: string) {
+    this.eventMessageSubject.next({ type: 'SellerCreateCustomOffer', value: { offer, partyId } })
   }
 
-  emitSellerCatalog(show:boolean){    
+  emitSellerCatalog(show: boolean) {
     this.eventMessageSubject.next({ type: 'SellerCatalog', value: show });
   }
 
-  emitSellerUpdateCatalog(cat:any){
+  emitSellerUpdateCatalog(cat: any) {
     this.eventMessageSubject.next({ type: 'SellerCatalogUpdate', value: cat });
   }
 
-  emitSellerCreateCatalog(show:boolean){
+  emitSellerCreateCatalog(show: boolean) {
     this.eventMessageSubject.next({ type: 'SellerCatalogCreate', value: show });
   }
 
-  emitCategoryAdded(cat:Category){
+  emitCategoryAdded(cat: Category) {
     this.eventMessageSubject.next({ type: 'CategoryAdded', value: cat });
   }
 
-  emitChangedSession(session:any){
+  emitChangedSession(session: any) {
     this.eventMessageSubject.next({ type: 'ChangedSession', value: session });
   }
 
-  emitCloseCartCard(val:cartProduct | undefined){
-    this.eventMessageSubject.next({type:'CloseCartCard', value: val})
+  emitCloseCartCard(val: cartProduct | undefined) {
+    this.eventMessageSubject.next({ type: 'CloseCartCard', value: val })
   }
 
-  emitShowCartToast(val:cartProduct | undefined){
-    this.eventMessageSubject.next({type:'ShowCartToast', value: val})
+  emitShowCartToast(val: cartProduct | undefined) {
+    this.eventMessageSubject.next({ type: 'ShowCartToast', value: val })
   }
-  emitHideCartToast(val:cartProduct | undefined){
-    this.eventMessageSubject.next({type:'HideCartToast', value: val})
+  emitHideCartToast(val: cartProduct | undefined) {
+    this.eventMessageSubject.next({ type: 'HideCartToast', value: val })
   }
-  
-  emitAdminCategories(show:boolean){
+
+  emitAdminCategories(show: boolean) {
     this.eventMessageSubject.next({ type: 'AdminCategories', value: show });
   }
 
-  emitCreateCategory(show:boolean){
+  emitCreateCategory(show: boolean) {
     this.eventMessageSubject.next({ type: 'CreateCategory', value: show });
   }
 
-  emitUpdateCategory(cat:any){
+  emitUpdateCategory(cat: any) {
     this.eventMessageSubject.next({ type: 'UpdateCategory', value: cat });
   }
 
-  emitCloseContact(close:boolean){
-    this.eventMessageSubject.next({type: 'CloseContact', value: close})
+  emitCloseContact(close: boolean) {
+    this.eventMessageSubject.next({ type: 'CloseContact', value: close })
   }
 
-  emitOpenServiceDetails(id:any){
-    this.eventMessageSubject.next({type: 'OpenServiceDetails', value: id})
+  emitOpenServiceDetails(id: any) {
+    this.eventMessageSubject.next({ type: 'OpenServiceDetails', value: id })
   }
 
-  emitOpenResourceDetails(id:object){
-    this.eventMessageSubject.next({type: 'OpenResourceDetails', value: id})
+  emitOpenResourceDetails(id: object) {
+    this.eventMessageSubject.next({ type: 'OpenResourceDetails', value: id })
   }
 
-  emitOpenProductInvDetails(id:any){
-    this.eventMessageSubject.next({type: 'OpenProductInvDetails', value: id})
+  emitOpenProductInvDetails(id: any) {
+    this.eventMessageSubject.next({ type: 'OpenProductInvDetails', value: id })
   }
 
-  emitSavePricePlan(pricePlan:any){
-    this.eventMessageSubject.next({type: 'SavePricePlan', value: pricePlan})
+  emitSavePricePlan(pricePlan: any) {
+    this.eventMessageSubject.next({ type: 'SavePricePlan', value: pricePlan })
   }
 
-  emitUpdatePricePlan(pricePlan:any){
-    this.eventMessageSubject.next({type: 'UpdatePricePlan', value: pricePlan})
+  emitUpdatePricePlan(pricePlan: any) {
+    this.eventMessageSubject.next({ type: 'UpdatePricePlan', value: pricePlan })
   }
 
-  emitToggleEditPricePlan(pricePlan:any){
-    this.eventMessageSubject.next({type: 'ToggleEditPrice', value: pricePlan})
+  emitToggleEditPricePlan(pricePlan: any) {
+    this.eventMessageSubject.next({ type: 'ToggleEditPrice', value: pricePlan })
   }
 
-  emitToggleNewPricePlan(pricePlan:any){
-    this.eventMessageSubject.next({type: 'ToggleNewPrice', value: pricePlan})
+  emitToggleNewPricePlan(pricePlan: any) {
+    this.eventMessageSubject.next({ type: 'ToggleNewPrice', value: pricePlan })
   }
 
   emitSubformChange(changeState: FormChangeState | PricePlanChangeState) {
     this.eventMessageSubject.next({
-      type: 'SubformChange', 
-      value: changeState 
+      type: 'SubformChange',
+      value: changeState
     });
   }
 
-  emitCloseFeedback(show:boolean) {
-    this.eventMessageSubject.next({type: 'CloseFeedback', value: show})
+  emitCloseFeedback(show: boolean) {
+    this.eventMessageSubject.next({ type: 'CloseFeedback', value: show })
   }
 
-  emitCloseQuoteRequest(show:boolean) {
-    this.eventMessageSubject.next({type: 'CloseQuoteRequest', value: show})
-  }  
-
-  emitUpdateOffer(show:boolean) {
-    this.eventMessageSubject.next({type: 'UpdateOffer', value: show})
+  emitCloseQuoteRequest(show: boolean) {
+    this.eventMessageSubject.next({ type: 'CloseQuoteRequest', value: show })
   }
 
-  emitUpdateUsageSpec(usageSpec:any){
-    this.eventMessageSubject.next({type: 'UpdateUsageSpec', value: usageSpec})
+  emitUpdateOffer(show: boolean) {
+    this.eventMessageSubject.next({ type: 'UpdateOffer', value: show })
   }
 
-  emitUsageSpecList(show:boolean){
-    this.eventMessageSubject.next({type: 'UsageSpecList', value: show})
+  emitUpdateUsageSpec(usageSpec: any) {
+    this.eventMessageSubject.next({ type: 'UpdateUsageSpec', value: usageSpec })
   }
 
-  emitCreateUsageSpec(show:boolean){
-    this.eventMessageSubject.next({type: 'CreateUsageSpec', value: show})
+  emitUsageSpecList(show: boolean) {
+    this.eventMessageSubject.next({ type: 'UsageSpecList', value: show })
   }
 
-  emitAiSearchFacets(facets: Record<string, Record<string | number, number>>){
-    this.eventMessageSubject.next({type: 'AiSearchFacets', value: facets})
+  emitCreateUsageSpec(show: boolean) {
+    this.eventMessageSubject.next({ type: 'CreateUsageSpec', value: show })
   }
 
-  emitAiSearchCleared(){
-    this.eventMessageSubject.next({type: 'AiSearchCleared', value: true})
+  emitAiSearchFacets(facets: Record<string, Record<string | number, number>>) {
+    this.eventMessageSubject.next({ type: 'AiSearchFacets', value: facets })
   }
 
   emitFiltersCommitted() {
     this.eventMessageSubject.next({ type: 'FiltersCommitted', value: true });
   }
 
+  emitAiSearchCleared() {
+    this.eventMessageSubject.next({ type: 'AiSearchCleared', value: true })
+  }
+
+  emitSellerSoftwareCreate(show: boolean) {
+    this.eventMessageSubject.next({ type: 'SellerSoftware', value: show })
+  }
+
+  emitSellerSoftwareUpdate(software: any) {
+    this.eventMessageSubject.next({ type: 'SellerSoftwareUpdate', value: software })
+  }
 }
