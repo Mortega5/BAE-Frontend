@@ -6,6 +6,7 @@ import { environment } from 'src/environments/environment';
 import { Category } from '../models/interfaces';
 import { components } from "../models/product-catalog";
 import { ProductOffering as ProductOfferingModel } from '../models/product.model';
+import { SoftwareResource } from '../models/software.model';
 import { LocalStorageService } from "./local-storage.service";
 type ProductOffering = components["schemas"]["ProductOffering"];
 
@@ -15,6 +16,7 @@ type ProductOffering = components["schemas"]["ProductOffering"];
 export class ApiServiceService {
   public static BASE_URL: String = environment.BASE_URL;
   public static API_PRODUCT: String = environment.PRODUCT_CATALOG;
+  public static API_SOFTWARE: String = environment.SOFTWARE;
   public static PRODUCT_LIMIT: number = environment.PRODUCT_LIMIT;
   public static CATALOG_LIMIT: number = environment.CATALOG_LIMIT;
   public static CATEGORY_LIMIT: number = environment.CATEGORY_LIMIT;
@@ -432,5 +434,24 @@ export class ApiServiceService {
     //return 'BL'
     //return 'P'
     //return 'PP'
+  }
+
+  getSoftwareResourceByUser(page: any, filter: any, status: any[], partyId: any): Promise<SoftwareResource[]> {
+    const params: Record<string, any> = {
+      limit: ApiServiceService.CATALOG_LIMIT,
+      offset: page,
+      'relatedParty.id': partyId
+    };
+
+    if (status?.length > 0) {
+      params['lifecycleStatus'] = status.join(',');
+    }
+
+    if (filter != undefined) {
+      params['body'] = filter;
+    }
+
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_SOFTWARE}/resource`;
+    return lastValueFrom(this.http.get<SoftwareResource[]>(url, { params }));
   }
 }
