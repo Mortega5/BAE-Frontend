@@ -7,7 +7,7 @@ import { LocalStorageService } from "./local-storage.service";
 
 type ResourceSpecification_Create = components["schemas"]["ResourceSpecification_Create"];
 
-export type ResourceSpecType = 'ResourceSpecification' | 'SoftwareSpecification' | 'SoftwareSupportPackageSpecification';
+export type ResourceSpecType = 'ResourceSpecification' | 'SoftwareSpecification';
 
 
 @Injectable({
@@ -24,10 +24,6 @@ export class ResourceSpecServiceService {
       spec: environment.RESOURCE_SPEC
     },
     SoftwareSpecification: {
-      resource: environment.SOFTWARE,
-      spec: environment.RESOURCE_SPEC
-    },
-    SoftwareSupportPackageSpecification: {
       resource: environment.SOFTWARE,
       spec: environment.RESOURCE_SPEC
     }
@@ -87,4 +83,5 @@ export class ResourceSpecServiceService {
     let url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}/${id}`;
     return this.http.patch<any>(url, body);
   }
+
 }

@@ -32,7 +32,6 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
 
   baseTemplateOptions = [
     { value: '', label: 'None' },
-    { value: 'SoftwareSupportPackageSpecification', label: 'Software Support Package', api: 'software' },
     { value: 'SoftwareSpecification', label: 'Software Specification', api: 'software' },
   ];
 
