@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, lastValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { components } from "../models/resource-catalog";
-import { SoftwareSupportPackage } from "../models/software.model";
+import { SoftwareSupportPackage, SoftwareSupportPackageSpecification } from "../models/software.model";
 import { LocalStorageService } from "./local-storage.service";
 
 type ResourceSpecification_Create = components["schemas"]["ResourceSpecification_Create"];
@@ -37,6 +37,10 @@ export class ResourceSpecServiceService {
     SoftwareSupportPackage: {
       resource: environment.SOFTWARE,
       spec: environment.RESOURCE
+    },
+    SoftwareSupportPackageSpecification: {
+      resource: environment.SOFTWARE,
+      spec: environment.RESOURCE_SPEC
     }
   } as const;
   constructor(private http: HttpClient, private localStorage: LocalStorageService) { }
@@ -116,5 +120,27 @@ export class ResourceSpecServiceService {
 
     const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}`;
     return this.http.get<SoftwareSupportPackage[]>(url, { params });
+  }
+
+  getSoftwarePackageSpec(partyId: string, pagination: PaginationParams<SoftwareSupportPackageSpecification> = {}): Observable<SoftwareSupportPackageSpecification[]> {
+    const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackageSpecification'];
+    const limit = pagination.limit || ResourceSpecServiceService.RES_SPEC_LIMIT;
+    const page = pagination.page || 0;
+
+    const params: Record<string, string> = {
+      lifecycleStatus: 'Active',
+      ...pagination.filter,
+      'relatedParty.id': partyId,
+      '@type': 'SoftwareSupportPackageSpecification',
+      limit: limit.toString(),
+      offset: page.toString(),
+    };
+
+    if (pagination.sort) {
+      params['sort'] = pagination.sort;
+    }
+
+    const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}`;
+    return this.http.get<SoftwareSupportPackageSpecification[]>(url, { params });
   }
 }

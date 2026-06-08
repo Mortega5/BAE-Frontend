@@ -876,6 +876,24 @@
       "_no_billing_rates": "No billing rates found",
       "_period_coverage": "Period Coverage"
     },
+    "CREATE_SOFTWARE": {
+      "_back": "Atrás",
+      "_create": "Crear Software",
+      "_status": "Estado",
+      "_new": "Nuevo Software",
+      "_steps": "Pasos",
+      "_general": "General",
+      "_general_info": "Software's general information",
+      "_actions": "Acciones",
+      "_type": "Tipo",
+      "_preview": "Preview",
+      "_show_preview": "Mostrar preview",
+      "_name": "Nombre",
+      "_description": "Descripcion",
+      "_next": "Siguiente",
+      "_summary": "Resumen",
+      "_finish": "Terminar"
+    },
     "CREATE_CATALOG": {
       "_back": "Back",
       "_create": "Create catalogue",
@@ -1973,6 +1991,30 @@
     "_summary": "Catalogue's summary",
     "_finish": "Finish"
   },
+  "CREATE_SOFTWARE": {
+    "_back": "Atrás",
+    "_create": "Crear Software",
+    "_status": "Estado",
+    "_new": "Nuevo Software",
+    "_steps": "Pasos",
+    "_general": "General",
+    "_general_info": "Software's general information",
+    "_actions": "Acciones",
+    "_type": "Tipo",
+    "_preview": "Preview",
+    "_show_preview": "Mostrar preview",
+    "_name": "Nombre",
+    "_description": "Descripcion",
+    "_next": "Siguiente",
+    "_summary": "Resumen",
+    "_finish": "Terminar",
+    "_no_chars": "No se han añadido características",
+    "_new_char": "Crear nueva características",
+    "_values": "Valores",
+    "_add_char_value": "Añadir valor",
+    "_save_char": "Guardar características",
+    "_range": "Rango"
+  },
   "UPDATE_CATALOG": {
     "_back": "Back",
     "_create": "Update catalogue",
@@ -2073,8 +2115,8 @@
     "_file_check": "You need to upload a file before proceeding.",
     "_self_attestation": "Self Attestation:",
     "_close_modal": "Close modal",
-    "_cancel": "Cancel",
-    "_upload": "Upload"
+    "_cancel": "Cancelar",
+    "_upload": "Actualizar"
   },
   "UPDATE_PROD_SPEC": {
     "_back": "Back",

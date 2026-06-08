@@ -71,7 +71,7 @@
           {{ 'OFFERINGS._catalogs' | translate }}
         </button>
         <button data-cy="offerSection" (click)="goToOffers()" id="offers-button"
-          class="block w-full px-4 py-2 border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+          class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
           {{ 'OFFERINGS._offers' | translate }}
         </button>
         <button data-cy="softwareSection" (click)="goToSoftwareList()" id="software-button"
@@ -147,6 +147,9 @@
     }
     @if(currentSection === SellerSection.CREATE_CUSTOM_OFFER){
     <app-custom-offer [offer]="offer_to_update" [partyId]="custom_offer_partyId"></app-custom-offer>
+    }
+    @if(currentSection === SellerSection.CREATE_SOFTWARE) {
+    <create-software />
     }
   </div>
 </div>

@@ -17,6 +17,7 @@ export enum SellerSection {
   RESOURCE_SPECS = 'resourcespec',
   OFFERS = 'offers',
   SOFTWARE_LIST = 'softwarelist',
+  CREATE_SOFTWARE = "createSoftware",
   CREATE_PROD_SPEC = 'create_prod_spec',
   CREATE_SERV_SPEC = 'create_serv_spec',
   CREATE_RES_SPEC = 'create_res_spec',
@@ -137,6 +138,9 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
           case 'CloseFeedback':
             this.feedback = false;
             break;
+          case 'SellerCreateSoftware':
+            if (ev.value == true) this.goToCreateSoftware();
+            break;
         }
       })
   }
@@ -201,5 +205,7 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
   goToResourceSpec() { this.showSection(SellerSection.RESOURCE_SPECS); }
   goToOffers() { this.showSection(SellerSection.OFFERS); }
   goToSoftwareList() { this.showSection(SellerSection.SOFTWARE_LIST); }
-
+  goToCreateSoftware() {
+    this.showSection(SellerSection.CREATE_SOFTWARE);
+  }
 }

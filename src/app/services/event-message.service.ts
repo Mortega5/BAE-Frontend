@@ -10,7 +10,7 @@ export interface EventMessage {
   'SellerCatalog' | 'SellerCatalogCreate' | 'SellerCatalogUpdate' | 'CategoryAdded' | 'CategoryRemoved' | 'ChangedSession' | 'CloseCartCard' |
   'AdminCategories' | 'CreateCategory' | 'UpdateCategory' | 'ShowCartToast' | 'HideCartToast' | 'CloseContact' | 'OpenServiceDetails' | 'OpenResourceDetails' | 'OpenProductInvDetails' |
   'SavePricePlan' | 'UpdatePricePlan' | 'ToggleEditPrice' | 'ToggleNewPrice' |
-  'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'UpdateUsageSpec' | 'UsageSpecList' | 'CreateUsageSpec' | 'AiSearchFacets' | 'AiSearchCleared' | 'FiltersCommitted' | 'SellerSoftware' | 'SellerSoftwareUpdate';
+  'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'UpdateUsageSpec' | 'UsageSpecList' | 'CreateUsageSpec' | 'AiSearchFacets' | 'AiSearchCleared' | 'FiltersCommitted' | 'SellerSoftware' | 'SellerCreateSoftware' | 'SellerSoftwareUpdate';
   text?: string,
   value?: object | boolean | FormChangeState | PricePlanChangeState
 }
@@ -231,8 +231,9 @@ export class EventMessageService {
     this.eventMessageSubject.next({ type: 'AiSearchCleared', value: true })
   }
 
+
   emitSellerSoftwareCreate(show: boolean) {
-    this.eventMessageSubject.next({ type: 'SellerSoftware', value: show })
+    this.eventMessageSubject.next({ type: 'SellerCreateSoftware', value: show })
   }
 
   emitSellerSoftwareUpdate(software: any) {
