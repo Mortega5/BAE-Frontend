@@ -48,4 +48,15 @@ export interface TextareaFormField extends TextBaseFormField {
   rows?: number;
 }
 
-export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField;
+export interface StatusPickerOption {
+  value: string;
+  label: string;
+  activeClass: string;
+}
+
+export interface StatusPickerFormField extends BaseFormField {
+  type: 'statusPicker';
+  options: StatusPickerOption[];
+}
+
+export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField;

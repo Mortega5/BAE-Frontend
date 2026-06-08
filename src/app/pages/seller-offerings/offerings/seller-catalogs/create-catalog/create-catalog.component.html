@@ -37,15 +37,7 @@
       (submitted)="createCatalog()">
 
       <ng-template stepperStep>
-        <form class="m-4 gap-4" [formGroup]="generalForm">
-          <label for="cat-name" class="font-bold text-lg dark:text-white">{{ 'CREATE_CATALOG._name' | translate }}</label>
-          <input data-cy="catalogName" formControlName="name" type="text" id="cat-name" maxLength="100"
-            [ngClass]="generalForm.get('name')?.invalid && generalForm.value.name !== '' ? 'border-red-600' : 'border-gray-300'"
-            class="mb-2 bg-gray-50 dark:bg-secondary-300 border dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-
-          <label class="font-bold text-lg col-span-2 dark:text-white">{{ 'CREATE_CATALOG._description' | translate }}</label>
-          <app-markdown-textarea data-cy="catalogDsc" formControlName="description"></app-markdown-textarea>
-        </form>
+        <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" />
       </ng-template>
 
       <ng-template stepperStep>

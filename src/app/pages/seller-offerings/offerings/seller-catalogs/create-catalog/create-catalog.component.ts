@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
@@ -28,6 +29,11 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
   loading = false;
 
   steps = ['General Info', 'Summary'];
+
+  generalFormFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'CREATE_CATALOG._name', required: true, maxLength: 100 },
+    { type: 'markdownTextarea', name: 'description', label: 'CREATE_CATALOG._description' },
+  ];
 
   generalForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
