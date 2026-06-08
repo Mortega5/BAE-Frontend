@@ -43,4 +43,9 @@ export interface MarkdownTextareaFormField extends TextBaseFormField {
   rows?: number;
 }
 
-export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField;
+export interface TextareaFormField extends TextBaseFormField {
+  type: 'textarea';
+  rows?: number;
+}
+
+export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField;

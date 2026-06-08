@@ -101,7 +101,9 @@ import { ProviderRevenueSharingComponent } from "src/app/pages/user-profile/prof
 import { DynamicFormComponent } from "src/app/shared/forms/dynamic-form/dynamic-form.component";
 import { MarkdownTextareaComponent } from "src/app/shared/forms/markdown-textarea/markdown-textarea.component";
 import { RequestValidationModalComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/request-validation-modal/request-validation-modal.component';
+import { CreateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/create-software/create-software.component';
 import { SellerSoftware } from './pages/seller-offerings/offerings/seller-software/seller-software';
+import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offerings/seller-software/software-characteristics/software-characteristics.component';
 
 @NgModule({
   declarations: [
@@ -169,7 +171,8 @@ import { SellerSoftware } from './pages/seller-offerings/offerings/seller-softwa
     NewPricePlanComponent,
     UpdatePricePlanComponent,
     RequestValidationModalComponent,
-    SellerSoftware
+    SellerSoftware,
+    CreateSoftwareComponent
   ],
   imports: [
     BrowserModule,
@@ -208,7 +211,8 @@ import { SellerSoftware } from './pages/seller-offerings/offerings/seller-softwa
     MarkdownTextareaComponent,
     DynamicFormComponent,
     ProviderRevenueSharingComponent,
-    OperatorRevenueSharingComponent
+    OperatorRevenueSharingComponent,
+    SoftwareCharacteristicsComponent
   ],
   providers: [
     AppInitService,

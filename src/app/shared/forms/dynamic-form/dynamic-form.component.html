@@ -46,6 +46,11 @@
     @if (field.type === 'markdownTextarea') {
     <app-markdown-textarea [id]="field.name" [formControlName]="field.name" [placeholder]="$any(field).placeholder ?? 'Write your description here...'" [rows]="$any(field).rows ?? 8" class="block w-full"></app-markdown-textarea>
     }
+    @if (field.type === 'textarea') {
+    <textarea [id]="field.name" [formControlName]="field.name" [placeholder]="$any(field).placeholder ?? ''"
+      [maxLength]="$any(field).maxLength ?? 524288" [rows]="$any(field).rows ?? 4" [attr.readonly]="field.readonly || null"
+      class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 resize-y"></textarea>
+    }
   </div>
   }
 </div>
