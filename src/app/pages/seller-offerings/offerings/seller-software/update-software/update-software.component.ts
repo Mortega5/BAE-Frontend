@@ -13,6 +13,7 @@ import { FormField, SelectableFormField, SelectOption } from '../../../../../mod
 import { RESOURCE_STATUS_TYPES } from '../../../../../models/software.model';
 import { NotificationService } from '../../../../../services/notification.service';
 import { ResourceSpecServiceService } from '../../../../../services/resource-spec-service.service';
+import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 
 type SoftwareSupportPackage = components['schemas']['SoftwareResource'];
 type CharacteristicValueSpecification = components['schemas']['Characteristic'];
@@ -30,26 +31,17 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
 
   @Input() software!: SoftwareSupportPackage;
 
-  private readonly LAST_STEP = 3;
-
-  get isLastStep() {
-    return this.currentStep === this.LAST_STEP;
-  }
-
   partyId: any = '';
-
   softwareToUpdate: any;
-
   currentStep = 0;
-  highestStep = 3;
+  loading = false;
+
   steps = [
     'General Info',
     'Software Specification',
     'Characteristics',
     'Summary',
   ];
-
-  loading = false;
 
   generalFormFields: FormField[] = [
     { type: 'string', name: 'name', label: 'CREATE_RES_SPEC._name', required: true, maxLength: 100, readonly: true },
@@ -72,8 +64,6 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
 
   resourceCharacteristics: CharacteristicValueSpecification[] = [];
 
-  errorMessage: any = '';
-  showError = false;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -116,6 +106,21 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  get canAdvance(): boolean {
+    switch (this.currentStep) {
+      case 0: return this.generalForm?.valid ?? false;
+      case 1: return true;
+      default: return true;
+    }
+  }
+
+  onStepChanged(event: StepChangedEvent): void {
+    this.currentStep = event.step;
+    if (event.isLastStep) {
+      this.setSoftwareData();
+    }
   }
 
   private populateForms() {
@@ -164,41 +169,10 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
         console.error('Unable to update the software package resource', error);
         this.notificationService.showError('Unable to update software resource');
       }
-    })
+    });
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
     return str ? str.split(/\s+/).some(word => word.length > threshold) : false;
-  }
-
-  goToStep(index: number) {
-    if (index > this.currentStep) {
-      if (!this.validateCurrentStep()) return;
-    }
-    this.currentStep = index;
-    if (this.currentStep > this.highestStep) {
-      this.highestStep = this.currentStep;
-    }
-    if (this.isLastStep) {
-      this.setSoftwareData();
-    }
-  }
-
-  validateCurrentStep(): boolean {
-    switch (this.currentStep) {
-      case 0: return this.generalForm?.valid ?? false;
-      case 1: return true;
-      default: return true;
-    }
-  }
-
-  canNavigate(index: number) {
-    return this.generalForm?.valid && (index <= this.currentStep || index <= this.highestStep);
-  }
-
-  handleStepClick(index: number) {
-    if (this.canNavigate(index)) {
-      this.goToStep(index);
-    }
   }
 }

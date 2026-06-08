@@ -906,7 +906,8 @@
       "_finish": "Finish"
     },
     "UPDATE_SOFTWARE": {
-      "_save": "Save"
+      "_save": "Save",
+      "_edit": "Update Software Resource"
     },
     "CREATE_CATALOG": {
       "_back": "Back",
@@ -2037,7 +2038,8 @@
     "_range": "Range"
   },
   "UPDATE_SOFTWARE": {
-    "_save": "Save"
+    "_save": "Save",
+    "_edit": "Update Software Resource"
   },
   "UPDATE_CATALOG": {
     "_back": "Back",
