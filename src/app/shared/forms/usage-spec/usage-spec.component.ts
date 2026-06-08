@@ -19,6 +19,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { environment } from 'src/environments/environment';
 import {Subject} from "rxjs";
 import { takeUntil } from 'rxjs/operators';
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'usage-spec-form',
@@ -29,7 +30,8 @@ import { takeUntil } from 'rxjs/operators';
     UsageSpecSummaryComponent,
     TranslateModule,
     ReactiveFormsModule,
-    NgClass
+    NgClass,
+    LoadingSpinnerComponent
   ],
   templateUrl: './usage-spec.component.html',
   styleUrl: './usage-spec.component.css'

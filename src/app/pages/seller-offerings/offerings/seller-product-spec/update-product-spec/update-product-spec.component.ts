@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
@@ -7,18 +8,24 @@ import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
+import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { PaginationService } from 'src/app/services/pagination.service';
+import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
+import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
+import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
+import { BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
+import { CharacteristicFormValue } from 'src/app/shared/forms/specification-characteristic/specification-characteristic-form.component';
 
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
@@ -27,21 +34,21 @@ type BundledProductSpecification = components["schemas"]["BundledProductSpecific
 type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecificationCharacteristic"];
 type ServiceSpecificationRef = components["schemas"]["ServiceSpecificationRef"];
 type ResourceSpecificationRef = components["schemas"]["ResourceSpecificationRef"];
-type ProductSpecificationRelationship = components["schemas"]["ProductSpecificationRelationship"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
-type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' | 'relationships' | 'summary' | 'dsp_config';
+type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' | 'relationships' | 'summary' | 'orchestrationPlan' | 'dsp_config';
 
-const DSP_CHARS: string[] = ['endpointUrl', 'upstreamAddress', 'targetSpecification', 'serviceConfiguration', 'credentialsConfig', 'authorizationPolicy', 'transferPath', 'transferType']
+const DSP_CHARS: string[] = ['endpointUrl', 'upstreamAddress', 'targetSpecification', 'serviceConfiguration', 'credentialsConfig', 'authorizationPolicy', 'transferPath', 'transferType'];
 
-interface Step {
-  label: string;
-  id: ProductSpecFormStep;
-}
+const BASE_TEMPLATE_OPTIONS = [
+  { value: '', label: 'None' },
+  { value: 'BlueprintProductSpecification', label: 'Blueprint Product Specification' },
+];
 
 @Component({
   selector: 'update-product-spec',
   templateUrl: './update-product-spec.component.html',
-  styleUrl: './update-product-spec.component.css'
+  styleUrl: './update-product-spec.component.css',
+  providers: [DatePipe],
 })
 export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   @Input() prod: any;
@@ -55,39 +62,21 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   DATA_SPACE_ENABLED: boolean = environment.DATA_SPACE_ENABLED;
   MAX_FILE_SIZE: number = environment.MAX_FILE_SIZE;
 
-  //CONTROL VARIABLES:
-  showGeneral: boolean = true;
-  showBundle: boolean = false;
-  showCompliance: boolean = false;
-  showChars: boolean = false;
-  showResource: boolean = false;
-  showService: boolean = false;
-  showAttach: boolean = false;
-  showRelationships: boolean = false;
-  showSummary: boolean = false;
-
-  stepsElements: string[] = ['general-info', 'bundle', 'compliance', 'chars', 'resource', 'service', 'attach', 'relationships', 'summary'];
-  stepsCircles: string[] = ['general-circle', 'bundle-circle', 'compliance-circle', 'chars-circle', 'resource-circle', 'service-circle', 'attach-circle', 'relationships-circle', 'summary-circle'];
-  currentStepIdx = 0;
-  get currentStep(): Step { return this.steps[this.currentStepIdx]; }
-  highestStepIdx = 0;
-  steps: Step[] = [];
-
-  showPreview: boolean = false;
-  showEmoji: boolean = false;
-  description: string = '';
+  currentStepId: ProductSpecFormStep = 'general';
+  showDspConfigStep = false;
   partyId: any = '';
 
   //PRODUCT GENERAL INFO:
   generalForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
     brand: new FormControl('', [Validators.required, noWhitespaceValidator]),
-    version: new FormControl('0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*)?$'), noWhitespaceValidator]),
+    version: new FormControl('0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*(\\.\\d*)?)?$'), noWhitespaceValidator]),
     number: new FormControl(''),
+    lifecycleStatus: new FormControl('Active'),
+    baseTemplate: new FormControl(''),
+
     description: new FormControl('', Validators.maxLength(100000)),
   });
-  prodStatus: any;
-
   //DSP CONFIG INFO:
   newEndpointUrl: string = '';
   newEndpointDescription: string = '';
@@ -117,6 +106,36 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   finishChars: ProductSpecificationCharacteristic[] = [];
   creatingChars: CharacteristicValueSpecification[] = [];
   showCreateChar: boolean = false;
+  currentStandardChar: CharacteristicFormValue | null = null;
+
+  get canSaveStandardChar(): boolean {
+    return !!this.currentStandardChar?.name?.trim() && (this.currentStandardChar?.values?.length ?? 0) > 0;
+  }
+
+  onStandardCharFormChange(value: CharacteristicFormValue): void {
+    this.currentStandardChar = value;
+  }
+
+  saveStandardChar(): void {
+    if (!this.currentStandardChar?.name) return;
+    if (this.prodChars.find(c => c.name === this.currentStandardChar!.name)) {
+      this.errorMessage = 'Cannot save duplicated name in characteristics';
+      this.showError = true;
+      setTimeout(() => { this.showError = false; }, 3000);
+      return;
+    }
+    this.prodChars.push({
+      id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
+      name: this.currentStandardChar.name,
+      description: this.currentStandardChar.description ?? '',
+      configurable: this.currentStandardChar.configurable,
+      valueType: this.currentStandardChar.valueType,
+      productSpecCharacteristicValue: this.currentStandardChar.values as any[],
+    });
+    this.currentStandardChar = null;
+    this.showCreateChar = false;
+    this.refreshChars();
+  }
 
   //BUNDLE INFO:
   bundleChecked: boolean = false;
@@ -167,7 +186,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   selectedResourceSpecs: ResourceSpecificationRef[] = [];
 
   //RELATIONSHIPS INFO:
-  relToCreate: any;
   showCreateRel: boolean = false;
   prodSpecRelPage = 0;
   prodSpecRelPageCheck: boolean = false;
@@ -175,10 +193,38 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   loadingprodSpecRel_more: boolean = false;
   prodSpecRels: any[] = [];
   nextProdSpecRels: any[] = [];
-  selectedProdSpec: any = { id: '' };
-  selectedRelType: any = 'migration';
   //Final relationships
   prodRelationships: any[] = [];
+
+  relFormFields: FormField[] = [
+    {
+      type: 'select',
+      name: 'relType',
+      label: 'UPDATE_PROD_SPEC._relationship_type',
+      required: true,
+      defaultValue: 'migration',
+      options: [
+        { value: 'migration', label: 'Migration' },
+        { value: 'dependency', label: 'Dependency' },
+        { value: 'exclusivity', label: 'Exclusivity' },
+        { value: 'substitution', label: 'Substitution' },
+      ],
+    } as FormField,
+    {
+      type: 'table',
+      name: 'prodSpec',
+      label: 'UPDATE_PROD_SPEC._product_name',
+      required: true,
+      multiple: false,
+      items: [],
+      columns: [
+        { header: 'Name', getValue: (item: any) => item.name ?? '-' },
+        { header: 'Type', getValue: (item: any) => item.isBundle ? 'Bundle' : 'Simple', width: 'w-28' },
+        { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52' },
+      ],
+    } as FormField,
+  ];
+  relForm = buildFormGroup(this.relFormFields);
 
   //ATTACHMENT INFO
   showImgPreview: boolean = false;
@@ -205,7 +251,14 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   toValue: string = '';
   rangeUnit: string = '';
   jsonValue: string = '';
+
+  blueprintConfig: BlueprintProductFormValue;
+
   readonly dataSpaceCharacteristicTypes: string[] = [
+    'credentialsConfiguration',
+    'authorizationPolicy'
+  ];
+  readonly dataSpaceJsonCharacteristicTypes: string[] = [
     'credentialsConfiguration',
     'authorizationPolicy'
   ];
@@ -213,7 +266,12 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   filenameRegex = /^[A-Za-z0-9_.-]+$/;
   private destroy$ = new Subject<void>();
 
+  get templateName(): string {
+    return this.generalForm.get('baseTemplate')?.value || '';
+  }
+
   constructor(
+    private api: ApiServiceService,
     private prodSpecService: ProductSpecServiceService,
     private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
@@ -221,7 +279,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     private attachmentService: AttachmentServiceService,
     private servSpecService: ServiceSpecServiceService,
     private resSpecService: ResourceSpecServiceService,
-    private paginationService: PaginationService
+    private paginationService: PaginationService,
+    private datePipe: DatePipe
   ) {
     for (let i = 0; i < certifications.length; i++) {
       this.availableISOS.push(certifications[i])
@@ -237,10 +296,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
   @HostListener('document:click')
   onClick() {
-    if (this.showEmoji == true) {
-      this.showEmoji = false;
-      this.cdr.detectChanges();
-    }
     if (this.showUploadFile == true) {
       this.showUploadFile = false;
       this.cdr.detectChanges();
@@ -254,7 +309,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   public files: NgxFileDropEntry[] = [];
 
   ngOnInit() {
-    this.steps = this.getFormSteps();
     this.initPartyInfo();
     console.log(this.prod)
     this.populateProductInfo();
@@ -264,6 +318,47 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  generalFormFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'UPDATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1 },
+    { type: 'string', name: 'brand', label: 'UPDATE_PROD_SPEC._product_brand', required: true, colSpan: 1 },
+    { type: 'string', name: 'version', label: 'UPDATE_PROD_SPEC._product_version', required: true, colSpan: 1 },
+    { type: 'string', name: 'number', label: 'UPDATE_PROD_SPEC._id_number', colSpan: 1 },
+    {
+      type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_RES_SPEC._status',
+      options: [
+        { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
+        { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
+        { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
+        { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
+      ],
+    },
+    { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS, readonly: true },
+
+    { type: 'markdownTextarea', name: 'description', label: 'UPDATE_PROD_SPEC._product_description' },
+  ];
+
+  get canAdvance(): boolean {
+    if (this.currentStepId === 'general') return this.generalForm?.valid ?? false;
+    if (this.currentStepId === 'bundle') {
+      return !(this.bundleChecked && this.prodSpecsBundle.length < 2);
+    }
+    if (this.currentStepId === 'compliance') {
+      return !this.checkValidISOS();
+    }
+    return true;
+  }
+
+  onStepChanged(event: StepChangedEvent): void {
+    this.currentStepId = event.stepId as ProductSpecFormStep;
+    this.refreshChars();
+    if (this.currentStepId === 'compliance') { setTimeout(() => { initFlowbite(); }, 100); }
+    if (this.currentStepId === 'resource') { this.getResSpecs(false); }
+    if (this.currentStepId === 'service') { this.getServSpecs(false); }
+    if (this.currentStepId === 'attachments') { setTimeout(() => { initFlowbite(); }, 100); }
+    if (this.currentStepId === 'relationships') { this.getProdSpecsRel(false); }
+    if (event.isLastStep) { this.showFinish(); }
   }
 
   initPartyInfo() {
@@ -285,8 +380,10 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     this.generalForm.controls['brand'].setValue(this.prod.brand ? this.prod.brand : '');
     this.generalForm.controls['version'].setValue(this.prod.version ? this.prod.version : '');
     this.generalForm.controls['number'].setValue(this.prod.productNumber ? this.prod.productNumber : '');
-    this.prodStatus = this.prod.lifecycleStatus;
-
+    this.generalForm.patchValue({ lifecycleStatus: this.prod.lifecycleStatus });
+    if (this.prod['@baseType']) {
+      this.generalForm.controls['baseTemplate'].setValue(this.prod['@type'])
+    }
     //BUNDLE
     if (this.prod.isBundle == true) {
       //this.bundleChecked=true;
@@ -420,11 +517,19 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
             id: this.prod.productSpecificationRelationship[i].id,
             href: this.prod.productSpecificationRelationship[i].id,
             //Que tipo de relacion le pongo? no viene en el prodspec
-            relationshipType: this.prod.productSpecificationRelationship[i].relationshipType ?? this.selectedRelType,
+            relationshipType: this.prod.productSpecificationRelationship[i].relationshipType ?? 'migration',
             name: this.prod.productSpecificationRelationship[i].name,
             productSpec: data
           });
         })
+      }
+    }
+    // Orchestration Plan
+    if (this.prod.orchestrationPlan) {
+      this.blueprintConfig = {
+        selectedItems: [],
+        orchestrationSteps: this.prod.orchestrationPlan.steps,
+        valid: true
       }
     }
 
@@ -433,53 +538,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     }
   }
 
-  setProdStatus(status: any) {
-    this.prodStatus = status;
-    this.cdr.detectChanges();
-  }
-
   goBack() {
     this.eventMessage.emitSellerProductSpec(false);
-  }
-
-  togglePreview() {
-    if (this.generalForm.value.description) {
-      this.description = this.generalForm.value.description;
-    } else {
-      this.description = ''
-    }
-  }
-
-  toggleGeneral() {
-    this.selectStep('general-info', 'general-circle');
-    this.showBundle = false;
-    this.showGeneral = true;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
-  }
-
-  toggleBundle() {
-    this.selectStep('bundle', 'bundle-circle');
-    this.showBundle = true;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
   }
 
   toggleBundleCheck() {
@@ -546,24 +606,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     } else {
       return false;
     }
-  }
-
-  toggleCompliance() {
-    this.selectStep('compliance', 'compliance-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = true;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    setTimeout(() => {
-      initFlowbite();
-    }, 100);
-    this.refreshChars();
   }
 
   addISO(iso: any) {
@@ -739,7 +781,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
                 }, 3000);
                 return;
               }
-              if (this.isCurrentStep('compliance') && !this.showUploadAtt) {
+              if (this.currentStepId === 'compliance' && !this.showUploadAtt) {
                 const index = this.selectedISOS.findIndex(item => item.name === sel.name);
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
@@ -772,7 +814,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
                   }
                 });
               }
-              if (this.isCurrentStep('compliance') && this.showUploadAtt) {
+              if (this.currentStepId === 'compliance' && this.showUploadAtt) {
                 const index = this.finishChars.findIndex(item => item.name === this.selfAtt.name);
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
@@ -816,7 +858,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
                   }
                 });
               }
-              if (this.isCurrentStep('attachments')) {
+              if (this.currentStepId === 'attachments') {
                 console.log(file)
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
@@ -902,25 +944,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     console.log('uploading...')
   }
 
-  toggleChars() {
-    this.selectStep('chars', 'chars-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = true;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-
-    this.showCreateChar = false;
-    this.charTypeSelected = 'string';
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
-  }
-
   toggleCreateCharacteristicForm() {
     this.showCreateChar = !this.showCreateChar;
     if (this.showCreateChar) {
@@ -933,26 +956,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         this.setBooleanDefaultValues();
       }
     }
-  }
-
-  toggleResource() {
-    this.loadingResourceSpec = true;
-    this.resourceSpecs = [];
-    this.resourceSpecPage = 0;
-    this.getResSpecs(false);
-    this.selectStep('resource', 'resource-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = true;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
   }
 
   async getResSpecs(next: boolean) {
@@ -1006,26 +1009,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     } else {
       return false;
     }
-  }
-
-  toggleService() {
-    this.loadingServiceSpec = true;
-    this.serviceSpecs = [];
-    this.serviceSpecPage = 0;
-    this.getServSpecs(false);
-    this.selectStep('service', 'service-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = true;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
   }
 
   async getServSpecs(next: boolean) {
@@ -1083,24 +1066,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     } else {
       return false;
     }
-  }
-
-  toggleAttach() {
-    this.selectStep('attach', 'attach-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = true;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    setTimeout(() => {
-      initFlowbite();
-    }, 100);
-    this.refreshChars();
   }
 
   removeImg() {
@@ -1177,27 +1142,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     this.isoToCreate = '';
   }
 
-  toggleRelationship() {
-    this.prodSpecRels = [];
-    this.prodSpecRelPage = 0;
-    this.showCreateRel = false;
-    this.loadingprodSpecRel = true;
-    this.getProdSpecsRel(false);
-    this.selectStep('relationships', 'relationships-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = true;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
-  }
-
   async getProdSpecsRel(next: boolean) {
     if (next == false) {
       this.loadingprodSpecRel = true;
@@ -1216,36 +1160,26 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         this.prodSpecRels = data.items;
         this.nextProdSpecRels = data.nextItems;
         this.prodSpecRelPage = data.page;
+        (this.relFormFields[1] as TableFormField).items = data.items;
         this.loadingprodSpecRel = false;
         this.loadingprodSpecRel_more = false;
       })
-  }
-
-  selectRelationship(rel: any) {
-    this.selectedProdSpec = rel;
   }
 
   async nextProdSpecsRel() {
     await this.getProdSpecsRel(true);
   }
 
-  onRelChange(event: any) {
-    console.log('relation type changed')
-    this.selectedRelType = event.target.value;
-    this.cdr.detectChanges();
-  }
-
   saveRel() {
+    const { relType, prodSpec } = this.relForm.value;
     this.showCreateRel = false;
     this.prodRelationships.push({
-      id: this.selectedProdSpec.id,
-      href: this.selectedProdSpec.href,
-      relationshipType: this.selectedRelType,
-      name: this.selectedProdSpec.name
-      //productSpec: this.selectedProdSpec
+      id: prodSpec.id,
+      href: prodSpec.href,
+      relationshipType: relType,
+      name: prodSpec.name,
     });
-    this.selectedRelType = 'migration';
-    console.log(this.prodRelationships)
+    this.relForm.reset({ relType: 'migration', prodSpec: null });
   }
 
   deleteRel(rel: any) {
@@ -1291,61 +1225,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeClass(elem: HTMLElement, cls: string) {
-    var str = " " + elem.className + " ";
-    elem.className = str.replace(" " + cls + " ", " ").replace(/^\s+|\s+$/g, "");
-  }
-
-  addClass(elem: HTMLElement, cls: string) {
-    elem.className += (" " + cls);
-  }
-
-  unselectMenu(elem: HTMLElement | null, cls: string) {
-    if (elem != null) {
-      if (elem.className.match(cls)) {
-        this.removeClass(elem, cls)
-      } else {
-        console.log('already unselected')
-      }
-    }
-  }
-
-  selectMenu(elem: HTMLElement | null, cls: string) {
-    if (elem != null) {
-      if (elem.className.match(cls)) {
-        console.log('already selected')
-      } else {
-        this.addClass(elem, cls)
-      }
-    }
-  }
-
-  //STEPS CSS EFFECTS:
-  selectStep(step: string, stepCircle: string) {
-    const index = this.stepsElements.findIndex(item => item === step);
-    if (index !== -1) {
-      this.stepsElements.splice(index, 1);
-      this.selectMenu(document.getElementById(step), 'text-primary-100 dark:text-primary-50')
-      this.unselectMenu(document.getElementById(step), 'text-gray-500')
-      for (let i = 0; i < this.stepsElements.length; i++) {
-        this.unselectMenu(document.getElementById(this.stepsElements[i]), 'text-primary-100 dark:text-primary-50')
-        this.selectMenu(document.getElementById(this.stepsElements[i]), 'text-gray-500')
-      }
-      this.stepsElements.push(step);
-    }
-    const circleIndex = this.stepsCircles.findIndex(item => item === stepCircle);
-    if (index !== -1) {
-      this.stepsCircles.splice(circleIndex, 1);
-      this.selectMenu(document.getElementById(stepCircle), 'border-primary-100 dark:border-primary-50')
-      this.unselectMenu(document.getElementById(stepCircle), 'border-gray-400');
-      for (let i = 0; i < this.stepsCircles.length; i++) {
-        this.unselectMenu(document.getElementById(this.stepsCircles[i]), 'border-primary-100 dark:border-primary-50')
-        this.selectMenu(document.getElementById(this.stepsCircles[i]), 'border-gray-400');
-      }
-      this.stepsCircles.push(stepCircle);
-    }
-  }
-
   onTypeChange(event: any) {
     this.charTypeSelected = event.target.value;
     this.charsForm.reset();
@@ -1367,6 +1246,13 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     }
   }
 
+  isJsonCharacteristicType(type: string | undefined): boolean {
+    if (!type) {
+      return false;
+    }
+    return this.dataSpaceJsonCharacteristicTypes.includes(type);
+  }
+
   isDataSpaceCharacteristicType(type: string | undefined): boolean {
     if (!type) {
       return false;
@@ -1375,11 +1261,11 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   isDataspaceConfigurationStep(): boolean {
-    return this.isCurrentStep('dataspace');
+    return this.currentStepId === 'dataspace';
   }
 
   isDefaultCharacteristicsStep(): boolean {
-    return this.isCurrentStep('characteristics');
+    return this.currentStepId === 'characteristics';
   }
 
   isTextCharacteristicType(type: string | undefined): boolean {
@@ -1399,28 +1285,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       return 'credentialsConfiguration';
     }
     return 'string';
-  }
-
-  private getFormSteps(): Step[] {
-    const steps: Step[] = [{ label: 'General Info', id: 'general' }];
-    if (this.BUNDLE_ENABLED) {
-      steps.push({ label: 'Bundle', id: 'bundle' });
-    }
-    steps.push({ label: 'Compliance profile', id: 'compliance' });
-    steps.push({ label: 'Characteristics', id: 'characteristics' });
-    if (this.DATA_SPACE_ENABLED && !this.prod.externalId) {
-      steps.push({ label: 'Dataspace Configuration', id: 'dataspace' });
-    }
-    steps.push({ label: 'Resource specifications', id: 'resource' });
-    steps.push({ label: 'Service specifications', id: 'service' });
-    steps.push({ label: 'Attachments', id: 'attachments' });
-    steps.push({ label: 'Relationships', id: 'relationships' });
-    steps.push({ label: 'Summary', id: 'summary' });
-    return steps;
-  }
-
-  isCurrentStep(step: ProductSpecFormStep): boolean {
-    return this.currentStep?.id === step;
   }
 
   private getSchemaLocationForType(type: string): string | null {
@@ -1494,7 +1358,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
           unitOfMeasure: this.rangeUnit
         })
       }
-    } else if (this.isDataSpaceCharacteristicType(this.charTypeSelected)) {
+    } else if (this.isJsonCharacteristicType(this.charTypeSelected)) {
       if (this.creatingChars.length > 0) {
         this.errorMessage = 'Only one JSON value is allowed';
         this.showError = true;
@@ -1618,19 +1482,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
   showFinish() {
     this.setProductData();
-    this.selectStep('summary', 'summary-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = true;
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
   }
 
   setProductData() {
@@ -1835,7 +1686,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         version: this.generalForm.value.version,
         brand: this.generalForm.value.brand,
         productNumber: this.generalForm.value.number != null ? this.generalForm.value.number : '',
-        lifecycleStatus: this.prodStatus,
+        lifecycleStatus: this.generalForm.value.lifecycleStatus ?? 'Active',
         //isBundle: this.bundleChecked,
         //bundledProductSpecification: this.prodSpecsBundle,
         productSpecCharacteristic: this.finishChars,
@@ -1845,21 +1696,11 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         serviceSpecification: this.selectedServiceSpecs
       }
     }
-  }
-
-  isProdValid() {
-    if (this.generalForm.valid) {
-      if (this.bundleChecked) {
-        if (this.prodSpecsBundle.length < 2) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
+    if (this.blueprintConfig) {
+      this.productSpecToUpdate!['@schemaLocation'] = environment.BLUEPRINT_SCHEMA;
+      (this.productSpecToUpdate as any).orchestrationPlan = {
+        steps: this.blueprintConfig.orchestrationSteps,
       }
-    } else {
-      return true;
     }
   }
 
@@ -1889,92 +1730,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     });
   }
 
-  isStepDisabled(): boolean {
-    switch (this.currentStep.id) {
-      case 'general':
-        return !this.generalForm?.valid || false;
-      case 'bundle':
-        return this.prodSpecsBundle.length < 2 && this.bundleChecked;
-      case 'compliance':
-        return this.checkValidISOS();
-      default:
-        return false;
-    }
-  }
-
-  //Markdown actions:
-  addBold() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' **bold text** '
-    });
-  }
-
-  addItalic() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' _italicized text_ '
-    });
-  }
-
-  addList() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n- First item\n- Second item'
-    });
-  }
-
-  addOrderedList() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n1. First item\n2. Second item'
-    });
-  }
-
-  addCode() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n`code`'
-    });
-  }
-
-  addCodeBlock() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n```\ncode\n```'
-    });
-  }
-
-  addBlockquote() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n> blockquote'
-    });
-  }
-
-  addLink() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' [title](https://www.example.com) '
-    });
-  }
-
-  addTable() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n| Syntax | Description |\n| ----------- | ----------- |\n| Header | Title |\n| Paragraph | Text |'
-    });
-  }
-
-  addEmoji(event: any) {
-    console.log(event)
-    this.showEmoji = false;
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + event.emoji.native
-    });
-  }
-
   hasLongWord(str: string | undefined, threshold = 20) {
     if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
@@ -2000,61 +1755,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     }
 
     return rawValue.length > maxLength ? `${rawValue.slice(0, maxLength)}...` : rawValue;
-  }
-
-  goToStep(index: number) {
-
-    this.currentStepIdx = index;
-    if (this.currentStepIdx > this.highestStepIdx) {
-      this.highestStepIdx = this.currentStepIdx;
-    }
-    this.refreshChars();
-    if (this.isCurrentStep('compliance')) {
-      setTimeout(() => {
-        initFlowbite();
-      }, 100);
-    }
-    //Resource
-    if (this.isCurrentStep('resource')) {
-      this.getResSpecs(false);
-    }
-    //Service
-    if (this.isCurrentStep('service')) {
-      this.getServSpecs(false);
-    }
-    //Attachment
-    if (this.isCurrentStep('attachments')) {
-      setTimeout(() => {
-        initFlowbite();
-      }, 100);
-    }
-    //rels
-    if (this.isCurrentStep('relationships')) {
-      this.getProdSpecsRel(false);
-    }
-    //finish
-    if (this.isCurrentStep('summary')) {
-      this.showFinish();
-    }
-  }
-
-  validateCurrentStep(): boolean {
-    switch (this.currentStep.id) {
-      case 'general':
-        return this.generalForm?.valid || false;
-      default:
-        return true;
-    }
-  }
-
-  canNavigate(index: number) {
-    return this.generalForm?.valid
-  }
-
-  handleStepClick(index: number): void {
-    if (this.canNavigate(index)) {
-      this.goToStep(index);
-    }
   }
 
   normalizeName(name?: string): string {
@@ -2128,14 +1828,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   private addDspConfigStep(): void {
-    const alreadyAdded = this.steps.some(s => s.id === 'dsp_config');
-    if (alreadyAdded) return;
-    const serviceIdx = this.steps.findIndex(s => s.id === 'service');
-    this.steps = [
-      ...this.steps.slice(0, serviceIdx + 1),
-      { label: 'DSP Config', id: 'dsp_config' as ProductSpecFormStep },
-      ...this.steps.slice(serviceIdx + 1),
-    ];
+    if (this.showDspConfigStep) return;
+    this.showDspConfigStep = true;
     const patch: any = {}
     if (this.prod?.productSpecCharacteristic) {
       this.prod.productSpecCharacteristic.forEach((char: any) => {
@@ -2160,5 +1854,15 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       });
     }
     this.dspConfigForm.patchValue(patch);
+  }
+
+  onBlueprintConfigChange(value: BlueprintProductFormValue) {
+    this.blueprintConfig = value;
+    this.prodRelationships = value.selectedItems.map((item: any) => ({
+      id: item.id,
+      href: item.href,
+      relationshipType: 'dependency',
+      name: item.name,
+    }));
   }
 }

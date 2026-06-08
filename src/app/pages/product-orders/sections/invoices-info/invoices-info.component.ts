@@ -22,11 +22,14 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-invoices-info',
   standalone: true,
-  imports: [TranslateModule, FontAwesomeModule, CommonModule, FormsModule],
+  imports: [TranslateModule, FontAwesomeModule, CommonModule, FormsModule,
+    LoadingSpinnerComponent
+  ],
   providers: [DatePipe],
   templateUrl: './invoices-info.component.html',
   styleUrl: './invoices-info.component.css'

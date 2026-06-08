@@ -926,7 +926,8 @@
       "_finish": "Terminar"
     },
     "UPDATE_SOFTWARE": {
-      "_save": "Guardar"
+      "_save": "Guardar",
+      "_edit": "Actualizar Recurso Software"
     },
     "CREATE_CATALOG": {
       "_back": "Back",
@@ -2140,10 +2141,16 @@
     "_values": "Valores",
     "_add_char_value": "Añadir valor",
     "_save_char": "Guardar características",
-    "_range": "Rango"
+    "_range": "Rango",
+    "_add_value": "Añadir valor",
+    "_amount": "Cantidad",
+    "_unit": "Unidad",
+    "_from": "Desde",
+    "_to": "Hasta"
   },
   "UPDATE_SOFTWARE": {
-    "_save": "Save"
+    "_save": "Save",
+    "_edit": "Actualizar Recurso Software"
   },
   "UPDATE_CATALOG": {
     "_back": "Back",
@@ -2428,7 +2435,13 @@
     "_save_changes": "Save changes",
     "_dsp_endpoint_name": "Nombre",
     "_dsp_endpoint_url": "URL del endpoint",
-    "_dsp_endpoint_description": "Descripción"
+    "_dsp_endpoint_url_placeholder": "https://ejemplo.com/endpoint",
+    "_dsp_endpoint_description": "Descripción",
+    "_dsp_endpoint_description_placeholder": "Describe este endpoint...",
+    "_dsp_add_endpoint": "Añadir endpoint",
+    "_base_template": "Plantilla",
+    "_configurable": "Configurable",
+    "_no_config_template": "No se requiere configuración para la plantilla seleccionada."
   },
   "UPDATE_PROD_SPEC": {
     "_back": "Back",
@@ -2623,6 +2636,30 @@
     "_finish": "Finish",
     "_update_res": "Update resource",
     "_no_config": "No se requiere configuración para la plantilla seleccionada."
+  },
+  "BLUEPRINT_PROD": {
+    "_items": "Componentes",
+    "_no_items": "No se han añadido componentes. Añade al menos uno para continuar.",
+    "_add_item": "Añadir componente",
+    "_load_more": "Cargar más",
+    "_orchestration_plan": "Plan de Orquestación",
+    "_step_id": "ID del Paso",
+    "_step_service": "Servicio",
+    "_step_depends_on": "Depende De",
+    "_step_wait_healthy": "Esperar Estado Healthy",
+    "_step_timeout": "Tiempo de Espera (seg)",
+    "_step_on_failure": "En Caso de Fallo",
+    "_add_step": "Añadir Paso",
+    "_update_step": "Actualizar Paso",
+    "_cancel": "Cancelar",
+    "_no_steps": "No se han añadido pasos.",
+    "_actions": "Acciones",
+    "_none": "Ninguno",
+    "_on_failure_abort": "Abortar",
+    "_on_failure_continue": "Continuar",
+    "_on_failure_retry": "Reintentar",
+    "_helm_values_override": "Sobreescritura de Valores Helm",
+    "_cycle_error": "Dependencia cíclica detectada. Un paso no puede depender de sí mismo ni de un paso que dependa transitivamente de él."
   },
   "CREATE_SERV_SPEC": {
     "_back": "Back",
@@ -3598,5 +3635,24 @@
     "_thanks": "Thank you for contacting DOME Marketplace.",
     "_footer_title": "How would you rate your overall experience with DOME?",
     "_footer_improve": "How can we improve DOME?"
+  },
+  "CHAR_SPEC": {
+    "_char_name": "Nombre",
+    "_configurable": "Configurable",
+    "_description": "Descripción",
+    "_value_type": "Tipo de Valor",
+    "_type_string": "Texto",
+    "_type_number": "Número",
+    "_type_range": "Rango",
+    "_type_boolean": "Booleano",
+    "_type_object": "Objeto (JSON)",
+    "_value": "Valor",
+    "_unit": "Unidad de Medida",
+    "_value_from": "Desde",
+    "_value_to": "Hasta",
+    "_is_default": "Valor por Defecto",
+    "_add_value": "Añadir Valor",
+    "_true": "Verdadero",
+    "_false": "Falso"
   }
 }

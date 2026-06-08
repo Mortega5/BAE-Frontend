@@ -1,6 +1,7 @@
+import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import * as moment from 'moment';
+import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LoginInfo } from 'src/app/models/interfaces';
@@ -11,45 +12,40 @@ import { noWhitespaceValidator } from 'src/app/validators/validators';
 
 import { components } from "src/app/models/software-catalog";
 import { environment } from 'src/environments/environment';
-import { FormField, SelectableFormField, SelectOption } from '../../../../../models/formFields/form-field.model';
+import { FormField, SelectOption, TableFormField } from '../../../../../models/formFields/form-field.model';
 import { RESOURCE_STATUS_TYPES } from '../../../../../models/software.model';
 import { ResourceSpecServiceService } from '../../../../../services/resource-spec-service.service';
 import { buildFormGroup } from '../../../../../shared/forms/dynamic-form/build-form-group.util';
-
+import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 
 type SoftwareCreate = components["schemas"]["Resource_Create"];
 type CharacteristicValueSpecification = components["schemas"]["Characteristic"];
 
-const statusOptions: SelectOption[] = RESOURCE_STATUS_TYPES.map(value => ({ value, label: value.charAt(0).toUpperCase() + value.slice(1) }))
+const statusOptions: SelectOption[] = RESOURCE_STATUS_TYPES.map(value => ({
+  value,
+  label: value.charAt(0).toUpperCase() + value.slice(1),
+}));
 
 @Component({
   selector: 'create-software',
   templateUrl: './create-software.component.html',
-  styleUrl: './create-software.component.css'
+  styleUrl: './create-software.component.css',
+  providers: [DatePipe],
 })
 export class CreateSoftwareComponent implements OnInit, OnDestroy {
 
-  private readonly LAST_STEP = 3;
-
-  get isLastStep() {
-    return this.currentStep === this.LAST_STEP;
-  }
-
   partyId: any = '';
-
   softwareToCreate: SoftwareCreate | undefined;
+  currentStepId: string = 'general';
+  loading = false;
 
-  currentStep = 0;
-  highestStep = 0;
   steps = [
     'General Info',
     'Software Specification',
     'Characteristics',
-    'Summary'
+    'Summary',
   ];
 
-  loading: boolean = false;
-  //SERVICE GENERAL INFO:
   generalFormFields: FormField[] = [
     { type: 'string', name: 'name', label: 'CREATE_RES_SPEC._name', required: true, maxLength: 100 },
     { type: 'select', name: 'resourceStatus', label: 'Status', required: true, options: statusOptions },
@@ -62,16 +58,28 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
     description: new FormControl('', Validators.maxLength(100000)),
   });
 
-  softwareSpecFields: FormField[] = [
-    { name: 'softwareSpec', label: 'Software specification', type: 'select', required: true, options: [] },
-  ]
-  softwareSpecEmpty = true;
+  softwareSpecFields: TableFormField[] = [
+    {
+      name: 'softwareSpec',
+      label: 'Software specification',
+      type: 'table',
+      required: true,
+      multiple: false,
+      items: [],
+      columns: [
+        { header: 'Name', getValue: item => item.name ?? '-' },
+        { header: 'Version', getValue: item => item.version ?? '-', width: 'w-24' },
+        { header: 'Status', getValue: item => item.lifecycleStatus ?? '-', width: 'w-28' },
+        { header: 'Last update', getValue: item => this.datePipe.transform(item.lastUpdate, 'dd/MM/yy, HH:mm') ?? '-', width: 'w-36' },
+      ],
+    },
+  ];
   softwareSpecForm = buildFormGroup(this.softwareSpecFields);
 
   resourceCharacteristics: CharacteristicValueSpecification[] = [];
 
   errorMessage: any = '';
-  showError: boolean = false;
+  showError = false;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -79,6 +87,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService,
     private api: ApiServiceService,
     private resSpecService: ResourceSpecServiceService,
+    private datePipe: DatePipe,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -86,24 +95,24 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
         if (ev.type === 'ChangedSession') {
           this.initPartyInfo();
         }
-      })
+      });
   }
 
   ngOnInit() {
     this.loading = true;
     this.initPartyInfo();
+    // TODO: this must load all the elements
     this.resSpecService.getSoftwarePackageSpecs(this.partyId).subscribe({
-      next: (specs) => {
-        // TODO fix when specs are empty. Create spec automatically?
+      next: specs => {
         this.loading = false;
-        const field = this.softwareSpecFields[0] as SelectableFormField;
-        if (field) field.options = specs?.map(p => ({ value: { id: p.id }, label: `${p.name}` }));
+        const field = this.softwareSpecFields[0];
+        if (field) field.items = specs ?? [];
       },
-      error: (error) => {
-        console.error("Error getting Software Package Specs", error);
+      error: error => {
+        console.error('Error getting Software Package Specs', error);
         this.loading = false;
-      }
-    })
+      },
+    });
   }
 
   ngOnDestroy() {
@@ -111,20 +120,35 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  get canAdvance(): boolean {
+    switch (this.currentStepId) {
+      case 'general': return this.generalForm?.valid ?? false;
+      case 'software': return this.softwareSpecForm?.valid ?? false;
+      default: return true;
+    }
+  }
+
+  onStepChanged(event: StepChangedEvent): void {
+    this.currentStepId = event.stepId!;
+    if (event.isLastStep) {
+      this.setSoftwareData();
+    }
+  }
+
   initPartyInfo() {
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
-      if (aux.logged_as == aux.id) {
+    const aux = this.localStorage.getObject('login_items') as LoginInfo;
+    if (JSON.stringify(aux) !== '{}' && ((aux.expire - moment().unix()) - 4) > 0) {
+      if (aux.logged_as === aux.id) {
         this.partyId = aux.partyId;
       } else {
-        let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
-        this.partyId = loggedOrg.partyId
+        const loggedOrg = aux.organizations.find((element: { id: any }) => element.id === aux.logged_as);
+        this.partyId = loggedOrg.partyId;
       }
     }
   }
 
   goBack() {
-    this.eventMessage.emitSellerSoftwareCreate(true);
+    this.eventMessage.emitSellerSoftware(true);
   }
 
   setSoftwareData() {
@@ -133,94 +157,40 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
         '@type': 'SoftwareSupportPackage',
         '@baseType': 'Resource',
         name: this.generalForm.value.name,
-        description: this.generalForm.value.description != null ? this.generalForm.value.description : '',
+        description: this.generalForm.value.description ?? '',
         resourceStatus: 'available',
         usageState: 'active',
         resourceCharacteristic: this.resourceCharacteristics,
-        relatedParty: [
-          {
-            id: this.partyId,
-            role: environment.SELLER_ROLE,
-            "@referredType": ''
-          }
-        ],
-      }
-      console.log('SOFTWARE TO CREATE:')
-      console.log(this.softwareToCreate)
+        resourceSpecification: { id: this.softwareSpecForm.value.softwareSpec?.id },
+        relatedParty: [{
+          id: this.partyId,
+          role: environment.SELLER_ROLE,
+          '@referredType': '',
+        }],
+      };
     }
   }
 
   createSoftware() {
     this.loading = true;
     this.api.postSoftware(this.softwareToCreate).subscribe({
-      next: data => {
+      next: () => {
         this.loading = false;
         this.goBack();
       },
       error: error => {
-        console.error('There was an error while updating!', error);
-        if (error.error.error) {
-          console.log(error)
-          this.errorMessage = 'Error: ' + error.error.error;
-        } else {
-          this.errorMessage = 'There was an error while creating the software!';
-        }
+        console.error('There was an error while creating the software!', error);
+        this.errorMessage = error.error?.error
+          ? 'Error: ' + error.error.error
+          : 'There was an error while creating the software!';
         this.loading = false;
         this.showError = true;
-        setTimeout(() => {
-          this.showError = false;
-        }, 3000);
-      }
-    })
+        setTimeout(() => { this.showError = false; }, 3000);
+      },
+    });
   }
-
 
   hasLongWord(str: string | undefined, threshold = 20) {
-    if (str) {
-      return str.split(/\s+/).some(word => word.length > threshold);
-    } else {
-      return false
-    }
+    return str ? str.split(/\s+/).some(word => word.length > threshold) : false;
   }
-
-  goToStep(index: number) {
-    // Solo validar en modo creación
-    if (index > this.currentStep) {
-      // Validar el paso actual
-      const currentStepValid = this.validateCurrentStep();
-      if (!currentStepValid) {
-        return; // No permitir avanzar si el paso actual no es válido
-      }
-    }
-
-    this.currentStep = index;
-    if (this.currentStep > this.highestStep) {
-      this.highestStep = this.currentStep
-    }
-    if (this.isLastStep) {
-      this.setSoftwareData();
-    }
-  }
-
-  validateCurrentStep(): boolean {
-    switch (this.currentStep) {
-      case 0: // General Info
-        return this.generalForm?.valid || false;
-      case 1: // Software Specification
-        return this.softwareSpecForm?.valid || false;
-      default:
-        return true;
-    }
-  }
-
-  canNavigate(index: number) {
-    return (this.generalForm?.valid && (index <= this.currentStep)) || (this.generalForm?.valid && (index <= this.highestStep));
-  }
-
-  handleStepClick(index: number): void {
-    if (this.canNavigate(index)) {
-      this.goToStep(index);
-    }
-  }
-
 }

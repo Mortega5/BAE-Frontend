@@ -1,6 +1,7 @@
+import { DatePipe } from '@angular/common';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import * as moment from 'moment';
+import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LoginInfo } from 'src/app/models/interfaces';
@@ -9,10 +10,11 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 
 import { components } from 'src/app/models/software-catalog';
-import { FormField, SelectableFormField, SelectOption } from '../../../../../models/formFields/form-field.model';
+import { FormField, SelectOption, TableFormField } from '../../../../../models/formFields/form-field.model';
 import { RESOURCE_STATUS_TYPES } from '../../../../../models/software.model';
 import { NotificationService } from '../../../../../services/notification.service';
 import { ResourceSpecServiceService } from '../../../../../services/resource-spec-service.service';
+import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 
 type SoftwareSupportPackage = components['schemas']['SoftwareResource'];
 type CharacteristicValueSpecification = components['schemas']['Characteristic'];
@@ -25,30 +27,15 @@ const statusOptions: SelectOption[] = RESOURCE_STATUS_TYPES.map(value => ({
 @Component({
   selector: 'update-software',
   templateUrl: './update-software.component.html',
+  providers: [DatePipe],
 })
 export class UpdateSoftwareComponent implements OnInit, OnDestroy {
 
   @Input() software!: SoftwareSupportPackage;
 
-  private readonly LAST_STEP = 3;
-
-  get isLastStep() {
-    return this.currentStep === this.LAST_STEP;
-  }
-
   partyId: any = '';
-
   softwareToUpdate: any;
-
-  currentStep = 0;
-  highestStep = 3;
-  steps = [
-    'General Info',
-    'Software Specification',
-    'Characteristics',
-    'Summary',
-  ];
-
+  currentStepId = 'general';
   loading = false;
 
   generalFormFields: FormField[] = [
@@ -63,24 +50,37 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
     description: new FormControl('', Validators.maxLength(100000)),
   });
 
-  softwareSpecFields: FormField[] = [
-    { name: 'softwareSpec', label: 'Software specification', type: 'select', required: true, options: [], readonly: true },
+  softwareSpecFields: TableFormField[] = [
+    {
+      name: 'softwareSpec',
+      label: 'Software specification',
+      type: 'table',
+      required: true,
+      readonly: true,
+      multiple: false,
+      items: [],
+      columns: [
+        { header: 'Name', getValue: item => item.name ?? '-' },
+        { header: 'Version', getValue: item => item.version ?? '-', width: 'w-24' },
+        { header: 'Status', getValue: item => item.lifecycleStatus ?? '-', width: 'w-28' },
+        { header: 'Last update', getValue: item => this.datePipe.transform(item.lastUpdate, 'dd/MM/yy, HH:mm') ?? '-', width: 'w-36' },
+      ],
+    },
   ];
   softwareSpecForm = new FormGroup({
-    softwareSpec: new FormControl('', [Validators.required]),
+    softwareSpec: new FormControl<any>(null, [Validators.required]),
   });
 
   resourceCharacteristics: CharacteristicValueSpecification[] = [];
 
-  errorMessage: any = '';
-  showError = false;
   private destroy$ = new Subject<void>();
 
   constructor(
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
     private resSpecService: ResourceSpecServiceService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private datePipe: DatePipe,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -96,14 +96,19 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
     this.initPartyInfo();
     this.populateForms();
 
-    this.resSpecService.getSoftwarePackageSpec(this.software.resourceSpecification!.id, this.partyId).subscribe({
+    const specId = this.software.resourceSpecification?.id;
+    if (!specId) {
+      this.loading = false;
+      return;
+    }
+
+    this.resSpecService.getSoftwarePackageSpec(specId, this.partyId).subscribe({
       next: spec => {
         this.loading = false;
-        const field = this.softwareSpecFields[0] as SelectableFormField;
+        const field = this.softwareSpecFields[0];
         if (field) {
-          field.options = [{ value: spec?.id, label: `${spec?.name}` }];
-          this.softwareSpecForm.patchValue({ softwareSpec: spec.id });
-          this.softwareSpecForm.get('softwareSpec')?.disable();
+          field.items = [spec];
+          this.softwareSpecForm.patchValue({ softwareSpec: spec });
         }
       },
       error: error => {
@@ -116,6 +121,20 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  get canAdvance(): boolean {
+    switch (this.currentStepId) {
+      case 'general': return this.generalForm?.valid ?? false;
+      default: return true;
+    }
+  }
+
+  onStepChanged(event: StepChangedEvent): void {
+    this.currentStepId = event.stepId!;
+    if (event.isLastStep) {
+      this.setSoftwareData();
+    }
   }
 
   private populateForms() {
@@ -150,7 +169,7 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
       name: this.generalForm.value.name,
       description: this.generalForm.value.description ?? '',
       resourceStatus: this.generalForm.value.resourceStatus,
-      resourceCharacteristic: this.resourceCharacteristics,
+      resourceCharacteristic: this.resourceCharacteristics
     };
   }
 
@@ -164,41 +183,10 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
         console.error('Unable to update the software package resource', error);
         this.notificationService.showError('Unable to update software resource');
       }
-    })
+    });
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
     return str ? str.split(/\s+/).some(word => word.length > threshold) : false;
-  }
-
-  goToStep(index: number) {
-    if (index > this.currentStep) {
-      if (!this.validateCurrentStep()) return;
-    }
-    this.currentStep = index;
-    if (this.currentStep > this.highestStep) {
-      this.highestStep = this.currentStep;
-    }
-    if (this.isLastStep) {
-      this.setSoftwareData();
-    }
-  }
-
-  validateCurrentStep(): boolean {
-    switch (this.currentStep) {
-      case 0: return this.generalForm?.valid ?? false;
-      case 1: return true;
-      default: return true;
-    }
-  }
-
-  canNavigate(index: number) {
-    return this.generalForm?.valid && (index <= this.currentStep || index <= this.highestStep);
-  }
-
-  handleStepClick(index: number) {
-    if (this.canNavigate(index)) {
-      this.goToStep(index);
-    }
   }
 }

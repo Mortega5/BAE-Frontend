@@ -8,7 +8,7 @@ import { LocalStorageService } from "./local-storage.service";
 
 type ResourceSpecification_Create = components["schemas"]["ResourceSpecification_Create"];
 
-export type ResourceSpecType = 'ResourceSpecification' | 'SoftwareSpecification';
+export type ResourceSpecType = 'ResourceSpecification' | 'SoftwareSpecification' | 'SoftwareSupportPackageSpecification';
 
 export interface PaginationParams<T = Record<string, any>> {
   page?: number;
@@ -120,6 +120,13 @@ export class ResourceSpecServiceService {
 
     const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}`;
     return this.http.get<SoftwareSupportPackage[]>(url, { params });
+  }
+
+  getSoftwareSupportPackage(id: string): Observable<SoftwareSupportPackage> {
+
+    const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackage'];
+    const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}/${id}`;
+    return this.http.get<SoftwareSupportPackage>(url);
   }
 
   updateSoftwareSupportPackage(id: string, updateInfo: Partial<SoftwareSupportPackage>): Observable<SoftwareSupportPackage> {

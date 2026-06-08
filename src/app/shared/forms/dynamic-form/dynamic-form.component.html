@@ -9,38 +9,40 @@
     @if (field.type === 'string') {
     <input [id]="field.name" [formControlName]="field.name" type="text" [placeholder]="$any(field).placeholder ?? ''"
       [maxLength]="$any(field).maxLength ?? 524288" [attr.readonly]="field.readonly || null"
-      [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"
+      [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly"
+      [class.cursor-not-allowed]="field.readonly"
       class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
     }
 
     @if (field.type === 'number') {
     <input [id]="field.name" [formControlName]="field.name" type="number" [min]="$any(field).min ?? null"
       [max]="$any(field).max ?? null" [step]="$any(field).step ?? 1" [attr.readonly]="field.readonly || null"
-      [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"
+      [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly"
+      [class.cursor-not-allowed]="field.readonly"
       class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
     }
 
     @if (field.type === 'boolean') {
-    <select [id]="field.name" [formControlName]="field.name"
-      [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"
+    <select [id]="field.name" [formControlName]="field.name" [class.pointer-events-none]="field.readonly"
+      [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"
       class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-      <option [value]="false">{{ '_no' | translate }}</option>
-      <option [value]="true">{{ '_yes' | translate }}</option>
+      <option [ngValue]="false">{{ '_no' | translate }}</option>
+      <option [ngValue]="true">{{ '_yes' | translate }}</option>
     </select>
     }
 
     @if (field.type === 'select') {
     @if (asSelectable(field).multiple) {
-    <select [id]="field.name" [formControlName]="field.name" multiple
-      [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"
+    <select [id]="field.name" [formControlName]="field.name" multiple [class.pointer-events-none]="field.readonly"
+      [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"
       class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
       @for (opt of asSelectable(field).options; track opt.value) {
       <option [ngValue]="opt.value">{{ opt.label | translate }}</option>
       }
     </select>
     } @else {
-    <select [id]="field.name" [formControlName]="field.name"
-      [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"
+    <select [id]="field.name" [formControlName]="field.name" [class.pointer-events-none]="field.readonly"
+      [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"
       class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
       @for (opt of asSelectable(field).options; track opt.value) {
       <option [ngValue]="opt.value">{{ opt.label | translate }}</option>
@@ -50,16 +52,62 @@
     }
 
     @if (field.type === 'markdownTextarea') {
-    <div [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly">
-      <app-markdown-textarea [id]="field.name" [formControlName]="field.name" [placeholder]="$any(field).placeholder ?? 'Write your description here...'" [rows]="$any(field).rows ?? 8" class="block w-full"></app-markdown-textarea>
+    <div [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly"
+      [class.cursor-not-allowed]="field.readonly">
+      <app-markdown-textarea [id]="field.name" [formControlName]="field.name"
+        [placeholder]="$any(field).placeholder ?? 'Write your description here...'" [rows]="$any(field).rows ?? 8"
+        class="block w-full"></app-markdown-textarea>
     </div>
+    }
+
+    @if (field.type === 'statusPicker') {
+    <ol class="flex items-center w-full text-sm font-medium text-center text-gray-500 dark:text-gray-200 sm:text-base"
+      [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly">
+      @for (opt of asStatusPicker(field).options; track opt.value; let last = $last) {
+      <app-status-field [label]="opt.label" [value]="opt.value" [activeClass]="opt.activeClass"
+        [isActive]="formGroup.get(field.name)?.value === opt.value" [isLast]="last"
+        (selected)="formGroup.get(field.name)?.setValue($event)" />
+      }
+    </ol>
+    }
+
+    @if (field.type === 'rangeValue') {
+    <app-range-value-input [formControlName]="field.name" [fromPlaceholder]="asRangeValue(field).fromPlaceholder ?? ''"
+      [toPlaceholder]="asRangeValue(field).toPlaceholder ?? ''"
+      [unitPlaceholder]="asRangeValue(field).unitPlaceholder ?? ''" [setLabel]="asRangeValue(field).setLabel ?? '_set'"
+      [isReadonly]="field.readonly ?? false" />
+    }
+
+    @if (field.type === 'unitValue') {
+    <app-unit-value-input [formControlName]="field.name" [addLabel]="asUnitValue(field).addLabel ?? '_add'"
+      [valuePlaceholder]="asUnitValue(field).valuePlaceholder ?? ''"
+      [unitPlaceholder]="asUnitValue(field).unitPlaceholder ?? ''" [isReadonly]="field.readonly ?? false" />
+    }
+
+    @if (field.type === 'multiValueString') {
+    <app-multi-value-input [formControlName]="field.name" [placeholder]="$any(field).placeholder ?? ''"
+      [addLabel]="asMultiValue(field).addLabel ?? '_add'" [maxLength]="$any(field).maxLength ?? 524288"
+      [isReadonly]="field.readonly ?? false" />
     }
 
     @if (field.type === 'textarea') {
     <textarea [id]="field.name" [formControlName]="field.name" [placeholder]="$any(field).placeholder ?? ''"
-      [maxLength]="$any(field).maxLength ?? 524288" [rows]="$any(field).rows ?? 4" [attr.readonly]="field.readonly || null"
-      [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"
+      [maxLength]="$any(field).maxLength ?? 524288" [rows]="$any(field).rows ?? 4"
+      [attr.readonly]="field.readonly || null" [class.pointer-events-none]="field.readonly"
+      [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"
       class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 resize-y"></textarea>
+    }
+
+    @if (field.type === 'table') {
+    <app-table-input [formControlName]="field.name" [columns]="asTableField(field).columns"
+      [items]="asTableField(field).items" [multiple]="asTableField(field).multiple ?? false"
+      [readonly]="field.readonly ?? false" />
+    }
+
+    @if (field.type === 'code') {
+    <app-code-editor [formControlName]="field.name" [language]="asCode(field).language"
+      [minHeight]="asCode(field).minHeight ?? '120px'" [readonly]="field.readonly ?? false"
+      [lineNumbers]="asCode(field).lineNumbers ?? true" [theme]="asCode(field).theme ?? 'auto'" />
     }
   </div>
   }

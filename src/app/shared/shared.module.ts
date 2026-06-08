@@ -8,6 +8,7 @@ import { RouterLink } from "@angular/router";
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { CartDrawerComponent } from "./cart-drawer/cart-drawer.component";
+import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
 import { CategoriesPanelComponent } from "./categories-panel/categories-panel.component";
 import { EuropeTrademarkComponent } from './europe-trademark/europe-trademark.component';
 import { FeedbackModalComponent } from './feedback-modal/feedback-modal.component';
@@ -37,7 +38,8 @@ const SHARED_MODULES = [
 // Lista de componentes/directivas Standalone que se importan y re-exportan.
 const STANDALONE_IMPORTS = [
   CategoriesPanelComponent,
-  RouterLink
+  RouterLink,
+  LoadingSpinnerComponent
 ];
 
 

@@ -8,6 +8,8 @@ type ProductOffering = components["schemas"]["ProductOffering"];
 import {LocalStorageService} from "./local-storage.service";
 import moment from 'moment';
 
+export type ProductSpecType = 'ProductSpecification' | 'BlueprintProductSpecification'
+
 @Injectable({
   providedIn: 'root'
 })
@@ -21,7 +23,7 @@ export class ServiceSpecServiceService {
   constructor(private http: HttpClient,private localStorage: LocalStorageService) { }
 
   getServiceSpecByUser(page:any,status:any[],partyId:any,sort:any) {
-    let url = `${ServiceSpecServiceService.BASE_URL}${ServiceSpecServiceService.SERVICE}${ServiceSpecServiceService.API_SERVICE_SPEC}?limit=${ServiceSpecServiceService.SERV_SPEC_LIMIT}&offset=${page}&relatedParty.id=${partyId}`;    
+    let url = `${ServiceSpecServiceService.BASE_URL}${ServiceSpecServiceService.SERVICE}${ServiceSpecServiceService.API_SERVICE_SPEC}?limit=${ServiceSpecServiceService.SERV_SPEC_LIMIT}&offset=${page}&relatedParty.id=${partyId}`;
 
     if(sort!=undefined){
       url=url+'&sort='+sort
@@ -33,7 +35,7 @@ export class ServiceSpecServiceService {
           lifeStatus=lifeStatus+status[i]
         } else {
           lifeStatus=lifeStatus+status[i]+','
-        }    
+        }
       }
       url=url+'&lifecycleStatus='+lifeStatus;
     }

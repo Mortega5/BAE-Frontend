@@ -1,4 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
+import { TruncateValuePipe } from 'src/app/shared/pipes/truncate-value.pipe';
 import { HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -8,7 +9,6 @@ import { FaIconComponent, FontAwesomeModule } from '@fortawesome/angular-fontawe
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { NgxFileDropModule } from 'ngx-file-drop';
-import { NotificationComponent } from './shared/notification/notification.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { MatomoInitializationMode, MatomoInitializerService, MatomoModule, MatomoRouterModule } from 'ngx-matomo-client';
 import { CartCardComponent } from 'src/app/shared/cart-card/cart-card.component';
@@ -54,18 +54,18 @@ import { NewPricePlanComponent } from './pages/seller-offerings/offerings/seller
 import { SellerOfferComponent } from './pages/seller-offerings/offerings/seller-offer/seller-offer.component';
 import { UpdateOfferComponent } from './pages/seller-offerings/offerings/seller-offer/update-offer/update-offer.component';
 import { UpdatePricePlanComponent } from './pages/seller-offerings/offerings/seller-offer/update-price-plan/update-price-plan.component';
+import { BlueprintProductFormComponent } from './pages/seller-offerings/offerings/seller-product-spec/blueprint-product-form/blueprint-product-form.component';
 import { CreateProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/create-product-spec/create-product-spec.component';
 import { SellerProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/seller-product-spec.component';
 import { UpdateProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/update-product-spec.component';
-import { CreateResourceSpecComponent } from './pages/seller-offerings/offerings/seller-resource-spec/create-resource-spec/create-resource-spec.component';
+import { ResourceSpecFormComponent } from './pages/seller-offerings/offerings/seller-resource-spec/resource-spec-form/resource-spec-form.component';
+import { TableInputComponent } from './shared/forms/table-input/table-input.component';
 import { SellerResourceSpecComponent } from './pages/seller-offerings/offerings/seller-resource-spec/seller-resource-spec.component';
 import { SellerUsageSpecComponent } from './pages/seller-offerings/offerings/seller-usage-spec/seller-usage-spec.component';
 import { CreateUsageSpecComponent } from './pages/usage-specs/usage-sections/create-usage-spec/create-usage-spec.component';
 import { UpdateUsageSpecComponent } from './pages/usage-specs/usage-sections/update-usage-spec/update-usage-spec.component';
-import { UpdateResourceSpecComponent } from './pages/seller-offerings/offerings/seller-resource-spec/update-resource-spec/update-resource-spec.component';
-import { CreateServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/create-service-spec/create-service-spec.component';
 import { SellerServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/seller-service-spec.component';
-import { UpdateServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/update-service-spec/update-service-spec.component';
+import { ServiceSpecFormComponent } from './pages/seller-offerings/offerings/seller-service-spec/service-spec-form/service-spec-form.component';
 import { SellerOfferingsComponent } from "./pages/seller-offerings/seller-offerings.component";
 import { ShoppingCartComponent } from "./pages/shopping-cart/shopping-cart.component";
 import { BillingInfoComponent } from './pages/user-profile/profile-sections/billing-info/billing-info.component';
@@ -88,6 +88,8 @@ import { CategoryItemComponent } from "./shared/category-item/category-item.comp
 import { CharacteristicComponent } from "./shared/characteristic/characteristic.component";
 import { CustomOfferComponent } from "./shared/forms/offer/custom-offer/custom-offer.component";
 import { OfferComponent } from "./shared/forms/offer/offer.component";
+import { LoadingSpinnerComponent } from './shared/loading-spinner/loading-spinner.component';
+import { NotificationComponent } from './shared/notification/notification.component';
 import { PricePlanDrawerComponent } from "./shared/price-plan-drawer/price-plan-drawer.component";
 import { RevenueReportComponent } from './shared/revenue-report/revenue-report.component';
 import { SharedModule } from "./shared/shared.module";
@@ -106,9 +108,13 @@ import { MarkdownTextareaComponent } from "src/app/shared/forms/markdown-textare
 import { RequestValidationModalComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/request-validation-modal/request-validation-modal.component';
 import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
 import { CreateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/create-software/create-software.component';
-import { UpdateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/update-software/update-software.component';
 import { SellerSoftware } from './pages/seller-offerings/offerings/seller-software/seller-software';
 import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offerings/seller-software/software-characteristics/software-characteristics.component';
+import { SpecificationCharacteristicFormComponent } from './shared/forms/specification-characteristic/specification-characteristic-form.component';
+import { UpdateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/update-software/update-software.component';
+import { StatusFieldComponent } from './shared/status-field/status-field.component';
+import { StepperStepDirective } from './shared/stepper/stepper-step.directive';
+import { StepperComponent } from './shared/stepper/stepper.component';
 
 @NgModule({
   declarations: [
@@ -144,14 +150,13 @@ import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offer
     SellerResourceSpecComponent,
     SellerUsageSpecComponent,
     SellerOfferComponent,
+    BlueprintProductFormComponent,
     CreateProductSpecComponent,
-    CreateServiceSpecComponent,
-    CreateResourceSpecComponent,
+    ServiceSpecFormComponent,
+    ResourceSpecFormComponent,
     CreateOfferComponent,
     CategoriesRecursionComponent,
     UpdateProductSpecComponent,
-    UpdateResourceSpecComponent,
-    UpdateServiceSpecComponent,
     UpdateOfferComponent,
     CreateCatalogComponent,
     UpdateCatalogComponent,
@@ -182,6 +187,7 @@ import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offer
     UpdateSoftwareComponent
   ],
   imports: [
+    TruncateValuePipe,
     BrowserModule,
     FontAwesomeModule,
     SharedModule,
@@ -190,6 +196,7 @@ import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offer
     FaIconComponent,
     FormsModule,
     ReactiveFormsModule,
+    TableInputComponent,
     PickerComponent,
     NgxFileDropModule,
     ChatbotWidgetComponent,
@@ -222,7 +229,12 @@ import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offer
     CreateUsageSpecComponent,
     UpdateUsageSpecComponent,
     ConfirmDialogComponent,
-    SoftwareCharacteristicsComponent
+    SoftwareCharacteristicsComponent,
+    SpecificationCharacteristicFormComponent,
+    StepperComponent,
+    StepperStepDirective,
+    StatusFieldComponent,
+    LoadingSpinnerComponent,
   ],
   providers: [
     AppInitService,

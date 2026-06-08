@@ -926,7 +926,8 @@
       "_finish": "Finish"
     },
     "UPDATE_SOFTWARE": {
-      "_save": "Save"
+      "_save": "Save",
+      "_edit": "Update Software Resource"
     },
     "CREATE_CATALOG": {
       "_back": "Back",
@@ -2139,10 +2140,16 @@
     "_values": "Values",
     "_add_char_value": "Add value",
     "_save_char": "Save characteristic",
-    "_range": "Range"
+    "_range": "Range",
+    "_add_value": "Add value",
+    "_amount": "Amount",
+    "_unit": "Unit",
+    "_from": "From",
+    "_to": "To"
   },
   "UPDATE_SOFTWARE": {
-    "_save": "Save"
+    "_save": "Save",
+    "_edit": "Update Software Resource"
   },
   "UPDATE_CATALOG": {
     "_back": "Back",
@@ -2375,6 +2382,9 @@
     "_dsp_endpoint_description_placeholder": "Describe this endpoint",
     "_dsp_add_endpoint": "Add endpoint",
     "_dsp_endpoint_required": "At least one endpoint is required.",
+    "_base_template": "Template",
+    "_configurable": "Configurable",
+    "_no_config_template": "No configuration required for the selected template.",
     "_dsp_upstream_address": "Upstream address",
     "_dsp_transfer_type": "Transfer type",
     "_dsp_transfer_path": "Transfer path",
@@ -2622,6 +2632,30 @@
     "_finish": "Finish",
     "_update_res": "Update resource",
     "_no_config": "No configuration required for the selected template."
+  },
+  "BLUEPRINT_PROD": {
+    "_items": "Components",
+    "_no_items": "No components added yet. Add at least one to continue.",
+    "_add_item": "Add component",
+    "_load_more": "Load more",
+    "_orchestration_plan": "Orchestration Plan",
+    "_step_id": "Step ID",
+    "_step_service": "Service",
+    "_step_depends_on": "Depends On",
+    "_step_wait_healthy": "Wait for Healthy",
+    "_step_timeout": "Timeout (seconds)",
+    "_step_on_failure": "On Failure",
+    "_add_step": "Add Step",
+    "_update_step": "Update Step",
+    "_cancel": "Cancel",
+    "_no_steps": "No steps added yet.",
+    "_actions": "Actions",
+    "_none": "None",
+    "_on_failure_abort": "Abort",
+    "_on_failure_continue": "Continue",
+    "_on_failure_retry": "Retry",
+    "_helm_values_override": "Helm Values Override",
+    "_cycle_error": "Cyclic dependency detected. A step cannot depend on itself or on a step that transitively depends on it."
   },
   "CREATE_SERV_SPEC": {
     "_back": "Back",
@@ -3597,5 +3631,24 @@
     "_thanks": "Thank you for contacting DOME Marketplace.",
     "_footer_title": "How would you rate your overall experience with DOME?",
     "_footer_improve": "How can we improve DOME?"
+  },
+  "CHAR_SPEC": {
+    "_char_name": "Name",
+    "_configurable": "Configurable",
+    "_description": "Description",
+    "_value_type": "Value Type",
+    "_type_string": "String",
+    "_type_number": "Number",
+    "_type_range": "Range",
+    "_type_boolean": "Boolean",
+    "_type_object": "Object (JSON)",
+    "_value": "Value",
+    "_unit": "Unit of Measure",
+    "_value_from": "From",
+    "_value_to": "To",
+    "_is_default": "Default Value",
+    "_add_value": "Add Value",
+    "_true": "True",
+    "_false": "False"
   }
 }

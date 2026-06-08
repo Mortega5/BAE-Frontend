@@ -7,6 +7,7 @@ import {PaginationService} from "../../../../services/pagination.service";
 import {ApiServiceService} from "../../../../services/product-service.service";
 import {AppModule} from "../../../../app.module";
 import {initFlowbite} from "flowbite";
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-catalogue',
@@ -15,7 +16,8 @@ import {initFlowbite} from "flowbite";
     TranslateModule,
     NgIf,
     NgTemplateOutlet,
-    NgClass
+    NgClass,
+    LoadingSpinnerComponent
   ],
   providers: [
     {

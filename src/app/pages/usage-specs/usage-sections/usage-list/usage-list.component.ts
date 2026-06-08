@@ -9,11 +9,14 @@ import { PaginationService } from 'src/app/services/pagination.service';
 import { LoginInfo } from 'src/app/models/interfaces';
 import moment from 'moment';
 import { environment } from 'src/environments/environment';
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'usage-list',
   standalone: true,
-  imports: [TranslateModule, FontAwesomeModule, CommonModule],
+  imports: [TranslateModule, FontAwesomeModule, CommonModule,
+    LoadingSpinnerComponent
+  ],
   templateUrl: './usage-list.component.html',
   styleUrl: './usage-list.component.css'
 })

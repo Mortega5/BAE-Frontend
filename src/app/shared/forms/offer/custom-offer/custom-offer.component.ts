@@ -16,6 +16,7 @@ import {Subscription} from "rxjs";
 import moment from 'moment';
 import { environment } from 'src/environments/environment';
 import { QuoteService } from 'src/app/features/quotes/services/quote.service';
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 
 type ProductOffering_Create = components["schemas"]["ProductOffering_Create"];
 type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
@@ -31,7 +32,9 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
     ProcurementModeComponent,
     OfferSummaryComponent,
     RelatedPartyIdComponent,
-    NgClass],
+    NgClass,
+    LoadingSpinnerComponent
+  ],
   templateUrl: './custom-offer.component.html',
   styleUrl: './custom-offer.component.css'
 })
