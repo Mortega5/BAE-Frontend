@@ -1,5 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -25,14 +26,30 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
 
   partyId: any = '';
   catalogToUpdate: Catalog_Update | undefined;
-  catStatus: any = 'Active';
   currentStep = 0;
   loading = false;
 
   steps = ['General Info', 'Summary'];
 
+  generalFormFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'UPDATE_CATALOG._name', required: true, maxLength: 100 },
+    {
+      type: 'statusPicker',
+      name: 'lifecycleStatus',
+      label: 'UPDATE_CATALOG._status',
+      options: [
+        { value: 'Active',   label: 'UPDATE_CATALOG._active',   activeClass: 'text-blue-500' },
+        { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
+        { value: 'Retired',  label: 'UPDATE_CATALOG._retired',  activeClass: 'text-yellow-500' },
+        { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
+      ],
+    },
+    { type: 'markdownTextarea', name: 'description', label: 'UPDATE_CATALOG._description' },
+  ];
+
   generalForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
+    lifecycleStatus: new FormControl('Active'),
     description: new FormControl('', Validators.maxLength(100000)),
   });
 
@@ -76,9 +93,11 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
   }
 
   populateCatInfo() {
-    this.generalForm.controls['name'].setValue(this.cat.name);
-    this.generalForm.controls['description'].setValue(this.cat.description);
-    this.catStatus = this.cat.lifecycleStatus;
+    this.generalForm.patchValue({
+      name: this.cat.name,
+      lifecycleStatus: this.cat.lifecycleStatus,
+      description: this.cat.description,
+    });
   }
 
   initPartyInfo() {
@@ -97,15 +116,11 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
     this.eventMessage.emitSellerCatalog(true);
   }
 
-  setCatStatus(status: any) {
-    this.catStatus = status;
-  }
-
   setCatalogData() {
     if (this.generalForm.value.name != null) {
       this.catalogToUpdate = {
         description: this.generalForm.value.description ?? '',
-        lifecycleStatus: this.catStatus,
+        lifecycleStatus: this.generalForm.value.lifecycleStatus ?? 'Active',
       };
       if (this.cat.name !== this.generalForm.value.name) {
         this.catalogToUpdate.name = this.generalForm.value.name!;

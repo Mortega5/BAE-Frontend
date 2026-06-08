@@ -107,6 +107,7 @@ import { SellerSoftware } from './pages/seller-offerings/offerings/seller-softwa
 import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offerings/seller-software/software-characteristics/software-characteristics.component';
 import { StepperComponent } from './shared/stepper/stepper.component';
 import { StepperStepDirective } from './shared/stepper/stepper-step.directive';
+import { StatusFieldComponent } from './shared/status-field/status-field.component';
 
 @NgModule({
   declarations: [
@@ -219,6 +220,7 @@ import { StepperStepDirective } from './shared/stepper/stepper-step.directive';
     SoftwareCharacteristicsComponent,
     StepperComponent,
     StepperStepDirective,
+    StatusFieldComponent,
   ],
   providers: [
     AppInitService,

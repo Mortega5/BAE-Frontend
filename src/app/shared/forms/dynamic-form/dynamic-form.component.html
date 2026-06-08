@@ -55,6 +55,21 @@
     </div>
     }
 
+    @if (field.type === 'statusPicker') {
+    <ol class="flex items-center w-full text-sm font-medium text-center text-gray-500 dark:text-gray-200 sm:text-base"
+      [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly">
+      @for (opt of asStatusPicker(field).options; track opt.value; let last = $last) {
+        <app-status-field
+          [label]="opt.label"
+          [value]="opt.value"
+          [activeClass]="opt.activeClass"
+          [isActive]="formGroup.get(field.name)?.value === opt.value"
+          [isLast]="last"
+          (selected)="formGroup.get(field.name)?.setValue($event)" />
+      }
+    </ol>
+    }
+
     @if (field.type === 'textarea') {
     <textarea [id]="field.name" [formControlName]="field.name" [placeholder]="$any(field).placeholder ?? ''"
       [maxLength]="$any(field).maxLength ?? 524288" [rows]="$any(field).rows ?? 4" [attr.readonly]="field.readonly || null"
