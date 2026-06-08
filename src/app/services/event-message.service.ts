@@ -231,7 +231,9 @@ export class EventMessageService {
     this.eventMessageSubject.next({ type: 'AiSearchCleared', value: true })
   }
 
-
+  emitSellerSoftware(show: boolean) {
+    this.eventMessageSubject.next({ type: 'SellerSoftware', value: show })
+  }
   emitSellerSoftwareCreate(show: boolean) {
     this.eventMessageSubject.next({ type: 'SellerCreateSoftware', value: show })
   }

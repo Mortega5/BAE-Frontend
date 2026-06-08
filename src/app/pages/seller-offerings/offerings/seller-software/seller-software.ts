@@ -67,8 +67,8 @@ export class SellerSoftware {
     this.eventMessage.emitSellerSoftwareCreate(true);
   }
 
-  goToUpdate(cat: any) {
-    this.eventMessage.emitSellerSoftwareUpdate(cat);
+  goToUpdate(software: any) {
+    this.eventMessage.emitSellerSoftwareUpdate(software);
   }
 
   initSoftware() {

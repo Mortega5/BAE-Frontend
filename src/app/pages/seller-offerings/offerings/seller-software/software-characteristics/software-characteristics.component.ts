@@ -145,13 +145,21 @@ export class SoftwareCharacteristicsComponent {
     const type = char.valueType as CharType;
     const v = char.value;
     if (v == null) return '';
-    if (type === 'deployment') return `Deployment (${v.type ?? '?'})`;
-    if (type === 'range') return `${v.from} – ${v.to} (${v.unit})`;
-    if (type === 'number') {
-      if (Array.isArray(v)) return v.map((i: any) => `${i.amount} (${i.unit})`).join(', ');
-      return `${v.amount} (${v.unit})`;
+    const isDeployment = type === 'deployment' || char['@schemaLocation'] != null;
+    if (isDeployment) {
+      const deployObj = Array.isArray(v) ? v[0] : v;
+      return `Deployment (${deployObj?.type ?? '?'})`;
     }
-    if (Array.isArray(v)) return v.join(', ');
+    if (type === 'range') {
+      const rangeObj = Array.isArray(v) ? v[0] : v;
+      return `${rangeObj?.from} – ${rangeObj?.to} (${rangeObj?.unit})`;
+    }
+    if (type === 'number') {
+      const arr = Array.isArray(v) ? v : [v];
+      return arr.map((i: any) => `${i.amount} (${i.unit})`).join(', ');
+    }
+    if (Array.isArray(v)) return v.map((i: any) => (typeof i === 'object' ? JSON.stringify(i) : String(i))).join(', ');
+    if (typeof v === 'object') return JSON.stringify(v);
     return String(v);
   }
 

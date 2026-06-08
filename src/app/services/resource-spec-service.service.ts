@@ -106,7 +106,7 @@ export class ResourceSpecServiceService {
     const page = pagination.page || 0;
 
     const params: Record<string, string> = {
-      usageState: 'active',
+      resourceStatus: 'available',
       ...pagination.filter,
       'relatedParty.id': partyId,
       '@type': 'SoftwareSupportPackage',
@@ -122,7 +122,14 @@ export class ResourceSpecServiceService {
     return this.http.get<SoftwareSupportPackage[]>(url, { params });
   }
 
-  getSoftwarePackageSpec(partyId: string, pagination: PaginationParams<SoftwareSupportPackageSpecification> = {}): Observable<SoftwareSupportPackageSpecification[]> {
+  updateSoftwareSupportPackage(id: string, updateInfo: Partial<SoftwareSupportPackage>): Observable<SoftwareSupportPackage> {
+
+    const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackage'];
+    const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}/${id}`;
+    return this.http.patch<SoftwareSupportPackage>(url, updateInfo);
+  }
+
+  getSoftwarePackageSpecs(partyId: string, pagination: PaginationParams<SoftwareSupportPackageSpecification> = {}): Observable<SoftwareSupportPackageSpecification[]> {
     const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackageSpecification'];
     const limit = pagination.limit || ResourceSpecServiceService.RES_SPEC_LIMIT;
     const page = pagination.page || 0;
@@ -142,5 +149,16 @@ export class ResourceSpecServiceService {
 
     const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}`;
     return this.http.get<SoftwareSupportPackageSpecification[]>(url, { params });
+  }
+
+  getSoftwarePackageSpec(id: string, partyId: string) {
+
+    const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackageSpecification'];
+    const params: Record<string, string> = {
+      'relatedParty.id': partyId,
+      '@type': 'SoftwareSupportPackageSpecification',
+    }
+    const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}/${id}`;
+    return this.http.get<SoftwareSupportPackageSpecification>(url, { params });
   }
 }

@@ -92,7 +92,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loading = true;
     this.initPartyInfo();
-    this.resSpecService.getSoftwarePackageSpec(this.partyId).subscribe({
+    this.resSpecService.getSoftwarePackageSpecs(this.partyId).subscribe({
       next: (specs) => {
         // TODO fix when specs are empty. Create spec automatically?
         this.loading = false;
@@ -130,11 +130,12 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
   setSoftwareData() {
     if (this.generalForm.value.name != null) {
       this.softwareToCreate = {
-        '@type': 'SoftwarePackageResource',
+        '@type': 'SoftwareSupportPackage',
         '@baseType': 'Resource',
         name: this.generalForm.value.name,
         description: this.generalForm.value.description != null ? this.generalForm.value.description : '',
         resourceStatus: 'available',
+        usageState: 'active',
         resourceCharacteristic: this.resourceCharacteristics,
         relatedParty: [
           {
