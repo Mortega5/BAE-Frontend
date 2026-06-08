@@ -26,6 +26,7 @@ export enum SellerSection {
   UPDATE_RES_SPEC = 'update_res_spec',
   UPDATE_OFFER = 'update_offer',
   UPDATE_CATALOG = 'update_catalog',
+  UPDATE_SOFTWARE = "updateSoftware",
 }
 
 @Component({
@@ -44,6 +45,7 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
   offer_to_update: any;
   custom_offer_partyId: any = null;
   catalog_to_update: any;
+  software_to_update: any;
 
   private readonly navSections: Partial<Record<SellerSection, string>> = {
     [SellerSection.CATALOGS]: 'catalogs-button',
@@ -124,8 +126,15 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
             this.catalog_to_update = ev.value;
             this.goToUpdateCatalog();
             break;
+          case 'SellerSoftware':
+            if (ev.value == true) this.goToSoftwareList();
+            break;
           case 'SellerCreateSoftware':
             if (ev.value == true) this.goToCreateSoftware();
+            break;
+          case 'SellerSoftwareUpdate':
+            this.software_to_update = ev.value;
+            this.goToUpdateSoftware();
             break;
         }
       })
@@ -192,5 +201,8 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
   goToSoftwareList() { this.showSection(SellerSection.SOFTWARE_LIST); }
   goToCreateSoftware() {
     this.showSection(SellerSection.CREATE_SOFTWARE);
+  }
+  goToUpdateSoftware() {
+    this.showSection(SellerSection.UPDATE_SOFTWARE)
   }
 }

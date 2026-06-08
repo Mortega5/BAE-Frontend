@@ -151,5 +151,8 @@
     @if(currentSection === SellerSection.CREATE_SOFTWARE) {
     <create-software />
     }
+    @if(currentSection === SellerSection.UPDATE_SOFTWARE) {
+    <update-software [software]="software_to_update"></update-software>
+    }
   </div>
 </div>

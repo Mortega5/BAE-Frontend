@@ -86,7 +86,7 @@
               {{ 'OFFERINGS._status' | translate }}
             </th>
             <th scope="col" class="hidden md:table-cell px-6 py-3">
-              {{ 'OFFERINGS._role' | translate }}
+              {{ 'OFFERINGS._type' | translate }}
             </th>
             <th scope="col" class="px-6 py-3">
               {{ 'OFFERINGS._actions' | translate }}
@@ -119,7 +119,7 @@
               }
             </td>
             <td class="px-6 py-4 hidden md:table-cell">
-              {{cat.relatedParty?.at(0)?.role}}
+              {{cat['@type']}}
             </td>
             <td class="px-6 py-4">
               <button data-cy="softwareEdit" type="button" (click)="goToUpdate(cat)"

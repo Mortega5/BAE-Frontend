@@ -102,6 +102,7 @@ import { DynamicFormComponent } from "src/app/shared/forms/dynamic-form/dynamic-
 import { MarkdownTextareaComponent } from "src/app/shared/forms/markdown-textarea/markdown-textarea.component";
 import { RequestValidationModalComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/request-validation-modal/request-validation-modal.component';
 import { CreateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/create-software/create-software.component';
+import { UpdateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/update-software/update-software.component';
 import { SellerSoftware } from './pages/seller-offerings/offerings/seller-software/seller-software';
 import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offerings/seller-software/software-characteristics/software-characteristics.component';
 
@@ -172,7 +173,8 @@ import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offer
     UpdatePricePlanComponent,
     RequestValidationModalComponent,
     SellerSoftware,
-    CreateSoftwareComponent
+    CreateSoftwareComponent,
+    UpdateSoftwareComponent
   ],
   imports: [
     BrowserModule,

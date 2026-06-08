@@ -905,6 +905,9 @@
       "_summary": "Resumen",
       "_finish": "Terminar"
     },
+    "UPDATE_SOFTWARE": {
+      "_save": "Guardar"
+    },
     "CREATE_CATALOG": {
       "_back": "Back",
       "_create": "Create catalogue",
@@ -2033,6 +2036,9 @@
     "_add_char_value": "Añadir valor",
     "_save_char": "Guardar características",
     "_range": "Rango"
+  },
+  "UPDATE_SOFTWARE": {
+    "_save": "Save"
   },
   "UPDATE_CATALOG": {
     "_back": "Back",

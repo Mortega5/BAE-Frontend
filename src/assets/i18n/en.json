@@ -905,6 +905,9 @@
       "_summary": "Software's summary",
       "_finish": "Finish"
     },
+    "UPDATE_SOFTWARE": {
+      "_save": "Save"
+    },
     "CREATE_CATALOG": {
       "_back": "Back",
       "_create": "Create catalogue",
@@ -2032,6 +2035,9 @@
     "_add_char_value": "Add value",
     "_save_char": "Save characteristic",
     "_range": "Range"
+  },
+  "UPDATE_SOFTWARE": {
+    "_save": "Save"
   },
   "UPDATE_CATALOG": {
     "_back": "Back",
