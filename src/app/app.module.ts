@@ -102,6 +102,8 @@ import { CreateSoftwareComponent } from './pages/seller-offerings/offerings/sell
 import { UpdateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/update-software/update-software.component';
 import { SellerSoftware } from './pages/seller-offerings/offerings/seller-software/seller-software';
 import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offerings/seller-software/software-characteristics/software-characteristics.component';
+import { StepperComponent } from './shared/stepper/stepper.component';
+import { StepperStepDirective } from './shared/stepper/stepper-step.directive';
 
 @NgModule({
   declarations: [
@@ -209,7 +211,9 @@ import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offer
     DynamicFormComponent,
     ProviderRevenueSharingComponent,
     OperatorRevenueSharingComponent,
-    SoftwareCharacteristicsComponent
+    SoftwareCharacteristicsComponent,
+    StepperComponent,
+    StepperStepDirective,
   ],
   providers: [
     AppInitService,

@@ -895,7 +895,8 @@
       "_finish": "Terminar"
     },
     "UPDATE_SOFTWARE": {
-      "_save": "Guardar"
+      "_save": "Guardar",
+      "_edit": "Actualizar Recurso Software"
     },
     "CREATE_CATALOG": {
       "_back": "Back",
@@ -2019,7 +2020,8 @@
     "_range": "Rango"
   },
   "UPDATE_SOFTWARE": {
-    "_save": "Save"
+    "_save": "Save",
+    "_edit": "Actualizar Recurso Software"
   },
   "UPDATE_CATALOG": {
     "_back": "Back",

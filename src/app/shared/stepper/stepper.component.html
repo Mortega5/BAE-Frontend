@@ -1,0 +1,61 @@
+<ol class="flex items-start w-full text-sm font-medium text-center text-gray-500 dark:text-gray-400">
+  @for (step of steps; track i; let i = $index) {
+  <li (click)="handleStepClick(i)"
+    [class.cursor-not-allowed]="!canNavigate(i)"
+    [class.opacity-50]="!canNavigate(i)"
+    [class.text-primary-100]="currentStep === i"
+    class="flex-1 cursor-pointer">
+    <span
+      class="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 mx-auto border-2 border-primary-100 dark:border-primary-50 shrink-0 rounded-full"
+      [class.bg-primary-100]="currentStep === i"
+      [class.text-white]="currentStep === i">
+      {{ i + 1 }}
+    </span>
+    <span class="md:block mt-2 hidden">{{ step }}</span>
+  </li>
+  }
+</ol>
+
+<h3 class="block md:hidden mt-2 text-center text-2xl text-primary-100 dark:text-white pb-4">
+  {{ steps[currentStep] }}
+</h3>
+
+<div class="md:p-8">
+  <ng-container *ngTemplateOutlet="currentTemplate"></ng-container>
+
+  <div class="flex justify-end mt-6 space-x-4">
+    <button (click)="goBack()" [disabled]="currentStep === 0"
+      [ngClass]="{
+        'text-gray-500 dark:text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white': currentStep !== 0,
+        'text-gray-300 dark:text-gray-600 cursor-not-allowed': currentStep === 0
+      }"
+      class="px-4 py-2 flex items-center justify-center text-base font-medium rounded-lg bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700">
+      <svg class="min-w-4 w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+        <path fill="currentColor"
+          d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z" />
+      </svg>
+      {{ previousLabel | translate }}
+    </button>
+
+    <button (click)="goNext()" [disabled]="isLastStep || !canAdvance"
+      [ngClass]="{
+        'hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white': !isLastStep && canAdvance,
+        'cursor-not-allowed opacity-50': isLastStep || !canAdvance
+      }"
+      class="px-4 py-2 flex items-center justify-center text-base font-medium rounded-lg text-gray-500 bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400">
+      {{ nextLabel | translate }}
+      <svg class="min-w-4 w-4 h-4 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+        <path fill="currentColor"
+          d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z" />
+      </svg>
+    </button>
+
+    @if (isLastStep) {
+    <button (click)="submitted.emit()" [disabled]="submitDisabled"
+      [ngClass]="submitDisabled ? 'opacity-50' : 'hover:bg-primary-50'"
+      class="px-4 py-2 text-base font-medium text-white rounded-lg bg-primary-100">
+      {{ submitLabel | translate }}
+    </button>
+    }
+  </div>
+</div>
