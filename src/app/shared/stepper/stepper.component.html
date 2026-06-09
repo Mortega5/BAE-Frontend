@@ -21,7 +21,11 @@
 </h3>
 
 <div class="md:p-8">
-  <ng-container *ngTemplateOutlet="currentTemplate"></ng-container>
+  @if (loading) {
+    <app-loading-spinner />
+  } @else {
+    <ng-container *ngTemplateOutlet="currentTemplate"></ng-container>
+  }
 
   <div class="flex justify-end mt-6 space-x-4">
     <button (click)="goBack()" [disabled]="currentStep === 0"
@@ -50,7 +54,7 @@
       </svg>
     </button>
 
-    @if (isLastStep) {
+    @if (isLastStep || submitAlwaysVisible) {
     <button (click)="submitted.emit()" [disabled]="submitDisabled"
       [ngClass]="submitDisabled ? 'opacity-50' : 'hover:bg-primary-50'"
       class="px-4 py-2 text-base font-medium text-white rounded-lg bg-primary-100">

@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { StepperStepDirective } from './stepper-step.directive';
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 
 export interface StepChangedEvent {
   step: number;
@@ -19,7 +20,7 @@ export interface StepChangedEvent {
   selector: 'app-stepper',
   templateUrl: './stepper.component.html',
   standalone: true,
-  imports: [NgClass, NgTemplateOutlet, TranslateModule],
+  imports: [NgClass, NgTemplateOutlet, TranslateModule, LoadingSpinnerComponent],
 })
 export class StepperComponent {
   @Input() steps: string[] = [];
@@ -31,6 +32,8 @@ export class StepperComponent {
   @Input() nextLabel = 'CREATE_OFFER._next_step';
   @Input() submitLabel = 'Submit';
   @Input() submitDisabled = false;
+  @Input() submitAlwaysVisible = false;
+  @Input() loading = false;
 
   @Output() stepChanged = new EventEmitter<StepChangedEvent>();
   @Output() submitted = new EventEmitter<void>();

@@ -3,14 +3,12 @@ import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} fr
 import {GeneralInfoComponent} from "./general-info/general-info.component";
 import {TranslateModule} from "@ngx-translate/core";
 import {ProdSpecComponent} from "./prod-spec/prod-spec.component";
-import {NgClass, NgIf} from "@angular/common";
 import {ApiServiceService} from "../../../services/product-service.service";
 import {CategoryComponent} from "./category/category.component";
 import {LicenseComponent} from "./license/license.component";
 import {PricePlansComponent} from "./price-plans/price-plans.component";
 import {CatalogueComponent} from "./catalogue/catalogue.component";
 import {ProcurementModeComponent} from "./procurement-mode/procurement-mode.component"
-import {ReplicationVisibilityComponent} from "./replication-visibility/replication-visibility.component"
 import {OfferSummaryComponent} from "./offer-summary/offer-summary.component"
 import { lastValueFrom } from 'rxjs';
 import {components} from "src/app/models/product-catalog";
@@ -22,6 +20,8 @@ import { certifications } from 'src/app/models/certification-standards.const';
 import {Subject} from "rxjs";
 import { takeUntil } from 'rxjs/operators';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { StepperComponent, StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
+import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
 
 type ProductOffering_Create = components["schemas"]["ProductOffering_Create"];
 type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
@@ -39,10 +39,10 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
     PricePlansComponent,
     CatalogueComponent,
     ProcurementModeComponent,
-    ReplicationVisibilityComponent,
     OfferSummaryComponent,
-    NgClass,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    StepperComponent,
+    StepperStepDirective,
   ],
   templateUrl: './offer.component.html',
   styleUrl: './offer.component.css'
@@ -55,7 +55,6 @@ export class OfferComponent implements OnInit, OnDestroy{
 
   productOfferForm: FormGroup;
   currentStep = 0;
-  highestStep = 0;
   steps = [
     'General Info',
     'Product Specification',
@@ -139,20 +138,15 @@ export class OfferComponent implements OnInit, OnDestroy{
     this.destroy$.complete();
   }
 
-  goToStep(index: number) {
-    // Solo validar en modo creación
-    if (this.formType === 'create' && index > this.currentStep) {
-      // Validar el paso actual
-      const currentStepValid = this.validateCurrentStep();
-      if (!currentStepValid) {
-        return; // No permitir avanzar si el paso actual no es válido
-      }
+  get canAdvance(): boolean {
+    if (this.formType === 'update') {
+      return this.isFormValid;
     }
-    
-    this.currentStep = index;
-    if(this.currentStep>this.highestStep){
-      this.highestStep=this.currentStep
-    }
+    return this.validateCurrentStep();
+  }
+
+  onStepChanged(event: StepChangedEvent): void {
+    this.currentStep = event.step;
   }
 
   validateCurrentStep(): boolean {
@@ -177,22 +171,6 @@ export class OfferComponent implements OnInit, OnDestroy{
         return true;
     }
   }
-
-  canNavigate(index: number) {
-    if(this.formType == 'create'){
-      return (this.productOfferForm.get('generalInfo')?.valid &&  (index <= this.currentStep)) || (this.productOfferForm.get('generalInfo')?.valid &&  (index <= this.highestStep));
-    } else {
-      //return this.productOfferForm.get('generalInfo')?.valid
-      return this.isFormValid
-    }
-  }  
-
-  handleStepClick(index: number): void {
-    if (this.canNavigate(index)) {
-      this.goToStep(index);
-    }
-  }
-  
 
   submitForm() {
     if (this.formType === 'update') {
