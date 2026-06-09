@@ -2017,7 +2017,12 @@
     "_values": "Valores",
     "_add_char_value": "Añadir valor",
     "_save_char": "Guardar características",
-    "_range": "Rango"
+    "_range": "Rango",
+    "_add_value": "Añadir valor",
+    "_amount": "Cantidad",
+    "_unit": "Unidad",
+    "_from": "Desde",
+    "_to": "Hasta"
   },
   "UPDATE_SOFTWARE": {
     "_save": "Save",

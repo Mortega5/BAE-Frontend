@@ -70,6 +70,31 @@
     </ol>
     }
 
+    @if (field.type === 'rangeValue') {
+    <app-range-value-input [formControlName]="field.name"
+      [fromPlaceholder]="asRangeValue(field).fromPlaceholder ?? ''"
+      [toPlaceholder]="asRangeValue(field).toPlaceholder ?? ''"
+      [unitPlaceholder]="asRangeValue(field).unitPlaceholder ?? ''"
+      [setLabel]="asRangeValue(field).setLabel ?? '_set'"
+      [isReadonly]="field.readonly ?? false" />
+    }
+
+    @if (field.type === 'unitValue') {
+    <app-unit-value-input [formControlName]="field.name"
+      [addLabel]="asUnitValue(field).addLabel ?? '_add'"
+      [valuePlaceholder]="asUnitValue(field).valuePlaceholder ?? ''"
+      [unitPlaceholder]="asUnitValue(field).unitPlaceholder ?? ''"
+      [isReadonly]="field.readonly ?? false" />
+    }
+
+    @if (field.type === 'multiValueString') {
+    <app-multi-value-input [formControlName]="field.name"
+      [placeholder]="$any(field).placeholder ?? ''"
+      [addLabel]="asMultiValue(field).addLabel ?? '_add'"
+      [maxLength]="$any(field).maxLength ?? 524288"
+      [isReadonly]="field.readonly ?? false" />
+    }
+
     @if (field.type === 'textarea') {
     <textarea [id]="field.name" [formControlName]="field.name" [placeholder]="$any(field).placeholder ?? ''"
       [maxLength]="$any(field).maxLength ?? 524288" [rows]="$any(field).rows ?? 4" [attr.readonly]="field.readonly || null"

@@ -2016,7 +2016,12 @@
     "_values": "Values",
     "_add_char_value": "Add value",
     "_save_char": "Save characteristic",
-    "_range": "Range"
+    "_range": "Range",
+    "_add_value": "Add value",
+    "_amount": "Amount",
+    "_unit": "Unit",
+    "_from": "From",
+    "_to": "To"
   },
   "UPDATE_SOFTWARE": {
     "_save": "Save",

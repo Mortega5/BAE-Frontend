@@ -1,0 +1,30 @@
+<div class="flex flex-col gap-2">
+  @if (!isReadonly) {
+  <div class="flex gap-2 flex-wrap">
+    <input type="number" [(ngModel)]="inputValue" [placeholder]="valuePlaceholder | translate"
+      (keyup.enter)="add()"
+      class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 flex-1 min-w-24" />
+    <input type="text" [(ngModel)]="inputUnit" [placeholder]="unitPlaceholder | translate"
+      (keyup.enter)="add()"
+      class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 w-28" />
+    <button type="button" (click)="add()" [disabled]="!canAdd"
+      class="px-4 py-2 text-sm font-medium text-white bg-primary-100 rounded-lg hover:bg-primary-50 disabled:opacity-50 whitespace-nowrap">
+      {{ addLabel | translate }}
+    </button>
+  </div>
+  }
+  @if (entries.length > 0) {
+  <div class="flex flex-wrap gap-2">
+    @for (entry of entries; track entry; let i = $index) {
+    <span
+      class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-blue-100 dark:bg-secondary-300 text-blue-800 dark:text-white">
+      {{ entry.value }} ({{ entry.unit }})
+      @if (!isReadonly) {
+      <button type="button" (click)="remove(i)"
+        class="ml-1 text-blue-500 dark:text-gray-300 hover:text-red-500">✕</button>
+      }
+    </span>
+    }
+  </div>
+  }
+</div>

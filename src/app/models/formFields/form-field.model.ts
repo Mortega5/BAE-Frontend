@@ -59,4 +59,24 @@ export interface StatusPickerFormField extends BaseFormField {
   options: StatusPickerOption[];
 }
 
-export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField;
+export interface MultiValueStringFormField extends TextBaseFormField {
+  type: 'multiValueString';
+  addLabel?: string;
+}
+
+export interface UnitValueFormField extends BaseFormField {
+  type: 'unitValue';
+  addLabel?: string;
+  valuePlaceholder?: string;
+  unitPlaceholder?: string;
+}
+
+export interface RangeValueFormField extends BaseFormField {
+  type: 'rangeValue';
+  fromPlaceholder?: string;
+  toPlaceholder?: string;
+  unitPlaceholder?: string;
+  setLabel?: string;
+}
+
+export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField;
