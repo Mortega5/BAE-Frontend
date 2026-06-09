@@ -155,7 +155,6 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
       name: this.generalForm.value.name,
       description: this.generalForm.value.description ?? '',
       resourceStatus: this.generalForm.value.resourceStatus,
-      resourceCharacteristic: this.resourceCharacteristics,
     };
   }
 

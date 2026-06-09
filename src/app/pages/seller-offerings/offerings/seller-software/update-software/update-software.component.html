@@ -37,13 +37,8 @@
     <h2 class="text-3xl font-bold text-primary-100 dark:text-white ml-4 pb-4">{{ 'UPDATE_SOFTWARE._edit' | translate }}
     </h2>
 
-    <app-stepper
-      [steps]="steps"
-      [allUnlocked]="true"
-      [canAdvance]="canAdvance"
-      submitLabel="UPDATE_SOFTWARE._save"
-      [submitDisabled]="!generalForm.valid || loading"
-      (stepChanged)="onStepChanged($event)"
+    <app-stepper [steps]="steps" [allUnlocked]="true" [canAdvance]="canAdvance" submitLabel="UPDATE_SOFTWARE._save"
+      [submitDisabled]="!generalForm.valid || loading" (stepChanged)="onStepChanged($event)"
       (submitted)="updateSoftware()">
 
       <ng-template stepperStep>
@@ -55,7 +50,8 @@
       </ng-template>
 
       <ng-template stepperStep>
-        <app-software-characteristics class="block m-4" [(characteristics)]="resourceCharacteristics" />
+        <app-software-characteristics [readonly]="true" class="block m-4"
+          [(characteristics)]="resourceCharacteristics" />
       </ng-template>
 
       <ng-template stepperStep>
@@ -106,8 +102,7 @@
             <markdown [ngClass]="{
                 'break-all': hasLongWord(softwareToUpdate?.description, 20),
                 'break-words': !hasLongWord(softwareToUpdate?.description, 20)
-              }"
-              class="bg-gray-50 text-wrap break-words dark:bg-secondary-300 dark:text-white text-gray-900"
+              }" class="bg-gray-50 text-wrap break-words dark:bg-secondary-300 dark:text-white text-gray-900"
               [data]="softwareToUpdate?.description"></markdown>
           </div>
           }
