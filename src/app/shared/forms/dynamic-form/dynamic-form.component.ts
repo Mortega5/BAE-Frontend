@@ -2,15 +2,18 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { FormField, SelectableFormField, StatusPickerFormField } from 'src/app/models/formFields/form-field.model';
+import { FormField, MultiValueStringFormField, RangeValueFormField, SelectableFormField, StatusPickerFormField, UnitValueFormField } from 'src/app/models/formFields/form-field.model';
 import { MarkdownTextareaComponent } from '../markdown-textarea/markdown-textarea.component';
+import { MultiValueInputComponent } from '../multi-value-input/multi-value-input.component';
+import { RangeValueInputComponent } from '../range-value-input/range-value-input.component';
+import { UnitValueInputComponent } from '../unit-value-input/unit-value-input.component';
 import { StatusFieldComponent } from '../../status-field/status-field.component';
 
 @Component({
   selector: 'app-dynamic-form',
   templateUrl: './dynamic-form.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent, MultiValueInputComponent, UnitValueInputComponent, RangeValueInputComponent],
 })
 export class DynamicFormComponent {
   @Input() fields: FormField[] = [];
@@ -32,5 +35,17 @@ export class DynamicFormComponent {
 
   asStatusPicker(field: FormField): StatusPickerFormField {
     return field as StatusPickerFormField;
+  }
+
+  asMultiValue(field: FormField): MultiValueStringFormField {
+    return field as MultiValueStringFormField;
+  }
+
+  asUnitValue(field: FormField): UnitValueFormField {
+    return field as UnitValueFormField;
+  }
+
+  asRangeValue(field: FormField): RangeValueFormField {
+    return field as RangeValueFormField;
   }
 }

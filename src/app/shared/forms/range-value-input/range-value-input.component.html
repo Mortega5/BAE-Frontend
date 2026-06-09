@@ -1,0 +1,29 @@
+<div class="flex flex-col gap-2">
+  @if (!isReadonly) {
+  <div class="flex gap-2 flex-wrap">
+    <input type="number" [(ngModel)]="inputFrom" [placeholder]="fromPlaceholder | translate"
+      (keyup.enter)="set()"
+      class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 flex-1 min-w-24" />
+    <input type="number" [(ngModel)]="inputTo" [placeholder]="toPlaceholder | translate"
+      (keyup.enter)="set()"
+      class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 flex-1 min-w-24" />
+    <input type="text" [(ngModel)]="inputUnit" [placeholder]="unitPlaceholder | translate"
+      (keyup.enter)="set()"
+      class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 w-28" />
+    <button type="button" (click)="set()" [disabled]="!canSet"
+      class="px-4 py-2 text-sm font-medium text-white bg-primary-100 rounded-lg hover:bg-primary-50 disabled:opacity-50 whitespace-nowrap">
+      {{ setLabel | translate }}
+    </button>
+  </div>
+  }
+  @if (current) {
+  <span
+    class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full w-fit bg-blue-100 dark:bg-secondary-300 text-blue-800 dark:text-white">
+    {{ current.from }} – {{ current.to }} ({{ current.unit }})
+    @if (!isReadonly) {
+    <button type="button" (click)="clear()"
+      class="ml-1 text-blue-500 dark:text-gray-300 hover:text-red-500">✕</button>
+    }
+  </span>
+  }
+</div>

@@ -1,8 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormGroup, FormsModule } from '@angular/forms';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { components } from 'src/app/models/software-catalog';
+import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { PackageDeploymentComponent } from '../../../../../shared/forms/package-deployment/package-deployment';
@@ -17,116 +21,96 @@ const CHAR_TYPE_OPTIONS: { value: CharType; label: string }[] = [
   { value: 'deployment', label: 'Deployment Definition' },
 ];
 
-interface PendingValue {
-  value?: string | number;
-  unit?: string;
-  from?: number;
-  to?: number;
-  isDefault?: boolean;
-}
-
 @Component({
   selector: 'app-software-characteristics',
   templateUrl: './software-characteristics.component.html',
   styleUrl: './software-characteristics.component.css',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, PackageDeploymentComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, PackageDeploymentComponent, DynamicFormComponent],
 })
-export class SoftwareCharacteristicsComponent {
+export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
   @Input() characteristics: Characteristic[] = [];
   @Input() readonly: boolean = false;
   @Output() characteristicsChange = new EventEmitter<Characteristic[]>();
 
-  readonly charTypeOptions = CHAR_TYPE_OPTIONS;
-
   showAddForm = false;
-  charName = '';
-  charType: CharType = 'string';
 
-  pendingValues: PendingValue[] = [];
-  stringValue = '';
-  numberValue = '';
-  numberUnit = '';
-  fromValue = '';
-  toValue = '';
-  rangeUnit = '';
+  charForm = new FormGroup({
+    charName: new FormControl<string>('', { nonNullable: true }),
+    charType: new FormControl<CharType>('string', { nonNullable: true }),
+    value: new FormControl<any>(null),
+  });
 
   deploymentForm: FormGroup | null = null;
 
-  get canSave(): boolean {
-    if (!this.charName.trim()) return false;
-    if (this.charType === 'deployment') return this.deploymentForm?.valid ?? false;
-    return this.pendingValues.length > 0;
+  private destroy$ = new Subject<void>();
+
+  readonly headerFields: FormField[] = [
+    { type: 'string', name: 'charName', label: 'CREATE_SOFTWARE._name', required: true, maxLength: 100, colSpan: 1 },
+    { type: 'select', name: 'charType', label: 'CREATE_SOFTWARE._type', options: CHAR_TYPE_OPTIONS, colSpan: 1 },
+  ];
+
+  get charType(): CharType {
+    return this.charForm.get('charType')!.value;
   }
 
-  onTypeChange(type: CharType) {
-    this.charType = type;
-    this.pendingValues = [];
-    this.deploymentForm = null;
-    this.clearValueInputs();
-    if (type === 'deployment' && !this.charName) {
-      this.charName = 'deploymentDefinition';
+  get valueFields(): FormField[] {
+    switch (this.charType) {
+      case 'string': return [{ type: 'multiValueString', name: 'value', label: 'CREATE_SOFTWARE._values', addLabel: 'CREATE_SOFTWARE._add_char_value', placeholder: 'CREATE_SOFTWARE._add_value' }];
+      case 'number': return [{ type: 'unitValue', name: 'value', label: 'CREATE_SOFTWARE._values', addLabel: 'CREATE_SOFTWARE._add_char_value', valuePlaceholder: 'CREATE_SOFTWARE._amount', unitPlaceholder: 'CREATE_SOFTWARE._unit' }];
+      case 'range': return [{ type: 'rangeValue', name: 'value', label: 'CREATE_SOFTWARE._range', setLabel: 'CREATE_SOFTWARE._add_value', fromPlaceholder: 'CREATE_SOFTWARE._from', toPlaceholder: 'CREATE_SOFTWARE._to', unitPlaceholder: 'CREATE_SOFTWARE._unit' }];
+      default: return [];
     }
+  }
+
+  get canSave(): boolean {
+    if (!this.charForm.get('charName')!.value.trim()) return false;
+    if (this.charType === 'deployment') return this.deploymentForm?.valid ?? false;
+    const v = this.charForm.get('value')?.value;
+    if (this.charType === 'range') return v != null;
+    return Array.isArray(v) && v.length > 0;
+  }
+
+  ngOnInit() {
+    this.charForm.get('charType')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(type => {
+        this.charForm.patchValue({ value: null });
+        this.deploymentForm = null;
+        if (type === 'deployment' && !this.charForm.get('charName')!.value) {
+          this.charForm.patchValue({ charName: 'deploymentDefinition' });
+        }
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onDeploymentFormReady(form: FormGroup) {
     this.deploymentForm = form;
   }
 
-  addStringValue() {
-    const v = this.stringValue.trim();
-    if (!v) return;
-    this.pendingValues.push({ value: v, isDefault: this.pendingValues.length === 0 });
-    this.stringValue = '';
-  }
-
-  addNumberValue() {
-    const v = this.numberValue;
-    const u = this.numberUnit.trim();
-    if (!v || !u) return;
-    this.pendingValues.push({ value: Number(v), unit: u, isDefault: this.pendingValues.length === 0 });
-    this.numberValue = '';
-    this.numberUnit = '';
-  }
-
-  setRangeValue() {
-    const f = this.fromValue;
-    const t = this.toValue;
-    const u = this.rangeUnit.trim();
-    if (!f || !t || !u) return;
-    this.pendingValues = [{ from: Number(f), to: Number(t), unit: u }];
-    this.fromValue = '';
-    this.toValue = '';
-    this.rangeUnit = '';
-  }
-
-  removePending(idx: number) {
-    this.pendingValues.splice(idx, 1);
-    if (this.pendingValues.length > 0 && !this.pendingValues.some(v => v.isDefault)) {
-      this.pendingValues[0].isDefault = true;
-    }
-  }
-
   saveChar() {
     if (!this.canSave) return;
 
+    const formValue = this.charForm.get('value')?.value;
     let value: any;
     if (this.charType === 'deployment') {
       value = this.deploymentForm!.value;
     } else if (this.charType === 'range') {
-      const pv = this.pendingValues[0];
-      value = { from: pv.from, to: pv.to, unit: pv.unit };
+      value = formValue;
     } else if (this.charType === 'number') {
-      value = this.pendingValues.map(pv => ({ amount: pv.value, unit: pv.unit, isDefault: pv.isDefault }));
+      value = (formValue as { value: number; unit: string }[])
+        .map((pv, i) => ({ amount: pv.value, unit: pv.unit, isDefault: i === 0 }));
     } else {
-      value = this.pendingValues.length === 1
-        ? this.pendingValues[0].value
-        : this.pendingValues.map(pv => pv.value);
+      value = formValue.length === 1 ? formValue[0] : formValue;
     }
 
     const char: any = {
       id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
-      name: this.charName.trim(),
+      name: this.charForm.get('charName')!.value.trim(),
       valueType: this.charType,
       ...(this.charType === 'deployment' && { '@schemaLocation': environment.DEPLOYMENT_SCHEMA_LOCATION }),
       value,
@@ -168,19 +152,7 @@ export class SoftwareCharacteristicsComponent {
 
   private resetForm() {
     this.showAddForm = false;
-    this.charName = '';
-    this.charType = 'string';
-    this.pendingValues = [];
+    this.charForm.reset({ charName: '', charType: 'string', value: null });
     this.deploymentForm = null;
-    this.clearValueInputs();
-  }
-
-  private clearValueInputs() {
-    this.stringValue = '';
-    this.numberValue = '';
-    this.numberUnit = '';
-    this.fromValue = '';
-    this.toValue = '';
-    this.rangeUnit = '';
   }
 }
