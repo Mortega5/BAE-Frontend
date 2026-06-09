@@ -3,8 +3,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormGroup, FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { components } from 'src/app/models/software-catalog';
-import { v4 as uuidv4 } from 'uuid';
 import { environment } from 'src/environments/environment';
+import { v4 as uuidv4 } from 'uuid';
 import { PackageDeploymentComponent } from '../../../../../shared/forms/package-deployment/package-deployment';
 
 type Characteristic = components['schemas']['Characteristic'];
@@ -34,6 +34,7 @@ interface PendingValue {
 })
 export class SoftwareCharacteristicsComponent {
   @Input() characteristics: Characteristic[] = [];
+  @Input() readonly: boolean = false;
   @Output() characteristicsChange = new EventEmitter<Characteristic[]>();
 
   readonly charTypeOptions = CHAR_TYPE_OPTIONS;
@@ -136,8 +137,10 @@ export class SoftwareCharacteristicsComponent {
     this.resetForm();
   }
 
-  deleteChar(char: Characteristic) {
-    this.characteristics = this.characteristics.filter(c => c.id !== char.id);
+  deleteChar(index: number) {
+    const updated = [...this.characteristics];
+    updated.splice(index, 1);
+    this.characteristics = updated;
     this.characteristicsChange.emit(this.characteristics);
   }
 
