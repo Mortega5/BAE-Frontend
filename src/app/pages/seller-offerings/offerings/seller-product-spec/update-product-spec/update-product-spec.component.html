@@ -36,150 +36,16 @@
   <div class="bg-secondary-50 dark:bg-secondary-100 mt-4 p-8 rounded-lg">
     <h2 class="text-3xl font-bold text-primary-100 ml-4 pb-4 dark:text-white">{{ 'UPDATE_PROD_SPEC._update_prod' |
       translate }}</h2>
-    <ol class="flex items-start w-full text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-      @for (step of steps; track i; let i = $index) {
-      <li (click)="handleStepClick(i)" [class.cursor-not-allowed]="!canNavigate(i)" [class.opacity-50]="!canNavigate(i)"
-        [class.text-primary-100]="currentStepIdx === i" class="flex-1 cursor-pointer">
-        <span
-          class="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 mx-auto border-2 border-primary-100 dark:border-primary-50 shrink-0 rounded-full"
-          [class.bg-primary-100]="currentStepIdx === i" [class.text-white]="currentStepIdx === i">
-          {{ i + 1 }}
-        </span>
-        <span class="md:block mt-2 hidden">{{ step.label }}</span>
-      </li>
-      }
-    </ol>
-    <div class="md:p-8">
-      <div>
-        @if (currentStep.id === 'general') {
-        <form class="m-4 md:grid md:grid-cols-2 gap-4" [formGroup]="generalForm">
-          <div>
-            <label for="prod-name" class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._product_name' |
-              translate }}</label>
-            <input formControlName="name" type="text" id="prod-name" maxLength="100"
-              [ngClass]="generalForm.get('name')?.invalid == true && generalForm.value.name!='' ? 'border-red-600' : 'border-gray-300'"
-              class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-            <label for="prod-version" class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._product_version' |
-              translate }}</label>
-            <input formControlName="version" type="text" id="prod-version"
-              [ngClass]="generalForm.get('version')?.invalid == true ? 'border-red-600' : 'border-gray-300'"
-              class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+    <app-stepper [steps]="steps" [canAdvance]="canAdvance" [allUnlocked]="true"
+      submitLabel="UPDATE_PROD_SPEC._update_prod" [submitDisabled]="loading" (stepChanged)="onStepChanged($event)"
+      (submitted)="updateProduct()">
 
-          </div>
-          <div>
-            <label for="prod-brand" class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._product_brand' |
-              translate }}</label>
-            <input formControlName="brand" type="text" id="prod-brand"
-              [ngClass]="generalForm.get('brand')?.invalid == true && generalForm.value.brand!='' ? 'border-red-600' : 'border-gray-300'"
-              class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-            <label for="prod-number" class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._id_number' |
-              translate }}</label>
-            <input formControlName="number" type="text" id="prod-number"
-              class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+      <ng-template stepperStep>
+        <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" [columns]="2" />
+      </ng-template>
 
-          </div>
-          <label class="font-bold text-lg col-span-2 dark:text-white">{{ 'UPDATE_RES_SPEC._status' | translate
-            }}</label>
-          <div class="mb-2 col-span-2">
-
-            <ol
-              class="flex items-center w-full text-sm font-medium text-center text-gray-500 dark:text-gray-200 sm:text-base">
-              @if(prodStatus=='Active'){
-              <li (click)="setProdStatus('Active')"
-                class="cursor-pointer flex w-fit md:w-full items-center text-blue-500 after:w-full after:h-1 after:border-b after:border-gray-700 dark:after:border-gray-400 after:border-1 after:mx-2 md:after:mx-6 xl:after:mx-10">
-                <span class="flex items-center">
-                  <svg class="w-6 h-6 text-blue-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
-                      d="M8.737 8.737a21.49 21.49 0 0 1 3.308-2.724m0 0c3.063-2.026 5.99-2.641 7.331-1.3 1.827 1.828.026 6.591-4.023 10.64-4.049 4.049-8.812 5.85-10.64 4.023-1.33-1.33-.736-4.218 1.249-7.253m6.083-6.11c-3.063-2.026-5.99-2.641-7.331-1.3-1.827 1.828-.026 6.591 4.023 10.64m3.308-9.34a21.497 21.497 0 0 1 3.308 2.724m2.775 3.386c1.985 3.035 2.579 5.923 1.248 7.253-1.336 1.337-4.245.732-7.295-1.275M14 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" />
-                  </svg>
-                  {{ 'UPDATE_PROD_SPEC._active' | translate }}
-                </span>
-              </li>
-              }@else{
-              <li (click)="setProdStatus('Active')"
-                class="cursor-pointer flex w-fit md:w-full items-center after:w-full after:h-1 after:border-b after:border-gray-700 dark:after:border-gray-400 after:border-1 after:mx-2 md:after:mx-6 xl:after:mx-10">
-                <span class="flex items-center">
-                  {{ 'UPDATE_PROD_SPEC._active' | translate }}
-                </span>
-              </li>
-              }
-              @if(prodStatus=='Launched'){
-              <li (click)="setProdStatus('Launched')"
-                class="cursor-pointer flex w-fit md:w-full items-center text-green-700 after:w-full after:h-1 after:border-b after:border-gray-700 dark:after:border-gray-400 after:border-1 after:mx-2 md:after:mx-6 xl:after:mx-10">
-                <span class="flex items-center">
-                  <svg class="w-6 h-6 text-green-700" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
-                      d="M8.737 8.737a21.49 21.49 0 0 1 3.308-2.724m0 0c3.063-2.026 5.99-2.641 7.331-1.3 1.827 1.828.026 6.591-4.023 10.64-4.049 4.049-8.812 5.85-10.64 4.023-1.33-1.33-.736-4.218 1.249-7.253m6.083-6.11c-3.063-2.026-5.99-2.641-7.331-1.3-1.827 1.828-.026 6.591 4.023 10.64m3.308-9.34a21.497 21.497 0 0 1 3.308 2.724m2.775 3.386c1.985 3.035 2.579 5.923 1.248 7.253-1.336 1.337-4.245.732-7.295-1.275M14 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" />
-                  </svg>
-                  {{ 'UPDATE_PROD_SPEC._launched' | translate }}
-                </span>
-              </li>
-              }@else{
-              <li data-cy="productSpecStatusLaunched" (click)="setProdStatus('Launched')"
-                class="cursor-pointer flex w-fit md:w-full items-center after:w-full after:h-1 after:border-b after:border-gray-700 dark:after:border-gray-400 after:border-1 after:mx-2 md:after:mx-6 xl:after:mx-10">
-                <span class="flex items-center">
-                  {{ 'UPDATE_PROD_SPEC._launched' | translate }}
-                </span>
-              </li>
-              }
-              @if(prodStatus=='Retired'){
-              <li (click)="setProdStatus('Retired')"
-                class="cursor-pointer flex w-fit md:w-full items-center text-yellow-500 after:w-full after:h-1 after:border-b after:border-gray-700 dark:after:border-gray-400 after:border-1 after:mx-2 md:after:mx-6 xl:after:mx-10">
-                <span class="flex items-center">
-                  <svg class="w-6 h-6 text-yellow-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
-                      d="M8.737 8.737a21.49 21.49 0 0 1 3.308-2.724m0 0c3.063-2.026 5.99-2.641 7.331-1.3 1.827 1.828.026 6.591-4.023 10.64-4.049 4.049-8.812 5.85-10.64 4.023-1.33-1.33-.736-4.218 1.249-7.253m6.083-6.11c-3.063-2.026-5.99-2.641-7.331-1.3-1.827 1.828-.026 6.591 4.023 10.64m3.308-9.34a21.497 21.497 0 0 1 3.308 2.724m2.775 3.386c1.985 3.035 2.579 5.923 1.248 7.253-1.336 1.337-4.245.732-7.295-1.275M14 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" />
-                  </svg>
-                  {{ 'UPDATE_PROD_SPEC._retired' | translate }}
-                </span>
-              </li>
-              }@else{
-              <li (click)="setProdStatus('Retired')"
-                class="cursor-pointer flex w-fit md:w-full items-center after:w-full after:h-1 after:border-b after:border-gray-700 dark:after:border-gray-400 after:border-1 after:mx-2 md:after:mx-6 xl:after:mx-10">
-                <span class="flex items-center">
-                  {{ 'UPDATE_PROD_SPEC._retired' | translate }}
-                </span>
-              </li>
-              }
-              @if(prodStatus=='Obsolete'){
-              <li (click)="setProdStatus('Obsolete')" class="cursor-pointer flex items-center">
-                <span class="flex items-center text-red-800">
-                  <svg class="w-6 h-6 text-red-800" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                    height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
-                      d="M8.737 8.737a21.49 21.49 0 0 1 3.308-2.724m0 0c3.063-2.026 5.99-2.641 7.331-1.3 1.827 1.828.026 6.591-4.023 10.64-4.049 4.049-8.812 5.85-10.64 4.023-1.33-1.33-.736-4.218 1.249-7.253m6.083-6.11c-3.063-2.026-5.99-2.641-7.331-1.3-1.827 1.828-.026 6.591 4.023 10.64m3.308-9.34a21.497 21.497 0 0 1 3.308 2.724m2.775 3.386c1.985 3.035 2.579 5.923 1.248 7.253-1.336 1.337-4.245.732-7.295-1.275M14 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" />
-                  </svg>
-                  {{ 'UPDATE_PROD_SPEC._obsolete' | translate }}
-                </span>
-              </li>
-              }@else{
-              <li (click)="setProdStatus('Obsolete')" class="cursor-pointer flex items-center">
-                <span class="flex items-center">
-                  {{ 'UPDATE_PROD_SPEC._obsolete' | translate }}
-                </span>
-              </li>
-              }
-            </ol>
-
-          </div>
-          <label for="prod-name" class="font-bold text-lg col-span-2 dark:text-white">{{
-            'UPDATE_PROD_SPEC._product_description' | translate }}</label>
-          <app-markdown-textarea class="col-span-2" formControlName="description"></app-markdown-textarea>
-
-        </form>
-        <!--<div class="flex w-full justify-items-end justify-end">
-                        <button data-cy="btnNext" type="button" (click)="goToStep(currentStep + 1)" [disabled]="!generalForm.valid" [ngClass]="!generalForm.valid ? 'opacity-50' : 'hover:bg-primary-50'" class="flex text-white justify-end align-end bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
-                            {{ 'UPDATE_PROD_SPEC._next' | translate }}
-                            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                            </svg>
-                        </button>
-                    </div>-->
-        }
-        @if (currentStep.id === 'bundle') {
+      @if (BUNDLE_ENABLED) {
+      <ng-template stepperStep>
         <div class="col-span-2 flex align-items-middle h-fit m-4">
           <label for="prod-brand" class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._is_bundled' |
             translate }}</label>
@@ -312,8 +178,9 @@
                             </svg>
                         </button>
                     </div>-->
-        }
-        @if (isCurrentStep('compliance')) {
+      </ng-template>
+      }
+      <ng-template stepperStep>
         <div class="flex w-full items-center px-4 mb-3">
           <div class="flex items-center">
             @if(complianceVC && complianceLevel=='BL'){
@@ -668,8 +535,8 @@
         </div>
         }
 
-        }
-        @if (isCurrentStep('characteristics') || isCurrentStep('dataspace')) {
+      </ng-template>
+      <ng-template #charsShared>
         @if (getFilteredCharacteristicsForCurrentStep().length === 0){
         <div class="flex justify-center w-full m-4">
           <div
@@ -724,7 +591,7 @@
                 <td class="px-6 py-4 text-wrap break-all">
                   @for (char of prod.productSpecCharacteristicValue; track char; let last = $last) {
                   @if(char.value || char.value == 0){
-                  @if(isDataSpaceCharacteristicType(prod.valueType)){
+                  @if(isJsonCharacteristicType(prod.valueType)){
                   @if(!last){
                   {{getValuePreview(char.value)}},
                   } @else {
@@ -794,6 +661,11 @@
               (change)="onTypeChange($event)"
               class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
               @if(isDataspaceConfigurationStep()){
+              <option value="endpointUrl">Endpoint URL</option>
+              <option value="upstreamAddress">Upstream Address</option>
+              <option value="endpointDescription">Endpoint Description</option>
+              <option value="targetSpecification">Target Specification</option>
+              <option value="serviceConfiguration">Service Configuration</option>
               <option value="credentialsConfiguration">Credentials Configuration</option>
               <option value="authorizationPolicy">Authorization Policy</option>
               } @else {
@@ -810,7 +682,8 @@
             <textarea id="description" formControlName="description" rows="4" maxLength="500"
               class="mb-2 min-h-fit bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
           </div>
-          @if(!isDataspaceConfigurationStep() && charTypeSelected !== 'boolean'){
+          @if(!isDataspaceConfigurationStep() && charTypeSelected !== 'boolean' &&
+          !isJsonCharacteristicType(charTypeSelected)){
           <div class="col-span-2 flex align-items-middle h-fit">
             <label for="is-optional" class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._make_optional' |
               translate }}</label>
@@ -870,7 +743,7 @@
                 <label for="disabled-checked-checkbox"
                   class="ms-2 text-sm font-medium text-gray-700 dark:text-white text-wrap break-all">{{char.value}}
                   (<i>{{char?.unitOfMeasure}}</i>)</label>
-                } @else if (isDataSpaceCharacteristicType(charTypeSelected)) {
+                } @else if (isJsonCharacteristicType(charTypeSelected)) {
                 <label for="disabled-checked-checkbox"
                   class="ms-2 text-sm font-medium text-gray-700 dark:text-white text-wrap break-all">{{getValuePreview(char.value)}}</label>
                 } @else {
@@ -987,8 +860,7 @@
               </svg>
             </button>
           </div>
-          }
-          @else if (isDataSpaceCharacteristicType(charTypeSelected)){
+          } @else if (isJsonCharacteristicType(charTypeSelected)){
           @if(creatingChars.length === 0){
           <div class="flex flex-col w-full">
             <label for="json-value" class="font-bold text-sm dark:text-white mb-2">{{ 'UPDATE_PROD_SPEC._json_value' |
@@ -1033,9 +905,16 @@
                             </svg>
                         </button>
                     </div>  -->
-        }
-
-        @if (isCurrentStep('resource')) {
+      </ng-template>
+      <ng-template stepperStep>
+        <ng-container [ngTemplateOutlet]="charsShared"></ng-container>
+      </ng-template>
+      @if (DATA_SPACE_ENABLED) {
+      <ng-template stepperStep>
+        <ng-container [ngTemplateOutlet]="charsShared"></ng-container>
+      </ng-template>
+      }
+      <ng-template stepperStep>
         @if(loadingResourceSpec){
         <div role="status" class="w-full h-fit flex justify-center align-middle">
           <svg aria-hidden="true" class="w-12 h-12 text-gray-200 animate-spin dark:text-gray-600 fill-secondary-400"
@@ -1160,8 +1039,8 @@
                             </svg>
                         </button>
                     </div>-->
-        }
-        @if (isCurrentStep('service')) {
+      </ng-template>
+      <ng-template stepperStep>
         @if(loadingServiceSpec){
         <div role="status" class="w-full h-fit flex justify-center align-middle">
           <svg aria-hidden="true" class="w-12 h-12 text-gray-200 animate-spin dark:text-gray-600 fill-secondary-400"
@@ -1286,8 +1165,10 @@
                             </svg>
                         </button>
                     </div>-->
-        }
-        @if (currentStep.id === 'dsp_config') {
+      </ng-template>
+
+      @if (prod.externalId) {
+      <ng-template stepperStep>
         <div class="m-4">
           <h3 class="font-bold text-primary-100 dark:text-primary-50 text-left mb-4">DSP Config</h3>
 
@@ -1457,8 +1338,10 @@
             </div>
           </form>
         </div>
-        }
-        @if (isCurrentStep('attachments')) {
+      </ng-template>
+      }
+
+      <ng-template stepperStep>
         <div class="inline-flex">
           <h4 class="text-lg font-bold ml-4 dark:text-white">{{ 'UPDATE_PROD_SPEC._add_prod_img' | translate }}</h4>
           <div class="ml-4 flex">
@@ -1693,8 +1576,8 @@
                             </svg>
                         </button>
                     </div>  -->
-        }
-        @if (isCurrentStep('relationships')) {
+      </ng-template>
+      <ng-template stepperStep>
         <div class="m-4">
           @if (prodRelationships.length === 0){
           <div class="flex justify-center w-full mb-4">
@@ -1904,8 +1787,8 @@
                             </svg>
                         </button>
                     </div> -->
-        }
-        @if (isCurrentStep('summary')) {
+      </ng-template>
+      <ng-template stepperStep>
         <div class="m-8">
           @if(loading){
           <div role="status" class="w-full h-full flex justify-center align-middle">
@@ -2079,7 +1962,7 @@
                   <td class="px-6 py-4 text-wrap break-all">
                     @for (char of prod.productSpecCharacteristicValue; track char; let last = $last) {
                     @if(char.value || char.value == 0){
-                    @if(isDataSpaceCharacteristicType(prod.valueType)){
+                    @if(isJsonCharacteristicType(prod.valueType)){
                     @if(!last){
                     {{getValuePreview(char.value)}},
                     } @else {
@@ -2247,45 +2130,9 @@
                             </button>
                         </div>-->
         </div>
-        }
-
-      </div>
-      <!-- Navigation Buttons -->
-      <div class="flex justify-end mt-6 space-x-4">
-        <button (click)="goToStep(currentStepIdx - 1)" [disabled]="currentStepIdx === 0" [ngClass]="{
-                        'text-gray-500 dark:text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white': currentStepIdx !== 0,
-                        'text-gray-300 dark:text-gray-600 cursor-not-allowed': currentStepIdx === 0
-                        }"
-          class="px-4 py-2 flex items-center justify-center text-base font-medium rounded-lg  bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 ">
-          <svg class="min-w-4 w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-            <path fill="currentColor" d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3
-                            256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z" />
-          </svg>
-          {{ 'CREATE_OFFER._previous' | translate }}
-        </button>
-
-        <button data-cy="btnNext" (click)="goToStep(currentStepIdx + 1)"
-          [disabled]="currentStepIdx === steps.length - 1 || !canNavigate(currentStepIdx) || isStepDisabled()"
-          [ngClass]="{
-                        'hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white': currentStepIdx !== steps.length - 1 && (validateCurrentStep() || canNavigate(currentStepIdx)),
-                        'cursor-not-allowed opacity-50': currentStepIdx === steps.length - 1 ||  !canNavigate(currentStepIdx) || isStepDisabled()
-                        }"
-          class="px-4 py-2 flex items-center justify-center text-base font-medium rounded-lg text-gray-500 bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400">
-          {{ 'CREATE_OFFER._next_step' | translate }}
-          <svg class="min-w-4 w-4 h-4 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-            <path fill="currentColor" d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7
-                        256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z" />
-          </svg>
-        </button>
-        <button data-cy="productSpecUpdate" (click)="updateProduct()" [disabled]="isStepDisabled() || loading"
-          [ngClass]="loading || isStepDisabled() ? 'opacity-50' : 'hover:bg-primary-50'"
-          class="px-4 py-2 text-base font-medium text-white rounded-lg bg-primary-100">
-          {{ 'UPDATE_PROD_SPEC._update_prod' | translate }}
-        </button>
-      </div>
-    </div>
+      </ng-template>
+    </app-stepper>
   </div>
-
 </div>
 
 <request-validation-modal [showModal]="showRequestValidationModal" [productSpec]="prod" [selfAtt]="selfAtt"

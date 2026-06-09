@@ -2,23 +2,26 @@ import { ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestro
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
 import { jwtDecode } from "jwt-decode";
-import moment from 'moment';
+import * as moment from 'moment';
 import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { PaginationService } from 'src/app/services/pagination.service';
+import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
+import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
@@ -55,27 +58,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   DATA_SPACE_ENABLED: boolean = environment.DATA_SPACE_ENABLED;
   MAX_FILE_SIZE: number = environment.MAX_FILE_SIZE;
 
-  //CONTROL VARIABLES:
-  showGeneral: boolean = true;
-  showBundle: boolean = false;
-  showCompliance: boolean = false;
-  showChars: boolean = false;
-  showResource: boolean = false;
-  showService: boolean = false;
-  showAttach: boolean = false;
-  showRelationships: boolean = false;
-  showSummary: boolean = false;
-
-  stepsElements: string[] = ['general-info', 'bundle', 'compliance', 'chars', 'resource', 'service', 'attach', 'relationships', 'summary'];
-  stepsCircles: string[] = ['general-circle', 'bundle-circle', 'compliance-circle', 'chars-circle', 'resource-circle', 'service-circle', 'attach-circle', 'relationships-circle', 'summary-circle'];
-  currentStepIdx = 0;
-  get currentStep(): Step { return this.steps[this.currentStepIdx]; }
-  highestStepIdx = 0;
-  steps: Step[] = [];
-
-  showPreview: boolean = false;
-  showEmoji: boolean = false;
-  description: string = '';
+  currentStep = 0;
+  steps: any[] = [];
   partyId: any = '';
 
   //PRODUCT GENERAL INFO:
@@ -84,10 +68,9 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     brand: new FormControl('', [Validators.required, noWhitespaceValidator]),
     version: new FormControl('0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*)?$'), noWhitespaceValidator]),
     number: new FormControl(''),
+    lifecycleStatus: new FormControl('Active'),
     description: new FormControl('', Validators.maxLength(100000)),
   });
-  prodStatus: any;
-
   //DSP CONFIG INFO:
   newEndpointUrl: string = '';
   newEndpointDescription: string = '';
@@ -209,11 +192,16 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     'credentialsConfiguration',
     'authorizationPolicy'
   ];
+  readonly dataSpaceJsonCharacteristicTypes: string[] = [
+    'credentialsConfiguration',
+    'authorizationPolicy'
+  ];
 
   filenameRegex = /^[A-Za-z0-9_.-]+$/;
   private destroy$ = new Subject<void>();
 
   constructor(
+    private api: ApiServiceService,
     private prodSpecService: ProductSpecServiceService,
     private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
@@ -237,10 +225,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
   @HostListener('document:click')
   onClick() {
-    if (this.showEmoji == true) {
-      this.showEmoji = false;
-      this.cdr.detectChanges();
-    }
     if (this.showUploadFile == true) {
       this.showUploadFile = false;
       this.cdr.detectChanges();
@@ -266,6 +250,45 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  generalFormFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'UPDATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1 },
+    { type: 'string', name: 'brand', label: 'UPDATE_PROD_SPEC._product_brand', required: true, colSpan: 1 },
+    { type: 'string', name: 'version', label: 'UPDATE_PROD_SPEC._product_version', required: true, colSpan: 1 },
+    { type: 'string', name: 'number', label: 'UPDATE_PROD_SPEC._id_number', colSpan: 1 },
+    {
+      type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_RES_SPEC._status',
+      options: [
+        { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
+        { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
+        { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
+        { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
+      ],
+    },
+    { type: 'markdownTextarea', name: 'description', label: 'UPDATE_PROD_SPEC._product_description' },
+  ];
+
+  get canAdvance(): boolean {
+    if (this.currentStep === 0) return this.generalForm?.valid ?? false;
+    if (this.BUNDLE_ENABLED && this.currentStep === this.getStepIndex('bundle')) {
+      return !(this.bundleChecked && this.prodSpecsBundle.length < 2);
+    }
+    if (this.currentStep === this.getStepIndex('compliance')) {
+      return !this.checkValidISOS();
+    }
+    return true;
+  }
+
+  onStepChanged(event: StepChangedEvent): void {
+    this.currentStep = event.step;
+    this.refreshChars();
+    if (this.isCurrentStep('compliance')) { setTimeout(() => { initFlowbite(); }, 100); }
+    if (this.isCurrentStep('resource')) { this.getResSpecs(false); }
+    if (this.isCurrentStep('service')) { this.getServSpecs(false); }
+    if (this.isCurrentStep('attachments')) { setTimeout(() => { initFlowbite(); }, 100); }
+    if (this.isCurrentStep('relationships')) { this.getProdSpecsRel(false); }
+    if (event.isLastStep) { this.showFinish(); }
+  }
+
   initPartyInfo() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
     if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
@@ -285,7 +308,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     this.generalForm.controls['brand'].setValue(this.prod.brand ? this.prod.brand : '');
     this.generalForm.controls['version'].setValue(this.prod.version ? this.prod.version : '');
     this.generalForm.controls['number'].setValue(this.prod.productNumber ? this.prod.productNumber : '');
-    this.prodStatus = this.prod.lifecycleStatus;
+    this.generalForm.patchValue({ lifecycleStatus: this.prod.lifecycleStatus });
 
     //BUNDLE
     if (this.prod.isBundle == true) {
@@ -433,53 +456,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     }
   }
 
-  setProdStatus(status: any) {
-    this.prodStatus = status;
-    this.cdr.detectChanges();
-  }
-
   goBack() {
     this.eventMessage.emitSellerProductSpec(false);
-  }
-
-  togglePreview() {
-    if (this.generalForm.value.description) {
-      this.description = this.generalForm.value.description;
-    } else {
-      this.description = ''
-    }
-  }
-
-  toggleGeneral() {
-    this.selectStep('general-info', 'general-circle');
-    this.showBundle = false;
-    this.showGeneral = true;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
-  }
-
-  toggleBundle() {
-    this.selectStep('bundle', 'bundle-circle');
-    this.showBundle = true;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
   }
 
   toggleBundleCheck() {
@@ -546,24 +524,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     } else {
       return false;
     }
-  }
-
-  toggleCompliance() {
-    this.selectStep('compliance', 'compliance-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = true;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    setTimeout(() => {
-      initFlowbite();
-    }, 100);
-    this.refreshChars();
   }
 
   addISO(iso: any) {
@@ -902,25 +862,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     console.log('uploading...')
   }
 
-  toggleChars() {
-    this.selectStep('chars', 'chars-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = true;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-
-    this.showCreateChar = false;
-    this.charTypeSelected = 'string';
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
-  }
-
   toggleCreateCharacteristicForm() {
     this.showCreateChar = !this.showCreateChar;
     if (this.showCreateChar) {
@@ -933,26 +874,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         this.setBooleanDefaultValues();
       }
     }
-  }
-
-  toggleResource() {
-    this.loadingResourceSpec = true;
-    this.resourceSpecs = [];
-    this.resourceSpecPage = 0;
-    this.getResSpecs(false);
-    this.selectStep('resource', 'resource-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = true;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
   }
 
   async getResSpecs(next: boolean) {
@@ -1006,26 +927,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     } else {
       return false;
     }
-  }
-
-  toggleService() {
-    this.loadingServiceSpec = true;
-    this.serviceSpecs = [];
-    this.serviceSpecPage = 0;
-    this.getServSpecs(false);
-    this.selectStep('service', 'service-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = true;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
   }
 
   async getServSpecs(next: boolean) {
@@ -1083,24 +984,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     } else {
       return false;
     }
-  }
-
-  toggleAttach() {
-    this.selectStep('attach', 'attach-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = true;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    setTimeout(() => {
-      initFlowbite();
-    }, 100);
-    this.refreshChars();
   }
 
   removeImg() {
@@ -1175,27 +1058,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       this.certFileName.reset();
     }
     this.isoToCreate = '';
-  }
-
-  toggleRelationship() {
-    this.prodSpecRels = [];
-    this.prodSpecRelPage = 0;
-    this.showCreateRel = false;
-    this.loadingprodSpecRel = true;
-    this.getProdSpecsRel(false);
-    this.selectStep('relationships', 'relationships-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = true;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
   }
 
   async getProdSpecsRel(next: boolean) {
@@ -1291,61 +1153,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeClass(elem: HTMLElement, cls: string) {
-    var str = " " + elem.className + " ";
-    elem.className = str.replace(" " + cls + " ", " ").replace(/^\s+|\s+$/g, "");
-  }
-
-  addClass(elem: HTMLElement, cls: string) {
-    elem.className += (" " + cls);
-  }
-
-  unselectMenu(elem: HTMLElement | null, cls: string) {
-    if (elem != null) {
-      if (elem.className.match(cls)) {
-        this.removeClass(elem, cls)
-      } else {
-        console.log('already unselected')
-      }
-    }
-  }
-
-  selectMenu(elem: HTMLElement | null, cls: string) {
-    if (elem != null) {
-      if (elem.className.match(cls)) {
-        console.log('already selected')
-      } else {
-        this.addClass(elem, cls)
-      }
-    }
-  }
-
-  //STEPS CSS EFFECTS:
-  selectStep(step: string, stepCircle: string) {
-    const index = this.stepsElements.findIndex(item => item === step);
-    if (index !== -1) {
-      this.stepsElements.splice(index, 1);
-      this.selectMenu(document.getElementById(step), 'text-primary-100 dark:text-primary-50')
-      this.unselectMenu(document.getElementById(step), 'text-gray-500')
-      for (let i = 0; i < this.stepsElements.length; i++) {
-        this.unselectMenu(document.getElementById(this.stepsElements[i]), 'text-primary-100 dark:text-primary-50')
-        this.selectMenu(document.getElementById(this.stepsElements[i]), 'text-gray-500')
-      }
-      this.stepsElements.push(step);
-    }
-    const circleIndex = this.stepsCircles.findIndex(item => item === stepCircle);
-    if (index !== -1) {
-      this.stepsCircles.splice(circleIndex, 1);
-      this.selectMenu(document.getElementById(stepCircle), 'border-primary-100 dark:border-primary-50')
-      this.unselectMenu(document.getElementById(stepCircle), 'border-gray-400');
-      for (let i = 0; i < this.stepsCircles.length; i++) {
-        this.unselectMenu(document.getElementById(this.stepsCircles[i]), 'border-primary-100 dark:border-primary-50')
-        this.selectMenu(document.getElementById(this.stepsCircles[i]), 'border-gray-400');
-      }
-      this.stepsCircles.push(stepCircle);
-    }
-  }
-
   onTypeChange(event: any) {
     this.charTypeSelected = event.target.value;
     this.charsForm.reset();
@@ -1365,6 +1172,13 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       this.booleanDefaultTrue = true;
       this.creatingChars = [];
     }
+  }
+
+  isJsonCharacteristicType(type: string | undefined): boolean {
+    if (!type) {
+      return false;
+    }
+    return this.dataSpaceJsonCharacteristicTypes.includes(type);
   }
 
   isDataSpaceCharacteristicType(type: string | undefined): boolean {
@@ -1420,7 +1234,11 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   isCurrentStep(step: ProductSpecFormStep): boolean {
-    return this.currentStep?.id === step;
+    return this.steps[this.currentStep]?.id === step;
+  }
+
+  getStepIndex(step: ProductSpecFormStep): number {
+    return this.steps.findIndex(s => s.id === step);
   }
 
   private getSchemaLocationForType(type: string): string | null {
@@ -1494,7 +1312,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
           unitOfMeasure: this.rangeUnit
         })
       }
-    } else if (this.isDataSpaceCharacteristicType(this.charTypeSelected)) {
+    } else if (this.isJsonCharacteristicType(this.charTypeSelected)) {
       if (this.creatingChars.length > 0) {
         this.errorMessage = 'Only one JSON value is allowed';
         this.showError = true;
@@ -1618,19 +1436,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
   showFinish() {
     this.setProductData();
-    this.selectStep('summary', 'summary-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = true;
-    this.showPreview = false;
-    this.refreshChars();
-    initFlowbite();
   }
 
   setProductData() {
@@ -1835,7 +1640,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         version: this.generalForm.value.version,
         brand: this.generalForm.value.brand,
         productNumber: this.generalForm.value.number != null ? this.generalForm.value.number : '',
-        lifecycleStatus: this.prodStatus,
+        lifecycleStatus: this.generalForm.value.lifecycleStatus ?? 'Active',
         //isBundle: this.bundleChecked,
         //bundledProductSpecification: this.prodSpecsBundle,
         productSpecCharacteristic: this.finishChars,
@@ -1844,22 +1649,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         resourceSpecification: this.selectedResourceSpecs,
         serviceSpecification: this.selectedServiceSpecs
       }
-    }
-  }
-
-  isProdValid() {
-    if (this.generalForm.valid) {
-      if (this.bundleChecked) {
-        if (this.prodSpecsBundle.length < 2) {
-          return true;
-        } else {
-          return false;
-        }
-      } else {
-        return false;
-      }
-    } else {
-      return true;
     }
   }
 
@@ -1889,92 +1678,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     });
   }
 
-  isStepDisabled(): boolean {
-    switch (this.currentStep.id) {
-      case 'general':
-        return !this.generalForm?.valid || false;
-      case 'bundle':
-        return this.prodSpecsBundle.length < 2 && this.bundleChecked;
-      case 'compliance':
-        return this.checkValidISOS();
-      default:
-        return false;
-    }
-  }
-
-  //Markdown actions:
-  addBold() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' **bold text** '
-    });
-  }
-
-  addItalic() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' _italicized text_ '
-    });
-  }
-
-  addList() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n- First item\n- Second item'
-    });
-  }
-
-  addOrderedList() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n1. First item\n2. Second item'
-    });
-  }
-
-  addCode() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n`code`'
-    });
-  }
-
-  addCodeBlock() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n```\ncode\n```'
-    });
-  }
-
-  addBlockquote() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n> blockquote'
-    });
-  }
-
-  addLink() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' [title](https://www.example.com) '
-    });
-  }
-
-  addTable() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n| Syntax | Description |\n| ----------- | ----------- |\n| Header | Title |\n| Paragraph | Text |'
-    });
-  }
-
-  addEmoji(event: any) {
-    console.log(event)
-    this.showEmoji = false;
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + event.emoji.native
-    });
-  }
-
   hasLongWord(str: string | undefined, threshold = 20) {
     if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
@@ -2000,61 +1703,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     }
 
     return rawValue.length > maxLength ? `${rawValue.slice(0, maxLength)}...` : rawValue;
-  }
-
-  goToStep(index: number) {
-
-    this.currentStepIdx = index;
-    if (this.currentStepIdx > this.highestStepIdx) {
-      this.highestStepIdx = this.currentStepIdx;
-    }
-    this.refreshChars();
-    if (this.isCurrentStep('compliance')) {
-      setTimeout(() => {
-        initFlowbite();
-      }, 100);
-    }
-    //Resource
-    if (this.isCurrentStep('resource')) {
-      this.getResSpecs(false);
-    }
-    //Service
-    if (this.isCurrentStep('service')) {
-      this.getServSpecs(false);
-    }
-    //Attachment
-    if (this.isCurrentStep('attachments')) {
-      setTimeout(() => {
-        initFlowbite();
-      }, 100);
-    }
-    //rels
-    if (this.isCurrentStep('relationships')) {
-      this.getProdSpecsRel(false);
-    }
-    //finish
-    if (this.isCurrentStep('summary')) {
-      this.showFinish();
-    }
-  }
-
-  validateCurrentStep(): boolean {
-    switch (this.currentStep.id) {
-      case 'general':
-        return this.generalForm?.valid || false;
-      default:
-        return true;
-    }
-  }
-
-  canNavigate(index: number) {
-    return this.generalForm?.valid
-  }
-
-  handleStepClick(index: number): void {
-    if (this.canNavigate(index)) {
-      this.goToStep(index);
-    }
   }
 
   normalizeName(name?: string): string {

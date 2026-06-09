@@ -1,23 +1,26 @@
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
-import moment from 'moment';
+import * as moment from 'moment';
 import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { PaginationService } from 'src/app/services/pagination.service';
+import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
+import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
 type ProductSpecification_Create = components["schemas"]["ProductSpecification_Create"];
@@ -25,7 +28,6 @@ type BundledProductSpecification = components["schemas"]["BundledProductSpecific
 type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecificationCharacteristic"];
 type ServiceSpecificationRef = components["schemas"]["ServiceSpecificationRef"];
 type ResourceSpecificationRef = components["schemas"]["ResourceSpecificationRef"];
-type ProductSpecificationRelationship = components["schemas"]["ProductSpecificationRelationship"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
 type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' | 'relationships' | 'summary' | 'dsp_config';
 
@@ -49,40 +51,8 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   DATA_SPACE_ENABLED: boolean = environment.DATA_SPACE_ENABLED;
   MAX_FILE_SIZE: number = environment.MAX_FILE_SIZE;
 
-  //CONTROL VARIABLES:
-  showGeneral: boolean = true;
-  showBundle: boolean = false;
-  showCompliance: boolean = false;
-  showChars: boolean = false;
-  showResource: boolean = false;
-  showService: boolean = false;
-  showAttach: boolean = false;
-  showRelationships: boolean = false;
-  showSummary: boolean = false;
-
-  //Check if step was done
-  generalDone: boolean = false;
-  bundleDone: boolean = false;
-  complianceDone: boolean = false;
-  charsDone: boolean = false;
-  resourceDone: boolean = false;
-  serviceDone: boolean = false;
-  attachDone: boolean = false;
-  relationshipDone: boolean = false;
-  finishDone: boolean = false;
-
-  stepsElements: string[] = ['general-info', 'bundle', 'compliance', 'chars', 'resource', 'service', 'attach', 'relationships', 'summary'];
-  stepsCircles: string[] = ['general-circle', 'bundle-circle', 'compliance-circle', 'chars-circle', 'resource-circle', 'service-circle', 'attach-circle', 'relationships-circle', 'summary-circle'];
-
-  currentStepIdx = 0;
-  get currentStep(): Step { return this.steps[this.currentStepIdx]; }
-  highestStepIdx = 0;
-
-  steps: Step[] = [];
-
-  showPreview: boolean = false;
-  showEmoji: boolean = false;
-  description: string = '';
+  currentStep = 0;
+  steps: any[] = [];
   partyId: any = '';
 
   //PRODUCT GENERAL INFO:
@@ -223,6 +193,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   constructor(
+    private api: ApiServiceService,
     private prodSpecService: ProductSpecServiceService,
     private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
@@ -246,10 +217,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
 
   @HostListener('document:click')
   onClick() {
-    if (this.showEmoji == true) {
-      this.showEmoji = false;
-      this.cdr.detectChanges();
-    }
     if (this.showUploadFile == true) {
       this.showUploadFile = false;
       this.cdr.detectChanges();
@@ -267,11 +234,58 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     this.steps = this.getFormSteps();
     console.log(this.steps)
     this.initPartyInfo();
+    this.generalForm.get('dspCompatible')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(dspCompatible => {
+        if (dspCompatible) {
+          this.addStepAfter({ label: 'DSP Config', id: 'dsp_config' }, 'service');
+        } else {
+          this.removeStep('dsp_config');
+        }
+      });
   }
 
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  generalFormFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'CREATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1 },
+    { type: 'string', name: 'brand', label: 'CREATE_PROD_SPEC._product_brand', required: true, colSpan: 1 },
+    { type: 'string', name: 'version', label: 'CREATE_PROD_SPEC._product_version', required: true, colSpan: 1 },
+    { type: 'string', name: 'number', label: 'CREATE_PROD_SPEC._id_number', colSpan: 1 },
+    { type: 'markdownTextarea', name: 'description', label: 'CREATE_PROD_SPEC._product_description' },
+  ];
+
+  get canAdvance(): boolean {
+    if (this.currentStep === 0) return this.generalForm?.valid ?? false;
+    if (this.BUNDLE_ENABLED && this.currentStep === this.getStepIndex('bundle')) {
+      return !(this.bundleChecked && this.prodSpecsBundle.length < 2);
+    }
+    if (this.currentStep === this.getStepIndex('compliance')) {
+      return !this.checkValidISOS();
+    }
+    return true;
+  }
+
+  onStepChanged(event: StepChangedEvent): void {
+    this.currentStep = event.step;
+    this.refreshChars();
+    if (this.isCurrentStep('compliance')) { setTimeout(() => { initFlowbite(); }, 100); }
+    if (this.isCurrentStep('resource')) { this.getResSpecs(false); }
+    if (this.isCurrentStep('service')) { this.getServSpecs(false); }
+    if (this.isCurrentStep('attachments')) { setTimeout(() => { initFlowbite(); }, 100); }
+    if (this.isCurrentStep('relationships')) { this.getProdSpecsRel(false); }
+    if (event.isLastStep) { this.showFinish(); }
+  }
+
+  isCurrentStep(step: ProductSpecFormStep): boolean {
+    return this.steps[this.currentStep]?.id === step;
+  }
+
+  getStepIndex(step: ProductSpecFormStep): number {
+    return this.steps.findIndex(s => s.id === step);
   }
 
   initPartyInfo() {
@@ -288,44 +302,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
 
   goBack() {
     this.eventMessage.emitSellerProductSpec(true);
-  }
-
-  togglePreview() {
-    if (this.generalForm.value.description) {
-      this.description = this.generalForm.value.description;
-    } else {
-      this.description = ''
-    }
-  }
-
-  toggleGeneral() {
-    this.selectStep('general-info', 'general-circle');
-    this.showBundle = false;
-    this.showGeneral = true;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
-  }
-
-  toggleBundle() {
-    this.selectStep('bundle', 'bundle-circle');
-    this.showBundle = true;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
   }
 
   toggleBundleCheck() {
@@ -392,21 +368,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     } else {
       return false;
     }
-  }
-
-  toggleCompliance() {
-    this.selectStep('compliance', 'compliance-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = true;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
   }
 
   addISO(iso: any) {
@@ -531,7 +492,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
                 }, 3000);
                 return;
               }
-              if (this.currentStep.id === 'compliance' && !this.showUploadAtt) {
+              if (this.isCurrentStep('compliance') && !this.showUploadAtt) {
                 const index = this.selectedISOS.findIndex(item => item.name === sel.name);
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
@@ -563,7 +524,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
                   }
                 });
               }
-              if (this.currentStep.id === 'compliance' && this.showUploadAtt) {
+              if (this.isCurrentStep('compliance') && this.showUploadAtt) {
                 const index = this.finishChars.findIndex(item => item.name === this.selfAtt.name);
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
@@ -608,7 +569,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
                   }
                 });
               }
-              if (this.currentStep.id === 'attachments') {
+              if (this.isCurrentStep('attachments')) {
                 console.log(file)
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
@@ -694,24 +655,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     console.log('uploading...')
   }
 
-  toggleChars() {
-    this.selectStep('chars', 'chars-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = true;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-
-    this.showCreateChar = false;
-    this.charTypeSelected = 'string';
-    this.showPreview = false;
-    this.refreshChars();
-  }
-
   toggleCreateCharacteristicForm() {
     this.showCreateChar = !this.showCreateChar;
     if (this.showCreateChar) {
@@ -726,25 +669,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleResource() {
-    this.loadingResourceSpec = true;
-    this.resourceSpecs = [];
-    this.resourceSpecPage = 0;
-    this.getResSpecs(false);
-    this.selectStep('resource', 'resource-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = true;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
-  }
-
   async getResSpecs(next: boolean) {
     if (next == false) {
       this.loadingResourceSpec = true;
@@ -757,21 +681,18 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
       //"isBundle": false
     }
 
-    try {
-      const data = await this.paginationService.getItemsPaginated(this.resourceSpecPage, this.RES_SPEC_LIMIT, next, this.resourceSpecs, this.nextResourceSpecs, options,
-        this.resSpecService.getResourceSpecByUser.bind(this.resSpecService));
-      this.resourceSpecPageCheck = data.page_check;
-      this.resourceSpecs = data.items;
-      this.nextResourceSpecs = data.nextItems;
-      this.resourceSpecPage = data.page;
-    } finally {
-      this.loadingResourceSpec = false;
-      this.loadingResourceSpec_more = false;
-    }
+    this.paginationService.getItemsPaginated(this.resourceSpecPage, this.RES_SPEC_LIMIT, next, this.resourceSpecs, this.nextResourceSpecs, options,
+      this.resSpecService.getResourceSpecByUser.bind(this.resSpecService)).then(data => {
+        this.resourceSpecPageCheck = data.page_check;
+        this.resourceSpecs = data.items;
+        this.nextResourceSpecs = data.nextItems;
+        this.resourceSpecPage = data.page;
+        this.loadingResourceSpec = false;
+        this.loadingResourceSpec_more = false;
+      })
   }
 
   async nextRes() {
-    this.loadingResourceSpec_more = true;
     await this.getResSpecs(true);
   }
 
@@ -799,25 +720,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     } else {
       return false;
     }
-  }
-
-  toggleService() {
-    this.loadingServiceSpec = true;
-    this.serviceSpecs = [];
-    this.serviceSpecPage = 0;
-    this.getServSpecs(false);
-    this.selectStep('service', 'service-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = true;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
   }
 
   async getServSpecs(next: boolean) {
@@ -871,24 +773,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     } else {
       return false;
     }
-  }
-
-  toggleAttach() {
-    this.selectStep('attach', 'attach-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = true;
-    this.showRelationships = false;
-    this.showSummary = false;
-    this.showPreview = false;
-    setTimeout(() => {
-      initFlowbite();
-    }, 100);
-    this.refreshChars();
   }
 
   removeImg() {
@@ -963,26 +847,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
       this.certFileName.reset();
     }
     this.isoToCreate = '';
-  }
-
-  toggleRelationship() {
-    this.prodSpecRels = [];
-    this.prodSpecRelPage = 0;
-    this.showCreateRel = false;
-    this.loadingprodSpecRel = true;
-    this.getProdSpecsRel(false);
-    this.selectStep('relationships', 'relationships-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = true;
-    this.showSummary = false;
-    this.showPreview = false;
-    this.refreshChars();
   }
 
   async getProdSpecsRel(next: boolean) {
@@ -1076,61 +940,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     }
   }
 
-  removeClass(elem: HTMLElement, cls: string) {
-    var str = " " + elem.className + " ";
-    elem.className = str.replace(" " + cls + " ", " ").replace(/^\s+|\s+$/g, "");
-  }
-
-  addClass(elem: HTMLElement, cls: string) {
-    elem.className += (" " + cls);
-  }
-
-  unselectMenu(elem: HTMLElement | null, cls: string) {
-    if (elem != null) {
-      if (elem.className.match(cls)) {
-        this.removeClass(elem, cls)
-      } else {
-        console.log('already unselected')
-      }
-    }
-  }
-
-  selectMenu(elem: HTMLElement | null, cls: string) {
-    if (elem != null) {
-      if (elem.className.match(cls)) {
-        console.log('already selected')
-      } else {
-        this.addClass(elem, cls)
-      }
-    }
-  }
-
-  //STEPS CSS EFFECTS:
-  selectStep(step: string, stepCircle: string) {
-    const index = this.stepsElements.findIndex(item => item === step);
-    if (index !== -1) {
-      this.stepsElements.splice(index, 1);
-      this.selectMenu(document.getElementById(step), 'text-primary-100 dark:text-primary-50')
-      this.unselectMenu(document.getElementById(step), 'text-gray-500')
-      for (let i = 0; i < this.stepsElements.length; i++) {
-        this.unselectMenu(document.getElementById(this.stepsElements[i]), 'text-primary-100 dark:text-primary-50')
-        this.selectMenu(document.getElementById(this.stepsElements[i]), 'text-gray-500')
-      }
-      this.stepsElements.push(step);
-    }
-    const circleIndex = this.stepsCircles.findIndex(item => item === stepCircle);
-    if (index !== -1) {
-      this.stepsCircles.splice(circleIndex, 1);
-      this.selectMenu(document.getElementById(stepCircle), 'border-primary-100 dark:border-primary-50')
-      this.unselectMenu(document.getElementById(stepCircle), 'border-gray-400');
-      for (let i = 0; i < this.stepsCircles.length; i++) {
-        this.unselectMenu(document.getElementById(this.stepsCircles[i]), 'border-primary-100 dark:border-primary-50')
-        this.selectMenu(document.getElementById(this.stepsCircles[i]), 'border-gray-400');
-      }
-      this.stepsCircles.push(stepCircle);
-    }
-  }
-
   onTypeChange(event: any) {
     this.charTypeSelected = event.target.value;
     this.charsForm.reset();
@@ -1167,7 +976,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   isDataspaceConfigurationStep(): boolean {
-    return this.currentStep.id === 'dataspace';
+    return this.isCurrentStep('dataspace');
   }
 
   isTextCharacteristicType(type: string | undefined): boolean {
@@ -1412,8 +1221,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   showFinish() {
-    this.relationshipDone = true;
-    this.finishDone = true;
     this.finishChars = [];
     console.log('--- set product data')
     console.log(this.prodChars)
@@ -1629,18 +1436,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     console.log('PRODUCTO A CREAR:')
     console.log(this.productSpecToCreate)
     console.log(this.imgPreview)
-    this.selectStep('summary', 'summary-circle');
-    this.showBundle = false;
-    this.showGeneral = false;
-    this.showCompliance = false;
-    this.showChars = false;
-    this.showResource = false;
-    this.showService = false;
-    this.showAttach = false;
-    this.showRelationships = false;
-    this.showSummary = true;
-    this.showPreview = false;
-    this.refreshChars();
   }
 
   createProduct() {
@@ -1664,79 +1459,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
           this.showError = false;
         }, 3000);
       }
-    });
-  }
-
-  //Markdown actions:
-  addBold() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' **bold text** '
-    });
-  }
-
-  addItalic() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' _italicized text_ '
-    });
-  }
-
-  addList() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n- First item\n- Second item'
-    });
-  }
-
-  addOrderedList() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n1. First item\n2. Second item'
-    });
-  }
-
-  addCode() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n`code`'
-    });
-  }
-
-  addCodeBlock() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n```\ncode\n```'
-    });
-  }
-
-  addBlockquote() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n> blockquote'
-    });
-  }
-
-  addLink() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' [title](https://www.example.com) '
-    });
-  }
-
-  addTable() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n| Syntax | Description |\n| ----------- | ----------- |\n| Header | Title |\n| Paragraph | Text |'
-    });
-  }
-
-  addEmoji(event: any) {
-    console.log(event)
-    this.showEmoji = false;
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + event.emoji.native
     });
   }
 
@@ -1767,91 +1489,15 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     return rawValue.length > maxLength ? `${rawValue.slice(0, maxLength)}...` : rawValue;
   }
 
-  goToStep(index: number) {
-    // Solo validar en modo creación
-    if (index > this.currentStepIdx) {
-      // Validar el paso actual
-      const currentStepValid = this.validateCurrentStep();
-      if (!currentStepValid) {
-        return; // No permitir avanzar si el paso actual no es válido
-      }
-    }
-
-    if (this.currentStep.id === 'general' && this.dspEnable) {
-      if (this.generalForm.value.dspCompatible) {
-        this.addStepAfter({ label: 'DSP Config', id: 'dsp_config' }, 'characteristics');
-        this.removeStep('dataspace')
-      } else {
-        this.removeStep('dsp_config');
-        this.addStepAfter({ label: 'Dataspace Configuration', id: 'dataspace' }, 'characteristics')
-      }
-    }
-
-    this.currentStepIdx = index;
-    if (this.currentStepIdx > this.highestStepIdx) {
-      this.highestStepIdx = index
-    }
-    this.refreshChars();
-    if (this.currentStep.id === 'compliance') {
-      setTimeout(() => {
-        initFlowbite();
-      }, 100);
-    }
-    //Resource
-    if (this.currentStep.id === 'resource') {
-      this.getResSpecs(false);
-    }
-    //Service
-    if (this.currentStep.id === 'service') {
-      this.getServSpecs(false);
-    }
-    //Attachment
-    if (this.currentStep.id === 'attachments') {
-      setTimeout(() => {
-        initFlowbite();
-      }, 100);
-    }
-    //rels
-    if (this.currentStep.id === 'relationships') {
-      this.getProdSpecsRel(false);
-    }
-    //finish
-    if (this.currentStep.id === 'summary') {
-      this.showFinish();
-    }
-  }
-
-  validateCurrentStep(): boolean {
-    switch (this.currentStep.id) {
-      case 'general':
-        return this.generalForm?.valid || false;
-      case 'dsp_config':
-        return this.endpointUrls.length > 0 && this.dspConfigForm.valid;
-      default:
-        return true;
-    }
-  }
-
-  isStepDisabled(): boolean {
-    switch (this.currentStep.id) {
-      case 'general':
-        return !this.generalForm?.valid || false;
-      case 'bundle':
-        return this.prodSpecsBundle.length < 2 && this.bundleChecked;
-      case 'compliance':
-        return this.checkValidISOS();
-      case 'dsp_config':
-        return this.endpointUrls.length === 0;
-      default:
-        return false;
-    }
+  normalizeName(name?: string): string {
+    return name?.replace(/compliance:/i, '').trim() ?? '';
   }
 
   addEndpointUrl(): void {
     const url = this.newEndpointUrl.trim();
     const description = this.newEndpointDescription.trim();
     const name = this.newEndpointName.trim();
-    if (!url || !description || !name) return;
+    if (!url || !description) return;
     this.endpointUrls = [...this.endpointUrls, { url, description, name }];
     this.newEndpointUrl = '';
     this.newEndpointDescription = '';
@@ -1862,37 +1508,21 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     this.endpointUrls = this.endpointUrls.filter((_, i) => i !== idx);
   }
 
-  canNavigate(index: number) {
-    return (this.generalForm?.valid && (index <= this.currentStepIdx)) || (this.generalForm?.valid && (index <= this.highestStepIdx));
-  }
-
-  handleStepClick(index: number): void {
-    if (this.canNavigate(index)) {
-      this.goToStep(index);
-    }
-  }
-
-  normalizeName(name?: string): string {
-    return name?.replace(/compliance:/i, '').trim() ?? '';
-  }
-
-  private addStepAfter(step: Step, stepAfter?: ProductSpecFormStep): void {
-    if (!stepAfter) { this.steps.push(step) }
+  private addStepAfter(step: Step, stepAfter: ProductSpecFormStep): void {
     const alreadyAdded = this.steps.some(s => s.id === step.id);
     if (alreadyAdded) return;
-    const serviceIdx = this.steps.findIndex(s => s.id === stepAfter);
+    const afterIdx = this.steps.findIndex(s => s.id === stepAfter);
     this.steps = [
-      ...this.steps.slice(0, serviceIdx + 1),
+      ...this.steps.slice(0, afterIdx + 1),
       step,
-      ...this.steps.slice(serviceIdx + 1),
+      ...this.steps.slice(afterIdx + 1),
     ];
   }
 
   private removeStep(step: ProductSpecFormStep): void {
     const idx = this.steps.findIndex(s => s.id === step);
     if (idx === -1) return;
-    if (this.currentStepIdx >= idx) this.currentStepIdx = idx - 1;
-    if (this.highestStepIdx >= idx) this.highestStepIdx = idx - 1;
+    if (this.currentStep >= idx) this.currentStep = idx - 1;
     this.steps = this.steps.filter(s => s.id !== step);
   }
 
