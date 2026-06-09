@@ -1,58 +1,61 @@
-import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { Component, OnInit } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import {LocalStorageService} from "src/app/services/local-storage.service";
+import { TranslateModule } from '@ngx-translate/core';
+import * as moment from 'moment';
 import { LoginInfo, Report } from 'src/app/models/interfaces';
-import { RevenueSharingService } from 'src/app/services/revenue-sharing.service'
-import { RevenueReportComponent } from 'src/app/shared/revenue-report/revenue-report.component'
-import moment from 'moment';
+import { LocalStorageService } from "src/app/services/local-storage.service";
+import { RevenueSharingService } from 'src/app/services/revenue-sharing.service';
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { RevenueReportComponent } from 'src/app/shared/revenue-report/revenue-report.component';
 
 @Component({
   selector: 'provider-revenue-sharing',
   standalone: true,
-  imports: [TranslateModule, FontAwesomeModule, CommonModule, RevenueReportComponent],
+  imports: [TranslateModule, FontAwesomeModule, CommonModule, RevenueReportComponent,
+    LoadingSpinnerComponent
+  ],
   templateUrl: './provider-revenue-sharing.component.html',
   styleUrl: './provider-revenue-sharing.component.css'
 })
 
 export class ProviderRevenueSharingComponent implements OnInit {
   loading: boolean = false;
-  subscription:any;
-  billing:any;
-  revenue:any;
-  revenueSummary:any;
-  referral:any;
-  support:any;
+  subscription: any;
+  billing: any;
+  revenue: any;
+  revenueSummary: any;
+  referral: any;
+  support: any;
   errorMessage: any = '';
-  showError:boolean=false;
-  
+  showError: boolean = false;
 
-  partyId:any='';
-  report: Report[]=[];
-  
+
+  partyId: any = '';
+  report: Report[] = [];
+
 
   constructor(
     private localStorage: LocalStorageService,
     private revenueService: RevenueSharingService
   ) {
   }
-  
+
 
   async ngOnInit() {
-    this.loading=true;
+    this.loading = true;
     this.initPartyInfo();
     try {
       let info = await this.revenueService.getRevenue(this.partyId);
-      this.loading=false;
+      this.loading = false;
       console.log('------')
       console.log(info)
-      this.report=info;
+      this.report = info;
     } catch (error) {
       this.handleError(error, "There was an error accessing revenue sharing's data, please contact with an administrator.");
-      this.loading=false;
+      this.loading = false;
     } finally {
-      this.loading=false;
+      this.loading = false;
     }
 
   }
@@ -66,15 +69,15 @@ export class ProviderRevenueSharingComponent implements OnInit {
     setTimeout(() => (this.showError = false), 3000);
   }
 
-  initPartyInfo(){
+  initPartyInfo() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
-      if(aux.logged_as==aux.id){
+    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+      if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
       } else {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as);
         this.partyId = loggedOrg.partyId;
-      }      
+      }
     }
   }
 

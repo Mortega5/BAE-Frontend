@@ -8,6 +8,7 @@ import {ApiServiceService} from "../../../../services/product-service.service";
 import {AppModule} from "../../../../app.module";
 import {initFlowbite} from "flowbite";
 import {FormChangeState} from "../../../../models/interfaces";
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 
 interface Category {
   id: string;
@@ -26,7 +27,8 @@ interface Category {
     TranslateModule,
     NgIf,
     NgTemplateOutlet,
-    NgClass
+    NgClass,
+    LoadingSpinnerComponent
   ],
   providers: [
     {

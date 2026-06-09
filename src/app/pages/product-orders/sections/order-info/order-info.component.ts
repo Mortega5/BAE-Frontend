@@ -23,11 +23,14 @@ import {SharedModule} from "../../../../shared/shared.module";
 import { v4 as uuidv4 } from 'uuid';
 import { from, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-order-info',
   standalone: true,
-  imports: [TranslateModule, FontAwesomeModule, CommonModule, SharedModule],
+  imports: [TranslateModule, FontAwesomeModule, CommonModule, SharedModule,
+    LoadingSpinnerComponent
+  ],
   providers: [DatePipe],
   templateUrl: './order-info.component.html',
   styleUrl: './order-info.component.css'

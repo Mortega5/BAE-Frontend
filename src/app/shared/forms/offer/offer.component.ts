@@ -7,6 +7,7 @@ import { lastValueFrom, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { components } from "src/app/models/product-catalog";
 import { EventMessageService } from "src/app/services/event-message.service";
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { v4 as uuidv4 } from 'uuid';
 import { environment } from '../../../../environments/environment';
 import { FormChangeState, PricePlanChangeState } from "../../../models/interfaces";
@@ -20,7 +21,6 @@ import { OfferSummaryComponent } from "./offer-summary/offer-summary.component";
 import { PricePlansComponent } from "./price-plans/price-plans.component";
 import { ProcurementModeComponent } from "./procurement-mode/procurement-mode.component";
 import { ProdSpecComponent } from "./prod-spec/prod-spec.component";
-import { ReplicationVisibilityComponent } from "./replication-visibility/replication-visibility.component";
 
 type ProductOffering_Create = components["schemas"]["ProductOffering_Create"];
 type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
@@ -56,10 +56,10 @@ interface Step {
     PricePlansComponent,
     CatalogueComponent,
     ProcurementModeComponent,
-    ReplicationVisibilityComponent,
     OfferSummaryComponent,
     NgClass,
-    EdcContractDefinitionComponent
+    EdcContractDefinitionComponent,
+    LoadingSpinnerComponent
   ],
   templateUrl: './offer.component.html',
   styleUrl: './offer.component.css'

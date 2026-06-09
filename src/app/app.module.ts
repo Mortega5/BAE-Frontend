@@ -8,7 +8,6 @@ import { FaIconComponent, FontAwesomeModule } from '@fortawesome/angular-fontawe
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { NgxFileDropModule } from 'ngx-file-drop';
-import { NotificationComponent } from './shared/notification/notification.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { MatomoInitializationMode, MatomoInitializerService, MatomoModule, MatomoRouterModule } from 'ngx-matomo-client';
 import { CartCardComponent } from 'src/app/shared/cart-card/cart-card.component';
@@ -85,6 +84,8 @@ import { CategoryItemComponent } from "./shared/category-item/category-item.comp
 import { CharacteristicComponent } from "./shared/characteristic/characteristic.component";
 import { CustomOfferComponent } from "./shared/forms/offer/custom-offer/custom-offer.component";
 import { OfferComponent } from "./shared/forms/offer/offer.component";
+import { LoadingSpinnerComponent } from './shared/loading-spinner/loading-spinner.component';
+import { NotificationComponent } from './shared/notification/notification.component';
 import { PricePlanDrawerComponent } from "./shared/price-plan-drawer/price-plan-drawer.component";
 import { RevenueReportComponent } from './shared/revenue-report/revenue-report.component';
 import { SharedModule } from "./shared/shared.module";
@@ -102,12 +103,12 @@ import { DynamicFormComponent } from "src/app/shared/forms/dynamic-form/dynamic-
 import { MarkdownTextareaComponent } from "src/app/shared/forms/markdown-textarea/markdown-textarea.component";
 import { RequestValidationModalComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/request-validation-modal/request-validation-modal.component';
 import { CreateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/create-software/create-software.component';
-import { UpdateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/update-software/update-software.component';
 import { SellerSoftware } from './pages/seller-offerings/offerings/seller-software/seller-software';
 import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offerings/seller-software/software-characteristics/software-characteristics.component';
-import { StepperComponent } from './shared/stepper/stepper.component';
-import { StepperStepDirective } from './shared/stepper/stepper-step.directive';
+import { UpdateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/update-software/update-software.component';
 import { StatusFieldComponent } from './shared/status-field/status-field.component';
+import { StepperStepDirective } from './shared/stepper/stepper-step.directive';
+import { StepperComponent } from './shared/stepper/stepper.component';
 
 @NgModule({
   declarations: [
@@ -221,6 +222,7 @@ import { StatusFieldComponent } from './shared/status-field/status-field.compone
     StepperComponent,
     StepperStepDirective,
     StatusFieldComponent,
+    LoadingSpinnerComponent,
   ],
   providers: [
     AppInitService,
