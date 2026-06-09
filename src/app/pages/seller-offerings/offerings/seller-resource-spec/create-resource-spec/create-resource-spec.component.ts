@@ -4,12 +4,12 @@ import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
-import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/resource-spec-service.service';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -42,6 +42,7 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
   baseTemplateOptions = [
     { value: '', label: 'None' },
     { value: 'SoftwareSpecification', label: 'Software Specification', api: 'software' },
+    { value: 'SoftwareSupportPackageSpecification', label: 'Software Support Package Specification', api: 'software' }
   ];
 
   generalFormFields: FormField[] = [
