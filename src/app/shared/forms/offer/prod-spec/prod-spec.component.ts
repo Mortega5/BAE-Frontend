@@ -11,6 +11,7 @@ import {PaginationService} from "../../../../services/pagination.service";
 import {environment} from "../../../../../environments/environment";
 import { FormChangeState } from "src/app/models/interfaces";
 import { Subscription } from "rxjs";
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 
 interface ProductSpec {
   id: string;
@@ -27,7 +28,8 @@ interface ProductSpec {
   imports: [
     DatePipe,
     TranslateModule,
-    NgClass
+    NgClass,
+    LoadingSpinnerComponent
   ],
   providers: [
     {

@@ -18,6 +18,7 @@ type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecific
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
 import { FormsModule } from '@angular/forms';
 import { lastValueFrom, Subscription } from 'rxjs';
+import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
 
 
 @Component({
@@ -29,8 +30,9 @@ import { lastValueFrom, Subscription } from 'rxjs';
     NgClass,
     CurrencyPipe,
     ReactiveFormsModule,
-    FormsModule
-  ],
+    FormsModule,
+    LoadingSpinnerComponent
+],
   templateUrl: './price-plan-drawer.component.html',
   styleUrl: './price-plan-drawer.component.css'
 })
@@ -80,7 +82,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
       this.onClose();
     }
   }
-  
+
 
   constructor(
     private fb: FormBuilder,
@@ -177,9 +179,9 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     if (changes['productOff'] && changes['productOff'].currentValue) {
       console.log('Changes...')
       console.log(this.productOff)
-  
+
       this.isFree = this.productOff?.productOfferingPrice?.length === 0;
-  
+
       if (this.isFree) {
         this.form.get('selectedPricePlan')?.setValue({});
         this.characteristics = this.prodSpec.productSpecCharacteristic || [];
@@ -214,7 +216,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   }
 
   disableChars(){
-    
+
   }
 
   filterCharacteristics() {
@@ -224,7 +226,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     this.rangeCharacteristics = [];
     this.disabledCharacteristics = [];
     this.canBeDisabledChars = [];
-  
+
     // Set disabled prefixes
     const disabledPrefixes = this.characteristics
       .filter(c => c.name?.endsWith(' - enabled'))
@@ -234,7 +236,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
         return valueStr === 'false';
       })
       .map(c => c.name?.replace(/ - enabled$/, '').trim());
-  
+
     // Filter out certifications, self-att, and disabled prefixes
     this.filteredCharacteristics = this.characteristics.filter(char => {
       const isCertification = certifications.some(cert => cert.name === char.name);
@@ -245,10 +247,10 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
       /*const isDisabledByPrefix = disabledPrefixes.some(prefix =>
         char.name === prefix || char.name === `${prefix} - enabled`
       );*/
-  
+
       return !isCertification && !isCompliance && !iscredentialConfig && !isAuthPolicy;
     });
-  
+
     const characteristicsGroup = this.fb.group({});
     this.filteredCharacteristics.forEach(characteristic => {
       if (characteristic.id != null) {
@@ -278,7 +280,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
         }
       }
     });
-  
+
     this.form.setControl('characteristics', characteristicsGroup);
     this.groupCharacteristics();
   }
@@ -381,7 +383,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     this.selectedUsageSpecId = target.value;
     this.selectedUnitOfMeasure = null;
   }
-  
+
   onMetricChange(event: Event, metric: any) {
     const input = event.target as HTMLInputElement;
     metric.value = input.valueAsNumber; // update the metric's value with the new input
@@ -393,7 +395,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   get usageSpecIds(): string[] {
     return Object.keys(this.groupedMetrics);
   }
-  
+
 
   // Handle characteristic value changes
   async onValueChange(event: { characteristicId: string; selectedValue: any }): Promise<void> {
@@ -421,7 +423,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
           console.log(this.disabledCharacteristics)
         }
       }
-    }    
+    }
     console.log(char)*/
     await this.refreshAppliedMetrics();
     await this.calculatePrice();
@@ -491,7 +493,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
   }
 
   // Validate if the form is ready to submit
@@ -542,7 +544,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
         }
 
         let valueType = characteristic.valueType
-  
+
         if (!valueType && typeof value === 'boolean') {
           valueType = 'boolean'
         } else if (!valueType && !isNaN(Number(value))) {
@@ -550,7 +552,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
         } else if (!valueType) {
           valueType = 'string'
         }
-  
+
         if(value==null && valueType=='number'){
           value=0
         }
@@ -561,7 +563,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
             "value": value,
             "valueType": valueType,
           })
-        } 
+        }
 
       }
     }
@@ -752,5 +754,5 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
       termsAccepted,
     };
   }
-  
+
 }

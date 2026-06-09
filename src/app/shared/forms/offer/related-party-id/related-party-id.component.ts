@@ -9,6 +9,7 @@ import {AppModule} from "../../../../app.module";
 import {initFlowbite} from "flowbite";
 import {FormChangeState} from "../../../../models/interfaces";
 import { FormsModule } from '@angular/forms';
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 @Component({
   selector: 'app-related-party-id',
   standalone: true,
@@ -17,7 +18,8 @@ import { FormsModule } from '@angular/forms';
     NgIf,
     NgTemplateOutlet,
     NgClass,
-    FormsModule
+    FormsModule,
+    LoadingSpinnerComponent
   ],
   providers: [
     {

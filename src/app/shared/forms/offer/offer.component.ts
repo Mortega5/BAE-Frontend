@@ -21,6 +21,7 @@ import * as moment from 'moment';
 import { certifications } from 'src/app/models/certification-standards.const';
 import {Subject} from "rxjs";
 import { takeUntil } from 'rxjs/operators';
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 
 type ProductOffering_Create = components["schemas"]["ProductOffering_Create"];
 type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
@@ -40,7 +41,8 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
     ProcurementModeComponent,
     ReplicationVisibilityComponent,
     OfferSummaryComponent,
-    NgClass
+    NgClass,
+    LoadingSpinnerComponent
   ],
   templateUrl: './offer.component.html',
   styleUrl: './offer.component.css'
