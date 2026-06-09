@@ -4,6 +4,7 @@ import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
@@ -31,7 +32,6 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
   resourceToCreate: ResourceSpecification_Create | undefined;
 
   currentStep = 0;
-  highestStep = 0;
   steps = [
     'General Info',
     'Characteristics',
@@ -338,44 +338,17 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
     }
   }
 
-  goToStep(index: number) {
-    // Solo validar en modo creación
-    if (index > this.currentStep) {
-      // Validar el paso actual
-      const currentStepValid = this.validateCurrentStep();
-      if (!currentStepValid) {
-        return; // No permitir avanzar si el paso actual no es válido
-      }
-    }
+  get canAdvance(): boolean {
+    if (this.currentStep === 0) return this.generalForm?.valid ?? false;
+    if (this.currentStep === 2) return this.templateConfigFields.length === 0 || this.templateConfigForm.valid;
+    return true;
+  }
 
-    this.currentStep = index;
-    if (this.currentStep > this.highestStep) {
-      this.highestStep = this.currentStep
-    }
+  onStepChanged(event: StepChangedEvent): void {
+    this.currentStep = event.step;
     this.refreshChars();
-    if (this.currentStep == 3) {
+    if (event.isLastStep) {
       this.showFinish();
-    }
-  }
-
-  validateCurrentStep(): boolean {
-    switch (this.currentStep) {
-      case 0: // General Info
-        return this.generalForm?.valid || false;
-      case 2: // Configuration — valid if no fields or all required fields filled
-        return this.templateConfigFields.length === 0 || this.templateConfigForm.valid;
-      default:
-        return true;
-    }
-  }
-
-  canNavigate(index: number) {
-    return (this.generalForm?.valid && (index <= this.currentStep)) || (this.generalForm?.valid && (index <= this.highestStep));
-  }
-
-  handleStepClick(index: number): void {
-    if (this.canNavigate(index)) {
-      this.goToStep(index);
     }
   }
 }
