@@ -122,6 +122,13 @@ export class ResourceSpecServiceService {
     return this.http.get<SoftwareSupportPackage[]>(url, { params });
   }
 
+  getSoftwareSupportPackage(id: string): Observable<SoftwareSupportPackage> {
+
+    const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackage'];
+    const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}/${id}`;
+    return this.http.get<SoftwareSupportPackage>(url);
+  }
+
   updateSoftwareSupportPackage(id: string, updateInfo: Partial<SoftwareSupportPackage>): Observable<SoftwareSupportPackage> {
 
     const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackage'];

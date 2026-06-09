@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -13,8 +12,9 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { initFlowbite } from 'flowbite';
 import { components } from "src/app/models/resource-catalog";
-import { FormField } from '../../../../../models/formFields/form-field.model';
-import { resourceConfiguration } from '../../../../../models/formFields/software-resource-fields';
+import { FormField, SelectableFormField } from '../../../../../models/formFields/form-field.model';
+import { resourceConfigUpdate } from '../../../../../models/formFields/software-resource-fields';
+import { SoftwareSpecification } from '../../../../../models/software.model';
 import { buildFormGroup } from '../../../../../shared/forms/dynamic-form/build-form-group.util';
 type ResourceSpecification_Update = components["schemas"]["ResourceSpecification_Update"];
 type CharacteristicValueSpecification = components["schemas"]["ResourceSpecificationCharacteristicValue"];
@@ -35,7 +35,7 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
     { value: 'SoftwareSpecification', label: 'Software Specification', api: 'software' },
   ];
 
-  resourceConfiguration = resourceConfiguration;
+  resourceConfiguration = resourceConfigUpdate;
 
   templateConfigFields: FormField[] = [];
   templateConfigColumnCount: number = 1;
@@ -86,7 +86,6 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   constructor(
-    private router: Router,
     private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
@@ -145,6 +144,13 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
     this.templateConfigColumnCount = templateConfig ? templateConfig.columnCount : 1;
     this.templateConfigForm = buildFormGroup(this.templateConfigFields);
     this.templateConfigForm.patchValue(this.res);
+    if (type === 'SoftwareSpecification') {
+      this.resSpecService.getSoftwareSupportPackage((this.res as SoftwareSpecification).softwareSupportPackage?.id!)
+        .subscribe(pkg => {
+          const field = this.templateConfigFields.find(f => f.name === 'softwareSupportPackage') as SelectableFormField;
+          if (field) field.options = [{ value: pkg.id, label: `${pkg.name}` }];
+        });
+    }
   }
 
   goBack() {
