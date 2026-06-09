@@ -13,10 +13,10 @@ import { v4 as uuidv4 } from 'uuid';
 import { initFlowbite } from 'flowbite';
 import { components } from "src/app/models/resource-catalog";
 import { FormField, TableFormField } from '../../../../../models/formFields/form-field.model';
-import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 import { resourceConfigUpdate } from '../../../../../models/formFields/software-resource-fields';
 import { SoftwareSpecification } from '../../../../../models/software.model';
 import { buildFormGroup } from '../../../../../shared/forms/dynamic-form/build-form-group.util';
+import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 type ResourceSpecification_Update = components["schemas"]["ResourceSpecification_Update"];
 type CharacteristicValueSpecification = components["schemas"]["ResourceSpecificationCharacteristicValue"];
 type ResourceSpecificationCharacteristic = components["schemas"]["ResourceSpecificationCharacteristic"];
@@ -41,6 +41,7 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
       options: [
         { value: '', label: 'None' },
         { value: 'SoftwareSpecification', label: 'Software Specification' },
+        { value: 'SoftwareSupportPackageSpecification', label: 'Software Support Package Specification' }
       ],
     },
     {
@@ -48,9 +49,9 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
       name: 'lifecycleStatus',
       label: 'UPDATE_RES_SPEC._status',
       options: [
-        { value: 'Active',   label: 'UPDATE_CATALOG._active',   activeClass: 'text-blue-500' },
+        { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
         { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
-        { value: 'Retired',  label: 'UPDATE_CATALOG._retired',  activeClass: 'text-yellow-500' },
+        { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
         { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
       ],
     },

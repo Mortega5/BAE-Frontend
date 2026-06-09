@@ -8,7 +8,7 @@ import { LocalStorageService } from "./local-storage.service";
 
 type ResourceSpecification_Create = components["schemas"]["ResourceSpecification_Create"];
 
-export type ResourceSpecType = 'ResourceSpecification' | 'SoftwareSpecification';
+export type ResourceSpecType = 'ResourceSpecification' | 'SoftwareSpecification' | 'SoftwareSupportPackageSpecification';
 
 export interface PaginationParams<T = Record<string, any>> {
   page?: number;
