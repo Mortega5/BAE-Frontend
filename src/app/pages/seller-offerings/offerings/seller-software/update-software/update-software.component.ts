@@ -86,7 +86,13 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
     this.initPartyInfo();
     this.populateForms();
 
-    this.resSpecService.getSoftwarePackageSpec(this.software.resourceSpecification!.id, this.partyId).subscribe({
+    const specId = this.software.resourceSpecification?.id;
+    if (!specId) {
+      this.loading = false;
+      return;
+    }
+
+    this.resSpecService.getSoftwarePackageSpec(specId, this.partyId).subscribe({
       next: spec => {
         this.loading = false;
         const field = this.softwareSpecFields[0] as SelectableFormField;
@@ -155,6 +161,7 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
       name: this.generalForm.value.name,
       description: this.generalForm.value.description ?? '',
       resourceStatus: this.generalForm.value.resourceStatus,
+      resourceCharacteristic: this.resourceCharacteristics
     };
   }
 

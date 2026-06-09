@@ -280,9 +280,13 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
           }
         ],
       }, this.templateConfigForm.value);
-      if (this.generalForm.value.baseTemplate) {
-        this.resourceToCreate!['@type'] = this.generalForm.value.baseTemplate;
+      const type = this.generalForm.value.baseTemplate
+      if (type) {
+        this.resourceToCreate!['@type'] = type;
         this.resourceToCreate!['@baseType'] = 'ResourceSpecification';
+        if (type === 'SoftwareSpecification') {
+          this.resourceToCreate!.targetResourceSchema = { '@type': 'InstalledSoftware', "@schemaLocation": '' };
+        }
       }
       this.refreshChars();
     }
