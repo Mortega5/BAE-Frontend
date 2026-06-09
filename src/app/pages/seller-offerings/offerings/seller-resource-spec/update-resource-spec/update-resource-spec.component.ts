@@ -13,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { initFlowbite } from 'flowbite';
 import { components } from "src/app/models/resource-catalog";
 import { FormField, TableFormField } from '../../../../../models/formFields/form-field.model';
+import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 import { resourceConfigUpdate } from '../../../../../models/formFields/software-resource-fields';
 import { SoftwareSpecification } from '../../../../../models/software.model';
 import { buildFormGroup } from '../../../../../shared/forms/dynamic-form/build-form-group.util';
@@ -30,9 +31,30 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
 
   partyId: any = '';
 
-  baseTemplateOptions = [
-    { value: '', label: 'None' },
-    { value: 'SoftwareSpecification', label: 'Software Specification', api: 'software' },
+  generalFormFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'UPDATE_RES_SPEC._name', required: true, maxLength: 100 },
+    {
+      type: 'select',
+      name: 'baseTemplate',
+      label: 'CREATE_RES_SPEC._base_template',
+      readonly: true,
+      options: [
+        { value: '', label: 'None' },
+        { value: 'SoftwareSpecification', label: 'Software Specification' },
+      ],
+    },
+    {
+      type: 'statusPicker',
+      name: 'lifecycleStatus',
+      label: 'UPDATE_RES_SPEC._status',
+      options: [
+        { value: 'Active',   label: 'UPDATE_CATALOG._active',   activeClass: 'text-blue-500' },
+        { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
+        { value: 'Retired',  label: 'UPDATE_CATALOG._retired',  activeClass: 'text-yellow-500' },
+        { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
+      ],
+    },
+    { type: 'markdownTextarea', name: 'description', label: 'UPDATE_RES_SPEC._description' },
   ];
 
   resourceConfiguration = resourceConfigUpdate;
@@ -55,10 +77,10 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
   //SERVICE GENERAL INFO:
   generalForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
-    description: new FormControl('', Validators.maxLength(100000)),
     baseTemplate: new FormControl({ value: '', disabled: true }),
+    lifecycleStatus: new FormControl('Active'),
+    description: new FormControl('', Validators.maxLength(100000)),
   });
-  resStatus: any;
 
   //CHARS INFO
   charsForm = new FormGroup({
@@ -132,7 +154,7 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
     this.generalForm.controls['description'].setValue(this.res.description);
     const baseTemplate = this.res['@baseType'] ? this.res['@type'] : '';
     this.generalForm.controls['baseTemplate'].setValue(baseTemplate);
-    this.resStatus = this.res.lifecycleStatus;
+    this.generalForm.controls['lifecycleStatus'].setValue(this.res.lifecycleStatus);
 
     //CHARS
     this.prodChars = this.res.resourceSpecCharacteristic;
@@ -160,10 +182,6 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
     this.eventMessage.emitSellerResourceSpec(true);
   }
 
-  setResStatus(status: any) {
-    this.resStatus = status;
-    this.cdr.detectChanges();
-  }
 
   onTypeChange(event: any) {
     if (event.target.value == 'string') {
@@ -288,7 +306,7 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
       this.resourceToUpdate = Object.assign({}, {
         name: this.generalForm.value.name,
         description: this.generalForm.value.description != null ? this.generalForm.value.description : '',
-        lifecycleStatus: this.resStatus,
+        lifecycleStatus: this.generalForm.value.lifecycleStatus ?? 'Active',
         resourceSpecCharacteristic: this.prodChars
       }, this.templateConfigForm.value);
       if (this.res['@baseType']) {
@@ -345,35 +363,19 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
     }
   }
 
-  goToStep(index: number) {
-    this.currentStep = index;
+  get canAdvance(): boolean {
+    if (this.currentStep === 0) return this.generalForm?.valid ?? false;
+    return true;
+  }
+
+  onStepChanged(event: StepChangedEvent): void {
+    this.currentStep = event.step;
     this.refreshChars();
-    if (this.currentStep == 1) {
-      setTimeout(() => {
-        initFlowbite();
-      }, 100);
+    if (this.currentStep === 1) {
+      setTimeout(() => initFlowbite(), 100);
     }
-    if (this.currentStep == 2) {
+    if (event.isLastStep) {
       this.setResourceData();
-    }
-  }
-
-  validateCurrentStep(): boolean {
-    switch (this.currentStep) {
-      case 0: // General Info
-        return this.generalForm?.valid || false;
-      default:
-        return true;
-    }
-  }
-
-  canNavigate(index: number) {
-    return this.generalForm?.valid
-  }
-
-  handleStepClick(index: number): void {
-    if (this.canNavigate(index)) {
-      this.goToStep(index);
     }
   }
 
