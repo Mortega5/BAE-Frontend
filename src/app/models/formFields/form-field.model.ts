@@ -79,4 +79,19 @@ export interface RangeValueFormField extends BaseFormField {
   setLabel?: string;
 }
 
-export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField;
+export interface TableColumn<T = any> {
+  header: string;
+  getValue: (item: T) => string | number | boolean | null | undefined;
+  cellClass?: string | ((item: T) => string);
+  /** Tailwind width class applied to the `<th>` to control column width when used with `table-fixed`. e.g. `'w-1/2'`, `'w-32'`. Columns without a width share the remaining space equally. */
+  width?: string;
+}
+
+export interface TableFormField extends BaseFormField {
+  type: 'table';
+  columns: TableColumn[];
+  items: any[];
+  multiple?: boolean;
+}
+
+export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField;

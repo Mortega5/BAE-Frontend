@@ -12,7 +12,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 import { initFlowbite } from 'flowbite';
 import { components } from "src/app/models/resource-catalog";
-import { FormField, SelectableFormField } from '../../../../../models/formFields/form-field.model';
+import { FormField, TableFormField } from '../../../../../models/formFields/form-field.model';
 import { resourceConfigUpdate } from '../../../../../models/formFields/software-resource-fields';
 import { SoftwareSpecification } from '../../../../../models/software.model';
 import { buildFormGroup } from '../../../../../shared/forms/dynamic-form/build-form-group.util';
@@ -147,8 +147,11 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
     if (type === 'SoftwareSpecification') {
       this.resSpecService.getSoftwareSupportPackage((this.res as SoftwareSpecification).softwareSupportPackage?.id!)
         .subscribe(pkg => {
-          const field = this.templateConfigFields.find(f => f.name === 'softwareSupportPackage') as SelectableFormField;
-          if (field) field.options = [{ value: pkg.id, label: `${pkg.name}` }];
+          const field = this.templateConfigFields.find(f => f.name === 'softwareSupportPackage') as TableFormField;
+          if (field) {
+            field.items = [pkg];
+            this.templateConfigForm.patchValue({ softwareSupportPackage: pkg });
+          }
         });
     }
   }

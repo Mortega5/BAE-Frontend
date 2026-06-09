@@ -1,5 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { DatePipe } from '@angular/common';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -9,7 +10,7 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 
 import { components } from 'src/app/models/software-catalog';
-import { FormField, SelectableFormField, SelectOption } from '../../../../../models/formFields/form-field.model';
+import { FormField, SelectOption, TableFormField } from '../../../../../models/formFields/form-field.model';
 import { RESOURCE_STATUS_TYPES } from '../../../../../models/software.model';
 import { NotificationService } from '../../../../../services/notification.service';
 import { ResourceSpecServiceService } from '../../../../../services/resource-spec-service.service';
@@ -26,6 +27,7 @@ const statusOptions: SelectOption[] = RESOURCE_STATUS_TYPES.map(value => ({
 @Component({
   selector: 'update-software',
   templateUrl: './update-software.component.html',
+  providers: [DatePipe],
 })
 export class UpdateSoftwareComponent implements OnInit, OnDestroy {
 
@@ -55,11 +57,25 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
     description: new FormControl('', Validators.maxLength(100000)),
   });
 
-  softwareSpecFields: FormField[] = [
-    { name: 'softwareSpec', label: 'Software specification', type: 'select', required: true, options: [], readonly: true },
+  softwareSpecFields: TableFormField[] = [
+    {
+      name: 'softwareSpec',
+      label: 'Software specification',
+      type: 'table',
+      required: true,
+      readonly: true,
+      multiple: false,
+      items: [],
+      columns: [
+        { header: 'Name',        getValue: item => item.name ?? '-' },
+        { header: 'Version',     getValue: item => item.version ?? '-' },
+        { header: 'Status',      getValue: item => item.lifecycleStatus ?? '-' },
+        { header: 'Last update', getValue: item => this.datePipe.transform(item.lastUpdate, 'dd/MM/yy, HH:mm') ?? '-' },
+      ],
+    },
   ];
   softwareSpecForm = new FormGroup({
-    softwareSpec: new FormControl('', [Validators.required]),
+    softwareSpec: new FormControl<any>(null, [Validators.required]),
   });
 
   resourceCharacteristics: CharacteristicValueSpecification[] = [];
@@ -70,7 +86,8 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
     private resSpecService: ResourceSpecServiceService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private datePipe: DatePipe,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -95,11 +112,10 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
     this.resSpecService.getSoftwarePackageSpec(specId, this.partyId).subscribe({
       next: spec => {
         this.loading = false;
-        const field = this.softwareSpecFields[0] as SelectableFormField;
+        const field = this.softwareSpecFields[0];
         if (field) {
-          field.options = [{ value: spec?.id, label: `${spec?.name}` }];
-          this.softwareSpecForm.patchValue({ softwareSpec: spec.id });
-          this.softwareSpecForm.get('softwareSpec')?.disable();
+          field.items = [spec];
+          this.softwareSpecForm.patchValue({ softwareSpec: spec });
         }
       },
       error: error => {

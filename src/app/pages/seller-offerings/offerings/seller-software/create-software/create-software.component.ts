@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { DatePipe } from '@angular/common';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -11,7 +12,7 @@ import { noWhitespaceValidator } from 'src/app/validators/validators';
 
 import { components } from "src/app/models/software-catalog";
 import { environment } from 'src/environments/environment';
-import { FormField, SelectableFormField, SelectOption } from '../../../../../models/formFields/form-field.model';
+import { FormField, SelectOption, TableFormField } from '../../../../../models/formFields/form-field.model';
 import { RESOURCE_STATUS_TYPES } from '../../../../../models/software.model';
 import { ResourceSpecServiceService } from '../../../../../services/resource-spec-service.service';
 import { buildFormGroup } from '../../../../../shared/forms/dynamic-form/build-form-group.util';
@@ -28,7 +29,8 @@ const statusOptions: SelectOption[] = RESOURCE_STATUS_TYPES.map(value => ({
 @Component({
   selector: 'create-software',
   templateUrl: './create-software.component.html',
-  styleUrl: './create-software.component.css'
+  styleUrl: './create-software.component.css',
+  providers: [DatePipe],
 })
 export class CreateSoftwareComponent implements OnInit, OnDestroy {
 
@@ -56,8 +58,21 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
     description: new FormControl('', Validators.maxLength(100000)),
   });
 
-  softwareSpecFields: FormField[] = [
-    { name: 'softwareSpec', label: 'Software specification', type: 'select', required: true, options: [] },
+  softwareSpecFields: TableFormField[] = [
+    {
+      name: 'softwareSpec',
+      label: 'Software specification',
+      type: 'table',
+      required: true,
+      multiple: false,
+      items: [],
+      columns: [
+        { header: 'Name',        getValue: item => item.name ?? '-' },
+        { header: 'Version',     getValue: item => item.version ?? '-' },
+        { header: 'Status',      getValue: item => item.lifecycleStatus ?? '-' },
+        { header: 'Last update', getValue: item => this.datePipe.transform(item.lastUpdate, 'dd/MM/yy, HH:mm') ?? '-' },
+      ],
+    },
   ];
   softwareSpecForm = buildFormGroup(this.softwareSpecFields);
 
@@ -72,6 +87,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService,
     private api: ApiServiceService,
     private resSpecService: ResourceSpecServiceService,
+    private datePipe: DatePipe,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -88,8 +104,8 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
     this.resSpecService.getSoftwarePackageSpecs(this.partyId).subscribe({
       next: specs => {
         this.loading = false;
-        const field = this.softwareSpecFields[0] as SelectableFormField;
-        if (field) field.options = specs?.map(p => ({ value: { id: p.id }, label: `${p.name}` }));
+        const field = this.softwareSpecFields[0];
+        if (field) field.items = specs ?? [];
       },
       error: error => {
         console.error('Error getting Software Package Specs', error);
@@ -144,7 +160,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
         resourceStatus: 'available',
         usageState: 'active',
         resourceCharacteristic: this.resourceCharacteristics,
-        resourceSpecification: { ...this.softwareSpecForm.value.softwareSpec },
+        resourceSpecification: { id: this.softwareSpecForm.value.softwareSpec?.id },
         relatedParty: [{
           id: this.partyId,
           role: environment.SELLER_ROLE,
