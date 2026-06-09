@@ -1,17 +1,13 @@
-import {Component, Input, OnInit, OnDestroy, Output, EventEmitter} from '@angular/core';
-import {AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {SharedModule} from "../../../shared.module";
-import {MarkdownTextareaComponent} from "../../markdown-textarea/markdown-textarea.component";
-import {StatusSelectorComponent} from "../../status-selector/status-selector.component";
+import {Component, Input, OnInit, OnDestroy} from '@angular/core';
+import {AbstractControl, FormControl, FormGroup, Validators} from "@angular/forms";
 import {EventMessageService} from "../../../../services/event-message.service";
 import {ApiServiceService} from "../../../../services/product-service.service";
-import {FormChangeState} from "../../../../models/interfaces";
-import {Subscription} from "rxjs";
-import {debounceTime} from "rxjs/operators";
+import {debounceTime, takeUntil} from "rxjs/operators";
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import {Subject} from "rxjs";
-import { takeUntil } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
+import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 
 interface GeneralInfo {
   name: string;
@@ -20,15 +16,17 @@ interface GeneralInfo {
   version: string;
 }
 
+const STATUS_ACTIVE_CLASSES: Record<string, string> = {
+  Active: 'text-green-600',
+  Launched: 'text-green-700',
+  Retired: 'text-red-700',
+  Obsolete: 'text-gray-800',
+};
+
 @Component({
   selector: 'app-general-info-form',
   standalone: true,
-  imports: [
-    ReactiveFormsModule,
-    SharedModule,
-    MarkdownTextareaComponent,
-    StatusSelectorComponent
-  ],
+  imports: [DynamicFormComponent],
   templateUrl: './general-info.component.html',
   styleUrl: './general-info.component.css'
 })
@@ -36,120 +34,89 @@ export class GeneralInfoComponent implements OnInit, OnDestroy {
   @Input() form!: AbstractControl;
   @Input() formType!: string;
   @Input() data: any;
-  @Output() formChange = new EventEmitter<FormChangeState>();
 
-  private originalValue: GeneralInfo;
-  private hasBeenModified: boolean = false;
-  private isEditMode: boolean = false;
+  fields: FormField[] = [];
+
+  private originalValue!: GeneralInfo;
+  private isEditMode = false;
+  private disabledStatuses: string[] = [];
   private destroy$ = new Subject<void>();
 
-  disabledStatuses: string[] = [];
-
-  constructor(private eventMessage: EventMessageService, private apiService: ApiServiceService) {
-    console.log('🔄 Initializing GeneralInfoComponent');
-  }
+  constructor(private eventMessage: EventMessageService, private apiService: ApiServiceService) {}
 
   get formGroup(): FormGroup {
     return this.form as FormGroup;
   }
 
-  get nameControl(): FormControl | null {
-    const control = this.formGroup.get('name');
-    return control instanceof FormControl ? control : null;
-  }
-
-  get descControl(): FormControl | null {
-    const control = this.formGroup.get('description');
-    return control instanceof FormControl ? control : null;
-  }
-
-  get versionControl(): FormControl | null {
-    const control = this.formGroup.get('version');
-    return control instanceof FormControl ? control : null;
-  }
-
-  get statusControl(): FormControl | null {
-    const control = this.formGroup.get('status');
-    return control instanceof FormControl ? control : null;
-  }
-
   ngOnInit() {
-    console.log('📝 Initializing form in', this.formType, 'mode');
     this.isEditMode = this.formType === 'update';
-    
-    if (this.isEditMode && this.data) {
-      console.log('Initializing form in update mode with data:', this.data);
-      this.formGroup.addControl('name', new FormControl<string>(this.data.name, [Validators.required, Validators.maxLength(100), noWhitespaceValidator]));
-      this.formGroup.addControl('status', new FormControl<string>(this.data.lifecycleStatus));
-      this.formGroup.addControl('description', new FormControl<string>(this.data.description, Validators.maxLength(100000)));
-      this.formGroup.addControl('version', new FormControl<string>(this.data.version, [Validators.required,Validators.pattern('^-?[0-9]\\d*(\\.\\d*)?$'), noWhitespaceValidator]));
 
-      // Store original value only in edit mode
+    this.formGroup.addControl('name', new FormControl<string>(this.data?.name ?? '', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]));
+    this.formGroup.addControl('status', new FormControl<string>(this.data?.lifecycleStatus ?? 'Active'));
+    this.formGroup.addControl('description', new FormControl<string>(this.data?.description ?? '', Validators.maxLength(100000)));
+    this.formGroup.addControl('version', new FormControl<string>(this.data?.version ?? '0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*)?$'), noWhitespaceValidator]));
+
+    if (this.isEditMode) {
       this.originalValue = {
         name: this.data.name,
         status: this.data.lifecycleStatus,
         description: this.data.description,
         version: this.data.version,
       };
-      console.log('📝 Original value stored:', this.originalValue);
 
-      if (environment.LAUNCH_VALIDATION_ENABLED && this.data.id) {
+      if (environment.LAUNCH_VALIDATION_ENABLED && this.data?.id) {
         this.apiService.checkOfferingLaunch(this.data.id).then((result) => {
           if (!result.canBeLaunched) {
             this.disabledStatuses = ['Launched'];
+            this.buildFields();
           }
         }).catch(() => {
           this.disabledStatuses = ['Launched'];
+          this.buildFields();
         });
       }
-    } else {
-      console.log('Initializing form in create mode');
-      this.formGroup.addControl('name', new FormControl<string>('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]));
-      this.formGroup.addControl('status', new FormControl<string>('Active', [Validators.required]));
-      this.formGroup.addControl('description', new FormControl<string>(''));
-      this.formGroup.addControl('version', new FormControl<string>('0.1', [Validators.required,Validators.pattern('^-?[0-9]\\d*(\\.\\d*)?$'), noWhitespaceValidator]));
-    }
 
-    // Subscribe to form changes only in edit mode
-    if (this.isEditMode) {
       this.formGroup.valueChanges.pipe(
-        debounceTime(500), // Esperar 500ms después del último cambio antes de emitir
+        debounceTime(500),
         takeUntil(this.destroy$)
       ).subscribe((newValue) => {
-        console.log('📝 Form value changed:', newValue);
         const dirtyFields = this.getDirtyFields(newValue);
-        
         if (dirtyFields.length > 0) {
-          this.hasBeenModified = true;
-          const changeState: FormChangeState = {
+          this.eventMessage.emitSubformChange({
             subformType: 'generalInfo',
             isDirty: true,
             dirtyFields,
             originalValue: this.originalValue,
-            currentValue: newValue
-          };
-          console.log('🚀 Emitting change state:', changeState);
-          this.eventMessage.emitSubformChange(changeState);
-        } else {
-          this.hasBeenModified = false;
+            currentValue: newValue,
+          });
         }
       });
     }
+
+    this.buildFields();
   }
 
   ngOnDestroy() {
-    console.log('🗑️ Destroying GeneralInfoComponent');
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  private getDirtyFields(currentValue: GeneralInfo): string[] {
-    return Object.keys(currentValue).filter(key => {
-      const currentFieldValue = currentValue[key as keyof GeneralInfo];
-      const originalFieldValue = this.originalValue[key as keyof GeneralInfo];
-      return JSON.stringify(currentFieldValue) !== JSON.stringify(originalFieldValue);
-    });
+  private buildFields(): void {
+    const statusOptions = ['Active', 'Launched', 'Retired', 'Obsolete']
+      .filter(s => !this.disabledStatuses.includes(s))
+      .map(s => ({ value: s, label: s, activeClass: STATUS_ACTIVE_CLASSES[s] ?? 'text-gray-500' }));
+
+    this.fields = [
+      { type: 'string', name: 'name', label: 'CREATE_OFFER._name', required: true, maxLength: 100, colSpan: 1 },
+      { type: 'string', name: 'version', label: 'CREATE_OFFER._version', required: true, colSpan: 1 },
+      ...(this.isEditMode ? [{ type: 'statusPicker' as const, name: 'status', label: 'CREATE_OFFER._status', options: statusOptions }] : []),
+      { type: 'markdownTextarea', name: 'description', label: 'CREATE_OFFER._description' },
+    ];
   }
 
-  protected readonly FormControl = FormControl;
+  private getDirtyFields(currentValue: GeneralInfo): string[] {
+    return Object.keys(currentValue).filter(key => {
+      return JSON.stringify(currentValue[key as keyof GeneralInfo]) !== JSON.stringify(this.originalValue[key as keyof GeneralInfo]);
+    });
+  }
 }

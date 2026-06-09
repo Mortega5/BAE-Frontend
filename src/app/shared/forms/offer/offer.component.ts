@@ -1,17 +1,18 @@
-import { NgClass } from "@angular/common";
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
-import moment from 'moment';
 import { lastValueFrom, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { components } from "src/app/models/product-catalog";
-import { EventMessageService } from "src/app/services/event-message.service";
-import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
-import { v4 as uuidv4 } from 'uuid';
+import * as moment from 'moment';
 import { environment } from '../../../../environments/environment';
 import { FormChangeState, PricePlanChangeState } from "../../../models/interfaces";
 import { ApiServiceService } from "../../../services/product-service.service";
+import { components } from "src/app/models/product-catalog";
+import { EventMessageService } from "src/app/services/event-message.service";
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { StepperComponent, StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
+import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
+import { v4 as uuidv4 } from 'uuid';
 import { CatalogueComponent } from "./catalogue/catalogue.component";
 import { CategoryComponent } from "./category/category.component";
 import { EdcContractDefinitionComponent } from "./edc-contract-definition/edc-contract-definition.component";
@@ -57,9 +58,10 @@ interface Step {
     CatalogueComponent,
     ProcurementModeComponent,
     OfferSummaryComponent,
-    NgClass,
     EdcContractDefinitionComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    StepperComponent,
+    StepperStepDirective,
   ],
   templateUrl: './offer.component.html',
   styleUrl: './offer.component.css'
@@ -71,7 +73,7 @@ export class OfferComponent implements OnInit, OnDestroy {
   @Input() partyId: any;
 
   productOfferForm: FormGroup;
-  highestStepIdx = 0;
+  currentStep = 0;
   contractDefinitionStep: Step = { label: 'Contract Definition', id: OfferStep.CONTRACT_DEFINITION };
   steps: Step[] = [
     { label: 'General Info', id: OfferStep.GENERAL_INFO },
@@ -84,9 +86,23 @@ export class OfferComponent implements OnInit, OnDestroy {
     // { label: 'Replication & Visibility', id: OfferStep.REPLICATION },
     { label: 'Summary', id: OfferStep.SUMMARY },
   ];
-  currentStepIdx = 0;
-  get currentStep(): Step { return this.steps[this.currentStepIdx]; }
   readonly OfferStep = OfferStep;
+
+  isCurrentStep(step: OfferStep): boolean {
+    return this.steps[this.currentStep]?.id === step;
+  }
+
+  get hasContractDefinitionStep(): boolean {
+    return this.steps.some(s => s.id === OfferStep.CONTRACT_DEFINITION);
+  }
+
+  get stepLabels(): string[] {
+    return this.steps.map(s => s.label);
+  }
+
+  getStepIndex(step: OfferStep): number {
+    return this.steps.findIndex(s => s.id === step);
+  }
 
   isFormValid = false;
   selectedProdSpec: any;
@@ -165,31 +181,27 @@ export class OfferComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  goToStep(index: number) {
-    // Solo validar en modo creación
-    if (this.formType === 'create' && index > this.currentStepIdx) {
-      const currentStepValid = this.validateCurrentStep();
-      if (!currentStepValid) {
-        return;
-      }
+  get canAdvance(): boolean {
+    if (this.formType === 'update') {
+      return this.isFormValid;
     }
+    return this.validateCurrentStep();
+  }
 
-    if (this.currentStep.id === 'prod_spec') {
-      // VERIFY EDC compatible and enable if so
+  onStepChanged(event: StepChangedEvent): void {
+    // VERIFY EDC compatible and enable/disable the contract definition step accordingly
+    if (this.isCurrentStep(OfferStep.PROD_SPEC)) {
       if (this.isdEdcCompatible() && this.dspEnable) {
-        this.enableContractDefinitionStep()
+        this.enableContractDefinitionStep();
       } else {
         this.disableContractDefinitionStep();
       }
     }
-    this.currentStepIdx = index;
-    if (index > this.highestStepIdx) {
-      this.highestStepIdx = index;
-    }
+    this.currentStep = event.step;
   }
 
   validateCurrentStep(): boolean {
-    switch (this.currentStep.id) {
+    switch (this.steps[this.currentStep]?.id) {
       case OfferStep.GENERAL_INFO:
         return this.productOfferForm.get('generalInfo')?.valid || false;
       case OfferStep.PROD_SPEC:
@@ -213,21 +225,6 @@ export class OfferComponent implements OnInit, OnDestroy {
     }
   }
 
-  canNavigate(index: number) {
-    if (this.formType == 'create') {
-      return (this.productOfferForm.get('generalInfo')?.valid && (index <= this.currentStepIdx)) || (this.productOfferForm.get('generalInfo')?.valid && (index <= this.highestStepIdx));
-    } else {
-      //return this.productOfferForm.get('generalInfo')?.valid
-      return this.isFormValid
-    }
-  }
-
-  handleStepClick(index: number): void {
-    if (this.canNavigate(index)) {
-      this.goToStep(index);
-    }
-  }
-
   enableContractDefinitionStep(): void {
     const alreadyAdded = this.steps.some(s => s.id === OfferStep.CONTRACT_DEFINITION);
     if (alreadyAdded) return;
@@ -242,7 +239,6 @@ export class OfferComponent implements OnInit, OnDestroy {
   disableContractDefinitionStep(): void {
     this.steps = this.steps.filter(s => s.id !== OfferStep.CONTRACT_DEFINITION);
   }
-
 
   submitForm() {
     if (this.formType === 'update') {
