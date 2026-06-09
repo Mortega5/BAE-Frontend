@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { FormField, SelectableFormField } from 'src/app/models/formFields/form-field.model';
+import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
@@ -118,8 +118,8 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
         if (value === 'SoftwareSpecification') {
           this.resSpecService.getSoftwareSupportPackages(this.partyId)
             .subscribe(packages => {
-              const field = this.templateConfigFields.find(f => f.name === 'softwareSupportPackage') as SelectableFormField;
-              if (field) field.options = packages.map(p => ({ value: { id: p.id }, label: `${p.name}` }));
+              const field = this.templateConfigFields.find(f => f.name === 'softwareSupportPackage') as TableFormField;
+              if (field) field.items = packages ?? [];
             });
         }
       });
