@@ -1,6 +1,6 @@
+import { DatePipe } from '@angular/common';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { DatePipe } from '@angular/common';
 import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -67,10 +67,10 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
       multiple: false,
       items: [],
       columns: [
-        { header: 'Name',        getValue: item => item.name ?? '-' },
-        { header: 'Version',     getValue: item => item.version ?? '-' },
-        { header: 'Status',      getValue: item => item.lifecycleStatus ?? '-' },
-        { header: 'Last update', getValue: item => this.datePipe.transform(item.lastUpdate, 'dd/MM/yy, HH:mm') ?? '-' },
+        { header: 'Name', getValue: item => item.name ?? '-' },
+        { header: 'Version', getValue: item => item.version ?? '-', width: 'w-24' },
+        { header: 'Status', getValue: item => item.lifecycleStatus ?? '-', width: 'w-28' },
+        { header: 'Last update', getValue: item => this.datePipe.transform(item.lastUpdate, 'dd/MM/yy, HH:mm') ?? '-', width: 'w-36' },
       ],
     },
   ];
