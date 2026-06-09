@@ -144,6 +144,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
         resourceStatus: 'available',
         usageState: 'active',
         resourceCharacteristic: this.resourceCharacteristics,
+        resourceSpecification: { ...this.softwareSpecForm.value.softwareSpec },
         relatedParty: [{
           id: this.partyId,
           role: environment.SELLER_ROLE,
