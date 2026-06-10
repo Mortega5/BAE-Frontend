@@ -2876,11 +2876,14 @@
     "_type_string": "String",
     "_type_number": "Number",
     "_type_range": "Range",
+    "_type_boolean": "Boolean",
     "_value": "Value",
     "_unit": "Unit of Measure",
     "_value_from": "From",
     "_value_to": "To",
-    "_is_default": "Is Default",
-    "_add_value": "Add Value"
+    "_is_default": "Default Value",
+    "_add_value": "Add Value",
+    "_true": "True",
+    "_false": "False"
   }
 }

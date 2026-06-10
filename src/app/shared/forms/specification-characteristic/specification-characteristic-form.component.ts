@@ -23,6 +23,7 @@ const ALL_VALUE_TYPE_OPTIONS = [
   { value: 'string', label: 'CHAR_SPEC._type_string' },
   { value: 'number', label: 'CHAR_SPEC._type_number' },
   { value: 'range', label: 'CHAR_SPEC._type_range' },
+  { value: 'boolean', label: 'CHAR_SPEC._type_boolean' },
 ];
 
 @Component({
@@ -78,12 +79,14 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnDestr
   ngOnInit(): void {
     this.headerForm.get('valueType')!.setValue(this.initialValueType, { emitEvent: false });
     this.valueForm = this.buildValueForm();
-    this.savedValues = [...this.initialValues];
+    this.savedValues = this.initialValues.length > 0
+      ? [...this.initialValues]
+      : this.initialValueType === 'boolean' ? this.defaultBooleanValues() : [];
 
     this.headerForm.get('valueType')!.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
-        this.savedValues = [];
+        this.savedValues = this.valueType === 'boolean' ? this.defaultBooleanValues() : [];
         this.valueForm = this.buildValueForm();
         this.emitFormChange();
       });
@@ -100,7 +103,11 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnDestr
 
   addValue(): void {
     if (!this.canAdd) return;
-    this.savedValues = [...this.savedValues, this.valueForm.value as CharacteristicValueSpecification];
+    const newValue: CharacteristicValueSpecification = {
+      ...this.valueForm.value,
+      isDefault: this.savedValues.length === 0
+    };
+    this.savedValues = [...this.savedValues, newValue];
     this.valueForm = this.buildValueForm();
     this.emitFormChange();
   }
@@ -108,6 +115,18 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnDestr
   removeValue(index: number): void {
     this.savedValues = this.savedValues.filter((_, i) => i !== index);
     this.emitFormChange();
+  }
+
+  setDefault(index: number): void {
+    this.savedValues = this.savedValues.map((v, i) => ({ ...v, isDefault: i === index }));
+    this.emitFormChange();
+  }
+
+  private defaultBooleanValues(): CharacteristicValueSpecification[] {
+    return [
+      { isDefault: true, value: true as any },
+      { isDefault: false, value: false as any },
+    ];
   }
 
   private emitFormChange(): void {
@@ -139,6 +158,11 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnDestr
           valueFrom: new FormControl<number | null>(null, { validators: [Validators.required] }),
           valueTo: new FormControl<number | null>(null, { validators: [Validators.required] }),
           unitOfMeasure: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] })
+        });
+      case 'boolean':
+        return new FormGroup({
+          isDefault: new FormControl<boolean>(false, { nonNullable: true }),
+          value: new FormControl<boolean>(false, { nonNullable: true })
         });
     }
   }

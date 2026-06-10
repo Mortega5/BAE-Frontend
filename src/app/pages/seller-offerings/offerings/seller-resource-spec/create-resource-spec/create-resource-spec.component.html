@@ -142,7 +142,7 @@
         </div>
         } @else {
         <div class="m-4 flex flex-col gap-4">
-          <app-specification-characteristic-form (formChange)="onFormChange($event)" />
+          <app-specification-characteristic-form [supportedTypes]="allowedChars" (formChange)="onFormChange($event)" />
           <div class="flex w-full justify-center">
             <button data-cy="resSpecSaveChar" type="button" (click)="saveChar()" [disabled]="!canSaveChar"
               [ngClass]="!canSaveChar ? 'opacity-50' : 'hover:bg-primary-50'"
