@@ -2901,5 +2901,20 @@
     "_thanks": "Thank you for contacting DOME Marketplace.",
     "_footer_title": "How would you rate your overall experience with DOME?",
     "_footer_improve": "How can we improve DOME?"
+  },
+  "CHAR_SPEC": {
+    "_char_name": "Name",
+    "_configurable": "Configurable",
+    "_description": "Description",
+    "_value_type": "Value Type",
+    "_type_string": "String",
+    "_type_number": "Number",
+    "_type_range": "Range",
+    "_value": "Value",
+    "_unit": "Unit of Measure",
+    "_value_from": "From",
+    "_value_to": "To",
+    "_is_default": "Is Default",
+    "_add_value": "Add Value"
   }
 }

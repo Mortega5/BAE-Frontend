@@ -1,0 +1,91 @@
+<div class="flex flex-col gap-4">
+
+  <app-dynamic-form [fields]="headerFields" [formGroup]="headerForm" [columns]="6" />
+
+  @if (savedValues.length > 0) {
+  <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-200 table-fixed">
+      <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+        <tr>
+          @switch (valueType) {
+          @case ('string') {
+          <th class="px-4 py-3 w-full">{{ 'CHAR_SPEC._value' | translate }}</th>
+          }
+          @case ('number') {
+          <th class="px-4 py-3 w-full">{{ 'CHAR_SPEC._value' | translate }}</th>
+          <th class="px-4 py-3 w-32">{{ 'CHAR_SPEC._unit' | translate }}</th>
+          }
+          @case ('range') {
+          <th class="px-4 py-3 w-full">{{ 'CHAR_SPEC._value_from' | translate }}</th>
+          <th class="px-4 py-3 w-full">{{ 'CHAR_SPEC._value_to' | translate }}</th>
+          <th class="px-4 py-3 w-32">{{ 'CHAR_SPEC._unit' | translate }}</th>
+          }
+          }
+          <th class="px-4 py-3 w-48">{{ 'CHAR_SPEC._is_default' | translate }}</th>
+          @if (!readonly) {
+          <th class="px-4 py-3 w-12"></th>
+          }
+        </tr>
+      </thead>
+      <tbody>
+        @for (val of savedValues; track $index) {
+        <tr class="border-b hover:bg-gray-200 dark:border-gray-700 dark:hover:bg-secondary-200">
+          @switch (valueType) {
+          @case ('string') {
+          <td class="px-4 py-3 break-all">{{ val.value }}</td>
+          }
+          @case ('number') {
+          <td class="px-4 py-3 break-all">{{ val.value }}</td>
+          <td class="px-4 py-3">{{ val.unitOfMeasure }}</td>
+          }
+          @case ('range') {
+          <td class="px-4 py-3">{{ val.valueFrom }}</td>
+          <td class="px-4 py-3">{{ val.valueTo }}</td>
+          <td class="px-4 py-3">{{ val.unitOfMeasure }}</td>
+          }
+          }
+          <td class="px-4 py-3">
+            <svg [class.opacity-0]="!val.isDefault" class="w-5 h-5 text-green-500" xmlns="http://www.w3.org/2000/svg"
+              fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="m5 12 4.7 4.5 9.3-9" />
+            </svg>
+          </td>
+          @if (!readonly) {
+          <td class="px-4 py-3">
+            <button type="button" (click)="removeValue($index)"
+              class="font-bold text-white bg-red-500 hover:bg-red-600 rounded-3xl p-1">
+              <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M6 18 17.94 6M18 18 6.06 6" />
+              </svg>
+            </button>
+          </td>
+          }
+        </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+  }
+
+  @if (!readonly) {
+  <div
+    class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-secondary-200 flex flex-col gap-3">
+    <app-characteristic-value-spec-form [valueType]="valueType" [form]="valueForm" />
+    <div class="flex justify-end">
+      <button type="button" (click)="addValue()" [disabled]="!canAdd" [class.opacity-50]="!canAdd"
+        [class.cursor-not-allowed]="!canAdd"
+        class="flex items-center gap-2 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
+        {{ 'CHAR_SPEC._add_value' | translate }}
+        <svg class="w-3.5 h-3.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M5 12h14m-7 7V5" />
+        </svg>
+      </button>
+    </div>
+  </div>
+  }
+
+</div>
