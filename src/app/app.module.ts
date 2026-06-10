@@ -102,6 +102,7 @@ import { RequestValidationModalComponent } from './pages/seller-offerings/offeri
 import { CreateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/create-software/create-software.component';
 import { SellerSoftware } from './pages/seller-offerings/offerings/seller-software/seller-software';
 import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offerings/seller-software/software-characteristics/software-characteristics.component';
+import { SpecificationCharacteristicFormComponent } from './shared/forms/specification-characteristic/specification-characteristic-form.component';
 import { UpdateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/update-software/update-software.component';
 import { StatusFieldComponent } from './shared/status-field/status-field.component';
 import { StepperStepDirective } from './shared/stepper/stepper-step.directive';
@@ -214,6 +215,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     ProviderRevenueSharingComponent,
     OperatorRevenueSharingComponent,
     SoftwareCharacteristicsComponent,
+    SpecificationCharacteristicFormComponent,
     StepperComponent,
     StepperStepDirective,
     StatusFieldComponent,

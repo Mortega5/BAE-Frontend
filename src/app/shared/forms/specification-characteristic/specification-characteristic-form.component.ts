@@ -1,0 +1,145 @@
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { components } from 'src/app/models/product-catalog';
+import { noWhitespaceValidator } from 'src/app/validators/validators';
+import { CharacteristicValueSpecFormComponent, CharValueType } from '../characteristic-value-spec/characteristic-value-spec-form.component';
+import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
+
+type CharacteristicValueSpecification = components['schemas']['CharacteristicValueSpecification'];
+
+export interface CharacteristicFormValue {
+  name: string;
+  description: string;
+  configurable: boolean;
+  valueType: CharValueType;
+  values: CharacteristicValueSpecification[];
+}
+
+const ALL_VALUE_TYPE_OPTIONS = [
+  { value: 'string', label: 'CHAR_SPEC._type_string' },
+  { value: 'number', label: 'CHAR_SPEC._type_number' },
+  { value: 'range', label: 'CHAR_SPEC._type_range' },
+];
+
+@Component({
+  selector: 'app-specification-characteristic-form',
+  templateUrl: './specification-characteristic-form.component.html',
+  standalone: true,
+  imports: [ReactiveFormsModule, TranslateModule, DynamicFormComponent, CharacteristicValueSpecFormComponent],
+})
+export class SpecificationCharacteristicFormComponent implements OnInit, OnDestroy {
+  @Input() initialValueType: CharValueType = 'string';
+  @Input() initialValues: CharacteristicValueSpecification[] = [];
+  @Input() readonly: boolean = false;
+  @Input() supportedTypes: CharValueType[] = [];
+  @Output() formChange = new EventEmitter<CharacteristicFormValue>();
+
+  private destroy$ = new Subject<void>();
+
+  headerForm = new FormGroup({
+    name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(100), noWhitespaceValidator] }),
+    description: new FormControl<string>('', { nonNullable: true }),
+    configurable: new FormControl<boolean>(false, { nonNullable: true }),
+    valueType: new FormControl<CharValueType>('string', { nonNullable: true })
+  });
+
+  valueForm: FormGroup = this.buildValueForm();
+  savedValues: CharacteristicValueSpecification[] = [];
+
+  private get valueTypeOptions() {
+    const filtered = this.supportedTypes.length
+      ? ALL_VALUE_TYPE_OPTIONS.filter(o => this.supportedTypes.includes(o.value as CharValueType))
+      : ALL_VALUE_TYPE_OPTIONS;
+    return filtered;
+  }
+
+  get headerFields(): FormField[] {
+    const ro = this.readonly;
+    return [
+      { type: 'string', name: 'name', label: 'CHAR_SPEC._char_name', required: true, maxLength: 100, colSpan: 3, readonly: ro },
+      { type: 'select', name: 'valueType', label: 'CHAR_SPEC._value_type', options: this.valueTypeOptions, readonly: ro, colSpan: 2 },
+      { type: 'boolean', name: 'configurable', label: 'CHAR_SPEC._configurable', readonly: ro, colSpan: 1 },
+      { type: 'textarea', name: 'description', label: 'CHAR_SPEC._description', readonly: ro },
+    ];
+  }
+
+  get valueType(): CharValueType {
+    return this.headerForm.get('valueType')!.value;
+  }
+
+  get canAdd(): boolean {
+    return this.valueForm.valid;
+  }
+
+  ngOnInit(): void {
+    this.headerForm.get('valueType')!.setValue(this.initialValueType, { emitEvent: false });
+    this.valueForm = this.buildValueForm();
+    this.savedValues = [...this.initialValues];
+
+    this.headerForm.get('valueType')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.savedValues = [];
+        this.valueForm = this.buildValueForm();
+        this.emitFormChange();
+      });
+
+    this.headerForm.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.emitFormChange());
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  addValue(): void {
+    if (!this.canAdd) return;
+    this.savedValues = [...this.savedValues, this.valueForm.value as CharacteristicValueSpecification];
+    this.valueForm = this.buildValueForm();
+    this.emitFormChange();
+  }
+
+  removeValue(index: number): void {
+    this.savedValues = this.savedValues.filter((_, i) => i !== index);
+    this.emitFormChange();
+  }
+
+  private emitFormChange(): void {
+    this.formChange.emit({
+      name: this.headerForm.get('name')!.value,
+      description: this.headerForm.get('description')!.value,
+      configurable: this.headerForm.get('configurable')!.value,
+      valueType: this.valueType,
+      values: this.savedValues
+    });
+  }
+
+  private buildValueForm(): FormGroup {
+    switch (this.valueType) {
+      case 'string':
+        return new FormGroup({
+          isDefault: new FormControl<boolean>(false, { nonNullable: true }),
+          value: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] })
+        });
+      case 'number':
+        return new FormGroup({
+          isDefault: new FormControl<boolean>(false, { nonNullable: true }),
+          value: new FormControl<number | null>(null, { validators: [Validators.required] }),
+          unitOfMeasure: new FormControl<string>('', { nonNullable: true })
+        });
+      case 'range':
+        return new FormGroup({
+          isDefault: new FormControl<boolean>(false, { nonNullable: true }),
+          valueFrom: new FormControl<number | null>(null, { validators: [Validators.required] }),
+          valueTo: new FormControl<number | null>(null, { validators: [Validators.required] }),
+          unitOfMeasure: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] })
+        });
+    }
+  }
+}

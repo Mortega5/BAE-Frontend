@@ -26,8 +26,8 @@
     <select [id]="field.name" [formControlName]="field.name" [class.pointer-events-none]="field.readonly"
       [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"
       class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-      <option [value]="false">{{ '_no' | translate }}</option>
-      <option [value]="true">{{ '_yes' | translate }}</option>
+      <option [ngValue]="false">{{ '_no' | translate }}</option>
+      <option [ngValue]="true">{{ '_yes' | translate }}</option>
     </select>
     }
 

@@ -9,6 +9,7 @@ import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/resource-spec-service.service';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { CharacteristicFormValue } from 'src/app/shared/forms/specification-characteristic/specification-characteristic-form.component';
 import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { v4 as uuidv4 } from 'uuid';
@@ -17,7 +18,6 @@ import { components } from "src/app/models/resource-catalog";
 import { environment } from 'src/environments/environment';
 import { resourceConfiguration } from '../../../../../models/formFields/software-resource-fields';
 type ResourceSpecification_Create = components["schemas"]["ResourceSpecification_Create"];
-type CharacteristicValueSpecification = components["schemas"]["ResourceSpecificationCharacteristicValue"];
 type ResourceSpecificationCharacteristic = components["schemas"]["ResourceSpecificationCharacteristic"];
 
 @Component({
@@ -63,30 +63,14 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
     baseTemplate: new FormControl(''),
   });
 
-  //CHARS INFO
-  charsForm = new FormGroup({
-    name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
-    description: new FormControl(''),
-    configurable: new FormControl('false'),
-  });
-  stringCharSelected: boolean = true;
-  numberCharSelected: boolean = false;
-  rangeCharSelected: boolean = false;
   prodChars: ResourceSpecificationCharacteristic[] = [];
-  creatingChars: CharacteristicValueSpecification[] = [];
+  currentChar: CharacteristicFormValue | null = null;
   showCreateChar: boolean = false;
 
   errorMessage: any = '';
   showError: boolean = false;
   loading: boolean = false;
 
-  //CHARS
-  stringValue: string = '';
-  numberValue: string = '';
-  numberUnit: string = '';
-  fromValue: string = '';
-  toValue: string = '';
-  rangeUnit: string = '';
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -147,113 +131,28 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
     this.eventMessage.emitSellerResourceSpec(true);
   }
 
-  onTypeChange(event: any) {
-    if (event.target.value == 'string') {
-      this.stringCharSelected = true;
-      this.numberCharSelected = false;
-      this.rangeCharSelected = false;
-    } else if (event.target.value == 'number') {
-      this.stringCharSelected = false;
-      this.numberCharSelected = true;
-      this.rangeCharSelected = false;
-    } else {
-      this.stringCharSelected = false;
-      this.numberCharSelected = false;
-      this.rangeCharSelected = true;
-    }
-    this.creatingChars = [];
+  onFormChange(value: CharacteristicFormValue): void {
+    this.currentChar = value;
   }
 
-  addCharValue() {
-    if (this.stringCharSelected) {
-      console.log('string')
-      if (this.creatingChars.length == 0) {
-        this.creatingChars.push({
-          isDefault: true,
-          value: this.stringValue as any
-        })
-      } else {
-        this.creatingChars.push({
-          isDefault: false,
-          value: this.stringValue as any
-        })
-      }
-      this.stringValue = '';
-    } else if (this.numberCharSelected) {
-      console.log('number')
-      if (this.creatingChars.length == 0) {
-        this.creatingChars.push({
-          isDefault: true,
-          value: this.numberValue as any,
-          unitOfMeasure: this.numberUnit
-        })
-      } else {
-        this.creatingChars.push({
-          isDefault: false,
-          value: this.numberValue as any,
-          unitOfMeasure: this.numberUnit
-        })
-      }
-      this.numberUnit = '';
-      this.numberValue = '';
-    } else {
-      console.log('range')
-      if (this.creatingChars.length == 0) {
-        this.creatingChars.push({
-          isDefault: true,
-          valueFrom: this.fromValue as any,
-          valueTo: this.toValue as any,
-          unitOfMeasure: this.rangeUnit
-        })
-      } else {
-        this.creatingChars.push({
-          isDefault: false,
-          valueFrom: this.fromValue as any,
-          valueTo: this.toValue as any,
-          unitOfMeasure: this.rangeUnit
-        })
-      }
-    }
-    this.fromValue = '';
-    this.toValue = '';
-    this.rangeUnit = '';
+  get canSaveChar(): boolean {
+    return !!this.currentChar?.name?.trim() && (this.currentChar?.values?.length ?? 0) > 0;
   }
 
-  selectDefaultChar(char: any, idx: any) {
-    for (let i = 0; i < this.creatingChars.length; i++) {
-      if (i == idx) {
-        this.creatingChars[i].isDefault = true;
-      } else {
-        this.creatingChars[i].isDefault = false;
-      }
-    }
-  }
-
-  saveChar() {
-    if (this.charsForm.value.name != null) {
+  saveChar(): void {
+    if (this.currentChar?.name) {
       this.prodChars.push({
         id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
-        name: this.charsForm.value.name,
-        description: this.charsForm.value.description != null ? this.charsForm.value.description : '',
-        configurable: this.charsForm.value.configurable == 'true' ? true : false,
-        resourceSpecCharacteristicValue: this.creatingChars
-      })
+        name: this.currentChar.name,
+        description: this.currentChar.description,
+        configurable: this.currentChar.configurable,
+        valueType: this.currentChar.valueType,
+        resourceSpecCharacteristicValue: this.currentChar.values as any
+      });
     }
-
-    this.charsForm.reset();
-    this.creatingChars = [];
+    this.currentChar = null;
     this.showCreateChar = false;
-    this.stringCharSelected = true;
-    this.numberCharSelected = false;
-    this.rangeCharSelected = false;
-    this.refreshChars();
     this.cdr.detectChanges();
-  }
-
-  removeCharValue(char: any, idx: any) {
-    console.log(this.creatingChars)
-    this.creatingChars.splice(idx, 1);
-    console.log(this.creatingChars)
   }
 
   deleteChar(char: any) {
@@ -319,16 +218,7 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
   }
 
   refreshChars() {
-    this.stringValue = '';
-    this.numberValue = '';
-    this.numberUnit = '';
-    this.fromValue = '';
-    this.toValue = '';
-    this.rangeUnit = '';
-    this.stringCharSelected = true;
-    this.numberCharSelected = false;
-    this.rangeCharSelected = false;
-    this.creatingChars = [];
+    this.currentChar = null;
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
