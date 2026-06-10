@@ -2911,11 +2911,14 @@
     "_type_string": "Texto",
     "_type_number": "Número",
     "_type_range": "Rango",
+    "_type_boolean": "Booleano",
     "_value": "Valor",
     "_unit": "Unidad de Medida",
     "_value_from": "Desde",
     "_value_to": "Hasta",
-    "_is_default": "Es Valor por Defecto",
-    "_add_value": "Añadir Valor"
+    "_is_default": "Valor por Defecto",
+    "_add_value": "Añadir Valor",
+    "_true": "Verdadero",
+    "_false": "Falso"
   }
 }

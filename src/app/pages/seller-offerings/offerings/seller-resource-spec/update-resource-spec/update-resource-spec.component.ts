@@ -18,6 +18,7 @@ import { resourceConfigUpdate } from '../../../../../models/formFields/software-
 import { SoftwareSpecification } from '../../../../../models/software.model';
 import { buildFormGroup } from '../../../../../shared/forms/dynamic-form/build-form-group.util';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
+import { CharValueType } from '../../../../../shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
 type ResourceSpecification_Update = components["schemas"]["ResourceSpecification_Update"];
 type CharacteristicValueSpecification = components["schemas"]["ResourceSpecificationCharacteristicValue"];
 type ResourceSpecificationCharacteristic = components["schemas"]["ResourceSpecificationCharacteristic"];
@@ -91,6 +92,7 @@ export class UpdateResourceSpecComponent implements OnInit, OnDestroy {
   errorMessage: any = '';
   showError: boolean = false;
   loading: boolean = false;
+  allowedChars: CharValueType[] = ['string', 'number', 'range']
 
   private destroy$ = new Subject<void>();
 

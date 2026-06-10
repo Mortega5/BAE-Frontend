@@ -17,6 +17,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { components } from "src/app/models/resource-catalog";
 import { environment } from 'src/environments/environment';
 import { resourceConfiguration } from '../../../../../models/formFields/software-resource-fields';
+import { CharValueType } from '../../../../../shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
 type ResourceSpecification_Create = components["schemas"]["ResourceSpecification_Create"];
 type ResourceSpecificationCharacteristic = components["schemas"]["ResourceSpecificationCharacteristic"];
 
@@ -71,6 +72,7 @@ export class CreateResourceSpecComponent implements OnInit, OnDestroy {
   showError: boolean = false;
   loading: boolean = false;
 
+  allowedChars: CharValueType[] = ['string', 'number', 'range']
   private destroy$ = new Subject<void>();
 
   constructor(
