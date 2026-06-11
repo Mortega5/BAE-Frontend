@@ -54,9 +54,8 @@ import { UpdatePricePlanComponent } from './pages/seller-offerings/offerings/sel
 import { CreateProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/create-product-spec/create-product-spec.component';
 import { SellerProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/seller-product-spec.component';
 import { UpdateProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/update-product-spec.component';
-import { CreateResourceSpecComponent } from './pages/seller-offerings/offerings/seller-resource-spec/create-resource-spec/create-resource-spec.component';
+import { ResourceSpecFormComponent } from './pages/seller-offerings/offerings/seller-resource-spec/resource-spec-form/resource-spec-form.component';
 import { SellerResourceSpecComponent } from './pages/seller-offerings/offerings/seller-resource-spec/seller-resource-spec.component';
-import { UpdateResourceSpecComponent } from './pages/seller-offerings/offerings/seller-resource-spec/update-resource-spec/update-resource-spec.component';
 import { CreateServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/create-service-spec/create-service-spec.component';
 import { SellerServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/seller-service-spec.component';
 import { UpdateServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/update-service-spec/update-service-spec.component';
@@ -143,11 +142,10 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     SellerOfferComponent,
     CreateProductSpecComponent,
     CreateServiceSpecComponent,
-    CreateResourceSpecComponent,
+    ResourceSpecFormComponent,
     CreateOfferComponent,
     CategoriesRecursionComponent,
     UpdateProductSpecComponent,
-    UpdateResourceSpecComponent,
     UpdateServiceSpecComponent,
     UpdateOfferComponent,
     CreateCatalogComponent,
