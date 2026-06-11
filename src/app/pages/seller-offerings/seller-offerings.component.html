@@ -122,7 +122,7 @@
     <create-service-spec></create-service-spec>
     }
     @if(currentSection === SellerSection.CREATE_RES_SPEC){
-    <create-resource-spec></create-resource-spec>
+    <app-resource-spec-form mode="create"></app-resource-spec-form>
     }
     @if(currentSection === SellerSection.CREATE_OFFER){
     <create-offer></create-offer>
@@ -137,7 +137,7 @@
     <update-service-spec [serv]="serv_to_update"></update-service-spec>
     }
     @if(currentSection === SellerSection.UPDATE_RES_SPEC){
-    <update-resource-spec [res]="res_to_update"></update-resource-spec>
+    <app-resource-spec-form mode="update" [res]="res_to_update"></app-resource-spec-form>
     }
     @if(currentSection === SellerSection.UPDATE_OFFER){
     <update-offer [offer]="offer_to_update"></update-offer>
