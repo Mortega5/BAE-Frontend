@@ -56,9 +56,8 @@ import { SellerProductSpecComponent } from './pages/seller-offerings/offerings/s
 import { UpdateProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/update-product-spec.component';
 import { ResourceSpecFormComponent } from './pages/seller-offerings/offerings/seller-resource-spec/resource-spec-form/resource-spec-form.component';
 import { SellerResourceSpecComponent } from './pages/seller-offerings/offerings/seller-resource-spec/seller-resource-spec.component';
-import { CreateServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/create-service-spec/create-service-spec.component';
 import { SellerServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/seller-service-spec.component';
-import { UpdateServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/update-service-spec/update-service-spec.component';
+import { ServiceSpecFormComponent } from './pages/seller-offerings/offerings/seller-service-spec/service-spec-form/service-spec-form.component';
 import { SellerOfferingsComponent } from "./pages/seller-offerings/seller-offerings.component";
 import { ShoppingCartComponent } from "./pages/shopping-cart/shopping-cart.component";
 import { BillingInfoComponent } from './pages/user-profile/profile-sections/billing-info/billing-info.component';
@@ -141,12 +140,11 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     SellerResourceSpecComponent,
     SellerOfferComponent,
     CreateProductSpecComponent,
-    CreateServiceSpecComponent,
+    ServiceSpecFormComponent,
     ResourceSpecFormComponent,
     CreateOfferComponent,
     CategoriesRecursionComponent,
     UpdateProductSpecComponent,
-    UpdateServiceSpecComponent,
     UpdateOfferComponent,
     CreateCatalogComponent,
     UpdateCatalogComponent,

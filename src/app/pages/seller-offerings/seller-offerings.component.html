@@ -119,7 +119,7 @@
     <create-product-spec></create-product-spec>
     }
     @if(currentSection === SellerSection.CREATE_SERV_SPEC){
-    <create-service-spec></create-service-spec>
+    <app-service-spec-form mode="create"></app-service-spec-form>
     }
     @if(currentSection === SellerSection.CREATE_RES_SPEC){
     <app-resource-spec-form mode="create"></app-resource-spec-form>
@@ -134,7 +134,7 @@
     <update-product-spec [prod]="prod_to_update"></update-product-spec>
     }
     @if(currentSection === SellerSection.UPDATE_SERV_SPEC){
-    <update-service-spec [serv]="serv_to_update"></update-service-spec>
+    <app-service-spec-form mode="update" [serv]="serv_to_update"></app-service-spec-form>
     }
     @if(currentSection === SellerSection.UPDATE_RES_SPEC){
     <app-resource-spec-form mode="update" [res]="res_to_update"></app-resource-spec-form>
