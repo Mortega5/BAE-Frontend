@@ -1,7 +1,7 @@
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
-import * as moment from 'moment';
+import moment from 'moment';
 import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -13,7 +13,6 @@ import { AttachmentServiceService } from "src/app/services/attachment-service.se
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { PaginationService } from 'src/app/services/pagination.service';
-import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
@@ -31,11 +30,6 @@ type ResourceSpecificationRef = components["schemas"]["ResourceSpecificationRef"
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
 type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' | 'relationships' | 'summary' | 'dsp_config';
 
-interface Step {
-  label: string;
-  id: ProductSpecFormStep;
-}
-
 @Component({
   selector: 'create-product-spec',
   templateUrl: './create-product-spec.component.html',
@@ -51,8 +45,8 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   DATA_SPACE_ENABLED: boolean = environment.DATA_SPACE_ENABLED;
   MAX_FILE_SIZE: number = environment.MAX_FILE_SIZE;
 
-  currentStep = 0;
-  steps: any[] = [];
+  currentStepId: ProductSpecFormStep = 'general';
+  showDspConfigStep = false;
   partyId: any = '';
 
   //PRODUCT GENERAL INFO:
@@ -193,7 +187,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private api: ApiServiceService,
     private prodSpecService: ProductSpecServiceService,
     private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
@@ -231,17 +224,11 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   public files: NgxFileDropEntry[] = [];
 
   ngOnInit() {
-    this.steps = this.getFormSteps();
-    console.log(this.steps)
     this.initPartyInfo();
     this.generalForm.get('dspCompatible')!.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(dspCompatible => {
-        if (dspCompatible) {
-          this.addStepAfter({ label: 'DSP Config', id: 'dsp_config' }, 'service');
-        } else {
-          this.removeStep('dsp_config');
-        }
+        this.showDspConfigStep = !!dspCompatible;
       });
   }
 
@@ -259,33 +246,35 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   ];
 
   get canAdvance(): boolean {
-    if (this.currentStep === 0) return this.generalForm?.valid ?? false;
-    if (this.BUNDLE_ENABLED && this.currentStep === this.getStepIndex('bundle')) {
+    if (this.currentStepId === 'general') return this.generalForm?.valid ?? false;
+    if (this.currentStepId === 'bundle') {
       return !(this.bundleChecked && this.prodSpecsBundle.length < 2);
     }
-    if (this.currentStep === this.getStepIndex('compliance')) {
+    if (this.currentStepId === 'compliance') {
       return !this.checkValidISOS();
     }
     return true;
   }
 
   onStepChanged(event: StepChangedEvent): void {
-    this.currentStep = event.step;
+    this.currentStepId = event.stepId as ProductSpecFormStep
     this.refreshChars();
-    if (this.isCurrentStep('compliance')) { setTimeout(() => { initFlowbite(); }, 100); }
-    if (this.isCurrentStep('resource')) { this.getResSpecs(false); }
-    if (this.isCurrentStep('service')) { this.getServSpecs(false); }
-    if (this.isCurrentStep('attachments')) { setTimeout(() => { initFlowbite(); }, 100); }
-    if (this.isCurrentStep('relationships')) { this.getProdSpecsRel(false); }
+    switch (this.currentStepId) {
+      case 'compliance':
+      case 'attachments':
+        setTimeout(() => { initFlowbite(); }, 100);
+        break;
+      case 'resource':
+        this.getResSpecs(false);
+        break;
+      case 'service':
+        this.getServSpecs(false);
+        break;
+      case 'relationships':
+        this.getProdSpecsRel(false);
+        break;
+    }
     if (event.isLastStep) { this.showFinish(); }
-  }
-
-  isCurrentStep(step: ProductSpecFormStep): boolean {
-    return this.steps[this.currentStep]?.id === step;
-  }
-
-  getStepIndex(step: ProductSpecFormStep): number {
-    return this.steps.findIndex(s => s.id === step);
   }
 
   initPartyInfo() {
@@ -492,7 +481,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
                 }, 3000);
                 return;
               }
-              if (this.isCurrentStep('compliance') && !this.showUploadAtt) {
+              if (this.currentStepId === 'compliance' && !this.showUploadAtt) {
                 const index = this.selectedISOS.findIndex(item => item.name === sel.name);
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
@@ -524,7 +513,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
                   }
                 });
               }
-              if (this.isCurrentStep('compliance') && this.showUploadAtt) {
+              if (this.currentStepId === 'compliance' && this.showUploadAtt) {
                 const index = this.finishChars.findIndex(item => item.name === this.selfAtt.name);
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
@@ -569,7 +558,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
                   }
                 });
               }
-              if (this.isCurrentStep('attachments')) {
+              if (this.currentStepId === 'attachments') {
                 console.log(file)
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
@@ -976,7 +965,11 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   isDataspaceConfigurationStep(): boolean {
-    return this.isCurrentStep('dataspace');
+    return this.currentStepId === 'dataspace';
+  }
+
+  isDefaultCharacteristicsStep(): boolean {
+    return this.currentStepId === 'characteristics';
   }
 
   isTextCharacteristicType(type: string | undefined): boolean {
@@ -996,25 +989,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
       return 'credentialsConfiguration';
     }
     return 'string';
-  }
-
-  private getFormSteps(): Step[] {
-
-    const steps: Step[] = [{ label: 'General Info', id: 'general' }];
-    if (this.BUNDLE_ENABLED) {
-      steps.push({ label: 'Bundle', id: 'bundle' });
-    }
-    steps.push({ label: 'Compliance profile', id: 'compliance' });
-    steps.push({ label: 'Characteristics', id: 'characteristics' });
-    if (this.DATA_SPACE_ENABLED) {
-      steps.push({ label: 'Dataspace Configuration', id: 'dataspace' });
-    }
-    steps.push({ label: 'Resource specifications', id: 'resource' });
-    steps.push({ label: 'Service specifications', id: 'service' });
-    steps.push({ label: 'Attachments', id: 'attachments' });
-    steps.push({ label: 'Relationships', id: 'relationships' });
-    steps.push({ label: 'Summary', id: 'summary' });
-    return steps;
   }
 
   private getSchemaLocationForType(type: string): string | null {
@@ -1506,24 +1480,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
 
   removeEndpointUrl(idx: number): void {
     this.endpointUrls = this.endpointUrls.filter((_, i) => i !== idx);
-  }
-
-  private addStepAfter(step: Step, stepAfter: ProductSpecFormStep): void {
-    const alreadyAdded = this.steps.some(s => s.id === step.id);
-    if (alreadyAdded) return;
-    const afterIdx = this.steps.findIndex(s => s.id === stepAfter);
-    this.steps = [
-      ...this.steps.slice(0, afterIdx + 1),
-      step,
-      ...this.steps.slice(afterIdx + 1),
-    ];
-  }
-
-  private removeStep(step: ProductSpecFormStep): void {
-    const idx = this.steps.findIndex(s => s.id === step);
-    if (idx === -1) return;
-    if (this.currentStep >= idx) this.currentStep = idx - 1;
-    this.steps = this.steps.filter(s => s.id !== step);
   }
 
 }

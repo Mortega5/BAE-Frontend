@@ -1,7 +1,7 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
-import * as moment from 'moment';
+import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
@@ -69,8 +69,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   resourceData: ResourceSpecification_Create | ResourceSpecification_Update | undefined;
 
   currentStep = 0;
-  steps = ['General Info', 'Characteristics', 'Configuration', 'Summary'];
-
+  currentStepId = 'general'
   get generalFormFields(): FormField[] {
 
     return this.isUpdate ? GENERAL_FORM_FIELDS_UPDATE : GENERAL_FORM_FIELDS_CREATE

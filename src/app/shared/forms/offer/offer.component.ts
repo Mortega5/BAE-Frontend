@@ -3,7 +3,7 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { TranslateModule } from "@ngx-translate/core";
 import { lastValueFrom, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import * as moment from 'moment';
+import moment from 'moment';
 import { environment } from '../../../../environments/environment';
 import { FormChangeState, PricePlanChangeState } from "../../../models/interfaces";
 import { ApiServiceService } from "../../../services/product-service.service";
@@ -25,24 +25,6 @@ import { ProdSpecComponent } from "./prod-spec/prod-spec.component";
 
 type ProductOffering_Create = components["schemas"]["ProductOffering_Create"];
 type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
-
-export enum OfferStep {
-  GENERAL_INFO = 'general_info',
-  PROD_SPEC = 'prod_spec',
-  CATALOGUE = 'catalogue',
-  CATEGORY = 'category',
-  LICENSE = 'license',
-  CONTRACT_DEFINITION = 'contract_definition',
-  PRICE = 'price',
-  PROCUREMENT = 'procurement',
-  REPLICATION = 'replication',
-  SUMMARY = 'summary',
-}
-
-interface Step {
-  label: string;
-  id: OfferStep;
-}
 
 @Component({
   selector: 'app-offer-form',
@@ -73,37 +55,8 @@ export class OfferComponent implements OnInit, OnDestroy {
   @Input() partyId: any;
 
   productOfferForm: FormGroup;
-  currentStep = 0;
-  contractDefinitionStep: Step = { label: 'Contract Definition', id: OfferStep.CONTRACT_DEFINITION };
-  steps: Step[] = [
-    { label: 'General Info', id: OfferStep.GENERAL_INFO },
-    { label: 'Product Specification', id: OfferStep.PROD_SPEC },
-    { label: 'Catalogue', id: OfferStep.CATALOGUE },
-    { label: 'Category', id: OfferStep.CATEGORY },
-    { label: 'License', id: OfferStep.LICENSE },
-    { label: 'Price Plans', id: OfferStep.PRICE },
-    { label: 'Procurement Mode', id: OfferStep.PROCUREMENT },
-    // { label: 'Replication & Visibility', id: OfferStep.REPLICATION },
-    { label: 'Summary', id: OfferStep.SUMMARY },
-  ];
-  readonly OfferStep = OfferStep;
-
-  isCurrentStep(step: OfferStep): boolean {
-    return this.steps[this.currentStep]?.id === step;
-  }
-
-  get hasContractDefinitionStep(): boolean {
-    return this.steps.some(s => s.id === OfferStep.CONTRACT_DEFINITION);
-  }
-
-  get stepLabels(): string[] {
-    return this.steps.map(s => s.label);
-  }
-
-  getStepIndex(step: OfferStep): number {
-    return this.steps.findIndex(s => s.id === step);
-  }
-
+  currentStepId = 'general';
+  showContractDefinitionStep = false;
   isFormValid = false;
   selectedProdSpec: any;
   pricePlans: any = [];
@@ -114,6 +67,9 @@ export class OfferComponent implements OnInit, OnDestroy {
   offersBundle: any[] = [];
   loadingData: boolean = false;
 
+  get isUpdate() {
+    return this.formType === 'update';
+  }
   offerToCreate: ProductOffering_Create | undefined;
 
   private formChanges: { [key: string]: FormChangeState } = {};
@@ -189,55 +145,36 @@ export class OfferComponent implements OnInit, OnDestroy {
   }
 
   onStepChanged(event: StepChangedEvent): void {
-    // VERIFY EDC compatible and enable/disable the contract definition step accordingly
-    if (this.isCurrentStep(OfferStep.PROD_SPEC)) {
-      if (this.isdEdcCompatible() && this.dspEnable) {
-        this.enableContractDefinitionStep();
-      } else {
-        this.disableContractDefinitionStep();
-      }
+    // VERIFY EDC compatible and show/hide the contract definition step accordingly
+    if (this.currentStepId === 'productSpec') {
+      this.showContractDefinitionStep = this.isdEdcCompatible() && this.dspEnable;
     }
-    this.currentStep = event.step;
+    this.currentStepId = event.stepId!;
   }
 
   validateCurrentStep(): boolean {
-    switch (this.steps[this.currentStep]?.id) {
-      case OfferStep.GENERAL_INFO:
+    switch (this.currentStepId) {
+      case 'general':
         return this.productOfferForm.get('generalInfo')?.valid || false;
-      case OfferStep.PROD_SPEC:
+      case 'productSpec':
         return !!this.productOfferForm.get('prodSpec')?.value;
-      case OfferStep.CATALOGUE:
+      case 'catalogue':
         return !!this.productOfferForm.get('catalogue')?.value;
-      case OfferStep.CATEGORY:
+      case 'category':
         return true;
-      case OfferStep.LICENSE:
+      case 'license':
         return this.productOfferForm.get('license')?.valid || false;
-      case OfferStep.CONTRACT_DEFINITION:
+      case 'contractDefinition':
         return this.productOfferForm.get('edcContractDefinition')?.valid || false;
-      case OfferStep.PRICE:
+      case 'price':
         return true;
-      case OfferStep.PROCUREMENT:
+      case 'procurement': // Procurement Mode
         return this.productOfferForm.get('procurementMode')?.valid || false;
-      // case OfferStep.REPLICATION:
+      // case 'replication':
       //   return this.productOfferForm.get('replicationMode')?.valid || false;
       default:
         return true;
     }
-  }
-
-  enableContractDefinitionStep(): void {
-    const alreadyAdded = this.steps.some(s => s.id === OfferStep.CONTRACT_DEFINITION);
-    if (alreadyAdded) return;
-    const licenseIdx = this.steps.findIndex(s => s.id === OfferStep.LICENSE);
-    this.steps = [
-      ...this.steps.slice(0, licenseIdx + 1),
-      this.contractDefinitionStep,
-      ...this.steps.slice(licenseIdx + 1),
-    ];
-  }
-
-  disableContractDefinitionStep(): void {
-    this.steps = this.steps.filter(s => s.id !== OfferStep.CONTRACT_DEFINITION);
   }
 
   submitForm() {
@@ -258,7 +195,6 @@ export class OfferComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     if (this.formType === 'update' && this.offer) {
       this.loadingData = true;
-      this.steps = this.steps.filter(step => step.id !== 'catalogue');
       await this.loadOfferData();
       this.loadingData = false;
     }
@@ -457,7 +393,7 @@ export class OfferComponent implements OnInit, OnDestroy {
     }
 
     if (this.offer.externalId && this.isdEdcCompatible() && this.dspEnable) {
-      this.enableContractDefinitionStep()
+      this.showContractDefinitionStep = true;
     }
   }
 

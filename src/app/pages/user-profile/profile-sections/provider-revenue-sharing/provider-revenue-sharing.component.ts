@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
-import * as moment from 'moment';
+import moment from 'moment';
 import { LoginInfo, Report } from 'src/app/models/interfaces';
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { RevenueSharingService } from 'src/app/services/revenue-sharing.service';

@@ -13,173 +13,66 @@
   @if(loadingData){
     <app-loading-spinner role="status" />
   } @else {
-    <form [formGroup]="productOfferForm">
+  <form [formGroup]="productOfferForm">
 
-      @if(formType === 'create') {
-        <app-stepper
-          [steps]="stepLabels"
-          [canAdvance]="canAdvance"
-          [loading]="loading"
-          submitLabel="Create Offer"
-          [submitDisabled]="!isFormValid || loading"
-          (stepChanged)="onStepChanged($event)"
-          (submitted)="submitForm()">
+    <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance" [loading]="loading" submitLabel="Create Offer"
+      [submitDisabled]="!isFormValid || loading" (stepChanged)="onStepChanged($event)" (submitted)="submitForm()">
 
-          <ng-template stepperStep>
-            <app-general-info-form
-              [data]="offer"
-              [formType]="formType"
-              [form]="productOfferForm.controls['generalInfo']">
-            </app-general-info-form>
-          </ng-template>
+      <ng-template stepperStep="General Info" stepId="general">
+        <app-general-info-form [data]="offer" [formType]="formType" [form]="productOfferForm.controls['generalInfo']">
+        </app-general-info-form>
+      </ng-template>
 
-          <ng-template stepperStep>
-            <app-prod-spec-form formControlName="prodSpec"
-              [data]="offer"
-              [partyId]="partyId"
-              [formType]="formType"
-              (formChange)="handleSubformChange($event)">
-            </app-prod-spec-form>
-          </ng-template>
+      <ng-template stepperStep="Product Specification" stepId="productSpec">
+        <app-prod-spec-form formControlName="prodSpec" [data]="offer" [partyId]="partyId" [formType]="formType"
+          (formChange)="handleSubformChange($event)">
+        </app-prod-spec-form>
+      </ng-template>
 
-          <ng-template stepperStep>
-            <app-catalogue formControlName="catalogue" [partyId]="partyId"></app-catalogue>
-          </ng-template>
+      <ng-template stepperStep="Catalogue" stepId="catalogue">
+        <app-catalogue formControlName="catalogue" [partyId]="partyId"></app-catalogue>
+      </ng-template>
 
-          <ng-template stepperStep>
-            <app-category-form formControlName="category"
-              [data]="offer"
-              [formType]="formType"
-              (formChange)="handleSubformChange($event)">
-            </app-category-form>
-          </ng-template>
+      @if(!isUpdate){
+      <ng-template stepperStep="Category" stepId="category">
+        <app-category-form formControlName="category" [data]="offer" [formType]="formType"
+          (formChange)="handleSubformChange($event)">
+        </app-category-form>
+      </ng-template>
+      }
+      <ng-template stepperStep="License" stepId="license">
+        <app-license-form [data]="offer" [formType]="formType" [form]="productOfferForm.controls['license']"
+          (formChange)="handleSubformChange($event)">
+        </app-license-form>
+      </ng-template>
 
-          <ng-template stepperStep>
-            <app-license-form
-              [data]="offer"
-              [formType]="formType"
-              [form]="productOfferForm.controls['license']"
-              (formChange)="handleSubformChange($event)">
-            </app-license-form>
-          </ng-template>
-
-          @if (hasContractDefinitionStep) {
-          <ng-template stepperStep>
-            <app-edc-contract-definition-form
-              [data]="offer"
-              [formType]="formType"
-              [form]="productOfferForm.controls['edcContractDefinition']"
-              (formChange)="handleSubformChange($event)">
-            </app-edc-contract-definition-form>
-          </ng-template>
-          }
-
-          <ng-template stepperStep>
-            <app-price-plans-form
-              [form]="productOfferForm"
-              [prodSpec]="productOfferForm.get('prodSpec')?.value"
-              [custom]="false"
-              (formChange)="handleSubformChange($event)">
-            </app-price-plans-form>
-          </ng-template>
-
-          <ng-template stepperStep>
-            <app-procurement-mode
-              [data]="offer"
-              [form]="productOfferForm.controls['procurementMode']"
-              [formType]="formType"
-              (formChange)="handleSubformChange($event)">
-            </app-procurement-mode>
-          </ng-template>
-
-          <ng-template stepperStep>
-            <app-offer-summary [productOfferForm]="productOfferForm"></app-offer-summary>
-          </ng-template>
-
-        </app-stepper>
-      } @else {
-        <app-stepper
-          [steps]="stepLabels"
-          [allUnlocked]="true"
-          [canAdvance]="canAdvance"
-          [loading]="loading"
-          submitLabel="Update Offer"
-          [submitDisabled]="!isFormValid || loading"
-          [submitAlwaysVisible]="true"
-          (stepChanged)="onStepChanged($event)"
-          (submitted)="submitForm()">
-
-          <ng-template stepperStep>
-            <app-general-info-form
-              [data]="offer"
-              [formType]="formType"
-              [form]="productOfferForm.controls['generalInfo']">
-            </app-general-info-form>
-          </ng-template>
-
-          <ng-template stepperStep>
-            <app-prod-spec-form formControlName="prodSpec"
-              [data]="offer"
-              [partyId]="partyId"
-              [formType]="formType"
-              (formChange)="handleSubformChange($event)">
-            </app-prod-spec-form>
-          </ng-template>
-
-          <ng-template stepperStep>
-            <app-category-form formControlName="category"
-              [data]="offer"
-              [formType]="formType"
-              (formChange)="handleSubformChange($event)">
-            </app-category-form>
-          </ng-template>
-
-          <ng-template stepperStep>
-            <app-license-form
-              [data]="offer"
-              [formType]="formType"
-              [form]="productOfferForm.controls['license']"
-              (formChange)="handleSubformChange($event)">
-            </app-license-form>
-          </ng-template>
-
-          @if (hasContractDefinitionStep) {
-          <ng-template stepperStep>
-            <app-edc-contract-definition-form
-              [data]="offer"
-              [formType]="formType"
-              [form]="productOfferForm.controls['edcContractDefinition']"
-              (formChange)="handleSubformChange($event)">
-            </app-edc-contract-definition-form>
-          </ng-template>
-          }
-
-          <ng-template stepperStep>
-            <app-price-plans-form
-              [form]="productOfferForm"
-              [prodSpec]="productOfferForm.get('prodSpec')?.value"
-              [custom]="false"
-              (formChange)="handleSubformChange($event)">
-            </app-price-plans-form>
-          </ng-template>
-
-          <ng-template stepperStep>
-            <app-procurement-mode
-              [data]="offer"
-              [form]="productOfferForm.controls['procurementMode']"
-              [formType]="formType"
-              (formChange)="handleSubformChange($event)">
-            </app-procurement-mode>
-          </ng-template>
-
-          <ng-template stepperStep>
-            <app-offer-summary [productOfferForm]="productOfferForm"></app-offer-summary>
-          </ng-template>
-
-        </app-stepper>
+      @if (showContractDefinitionStep) {
+      <ng-template stepperStep="Contract Definition" stepId="contractDefinition">
+        <app-edc-contract-definition-form [data]="offer" [formType]="formType"
+          [form]="productOfferForm.controls['edcContractDefinition']" (formChange)="handleSubformChange($event)">
+        </app-edc-contract-definition-form>
+      </ng-template>
       }
 
-    </form>
+      <ng-template stepperStep="Price Plans" stepId="price">
+        <app-price-plans-form [form]="productOfferForm" [prodSpec]="productOfferForm.get('prodSpec')?.value"
+          [custom]="false" (formChange)="handleSubformChange($event)">
+        </app-price-plans-form>
+      </ng-template>
+
+      <ng-template stepperStep="Procurement Mode" stepId="procurement">
+        <app-procurement-mode [data]="offer" [form]="productOfferForm.controls['procurementMode']" [formType]="formType"
+          (formChange)="handleSubformChange($event)">
+        </app-procurement-mode>
+      </ng-template>
+
+      <ng-template stepperStep="Summary" stepId="summary">
+        <app-offer-summary [productOfferForm]="productOfferForm"></app-offer-summary>
+      </ng-template>
+
+    </app-stepper>
+
+  </form>
   }
 </div>
 

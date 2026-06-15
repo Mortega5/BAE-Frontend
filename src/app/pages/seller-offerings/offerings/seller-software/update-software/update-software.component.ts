@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import * as moment from 'moment';
+import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LoginInfo } from 'src/app/models/interfaces';
@@ -35,15 +35,8 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
 
   partyId: any = '';
   softwareToUpdate: any;
-  currentStep = 0;
+  currentStepId = 'general';
   loading = false;
-
-  steps = [
-    'General Info',
-    'Software Specification',
-    'Characteristics',
-    'Summary',
-  ];
 
   generalFormFields: FormField[] = [
     { type: 'string', name: 'name', label: 'CREATE_RES_SPEC._name', required: true, maxLength: 100, readonly: true },
@@ -131,15 +124,14 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
   }
 
   get canAdvance(): boolean {
-    switch (this.currentStep) {
-      case 0: return this.generalForm?.valid ?? false;
-      case 1: return true;
+    switch (this.currentStepId) {
+      case 'general': return this.generalForm?.valid ?? false;
       default: return true;
     }
   }
 
   onStepChanged(event: StepChangedEvent): void {
-    this.currentStep = event.step;
+    this.currentStepId = event.stepId!;
     if (event.isLastStep) {
       this.setSoftwareData();
     }

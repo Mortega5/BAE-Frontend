@@ -8,12 +8,14 @@ import {
   QueryList,
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { StepperStepDirective } from './stepper-step.directive';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { StepperStepDirective } from './stepper-step.directive';
 
 export interface StepChangedEvent {
   step: number;
   isLastStep: boolean;
+  label: string;
+  stepId?: string;
 }
 
 @Component({
@@ -23,7 +25,6 @@ export interface StepChangedEvent {
   imports: [NgClass, NgTemplateOutlet, TranslateModule, LoadingSpinnerComponent],
 })
 export class StepperComponent {
-  @Input() steps: string[] = [];
   /** If true, all steps are accessible from the start (e.g. edit mode). */
   @Input() allUnlocked = false;
   /** Whether the current step passes validation and the Next button should be enabled. */
@@ -44,7 +45,7 @@ export class StepperComponent {
   private _highestReached = 0;
 
   get isLastStep(): boolean {
-    return this.currentStep === this.steps.length - 1;
+    return this.currentStep === (this.stepTemplates?.length ?? 1) - 1;
   }
 
   get currentTemplate() {
@@ -74,6 +75,12 @@ export class StepperComponent {
     if (this.currentStep > this._highestReached) {
       this._highestReached = this.currentStep;
     }
-    this.stepChanged.emit({ step: this.currentStep, isLastStep: this.isLastStep });
+    const directive = this.stepTemplates.get(index);
+    this.stepChanged.emit({
+      step: this.currentStep,
+      isLastStep: this.isLastStep,
+      label: directive?.stepperStep ?? '',
+      stepId: directive?.stepId,
+    });
   }
 }
