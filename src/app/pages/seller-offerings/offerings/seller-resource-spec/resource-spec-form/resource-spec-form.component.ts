@@ -69,8 +69,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   resourceData: ResourceSpecification_Create | ResourceSpecification_Update | undefined;
 
   currentStep = 0;
-  steps = ['General Info', 'Characteristics', 'Configuration', 'Summary'];
-
+  currentStepId = 'general'
   get generalFormFields(): FormField[] {
 
     return this.isUpdate ? GENERAL_FORM_FIELDS_UPDATE : GENERAL_FORM_FIELDS_CREATE

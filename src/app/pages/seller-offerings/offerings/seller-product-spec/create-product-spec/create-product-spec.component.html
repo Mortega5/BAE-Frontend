@@ -37,14 +37,14 @@
     class="bg-secondary-50 dark:bg-secondary-100 border border-secondary-50 dark:border-gray-800 mt-4 p-8 rounded-lg">
     <h2 class="text-3xl font-bold text-primary-100 ml-4 dark:text-white pb-4">{{ 'CREATE_PROD_SPEC._new' | translate }}
     </h2>
-    <app-stepper [steps]="steps" [canAdvance]="canAdvance" submitLabel="CREATE_PROD_SPEC._create_prod"
-      [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="createProduct()">
+    <app-stepper [canAdvance]="canAdvance" submitLabel="CREATE_PROD_SPEC._create_prod" [submitDisabled]="loading"
+      (stepChanged)="onStepChanged($event)" (submitted)="createProduct()">
 
-      <ng-template stepperStep>
+      <ng-template stepperStep="General Info" stepId="general">
         <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" [columns]="2" />
       </ng-template>
       @if (BUNDLE_ENABLED) {
-      <ng-template stepperStep>
+      <ng-template stepperStep="Bundle" stepId="bundle">
         <div class="col-span-2 flex align-items-middle h-fit m-4">
           <label for="prod-brand" class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._is_bundled' |
             translate }}</label>
@@ -176,7 +176,7 @@
       </ng-template>
       }
 
-      <ng-template stepperStep>
+      <ng-template stepperStep="Compliance profile" stepId="compliance">
         <h3 class="font-bold text-primary-100 dark:text-primary-50 text-left ml-4">
           {{ 'CREATE_PROD_SPEC._self_attestation' | translate }}
         </h3>
@@ -851,16 +851,17 @@
                         </button>
                     </div>-->
       </ng-template>
-      <ng-template stepperStep>
+      <!-- Characteristics ?-->
+      <ng-template stepperStep="Characteristics" stepId="characteristics">
         <ng-container [ngTemplateOutlet]="charsShared"></ng-container>
       </ng-template>
       @if (DATA_SPACE_ENABLED) {
-      <ng-template stepperStep>
+      <ng-template stepperStep="Dataspace Configuration" stepId="dataspace">
         <ng-container [ngTemplateOutlet]="charsShared"></ng-container>
       </ng-template>
       }
 
-      <ng-template stepperStep>
+      <ng-template stepperStep="Resource specifications" stepId="resource">
         @if(loadingResourceSpec){
         <app-loading-spinner containerClass="w-full h-fit flex justify-center align-middle" />
         } @else {
@@ -966,7 +967,7 @@
                     </div>-->
       </ng-template>
 
-      <ng-template stepperStep>
+      <ng-template stepperStep="Service specifications" stepId="service">
         @if(loadingServiceSpec){
         <app-loading-spinner containerClass="w-full h-fit flex justify-center align-middle" />
         } @else {
@@ -1072,7 +1073,7 @@
                     </div>-->
       </ng-template>
 
-      <ng-template stepperStep>
+      <ng-template stepperStep="Attachments" stepId="attachments">
         <div class="inline-flex">
           <h4 class="text-lg font-bold ml-4 dark:text-white">{{ 'CREATE_PROD_SPEC._add_prod_img' | translate }}</h4>
           <div class="ml-4 flex">
@@ -1310,7 +1311,7 @@
                     </div> -->
       </ng-template>
 
-      <ng-template stepperStep>
+      <ng-template stepperStep="Relationships" stepId="relationships">
         <div class="m-4">
           @if (prodRelationships.length === 0){
           <div class="flex justify-center w-full mb-4">
@@ -1525,7 +1526,7 @@
                     </div> -->
       </ng-template>
 
-      <ng-template stepperStep>
+      <ng-template stepperStep="Summary" stepId="summary">
         <div class="m-8">
           @if(loading){
           <app-loading-spinner />

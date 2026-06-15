@@ -1,18 +1,18 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { EventMessageService } from 'src/app/services/event-message.service';
-import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
-import { LoginInfo } from 'src/app/models/interfaces';
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import * as moment from 'moment';
-import { v4 as uuidv4 } from 'uuid';
-import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
-import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
-import { CharacteristicFormValue } from 'src/app/shared/forms/specification-characteristic/specification-characteristic-form.component';
+import { LoginInfo } from 'src/app/models/interfaces';
+import { EventMessageService } from 'src/app/services/event-message.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
+import { CharacteristicFormValue } from 'src/app/shared/forms/specification-characteristic/specification-characteristic-form.component';
+import { noWhitespaceValidator } from 'src/app/validators/validators';
+import { v4 as uuidv4 } from 'uuid';
+import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 
 import { components } from 'src/app/models/service-catalog';
 import { environment } from 'src/environments/environment';
@@ -32,9 +32,9 @@ const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
   {
     type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_SERV_SPEC._status',
     options: [
-      { value: 'Active',   label: 'UPDATE_CATALOG._active',   activeClass: 'text-blue-500' },
+      { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
       { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
-      { value: 'Retired',  label: 'UPDATE_CATALOG._retired',  activeClass: 'text-yellow-500' },
+      { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
       { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
     ],
   },
@@ -58,10 +58,8 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
 
   partyId: any = '';
   serviceData: ServiceSpecification_Create | ServiceSpecification_Update | undefined;
-  currentStep = 0;
+  currentStepId = 'general';
   loading = false;
-
-  steps = ['General Info', 'Characteristics', 'Summary'];
 
   generalForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
@@ -102,7 +100,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
   }
 
   get canAdvance(): boolean {
-    if (this.currentStep === 0) return this.generalForm?.valid ?? false;
+    if (this.currentStepId === 'general') return this.generalForm?.valid ?? false;
     return true;
   }
 
@@ -175,7 +173,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
   }
 
   onStepChanged(event: StepChangedEvent): void {
-    this.currentStep = event.step;
+    this.currentStepId = event.stepId!;
     this.refreshChars();
     if (event.isLastStep) this.setServiceData();
   }

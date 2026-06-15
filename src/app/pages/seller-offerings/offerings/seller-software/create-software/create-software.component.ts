@@ -36,7 +36,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
 
   partyId: any = '';
   softwareToCreate: SoftwareCreate | undefined;
-  currentStep = 0;
+  currentStepId: string = 'general';
   loading = false;
 
   steps = [
@@ -120,15 +120,15 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
   }
 
   get canAdvance(): boolean {
-    switch (this.currentStep) {
-      case 0: return this.generalForm?.valid ?? false;
-      case 1: return this.softwareSpecForm?.valid ?? false;
+    switch (this.currentStepId) {
+      case 'general': return this.generalForm?.valid ?? false;
+      case 'software': return this.softwareSpecForm?.valid ?? false;
       default: return true;
     }
   }
 
   onStepChanged(event: StepChangedEvent): void {
-    this.currentStep = event.step;
+    this.currentStepId = event.stepId!;
     if (event.isLastStep) {
       this.setSoftwareData();
     }

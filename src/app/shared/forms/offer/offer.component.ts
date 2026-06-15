@@ -25,7 +25,7 @@ import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.direct
 
 type ProductOffering_Create = components["schemas"]["ProductOffering_Create"];
 type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
- 
+
 @Component({
   selector: 'app-offer-form',
   standalone: true,
@@ -54,18 +54,7 @@ export class OfferComponent implements OnInit, OnDestroy{
   @Input() partyId: any;
 
   productOfferForm: FormGroup;
-  currentStep = 0;
-  steps = [
-    'General Info',
-    'Product Specification',
-    'Catalogue',
-    'Category',
-    'License',
-    'Price Plans',
-    'Procurement Mode',
-    //'Replication & Visibility',
-    'Summary'
-  ];
+  currentStepId = 'general';
   isFormValid = false;
   selectedProdSpec: any;
   pricePlans:any = [];
@@ -76,6 +65,9 @@ export class OfferComponent implements OnInit, OnDestroy{
   offersBundle:any[]=[];
   loadingData:boolean=false;
 
+  get isUpdate() {
+    return this.formType === 'update';
+  }
   offerToCreate:ProductOffering_Create | undefined;
 
   private formChanges: { [key: string]: FormChangeState } = {};
@@ -146,24 +138,24 @@ export class OfferComponent implements OnInit, OnDestroy{
   }
 
   onStepChanged(event: StepChangedEvent): void {
-    this.currentStep = event.step;
+    this.currentStepId = event.stepId!;
   }
 
   validateCurrentStep(): boolean {
-    switch (this.currentStep) {
-      case 0: // General Info
+    switch (this.currentStepId) {
+      case 'general':
         return this.productOfferForm.get('generalInfo')?.valid || false;
-      case 1: // Product Specification
+      case 'productSpec':
         return !!this.productOfferForm.get('prodSpec')?.value;
-      case 2: // Catalogue
+      case 'catalogue':
         return !!this.productOfferForm.get('catalogue')?.value;
-      case 3: // Category
-        return true; // Las categorías no son obligatorias
-      case 4: // License
-        return this.productOfferForm.get('license')?.valid || false;
-      case 5: // Price Plans
+      case 'category':
         return true;
-      case 6: // Procurement Mode
+      case 'license':
+        return this.productOfferForm.get('license')?.valid || false;
+      case 'price':
+        return true;
+      case 'procurement': // Procurement Mode
         return this.productOfferForm.get('procurementMode')?.valid || false;
       /*case 7: // Replication & Visibility
         return this.productOfferForm.get('replicationMode')?.valid || false;*/
@@ -177,7 +169,7 @@ export class OfferComponent implements OnInit, OnDestroy{
       this.eventMessage.emitUpdateOffer(true);
       console.log('🔄 Starting offer update process...');
       console.log('📝 Current form changes:', this.formChanges);
-      
+
       // Aquí irá la lógica de actualización
       // Por ahora solo mostramos los cambios
       this.updateOffer();
@@ -190,17 +182,6 @@ export class OfferComponent implements OnInit, OnDestroy{
   async ngOnInit() {
     if (this.formType === 'update' && this.offer) {
       this.loadingData=true;
-      this.steps = [
-        'General Info',
-        'Product Specification',
-        //'Catalogue',
-        'Category',
-        'License',
-        'Price Plans',
-        'Procurement Mode',
-        //'Replication & Visibility',
-        'Summary'
-      ];
       await this.loadOfferData();
       this.loadingData=false;
     }
@@ -229,20 +210,20 @@ export class OfferComponent implements OnInit, OnDestroy{
     //LICENSE
     if(this.offer.productOfferingTerm){
       console.log('Found productOfferingTerm:', this.offer.productOfferingTerm);
-      
+
       // Mantener el primer término (licencia) incluso si está vacío
       //const licenseTerm = this.offer.productOfferingTerm[0];
       const licenseTerm = this.offer.productOfferingTerm.find(
         (element: { name: string; }) => element.name === 'License'
       );
-      
+
       // Filtrar el resto de términos
 
       /*const otherTerms = this.offer.productOfferingTerm.filter(
         (term: any) => term.name !== 'License'
       ) ?? [];
-    
-      
+
+
       // Reconstruir el array con el término de licencia en la posición 0
       this.offer.productOfferingTerm = [licenseTerm, ...otherTerms];*/
 
@@ -259,7 +240,7 @@ export class OfferComponent implements OnInit, OnDestroy{
             treatment: 'License',
             description: ''
           }
-        });        
+        });
       }
 
       //PROCUREMENT
@@ -321,9 +302,9 @@ export class OfferComponent implements OnInit, OnDestroy{
         description: pricePlan.description,
         lifecycleStatus: pricePlan.lifecycleStatus,
         paymentOnline: pricePlan?.paymentOnline ?? !!pricePlan?.bundledPopRelationship,
-        productProfile: configProfileCheck ? this.mapProductProfile(pricePlan?.prodSpecCharValueUse || []) : [],     
+        productProfile: configProfileCheck ? this.mapProductProfile(pricePlan?.prodSpecCharValueUse || []) : [],
       }
-      
+
       //Now every pricePlan is set as bundle even with only one price component
       if(pricePlan.bundledPopRelationship){
         for(let i=0;i<pricePlan.bundledPopRelationship.length;i++){
@@ -346,11 +327,11 @@ export class OfferComponent implements OnInit, OnDestroy{
               price: data?.price?.value,
               validFor: data?.validFor || null,
             }
-            
+
             if(data?.price?.unit){
               priceComp.currency=data?.price?.unit
             }
-  
+
             if(data?.popRelationship){
               let alter = await this.api.getOfferingPrice(data?.popRelationship[0].id)
               console.log('----- alter')
@@ -361,9 +342,9 @@ export class OfferComponent implements OnInit, OnDestroy{
               }else{
                 priceComp.discountValue=alter?.price?.value
                 priceComp.discountUnit='fixed'
-              }            
-              priceComp.discountDuration = alter?.unitOfMeasure?.amount            
-              priceComp.discountDurationUnit = alter?.unitOfMeasure?.units            
+              }
+              priceComp.discountDuration = alter?.unitOfMeasure?.amount
+              priceComp.discountDurationUnit = alter?.unitOfMeasure?.units
               //priceComp.discountDurationUnit=alter?.
               //priceComp.discountDuration=this.calculateDiscountDuration(alter?.validFor,alter?.)
             }
@@ -423,13 +404,13 @@ export class OfferComponent implements OnInit, OnDestroy{
         units: component.discountDurationUnit
       }
     };
-  
+
     if (component.discountUnit === 'percentage') {
       priceAlter.percentage = component.discountValue;
     } else {
       priceAlter.price = { value: component.discountValue, unit: currency };
     }
-  
+
     return await lastValueFrom(this.api.postOfferingPrice(priceAlter));
   }
 
@@ -460,7 +441,7 @@ export class OfferComponent implements OnInit, OnDestroy{
       console.log(component.newValue)
       priceComp.unitOfMeasure = {
         amount: 1,
-        units: component.usageUnit ?? component.newValue.usageUnit      
+        units: component.usageUnit ?? component.newValue.usageUnit
       }
       priceComp['@baseType'] = "ProductOfferingPrice";
       priceComp['@schemaLocation'] = "https://raw.githubusercontent.com/laraminones/tmf-new-schemas/main/UsageSpecId.json";
@@ -510,9 +491,9 @@ export class OfferComponent implements OnInit, OnDestroy{
 
     if (component.newValue.priceType === 'usage') {
       console.log(component.newValue)
-      priceComp.unitOfMeasure = { 
+      priceComp.unitOfMeasure = {
         amount: 1,
-        units: component.newValue.usageUnit     
+        units: component.newValue.usageUnit
       };
 
       (priceComp as any).usageSpecId = component.newValue.usageSpecId;
@@ -577,7 +558,7 @@ export class OfferComponent implements OnInit, OnDestroy{
           .filter((v: any) => v.isDefault)
       }));
     }
-    
+
 
 
     if(plan?.newValue?.prodSpecCharValueUse){
@@ -746,10 +727,10 @@ export class OfferComponent implements OnInit, OnDestroy{
       month: 'months',
       year: 'years',
     };
-  
+
     // Validate the unit and map to Moment.js DurationConstructor
     const validUnit = unitMapping[unit.toLowerCase()];
-    
+
     if (validUnit) {
       return moment().add(duration, validUnit).toISOString();
     } else {
@@ -760,10 +741,10 @@ export class OfferComponent implements OnInit, OnDestroy{
   calculateDiscountDuration(validFor: { startDateTime: string, endDateTime: string }, unit: 'days' | 'hours' | 'months') {
     const start = moment(validFor.startDateTime);
     const end = moment(validFor.endDateTime);
-    
+
     // Calculate the difference based on the given unit
     const discountDuration = end.diff(start, unit);
-  
+
     return discountDuration;
   }
 
@@ -840,7 +821,7 @@ export class OfferComponent implements OnInit, OnDestroy{
           }));
           console.log('Cambio en el plan de precios')
           console.log(basePayload.productOfferingPrice)
-          console.log((change as PricePlanChangeState).modifiedPricePlans)          
+          console.log((change as PricePlanChangeState).modifiedPricePlans)
           let pricePlanChangeInfo = (change as PricePlanChangeState).modifiedPricePlans;
           for(let i=0;i< pricePlanChangeInfo.length; i++){
             let finalPriceComps:any[]=[];
@@ -850,7 +831,7 @@ export class OfferComponent implements OnInit, OnDestroy{
                 //finalPriceComps.push(this.createPriceComponent(pricePlanChangeInfo[i].priceComponents.added[j],change.currentValue.currency))
                 let compCreated = await this.createPriceComponent(pricePlanChangeInfo[i].priceComponents.added[j],pricePlanChangeInfo[i]?.newValue.currency)
                 finalPriceComps.push(compCreated)
-              } 
+              }
               console.log('The following price comps has been created:')
               console.log(finalPriceComps)
             }
@@ -870,8 +851,8 @@ export class OfferComponent implements OnInit, OnDestroy{
                 } else if(pricePlanChangeInfo[i].priceComponents.modified[j].id != pricePlanChangeInfo[i].id){
                   let compUpdated = await this.updatePriceComponent(pricePlanChangeInfo[i].priceComponents.modified[j],pricePlanChangeInfo[i]?.newValue.currency)
                   finalPriceComps.push(compUpdated)
-                } 
-                
+                }
+
                 console.log('The following price comp has been updated:')
                 console.log(pricePlanChangeInfo[i].priceComponents.modified[j])
               }
@@ -879,7 +860,7 @@ export class OfferComponent implements OnInit, OnDestroy{
             //Modificar el plan
             if (!pricePlanChangeInfo[i].id.startsWith('temp-id')) {
               let updatedPricePlan = await this.updatePricePlan(pricePlanChangeInfo[i],finalPriceComps,pricePlanChangeInfo[i].modifiedFields);
-            
+
               console.log('Modified price plan')
               console.log(updatedPricePlan)
             } else {
@@ -939,12 +920,12 @@ export class OfferComponent implements OnInit, OnDestroy{
           description: basePayload.productOfferingTerm[0].description
         }
       }
-      
+
       // Filtrar el resto de términos
       const otherTerms = this.offer.productOfferingTerm.filter(
         (term: any) => term.name !== 'License'
       ) ?? [];
-      
+
       // Reconstruir el array con el término de licencia en la posición 0
       basePayload.productOfferingTerm = [licenseTerm, ...otherTerms];
     }*/

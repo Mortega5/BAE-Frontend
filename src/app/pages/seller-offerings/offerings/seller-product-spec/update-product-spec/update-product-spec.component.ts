@@ -30,7 +30,6 @@ type BundledProductSpecification = components["schemas"]["BundledProductSpecific
 type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecificationCharacteristic"];
 type ServiceSpecificationRef = components["schemas"]["ServiceSpecificationRef"];
 type ResourceSpecificationRef = components["schemas"]["ResourceSpecificationRef"];
-type ProductSpecificationRelationship = components["schemas"]["ProductSpecificationRelationship"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
 type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' | 'relationships' | 'summary';
 
@@ -51,8 +50,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   DATA_SPACE_ENABLED: boolean = environment.DATA_SPACE_ENABLED;
   MAX_FILE_SIZE: number = environment.MAX_FILE_SIZE;
 
-  currentStep = 0;
-  steps: any[] = [];
+  currentStepId: ProductSpecFormStep = 'general';
   partyId: any = '';
 
   //PRODUCT GENERAL INFO:
@@ -223,7 +221,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   public files: NgxFileDropEntry[] = [];
 
   ngOnInit() {
-    this.steps = this.getFormSteps();
     this.initPartyInfo();
     console.log(this.prod)
     this.populateProductInfo();
@@ -253,24 +250,24 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   ];
 
   get canAdvance(): boolean {
-    if (this.currentStep === 0) return this.generalForm?.valid ?? false;
-    if (this.BUNDLE_ENABLED && this.currentStep === this.getStepIndex('bundle')) {
+    if (this.currentStepId === 'general') return this.generalForm?.valid ?? false;
+    if (this.currentStepId === 'bundle') {
       return !(this.bundleChecked && this.prodSpecsBundle.length < 2);
     }
-    if (this.currentStep === this.getStepIndex('compliance')) {
+    if (this.currentStepId === 'compliance') {
       return !this.checkValidISOS();
     }
     return true;
   }
 
   onStepChanged(event: StepChangedEvent): void {
-    this.currentStep = event.step;
+    this.currentStepId = event.stepId as ProductSpecFormStep;
     this.refreshChars();
-    if (this.isCurrentStep('compliance')) { setTimeout(() => { initFlowbite(); }, 100); }
-    if (this.isCurrentStep('resource')) { this.getResSpecs(false); }
-    if (this.isCurrentStep('service')) { this.getServSpecs(false); }
-    if (this.isCurrentStep('attachments')) { setTimeout(() => { initFlowbite(); }, 100); }
-    if (this.isCurrentStep('relationships')) { this.getProdSpecsRel(false); }
+    if (this.currentStepId === 'compliance') { setTimeout(() => { initFlowbite(); }, 100); }
+    if (this.currentStepId === 'resource') { this.getResSpecs(false); }
+    if (this.currentStepId === 'service') { this.getServSpecs(false); }
+    if (this.currentStepId === 'attachments') { setTimeout(() => { initFlowbite(); }, 100); }
+    if (this.currentStepId === 'relationships') { this.getProdSpecsRel(false); }
     if (event.isLastStep) { this.showFinish(); }
   }
 
@@ -677,7 +674,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
                 }, 3000);
                 return;
               }
-              if (this.isCurrentStep('compliance') && !this.showUploadAtt) {
+              if (this.currentStepId === 'compliance' && !this.showUploadAtt) {
                 const index = this.selectedISOS.findIndex(item => item.name === sel.name);
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
@@ -710,7 +707,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
                   }
                 });
               }
-              if (this.isCurrentStep('compliance') && this.showUploadAtt) {
+              if (this.currentStepId === 'compliance' && this.showUploadAtt) {
                 const index = this.finishChars.findIndex(item => item.name === this.selfAtt.name);
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
@@ -754,7 +751,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
                   }
                 });
               }
-              if (this.isCurrentStep('attachments')) {
+              if (this.currentStepId === 'attachments') {
                 console.log(file)
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
@@ -1167,11 +1164,11 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   isDataspaceConfigurationStep(): boolean {
-    return this.isCurrentStep('dataspace');
+    return this.currentStepId === 'dataspace';
   }
 
   isDefaultCharacteristicsStep(): boolean {
-    return this.isCurrentStep('characteristics');
+    return this.currentStepId === 'characteristics';
   }
 
   isTextCharacteristicType(type: string | undefined): boolean {
@@ -1191,66 +1188,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       return this.dataSpaceCharacteristicTypes[0];
     }
     return 'string';
-  }
-
-  private getFormSteps(): string[] {
-    const steps: string[] = ['General Info'];
-    if (this.BUNDLE_ENABLED) {
-      steps.push('Bundle');
-    }
-    steps.push('Compliance profile');
-    steps.push('Characteristics');
-    if (this.DATA_SPACE_ENABLED) {
-      steps.push('Dataspace Configuration');
-    }
-    steps.push('Resource specifications');
-    steps.push('Service specifications');
-    steps.push('Attachments');
-    steps.push('Relationships');
-    steps.push('Summary');
-    return steps;
-  }
-
-  private getStepIndex(step: ProductSpecFormStep): number {
-    const bundleOffset = this.BUNDLE_ENABLED ? 1 : 0;
-    const complianceIndex = 1 + bundleOffset;
-    const characteristicsIndex = complianceIndex + 1;
-    const dataspaceIndex = this.DATA_SPACE_ENABLED ? characteristicsIndex + 1 : -1;
-    const resourceIndex = characteristicsIndex + (this.DATA_SPACE_ENABLED ? 2 : 1);
-    const serviceIndex = resourceIndex + 1;
-    const attachmentsIndex = serviceIndex + 1;
-    const relationshipsIndex = attachmentsIndex + 1;
-    const summaryIndex = relationshipsIndex + 1;
-
-    switch (step) {
-      case 'general':
-        return 0;
-      case 'bundle':
-        return this.BUNDLE_ENABLED ? 1 : -1;
-      case 'compliance':
-        return complianceIndex;
-      case 'characteristics':
-        return characteristicsIndex;
-      case 'dataspace':
-        return dataspaceIndex;
-      case 'resource':
-        return resourceIndex;
-      case 'service':
-        return serviceIndex;
-      case 'attachments':
-        return attachmentsIndex;
-      case 'relationships':
-        return relationshipsIndex;
-      case 'summary':
-        return summaryIndex;
-      default:
-        return -1;
-    }
-  }
-
-  isCurrentStep(step: ProductSpecFormStep): boolean {
-    const index = this.getStepIndex(step);
-    return index >= 0 && this.currentStep === index;
   }
 
   private getSchemaLocationForType(type: string): string | null {

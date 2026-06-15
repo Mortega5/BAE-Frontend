@@ -29,18 +29,17 @@
     <h2 class="text-3xl font-bold text-primary-100 dark:text-white ml-4 pb-4">{{ 'CREATE_CATALOG._new' | translate }}</h2>
 
     <app-stepper
-      [steps]="steps"
       [canAdvance]="canAdvance"
       submitLabel="CREATE_CATALOG._create"
       [submitDisabled]="!generalForm.valid || loading"
       (stepChanged)="onStepChanged($event)"
       (submitted)="createCatalog()">
 
-      <ng-template stepperStep>
+      <ng-template stepperStep="General Info">
         <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" />
       </ng-template>
 
-      <ng-template stepperStep>
+      <ng-template stepperStep="Summary">
         <div class="m-8">
           @if (loading) {
             <app-loading-spinner />
