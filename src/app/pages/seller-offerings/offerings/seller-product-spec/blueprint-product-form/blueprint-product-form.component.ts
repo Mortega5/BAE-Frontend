@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import { FormField, TableColumn } from 'src/app/models/formFields/form-field.model';
 import { jsonValidator } from 'src/app/validators/validators';
 import { components } from '../../../../../models/product-catalog';
@@ -21,7 +20,6 @@ export type ProductSpecificationRelationship = components["schemas"]["ProductSpe
 export type OrchestrationStepEmit = Omit<OrchestrationStep, 'dependsOn'> & { dependsOn: string[] };
 
 export interface BlueprintProductFormValue {
-  selectedItems: ProductSpecificationRelationship[];
   orchestrationSteps: OrchestrationStepEmit[];
   valid: boolean;
 }
@@ -42,17 +40,13 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   @Input() relationships: any[] = [];
   @Output() formChange = new EventEmitter<BlueprintProductFormValue>();
 
-  get isValid(): boolean { return this.form.valid && this.orchestrationSteps.length > 0; }
+  get isValid(): boolean { return this.orchestrationSteps.length > 0; }
 
 
   readonly itemTableColumns: TableColumn[] = [
     { header: 'Name', getValue: item => item.name, width: 'w-1/3' },
     { header: 'Description', getValue: item => item.description },
   ];
-
-  form = new FormGroup({
-    selectedItems: new FormControl<any[]>([], { nonNullable: true }),
-  });
 
   // — Orchestration plan —
   orchestrationSteps: OrchestrationStep[] = [];
@@ -80,9 +74,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     );
     const productOptions = selectedItems
       .filter((item: any) => !usedProducts.has(item.id))
-      .map((item: any) => ({ value: item.id, label: item.productSpec.name }));
-
-    const currentId = this.stepForm.controls.id.value;
+      .map((item: any) => ({ value: item.id, label: item.productSpec?.name || item.name || item.id }));
 
     const dependsOnItems = this.orchestrationSteps.filter((_, i) => i !== this.editingIndex);
 
@@ -119,10 +111,6 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     if (this.blueprintConfig) {
       this.loadProdData();
     }
-
-    this.form.controls.selectedItems.valueChanges
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(() => this.emitFormChange());
   }
 
   ngOnDestroy(): void {
@@ -132,7 +120,6 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
 
   private loadProdData(): void {
     if (!this.blueprintConfig) return;
-    this.form.patchValue({ selectedItems: this.blueprintConfig.selectedItems ?? [] });
     const emitted = this.blueprintConfig.orchestrationSteps ?? [];
     const stepMap = new Map<string, OrchestrationStep>(
       emitted.map(s => [s.id, { ...s, dependsOn: [] }])
@@ -238,11 +225,6 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
 
   private emitFormChange(): void {
     this.formChange.emit({
-      selectedItems: this.form.controls.selectedItems.value.map(item => ({
-        '@type': 'ProductSpecificationRelationship',
-        id: item.id,
-        relationshipType: 'dependency'
-      })),
       orchestrationSteps: this.orchestrationSteps.map(s => ({
         ...s,
         dependsOn: s.dependsOn.map(d => d.id),

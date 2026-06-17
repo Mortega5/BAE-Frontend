@@ -22,6 +22,7 @@ import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validat
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
+import { BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
 
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
@@ -31,9 +32,12 @@ type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecific
 type ServiceSpecificationRef = components["schemas"]["ServiceSpecificationRef"];
 type ResourceSpecificationRef = components["schemas"]["ResourceSpecificationRef"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
-type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' | 'relationships' | 'summary' | 'dsp_config';
+type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' | 'relationships' | 'summary' | 'configuration' | 'dsp_config';
 
-const DSP_CHARS: string[] = ['endpointUrl', 'upstreamAddress', 'targetSpecification', 'serviceConfiguration', 'credentialsConfig', 'authorizationPolicy', 'transferPath', 'transferType']
+const BASE_TEMPLATE_OPTIONS = [
+  { value: '', label: 'None' },
+  { value: 'BlueprintProductSpecification', label: 'Blueprint Product Specification' },
+];
 
 @Component({
   selector: 'update-product-spec',
@@ -63,6 +67,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     version: new FormControl('0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*)?$'), noWhitespaceValidator]),
     number: new FormControl(''),
     lifecycleStatus: new FormControl('Active'),
+    baseTemplate: new FormControl(''),
+
     description: new FormControl('', Validators.maxLength(100000)),
   });
   //DSP CONFIG INFO:
@@ -182,6 +188,9 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   toValue: string = '';
   rangeUnit: string = '';
   jsonValue: string = '';
+
+  blueprintConfig: BlueprintProductFormValue;
+
   readonly dataSpaceCharacteristicTypes: string[] = [
     'credentialsConfiguration',
     'authorizationPolicy'
@@ -193,6 +202,10 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
   filenameRegex = /^[A-Za-z0-9_.-]+$/;
   private destroy$ = new Subject<void>();
+
+  get templateName(): string {
+    return this.generalForm.get('baseTemplate')?.value || '';
+  }
 
   constructor(
     private api: ApiServiceService,
@@ -257,6 +270,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
       ],
     },
+    { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS, readonly: true },
+
     { type: 'markdownTextarea', name: 'description', label: 'UPDATE_PROD_SPEC._product_description' },
   ];
 
@@ -302,7 +317,9 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     this.generalForm.controls['version'].setValue(this.prod.version ? this.prod.version : '');
     this.generalForm.controls['number'].setValue(this.prod.productNumber ? this.prod.productNumber : '');
     this.generalForm.patchValue({ lifecycleStatus: this.prod.lifecycleStatus });
-
+    if (this.prod['@baseType']) {
+      this.generalForm.controls['baseTemplate'].setValue(this.prod['@type'])
+    }
     //BUNDLE
     if (this.prod.isBundle == true) {
       //this.bundleChecked=true;
@@ -441,6 +458,13 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
             productSpec: data
           });
         })
+      }
+    }
+    // Orchestration Plan
+    if (this.prod.orchestrationPlan) {
+      this.blueprintConfig = {
+        orchestrationSteps: this.prod.orchestrationPlan.steps,
+        valid: true
       }
     }
 
@@ -1617,6 +1641,12 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         serviceSpecification: this.selectedServiceSpecs
       }
     }
+    if (this.blueprintConfig) {
+      this.productSpecToUpdate!['@schemaLocation'] = environment.BLUEPRINT_SCHEMA;
+      (this.productSpecToUpdate as any).orchestrationPlan = {
+        steps: this.blueprintConfig.orchestrationSteps,
+      }
+    }
   }
 
   updateProduct() {
@@ -1769,5 +1799,9 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       });
     }
     this.dspConfigForm.patchValue(patch);
+  }
+
+  onBlueprintConfigChange(value: BlueprintProductFormValue) {
+    this.blueprintConfig = value;
   }
 }
