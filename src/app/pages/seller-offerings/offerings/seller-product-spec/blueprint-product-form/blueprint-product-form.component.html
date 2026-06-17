@@ -1,0 +1,119 @@
+<div class="flex flex-col gap-10">
+
+  <!-- Section: Orchestration Plan -->
+  <div>
+    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+      {{ 'BLUEPRINT_PROD._orchestration_plan' | translate }}
+    </h3>
+
+    <!-- Steps table -->
+    @if (orchestrationSteps.length > 0) {
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300">
+      <table class="w-full table-fixed text-sm text-left text-gray-500 dark:text-gray-200">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+          <tr>
+            @for (col of stepsTableColumns; track col.header) {
+            <th scope="col" class="px-4 py-3" [ngClass]="col.width ?? ''">{{ col.header }}</th>
+            }
+            <th scope="col" class="px-4 py-3 w-24">{{ 'BLUEPRINT_PROD._actions' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (step of orchestrationSteps; track step.id; let i = $index) {
+          <tr class="border-b hover:bg-gray-50 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200"
+            [ngClass]="editingIndex === i ? 'bg-blue-50 dark:bg-secondary-200' : ''">
+            @for (col of stepsTableColumns; track col.header) {
+            <td class="px-4 py-3 break-words">{{ col.getValue(step) }}</td>
+            }
+            <td class="px-4 py-3">
+              <div class="flex gap-2">
+                <button type="button" (click)="editStep(i)"
+                  class="p-1.5 text-white bg-blue-500 rounded-lg hover:bg-blue-600">
+                  <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.845 6.745L9 17.016l.96-3.545 6.844-6.745a2.015 2.015 0 0 1 2.853 0Z" />
+                  </svg>
+                </button>
+                <button type="button" (click)="deleteStep(i)"
+                  class="p-1.5 text-white bg-red-500 rounded-lg hover:bg-red-600">
+                  <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M6 18 17.94 6M18 18 6.06 6" />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+    } @else {
+    <div
+      class="flex w-full items-center p-4 text-sm text-red-700 rounded-lg bg-red-50 dark:bg-secondary-200 dark:text-red-400"
+      role="alert">
+      <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+        fill="currentColor" viewBox="0 0 20 20">
+        <path
+          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+      </svg>
+      {{ 'BLUEPRINT_PROD._no_steps' | translate }}
+    </div>
+    }
+
+    <!-- Toggle / Step form -->
+    @if (showStepForm) {
+    <div class="bg-white dark:bg-secondary-300 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mt-4">
+      <app-dynamic-form [fields]="stepFormFields" [formGroup]="stepForm" [columns]="6" />
+
+      @if (cycleError) {
+      <div
+        class="flex items-start gap-2 mt-3 p-3 text-sm text-red-700 bg-red-50 rounded-lg dark:bg-secondary-200 dark:text-red-400"
+        role="alert">
+        <svg class="w-4 h-4 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+          viewBox="0 0 20 20">
+          <path
+            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+        </svg>
+        <span class="flex flex-col gap-1">
+          {{ 'BLUEPRINT_PROD._cycle_error' | translate }}
+          <span class="font-mono font-semibold">{{ cycleError.join(' → ') }}</span>
+        </span>
+      </div>
+      }
+      <div class="flex gap-3 mt-4 justify-end">
+        <button type="button" (click)="cancelEdit()"
+          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-secondary-300 dark:text-white dark:border-gray-600 dark:hover:bg-secondary-200">
+          {{ 'BLUEPRINT_PROD._cancel' | translate }}
+        </button>
+        <button type="button" (click)="addOrUpdateStep()" [disabled]="stepForm.invalid"
+          [ngClass]="stepForm.invalid ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-50'"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-100 rounded-lg focus:ring-4 focus:outline-none focus:ring-blue-300">
+          @if (editingIndex !== null) {
+          {{ 'BLUEPRINT_PROD._update_step' | translate }}
+          } @else {
+          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5 12h14m-7 7V5" />
+          </svg>
+          {{ 'BLUEPRINT_PROD._add_step' | translate }}
+          }
+        </button>
+      </div>
+    </div>
+    } @else {
+    <div class="flex w-full justify-center mt-4">
+      <button type="button" (click)="showStepForm = true"
+        class="flex items-center gap-2 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
+        <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M5 12h14m-7 7V5" />
+        </svg>
+        {{ 'BLUEPRINT_PROD._add_step' | translate }}
+      </button>
+    </div>
+    }
+
+  </div>
+
+</div>

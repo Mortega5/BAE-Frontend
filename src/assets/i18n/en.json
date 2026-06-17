@@ -2128,7 +2128,10 @@
     "_self_attestation": "Self Attestation:",
     "_close_modal": "Close modal",
     "_cancel": "Cancel",
-    "_upload": "Upload"
+    "_upload": "Upload",
+    "_base_template": "Template",
+    "_configurable": "Configurable",
+    "_no_config": "No configuration required for the selected template."
   },
   "UPDATE_PROD_SPEC": {
     "_back": "Back",
@@ -2278,6 +2281,27 @@
     "_finish": "Finish",
     "_update_res": "Update resource",
     "_no_config": "No configuration required for the selected template."
+  },
+  "BLUEPRINT_PROD": {
+    "_items": "Components",
+    "_orchestration_plan": "Orchestration Plan",
+    "_step_id": "Step ID",
+    "_step_service": "Service",
+    "_step_depends_on": "Depends On",
+    "_step_wait_healthy": "Wait for Healthy",
+    "_step_timeout": "Timeout (seconds)",
+    "_step_on_failure": "On Failure",
+    "_add_step": "Add Step",
+    "_update_step": "Update Step",
+    "_cancel": "Cancel",
+    "_no_steps": "No steps added yet.",
+    "_actions": "Actions",
+    "_none": "None",
+    "_on_failure_abort": "Abort",
+    "_on_failure_continue": "Continue",
+    "_on_failure_retry": "Retry",
+    "_helm_values_override": "Helm Values Override",
+    "_cycle_error": "Cyclic dependency detected. A step cannot depend on itself or on a step that transitively depends on it."
   },
   "CREATE_SERV_SPEC": {
     "_back": "Back",

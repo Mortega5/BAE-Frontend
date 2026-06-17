@@ -106,5 +106,6 @@ export const environment = {
   AI_SEARCH_PROFILE: 'dome_dev2',
   LEAR_URL: '',
   LAUNCH_VALIDATION_ENABLED: false,
-  TENDER_DEV_BUTTONS_OPEN_CLOSE_ENABLED: false
+  TENDER_DEV_BUTTONS_OPEN_CLOSE_ENABLED: false,
+  BLUEPRINT_SCHEMA: 'https://gist.githubusercontent.com/vramperez/8a16d77f6fc2cdf5fea22dc11b325d52/raw/47adee0e5f86db7e5ecaac60a82d4d497d23e06f/blueprint-product-spec.json'
 };

@@ -2129,7 +2129,10 @@
     "_self_attestation": "Self Attestation:",
     "_close_modal": "Close modal",
     "_cancel": "Cancelar",
-    "_upload": "Actualizar"
+    "_upload": "Actualizar",
+    "_base_template": "Plantilla",
+    "_configurable": "Configurable",
+    "_no_config": "No se requiere configuración para la plantilla seleccionada."
   },
   "UPDATE_PROD_SPEC": {
     "_back": "Back",
@@ -2279,6 +2282,27 @@
     "_finish": "Finish",
     "_update_res": "Update resource",
     "_no_config": "No se requiere configuración para la plantilla seleccionada."
+  },
+  "BLUEPRINT_PROD": {
+    "_items": "Componentes",
+    "_orchestration_plan": "Plan de Orquestación",
+    "_step_id": "ID del Paso",
+    "_step_service": "Servicio",
+    "_step_depends_on": "Depende De",
+    "_step_wait_healthy": "Esperar Estado Healthy",
+    "_step_timeout": "Tiempo de Espera (seg)",
+    "_step_on_failure": "En Caso de Fallo",
+    "_add_step": "Añadir Paso",
+    "_update_step": "Actualizar Paso",
+    "_cancel": "Cancelar",
+    "_no_steps": "No se han añadido pasos.",
+    "_actions": "Acciones",
+    "_none": "Ninguno",
+    "_on_failure_abort": "Abortar",
+    "_on_failure_continue": "Continuar",
+    "_on_failure_retry": "Reintentar",
+    "_helm_values_override": "Sobreescritura de Valores Helm",
+    "_cycle_error": "Dependencia cíclica detectada. Un paso no puede depender de sí mismo ni de un paso que dependa transitivamente de él."
   },
   "CREATE_SERV_SPEC": {
     "_back": "Back",

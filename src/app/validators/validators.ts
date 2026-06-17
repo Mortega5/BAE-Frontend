@@ -28,6 +28,17 @@ export function uniqueNameValidatorFactory(getExistingNames: () => string[]): Va
 }
 
 
+export function jsonValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  if (!value || (value as string).trim() === '') return null;
+  try {
+    JSON.parse(value);
+    return null;
+  } catch {
+    return { invalidJson: true };
+  }
+}
+
 export function noWhitespaceValidator(control: AbstractControl): ValidationErrors | null {
   const isWhitespace = (control.value || '').trim().length === 0;
   const isValid = !isWhitespace;

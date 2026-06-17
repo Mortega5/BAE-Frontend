@@ -51,10 +51,12 @@ import { NewPricePlanComponent } from './pages/seller-offerings/offerings/seller
 import { SellerOfferComponent } from './pages/seller-offerings/offerings/seller-offer/seller-offer.component';
 import { UpdateOfferComponent } from './pages/seller-offerings/offerings/seller-offer/update-offer/update-offer.component';
 import { UpdatePricePlanComponent } from './pages/seller-offerings/offerings/seller-offer/update-price-plan/update-price-plan.component';
+import { BlueprintProductFormComponent } from './pages/seller-offerings/offerings/seller-product-spec/blueprint-product-form/blueprint-product-form.component';
 import { CreateProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/create-product-spec/create-product-spec.component';
 import { SellerProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/seller-product-spec.component';
 import { UpdateProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/update-product-spec.component';
 import { ResourceSpecFormComponent } from './pages/seller-offerings/offerings/seller-resource-spec/resource-spec-form/resource-spec-form.component';
+import { TableInputComponent } from './shared/forms/table-input/table-input.component';
 import { SellerResourceSpecComponent } from './pages/seller-offerings/offerings/seller-resource-spec/seller-resource-spec.component';
 import { SellerServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/seller-service-spec.component';
 import { ServiceSpecFormComponent } from './pages/seller-offerings/offerings/seller-service-spec/service-spec-form/service-spec-form.component';
@@ -139,6 +141,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     SellerServiceSpecComponent,
     SellerResourceSpecComponent,
     SellerOfferComponent,
+    BlueprintProductFormComponent,
     CreateProductSpecComponent,
     ServiceSpecFormComponent,
     ResourceSpecFormComponent,
@@ -181,6 +184,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     FaIconComponent,
     FormsModule,
     ReactiveFormsModule,
+    TableInputComponent,
     PickerComponent,
     NgxFileDropModule,
     ChatbotWidgetComponent,

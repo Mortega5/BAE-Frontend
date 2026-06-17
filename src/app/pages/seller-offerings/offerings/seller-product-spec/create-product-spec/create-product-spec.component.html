@@ -1526,6 +1526,14 @@
                     </div> -->
       </ng-template>
 
+      @if (templateName) {
+      <ng-template stepperStep="Configuration" stepId="configuration">
+        <app-blueprint-product-form (formChange)="onBlueprintConfigChange($event)" [relationships]="prodRelationships"
+          [blueprintConfig]="blueprintConfig" />
+      </ng-template>
+      }
+
+
       <ng-template stepperStep="Summary" stepId="summary">
         <div class="m-8">
           @if(loading){
@@ -1542,7 +1550,8 @@
                 class="mb-2 bg-gray-50 text-wrap break-words border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                 {{productSpecToCreate?.name}}
               </label>
-              <label for="prod-version" class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._product_version'
+              <label for="prod-version" class="font-bold text-lg dark:text-white">{{
+                'CREATE_PROD_SPEC._product_version'
                 | translate }}</label>
               <label
                 class="mb-2 bg-gray-50 text-wrap break-all border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
@@ -1560,7 +1569,8 @@
                 {{productSpecToCreate?.brand}}
               </label>
               @if(productSpecToCreate?.productNumber!=''){
-              <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._id_number' | translate }}</label>
+              <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._id_number' | translate
+                }}</label>
               <label
                 class="mb-2 bg-gray-50 text-wrap break-all border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                 {{productSpecToCreate?.productNumber}}
@@ -1570,7 +1580,8 @@
           </div>
 
           <div class="mb-4">
-            <label class="font-bold text-lg mr-4 dark:text-white">{{ 'CREATE_PROD_SPEC._status' | translate }}</label>
+            <label class="font-bold text-lg mr-4 dark:text-white">{{ 'CREATE_PROD_SPEC._status' | translate
+              }}</label>
             @if(productSpecToCreate?.lifecycleStatus == 'Active'){
             <span
               class="bg-blue-100 dark:bg-secondary-100 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{productSpecToCreate?.lifecycleStatus}}</span>
@@ -1815,7 +1826,8 @@
           }
 
           @if(prodRelationships.length>0){
-          <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._relationships' | translate }}</label>
+          <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._relationships' | translate
+            }}</label>
           <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
               <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
