@@ -7,8 +7,7 @@ import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
-import { FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
-import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
@@ -18,6 +17,7 @@ import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
+import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
@@ -32,7 +32,7 @@ type ServiceSpecificationRef = components["schemas"]["ServiceSpecificationRef"];
 type ResourceSpecificationRef = components["schemas"]["ResourceSpecificationRef"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
 type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' |
-  'relationships' | 'summary' | 'configuration' | 'dsp_config';
+  'relationships' | 'summary' | 'orchestrationPlan' | 'dsp_config';
 
 const BASE_TEMPLATE_OPTIONS = [
   { value: '', label: 'None' },
@@ -120,7 +120,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   additionalISOS: any[] = [];
   selectedISO: any;
   showUploadFile: boolean = false;
-  disableCompNext: boolean = true;
   selfAtt: any;
   showUploadAtt: boolean = false;
   isoToCreate: string = '';
@@ -146,7 +145,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
 
   //RELATIONSHIPS INFO:
   prodRelationships: any[] = [];
-  relToCreate: any;
   showCreateRel: boolean = false;
   prodSpecRelPage = 0;
   prodSpecRelPageCheck: boolean = false;
@@ -249,7 +247,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
       return this.prodRelationships.length > 0;
     }
 
-    if (this.currentStepId === 'configuration') {
+    if (this.currentStepId === 'orchestrationPlan') {
       return this.blueprintConfig?.valid ?? false;
     }
     return true;
@@ -294,8 +292,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   @ViewChild('imgURL') imgURL!: ElementRef;
   @ViewChild('certificationName') certificationName!: ElementRef;
 
-
-  public files: NgxFileDropEntry[] = [];
 
   ngOnInit() {
     this.initPartyInfo();
@@ -490,7 +486,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   public dropped(files: NgxFileDropEntry[], sel: any) {
-    this.files = files;
     for (const droppedFile of files) {
 
       // Is it a file?
@@ -505,10 +500,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
               const base64String: string = e.target.result.split(',')[1];
               console.log('BASE 64....')
               console.log(base64String); // You can use this base64 string as needed
-              let prod_name = '';
-              if (this.generalForm.value.name != null) {
-                prod_name = this.generalForm.value.name.replaceAll(/\s/g, '') + '_';
-              }
               let fileBody = {
                 content: {
                   name: uuidv4() + '_' + file.name,
@@ -1016,10 +1007,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     return this.currentStepId === 'dataspace';
   }
 
-  isDefaultCharacteristicsStep(): boolean {
-    return this.currentStepId === 'characteristics';
-  }
-
   isTextCharacteristicType(type: string | undefined): boolean {
     return type === 'string' || type === 'endpointUrl' || type === 'upstreamAddress' || type === 'endpointDescription' || type === 'transferPath';
   }
@@ -1236,10 +1223,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
 
     this.cdr.detectChanges();
     console.log(this.prodChars)
-  }
-
-  checkInput(value: string): boolean {
-    return value.trim().length === 0;
   }
 
   showFinish() {

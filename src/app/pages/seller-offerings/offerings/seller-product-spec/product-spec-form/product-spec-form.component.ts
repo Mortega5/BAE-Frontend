@@ -3,12 +3,13 @@ import { ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestro
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
 import { jwtDecode } from "jwt-decode";
-import moment from 'moment';
+import * as moment from 'moment';
 import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
@@ -19,36 +20,69 @@ import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
-import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
-import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
+import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 import { BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
 
-
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
+type ProductSpecification_Create = components["schemas"]["ProductSpecification_Create"];
 type ProductSpecification_Update = components["schemas"]["ProductSpecification_Update"];
 type BundledProductSpecification = components["schemas"]["BundledProductSpecification"];
 type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecificationCharacteristic"];
 type ServiceSpecificationRef = components["schemas"]["ServiceSpecificationRef"];
 type ResourceSpecificationRef = components["schemas"]["ResourceSpecificationRef"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
-type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' | 'relationships' | 'summary' | 'orchestrationPlan' | 'dsp_config';
+type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' | 'relationships' | 'summary' | 'configuration';
 
 const BASE_TEMPLATE_OPTIONS = [
   { value: '', label: 'None' },
   { value: 'BlueprintProductSpecification', label: 'Blueprint Product Specification' },
 ];
 
+const GENERAL_FORM_FIELDS_CREATE: FormField[] = [
+  { type: 'string', name: 'name', label: 'CREATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1 },
+  { type: 'string', name: 'brand', label: 'CREATE_PROD_SPEC._product_brand', required: true, colSpan: 1 },
+  { type: 'string', name: 'version', label: 'CREATE_PROD_SPEC._product_version', required: true, colSpan: 1 },
+  { type: 'string', name: 'number', label: 'CREATE_PROD_SPEC._id_number', colSpan: 1 },
+  { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS },
+  { type: 'markdownTextarea', name: 'description', label: 'CREATE_PROD_SPEC._product_description' },
+];
+
+const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
+  { type: 'string', name: 'name', label: 'UPDATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1 },
+  { type: 'string', name: 'brand', label: 'UPDATE_PROD_SPEC._product_brand', required: true, colSpan: 1 },
+  { type: 'string', name: 'version', label: 'UPDATE_PROD_SPEC._product_version', required: true, colSpan: 1 },
+  { type: 'string', name: 'number', label: 'UPDATE_PROD_SPEC._id_number', colSpan: 1 },
+  {
+    type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_RES_SPEC._status',
+    options: [
+      { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
+      { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
+      { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
+      { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
+    ],
+  },
+  { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS, readonly: true },
+  { type: 'markdownTextarea', name: 'description', label: 'UPDATE_PROD_SPEC._product_description' },
+];
+
 @Component({
-  selector: 'update-product-spec',
-  templateUrl: './update-product-spec.component.html',
-  styleUrl: './update-product-spec.component.css',
+  selector: 'app-product-spec-form',
+  templateUrl: './product-spec-form.component.html',
+  styleUrl: './product-spec-form.component.css',
   providers: [DatePipe],
 })
-export class UpdateProductSpecComponent implements OnInit, OnDestroy {
-  @Input() prod: any;
+export class ProductSpecFormComponent implements OnInit, OnDestroy {
+  @Input() mode: 'create' | 'update' = 'create';
+  @Input() prod?: any;
+
+  get isUpdate(): boolean { return this.mode === 'update'; }
+
+  get generalFormFields(): FormField[] {
+    return this.isUpdate ? GENERAL_FORM_FIELDS_UPDATE : GENERAL_FORM_FIELDS_CREATE;
+  }
 
   //PAGE SIZES:
   PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;
@@ -60,7 +94,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   MAX_FILE_SIZE: number = environment.MAX_FILE_SIZE;
 
   currentStepId: ProductSpecFormStep = 'general';
-  showDspConfigStep = false;
   partyId: any = '';
 
   //PRODUCT GENERAL INFO:
@@ -71,23 +104,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     number: new FormControl(''),
     lifecycleStatus: new FormControl('Active'),
     baseTemplate: new FormControl(''),
-
     description: new FormControl('', Validators.maxLength(100000)),
-  });
-  //DSP CONFIG INFO:
-  newEndpointUrl: string = '';
-  newEndpointDescription: string = '';
-  newEndpointName: string = '';
-  endpointUrls: { url: string; description: string; name: string, id?: string }[] = [];
-  readonly transferTypes: string[] = ['HttpData-PULL', 'HttpData-PUSH'];
-  dspConfigForm = new FormGroup({
-    upstreamAddress: new FormControl('', [Validators.required]),
-    transferPath: new FormControl(''),
-    transferType: new FormControl('HttpData-PULL', [Validators.required]),
-    targetSpecification: new FormControl('', [Validators.required, jsonValidator]),
-    serviceConfiguration: new FormControl('', [Validators.required, jsonValidator]),
-    credentialsConfig: new FormControl('', [Validators.required, jsonValidator]),
-    policyConfig: new FormControl('', [Validators.required, jsonValidator]),
   });
 
   //CHARS INFO
@@ -112,7 +129,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   loadingBundle_more: boolean = false;
   prodSpecs: any[] = [];
   nextProdSpecs: any[] = [];
-  //final selected products inside bundle
   prodSpecsBundle: BundledProductSpecification[] = [];
 
   //COMPLIANCE PROFILE INFO:
@@ -120,19 +136,22 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   availableISOS: any[] = [];
   selectedISOS: any[] = [];
   additionalISOS: any[] = [];
-  verifiedISO: string[] = [];
-  complianceLevel: string = 'NL';
   selectedISO: any;
-  complianceVC: any = null;
-  complianceVCId: string = '';
   showUploadFile: boolean = false;
-  showRequestValidationModal: boolean = false;
   selfAtt: any;
-  checkExistingSelfAtt: boolean = false;
   showUploadAtt: boolean = false;
   isoToCreate: string = '';
   showCert: boolean = false;
+
+  // --- UPDATE ONLY ---
+  verifiedISO: string[] = [];
+  complianceLevel: string = 'NL';
+  complianceVC: any = null;
+  complianceVCId: string = '';
+  showRequestValidationModal: boolean = false;
+  checkExistingSelfAtt: boolean = false;
   initialComplianceEvidenceSignature: string = '';
+  // --- END UPDATE ONLY ---
 
   //SERVICE INFO:
   serviceSpecPage = 0;
@@ -160,14 +179,12 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   loadingprodSpecRel_more: boolean = false;
   prodSpecRels: any[] = [];
   nextProdSpecRels: any[] = [];
-  //Final relationships
   prodRelationships: any[] = [];
-
   relFormFields: FormField[] = [
     {
       type: 'select',
       name: 'relType',
-      label: 'UPDATE_PROD_SPEC._relationship_type',
+      label: 'CREATE_PROD_SPEC._relationship_type',
       required: true,
       defaultValue: 'migration',
       options: [
@@ -180,7 +197,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     {
       type: 'table',
       name: 'prodSpec',
-      label: 'UPDATE_PROD_SPEC._product_name',
+      label: 'CREATE_PROD_SPEC._product_name',
       required: true,
       multiple: false,
       items: [],
@@ -201,9 +218,10 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   attachToCreate: AttachmentRefOrValue = { url: '', attachmentType: '' };
   attFileName = new FormControl('', [Validators.required, Validators.pattern('[a-zA-Z0-9 _.-]*')]);
   certFileName = new FormControl('', [Validators.required, Validators.pattern('[a-zA-Z0-9 _.-]*')]);
-  attImageName = new FormControl('', [Validators.required, Validators.pattern('^https?:\\/\\/.*\\.(?:png|jpg|jpeg|gif|bmp|webp)$')])
+  attImageName = new FormControl('', [Validators.required, Validators.pattern('^https?:\\/\\/.*\\.(?:png|jpg|jpeg|gif|bmp|webp)$')]);
 
   //FINAL PRODUCT USING API CALL STRUCTURE
+  productSpecToCreate: ProductSpecification_Create | undefined;
   productSpecToUpdate: ProductSpecification_Update | undefined;
 
   errorMessage: any = '';
@@ -222,10 +240,17 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   blueprintConfig: BlueprintProductFormValue;
 
   readonly dataSpaceCharacteristicTypes: string[] = [
+    'endpointUrl',
+    'upstreamAddress',
+    'endpointDescription',
+    'targetSpecification',
+    'serviceConfiguration',
     'credentialsConfiguration',
     'authorizationPolicy'
   ];
   readonly dataSpaceJsonCharacteristicTypes: string[] = [
+    'targetSpecification',
+    'serviceConfiguration',
     'credentialsConfiguration',
     'authorizationPolicy'
   ];
@@ -235,6 +260,23 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
   get templateName(): string {
     return this.generalForm.get('baseTemplate')?.value || '';
+  }
+
+  get canAdvance(): boolean {
+    if (this.currentStepId === 'general') return this.generalForm?.valid ?? false;
+    if (this.currentStepId === 'bundle') {
+      return !(this.bundleChecked && this.prodSpecsBundle.length < 2);
+    }
+    if (this.currentStepId === 'compliance') {
+      return !this.checkValidISOS();
+    }
+    if (!this.isUpdate && this.currentStepId === 'relationships' && this.templateName === 'BlueprintProductSpecification') {
+      return this.prodRelationships.length > 0;
+    }
+    if (this.currentStepId === 'configuration') {
+      return this.blueprintConfig?.valid ?? false;
+    }
+    return true;
   }
 
   constructor(
@@ -250,7 +292,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     private datePipe: DatePipe
   ) {
     for (let i = 0; i < certifications.length; i++) {
-      this.availableISOS.push(certifications[i])
+      this.availableISOS.push(certifications[i]);
     }
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -258,7 +300,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         if (ev.type === 'ChangedSession') {
           this.initPartyInfo();
         }
-      })
+      });
   }
 
   @HostListener('document:click')
@@ -273,13 +315,13 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   @ViewChild('imgURL') imgURL!: ElementRef;
   @ViewChild('certificationName') certificationName!: ElementRef;
 
-  public files: NgxFileDropEntry[] = [];
-
   ngOnInit() {
     this.initPartyInfo();
-    console.log(this.prod)
-    this.populateProductInfo();
-    initFlowbite();
+    if (this.isUpdate) {
+      console.log(this.prod);
+      this.populateProductInfo();
+      initFlowbite();
+    }
   }
 
   ngOnDestroy() {
@@ -287,44 +329,24 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  generalFormFields: FormField[] = [
-    { type: 'string', name: 'name', label: 'UPDATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1 },
-    { type: 'string', name: 'brand', label: 'UPDATE_PROD_SPEC._product_brand', required: true, colSpan: 1 },
-    { type: 'string', name: 'version', label: 'UPDATE_PROD_SPEC._product_version', required: true, colSpan: 1 },
-    { type: 'string', name: 'number', label: 'UPDATE_PROD_SPEC._id_number', colSpan: 1 },
-    {
-      type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_RES_SPEC._status',
-      options: [
-        { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
-        { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
-        { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
-        { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
-      ],
-    },
-    { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS, readonly: true },
-
-    { type: 'markdownTextarea', name: 'description', label: 'UPDATE_PROD_SPEC._product_description' },
-  ];
-
-  get canAdvance(): boolean {
-    if (this.currentStepId === 'general') return this.generalForm?.valid ?? false;
-    if (this.currentStepId === 'bundle') {
-      return !(this.bundleChecked && this.prodSpecsBundle.length < 2);
-    }
-    if (this.currentStepId === 'compliance') {
-      return !this.checkValidISOS();
-    }
-    return true;
-  }
-
   onStepChanged(event: StepChangedEvent): void {
     this.currentStepId = event.stepId as ProductSpecFormStep;
     this.refreshChars();
-    if (this.currentStepId === 'compliance') { setTimeout(() => { initFlowbite(); }, 100); }
-    if (this.currentStepId === 'resource') { this.getResSpecs(false); }
-    if (this.currentStepId === 'service') { this.getServSpecs(false); }
-    if (this.currentStepId === 'attachments') { setTimeout(() => { initFlowbite(); }, 100); }
-    if (this.currentStepId === 'relationships') { this.getProdSpecsRel(false); }
+    switch (this.currentStepId) {
+      case 'compliance':
+      case 'attachments':
+        setTimeout(() => { initFlowbite(); }, 100);
+        break;
+      case 'resource':
+        this.getResSpecs(false);
+        break;
+      case 'service':
+        this.getServSpecs(false);
+        break;
+      case 'relationships':
+        this.getProdSpecsRel(false);
+        break;
+    }
     if (event.isLastStep) { this.showFinish(); }
   }
 
@@ -334,8 +356,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
       } else {
-        let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
-        this.partyId = loggedOrg.partyId
+        let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as);
+        this.partyId = loggedOrg.partyId;
       }
     }
   }
@@ -349,58 +371,42 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     this.generalForm.controls['number'].setValue(this.prod.productNumber ? this.prod.productNumber : '');
     this.generalForm.patchValue({ lifecycleStatus: this.prod.lifecycleStatus });
     if (this.prod['@baseType']) {
-      this.generalForm.controls['baseTemplate'].setValue(this.prod['@type'])
+      this.generalForm.controls['baseTemplate'].setValue(this.prod['@type']);
     }
+
     //BUNDLE
     if (this.prod.isBundle == true) {
-      //this.bundleChecked=true;
       this.toggleBundleCheck();
-      //Ver como añadir los productos al bundle
       this.prodSpecsBundle = this.prod.bundledProductSpecification;
-      //prod.bundledProductSpecification
-
-      console.log('is bundle')
+      console.log('is bundle');
     }
 
     //COMPLIANCE PROFILE
     if (this.prod.productSpecCharacteristic) {
-      console.log(certifications)
-      console.log('--')
-      console.log(this.prod.productSpecCharacteristic)
+      console.log(certifications);
+      console.log('--');
+      console.log(this.prod.productSpecCharacteristic);
       for (let i = 0; i < this.prod.productSpecCharacteristic.length; i++) {
-        // Check if this is a VC
         if (this.prod.productSpecCharacteristic[i].name == 'Compliance:VC') {
           this.complianceVCId = this.prod.productSpecCharacteristic[i].id || '';
           this.complianceVC = this.prod.productSpecCharacteristic[i].productSpecCharacteristicValue?.[0]?.value ?? null;
-          // Decode the token
           try {
             this.applyComplianceDataFromVcToken(this.complianceVC);
           } catch (e) {
-            console.log(e)
+            console.log(e);
           }
-
-          // Add verified certifcates
-
-          //let cert = certifications.find(item => `${item.name}:VC` === this.prod.productSpecCharacteristic[i].name)
-          //if (cert) {
-          //  const val = this.prod.productSpecCharacteristic[i].productSpecCharacteristicValue[0].value
-          //this.verifiedISO[cert.name] = val
-          //}
-          continue
+          continue;
         }
 
-
-        //const index = this.availableISOS.findIndex(item => item.name === this.prod.productSpecCharacteristic[i].name);
         const cleanedName = this.prod.productSpecCharacteristic[i].name
           .replace('Compliance:', '')
           .trim();
-
         const index = this.availableISOS.findIndex(
           item => item.name === cleanedName
         );
 
         if (index !== -1) {
-          console.log('adding sel iso')
+          console.log('adding sel iso');
           this.selectedISOS.push({
             id: this.prod.productSpecCharacteristic[i].id,
             name: this.prod.productSpecCharacteristic[i].name,
@@ -413,44 +419,39 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
           this.selfAtt = JSON.parse(JSON.stringify(this.prod.productSpecCharacteristic[i]));
           this.checkExistingSelfAtt = true;
         } else if (this.prod.productSpecCharacteristic[i].name.startsWith('Compliance:')) {
-          console.log('--- additional isos')
-          console.log(this.prod.productSpecCharacteristic[i])
+          console.log('--- additional isos');
+          console.log(this.prod.productSpecCharacteristic[i]);
           this.additionalISOS.push({
             id: this.prod.productSpecCharacteristic[i].id,
             name: this.prod.productSpecCharacteristic[i].name,
             url: this.prod.productSpecCharacteristic[i].productSpecCharacteristicValue[0].value
-          })
+          });
         }
       }
-      console.log('selected isos')
-      console.log(this.selectedISOS)
-      console.log('available')
-      console.log(this.availableISOS)
-      console.log('API PROD ISOS')
-      console.log(this.prod.productSpecCharacteristic)
+      console.log('selected isos');
+      console.log(this.selectedISOS);
+      console.log('available');
+      console.log(this.availableISOS);
+      console.log('API PROD ISOS');
+      console.log(this.prod.productSpecCharacteristic);
     }
-    // Baseline must reflect the loaded form representation to avoid false positives.
     this.initialComplianceEvidenceSignature = this.getCurrentComplianceEvidenceSignature();
 
     //CHARS
     if (this.prod.productSpecCharacteristic) {
-      let chars = this.prod.productSpecCharacteristic;
-      if (this.prod.externalId) {
-        chars = chars.filter((char: any) => !DSP_CHARS.includes(char.valueType));
-      }
-      chars.forEach((char: any) => {
-        const index = this.selectedISOS.findIndex(item => item.name === char.name);
+      for (let i = 0; i < this.prod.productSpecCharacteristic.length; i++) {
+        const index = this.selectedISOS.findIndex(item => item.name === this.prod.productSpecCharacteristic[i].name);
         if (index == -1) {
           this.prodChars.push({
-            id: char.id ? char.id : 'urn:ngsi-ld:characteristic:' + uuidv4(),
-            name: char.name,
-            description: char.description ? char.description : '',
-            valueType: char.valueType,
-            '@schemaLocation': char['@schemaLocation'],
-            productSpecCharacteristicValue: char.productSpecCharacteristicValue
+            id: this.prod.productSpecCharacteristic[i].id ? this.prod.productSpecCharacteristic[i].id : 'urn:ngsi-ld:characteristic:' + uuidv4(),
+            name: this.prod.productSpecCharacteristic[i].name,
+            description: this.prod.productSpecCharacteristic[i].description ? this.prod.productSpecCharacteristic[i].description : '',
+            valueType: this.prod.productSpecCharacteristic[i].valueType,
+            '@schemaLocation': this.prod.productSpecCharacteristic[i]['@schemaLocation'],
+            productSpecCharacteristicValue: this.prod.productSpecCharacteristic[i].productSpecCharacteristicValue
           });
         }
-      });
+      }
     }
 
     //RESOURCE
@@ -474,38 +475,33 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     }
 
     //RELATIONSHIPS
-    console.log('----- RELACIONES')
-    console.log(this.prod.productSpecificationRelationship)
+    console.log('----- RELACIONES');
+    console.log(this.prod.productSpecificationRelationship);
     if (this.prod.productSpecificationRelationship) {
       for (let i = 0; i < this.prod.productSpecificationRelationship.length; i++) {
         this.prodSpecService.getResSpecById(this.prod.productSpecificationRelationship[i].id).then(data => {
-
           this.prodRelationships.push({
             id: this.prod.productSpecificationRelationship[i].id,
             href: this.prod.productSpecificationRelationship[i].id,
-            //Que tipo de relacion le pongo? no viene en el prodspec
             relationshipType: this.prod.productSpecificationRelationship[i].relationshipType ?? 'migration',
             name: this.prod.productSpecificationRelationship[i].name,
             productSpec: data
           });
-        })
+        });
       }
     }
+
     // Orchestration Plan
     if (this.prod.orchestrationPlan) {
       this.blueprintConfig = {
         orchestrationSteps: this.prod.orchestrationPlan.steps,
         valid: true
-      }
-    }
-
-    if (this.prod.externalId) {
-      this.addDspConfigStep();
+      };
     }
   }
 
   goBack() {
-    this.eventMessage.emitSellerProductSpec(false);
+    this.eventMessage.emitSellerProductSpec(!this.isUpdate);
   }
 
   toggleBundleCheck() {
@@ -528,9 +524,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     let options = {
       "filters": ['Active', 'Launched'],
       "partyId": this.partyId,
-      //"sort": undefined,
-      //"isBundle": false
-    }
+    };
 
     this.paginationService.getItemsPaginated(this.bundlePage, this.PROD_SPEC_LIMIT, next, this.prodSpecs, this.nextProdSpecs, options,
       this.prodSpecService.getProdSpecByUser.bind(this.prodSpecService)).then(data => {
@@ -540,7 +534,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         this.bundlePage = data.page;
         this.loadingBundle = false;
         this.loadingBundle_more = false;
-      })
+      });
   }
 
   async nextBundle() {
@@ -550,10 +544,10 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   addProdToBundle(prod: any) {
     const index = this.prodSpecsBundle.findIndex(item => item.id === prod.id);
     if (index !== -1) {
-      console.log('eliminar')
+      console.log('eliminar');
       this.prodSpecsBundle.splice(index, 1);
     } else {
-      console.log('añadir')
+      console.log('añadir');
       this.prodSpecsBundle.push({
         id: prod.id,
         href: prod.href,
@@ -562,13 +556,13 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       });
     }
     this.cdr.detectChanges();
-    console.log(this.prodSpecsBundle)
+    console.log(this.prodSpecsBundle);
   }
 
   isProdInBundle(prod: any) {
     const index = this.prodSpecsBundle.findIndex(item => item.id === prod.id);
     if (index !== -1) {
-      return true
+      return true;
     } else {
       return false;
     }
@@ -577,14 +571,14 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   addISO(iso: any) {
     const index = this.availableISOS.findIndex(item => item.name === iso.name);
     if (index !== -1) {
-      console.log('seleccionar')
+      console.log('seleccionar');
       this.availableISOS.splice(index, 1);
       this.selectedISOS.push({ name: 'Compliance:' + iso.name, url: '', mandatory: iso.mandatory, domesupported: iso.domesupported });
     }
     this.buttonISOClicked = !this.buttonISOClicked;
     this.cdr.detectChanges();
-    console.log(this.availableISOS)
-    console.log(this.selectedISOS)
+    console.log(this.availableISOS);
+    console.log(this.selectedISOS);
   }
 
   removeISO(iso: any) {
@@ -593,24 +587,20 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       .trim();
     const index = this.selectedISOS.findIndex(item => item.name === iso.name);
     if (index !== -1) {
-      console.log('seleccionar')
+      console.log('seleccionar');
       this.selectedISOS.splice(index, 1);
       this.availableISOS.push({ name: cleanedName, mandatory: iso.mandatory, domesupported: iso.domesupported });
-
-      //if (iso.name in this.verifiedISO) {
-      //  delete this.verifiedISO[iso.name]
-      //}
     }
     this.cdr.detectChanges();
-    console.log(this.prodSpecsBundle)
+    console.log(this.prodSpecsBundle);
   }
 
   removeCert(iso: any) {
     const index = this.additionalISOS.findIndex(item => item.name === iso.name);
     if (index !== -1) {
-      console.log('eliminar additional cert')
+      console.log('eliminar additional cert');
       this.additionalISOS.splice(index, 1);
-      console.log(this.additionalISOS)
+      console.log(this.additionalISOS);
     }
     this.cdr.detectChanges();
   }
@@ -618,17 +608,17 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   removeSelfAtt() {
     const index = this.finishChars.findIndex(item => item.name === this.selfAtt.name);
     if (index !== -1) {
-      console.log('seleccionar')
+      console.log('seleccionar');
       this.finishChars.splice(index, 1);
     }
     this.selfAtt = '';
     this.cdr.detectChanges();
-    console.log(this.finishChars)
+    console.log(this.finishChars);
   }
 
   checkValidISOS(): boolean {
     let invalid = this.selectedISOS.find((p => {
-      return p.url === ''
+      return p.url === '';
     }));
     if (invalid) {
       return true;
@@ -640,8 +630,24 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   addISOValue(sel: any) {
     const index = this.selectedISOS.findIndex(item => item.name === sel.name);
     const nativeElement = document.getElementById('iso-' + sel.name);
-    console.log(sel.url)
-    console.log(this.selectedISOS)
+    console.log(sel.url);
+    console.log(this.selectedISOS);
+  }
+
+  hasSelfAttestation(): boolean {
+    const selfAttestationValue = this.selfAtt?.productSpecCharacteristicValue?.[0]?.value;
+    if (typeof selfAttestationValue === 'string') {
+      return selfAttestationValue.trim() !== '';
+    }
+    return !!selfAttestationValue;
+  }
+
+  hasUnsavedComplianceProfileChanges(): boolean {
+    return this.getCurrentComplianceEvidenceSignature() !== this.initialComplianceEvidenceSignature;
+  }
+
+  isVerified(sel: any) {
+    return this.verifiedISO.indexOf(sel.name) > -1;
   }
 
   private applyComplianceDataFromVcToken(vcToken: any) {
@@ -684,42 +690,19 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     this.showRequestValidationModal = false;
   }
 
-  hasSelfAttestation(): boolean {
-    const selfAttestationValue = this.selfAtt?.productSpecCharacteristicValue?.[0]?.value;
-    if (typeof selfAttestationValue === 'string') {
-      return selfAttestationValue.trim() !== '';
-    }
-    return !!selfAttestationValue;
-  }
-
-  hasUnsavedComplianceProfileChanges(): boolean {
-    return this.getCurrentComplianceEvidenceSignature() !== this.initialComplianceEvidenceSignature;
-  }
-
-  isVerified(sel: any) {
-    return this.verifiedISO.indexOf(sel.name) > -1
-  }
-
   public dropped(files: NgxFileDropEntry[], sel: any) {
-    this.files = files;
     for (const droppedFile of files) {
-
-      // Is it a file?
       if (droppedFile.fileEntry.isFile) {
         const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
         fileEntry.file((file: File) => {
-          console.log('dropped')
+          console.log('dropped');
 
           if (file) {
             const reader = new FileReader();
             reader.onload = (e: any) => {
               const base64String: string = e.target.result.split(',')[1];
-              console.log('BASE 64....')
-              console.log(base64String); // You can use this base64 string as needed
-              let prod_name = '';
-              if (this.generalForm.value.name != null) {
-                prod_name = this.generalForm.value.name.replaceAll(/\s/g, '') + '_';
-              }
+              console.log('BASE 64....');
+              console.log(base64String);
               let fileBody = {
                 content: {
                   name: uuidv4() + '_' + file.name,
@@ -727,7 +710,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
                 },
                 contentType: file.type,
                 isPublic: true
-              }
+              };
               if (!this.isValidFilename(fileBody.content.name)) {
                 this.errorMessage = 'File names can only include alphabetical characters (A-Z, a-z) and a limited set of symbols, such as underscores (_), hyphens (-), and periods (.)';
                 console.error('There was an error while uploading file!');
@@ -737,7 +720,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
                 }, 3000);
                 return;
               }
-              //IF FILES ARE HIGHER THAN 3MB THROW AN ERROR
               if (file.size > this.MAX_FILE_SIZE) {
                 this.errorMessage = 'File size must be under 3MB.';
                 console.error('There was an error while uploading file!');
@@ -751,21 +733,20 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
                 const index = this.selectedISOS.findIndex(item => item.name === sel.name);
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
-                    console.log(data)
+                    console.log(data);
                     if (index !== -1) {
                       this.selectedISOS[index].url = data.content;
-                      //this.selectedISOS[index].attachmentType=file.type;
                       this.showUploadFile = false;
                       this.cdr.detectChanges();
-                      console.log('uploaded')
+                      console.log('uploaded');
                     } else {
                       this.isoToCreate = data.content;
                     }
                   },
                   error: error => {
-                    console.error('There was an error while uploading file!', error);
+                    console.error('There was an error while uploading the file!', error);
                     if (error.error.error) {
-                      console.log(error)
+                      console.log(error);
                       this.errorMessage = 'Error: ' + error.error.error;
                     } else {
                       this.errorMessage = 'There was an error while uploading the file!';
@@ -798,18 +779,18 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
                           isDefault: true,
                           value: data.content
                         }]
-                      }
-                      this.finishChars.push(this.selfAtt)
+                      };
+                      this.finishChars.push(this.selfAtt);
                     }
                     this.showUploadFile = false;
                     this.showUploadAtt = false;
                     this.cdr.detectChanges();
-                    console.log('uploaded')
+                    console.log('uploaded');
                   },
                   error: error => {
                     console.error('There was an error while uploading the file!', error);
                     if (error.error.error) {
-                      console.log(error)
+                      console.log(error);
                       this.errorMessage = 'Error: ' + error.error.error;
                     } else {
                       this.errorMessage = 'There was an error while uploading the file!';
@@ -825,10 +806,10 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
                 });
               }
               if (this.currentStepId === 'attachments') {
-                console.log(file)
+                console.log(file);
                 this.attachmentService.uploadFile(fileBody).subscribe({
                   next: data => {
-                    console.log(data)
+                    console.log(data);
                     if (sel == 'img') {
                       if (file.type.startsWith("image")) {
                         this.showImgPreview = true;
@@ -837,7 +818,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
                           name: 'Profile Picture',
                           url: this.imgPreview,
                           attachmentType: file.type
-                        })
+                        });
                       } else {
                         this.errorMessage = 'File must have a valid image format!';
                         this.showError = true;
@@ -848,14 +829,13 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
                     } else {
                       this.attachToCreate = { url: data.content, attachmentType: file.type };
                     }
-
                     this.cdr.detectChanges();
-                    console.log('uploaded')
+                    console.log('uploaded');
                   },
                   error: error => {
                     console.error('There was an error while uploading file!', error);
                     if (error.error.error) {
-                      console.log(error)
+                      console.log(error);
                       this.errorMessage = 'Error: ' + error.error.error;
                     } else {
                       this.errorMessage = 'There was an error while uploading the file!';
@@ -873,10 +853,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
             };
             reader.readAsDataURL(file);
           }
-
         });
       } else {
-        // It was a directory (empty directories are added, otherwise only files)
         const fileEntry = droppedFile.fileEntry as FileSystemDirectoryEntry;
         console.log(droppedFile.relativePath, fileEntry);
       }
@@ -892,7 +870,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   public fileLeave(event: any) {
-    console.log('leave')
+    console.log('leave');
     console.log(event);
   }
 
@@ -907,7 +885,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   uploadFile() {
-    console.log('uploading...')
+    console.log('uploading...');
   }
 
   toggleCreateCharacteristicForm() {
@@ -932,9 +910,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     let options = {
       "filters": ['Active', 'Launched'],
       "partyId": this.partyId,
-      //"sort": undefined,
-      //"isBundle": false
-    }
+    };
 
     this.paginationService.getItemsPaginated(this.resourceSpecPage, this.RES_SPEC_LIMIT, next, this.resourceSpecs, this.nextResourceSpecs, options,
       this.resSpecService.getResourceSpecByUser.bind(this.resSpecService)).then(data => {
@@ -944,7 +920,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         this.resourceSpecPage = data.page;
         this.loadingResourceSpec = false;
         this.loadingResourceSpec_more = false;
-      })
+      });
   }
 
   async nextRes() {
@@ -954,10 +930,10 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   addResToSelected(res: any) {
     const index = this.selectedResourceSpecs.findIndex(item => item.id === res.id);
     if (index !== -1) {
-      console.log('eliminar')
+      console.log('eliminar');
       this.selectedResourceSpecs.splice(index, 1);
     } else {
-      console.log('añadir')
+      console.log('añadir');
       this.selectedResourceSpecs.push({
         id: res.id,
         href: res.href,
@@ -965,13 +941,13 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       });
     }
     this.cdr.detectChanges();
-    console.log(this.selectedResourceSpecs)
+    console.log(this.selectedResourceSpecs);
   }
 
   isResSelected(res: any) {
     const index = this.selectedResourceSpecs.findIndex(item => item.id === res.id);
     if (index !== -1) {
-      return true
+      return true;
     } else {
       return false;
     }
@@ -985,9 +961,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     let options = {
       "filters": ['Active', 'Launched'],
       "partyId": this.partyId,
-      //"sort": undefined,
-      //"isBundle": false
-    }
+    };
 
     this.paginationService.getItemsPaginated(this.serviceSpecPage, this.SERV_SPEC_LIMIT, next, this.serviceSpecs, this.nextServiceSpecs, options,
       this.servSpecService.getServiceSpecByUser.bind(this.servSpecService)).then(data => {
@@ -997,24 +971,24 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         this.serviceSpecPage = data.page;
         this.loadingServiceSpec = false;
         this.loadingServiceSpec_more = false;
-      })
+      });
   }
 
   async nextServ() {
     this.loadingServiceSpec_more = true;
     this.serviceSpecPage = this.serviceSpecPage + this.SERV_SPEC_LIMIT;
     this.cdr.detectChanges;
-    console.log(this.serviceSpecPage)
+    console.log(this.serviceSpecPage);
     await this.getServSpecs(true);
   }
 
   addServToSelected(serv: any) {
     const index = this.selectedServiceSpecs.findIndex(item => item.id === serv.id);
     if (index !== -1) {
-      console.log('eliminar')
+      console.log('eliminar');
       this.selectedServiceSpecs.splice(index, 1);
     } else {
-      console.log('añadir')
+      console.log('añadir');
       this.selectedServiceSpecs.push({
         id: serv.id,
         href: serv.href,
@@ -1022,13 +996,13 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       });
     }
     this.cdr.detectChanges();
-    console.log(this.selectedServiceSpecs)
+    console.log(this.selectedServiceSpecs);
   }
 
   isServSelected(serv: any) {
     const index = this.selectedServiceSpecs.findIndex(item => item.id === serv.id);
     if (index !== -1) {
-      return true
+      return true;
     } else {
       return false;
     }
@@ -1038,7 +1012,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     this.showImgPreview = false;
     const index = this.prodAttachments.findIndex(item => item.url === this.imgPreview);
     if (index !== -1) {
-      console.log('eliminar')
+      console.log('eliminar');
       this.prodAttachments.splice(index, 1);
     }
     this.imgPreview = '';
@@ -1052,7 +1026,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       name: 'Profile Picture',
       url: this.imgPreview,
       attachmentType: 'Picture'
-    })
+    });
     this.attImageName.reset();
     this.cdr.detectChanges();
   }
@@ -1060,7 +1034,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   removeAtt(att: any) {
     const index = this.prodAttachments.findIndex(item => item.url === att.url);
     if (index !== -1) {
-      console.log('eliminar')
+      console.log('eliminar');
       if (this.prodAttachments[index].name == 'Profile Picture') {
         this.showImgPreview = false;
         this.imgPreview = '';
@@ -1072,12 +1046,12 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   saveAtt() {
-    console.log('saving')
+    console.log('saving');
     this.prodAttachments.push({
       name: this.attachName.nativeElement.value,
       url: this.attachToCreate.url,
       attachmentType: this.attachToCreate.attachmentType
-    })
+    });
     this.attachName.nativeElement.value = '';
     this.attachToCreate = { url: '', attachmentType: '' };
     this.showNewAtt = false;
@@ -1089,11 +1063,11 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   saveAdditionalCert() {
-    console.log('saving')
+    console.log('saving');
     this.additionalISOS.push({
       name: 'Compliance:' + this.certificationName.nativeElement.value,
       url: this.isoToCreate
-    })
+    });
     this.certificationName.nativeElement.value = '';
     this.isoToCreate = '';
     this.certFileName.reset();
@@ -1116,20 +1090,18 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     let options = {
       "filters": ['Active', 'Launched'],
       "partyId": this.partyId,
-      //"sort": undefined,
-      //"isBundle": false
-    }
+    };
 
     this.paginationService.getItemsPaginated(this.prodSpecRelPage, this.PROD_SPEC_LIMIT, next, this.prodSpecRels, this.nextProdSpecRels, options,
       this.prodSpecService.getProdSpecByUser.bind(this.prodSpecService)).then(data => {
         this.prodSpecRelPageCheck = data.page_check;
         this.prodSpecRels = data.items;
+        (this.relFormFields[1] as TableFormField).items = data.items;
         this.nextProdSpecRels = data.nextItems;
         this.prodSpecRelPage = data.page;
-        (this.relFormFields[1] as TableFormField).items = data.items;
         this.loadingprodSpecRel = false;
         this.loadingprodSpecRel_more = false;
-      })
+      });
   }
 
   async nextProdSpecsRel() {
@@ -1142,16 +1114,18 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     this.prodRelationships.push({
       id: prodSpec.id,
       href: prodSpec.href,
-      relationshipType: relType,
       name: prodSpec.name,
+      relationshipType: relType,
+      productSpec: prodSpec
     });
     this.relForm.reset({ relType: 'migration', prodSpec: null });
+    console.log(this.prodRelationships);
   }
 
   deleteRel(rel: any) {
     const index = this.prodRelationships.findIndex(item => item.id === rel.id);
     if (index !== -1) {
-      console.log('eliminar')
+      console.log('eliminar');
       this.prodRelationships.splice(index, 1);
     }
     this.cdr.detectChanges();
@@ -1235,7 +1209,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   isTextCharacteristicType(type: string | undefined): boolean {
-    return type === 'string';
+    return type === 'string' || type === 'endpointUrl' || type === 'upstreamAddress' || type === 'endpointDescription';
   }
 
   getFilteredCharacteristicsForCurrentStep(): ProductSpecificationCharacteristic[] {
@@ -1248,7 +1222,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
   getInitialCharacteristicTypeForCurrentStep(): string {
     if (this.isDataspaceConfigurationStep()) {
-      return 'credentialsConfiguration';
+      return this.dataSpaceCharacteristicTypes[0];
     }
     return 'string';
   }
@@ -1263,72 +1237,69 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     return null;
   }
 
-
   addCharValue() {
     if (this.isTextCharacteristicType(this.charTypeSelected)) {
-      console.log('string')
+      console.log('string');
       if (this.creatingChars.length == 0) {
         this.creatingChars.push({
           isDefault: true,
           value: this.stringValue as any
-        })
+        });
       } else {
         this.creatingChars.push({
           isDefault: false,
           value: this.stringValue as any
-        })
+        });
       }
       this.stringValue = '';
     } else if (this.charTypeSelected == 'number') {
-      console.log('number')
+      console.log('number');
       if (this.creatingChars.length == 0) {
         this.creatingChars.push({
           isDefault: true,
           value: this.numberValue as any,
           unitOfMeasure: this.numberUnit
-        })
+        });
       } else {
         this.creatingChars.push({
           isDefault: false,
           value: this.numberValue as any,
           unitOfMeasure: this.numberUnit
-        })
+        });
       }
       this.numberUnit = '';
       this.numberValue = '';
     } else if (this.charTypeSelected == 'range') {
-      console.log('range')
-      // Validate that fromValue < toValue
+      console.log('range');
       const fromVal = Number(this.fromValue);
       const toVal = Number(this.toValue);
       if (fromVal >= toVal) {
-        console.log('range validation error: valueFrom >= valueTo')
+        console.log('range validation error: valueFrom >= valueTo');
         this.errorMessage = 'Invalid range: "From" value must be less than "To" value';
         this.showError = true;
-        setTimeout(() => { this.showError = false }, 3000);
+        setTimeout(() => { this.showError = false; }, 3000);
         return;
       }
-
       if (this.creatingChars.length == 0) {
         this.creatingChars.push({
           isDefault: true,
           valueFrom: this.fromValue as any,
           valueTo: this.toValue as any,
           unitOfMeasure: this.rangeUnit
-        })
+        });
       } else {
         this.creatingChars.push({
           isDefault: false,
           valueFrom: this.fromValue as any,
           valueTo: this.toValue as any,
           unitOfMeasure: this.rangeUnit
-        })
+        });
       }
     } else if (this.isJsonCharacteristicType(this.charTypeSelected)) {
       if (this.creatingChars.length > 0) {
         this.errorMessage = 'Only one JSON value is allowed';
         this.showError = true;
-        setTimeout(() => { this.showError = false }, 3000);
+        setTimeout(() => { this.showError = false; }, 3000);
         return;
       }
       try {
@@ -1341,14 +1312,14 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       } catch (error) {
         this.errorMessage = 'Invalid JSON format';
         this.showError = true;
-        setTimeout(() => { this.showError = false }, 3000);
+        setTimeout(() => { this.showError = false; }, 3000);
         return;
       }
     } else if (this.charTypeSelected == 'boolean') {
-      console.log('boolean values are fixed')
+      console.log('boolean values are fixed');
       return;
     } else {
-      console.log('nothing')
+      console.log('nothing');
     }
   }
 
@@ -1356,9 +1327,9 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     if (this.charTypeSelected == 'boolean') {
       return;
     }
-    console.log(this.creatingChars)
+    console.log(this.creatingChars);
     this.creatingChars.splice(idx, 1);
-    console.log(this.creatingChars)
+    console.log(this.creatingChars);
   }
 
   selectDefaultChar(char: any, idx: any) {
@@ -1373,7 +1344,14 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
   saveChar() {
     if (this.charsForm.value.name != null) {
-      // Create the main characteristic
+      if (!this.isUpdate && this.prodChars.find((char) => char.name === this.charsForm.value.name)) {
+        console.log('name duplicated error');
+        this.errorMessage = 'Cannot save duplicated name in characteristics';
+        this.showError = true;
+        setTimeout(() => { this.showError = false; }, 3000);
+        return;
+      }
+
       const characteristic: any = {
         id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
         name: this.charsForm.value.name,
@@ -1382,8 +1360,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       };
 
       const schemaLocation = this.getSchemaLocationForType(this.charTypeSelected);
-      const primitiveTypes = ['string', 'number', 'boolean', 'range'];
-      if (!primitiveTypes.includes(this.charTypeSelected)) {
+      if (this.isDataSpaceCharacteristicType(this.charTypeSelected)) {
         characteristic.valueType = this.charTypeSelected;
       }
       if (schemaLocation) {
@@ -1392,8 +1369,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
       this.prodChars.push(characteristic);
 
-      // create X - enabled characteristic
-      if (this.isOptional && primitiveTypes.includes(this.charTypeSelected) && this.charTypeSelected !== 'boolean') {
+      if (this.isOptional && this.charTypeSelected !== 'boolean' && !this.isJsonCharacteristicType(this.charTypeSelected)) {
         this.prodChars.push({
           id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
           name: this.charsForm.value.name + ' - enabled',
@@ -1408,7 +1384,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
               value: false as any
             }
           ]
-        })
+        });
       }
     }
 
@@ -1425,21 +1401,20 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   deleteChar(char: any) {
     const index = this.prodChars.findIndex(item => item.id === char.id);
     if (index !== -1) {
-      console.log('eliminar')
+      console.log('eliminar');
       this.prodChars.splice(index, 1);
     }
 
-    // If deleting a main characteristic, also delete its "- enabled" variant if it exists
     if (!char.name.endsWith('- enabled')) {
       const relatedEnabledIndex = this.prodChars.findIndex(item => item.name === char.name + ' - enabled');
       if (relatedEnabledIndex !== -1) {
-        console.log('eliminar related enabled')
+        console.log('eliminar related enabled');
         this.prodChars.splice(relatedEnabledIndex, 1);
       }
     }
 
     this.cdr.detectChanges();
-    console.log(this.prodChars)
+    console.log(this.prodChars);
   }
 
   checkInput(value: string): boolean {
@@ -1447,13 +1422,9 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   showFinish() {
-    this.setProductData();
-  }
-
-  setProductData() {
     this.finishChars = [];
-    console.log('--- set product data')
-    console.log(this.prodChars)
+    console.log('--- set product data');
+    console.log(this.prodChars);
     for (let i = 0; i < this.prodChars.length; i++) {
       const index = this.finishChars.findIndex(item => item.name === this.prodChars[i].name);
       if (index == -1) {
@@ -1466,26 +1437,26 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         );
         if (checkIso == -1) {
           if (this.prodChars[i].name != 'Compliance:SelfAtt') {
-            console.log('--- check if deleted additional cert')
-            console.log(this.prodChars[i].name)
+            console.log('--- check if deleted additional cert');
+            console.log(this.prodChars[i].name);
             const checkAdditional = this.additionalISOS.findIndex(
               item => item.name === cleanedName
             );
             if (checkAdditional != -1) {
-              this.finishChars.push(this.prodChars[i])
+              this.finishChars.push(this.prodChars[i]);
             }
             if (!this.prodChars[i].name?.startsWith('Compliance:')) {
-              this.finishChars.push(this.prodChars[i])
+              this.finishChars.push(this.prodChars[i]);
             }
           } else {
-            this.finishChars.push(this.prodChars[i])
+            this.finishChars.push(this.prodChars[i]);
           }
         } else {
-          this.finishChars.push(this.prodChars[i])
+          this.finishChars.push(this.prodChars[i]);
         }
-
       }
     }
+
     // Load compliance profile
     for (let i = 0; i < this.selectedISOS.length; i++) {
       const index = this.finishChars.findIndex(item => item.name === this.selectedISOS[i].name);
@@ -1497,15 +1468,15 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
             isDefault: true,
             value: this.selectedISOS[i].url
           }]
-        })
+        });
       }
     }
 
     for (let i = 0; i < this.additionalISOS.length; i++) {
-      console.log('- finish chars antes')
-      console.log(this.finishChars)
-      console.log('añadiendo additional a finish chars')
-      console.log(this.additionalISOS)
+      console.log('- finish chars antes');
+      console.log(this.finishChars);
+      console.log('añadiendo additional a finish chars');
+      console.log(this.additionalISOS);
       const index = this.finishChars.findIndex(item => item.name === this.additionalISOS[i].name);
       if (index == -1) {
         this.finishChars.push({
@@ -1515,9 +1486,9 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
             isDefault: true,
             value: this.additionalISOS[i].url
           }]
-        })
+        });
       }
-      console.log(this.finishChars)
+      console.log(this.finishChars);
     }
 
     // Always merge latest self attestation from compliance step state.
@@ -1547,160 +1518,147 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       }
     }
 
-    // Load compliance VCs
-    if (this.complianceVC != null) {
-      this.finishChars.push({
-        id: this.complianceVCId ? this.complianceVCId : `urn:ngsi-ld:characteristic:${uuidv4()}`,
-        name: `Compliance:VC`,
-        productSpecCharacteristicValue: [{
-          isDefault: true,
-          value: this.complianceVC
-        }]
-      })
+    let rels = [];
+    for (let i = 0; i < this.prodRelationships.length; i++) {
+      rels.push({
+        id: this.prodRelationships[i].id,
+        href: this.prodRelationships[i].href,
+        name: this.prodRelationships[i].name,
+        relationshipType: this.prodRelationships[i].relationshipType
+      });
     }
+    console.log('rels');
+    console.log(rels);
 
-    if (this.prod.externalId) {
-      this.endpointUrls.forEach(endpoint => {
+    if (this.isUpdate) {
+      // Load compliance VCs (update only)
+      if (this.complianceVC != null) {
         this.finishChars.push({
-          id: endpoint.id,
-          description: endpoint.description,
-          valueType: 'endpointUrl',
-          name: endpoint.name,
-          productSpecCharacteristicValue: [
-            { value: endpoint.url! as any, isDefault: true }
-          ]
-        })
-      })
-      const dspConfigValue = this.dspConfigForm.value
-      this.finishChars.push(
-        {
-          id: "upstreamAddress",
-          name: "Address of the upstream serving the data",
-          valueType: "upstreamAddress",
-          productSpecCharacteristicValue: [
-            { value: dspConfigValue.upstreamAddress! as any, isDefault: true }
-          ]
-        },
-        {
-          id: "targetSpecification",
-          name: "Detailed specification of the ODRL target. Allows to over services via OID4VC",
-          valueType: "targetSpecification",
-          productSpecCharacteristicValue: [
-            { value: JSON.parse(dspConfigValue.targetSpecification!), isDefault: true }
-          ]
-        },
-        {
-          id: "serviceConfiguration",
-          name: "Service config to be used in the credentials config service when provisioning transfers through OID4VC",
-          valueType: "serviceConfiguration",
-          productSpecCharacteristicValue: [
-            { value: JSON.parse(dspConfigValue.serviceConfiguration!), isDefault: true }
-          ]
-        },
-        {
-          id: "credentialsConfig",
-          name: "Credentials Config",
-          valueType: "credentialsConfig",
-          "@schemaLocation": "https://raw.githubusercontent.com/FIWARE/contract-management/refs/heads/main/schemas/credentials/credentialConfigCharacteristic.json",
-          productSpecCharacteristicValue: [
-            { value: JSON.parse(dspConfigValue.credentialsConfig!), isDefault: true }
-          ]
-        },
-        {
-          id: "policyConfig",
-          name: "Policy for creation of K8S clusters.",
-          valueType: "authorizationPolicy",
-          "@schemaLocation": "https://raw.githubusercontent.com/FIWARE/contract-management/refs/heads/policy-support/schemas/odrl/policyCharacteristic.json",
-          productSpecCharacteristicValue: [
-            { value: JSON.parse(dspConfigValue.policyConfig!), isDefault: true }
-          ]
-        },
-        {
-          id: 'transferType',
-          name: 'transferType',
-          valueType: 'transferType',
-          productSpecCharacteristicValue: [
-            { value: dspConfigValue.transferType as any, isDefault: true }
-          ]
-        }
-      )
-      if (dspConfigValue.transferPath) {
-        this.finishChars.push({
-          id: 'transferPath',
-          name: 'transferPath',
-          valueType: 'transferPath',
-          productSpecCharacteristicValue: [
-            { value: dspConfigValue.transferPath as any, isDefault: true }
-          ]
-        })
+          id: this.complianceVCId ? this.complianceVCId : `urn:ngsi-ld:characteristic:${uuidv4()}`,
+          name: `Compliance:VC`,
+          productSpecCharacteristicValue: [{
+            isDefault: true,
+            value: this.complianceVC
+          }]
+        });
+      }
+
+      if (this.generalForm.value.name != null && this.generalForm.value.version != null && this.generalForm.value.brand != null) {
+        this.productSpecToUpdate = {
+          name: this.generalForm.value.name,
+          description: this.generalForm.value.description != null ? this.generalForm.value.description : '',
+          version: this.generalForm.value.version,
+          brand: this.generalForm.value.brand,
+          productNumber: this.generalForm.value.number != null ? this.generalForm.value.number : '',
+          lifecycleStatus: this.generalForm.value.lifecycleStatus ?? 'Active',
+          productSpecCharacteristic: this.finishChars,
+          productSpecificationRelationship: rels,
+          attachment: this.prodAttachments,
+          resourceSpecification: this.selectedResourceSpecs,
+          serviceSpecification: this.selectedServiceSpecs
+        };
+      }
+      if (this.blueprintConfig) {
+        this.productSpecToUpdate!['@schemaLocation'] = environment.BLUEPRINT_SCHEMA;
+        (this.productSpecToUpdate as any).orchestrationPlan = {
+          steps: this.blueprintConfig.orchestrationSteps,
+        };
+      }
+    } else {
+      if (this.generalForm.value.name != null && this.generalForm.value.version != null && this.generalForm.value.brand != null) {
+        this.productSpecToCreate = {
+          name: this.generalForm.value.name,
+          description: this.generalForm.value.description != null ? this.generalForm.value.description : '',
+          version: this.generalForm.value.version,
+          brand: this.generalForm.value.brand,
+          productNumber: this.generalForm.value.number != null ? this.generalForm.value.number : '',
+          lifecycleStatus: "Active",
+          isBundle: this.bundleChecked,
+          bundledProductSpecification: this.prodSpecsBundle,
+          productSpecCharacteristic: this.finishChars,
+          productSpecificationRelationship: rels,
+          attachment: this.prodAttachments,
+          relatedParty: [
+            {
+              id: this.partyId,
+              role: environment.SELLER_ROLE,
+              "@referredType": ''
+            }
+          ],
+          resourceSpecification: this.selectedResourceSpecs,
+          serviceSpecification: this.selectedServiceSpecs
+        };
+      }
+      if (this.blueprintConfig) {
+        this.productSpecToCreate!['@type'] = 'BlueprintProductSpecification';
+        this.productSpecToCreate!['@schemaLocation'] = environment.BLUEPRINT_SCHEMA;
+        this.productSpecToCreate!['@baseType'] = 'BlueprintProductSpecification';
+        (this.productSpecToCreate as any).orchestrationPlan = {
+          steps: this.blueprintConfig.orchestrationSteps,
+        };
       }
     }
 
-    if (this.generalForm.value.name != null && this.generalForm.value.version != null && this.generalForm.value.brand != null) {
-      let rels = [];
-      for (let i = 0; i < this.prodRelationships.length; i++) {
-        rels.push({
-          id: this.prodRelationships[i].id,
-          href: this.prodRelationships[i].href,
-          name: this.prodRelationships[i].name,
-          relationshipType: this.prodRelationships[i].relationshipType
-        })
-      }
-      this.productSpecToUpdate = {
-        name: this.generalForm.value.name,
-        description: this.generalForm.value.description != null ? this.generalForm.value.description : '',
-        version: this.generalForm.value.version,
-        brand: this.generalForm.value.brand,
-        productNumber: this.generalForm.value.number != null ? this.generalForm.value.number : '',
-        lifecycleStatus: this.generalForm.value.lifecycleStatus ?? 'Active',
-        //isBundle: this.bundleChecked,
-        //bundledProductSpecification: this.prodSpecsBundle,
-        productSpecCharacteristic: this.finishChars,
-        productSpecificationRelationship: rels,
-        attachment: this.prodAttachments,
-        resourceSpecification: this.selectedResourceSpecs,
-        serviceSpecification: this.selectedServiceSpecs
-      }
-    }
-    if (this.blueprintConfig) {
-      this.productSpecToUpdate!['@schemaLocation'] = environment.BLUEPRINT_SCHEMA;
-      (this.productSpecToUpdate as any).orchestrationPlan = {
-        steps: this.blueprintConfig.orchestrationSteps,
-      }
-    }
+    console.log('PRODUCTO:');
+    console.log(this.isUpdate ? this.productSpecToUpdate : this.productSpecToCreate);
+    console.log(this.imgPreview);
   }
 
-  updateProduct() {
-    this.setProductData();
-    this.loading = true;
-    this.prodSpecService.updateProdSpec(this.productSpecToUpdate, this.prod.id).subscribe({
-      next: data => {
-        this.loading = false;
-        this.goBack();
-        console.log('actualiado producto')
-      },
-      error: error => {
-        console.error('There was an error while updating!', error);
-        if (error.error.error) {
-          console.log(error)
-          this.errorMessage = 'Error: ' + error.error.error;
-        } else {
-          this.errorMessage = 'There was an error while uploading the product!';
+  save() {
+    if (this.isUpdate) {
+      this.showFinish();
+      this.loading = true;
+      this.prodSpecService.updateProdSpec(this.productSpecToUpdate, this.prod.id).subscribe({
+        next: () => {
+          this.loading = false;
+          this.goBack();
+          console.log('actualizado producto');
+        },
+        error: error => {
+          console.error('There was an error while updating!', error);
+          if (error.error.error) {
+            console.log(error);
+            this.errorMessage = 'Error: ' + error.error.error;
+          } else {
+            this.errorMessage = 'There was an error while uploading the product!';
+          }
+          this.loading = false;
+          this.showError = true;
+          setTimeout(() => {
+            this.showError = false;
+          }, 3000);
         }
-        this.loading = false;
-        this.showError = true;
-        setTimeout(() => {
-          this.showError = false;
-        }, 3000);
-      }
-    });
+      });
+    } else {
+      this.loading = true;
+      this.prodSpecService.postProdSpec(this.productSpecToCreate).subscribe({
+        next: () => {
+          this.loading = false;
+          this.goBack();
+        },
+        error: error => {
+          console.error('There was an error while creating!', error);
+          if (error.error.error) {
+            console.log(error);
+            this.errorMessage = 'Error: ' + error.error.error;
+          } else {
+            this.errorMessage = 'There was an error while creating the product!';
+          }
+          this.loading = false;
+          this.showError = true;
+          setTimeout(() => {
+            this.showError = false;
+          }, 3000);
+        }
+      });
+    }
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
     if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
-      return false
+      return false;
     }
   }
 
@@ -1776,50 +1734,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
   private toComplianceEntrySignature(name: string, value: string): string {
     return `${name.toLowerCase()}::${value}`;
-  }
-
-  addEndpointUrl(): void {
-    const url = this.newEndpointUrl.trim();
-    const description = this.newEndpointDescription.trim();
-    const name = this.newEndpointName.trim();
-    if (!url || !description) return;
-    this.endpointUrls = [...this.endpointUrls, { url, description, name, id: uuidv4() }];
-    this.newEndpointUrl = '';
-    this.newEndpointDescription = '';
-    this.newEndpointName = '';
-  }
-
-  removeEndpointUrl(idx: number): void {
-    this.endpointUrls = this.endpointUrls.filter((_, i) => i !== idx);
-  }
-
-  private addDspConfigStep(): void {
-    if (this.showDspConfigStep) return;
-    this.showDspConfigStep = true;
-    const patch: any = {}
-    if (this.prod?.productSpecCharacteristic) {
-      this.prod.productSpecCharacteristic.forEach((char: any) => {
-        const value: string = char.productSpecCharacteristicValue?.[0]?.value ?? '';
-        switch (char.valueType) {
-          case 'endpointUrl':
-            this.endpointUrls.push({ name: char.name ?? '', url: value, description: char.description ?? '', id: char.id });
-            break;
-          case 'upstreamAddress':
-          case 'transferPath':
-          case 'transferType':
-            patch[char.valueType] = value;
-            break;
-          case 'targetSpecification':
-          case 'serviceConfiguration':
-          case 'credentialsConfig':
-            patch[char.valueType] = JSON.stringify(value);
-            break;
-          case 'authorizationPolicy':
-            patch['policyConfig'] = JSON.stringify(value);
-        }
-      });
-    }
-    this.dspConfigForm.patchValue(patch);
   }
 
   onBlueprintConfigChange(value: BlueprintProductFormValue) {
