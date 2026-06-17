@@ -1525,6 +1525,13 @@
                         </button>
                     </div> -->
       </ng-template>
+
+      @if (templateName) {
+      <ng-template stepperStep="Configuration" stepId="configuration">
+        <app-blueprint-product-form (formChange)="onBlueprintConfigChange($event)" [relationships]="prodRelationships"
+          [blueprintConfig]="blueprintConfig" />
+      </ng-template>
+      }
       <ng-template stepperStep="Summary" stepId="summary">
         <div class="m-8">
           @if(loading){

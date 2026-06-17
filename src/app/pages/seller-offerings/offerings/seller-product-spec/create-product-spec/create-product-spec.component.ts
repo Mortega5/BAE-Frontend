@@ -1334,12 +1334,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
         this.productSpecToCreate['@type'] = 'BlueprintProductSpecification';
         this.productSpecToCreate['@schemaLocation'] = environment.BLUEPRINT_SCHEMA;
         this.productSpecToCreate['@baseType'] = 'BlueprintProductSpecification';
-        this.productSpecToCreate.productSpecificationRelationship = this.blueprintConfig.selectedItems.map(spec => ({
-          '@type': 'ProductSpecificationRelationship',
-          id: spec.id,
-          relationshipType: 'dependency'
-        }));
-
         (this.productSpecToCreate as any).orchestrationPlan = {
           steps: this.blueprintConfig.orchestrationSteps,
         }
@@ -1406,7 +1400,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   onBlueprintConfigChange(value: BlueprintProductFormValue) {
-    console.log("New value", value);
     this.blueprintConfig = value;
   }
 }
