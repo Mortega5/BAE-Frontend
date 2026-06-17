@@ -101,6 +101,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loading = true;
     this.initPartyInfo();
+    // TODO: this must load all the elements
     this.resSpecService.getSoftwarePackageSpecs(this.partyId).subscribe({
       next: specs => {
         this.loading = false;

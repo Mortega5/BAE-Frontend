@@ -1,3 +1,4 @@
+import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { initFlowbite } from 'flowbite';
@@ -6,7 +7,8 @@ import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
-import { FormField } from 'src/app/models/formFields/form-field.model';
+import { FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
@@ -40,7 +42,8 @@ const BASE_TEMPLATE_OPTIONS = [
 @Component({
   selector: 'create-product-spec',
   templateUrl: './create-product-spec.component.html',
-  styleUrl: './create-product-spec.component.css'
+  styleUrl: './create-product-spec.component.css',
+  providers: [DatePipe],
 })
 export class CreateProductSpecComponent implements OnInit, OnDestroy {
 
@@ -151,8 +154,35 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   loadingprodSpecRel_more: boolean = false;
   prodSpecRels: any[] = [];
   nextProdSpecRels: any[] = [];
-  selectedProdSpec: any = { id: '' };
-  selectedRelType: any = 'migration';
+  relFormFields: FormField[] = [
+    {
+      type: 'select',
+      name: 'relType',
+      label: 'CREATE_PROD_SPEC._relationship_type',
+      required: true,
+      defaultValue: 'migration',
+      options: [
+        { value: 'migration', label: 'Migration' },
+        { value: 'dependency', label: 'Dependency' },
+        { value: 'exclusivity', label: 'Exclusivity' },
+        { value: 'substitution', label: 'Substitution' },
+      ],
+    } as FormField,
+    {
+      type: 'table',
+      name: 'prodSpec',
+      label: 'CREATE_PROD_SPEC._product_name',
+      required: true,
+      multiple: false,
+      items: [],
+      columns: [
+        { header: 'Name', getValue: (item: any) => item.name ?? '-' },
+        { header: 'Type', getValue: (item: any) => item.isBundle ? 'Bundle' : 'Simple', width: 'w-28' },
+        { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52' },
+      ],
+    } as FormField,
+  ];
+  relForm = buildFormGroup(this.relFormFields);
 
   //ATTACHMENT INFO
   showImgPreview: boolean = false;
@@ -237,7 +267,8 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     private attachmentService: AttachmentServiceService,
     private servSpecService: ServiceSpecServiceService,
     private resSpecService: ResourceSpecServiceService,
-    private paginationService: PaginationService
+    private paginationService: PaginationService,
+    private datePipe: DatePipe
   ) {
     for (let i = 0; i < certifications.length; i++) {
       this.availableISOS.push(certifications[i])
@@ -878,6 +909,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
       this.prodSpecService.getProdSpecByUser.bind(this.prodSpecService)).then(data => {
         this.prodSpecRelPageCheck = data.page_check;
         this.prodSpecRels = data.items;
+        (this.relFormFields[1] as TableFormField).items = data.items;
         this.nextProdSpecRels = data.nextItems;
         this.prodSpecRelPage = data.page;
         this.loadingprodSpecRel = false;
@@ -885,28 +917,20 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
       })
   }
 
-  selectRelationship(rel: any) {
-    this.selectedProdSpec = rel;
-  }
-
   async nextProdSpecsRel() {
     await this.getProdSpecsRel(true);
   }
 
-  onRelChange(event: any) {
-    console.log('relation type changed')
-    this.selectedRelType = event.target.value
-  }
-
   saveRel() {
+    const { relType, prodSpec } = this.relForm.value;
     this.showCreateRel = false;
     this.prodRelationships.push({
-      id: this.selectedProdSpec.id,
-      href: this.selectedProdSpec.href,
-      relationshipType: this.selectedRelType,
-      productSpec: this.selectedProdSpec
+      id: prodSpec.id,
+      href: prodSpec.href,
+      relationshipType: relType,
+      productSpec: prodSpec
     });
-    this.selectedRelType = 'migration';
+    this.relForm.reset({ relType: 'migration', prodSpec: null });
     console.log(this.prodRelationships)
   }
 
