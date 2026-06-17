@@ -1311,6 +1311,7 @@
                     </div> -->
       </ng-template>
 
+      @if(!templateName) {
       <ng-template stepperStep="Relationships" stepId="relationships">
         <div class="m-4">
           @if (prodRelationships.length === 0){
@@ -1449,9 +1450,9 @@
           }
         </div>
       </ng-template>
-
-      @if (templateName) {
-      <ng-template stepperStep="Configuration" stepId="configuration">
+      }
+      @if (templateName === 'BlueprintProductSpecification') {
+      <ng-template stepperStep="{{ 'BLUEPRINT_PROD._orchestration_plan' | translate}}" stepId="orchestrationPlan">
         <app-blueprint-product-form (formChange)="onBlueprintConfigChange($event)" [relationships]="prodRelationships"
           [blueprintConfig]="blueprintConfig" />
       </ng-template>

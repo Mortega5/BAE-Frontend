@@ -36,9 +36,8 @@
   <div class="bg-secondary-50 dark:bg-secondary-100 mt-4 p-8 rounded-lg">
     <h2 class="text-3xl font-bold text-primary-100 ml-4 pb-4 dark:text-white">{{ 'UPDATE_PROD_SPEC._update_prod' |
       translate }}</h2>
-    <app-stepper [canAdvance]="canAdvance" [allUnlocked]="true"
-      submitLabel="UPDATE_PROD_SPEC._update_prod" [submitDisabled]="loading" (stepChanged)="onStepChanged($event)"
-      (submitted)="updateProduct()">
+    <app-stepper [canAdvance]="canAdvance" [allUnlocked]="true" submitLabel="UPDATE_PROD_SPEC._update_prod"
+      [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="updateProduct()">
 
       <ng-template stepperStep="General INfo" stepId="general">
         <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" [columns]="2" />
@@ -1336,6 +1335,8 @@
                         </button>
                     </div>  -->
       </ng-template>
+      @if(!templateName) {
+
       <ng-template stepperStep="Relationships" stepId="relationships">
         <div class="m-4">
           @if (prodRelationships.length === 0){
@@ -1398,7 +1399,7 @@
             </table>
           </div>
           }
-          @if(showCreateRel==false){
+          @if(!showCreateRel){
           <div class="flex w-full justify-items-center justify-center">
             <button type="button" (click)="showCreateRel=!showCreateRel"
               class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
@@ -1411,79 +1412,10 @@
             </button>
           </div>
           } @else {
-          <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._relationship_type' | translate
-            }}</label>
-          <select id="type" (change)="onRelChange($event)"
-            class="shadow bg-white border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-            <option selected value="migration">Migration</option>
-            <option value="dependency">Dependency</option>
-            <option value="exclusivity">Exclusivity</option>
-            <option value="substitution">Substitution</option>
-          </select>
           @if(loadingprodSpecRel){
           <app-loading-spinner containerClass="w-full h-fit flex justify-center align-middle" />
           } @else {
-          @if(prodSpecRels.length==0){
-          <div class="flex justify-center w-full m-4">
-            <div
-              class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
-              role="alert">
-              <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-              </svg>
-              <div>
-                {{ 'OFFERINGS._no_prod_rel' | translate }}
-              </div>
-            </div>
-          </div>
-          }@else{
-          <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mt-4">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-              <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                <tr>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
-                  </th>
-                  <th scope="col" class="hidden md:table-cell px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._type' | translate }}
-                  </th>
-                  <th scope="col" class="hidden lg:table-cell px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._last_update' | translate }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (rel of prodSpecRels; track rel) {
-                <tr
-                  class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200"
-                  (click)="selectRelationship(rel)"
-                  [ngClass]="rel.id == selectedProdSpec.id ? 'bg-gray-300 dark:bg-secondary-200' : 'bg-white dark:bg-secondary-300'">
-                  <td [ngClass]="{
-                                                        'break-all': hasLongWord(rel.name, 20),
-                                                        'break-words': !hasLongWord(rel.name, 20)
-                                                        }" class="px-6 py-4 text-wrap break-words">
-                    {{rel.name}}
-                  </td>
-                  <td class="hidden md:table-cell px-6 py-4">
-                    @if(rel.isBundle == false){
-                    <span
-                      class="bg-blue-100 dark:bg-secondary-300 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">Simple</span>
-                    } @else {
-                    <span
-                      class="bg-blue-100 dark:bg-secondary-300 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">Bundle</span>
-                    }
-                  </td>
-                  <td class="hidden lg:table-cell px-6 py-4">
-                    {{rel.lastUpdate | date:'EEEE, dd/MM/yy, HH:mm'}}
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          }
+          <app-dynamic-form [fields]="relFormFields" [formGroup]="relForm" />
           @if (!loadingprodSpecRel_more) {
           @if (prodSpecRelPageCheck) {
           <div class="flex pt-6 pb-2 justify-center align-middle">
@@ -1503,9 +1435,9 @@
           }
           }
           <div class="flex w-full justify-items-center justify-center mt-4">
-            <button type="button" (click)="saveRel()" [disabled]="prodSpecRels.length==0 || selectedProdSpec.id == ''"
-              [ngClass]="prodSpecRels.length==0 || selectedProdSpec.id == '' ? 'opacity-50' : 'hover:bg-primary-50'"
-              class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+            <button type="button" (click)="saveRel()" [disabled]="!relForm.value.prodSpec"
+              [ngClass]="!relForm.value.prodSpec ? 'opacity-50' : 'hover:bg-primary-50'"
+              class="flex text-white justify-center bg-primary-100 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
               {{ 'UPDATE_PROD_SPEC._save_relationship' | translate }}
               <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                 fill="none" viewBox="0 0 24 24">
@@ -1516,18 +1448,11 @@
           </div>
           }
         </div>
-        <!--<div class="flex w-full justify-items-end justify-end ml-4">
-                        <button data-cy="btnFinish" type="button" (click)="goToStep(currentStep + 1)" class="flex text-white justify-end bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
-                            {{ 'UPDATE_PROD_SPEC._finish' | translate }}
-                            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                            </svg>
-                        </button>
-                    </div> -->
-      </ng-template>
 
+      </ng-template>
+      }
       @if (templateName) {
-      <ng-template stepperStep="Configuration" stepId="configuration">
+      <ng-template stepperStep="{{ 'BLUEPRINT_PROD._orchestration_plan' | translate}}" stepId="orchestrationPlan">
         <app-blueprint-product-form (formChange)="onBlueprintConfigChange($event)" [relationships]="prodRelationships"
           [blueprintConfig]="blueprintConfig" />
       </ng-template>
