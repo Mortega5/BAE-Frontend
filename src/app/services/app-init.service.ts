@@ -15,54 +15,56 @@ export class AppInitService {
 
   init(): Promise<any> {
     return new Promise((resolve, reject) => {
-        const obs: Observer<any> = {
-            next: ((config) => {
-                const aiConfig = config.ai ?? {};
-                // Load dynamic environment data
-                environment.SIOP_INFO = config.siop;
-                environment.CHAT_API = config.chat;
-                environment.MATOMO_SITE_ID = config.matomoId;
-                environment.MATOMO_TRACKER_URL = config.matomoUrl;
-                environment.KNOWLEDGE_BASE_URL = config.knowledgeBaseUrl;
-                environment.TICKETING_SYSTEM_URL = config.ticketingUrl;
-                environment.DOME_TRUST_LINK = config.domeTrust;
-                environment.DOME_ABOUT_LINK = config.domeAbout;
-                environment.DOME_REGISTER_LINK = config.domeRegister;
-                environment.DOME_CUSTOMER_REGISTER_LINK = config.domeRegisterCustomer;
-                environment.DOME_PUBLISH_LINK = config.domePublish;
-                environment.KB_ONBOARDING_GUIDELINES_URL = config.domeOnboardingGuidelines;
-                environment.KB_GUIDELNES_URL = config.domeGuidelines;
-                environment.REGISTRATION_FORM_URL = config.domeRegistrationForm;
-                environment.DFT_CATALOG_ID = config.defaultId;
-                environment.SELLER_ROLE = config.roles?.seller;
-                environment.BUYER_ROLE = config.roles?.customer;
-                environment.ADMIN_ROLE = config.roles?.admin;
-                environment.ORG_ADMIN_ROLE = config.roles?.orgAdmin;
-                environment.CERTIFIER_ROLE = config.roles?.certifier;
-                environment.quoteApi = config.quoteApi ?? environment.quoteApi;
-                environment.analyticsEnabled = config.analyticsEnabled ?? false;
-                environment.analytics = this.getAnalyticsUrl(config);
-                environment.feedbackCampaign = config.feedbackCampaign ?? false;
-                environment.feedbackCampaignExpiration = config.feedbackCampaign ?? moment().add(1, 'week').unix();
-                environment.documentApi = config.documentApi ?? environment.documentApi;
-                environment.googleTagManagerId = config.googleTagManagerId ?? '';
-                environment.providerThemeName = config.theme ?? 'default';
-                environment.LEAR_URL = config.learUrl ?? '';
-                environment.AI_SEARCH_API_KEY = aiConfig.aiApiKey ?? config.aiApiKey ?? '';
-                environment.AI_SEARCH_API_URL = aiConfig.aiApiUrl ?? config.aiApiUrl ?? '';
-                environment.AI_SEARCH_PROFILE = aiConfig.aiSearchProfile ?? config.aiSearchProfile ?? '';
-                environment.DSP_CONTRACT_DEFINITION_SCHEMA = config.dspContractDefinitionSchema || environment.DSP_CONTRACT_DEFINITION_SCHEMA
-                environment.DSP_SCHEMA = config.dspSchema || environment.DSP_SCHEMA
-                applyRuntimeFeaturesConfig(config);
-                applyRuntimeSearchFiltersConfig(config);
-                resolve(config);
-            }),
-            error: (error) => {
-                reject(error);
-            },
-            complete: () => {}
-        }
-        this.http.get<any>(`${environment.BASE_URL}/config`).subscribe(obs);
+      const obs: Observer<any> = {
+        next: ((config) => {
+          const aiConfig = config.ai ?? {};
+          // Load dynamic environment data
+          environment.SIOP_INFO = config.siop;
+          environment.CHAT_API = config.chat;
+          environment.MATOMO_SITE_ID = config.matomoId;
+          environment.MATOMO_TRACKER_URL = config.matomoUrl;
+          environment.KNOWLEDGE_BASE_URL = config.knowledgeBaseUrl;
+          environment.TICKETING_SYSTEM_URL = config.ticketingUrl;
+          environment.DOME_TRUST_LINK = config.domeTrust;
+          environment.DOME_ABOUT_LINK = config.domeAbout;
+          environment.DOME_REGISTER_LINK = config.domeRegister;
+          environment.DOME_CUSTOMER_REGISTER_LINK = config.domeRegisterCustomer;
+          environment.DOME_PUBLISH_LINK = config.domePublish;
+          environment.KB_ONBOARDING_GUIDELINES_URL = config.domeOnboardingGuidelines;
+          environment.KB_GUIDELNES_URL = config.domeGuidelines;
+          environment.REGISTRATION_FORM_URL = config.domeRegistrationForm;
+          environment.DFT_CATALOG_ID = config.defaultId;
+          environment.SELLER_ROLE = config.roles?.seller;
+          environment.BUYER_ROLE = config.roles?.customer;
+          environment.ADMIN_ROLE = config.roles?.admin;
+          environment.ORG_ADMIN_ROLE = config.roles?.orgAdmin;
+          environment.CERTIFIER_ROLE = config.roles?.certifier;
+          environment.quoteApi = config.quoteApi ?? environment.quoteApi;
+          environment.analyticsEnabled = config.analyticsEnabled ?? false;
+          environment.analytics = this.getAnalyticsUrl(config);
+          environment.feedbackCampaign = config.feedbackCampaign ?? false;
+          environment.feedbackCampaignExpiration = config.feedbackCampaign ?? moment().add(1, 'week').unix();
+          environment.documentApi = config.documentApi ?? environment.documentApi;
+          environment.googleTagManagerId = config.googleTagManagerId ?? '';
+          environment.providerThemeName = config.theme ?? 'default';
+          environment.LEAR_URL = config.learUrl ?? '';
+          environment.AI_SEARCH_API_KEY = aiConfig.aiApiKey ?? config.aiApiKey ?? '';
+          environment.AI_SEARCH_API_URL = aiConfig.aiApiUrl ?? config.aiApiUrl ?? '';
+          environment.AI_SEARCH_PROFILE = aiConfig.aiSearchProfile ?? config.aiSearchProfile ?? '';
+          environment.DSP_CONTRACT_DEFINITION_SCHEMA = config.dspContractDefinitionSchema || environment.DSP_CONTRACT_DEFINITION_SCHEMA
+          environment.DSP_SCHEMA = config.dspSchema || environment.DSP_SCHEMA
+          environment.BLUEPRINT_SCHEMA = config.blueprintSchema ?? environment.BLUEPRINT_SCHEMA
+          applyRuntimeFeaturesConfig(config);
+          applyRuntimeSearchFiltersConfig(config);
+
+          resolve(config);
+        }),
+        error: (error) => {
+          reject(error);
+        },
+        complete: () => { }
+      }
+      this.http.get<any>(`${environment.BASE_URL}/config`).subscribe(obs);
     });
   }
 

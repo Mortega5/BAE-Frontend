@@ -112,5 +112,6 @@ export const environment = {
   TENDER_DEV_BUTTONS_OPEN_CLOSE_ENABLED: false,
   DSP_ENABLED: false,
   DSP_CONTRACT_DEFINITION_SCHEMA: 'https://raw.githubusercontent.com/wistefan/edc-dsc/refs/heads/init/schemas/contract-definition.json',
-  DSP_SCHEMA: 'https://raw.githubusercontent.com/wistefan/edc-dsc/refs/heads/init/schemas/external-id.json'
+  DSP_SCHEMA: 'https://raw.githubusercontent.com/wistefan/edc-dsc/refs/heads/init/schemas/external-id.json',
+  BLUEPRINT_SCHEMA: 'https://gist.githubusercontent.com/vramperez/8a16d77f6fc2cdf5fea22dc11b325d52/raw/47adee0e5f86db7e5ecaac60a82d4d497d23e06f/blueprint-product-spec.json'
 };

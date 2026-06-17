@@ -20,6 +20,7 @@ import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validat
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
+import { BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
 type ProductSpecification_Create = components["schemas"]["ProductSpecification_Create"];
@@ -28,7 +29,13 @@ type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecific
 type ServiceSpecificationRef = components["schemas"]["ServiceSpecificationRef"];
 type ResourceSpecificationRef = components["schemas"]["ResourceSpecificationRef"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
-type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' | 'relationships' | 'summary' | 'dsp_config';
+type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' |
+  'relationships' | 'summary' | 'configuration' | 'dsp_config';
+
+const BASE_TEMPLATE_OPTIONS = [
+  { value: '', label: 'None' },
+  { value: 'BlueprintProductSpecification', label: 'Blueprint Product Specification' },
+];
 
 @Component({
   selector: 'create-product-spec',
@@ -36,6 +43,7 @@ type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristic
   styleUrl: './create-product-spec.component.css'
 })
 export class CreateProductSpecComponent implements OnInit, OnDestroy {
+
 
   //PAGE SIZES:
   PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;
@@ -55,6 +63,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     brand: new FormControl('', [Validators.required, noWhitespaceValidator]),
     version: new FormControl('0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*)?$'), noWhitespaceValidator]),
     number: new FormControl(''),
+    baseTemplate: new FormControl(''),
     description: new FormControl('', Validators.maxLength(100000)),
     dspCompatible: new FormControl(false),
   });
@@ -170,6 +179,9 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   toValue: string = '';
   rangeUnit: string = '';
   jsonValue: string = '';
+
+  blueprintConfig: BlueprintProductFormValue;
+
   readonly dataSpaceCharacteristicTypes: string[] = [
     'credentialsConfiguration',
     'authorizationPolicy'
@@ -184,6 +196,37 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
 
   get dspEnable(): boolean {
     return environment.DSP_ENABLED && this.DATA_SPACE_ENABLED;
+  }
+
+  generalFormFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'CREATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1 },
+    { type: 'string', name: 'brand', label: 'CREATE_PROD_SPEC._product_brand', required: true, colSpan: 1 },
+    { type: 'string', name: 'version', label: 'CREATE_PROD_SPEC._product_version', required: true, colSpan: 1 },
+    { type: 'string', name: 'number', label: 'CREATE_PROD_SPEC._id_number', colSpan: 1 },
+    { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS },
+    { type: 'markdownTextarea', name: 'description', label: 'CREATE_PROD_SPEC._product_description' },
+  ];
+
+  get canAdvance(): boolean {
+    if (this.currentStepId === 'general') return this.generalForm?.valid ?? false;
+    if (this.currentStepId === 'bundle') {
+      return !(this.bundleChecked && this.prodSpecsBundle.length < 2);
+    }
+    if (this.currentStepId === 'compliance') {
+      return !this.checkValidISOS();
+    }
+    if (this.currentStepId === 'relationships' && this.templateName === 'BlueprintProductSpecification') {
+      return this.prodRelationships.length > 0;
+    }
+
+    if (this.currentStepId === 'configuration') {
+      return this.blueprintConfig?.valid ?? false;
+    }
+    return true;
+  }
+
+  get templateName(): string {
+    return this.generalForm.get('baseTemplate')?.value || '';
   }
 
   constructor(
@@ -235,25 +278,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  generalFormFields: FormField[] = [
-    { type: 'string', name: 'name', label: 'CREATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1 },
-    { type: 'string', name: 'brand', label: 'CREATE_PROD_SPEC._product_brand', required: true, colSpan: 1 },
-    { type: 'string', name: 'version', label: 'CREATE_PROD_SPEC._product_version', required: true, colSpan: 1 },
-    { type: 'string', name: 'number', label: 'CREATE_PROD_SPEC._id_number', colSpan: 1 },
-    { type: 'markdownTextarea', name: 'description', label: 'CREATE_PROD_SPEC._product_description' },
-  ];
-
-  get canAdvance(): boolean {
-    if (this.currentStepId === 'general') return this.generalForm?.valid ?? false;
-    if (this.currentStepId === 'bundle') {
-      return !(this.bundleChecked && this.prodSpecsBundle.length < 2);
-    }
-    if (this.currentStepId === 'compliance') {
-      return !this.checkValidISOS();
-    }
-    return true;
   }
 
   onStepChanged(event: StepChangedEvent): void {
@@ -1326,6 +1350,20 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
         resourceSpecification: this.selectedResourceSpecs,
         serviceSpecification: this.selectedServiceSpecs
       }
+      if (this.blueprintConfig) {
+        this.productSpecToCreate['@type'] = 'BlueprintProductSpecification';
+        this.productSpecToCreate['@schemaLocation'] = environment.BLUEPRINT_SCHEMA;
+        this.productSpecToCreate['@baseType'] = 'BlueprintProductSpecification';
+        this.productSpecToCreate.productSpecificationRelationship = this.blueprintConfig.selectedItems.map(spec => ({
+          '@type': 'ProductSpecificationRelationship',
+          id: spec.id,
+          relationshipType: 'dependency'
+        }));
+
+        (this.productSpecToCreate as any).orchestrationPlan = {
+          steps: this.blueprintConfig.orchestrationSteps,
+        }
+      }
     }
     if (this.generalForm.value.dspCompatible) {
       this.productSpecToCreate!.productSpecCharacteristic = this.productSpecToCreate?.productSpecCharacteristic || [];
@@ -1482,4 +1520,8 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     this.endpointUrls = this.endpointUrls.filter((_, i) => i !== idx);
   }
 
+  onBlueprintConfigChange(value: BlueprintProductFormValue) {
+    console.log("New value", value);
+    this.blueprintConfig = value;
+  }
 }
