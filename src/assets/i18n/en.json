@@ -2284,6 +2284,9 @@
   },
   "BLUEPRINT_PROD": {
     "_items": "Components",
+    "_no_items": "No components added yet. Add at least one to continue.",
+    "_add_item": "Add component",
+    "_load_more": "Load more",
     "_orchestration_plan": "Orchestration Plan",
     "_step_id": "Step ID",
     "_step_service": "Service",

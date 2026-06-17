@@ -2,6 +2,10 @@
 
   <!-- Section: Orchestration Plan -->
   <div>
+    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+      {{ 'BLUEPRINT_PROD._orchestration_plan' | translate }}
+    </h3>
+
     <!-- Steps table -->
     @if (orchestrationSteps.length > 0) {
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300">
@@ -61,6 +65,24 @@
     @if (showStepForm) {
     <div class="bg-white dark:bg-secondary-300 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mt-4">
       <app-dynamic-form [fields]="stepFormFields" [formGroup]="stepForm" [columns]="6" />
+
+      @if (prodSpecPageCheck) {
+      <div class="flex justify-center mt-2 mb-1">
+        @if (loadingProdSpec_more) {
+        <app-loading-spinner containerClass="w-full h-fit flex justify-center align-middle" />
+        } @else {
+        <button type="button" (click)="nextProdSpecsPage()"
+          class="flex cursor-pointer shadow-sm items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 dark:text-white bg-white dark:bg-primary-100 dark:hover:bg-secondary-100 border border-gray-300 dark:border-secondary-200 rounded-lg hover:bg-gray-200">
+          {{ 'BLUEPRINT_PROD._load_more' | translate }}
+          <svg class="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5 12h14m-7 7V5" />
+          </svg>
+        </button>
+        }
+      </div>
+      }
 
       @if (cycleError) {
       <div

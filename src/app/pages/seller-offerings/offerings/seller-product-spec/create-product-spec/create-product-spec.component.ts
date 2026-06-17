@@ -7,8 +7,7 @@ import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
-import { FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
-import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
@@ -18,6 +17,7 @@ import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
+import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
@@ -102,7 +102,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   additionalISOS: any[] = [];
   selectedISO: any;
   showUploadFile: boolean = false;
-selfAtt: any;
+  selfAtt: any;
   showUploadAtt: boolean = false;
   isoToCreate: string = '';
   showCert: boolean = false;
@@ -127,7 +127,7 @@ selfAtt: any;
 
   //RELATIONSHIPS INFO:
   prodRelationships: any[] = [];
-showCreateRel: boolean = false;
+  showCreateRel: boolean = false;
   prodSpecRelPage = 0;
   prodSpecRelPageCheck: boolean = false;
   loadingprodSpecRel: boolean = false;
@@ -1408,5 +1408,12 @@ showCreateRel: boolean = false;
 
   onBlueprintConfigChange(value: BlueprintProductFormValue) {
     this.blueprintConfig = value;
+    this.prodRelationships = value.selectedItems.map((item: any) => ({
+      id: item.id,
+      href: item.href,
+      relationshipType: 'dependency',
+      name: item.name,
+      productSpec: item
+    }));
   }
 }

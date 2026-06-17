@@ -481,6 +481,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     // Orchestration Plan
     if (this.prod.orchestrationPlan) {
       this.blueprintConfig = {
+        selectedItems: [],
         orchestrationSteps: this.prod.orchestrationPlan.steps,
         valid: true
       }
@@ -1686,5 +1687,11 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
   onBlueprintConfigChange(value: BlueprintProductFormValue) {
     this.blueprintConfig = value;
+    this.prodRelationships = value.selectedItems.map((item: any) => ({
+      id: item.id,
+      href: item.href,
+      relationshipType: 'dependency',
+      name: item.name,
+    }));
   }
 }

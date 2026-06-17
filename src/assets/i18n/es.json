@@ -2285,6 +2285,9 @@
   },
   "BLUEPRINT_PROD": {
     "_items": "Componentes",
+    "_no_items": "No se han añadido componentes. Añade al menos uno para continuar.",
+    "_add_item": "Añadir componente",
+    "_load_more": "Cargar más",
     "_orchestration_plan": "Plan de Orquestación",
     "_step_id": "ID del Paso",
     "_step_service": "Servicio",
