@@ -1635,7 +1635,7 @@
       }
       @if (templateName === 'BlueprintProductSpecification') {
       <ng-template stepperStep="{{ 'BLUEPRINT_PROD._orchestration_plan' | translate}}" stepId="orchestrationPlan">
-        <app-blueprint-product-form (formChange)="onBlueprintConfigChange($event)" [relationships]="prodRelationships"
+        <app-blueprint-product-form (formChange)="onBlueprintConfigChange($event)"
           [blueprintConfig]="blueprintConfig" />
       </ng-template>
       }

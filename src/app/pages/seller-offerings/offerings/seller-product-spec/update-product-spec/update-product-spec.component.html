@@ -1628,8 +1628,8 @@
       }
       @if (templateName) {
       <ng-template stepperStep="{{ 'BLUEPRINT_PROD._orchestration_plan' | translate}}" stepId="orchestrationPlan">
-        <app-blueprint-product-form (formChange)="onBlueprintConfigChange($event)" [relationships]="prodRelationships"
-          [blueprintConfig]="blueprintConfig" />
+        <app-blueprint-product-form (formChange)="onBlueprintConfigChange($event)" [blueprintConfig]="blueprintConfig"
+          [blueprintId]="prod.id" />
       </ng-template>
       }
       <ng-template stepperStep="Summary" stepId="summary">

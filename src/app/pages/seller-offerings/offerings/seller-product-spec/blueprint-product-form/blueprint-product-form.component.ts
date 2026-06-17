@@ -1,8 +1,15 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import * as moment from 'moment';
 import { Subject } from 'rxjs';
 import { FormField, TableColumn } from 'src/app/models/formFields/form-field.model';
+import { LoginInfo } from 'src/app/models/interfaces';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { PaginationService } from 'src/app/services/pagination.service';
+import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { jsonValidator } from 'src/app/validators/validators';
+import { environment } from 'src/environments/environment';
+import { v4 as uuidv4 } from 'uuid';
 import { components } from '../../../../../models/product-catalog';
 
 
@@ -20,6 +27,7 @@ export type ProductSpecificationRelationship = components["schemas"]["ProductSpe
 export type OrchestrationStepEmit = Omit<OrchestrationStep, 'dependsOn'> & { dependsOn: string[] };
 
 export interface BlueprintProductFormValue {
+  selectedItems: any[];
   orchestrationSteps: OrchestrationStepEmit[];
   valid: boolean;
 }
@@ -37,16 +45,20 @@ const ON_FAILURE_OPTIONS = [
 export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   @Input() mode: 'create' | 'update' = 'create';
   @Input() blueprintConfig?: Omit<BlueprintProductFormValue, 'valid'>;
-  @Input() relationships: any[] = [];
+  @Input() blueprintId: string
   @Output() formChange = new EventEmitter<BlueprintProductFormValue>();
 
   get isValid(): boolean { return this.orchestrationSteps.length > 0; }
 
-
-  readonly itemTableColumns: TableColumn[] = [
-    { header: 'Name', getValue: item => item.name, width: 'w-1/3' },
-    { header: 'Description', getValue: item => item.description },
-  ];
+  // Product spec picker pagination
+  PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;
+  partyId = '';
+  prodSpecPage = 0;
+  prodSpecPageCheck = false;
+  loadingProdSpec = false;
+  loadingProdSpec_more = false;
+  prodSpecs: any[] = [];
+  nextProdSpecs: any[] = [];
 
   // — Orchestration plan —
   orchestrationSteps: OrchestrationStep[] = [];
@@ -55,8 +67,8 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   cycleError: string[] | null = null;
 
   stepForm = new FormGroup({
-    id: new FormControl('', [Validators.required]),
-    componentProductSpec: new FormControl('', [Validators.required]),
+    id: new FormControl(''),
+    componentProductSpec: new FormControl<any>(null, [Validators.required]),
     dependsOn: new FormControl<OrchestrationStep[]>([]),
     waitForHealthy: new FormControl(true),
     timeoutSeconds: new FormControl<number | string>(1),
@@ -65,27 +77,30 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   });
 
   get stepFormFields(): FormField[] {
-    const selectedItems: any[] = this.relationships;
-
     const usedProducts = new Set(
       this.orchestrationSteps
         .filter((_, i) => i !== this.editingIndex)
         .map(s => s.componentProductSpec)
     );
-    const productOptions = selectedItems
-      .filter((item: any) => !usedProducts.has(item.id))
-      .map((item: any) => ({ value: item.id, label: item.productSpec?.name || item.name || item.id }));
+    const availableSpecs = this.prodSpecs.filter(item => !usedProducts.has(item.id) && item.id !== this.blueprintId);
 
     const dependsOnItems = this.orchestrationSteps.filter((_, i) => i !== this.editingIndex);
 
     return [
-      { type: 'string', name: 'id', label: 'BLUEPRINT_PROD._step_id', required: true, colSpan: 3 },
-      { type: 'select', name: 'componentProductSpec', label: 'BLUEPRINT_PROD._step_service', options: productOptions, colSpan: 3, required: true },
+      {
+        type: 'table', name: 'componentProductSpec', label: 'BLUEPRINT_PROD._step_service',
+        required: true, multiple: false, colSpan: 6,
+        items: availableSpecs,
+        columns: [
+          { header: 'Name', getValue: (item: any) => item.name ?? '-' },
+          { header: 'Type', getValue: (item: any) => item.isBundle ? 'Bundle' : 'Simple', width: 'w-28' },
+        ],
+      } as FormField,
       {
         type: 'table', name: 'dependsOn', label: 'BLUEPRINT_PROD._step_depends_on', multiple: true, colSpan: 6,
         columns: [
           { header: 'ID', getValue: (s: OrchestrationStep) => s.id, width: 'w-1/3' },
-          { header: 'Product', getValue: (s: OrchestrationStep) => this.relationships.find((i: any) => i.id === s.componentProductSpec)?.productSpec?.name ?? s.componentProductSpec },
+          { header: 'Product', getValue: (s: OrchestrationStep) => this.findSpec(s.componentProductSpec)?.name ?? s.componentProductSpec },
         ],
         items: dependsOnItems,
       },
@@ -98,24 +113,69 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
 
   get stepsTableColumns(): TableColumn[] {
     return [
-      { header: 'ID', getValue: (s: OrchestrationStep) => s.id, width: 'w-32' },
-      { header: 'Product', getValue: (s: OrchestrationStep) => this.relationships.find((i: any) => i.id === s.componentProductSpec)?.productSpec?.name ?? s.componentProductSpec },
+      { header: 'Product', getValue: (s: OrchestrationStep) => this.findSpec(s.componentProductSpec)?.name ?? s.componentProductSpec },
       { header: 'Depends On', getValue: (s: OrchestrationStep) => (s.dependsOn ?? []).map(d => d.id).join(', ') },
     ];
   }
 
   private destroy$ = new Subject<void>();
 
-  ngOnInit(): void {
+  constructor(
+    private prodSpecService: ProductSpecServiceService,
+    private paginationService: PaginationService,
+    private localStorage: LocalStorageService,
+  ) { }
 
+  ngOnInit(): void {
+    this.initPartyInfo();
     if (this.blueprintConfig) {
       this.loadProdData();
     }
+    this.getProdSpecs(false);
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  initPartyInfo() {
+    const aux = this.localStorage.getObject('login_items') as LoginInfo;
+    if (JSON.stringify(aux) !== '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+      if (aux.logged_as === aux.id) {
+        this.partyId = aux.partyId;
+      } else {
+        const loggedOrg = aux.organizations.find((o: { id: any }) => o.id === aux.logged_as);
+        this.partyId = loggedOrg?.partyId ?? '';
+      }
+    }
+  }
+
+  async getProdSpecs(next: boolean) {
+    if (!next) this.loadingProdSpec = true;
+    else this.loadingProdSpec_more = true;
+    const options = { filters: ['Active', 'Launched'], partyId: this.partyId };
+    this.paginationService.getItemsPaginated(
+      this.prodSpecPage, this.PROD_SPEC_LIMIT, next,
+      this.prodSpecs, this.nextProdSpecs, options,
+      this.prodSpecService.getProdSpecByUser.bind(this.prodSpecService)
+    ).then(data => {
+      this.prodSpecPageCheck = data.page_check;
+      this.prodSpecs = data.items;
+      this.nextProdSpecs = data.nextItems;
+      this.prodSpecPage = data.page;
+      this.loadingProdSpec = false;
+      this.loadingProdSpec_more = false;
+    });
+  }
+
+  async nextProdSpecsPage() {
+    await this.getProdSpecs(true);
+  }
+
+  private findSpec(id: string): any {
+    return this.prodSpecs.find(s => s.id === id)
+      ?? this.blueprintConfig?.selectedItems?.find((s: any) => s.id === id);
   }
 
   private loadProdData(): void {
@@ -134,10 +194,13 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
 
   addOrUpdateStep(): void {
     if (this.stepForm.invalid) return;
-
-    const raw = this.stepForm.value as unknown as OrchestrationStep & { helmValuesOverride: string };
+    if (!this.stepForm.value.id) {
+      this.stepForm.controls['id'].setValue(uuidv4())
+    }
+    const raw = this.stepForm.value as unknown as OrchestrationStep & { helmValuesOverride: string; componentProductSpec: any };
     const step: OrchestrationStep = {
       ...raw,
+      componentProductSpec: raw.componentProductSpec?.id ?? raw.componentProductSpec ?? '',
       helmValuesOverride: raw.helmValuesOverride?.trim() ? JSON.parse(raw.helmValuesOverride) : null,
     };
 
@@ -200,6 +263,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     const step = this.orchestrationSteps[index];
     this.stepForm.patchValue({
       ...step,
+      componentProductSpec: this.findSpec(step.componentProductSpec) ?? null,
       helmValuesOverride: step.helmValuesOverride
         ? JSON.stringify(step.helmValuesOverride, null, 2)
         : '',
@@ -214,7 +278,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   }
 
   private resetStepForm(): void {
-    this.stepForm.reset({ id: '', componentProductSpec: '', dependsOn: [], waitForHealthy: true, timeoutSeconds: 1, onFailure: 'abort', helmValuesOverride: '' });
+    this.stepForm.reset({ id: '', componentProductSpec: null, dependsOn: [], waitForHealthy: true, timeoutSeconds: 1, onFailure: 'abort', helmValuesOverride: '' });
   }
 
   deleteStep(index: number): void {
@@ -224,7 +288,12 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   }
 
   private emitFormChange(): void {
+    const selectedItems = this.orchestrationSteps
+      .map(s => this.findSpec(s.componentProductSpec))
+      .filter(Boolean);
+
     this.formChange.emit({
+      selectedItems,
       orchestrationSteps: this.orchestrationSteps.map(s => ({
         ...s,
         dependsOn: s.dependsOn.map(d => d.id),

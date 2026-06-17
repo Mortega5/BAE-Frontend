@@ -1523,5 +1523,12 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
 
   onBlueprintConfigChange(value: BlueprintProductFormValue) {
     this.blueprintConfig = value;
+    this.prodRelationships = value.selectedItems.map((item: any) => ({
+      id: item.id,
+      href: item.href,
+      relationshipType: 'dependency',
+      name: item.name,
+      productSpec: item
+    }));
   }
 }
