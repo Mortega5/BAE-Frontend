@@ -70,7 +70,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
   prodChars: ServiceSpecificationCharacteristic[] = [];
   showCreateChar = false;
   currentChar: CharacteristicFormValue | null = null;
-  allowedChars: CharValueType[] = ['string', 'number', 'range'];
+  allowedChars: CharValueType[] = ['string', 'number', 'range', 'object'];
 
   errorMessage: any = '';
   showError = false;
