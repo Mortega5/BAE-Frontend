@@ -90,7 +90,8 @@
                   @for (char of prod.resourceSpecCharacteristicValue; track char; let last = $last) {
                   @if (char.value || char.value == 0) {
                   @if (char.unitOfMeasure) {
-                  @if (!last) { {{char.value | truncateValue}} (<i>{{char.unitOfMeasure}}</i>), } @else { {{char.value | truncateValue}}
+                  @if (!last) { {{char.value | truncateValue}} (<i>{{char.unitOfMeasure}}</i>), } @else { {{char.value |
+                  truncateValue}}
                   (<i>{{char.unitOfMeasure}}</i>) }
                   } @else {
                   @if (!last) { {{char.value | truncateValue}}, } @else { {{char.value | truncateValue}} }
@@ -178,7 +179,7 @@
           </div>
           } @else {
           <app-dynamic-form class="w-full block" [fields]="templateConfigFields" [formGroup]="templateConfigForm"
-            [columns]="templateConfigColumnCount" />
+            [columns]="templateConfigColumnCount" [columns]="3" />
           }
         </div>
       </ng-template>
@@ -251,7 +252,8 @@
                     @for (char of prod.resourceSpecCharacteristicValue; track char; let last = $last) {
                     @if (char.value || char.value == 0) {
                     @if (char.unitOfMeasure) {
-                    @if (!last) { {{char.value | truncateValue}} (<i>{{char.unitOfMeasure}}</i>), } @else { {{char.value | truncateValue}}
+                    @if (!last) { {{char.value | truncateValue}} (<i>{{char.unitOfMeasure}}</i>), } @else { {{char.value
+                    | truncateValue}}
                     (<i>{{char.unitOfMeasure}}</i>) }
                     } @else {
                     @if (!last) { {{char.value | truncateValue}}, } @else { {{char.value | truncateValue}} }

@@ -36,6 +36,8 @@ type ResourceSpecificationRef = components["schemas"]["ResourceSpecificationRef"
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
 type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' | 'relationships' | 'summary' | 'orchestrationPlan' | 'dsp_config';
 
+const DSP_CHARS: string[] = ['endpointUrl', 'upstreamAddress', 'targetSpecification', 'serviceConfiguration', 'credentialsConfig', 'authorizationPolicy', 'transferPath', 'transferType'];
+
 const BASE_TEMPLATE_OPTIONS = [
   { value: '', label: 'None' },
   { value: 'BlueprintProductSpecification', label: 'Blueprint Product Specification' },
@@ -67,7 +69,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   generalForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
     brand: new FormControl('', [Validators.required, noWhitespaceValidator]),
-    version: new FormControl('0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*)?$'), noWhitespaceValidator]),
+    version: new FormControl('0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*(\\.\\d*)?)?$'), noWhitespaceValidator]),
     number: new FormControl(''),
     lifecycleStatus: new FormControl('Active'),
     baseTemplate: new FormControl(''),

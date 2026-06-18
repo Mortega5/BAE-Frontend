@@ -1,13 +1,13 @@
-import {Component, Input, OnInit, OnDestroy} from '@angular/core';
-import {AbstractControl, FormControl, FormGroup, Validators} from "@angular/forms";
-import {EventMessageService} from "../../../../services/event-message.service";
-import {ApiServiceService} from "../../../../services/product-service.service";
-import {debounceTime, takeUntil} from "rxjs/operators";
-import { noWhitespaceValidator } from 'src/app/validators/validators';
-import {Subject} from "rxjs";
-import { environment } from 'src/environments/environment';
-import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup, Validators } from "@angular/forms";
+import { Subject } from "rxjs";
+import { debounceTime, takeUntil } from "rxjs/operators";
 import { FormField } from 'src/app/models/formFields/form-field.model';
+import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { noWhitespaceValidator } from 'src/app/validators/validators';
+import { environment } from 'src/environments/environment';
+import { EventMessageService } from "../../../../services/event-message.service";
+import { ApiServiceService } from "../../../../services/product-service.service";
 
 interface GeneralInfo {
   name: string;
@@ -42,7 +42,7 @@ export class GeneralInfoComponent implements OnInit, OnDestroy {
   private disabledStatuses: string[] = [];
   private destroy$ = new Subject<void>();
 
-  constructor(private eventMessage: EventMessageService, private apiService: ApiServiceService) {}
+  constructor(private eventMessage: EventMessageService, private apiService: ApiServiceService) { }
 
   get formGroup(): FormGroup {
     return this.form as FormGroup;
@@ -54,7 +54,7 @@ export class GeneralInfoComponent implements OnInit, OnDestroy {
     this.formGroup.addControl('name', new FormControl<string>(this.data?.name ?? '', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]));
     this.formGroup.addControl('status', new FormControl<string>(this.data?.lifecycleStatus ?? 'Active'));
     this.formGroup.addControl('description', new FormControl<string>(this.data?.description ?? '', Validators.maxLength(100000)));
-    this.formGroup.addControl('version', new FormControl<string>(this.data?.version ?? '0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*)?$'), noWhitespaceValidator]));
+    this.formGroup.addControl('version', new FormControl<string>(this.data?.version ?? '0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*(\\.\\d*)?)?$'), noWhitespaceValidator]));
 
     if (this.isEditMode) {
       this.originalValue = {
