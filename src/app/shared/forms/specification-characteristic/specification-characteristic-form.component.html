@@ -24,6 +24,9 @@
           @case ('boolean') {
           <th class="px-4 py-3 w-full">{{ 'CHAR_SPEC._value' | translate }}</th>
           }
+          @case ('object') {
+          <th class="px-4 py-3 w-full">{{ 'CHAR_SPEC._value' | translate }}</th>
+          }
           }
           @if (!readonly && valueType !== 'boolean') {
           <th class="px-4 py-3 w-12"></th>
@@ -53,6 +56,9 @@
           }
           @case ('boolean') {
           <td class="px-4 py-3">{{ (val.value ? 'CHAR_SPEC._true' : 'CHAR_SPEC._false') | translate }}</td>
+          }
+          @case ('object') {
+          <td class="px-4 py-3 font-mono text-xs break-all">{{ val.value | truncateValue }}</td>
           }
           }
           @if (!readonly && valueType !== 'boolean') {

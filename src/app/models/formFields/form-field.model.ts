@@ -94,4 +94,16 @@ export interface TableFormField extends BaseFormField {
   multiple?: boolean;
 }
 
-export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField;
+export type CodeLanguage = 'json' | 'yaml' | 'typescript' | 'javascript';
+export type CodeTheme = 'auto' | 'oneDark';
+
+export interface CodeFormField extends BaseFormField {
+  type: 'code';
+  language: CodeLanguage;
+  minHeight?: string;
+  placeholder?: string;
+  lineNumbers?: boolean;
+  theme?: CodeTheme;
+}
+
+export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | CodeFormField;

@@ -5,9 +5,10 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { components } from 'src/app/models/product-catalog';
-import { noWhitespaceValidator } from 'src/app/validators/validators';
+import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { CharacteristicValueSpecFormComponent, CharValueType } from '../characteristic-value-spec/characteristic-value-spec-form.component';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
+import { TruncateValuePipe } from '../../pipes/truncate-value.pipe';
 
 type CharacteristicValueSpecification = components['schemas']['CharacteristicValueSpecification'];
 
@@ -24,19 +25,21 @@ const ALL_VALUE_TYPE_OPTIONS = [
   { value: 'number', label: 'CHAR_SPEC._type_number' },
   { value: 'range', label: 'CHAR_SPEC._type_range' },
   { value: 'boolean', label: 'CHAR_SPEC._type_boolean' },
+  { value: 'object', label: 'CHAR_SPEC._type_object' },
 ];
 
 @Component({
   selector: 'app-specification-characteristic-form',
   templateUrl: './specification-characteristic-form.component.html',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DynamicFormComponent, CharacteristicValueSpecFormComponent],
+  imports: [ReactiveFormsModule, TranslateModule, DynamicFormComponent, CharacteristicValueSpecFormComponent, TruncateValuePipe],
 })
 export class SpecificationCharacteristicFormComponent implements OnInit, OnDestroy {
   @Input() initialValueType: CharValueType = 'string';
   @Input() initialValues: CharacteristicValueSpecification[] = [];
   @Input() readonly: boolean = false;
   @Input() supportedTypes: CharValueType[] = [];
+  @Input() maxObjectChars: number = 80
   @Output() formChange = new EventEmitter<CharacteristicFormValue>();
 
   private destroy$ = new Subject<void>();
@@ -103,10 +106,10 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnDestr
 
   addValue(): void {
     if (!this.canAdd) return;
-    const newValue: CharacteristicValueSpecification = {
-      ...this.valueForm.value,
-      isDefault: this.savedValues.length === 0
-    };
+    const raw = { ...this.valueForm.value, isDefault: this.savedValues.length === 0 };
+    const newValue: CharacteristicValueSpecification = this.valueType === 'object'
+      ? { ...raw, value: JSON.parse(raw.value) }
+      : raw;
     this.savedValues = [...this.savedValues, newValue];
     this.valueForm = this.buildValueForm();
     this.emitFormChange();
@@ -163,6 +166,11 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnDestr
         return new FormGroup({
           isDefault: new FormControl<boolean>(false, { nonNullable: true }),
           value: new FormControl<boolean>(false, { nonNullable: true })
+        });
+      case 'object':
+        return new FormGroup({
+          isDefault: new FormControl<boolean>(false, { nonNullable: true }),
+          value: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, jsonValidator] })
         });
     }
   }

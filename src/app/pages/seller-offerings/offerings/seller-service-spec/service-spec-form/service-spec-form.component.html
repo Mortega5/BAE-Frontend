@@ -76,9 +76,9 @@
                       @for (char of prod.characteristicValueSpecification; track char; let last = $last) {
                         @if (char.value || char.value == 0) {
                           @if (char.unitOfMeasure) {
-                            @if (!last) { {{char.value}} (<i>{{char?.unitOfMeasure}}</i>), } @else { {{char.value}} (<i>{{char?.unitOfMeasure}}</i>) }
+                            @if (!last) { {{char.value | truncateValue}} (<i>{{char?.unitOfMeasure}}</i>), } @else { {{char.value | truncateValue}} (<i>{{char?.unitOfMeasure}}</i>) }
                           } @else {
-                            @if (!last) { {{char.value}}, } @else { {{char.value}} }
+                            @if (!last) { {{char.value | truncateValue}}, } @else { {{char.value | truncateValue}} }
                           }
                         } @else {
                           @if (!last) { {{char.valueFrom}} - {{char.valueTo}} (<i>{{char?.unitOfMeasure}}</i>), } @else { {{char.valueFrom}} - {{char.valueTo}} (<i>{{char?.unitOfMeasure}}</i>) }
@@ -181,9 +181,9 @@
                           @for (char of prod.characteristicValueSpecification; track char; let last = $last) {
                             @if (char.value || char.value == 0) {
                               @if (char.unitOfMeasure) {
-                                @if (!last) { {{char.value}} (<i>{{char?.unitOfMeasure}}</i>), } @else { {{char.value}} (<i>{{char?.unitOfMeasure}}</i>) }
+                                @if (!last) { {{char.value | truncateValue}} (<i>{{char?.unitOfMeasure}}</i>), } @else { {{char.value | truncateValue}} (<i>{{char?.unitOfMeasure}}</i>) }
                               } @else {
-                                @if (!last) { {{char.value}}, } @else { {{char.value}} }
+                                @if (!last) { {{char.value | truncateValue}}, } @else { {{char.value | truncateValue}} }
                               }
                             } @else {
                               @if (!last) { {{char.valueFrom}} - {{char.valueTo}} (<i>{{char?.unitOfMeasure}}</i>), } @else { {{char.valueFrom}} - {{char.valueTo}} (<i>{{char?.unitOfMeasure}}</i>) }

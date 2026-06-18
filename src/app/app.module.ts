@@ -1,4 +1,5 @@
 import { NgOptimizedImage } from '@angular/common';
+import { TruncateValuePipe } from 'src/app/shared/pipes/truncate-value.pipe';
 import { HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
@@ -176,6 +177,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     UpdateSoftwareComponent
   ],
   imports: [
+    TruncateValuePipe,
     BrowserModule,
     FontAwesomeModule,
     SharedModule,

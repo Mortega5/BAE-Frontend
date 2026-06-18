@@ -94,7 +94,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   showError = false;
   loading = false;
 
-  allowedChars: CharValueType[] = ['string', 'number', 'range'];
+  allowedChars: CharValueType[] = ['string', 'number', 'range', 'object'];
 
   private destroy$ = new Subject<void>();
 
