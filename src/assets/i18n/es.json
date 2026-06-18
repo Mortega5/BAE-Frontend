@@ -2939,6 +2939,7 @@
     "_type_number": "Número",
     "_type_range": "Rango",
     "_type_boolean": "Booleano",
+    "_type_object": "Objeto (JSON)",
     "_value": "Valor",
     "_unit": "Unidad de Medida",
     "_value_from": "Desde",

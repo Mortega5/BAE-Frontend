@@ -2938,6 +2938,7 @@
     "_type_number": "Number",
     "_type_range": "Range",
     "_type_boolean": "Boolean",
+    "_type_object": "Object (JSON)",
     "_value": "Value",
     "_unit": "Unit of Measure",
     "_value_from": "From",
