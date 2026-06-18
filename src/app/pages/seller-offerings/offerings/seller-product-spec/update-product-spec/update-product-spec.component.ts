@@ -25,6 +25,7 @@ import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 import { BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
+import { CharacteristicFormValue } from 'src/app/shared/forms/specification-characteristic/specification-characteristic-form.component';
 
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
@@ -105,6 +106,36 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   finishChars: ProductSpecificationCharacteristic[] = [];
   creatingChars: CharacteristicValueSpecification[] = [];
   showCreateChar: boolean = false;
+  currentStandardChar: CharacteristicFormValue | null = null;
+
+  get canSaveStandardChar(): boolean {
+    return !!this.currentStandardChar?.name?.trim() && (this.currentStandardChar?.values?.length ?? 0) > 0;
+  }
+
+  onStandardCharFormChange(value: CharacteristicFormValue): void {
+    this.currentStandardChar = value;
+  }
+
+  saveStandardChar(): void {
+    if (!this.currentStandardChar?.name) return;
+    if (this.prodChars.find(c => c.name === this.currentStandardChar!.name)) {
+      this.errorMessage = 'Cannot save duplicated name in characteristics';
+      this.showError = true;
+      setTimeout(() => { this.showError = false; }, 3000);
+      return;
+    }
+    this.prodChars.push({
+      id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
+      name: this.currentStandardChar.name,
+      description: this.currentStandardChar.description ?? '',
+      configurable: this.currentStandardChar.configurable,
+      valueType: this.currentStandardChar.valueType,
+      productSpecCharacteristicValue: this.currentStandardChar.values as any[],
+    });
+    this.currentStandardChar = null;
+    this.showCreateChar = false;
+    this.refreshChars();
+  }
 
   //BUNDLE INFO:
   bundleChecked: boolean = false;

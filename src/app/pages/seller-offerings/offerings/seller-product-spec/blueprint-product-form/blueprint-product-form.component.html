@@ -64,8 +64,6 @@
     <!-- Toggle / Step form -->
     @if (showStepForm) {
     <div class="bg-white dark:bg-secondary-300 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mt-4">
-      <app-dynamic-form [fields]="stepFormFields" [formGroup]="stepForm" [columns]="6" />
-
       @if (prodSpecPageCheck) {
       <div class="flex justify-center mt-2 mb-1">
         @if (loadingProdSpec_more) {
@@ -83,6 +81,7 @@
         }
       </div>
       }
+      <app-dynamic-form [fields]="stepFormFields" [formGroup]="stepForm" [columns]="6" />
 
       @if (cycleError) {
       <div
