@@ -63,7 +63,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   generalForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
     brand: new FormControl('', [Validators.required, noWhitespaceValidator]),
-    version: new FormControl('0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*)?$'), noWhitespaceValidator]),
+    version: new FormControl('0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*(\\.\\d*)?)?$'), noWhitespaceValidator]),
     number: new FormControl(''),
     baseTemplate: new FormControl(''),
     description: new FormControl('', Validators.maxLength(100000)),

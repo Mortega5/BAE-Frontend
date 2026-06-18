@@ -9,7 +9,6 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
-import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
@@ -20,6 +19,7 @@ import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
+import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
@@ -100,7 +100,7 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
   generalForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
     brand: new FormControl('', [Validators.required, noWhitespaceValidator]),
-    version: new FormControl('0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*)?$'), noWhitespaceValidator]),
+    version: new FormControl('0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*(\\.\\d*)?)?$'), noWhitespaceValidator]),
     number: new FormControl(''),
     lifecycleStatus: new FormControl('Active'),
     baseTemplate: new FormControl(''),
