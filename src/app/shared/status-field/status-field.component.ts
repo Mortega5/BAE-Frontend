@@ -14,6 +14,7 @@ export class StatusFieldComponent {
   @Input() activeClass: string = '';
   @Input() isActive: boolean = false;
   @Input() isLast: boolean = false;
+  @Input() dataCy?: string;
   @Output() selected = new EventEmitter<string>();
 
   @HostBinding('class')

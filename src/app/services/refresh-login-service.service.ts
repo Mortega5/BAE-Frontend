@@ -26,11 +26,14 @@ export class RefreshLoginServiceService {
   }
 
   startInterval(intervalDuration: number, data: any): void {
+    console.debug(`Refresh token in ${intervalDuration}ms`)
     this.intervalObservable = interval(intervalDuration);
 
     this.intervalSubscription = this.intervalObservable.subscribe(() => {
       let aux = this.localStorage.getObject('login_items') as LoginInfo;
       this.api.getLogin(aux['token']).then(refreshed => {
+        console.debug("Token refreshed", refreshed);
+        console.log(`Expire: ${new Date(refreshed.expire * 1000)}`,)
         this.stopInterval()
 
         this.localStorage.setObject('login_items', {
@@ -47,8 +50,9 @@ export class RefreshLoginServiceService {
 
         // Start the interval only if the token has been really refreshed
         // Otherwise close the session
-        if (refreshed.expire > moment().unix() + 4) {
-          this.startInterval(((refreshed.expire - moment().unix()) - 4) * 1000, refreshed)
+        const now = moment().unix();
+        if (refreshed.expire > now + 4) {
+          this.startInterval(((refreshed.expire - now) - 4) * 1000, refreshed)
         } else {
           this.logout();
         }

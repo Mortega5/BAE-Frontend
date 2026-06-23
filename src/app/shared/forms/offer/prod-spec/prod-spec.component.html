@@ -26,54 +26,16 @@
         </div>
       </div>
     }@else{
-      <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mt-4 mb-4">
-        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-200">
-          <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-gray-300">
-          <tr>
-            <th scope="col" class="px-4 py-3 w-12">
-              <!-- Columna del Checkbox -->
-            </th>
-            <th scope="col" class="px-6 py-3">{{ 'OFFERINGS._name' | translate }}</th>
-            <th scope="col" class="px-6 py-3">{{ 'OFFERINGS._type' | translate }}</th>
-            <th scope="col" class="px-6 py-3">{{ 'OFFERINGS._status' | translate }}</th>
-            <th scope="col" class="hidden md:table-cell px-6 py-3">{{ 'OFFERINGS._last_update' | translate }}
-            </th>
-          </tr>
-          </thead>
-          <tbody data-cy="prodSpecs">
-            @for (prod of prodSpecs; track $index) {
-              <tr class="border-b hover:bg-gray-200 dark:border-gray-700 dark:hover:bg-secondary-200"
-                  (click)="!isEditMode && toggleSelection(prod)"
-                  [ngClass]="getRowClass(prod.id)">
-
-                <!-- Checkbox -->
-                <td class="px-4 py-3 w-12">
-                  <input type="radio"
-                         name="prodSpecSelection"
-                         class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                         [checked]="isSelected(prod.id)"
-                         [disabled]="isEditMode"
-                         (click)="$event.stopPropagation(); !isEditMode && toggleSelection(prod)">
-                </td>
-
-                <td data-cy="offerProductSpecName" class="px-6 py-4">{{ prod.name }}</td>
-                <td class="px-6 py-4">
-                  <span class="text-xs font-medium px-2.5 py-0.5 rounded border" [ngClass]="getBundleClass(prod.isBundle)">
-                    {{ prod.isBundle ? ('OFFERINGS._bundle' | translate) : ('OFFERINGS._simple' | translate) }}
-                  </span></td>
-                <td class="px-6 py-4">
-                  <span class="text-xs font-medium px-2.5 py-0.5 rounded border"
-                        [ngClass]="getStatusClass(prod.lifecycleStatus)">
-                    {{ prod.lifecycleStatus }}
-                  </span>
-                </td>
-                <td class="hidden md:table-cell px-6 py-4">
-                  {{prod.lastUpdate | date:'EEEE, dd/MM/yy, HH:mm'}}
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
+      <div class="w-full mt-4 mb-4">
+        <app-table-input
+          data-cy="prodSpecs"
+          [columns]="prodColumns"
+          [items]="prodSpecs"
+          [multiple]="false"
+          [readonly]="isEditMode"
+          [ngModel]="selectedProdSpecInternal"
+          (ngModelChange)="onProdSpecChange($event)">
+        </app-table-input>
       </div>
     }
     @if (prodSpecPageCheck) {

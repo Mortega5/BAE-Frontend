@@ -76,4 +76,5 @@ export class TableInputComponent implements ControlValueAccessor {
     if (!column.cellClass) return '';
     return typeof column.cellClass === 'function' ? column.cellClass(item) : column.cellClass;
   }
+
 }

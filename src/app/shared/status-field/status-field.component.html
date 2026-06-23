@@ -1,4 +1,4 @@
-<span class="flex items-center" (click)="selected.emit(value)">
+<span class="flex items-center" (click)="selected.emit(value)" [attr.data-cy]="dataCy">
   <svg class="w-6 h-6 mr-1" [ngClass]="isActive ? activeClass : 'invisible'" aria-hidden="true"
     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
     <path stroke="currentColor" stroke-linecap="round" stroke-width="2"

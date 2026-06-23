@@ -1,23 +1,22 @@
 import {AfterViewInit, ChangeDetectorRef, Component, forwardRef, Input, OnInit} from '@angular/core';
-import {DatePipe, NgClass, NgIf, NgTemplateOutlet} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import {environment} from "../../../../../environments/environment";
-import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
+import {ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR} from "@angular/forms";
 import {PaginationService} from "../../../../services/pagination.service";
 import {ApiServiceService} from "../../../../services/product-service.service";
-import {AppModule} from "../../../../app.module";
-import {initFlowbite} from "flowbite";
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { TableInputComponent } from '../../table-input/table-input.component';
+import { TableColumn } from 'src/app/models/formFields/form-field.model';
+import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 
 @Component({
   selector: 'app-catalogue',
   standalone: true,
   imports: [
     TranslateModule,
-    NgIf,
-    NgTemplateOutlet,
-    NgClass,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    FormsModule,
+    TableInputComponent,
   ],
   providers: [
     {
@@ -39,11 +38,16 @@ export class CatalogueComponent implements ControlValueAccessor, OnInit, AfterVi
   catalogPageCheck:boolean=false;
   loadingCatalog:boolean=false;
   loadingCatalog_more:boolean=false;
-  selectedCatalog:any={id:''};
   catalogs:any[]=[];
   nextCatalogs:any[]=[];
   selectedCatalogInternal: any = null;
-  
+
+  catColumns: TableColumn[] = [
+    { header: 'Name', getValue: (item: any) => item.name ?? '-', cellClass: 'break-words' },
+    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus) },
+    { header: 'Role', getValue: (item: any) => item.relatedParty?.at(0)?.role ?? '-', width: 'w-28' },
+  ];
+
   constructor(
       private api: ApiServiceService,
       private paginationService: PaginationService,
@@ -105,33 +109,10 @@ export class CatalogueComponent implements ControlValueAccessor, OnInit, AfterVi
     await this.getSellerCatalogs(true);
   }
 
-  selectCatalog(cat:any){
-    this.selectedCatalog=cat;
-  }
-
-  isSelected(catalogId: string): boolean {
-    return this.selectedCatalogInternal?.id === catalogId;
-  }
-
-  toggleSelection(cat: any): void {
-    // Si el producto ya está seleccionado, lo deseleccionamos. Si no, lo seleccionamos.
-    this.selectedCatalogInternal = this.selectedCatalogInternal?.id === cat.id ? null : cat;
-    this.onChange(this.selectedCatalogInternal);
+  onCatalogChange(cat: any): void {
+    this.selectedCatalogInternal = cat;
+    this.onChange(cat);
     this.onTouched();
-  }
-
-  getRowClass(catId: string): string {
-    return catId === this.selectedCatalogInternal?.id
-      ? "bg-white dark:bg-secondary-100"
-      : "bg-white dark:bg-secondary-300";
-  }
-
-  hasLongWord(str: string | undefined, threshold = 20) {
-    if(str){
-      return str.split(/\s+/).some(word => word.length > threshold);
-    } else {
-      return false
-    }   
   }
 
 }

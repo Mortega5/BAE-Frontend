@@ -142,7 +142,7 @@ export class ResourceSpecServiceService {
     const page = pagination.page || 0;
 
     const params: Record<string, string> = {
-      lifecycleStatus: 'Active',
+      lifecycleStatus: ['Active', 'Launched'],
       ...pagination.filter,
       'relatedParty.id': partyId,
       '@type': 'SoftwareSupportPackageSpecification',
@@ -156,6 +156,22 @@ export class ResourceSpecServiceService {
 
     const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}`;
     return this.http.get<SoftwareSupportPackageSpecification[]>(url, { params });
+  }
+
+  getSoftwarePackageSpecsByUser(page: any, status: any[], partyId: any): Promise<SoftwareSupportPackageSpecification[]> {
+    const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackageSpecification'];
+    const limit = ResourceSpecServiceService.RES_SPEC_LIMIT;
+    let url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}?limit=${limit}&offset=${page}&relatedParty.id=${partyId}&@type=SoftwareSupportPackageSpecification`;
+
+    let lifeStatus = '';
+    if (status.length > 0) {
+      for (let i = 0; i < status.length; i++) {
+        lifeStatus += i === status.length - 1 ? status[i] : status[i] + ',';
+      }
+      url += '&lifecycleStatus=' + lifeStatus;
+    }
+
+    return lastValueFrom(this.http.get<SoftwareSupportPackageSpecification[]>(url));
   }
 
   getSoftwarePackageSpec(id: string, partyId: string) {

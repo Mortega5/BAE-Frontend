@@ -8,7 +8,7 @@ import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
-import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { FormField, TableColumn, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
@@ -20,12 +20,13 @@ import { ProductSpecServiceService } from 'src/app/services/product-spec-service
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { CharacteristicFormValue } from 'src/app/shared/forms/specification-characteristic/specification-characteristic-form.component';
+import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 import { BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
-import { CharacteristicFormValue } from 'src/app/shared/forms/specification-characteristic/specification-characteristic-form.component';
 
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
@@ -174,7 +175,12 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   loadingServiceSpec_more: boolean = false;
   serviceSpecs: any[] = [];
   nextServiceSpecs: any[] = [];
-  selectedServiceSpecs: ServiceSpecificationRef[] = [];
+  selectedServiceSpecs: any[] = [];
+  servColumns: TableColumn[] = [
+    { header: 'Name', getValue: (item: any) => item.name ?? '-' },
+    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus) },
+    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52' },
+  ];
 
   //RESOURCE INFO:
   resourceSpecPage = 0;
@@ -183,7 +189,12 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   loadingResourceSpec_more: boolean = false;
   resourceSpecs: any[] = [];
   nextResourceSpecs: any[] = [];
-  selectedResourceSpecs: ResourceSpecificationRef[] = [];
+  selectedResourceSpecs: any[] = [];
+  resColumns: TableColumn[] = [
+    { header: 'Name', getValue: (item: any) => item.name ?? '-' },
+    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus) },
+    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52' },
+  ];
 
   //RELATIONSHIPS INFO:
   showCreateRel: boolean = false;
@@ -329,7 +340,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_RES_SPEC._status',
       options: [
         { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
-        { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
+        { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700', dataCy: 'productSpecStatusLaunched' },
         { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
         { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
       ],
@@ -488,7 +499,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
     //RESOURCE
     if (this.prod.resourceSpecification) {
-      this.selectedResourceSpecs = this.prod.resourceSpecification;
+      this.selectedResourceSpecs = this.prod.resourceSpecification
     }
 
     //SERVICE
@@ -985,31 +996,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     await this.getResSpecs(true);
   }
 
-  addResToSelected(res: any) {
-    const index = this.selectedResourceSpecs.findIndex(item => item.id === res.id);
-    if (index !== -1) {
-      console.log('eliminar')
-      this.selectedResourceSpecs.splice(index, 1);
-    } else {
-      console.log('añadir')
-      this.selectedResourceSpecs.push({
-        id: res.id,
-        href: res.href,
-        name: res.name
-      });
-    }
-    this.cdr.detectChanges();
-    console.log(this.selectedResourceSpecs)
-  }
-
-  isResSelected(res: any) {
-    const index = this.selectedResourceSpecs.findIndex(item => item.id === res.id);
-    if (index !== -1) {
-      return true
-    } else {
-      return false;
-    }
-  }
 
   async getServSpecs(next: boolean) {
     if (next == false) {
@@ -1042,31 +1028,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     await this.getServSpecs(true);
   }
 
-  addServToSelected(serv: any) {
-    const index = this.selectedServiceSpecs.findIndex(item => item.id === serv.id);
-    if (index !== -1) {
-      console.log('eliminar')
-      this.selectedServiceSpecs.splice(index, 1);
-    } else {
-      console.log('añadir')
-      this.selectedServiceSpecs.push({
-        id: serv.id,
-        href: serv.href,
-        name: serv.name
-      });
-    }
-    this.cdr.detectChanges();
-    console.log(this.selectedServiceSpecs)
-  }
-
-  isServSelected(serv: any) {
-    const index = this.selectedServiceSpecs.findIndex(item => item.id === serv.id);
-    if (index !== -1) {
-      return true
-    } else {
-      return false;
-    }
-  }
 
   removeImg() {
     this.showImgPreview = false;
@@ -1692,8 +1653,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         productSpecCharacteristic: this.finishChars,
         productSpecificationRelationship: rels,
         attachment: this.prodAttachments,
-        resourceSpecification: this.selectedResourceSpecs,
-        serviceSpecification: this.selectedServiceSpecs
+        resourceSpecification: this.selectedResourceSpecs.map((res: any) => ({ id: res.id, href: res.href })),
+        serviceSpecification: this.selectedServiceSpecs.map((res: any) => ({ id: res.id, href: res.href }))
       }
     }
     if (this.blueprintConfig) {

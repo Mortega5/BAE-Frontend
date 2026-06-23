@@ -104,11 +104,11 @@ export class GeneralInfoComponent implements OnInit, OnDestroy {
   private buildFields(): void {
     const statusOptions = ['Active', 'Launched', 'Retired', 'Obsolete']
       .filter(s => !this.disabledStatuses.includes(s))
-      .map(s => ({ value: s, label: s, activeClass: STATUS_ACTIVE_CLASSES[s] ?? 'text-gray-500' }));
+      .map(s => ({ value: s, label: s, activeClass: STATUS_ACTIVE_CLASSES[s] ?? 'text-gray-500', dataCy: `offerStatus${s}` }));
 
     this.fields = [
-      { type: 'string', name: 'name', label: 'CREATE_OFFER._name', required: true, maxLength: 100, colSpan: 1 },
-      { type: 'string', name: 'version', label: 'CREATE_OFFER._version', required: true, colSpan: 1 },
+      { type: 'string', name: 'name', label: 'CREATE_OFFER._name', required: true, maxLength: 100, colSpan: 1, dataCy: 'offerName' },
+      { type: 'string', name: 'version', label: 'CREATE_OFFER._version', required: true, colSpan: 1, dataCy: 'offerVersion' },
       ...(this.isEditMode ? [{ type: 'statusPicker' as const, name: 'status', label: 'CREATE_OFFER._status', options: statusOptions }] : []),
       { type: 'markdownTextarea', name: 'description', label: 'CREATE_OFFER._description' },
     ];

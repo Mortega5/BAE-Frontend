@@ -21,18 +21,18 @@ export class CharacteristicValueSpecFormComponent {
     switch (this.valueType) {
       case 'string':
         return [
-          { type: 'string', name: 'value', label: 'CHAR_SPEC._value', required: true, readonly: ro }
+          { type: 'string', name: 'value', label: 'CHAR_SPEC._value', required: true, readonly: ro, dataCy: 'charStringValue' }
         ];
       case 'number':
         return [
-          { type: 'number', name: 'value', label: 'CHAR_SPEC._value', required: true, readonly: ro, colSpan: 2 },
-          { type: 'string', name: 'unitOfMeasure', label: 'CHAR_SPEC._unit', readonly: ro, colSpan: 1 }
+          { type: 'number', name: 'value', label: 'CHAR_SPEC._value', required: true, readonly: ro, colSpan: 2, dataCy: 'charNumberValue' },
+          { type: 'string', name: 'unitOfMeasure', label: 'CHAR_SPEC._unit', readonly: ro, colSpan: 1, dataCy: 'charNumberUnit' }
         ];
       case 'range':
         return [
-          { type: 'number', name: 'valueFrom', label: 'CHAR_SPEC._value_from', required: true, readonly: ro, colSpan: 1 },
-          { type: 'number', name: 'valueTo', label: 'CHAR_SPEC._value_to', required: true, readonly: ro, colSpan: 1 },
-          { type: 'string', name: 'unitOfMeasure', label: 'CHAR_SPEC._unit', required: true, readonly: ro, colSpan: 1 }
+          { type: 'number', name: 'valueFrom', label: 'CHAR_SPEC._value_from', required: true, readonly: ro, colSpan: 1, dataCy: 'charRangeFrom' },
+          { type: 'number', name: 'valueTo', label: 'CHAR_SPEC._value_to', required: true, readonly: ro, colSpan: 1, dataCy: 'charRangeTo' },
+          { type: 'string', name: 'unitOfMeasure', label: 'CHAR_SPEC._unit', required: true, readonly: ro, colSpan: 1, dataCy: 'charRangeUnit' }
         ];
       case 'object':
         return [
