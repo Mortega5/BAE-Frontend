@@ -14,6 +14,7 @@ import { components } from "src/app/models/software-catalog";
 import { environment } from 'src/environments/environment';
 import { FormField, SelectOption, TableFormField } from '../../../../../models/formFields/form-field.model';
 import { RESOURCE_STATUS_TYPES } from '../../../../../models/software.model';
+import { lifecycleStatusClass } from '../../../../../shared/utils/lifecycle-status.utils';
 import { ResourceSpecServiceService } from '../../../../../services/resource-spec-service.service';
 import { buildFormGroup } from '../../../../../shared/forms/dynamic-form/build-form-group.util';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
@@ -69,7 +70,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
       columns: [
         { header: 'Name', getValue: item => item.name ?? '-' },
         { header: 'Version', getValue: item => item.version ?? '-', width: 'w-24' },
-        { header: 'Status', getValue: item => item.lifecycleStatus ?? '-', width: 'w-28' },
+        { header: 'Status', getValue: item => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: item => lifecycleStatusClass(item.lifecycleStatus) },
         { header: 'Last update', getValue: item => this.datePipe.transform(item.lastUpdate, 'dd/MM/yy, HH:mm') ?? '-', width: 'w-36' },
       ],
     },
