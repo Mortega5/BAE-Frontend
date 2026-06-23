@@ -23,17 +23,17 @@ type CharacteristicValueSpecification = components['schemas']['CharacteristicVal
 type ServiceSpecificationCharacteristic = components['schemas']['CharacteristicSpecification'];
 
 const GENERAL_FORM_FIELDS_CREATE: FormField[] = [
-  { type: 'string', name: 'name', label: 'CREATE_SERV_SPEC._name', required: true, maxLength: 100 },
+  { type: 'string', name: 'name', label: 'CREATE_SERV_SPEC._name', required: true, maxLength: 100, dataCy: 'servSpecName' },
   { type: 'markdownTextarea', name: 'description', label: 'CREATE_SERV_SPEC._description' },
 ];
 
 const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
-  { type: 'string', name: 'name', label: 'UPDATE_SERV_SPEC._name', required: true, maxLength: 100 },
+  { type: 'string', name: 'name', label: 'UPDATE_SERV_SPEC._name', required: true, maxLength: 100, dataCy: 'servSpecName' },
   {
     type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_SERV_SPEC._status',
     options: [
       { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
-      { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
+      { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700', dataCy: 'serviceSpecStatusLaunched' },
       { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
       { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
     ],

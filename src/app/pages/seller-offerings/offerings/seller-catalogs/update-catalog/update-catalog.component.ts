@@ -30,19 +30,19 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
   loading = false;
 
   generalFormFields: FormField[] = [
-    { type: 'string', name: 'name', label: 'UPDATE_CATALOG._name', required: true, maxLength: 100 },
+    { type: 'string', name: 'name', label: 'UPDATE_CATALOG._name', required: true, maxLength: 100, dataCy: 'catalogName' },
     {
       type: 'statusPicker',
       name: 'lifecycleStatus',
       label: 'UPDATE_CATALOG._status',
       options: [
         { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
-        { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
+        { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700', dataCy: 'catalogStatusLaunched' },
         { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
         { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
       ],
     },
-    { type: 'markdownTextarea', name: 'description', label: 'UPDATE_CATALOG._description' },
+    { type: 'markdownTextarea', name: 'description', label: 'UPDATE_CATALOG._description', dataCy: 'catalogDsc' },
   ];
 
   generalForm = new FormGroup({

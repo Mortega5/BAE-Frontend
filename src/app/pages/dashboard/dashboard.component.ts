@@ -119,8 +119,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
   }
 
   private checkRouteForToken() {
-    if (this.route.snapshot.queryParamMap.get('token') != null) {
-      this.loginService.getLogin(this.route.snapshot.queryParamMap.get('token')).then((data) => {
+    const token = this.route.snapshot.queryParamMap.get('token')
+    if (token != null) {
+      console.log(`Token ${token}`)
+      this.loginService.getLogin(token).then((data) => {
         const info = {
           id: data.id,
           user: data.username,
@@ -146,12 +148,12 @@ export class DashboardComponent implements OnInit, OnDestroy {
     } else {
       const aux = this.localStorage.getObject('login_items') as LoginInfo;
       if (JSON.stringify(aux) != '{}') {
-        console.log(aux);
-        console.log('moment');
-        console.log(aux['expire']);
-        console.log(moment().unix());
-        console.log(aux['expire'] - moment().unix());
-        console.log(aux['expire'] - moment().unix() <= 5);
+        console.debug(aux);
+        console.debug('moment');
+        console.info(`Expire: ${new Date(aux['expire'] * 1000)}`);
+        console.debug(`Now: ${Date.now()}`);
+        console.debug(`Remain: ${aux['expire'] - moment().unix()}s`);
+        console.debug(aux['expire'] - moment().unix() <= 5);
       }
     }
 

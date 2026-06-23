@@ -253,10 +253,10 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
 
 
   generalFormFields: FormField[] = [
-    { type: 'string', name: 'name', label: 'CREATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1 },
-    { type: 'string', name: 'brand', label: 'CREATE_PROD_SPEC._product_brand', required: true, colSpan: 1 },
-    { type: 'string', name: 'version', label: 'CREATE_PROD_SPEC._product_version', required: true, colSpan: 1 },
-    { type: 'string', name: 'number', label: 'CREATE_PROD_SPEC._id_number', colSpan: 1 },
+    { type: 'string', name: 'name', label: 'CREATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1, dataCy: 'inputName' },
+    { type: 'string', name: 'brand', label: 'CREATE_PROD_SPEC._product_brand', required: true, colSpan: 1, dataCy: 'inputBrand' },
+    { type: 'string', name: 'version', label: 'CREATE_PROD_SPEC._product_version', required: true, colSpan: 1, dataCy: 'inputVersion' },
+    { type: 'string', name: 'number', label: 'CREATE_PROD_SPEC._id_number', colSpan: 1, dataCy: 'inputIdNumber' },
     { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS },
     { type: 'markdownTextarea', name: 'description', label: 'CREATE_PROD_SPEC._product_description' },
   ];

@@ -31,8 +31,8 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
   steps = ['General Info', 'Summary'];
 
   generalFormFields: FormField[] = [
-    { type: 'string', name: 'name', label: 'CREATE_CATALOG._name', required: true, maxLength: 100 },
-    { type: 'markdownTextarea', name: 'description', label: 'CREATE_CATALOG._description' },
+    { type: 'string', name: 'name', label: 'CREATE_CATALOG._name', required: true, maxLength: 100, dataCy: 'catalogName' },
+    { type: 'markdownTextarea', name: 'description', label: 'CREATE_CATALOG._description', dataCy: 'catalogDsc' },
   ];
 
   generalForm = new FormGroup({

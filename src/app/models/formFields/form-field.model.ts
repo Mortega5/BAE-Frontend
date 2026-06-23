@@ -5,6 +5,7 @@ interface BaseFormField {
   readonly?: boolean;
   colSpan?: number;
   defaultValue?: any;
+  dataCy?: string;
 }
 
 interface TextBaseFormField extends BaseFormField {
@@ -52,6 +53,7 @@ export interface StatusPickerOption {
   value: string;
   label: string;
   activeClass: string;
+  dataCy?: string;
 }
 
 export interface StatusPickerFormField extends BaseFormField {

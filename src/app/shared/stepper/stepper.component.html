@@ -41,7 +41,7 @@
       {{ previousLabel | translate }}
     </button>
 
-    <button (click)="goNext()" [disabled]="isLastStep || !canAdvance"
+    <button data-cy="stepperNext" (click)="goNext()" [disabled]="isLastStep || !canAdvance"
       [ngClass]="{
         'hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white': !isLastStep && canAdvance,
         'cursor-not-allowed opacity-50': isLastStep || !canAdvance
@@ -55,7 +55,7 @@
     </button>
 
     @if (isLastStep || submitAlwaysVisible) {
-    <button (click)="submitted.emit()" [disabled]="submitDisabled"
+    <button data-cy="stepperSubmit" (click)="submitted.emit()" [disabled]="submitDisabled"
       [ngClass]="submitDisabled ? 'opacity-50' : 'hover:bg-primary-50'"
       class="px-4 py-2 text-base font-medium text-white rounded-lg bg-primary-100">
       {{ submitLabel | translate }}

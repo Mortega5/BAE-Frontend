@@ -5,6 +5,6 @@
   }
   @if (descControl) {
     <label class="font-bold text-lg col-span-2 dark:text-white">{{ 'USAGE_SPECS._description' | translate }}</label>
-    <app-markdown-textarea data-cy="usageSpecDescription" [formControl]="descControl"></app-markdown-textarea>
+    <app-markdown-textarea [formControl]="descControl"></app-markdown-textarea>
   }
   
