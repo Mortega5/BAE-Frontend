@@ -157,7 +157,12 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   loadingServiceSpec_more: boolean = false;
   serviceSpecs: any[] = [];
   nextServiceSpecs: any[] = [];
-  selectedServiceSpecs: ServiceSpecificationRef[] = [];
+  selectedServiceSpecs: any[] = [];
+  servColumns: TableColumn[] = [
+    { header: 'Name', getValue: (item: any) => item.name ?? '-' },
+    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus) },
+    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52' },
+  ];
 
   //RESOURCE INFO:
   resourceSpecPage = 0;
@@ -1005,31 +1010,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     await this.getServSpecs(true);
   }
 
-  addServToSelected(serv: any) {
-    const index = this.selectedServiceSpecs.findIndex(item => item.id === serv.id);
-    if (index !== -1) {
-      console.log('eliminar')
-      this.selectedServiceSpecs.splice(index, 1);
-    } else {
-      console.log('añadir')
-      this.selectedServiceSpecs.push({
-        id: serv.id,
-        href: serv.href,
-        name: serv.name
-      });
-    }
-    this.cdr.detectChanges();
-    console.log(this.selectedServiceSpecs)
-  }
-
-  isServSelected(serv: any) {
-    const index = this.selectedServiceSpecs.findIndex(item => item.id === serv.id);
-    if (index !== -1) {
-      return true
-    } else {
-      return false;
-    }
-  }
 
   removeImg() {
     this.showImgPreview = false;
@@ -1578,7 +1558,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
         productSpecificationRelationship: rels,
         attachment: this.prodAttachments,
         resourceSpecification: this.selectedResourceSpecs.map((res: any) => ({ id: res.id, href: res.href })),
-        serviceSpecification: this.selectedServiceSpecs
+        serviceSpecification: this.selectedServiceSpecs.map((res: any) => ({ id: res.id, href: res.href }))
       }
     }
     if (this.blueprintConfig) {
