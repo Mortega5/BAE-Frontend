@@ -134,7 +134,7 @@
         }
         @if (!showCreateChar) {
         <div class="flex w-full justify-items-center justify-center">
-          <button type="button" (click)="showCreateChar = !showCreateChar"
+          <button type="button" data-cy="resSpecNewChar" (click)="showCreateChar = !showCreateChar"
             class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
             {{ i18nPrefix + '._new_char' | translate }}
             <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -148,7 +148,7 @@
         <div class="m-4 flex flex-col gap-4">
           <app-specification-characteristic-form [supportedTypes]="allowedChars" (formChange)="onFormChange($event)" />
           <div class="flex w-full justify-center">
-            <button type="button" (click)="saveChar()" [disabled]="!canSaveChar"
+            <button type="button" data-cy="resSpecSaveChar" (click)="saveChar()" [disabled]="!canSaveChar"
               [ngClass]="!canSaveChar ? 'opacity-50' : 'hover:bg-primary-50'"
               class="flex text-white justify-center bg-primary-100 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
               {{ i18nPrefix + '._save_char' | translate }}

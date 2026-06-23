@@ -64,10 +64,10 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnDestr
   get headerFields(): FormField[] {
     const ro = this.readonly;
     return [
-      { type: 'string', name: 'name', label: 'CHAR_SPEC._char_name', required: true, maxLength: 100, colSpan: 3, readonly: ro },
-      { type: 'select', name: 'valueType', label: 'CHAR_SPEC._value_type', options: this.valueTypeOptions, readonly: ro, colSpan: 2 },
+      { type: 'string', name: 'name', label: 'CHAR_SPEC._char_name', required: true, maxLength: 100, colSpan: 3, readonly: ro, dataCy: 'charName' },
+      { type: 'select', name: 'valueType', label: 'CHAR_SPEC._value_type', options: this.valueTypeOptions, readonly: ro, colSpan: 2, dataCy: 'charType' },
       { type: 'boolean', name: 'configurable', label: 'CHAR_SPEC._configurable', readonly: ro, colSpan: 1 },
-      { type: 'textarea', name: 'description', label: 'CHAR_SPEC._description', readonly: ro },
+      { type: 'textarea', name: 'description', label: 'CHAR_SPEC._description', readonly: ro, dataCy: 'charDescription' },
     ];
   }
 

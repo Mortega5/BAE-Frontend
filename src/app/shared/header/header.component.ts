@@ -384,13 +384,17 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
         const newUrl = new URL(oldUrl.origin);
         newUrl.pathname = environment.SIOP_INFO.requestUri;
 
+
         const finalUrl = newUrl.toString();
         const nonce = uuid.v4();
 
+        // verifierUrl =
+        //   `${verifierUrl}&response_type=code&request_uri=${finalUrl}` +
+        //   `&scope=openid%20learcredential&nonce=${nonce}`;
+        const redirectUri = 'http://localhost:8004/auth/vc/callback';
         verifierUrl =
-          `${verifierUrl}&response_type=code&request_uri=${finalUrl}` +
+          `${verifierUrl}&response_type=code&redirect_uri=${redirectUri}` +
           `&scope=openid%20learcredential&nonce=${nonce}`;
-
         window.location.href = verifierUrl;
         return;
       }

@@ -32,19 +32,19 @@ const BASE_TEMPLATE_OPTIONS = [
 ];
 
 const GENERAL_FORM_FIELDS_CREATE: FormField[] = [
-  { type: 'string', name: 'name', label: 'CREATE_RES_SPEC._name', required: true, maxLength: 100 },
+  { type: 'string', name: 'name', label: 'CREATE_RES_SPEC._name', required: true, maxLength: 100, dataCy: 'resSpecName' },
   { type: 'select', name: 'baseTemplate', label: 'CREATE_RES_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS },
   { type: 'markdownTextarea', name: 'description', label: 'CREATE_RES_SPEC._description' },
 ];
 
 const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
-  { type: 'string', name: 'name', label: 'UPDATE_RES_SPEC._name', required: true, maxLength: 100 },
+  { type: 'string', name: 'name', label: 'UPDATE_RES_SPEC._name', required: true, maxLength: 100, dataCy: 'resSpecName' },
   { type: 'select', name: 'baseTemplate', label: 'CREATE_RES_SPEC._base_template', readonly: true, options: BASE_TEMPLATE_OPTIONS },
   {
     type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_RES_SPEC._status',
     options: [
       { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
-      { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
+      { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700', dataCy: 'resourceSpecStatusLaunched' },
       { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
       { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
     ],

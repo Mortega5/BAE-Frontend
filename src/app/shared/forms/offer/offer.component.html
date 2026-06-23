@@ -15,7 +15,7 @@
   } @else {
   <form [formGroup]="productOfferForm">
 
-    <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance" [loading]="loading" submitLabel="Create Offer"
+    <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance" [loading]="loading" [submitLabel]="isUpdate ? 'Update Offer' : 'Create Offer'" [submitAlwaysVisible]="isUpdate"
       [submitDisabled]="!isFormValid || loading" (stepChanged)="onStepChanged($event)" (submitted)="submitForm()">
 
       <ng-template stepperStep="General Info" stepId="general">

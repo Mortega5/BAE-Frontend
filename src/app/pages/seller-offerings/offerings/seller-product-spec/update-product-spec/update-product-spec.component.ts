@@ -340,7 +340,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
       type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_RES_SPEC._status',
       options: [
         { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
-        { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
+        { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700', dataCy: 'productSpecStatusLaunched' },
         { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
         { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
       ],
