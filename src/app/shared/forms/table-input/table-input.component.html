@@ -27,8 +27,12 @@
         </td>
         }
         @for (col of columns; track $index) {
-        <td class="px-6 py-4" [ngClass]="getCellClass(col, item)">
+        <td class="px-6 py-4" [ngClass]="col.type !== 'badge' ? getCellClass(col, item) : ''">
+          @if (col.type === 'badge') {
+          <span [ngClass]="getCellClass(col, item)">{{ col.getValue(item) }}</span>
+          } @else {
           {{ col.getValue(item) }}
+          }
         </td>
         }
       </tr>

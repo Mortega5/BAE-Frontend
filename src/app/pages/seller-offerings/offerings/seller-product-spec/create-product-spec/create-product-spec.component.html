@@ -965,62 +965,14 @@
           </div>
         </div>
         }@else{
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white m-4">
-          <table data-cy="tableResourceSpecs"
-            class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-              <tr>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'CREATE_PROD_SPEC._product_name' | translate }}
-                </th>
-                <th scope="col" class="hidden md:table-cell px-6 py-3">
-                  {{ 'CREATE_PROD_SPEC._status' | translate }}
-                </th>
-                <th scope="col" class="hidden lg:table-cell px-6 py-3">
-                  {{ 'CREATE_PROD_SPEC._last_update' | translate }}
-                </th>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'CREATE_PROD_SPEC._select' | translate }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (res of resourceSpecs; track res.id) {
-              <tr
-                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                <td [ngClass]="{
-                                            'break-all': hasLongWord(res.name, 20),
-                                            'break-words': !hasLongWord(res.name, 20)
-                                            }" class="px-6 py-4 text-wrap break-words">
-                  {{res.name}}
-                </td>
-                <td class="hidden md:table-cell px-6 py-4">
-                  @if(res.lifecycleStatus == 'Active'){
-                  <span
-                    class="bg-blue-100 dark:bg-secondary-300 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{res.lifecycleStatus}}</span>
-                  } @else if(res.lifecycleStatus == 'Launched') {
-                  <span
-                    class="bg-blue-100 dark:bg-secondary-300 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">{{res.lifecycleStatus}}</span>
-                  } @else if(res.lifecycleStatus == 'Retired') {
-                  <span
-                    class="bg-blue-100 dark:bg-secondary-300 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{res.lifecycleStatus}}</span>
-                  } @else if(res.lifecycleStatus == 'Obsolete') {
-                  <span
-                    class="bg-blue-100 dark:bg-secondary-300 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{res.lifecycleStatus}}</span>
-                  }
-                </td>
-                <td class="hidden lg:table-cell px-6 py-4">
-                  {{res.lastUpdate | date:'EEEE, dd/MM/yy, HH:mm'}}
-                </td>
-                <td class="px-6 py-4">
-                  <input id="select-checkbox" [checked]="isResSelected(res)" type="checkbox" value=""
-                    (click)="addResToSelected(res)"
-                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
+        <div class="w-full m-4">
+          <app-table-input
+            data-cy="tableResourceSpecs"
+            [columns]="resColumns"
+            [items]="resourceSpecs"
+            [multiple]="true"
+            [(ngModel)]="selectedResourceSpecs">
+          </app-table-input>
         </div>
         }
         }
@@ -1928,8 +1880,7 @@
               </thead>
               <tbody>
                 @for (res of selectedResourceSpecs; track res) {
-                <tr
-                  class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
+                <tr class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
                   <td [ngClass]="{
                                                     'break-all': hasLongWord(res.name, 20),
                                                     'break-words': !hasLongWord(res.name, 20)

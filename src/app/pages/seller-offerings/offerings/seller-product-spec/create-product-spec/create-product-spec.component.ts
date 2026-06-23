@@ -7,7 +7,7 @@ import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
-import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { FormField, TableColumn, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
@@ -18,19 +18,19 @@ import { ProductSpecServiceService } from 'src/app/services/product-spec-service
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { CharacteristicFormValue } from 'src/app/shared/forms/specification-characteristic/specification-characteristic-form.component';
+import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 import { BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
-import { CharacteristicFormValue } from 'src/app/shared/forms/specification-characteristic/specification-characteristic-form.component';
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
 type ProductSpecification_Create = components["schemas"]["ProductSpecification_Create"];
 type BundledProductSpecification = components["schemas"]["BundledProductSpecification"];
 type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecificationCharacteristic"];
 type ServiceSpecificationRef = components["schemas"]["ServiceSpecificationRef"];
-type ResourceSpecificationRef = components["schemas"]["ResourceSpecificationRef"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
 type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' |
   'relationships' | 'summary' | 'orchestrationPlan' | 'dsp_config';
@@ -172,7 +172,12 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   loadingResourceSpec_more: boolean = false;
   resourceSpecs: any[] = [];
   nextResourceSpecs: any[] = [];
-  selectedResourceSpecs: ResourceSpecificationRef[] = [];
+  selectedResourceSpecs: any[] = [];
+  resColumns: TableColumn[] = [
+    { header: 'Name', getValue: (item: any) => item.name ?? '-' },
+    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus) },
+    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52' },
+  ];
 
   //RELATIONSHIPS INFO:
   prodRelationships: any[] = [];
@@ -762,31 +767,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     await this.getResSpecs(true);
   }
 
-  addResToSelected(res: any) {
-    const index = this.selectedResourceSpecs.findIndex(item => item.id === res.id);
-    if (index !== -1) {
-      console.log('eliminar')
-      this.selectedResourceSpecs.splice(index, 1);
-    } else {
-      console.log('añadir')
-      this.selectedResourceSpecs.push({
-        id: res.id,
-        href: res.href,
-        name: res.name
-      });
-    }
-    this.cdr.detectChanges();
-    console.log(this.selectedResourceSpecs)
-  }
-
-  isResSelected(res: any) {
-    const index = this.selectedResourceSpecs.findIndex(item => item.id === res.id);
-    if (index !== -1) {
-      return true
-    } else {
-      return false;
-    }
-  }
 
   async getServSpecs(next: boolean) {
     if (next == false) {
@@ -1385,7 +1365,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
             "@referredType": ''
           }
         ],
-        resourceSpecification: this.selectedResourceSpecs,
+        resourceSpecification: this.selectedResourceSpecs.map(res => ({ id: res.id, href: res.href })),
         serviceSpecification: this.selectedServiceSpecs
       }
       if (this.blueprintConfig) {
