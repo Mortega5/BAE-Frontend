@@ -82,6 +82,7 @@ export interface RangeValueFormField extends BaseFormField {
 export interface TableColumn<T = any> {
   header: string;
   getValue: (item: T) => string | number | boolean | null | undefined;
+  type?: 'text' | 'badge';
   cellClass?: string | ((item: T) => string);
   /** Tailwind width class applied to the `<th>` to control column width when used with `table-fixed`. e.g. `'w-1/2'`, `'w-32'`. Columns without a width share the remaining space equally. */
   width?: string;
