@@ -1,4 +1,5 @@
-const BASE = 'bg-blue-100 dark:bg-secondary-300 text-xs font-medium me-2 px-2.5 py-0.5 rounded border';
+export const BADGE_BASE = 'bg-blue-100 dark:bg-secondary-300 text-xs font-medium me-2 px-2.5 py-0.5 rounded border';
+const BASE = BADGE_BASE;
 
 const STATUS_CLASSES: Record<string, string> = {
   Active: 'text-blue-600 border-blue-400',

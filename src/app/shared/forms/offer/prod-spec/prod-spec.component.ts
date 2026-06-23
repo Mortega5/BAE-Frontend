@@ -2,9 +2,10 @@ import {Component, forwardRef, Input, OnInit, OnDestroy, Output, EventEmitter} f
 import {
   ControlValueAccessor,
   FormControl,
+  FormsModule,
   NG_VALUE_ACCESSOR,
 } from "@angular/forms";
-import {DatePipe, NgClass} from "@angular/common";
+import {DatePipe} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import {ProductSpecServiceService} from "../../../../services/product-spec-service.service";
 import {PaginationService} from "../../../../services/pagination.service";
@@ -12,6 +13,9 @@ import {environment} from "../../../../../environments/environment";
 import { FormChangeState } from "src/app/models/interfaces";
 import { Subscription } from "rxjs";
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { TableInputComponent } from '../../table-input/table-input.component';
+import { TableColumn } from 'src/app/models/formFields/form-field.model';
+import { BADGE_BASE, lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 
 interface ProductSpec {
   id: string;
@@ -28,15 +32,17 @@ interface ProductSpec {
   imports: [
     DatePipe,
     TranslateModule,
-    NgClass,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    FormsModule,
+    TableInputComponent,
   ],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
       useExisting: forwardRef(() => ProdSpecComponent),
       multi: true
-    }
+    },
+    DatePipe,
   ],
   templateUrl: './prod-spec.component.html',
   styleUrl: './prod-spec.component.css'
@@ -66,10 +72,24 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
 
   protected readonly FormControl = FormControl;
 
-  constructor(private prodSpecService: ProductSpecServiceService,
-              private paginationService: PaginationService) {
-    console.log('🔄 Initializing ProdSpecComponent');
-  }
+  prodColumns: TableColumn[] = [
+    { header: 'Name', getValue: (item: any) => item.name ?? '-' },
+    {
+      header: 'Type', width: 'w-28', type: 'badge',
+      getValue: (item: any) => item.isBundle ? 'Bundle' : 'Simple',
+      cellClass: (item: any) => item.isBundle
+        ? `${BADGE_BASE} text-green-500 border-green-500`
+        : `${BADGE_BASE} text-blue-600 border-blue-400`,
+    },
+    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus) },
+    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52' },
+  ];
+
+  constructor(
+    private prodSpecService: ProductSpecServiceService,
+    private paginationService: PaginationService,
+    private datePipe: DatePipe,
+  ) {}
 
   async ngOnInit() {
     console.log('📝 Initializing form in', this.formType, 'mode');
@@ -130,18 +150,11 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
     await this.getSellerProdSpecs(true);
   }
 
-  getStatusClass(status: string): string {
-    const statusClasses: Record<string, string> = {
-      "Active": "text-blue-600 border-blue-400",
-      "Launched": "text-green-500 border-green-500",
-      "Retired": "text-yellow-500 border-yellow-500",
-      "Obsolete": "text-red-500 border-red-500"
-    };
-    return statusClasses[status] || "text-gray-500 border-gray-400";
-  }
-
-  getBundleClass(isBundle: boolean): string {
-    return isBundle ? "text-green-500 border-green-500" : "text-blue-600 border-blue-400";
+  onProdSpecChange(prod: ProductSpec | null): void {
+    this.selectedProdSpecInternal = prod;
+    this.onChange(prod);
+    this.onTouched();
+    if (this.isEditMode) this.hasBeenModified = true;
   }
 
   // As ControlValueAccessor
@@ -164,29 +177,6 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
 
   registerOnTouched(fn: any): void {
     this.onTouched = fn;
-  }
-
-  isSelected(prodId: string): boolean {
-    return this.selectedProdSpecInternal?.id === prodId;
-  }
-
-  toggleSelection(prod: ProductSpec): void {
-    if (this.isEditMode) {
-      console.log('📝 Cannot change product spec in update mode');
-      return;
-    }
-    
-    console.log('🔄 Toggling selection:', prod);
-    // Si el producto ya está seleccionado, lo deseleccionamos. Si no, lo seleccionamos.
-    this.selectedProdSpecInternal = this.selectedProdSpecInternal?.id === prod.id ? null : prod;
-    this.onChange(this.selectedProdSpecInternal);
-    this.onTouched();
-  }
-
-  getRowClass(prodId: string): string {
-    return prodId === this.selectedProdSpecInternal?.id
-      ? "bg-white dark:bg-secondary-100"
-      : "bg-white dark:bg-secondary-300";
   }
 
   private getDirtyFields(): string[] {
