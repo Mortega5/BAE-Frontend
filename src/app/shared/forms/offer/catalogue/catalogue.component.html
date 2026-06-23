@@ -13,62 +13,15 @@
             </div>
         </div>
     }@else{
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mt-4">
-        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                <tr>
-                    <th scope="col" class="px-4 py-3 w-12">
-                        <!-- Columna del Checkbox -->
-                      </th>
-                    <th scope="col" class="px-6 py-3">
-                        {{ 'OFFERINGS._name' | translate }}
-                    </th>
-                    <th scope="col" class="hidden md:table-cell px-6 py-3">
-                        {{ 'OFFERINGS._status' | translate }}
-                    </th>
-                    <th scope="col" class="hidden md:table-cell px-6 py-3">
-                        {{ 'OFFERINGS._role' | translate }}
-                    </th>
-                </tr>
-            </thead>
-            <tbody data-cy="catalogList">
-                @for (cat of catalogs; track cat) {
-                    <tr class="border-b hover:bg-gray-200 dark:border-gray-700 dark:hover:bg-secondary-200" (click)="toggleSelection(cat)"
-                        [ngClass]="cat.id == selectedCatalog.id ? 'bg-gray-300 dark:bg-secondary-200' : 'bg-white dark:bg-secondary-300'">
-
-                        <!-- Checkbox -->
-                        <td class="px-4 py-3 w-12">
-                            <input type="radio"
-                                name="catSelection"
-                                class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-                                [checked]="isSelected(cat.id)"
-                                (click)="$event.stopPropagation(); toggleSelection(cat)">
-                        </td>
-
-                        <td data-cy="offerCatalogName" [ngClass]="{
-                            'break-all': hasLongWord(cat.name, 20),
-                            'break-words': !hasLongWord(cat.name, 20)
-                            }" class="px-6 py-4 text-wrap break-words">
-                            {{cat.name}}
-                        </td>
-                        <td class="hidden md:table-cell px-6 py-4">
-                            @if(cat.lifecycleStatus == 'Active'){
-                                <span class="bg-blue-100 dark:bg-secondary-300 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{cat.lifecycleStatus}}</span>
-                            } @else if(cat.lifecycleStatus == 'Launched') {
-                                <span class="bg-blue-100 dark:bg-secondary-300 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">{{cat.lifecycleStatus}}</span>
-                            } @else if(cat.lifecycleStatus == 'suspended') {
-                                <span class="bg-blue-100 dark:bg-secondary-300 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{cat.lifecycleStatus}}</span>
-                            } @else if(cat.lifecycleStatus == 'terminated') {
-                                <span class="bg-blue-100 dark:bg-secondary-300 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{cat.lifecycleStatus}}</span>
-                            }
-                        </td>
-                        <td class="hidden md:table-cell px-6 py-4">
-                            {{cat.relatedParty?.at(0)?.role}}
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+    <div class="w-full mt-4">
+        <app-table-input
+            data-cy="catalogList"
+            [columns]="catColumns"
+            [items]="catalogs"
+            [multiple]="false"
+            [ngModel]="selectedCatalogInternal"
+            (ngModelChange)="onCatalogChange($event)">
+        </app-table-input>
     </div>
     }
     @if (!loadingCatalog_more) {
