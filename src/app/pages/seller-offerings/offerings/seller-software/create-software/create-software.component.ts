@@ -8,6 +8,7 @@ import { LoginInfo } from 'src/app/models/interfaces';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ApiServiceService } from 'src/app/services/product-service.service';
+import { PaginationService } from 'src/app/services/pagination.service';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 
 import { components } from "src/app/models/software-catalog";
@@ -79,6 +80,12 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
 
   resourceCharacteristics: CharacteristicValueSpecification[] = [];
 
+  SPEC_LIMIT = environment.RES_SPEC_LIMIT;
+  specPage = 0;
+  specPageCheck = false;
+  loadingSpec_more = false;
+  nextSpecs: any[] = [];
+
   errorMessage: any = '';
   showError = false;
   private destroy$ = new Subject<void>();
@@ -88,6 +95,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService,
     private api: ApiServiceService,
     private resSpecService: ResourceSpecServiceService,
+    private paginationService: PaginationService,
     private datePipe: DatePipe,
   ) {
     this.eventMessage.messages$
@@ -100,20 +108,36 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.loading = true;
     this.initPartyInfo();
-    // TODO: this must load all the elements
-    this.resSpecService.getSoftwarePackageSpecs(this.partyId).subscribe({
-      next: specs => {
-        this.loading = false;
-        const field = this.softwareSpecFields[0];
-        if (field) field.items = specs ?? [];
-      },
-      error: error => {
-        console.error('Error getting Software Package Specs', error);
-        this.loading = false;
-      },
+    this.getSpecs(false);
+  }
+
+  async getSpecs(next: boolean) {
+    if (!next) {
+      this.loading = true;
+    } else {
+      this.loadingSpec_more = true;
+    }
+
+    const options = { filters: ['Active', 'Launched'], partyId: this.partyId };
+    const currentItems = this.softwareSpecFields[0]?.items ?? [];
+
+    this.paginationService.getItemsPaginated(
+      this.specPage, this.SPEC_LIMIT, next, currentItems, this.nextSpecs, options,
+      this.resSpecService.getSoftwarePackageSpecsByUser.bind(this.resSpecService)
+    ).then(data => {
+      this.specPageCheck = data.page_check;
+      const field = this.softwareSpecFields[0];
+      if (field) field.items = data.items;
+      this.nextSpecs = data.nextItems;
+      this.specPage = data.page;
+      this.loading = false;
+      this.loadingSpec_more = false;
     });
+  }
+
+  async nextSpec() {
+    await this.getSpecs(true);
   }
 
   ngOnDestroy() {
