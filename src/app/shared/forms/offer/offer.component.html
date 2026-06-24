@@ -15,7 +15,8 @@
   } @else {
   <form [formGroup]="productOfferForm">
 
-    <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance" [loading]="loading" [submitLabel]="isUpdate ? 'Update Offer' : 'Create Offer'" [submitAlwaysVisible]="isUpdate"
+    <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance" [loading]="loading"
+      [submitLabel]="isUpdate ? 'Update Offer' : 'Create Offer'" [submitAlwaysVisible]="isUpdate"
       [submitDisabled]="!isFormValid || loading" (stepChanged)="onStepChanged($event)" (submitted)="submitForm()">
 
       <ng-template stepperStep="General Info" stepId="general">
@@ -29,17 +30,17 @@
         </app-prod-spec-form>
       </ng-template>
 
+      @if(!isUpdate){
       <ng-template stepperStep="Catalogue" stepId="catalogue">
         <app-catalogue formControlName="catalogue" [partyId]="partyId"></app-catalogue>
       </ng-template>
+      }
 
-      @if(!isUpdate){
       <ng-template stepperStep="Category" stepId="category">
         <app-category-form formControlName="category" [data]="offer" [formType]="formType"
           (formChange)="handleSubformChange($event)">
         </app-category-form>
       </ng-template>
-      }
       <ng-template stepperStep="License" stepId="license">
         <app-license-form [data]="offer" [formType]="formType" [form]="productOfferForm.controls['license']"
           (formChange)="handleSubformChange($event)">
