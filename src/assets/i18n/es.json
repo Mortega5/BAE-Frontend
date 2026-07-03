@@ -2860,6 +2860,15 @@
       "_actions": "Actions",
       "_delete_price_comp": "Are you sure you want to delete this Price Component?",
       "_unable_undone": "This action can't be undone."
+    },
+    "PAGINATED_TABLE": {
+      "_rows_per_page": "Rows per page",
+      "_showing": "Showing {{rangeStart}}-{{rangeEnd}} of {{total}}",
+      "_first": "First page",
+      "_previous": "Previous page",
+      "_next": "Next page",
+      "_last": "Last page",
+      "_error_loading": "Error loading data"
     }
   },
   "USAGE_SPECS": {

@@ -1,0 +1,81 @@
+<div class="flex flex-col gap-3">
+  <div class="relative">
+    <app-table-input [columns]="columns" [items]="items" [multiple]="multiple" [selectable]="selectable"
+      [clickable]="clickable" [readonly]="readonly || loading" [ngModel]="selected"
+      (ngModelChange)="onSelectionChange($event)" (rowClick)="onRowClick($event)">
+    </app-table-input>
+
+    @if (loading) {
+    <div class="absolute inset-0 flex items-center justify-center bg-white/60 dark:bg-secondary-300/60 rounded-lg">
+      <app-loading-spinner containerClass="flex justify-center" />
+    </div>
+    }
+  </div>
+
+  @if (error) {
+  <div class="text-sm text-red-600 dark:text-red-400 text-center py-2">
+    {{ 'FORMS.PAGINATED_TABLE._error_loading' | translate }}
+  </div>
+  }
+
+  <div class="flex items-center justify-between flex-wrap gap-3 text-sm text-gray-600 dark:text-gray-300">
+    <div class="flex items-center gap-2">
+      <span class="hidden sm:inline">{{ 'FORMS.PAGINATED_TABLE._rows_per_page' | translate }}</span>
+      <select
+        class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5 text-center"
+        [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
+        @for (size of pageSizeOptions; track size) {
+        <option [ngValue]="size">{{ size }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="hidden sm:block">
+      {{ 'FORMS.PAGINATED_TABLE._showing' | translate: { rangeStart, rangeEnd, total } }}
+    </div>
+
+    <div class="flex items-center gap-1">
+      <button type="button"
+        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 dark:border-secondary-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-secondary-200"
+        [disabled]="currentPage === 1" (click)="goToPage(1)"
+        [attr.aria-label]="'FORMS.PAGINATED_TABLE._first' | translate">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M18 17l-5-5 5-5" />
+          <path d="M11 17l-5-5 5-5" />
+        </svg>
+      </button>
+
+      <button type="button"
+        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 dark:border-secondary-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-secondary-200"
+        [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)"
+        [attr.aria-label]="'FORMS.PAGINATED_TABLE._previous' | translate">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      <button type="button"
+        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 dark:border-secondary-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-secondary-200"
+        [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)"
+        [attr.aria-label]="'FORMS.PAGINATED_TABLE._next' | translate">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+
+      <button type="button"
+        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 dark:border-secondary-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-secondary-200"
+        [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)"
+        [attr.aria-label]="'FORMS.PAGINATED_TABLE._last' | translate">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M6 17l5-5-5-5" />
+          <path d="M13 17l5-5-5-5" />
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>

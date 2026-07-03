@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, forwardRef, Input } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { TableColumn } from 'src/app/models/formFields/form-field.model';
 
 @Component({
   selector: 'app-table-input',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule],
   templateUrl: './table-input.component.html',
   providers: [
     {
@@ -21,6 +22,9 @@ export class TableInputComponent implements ControlValueAccessor {
   @Input() items: any[] = [];
   @Input() multiple: boolean = false;
   @Input() readonly: boolean = false;
+  @Input() selectable: boolean = true;
+  @Input() clickable: boolean = false;
+  @Output() rowClick = new EventEmitter<any>();
 
   selected: any[] = [];
   private isDisabled: boolean = false;
@@ -57,7 +61,7 @@ export class TableInputComponent implements ControlValueAccessor {
   }
 
   toggle(item: any): void {
-    if (this.isReadonly) return;
+    if (this.isReadonly || !this.selectable) return;
     if (this.multiple) {
       const exists = this.isSelected(item);
       this.selected = exists
@@ -70,6 +74,14 @@ export class TableInputComponent implements ControlValueAccessor {
       this.onChange(alreadySelected ? null : item);
     }
     this.onTouched();
+  }
+
+  onRowClick(item: any): void {
+    if (this.isReadonly) return;
+    this.toggle(item);
+    if (this.clickable) {
+      this.rowClick.emit(item);
+    }
   }
 
   getCellClass(column: TableColumn, item: any): string {
