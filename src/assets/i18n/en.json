@@ -927,7 +927,8 @@
     },
     "UPDATE_SOFTWARE": {
       "_save": "Save",
-      "_edit": "Update Software Resource"
+      "_edit": "Update Software Resource",
+      "_update": "Update Software"
     },
     "CREATE_CATALOG": {
       "_back": "Back",
@@ -1513,7 +1514,8 @@
       "_need_help": "Need help?",
       "_explore_guidelines": "Explore our offering guidelines",
       "_view_kb": "View Knowledge Base",
-      "_add_new_software": "Add new Software"
+      "_add_new_software": "Add new Software",
+      "_create_custom_offer": "Create custom offer"
     },
     "ADMIN": {
       "_admin": "Administration",
@@ -2095,7 +2097,11 @@
     "_applied_billing_rates": "Applied Billing Rates",
     "_product_acbr_ref": "Product ACBR reference",
     "_no_billing_rates": "No billing rates found",
-    "_period_coverage": "Period Coverage"
+    "_period_coverage": "Period Coverage",
+    "_download": "Download",
+    "_edit": "Edit",
+    "_save": "Save",
+    "_cancel": "Cancel"
   },
   "CREATE_CATALOG": {
     "_back": "Back",
@@ -2149,7 +2155,8 @@
   },
   "UPDATE_SOFTWARE": {
     "_save": "Save",
-    "_edit": "Update Software Resource"
+    "_edit": "Update Software Resource",
+    "_update": "Update Software"
   },
   "UPDATE_CATALOG": {
     "_back": "Back",
@@ -2650,6 +2657,8 @@
     "_cancel": "Cancel",
     "_no_steps": "No steps added yet.",
     "_actions": "Actions",
+    "_edit_step": "Edit step",
+    "_delete_step": "Delete step",
     "_none": "None",
     "_on_failure_abort": "Abort",
     "_on_failure_continue": "Continue",
@@ -3273,7 +3282,8 @@
     "_service_spec_delete_success": "Service specification deleted",
     "_service_spec_delete_error": "Could not delete this service specification.",
     "_resource_spec_delete_success": "Resource specification deleted",
-    "_resource_spec_delete_error": "Could not delete this resource specification."
+    "_resource_spec_delete_error": "Could not delete this resource specification.",
+    "_create_custom_offer": "Create custom offer"
   },
   "ADMIN": {
     "_admin": "Administration",
@@ -3459,7 +3469,13 @@
     "_show_customer_details": "Show Customer Details",
     "_img": "Img",
     "_price_plan": "Price Plan",
-    "_state": "State"
+    "_state": "State",
+    "_show_notes": "Show notes",
+    "_acknowledge_order": "Acknowledge the order item",
+    "_reject_order": "Reject the order item",
+    "_start_treatment": "Start order treatment",
+    "_complete_order": "Order completely treated",
+    "_fail_order": "Order completely failed"
   },
   "FORMS": {
     "PROCUREMENT_MODE": {
@@ -3551,6 +3567,16 @@
       "_actions": "Actions",
       "_delete_price_comp": "Are you sure you want to delete this Price Component?",
       "_unable_undone": "This action can't be undone."
+    },
+    "PAGINATED_TABLE": {
+      "_rows_per_page": "Rows per page",
+      "_showing": "Showing {{rangeStart}}-{{rangeEnd}} of {{total}}",
+      "_first": "First page",
+      "_previous": "Previous page",
+      "_next": "Next page",
+      "_last": "Last page",
+      "_error_loading": "Error loading data",
+      "_selected_count": "{{count}} selected"
     }
   },
   "USAGE_SPECS": {

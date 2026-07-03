@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, lastValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { applySort, PageRequest, PageResult } from '../models/pagination.model';
 import { components } from "../models/resource-catalog";
 import { SoftwareSupportPackage, SoftwareSupportPackageSpecification } from "../models/software.model";
 import { LocalStorageService } from "./local-storage.service";
@@ -75,6 +76,29 @@ export class ResourceSpecServiceService {
     return lastValueFrom(this.http.get<any>(url));
   }
 
+  async getResourceSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any, type: ResourceSpecType = 'ResourceSpecification'): Promise<PageResult<any>> {
+    const resource = this.RESOURCE_API[type]?.resource;
+    const spec = this.RESOURCE_API[type].spec;
+
+    const codeParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      'relatedParty.id': partyId,
+    };
+    applySort(params, codeParams);
+
+    if (status && status.length > 0) {
+      codeParams['lifecycleStatus'] = status.join(',');
+    }
+    const queryParams = { ...filter, ...codeParams };
+
+    const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}`;
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
+  }
+
   getResSpecById(id: any, type: ResourceSpecType = 'ResourceSpecification') {
 
     const resource = this.RESOURCE_API[type].resource;
@@ -122,6 +146,24 @@ export class ResourceSpecServiceService {
     return this.http.get<SoftwareSupportPackage[]>(url, { params });
   }
 
+  async getSoftwareSupportPackagesPaged(params: PageRequest, partyId: string): Promise<PageResult<SoftwareSupportPackage>> {
+    const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackage'];
+    const codeParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      resourceStatus: 'available',
+      'relatedParty.id': partyId,
+      '@type': 'SoftwareSupportPackage',
+    };
+    applySort(params, codeParams);
+
+    const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}`;
+    const response = await lastValueFrom(this.http.get<SoftwareSupportPackage[]>(url, { params: codeParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
+  }
+
   getSoftwareSupportPackage(id: string): Observable<SoftwareSupportPackage> {
 
     const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackage'];
@@ -156,22 +198,6 @@ export class ResourceSpecServiceService {
 
     const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}`;
     return this.http.get<SoftwareSupportPackageSpecification[]>(url, { params });
-  }
-
-  getSoftwarePackageSpecsByUser(page: any, status: any[], partyId: any): Promise<SoftwareSupportPackageSpecification[]> {
-    const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackageSpecification'];
-    const limit = ResourceSpecServiceService.RES_SPEC_LIMIT;
-    let url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}?limit=${limit}&offset=${page}&relatedParty.id=${partyId}&@type=SoftwareSupportPackageSpecification`;
-
-    let lifeStatus = '';
-    if (status.length > 0) {
-      for (let i = 0; i < status.length; i++) {
-        lifeStatus += i === status.length - 1 ? status[i] : status[i] + ',';
-      }
-      url += '&lifecycleStatus=' + lifeStatus;
-    }
-
-    return lastValueFrom(this.http.get<SoftwareSupportPackageSpecification[]>(url));
   }
 
   getSoftwarePackageSpec(id: string, partyId: string) {

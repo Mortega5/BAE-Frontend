@@ -2,7 +2,7 @@ import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from "@angular/forms";
 import { Subject } from "rxjs";
 import { debounceTime, takeUntil } from "rxjs/operators";
-import { FormField } from 'src/app/models/formFields/form-field.model';
+import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
@@ -15,13 +15,6 @@ interface GeneralInfo {
   description: string;
   version: string;
 }
-
-const STATUS_ACTIVE_CLASSES: Record<string, string> = {
-  Active: 'text-green-600',
-  Launched: 'text-green-700',
-  Retired: 'text-red-700',
-  Obsolete: 'text-gray-800',
-};
 
 @Component({
   selector: 'app-general-info-form',
@@ -102,9 +95,7 @@ export class GeneralInfoComponent implements OnInit, OnDestroy {
   }
 
   private buildFields(): void {
-    const statusOptions = ['Active', 'Launched', 'Retired', 'Obsolete']
-      .filter(s => !this.disabledStatuses.includes(s))
-      .map(s => ({ value: s, label: s, activeClass: STATUS_ACTIVE_CLASSES[s] ?? 'text-gray-500', dataCy: `offerStatus${s}` }));
+    const statusOptions = buildLifecycleStatusOptions('offerStatus', this.disabledStatuses);
 
     this.fields = [
       { type: 'string', name: 'name', label: 'CREATE_OFFER._name', required: true, maxLength: 100, colSpan: 1, dataCy: 'offerName' },

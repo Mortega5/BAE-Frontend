@@ -1,6 +1,11 @@
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
+
 interface BaseFormField {
   name: string;
   label: string;
+  icon?: IconDefinition;
   required?: boolean;
   readonly?: boolean;
   colSpan?: number;
@@ -61,6 +66,34 @@ export interface StatusPickerFormField extends BaseFormField {
   options: StatusPickerOption[];
 }
 
+const LIFECYCLE_STATUSES = ['Active', 'Launched', 'Retired', 'Obsolete'] as const;
+export type LifecycleStatus = typeof LIFECYCLE_STATUSES[number];
+
+const LIFECYCLE_STATUS_ACTIVE_CLASSES: Record<LifecycleStatus, string> = {
+  Active: 'text-blue-500',
+  Launched: 'text-green-700 dark:text-green-400',
+  Retired: 'text-red-700 dark:text-red-400',
+  Obsolete: 'text-gray-700 dark:text-gray-400',
+};
+
+const LIFECYCLE_STATUS_LABELS: Record<LifecycleStatus, string> = {
+  Active: 'UPDATE_CATALOG._active',
+  Launched: 'UPDATE_CATALOG._launched',
+  Retired: 'UPDATE_CATALOG._retired',
+  Obsolete: 'UPDATE_CATALOG._obsolete',
+};
+
+export function buildLifecycleStatusOptions(dataCyPrefix: string = '', disabledStatuses: string[] = []): StatusPickerOption[] {
+  return LIFECYCLE_STATUSES
+    .filter(status => !disabledStatuses.includes(status))
+    .map(status => ({
+      value: status,
+      label: LIFECYCLE_STATUS_LABELS[status],
+      activeClass: LIFECYCLE_STATUS_ACTIVE_CLASSES[status],
+      dataCy: `${dataCyPrefix}${status}`,
+    }));
+}
+
 export interface MultiValueStringFormField extends TextBaseFormField {
   type: 'multiValueString';
   addLabel?: string;
@@ -81,20 +114,24 @@ export interface RangeValueFormField extends BaseFormField {
   setLabel?: string;
 }
 
-export interface TableColumn<T = any> {
-  header: string;
-  getValue: (item: T) => string | number | boolean | null | undefined;
-  type?: 'text' | 'badge';
-  cellClass?: string | ((item: T) => string);
-  /** Tailwind width class applied to the `<th>` to control column width when used with `table-fixed`. e.g. `'w-1/2'`, `'w-32'`. Columns without a width share the remaining space equally. */
-  width?: string;
-}
-
 export interface TableFormField extends BaseFormField {
   type: 'table';
   columns: TableColumn[];
   items: any[];
   multiple?: boolean;
+  /** When provided, rows for which this returns false are disabled (no toggle, no row click). */
+  isSelectable?: (item: any) => boolean;
+}
+
+export interface PaginatedTableFormField extends BaseFormField {
+  type: 'paginatedTable';
+  columns: TableColumn[];
+  fetchPage: (params: PageRequest) => Promise<PageResult<any>>;
+  multiple?: boolean;
+  pageSizeOptions?: number[];
+  defaultSort?: TableSort;
+  /** When provided, rows for which this returns false are disabled (no toggle, no row click). */
+  isSelectable?: (item: any) => boolean;
 }
 
 export type CodeLanguage = 'json' | 'yaml' | 'typescript' | 'javascript';
@@ -109,4 +146,4 @@ export interface CodeFormField extends BaseFormField {
   theme?: CodeTheme;
 }
 
-export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | CodeFormField;
+export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | PaginatedTableFormField | CodeFormField;

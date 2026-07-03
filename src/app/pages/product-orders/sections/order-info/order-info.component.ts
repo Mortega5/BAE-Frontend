@@ -1,68 +1,162 @@
-import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
 import { CommonModule, DatePipe } from '@angular/common';
-import { LoginInfo, billingAccountCart } from 'src/app/models/interfaces';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import { AccountServiceService } from 'src/app/services/account-service.service';
-import {LocalStorageService} from "src/app/services/local-storage.service";
-import { ProductOrderService } from 'src/app/services/product-order-service.service';
-import { PaginationService } from 'src/app/services/pagination.service';
-import { FastAverageColor } from 'fast-average-color';
-import {components} from "src/app/models/product-catalog";
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-type ProductOffering = components["schemas"]["ProductOffering"];
-import { phoneNumbers, countries } from 'src/app/models/country.const'
-import {Drawer, initFlowbite, Modal} from 'flowbite';
-import {EventMessageService} from "src/app/services/event-message.service";
-import moment from 'moment';
-import { environment } from 'src/environments/environment';
-import {faIdCard, faSort, faSwatchbook} from "@fortawesome/pro-solid-svg-icons";
-import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import {SharedModule} from "../../../../shared/shared.module";
-import { v4 as uuidv4 } from 'uuid';
+import { faCheck, faCircleCheck, faCircleXmark, faIdCard, faPlay, faSort, faStickyNote, faSwatchbook, faXmark } from "@fortawesome/pro-solid-svg-icons";
+import { TranslateModule } from '@ngx-translate/core';
+import { Drawer, initFlowbite, Modal } from 'flowbite';
+import moment from 'moment';
 import { from, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { countries } from 'src/app/models/country.const';
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { LoginInfo } from 'src/app/models/interfaces';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { components } from "src/app/models/product-catalog";
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
+import { AccountServiceService } from 'src/app/services/account-service.service';
+import { EventMessageService } from "src/app/services/event-message.service";
+import { LocalStorageService } from "src/app/services/local-storage.service";
+import { PaginationService } from 'src/app/services/pagination.service';
+import { ProductOrderService } from 'src/app/services/product-order-service.service';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
+import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { environment } from 'src/environments/environment';
+import { v4 as uuidv4 } from 'uuid';
+import { SharedModule } from "../../../../shared/shared.module";
+type ProductOffering = components["schemas"]["ProductOffering"];
 
 @Component({
   selector: 'app-order-info',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule, SharedModule,
-    LoadingSpinnerComponent
+    FilteredPaginatedTableComponent, TableInputComponent, LoadingSpinnerComponent
   ],
   providers: [DatePipe],
   templateUrl: './order-info.component.html',
   styleUrl: './order-info.component.css'
 })
 export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
-  loading: boolean = false;
-  orders:any[]=[];
-  nextOrders:any[]=[];
-  profile:any;
-  partyId:any='';
-  showOrderDetails:boolean=false;
-  orderToShow:any;
+  profile: any;
+  partyId: any = '';
+  showOrderDetails: boolean = false;
+  orderToShow: any;
+  loadingOrderDetails: boolean = false;
   dateRange = new FormControl();
   countries: any[] = countries;
-  preferred:boolean=false;
-  loading_more: boolean = false;
-  page_check:boolean = true;
+  preferred: boolean = false;
   showError: boolean = false;
   errorMessage: string = '';
   customerName$!: Observable<string>;
 
-  page: number=0;
-  ORDER_LIMIT: number = environment.ORDER_LIMIT;
-  filters: any[]=[];
-  actionFilters: string[] = [];
-  check_custom:boolean=false;
+  check_custom: boolean = false;
 
   buyerRole: string = environment.BUYER_ROLE;
   sellerRole: string = environment.SELLER_ROLE;
 
-  isSeller:boolean = false;
-  role:any = this.buyerRole
+  isSeller: boolean = false;
+  role: any = this.buyerRole
+
+  @ViewChild(FilteredPaginatedTableComponent) paginatedTable?: FilteredPaginatedTableComponent<any>;
+
+  defaultSort: TableSort = { key: 'orderDate', direction: 'desc' };
+
+  orderColumns: TableColumn[] = [
+    { header: 'PRODUCT_INVENTORY._order_id', getValue: (item: any) => `...${item.id.slice(-6)}`, width: 'w-28', hideOnMobile: true, sortKey: 'id' },
+    { header: 'PRODUCT_INVENTORY._status', type: 'badge', getValue: (item: any) => item.state ?? 'PRODUCT_ORDERS._unchecked', cellClass: (item: any) => this.orderStateClass(item.state), width: 'w-28', sortKey: 'state' },
+    { header: 'PRODUCT_INVENTORY._bill', getValue: (item: any) => item.billingAccount?.name ?? '-', width: 'w-1/3', hideOnMobile: true },
+    { header: 'PRODUCT_ORDERS._date', type: 'date', getValue: (item: any) => item.orderDate, sortKey: 'orderDate' },
+    { header: 'PRODUCT_ORDERS._actions', type: 'icon-button', icon: faStickyNote, tooltip: 'PRODUCT_ORDERS._show_notes', dataCy: 'orderNotesButton', onClick: (item: any) => this.toggleDrawer(item), width: 'w-24' },
+  ];
+
+  orderItemColumns: TableColumn[] = [
+    { header: 'PRODUCT_ORDERS._img', type: 'image', getValue: (item: any) => this.getProductImage(item), width: 'w-24' },
+    { header: 'PRODUCT_ORDERS._name', getValue: (item: any) => item.name },
+    { header: 'PRODUCT_ORDERS._price_plan', getValue: (item: any) => this.getPricePlanLabel(item) },
+    {
+      header: 'PRODUCT_ORDERS._state', type: 'badge', width: 'w-28',
+      getValue: (item: any) => item.productOrderItem.state ?? 'Unchecked',
+      cellClass: (item: any) => this.orderStateClass(item.productOrderItem.state),
+    },
+    {
+      header: 'PRODUCT_ORDERS._items_action', type: 'badge', width: 'w-28',
+      getValue: (item: any) => item.productOrderItem.action,
+      cellClass: (item: any) => this.orderItemActionClass(item.productOrderItem.action),
+    },
+    {
+      header: 'PRODUCT_ORDERS._actions', type: 'actions', width: 'w-40',
+      actions: [
+        {
+          icon: faCheck, tooltip: 'PRODUCT_ORDERS._acknowledge_order', dataCy: 'acknowledgeOrder',
+          buttonClass: 'bg-primary-100 hover:bg-blue-800 focus:ring-blue-300',
+          onClick: (item: any) => this.openModal('acknowledged', item),
+          showIf: (item: any) => this.canAcknowledgeOrReject(item),
+        },
+        {
+          icon: faXmark, tooltip: 'PRODUCT_ORDERS._reject_order', dataCy: 'rejectOrder',
+          buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300',
+          onClick: (item: any) => this.openModal('cancelled', item),
+          showIf: (item: any) => this.canAcknowledgeOrReject(item),
+        },
+        {
+          icon: faPlay, tooltip: 'PRODUCT_ORDERS._start_treatment', dataCy: 'startOrderTreatment',
+          buttonClass: 'bg-green-500 hover:bg-green-600 focus:ring-green-300',
+          onClick: (item: any) => this.openModal('inProgress', item),
+          showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'acknowledged',
+        },
+        {
+          icon: faCircleCheck, tooltip: 'PRODUCT_ORDERS._complete_order', dataCy: 'completeOrder',
+          buttonClass: 'bg-green-500 hover:bg-green-600 focus:ring-green-300',
+          onClick: (item: any) => this.openModal('completed', item),
+          showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'inProgress',
+        },
+        {
+          icon: faCircleXmark, tooltip: 'PRODUCT_ORDERS._fail_order', dataCy: 'failOrder',
+          buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300',
+          onClick: (item: any) => this.openModal('failed', item),
+          showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'inProgress',
+        },
+      ],
+      emptyLabel: (item: any) => this.hasProcurementAutomaticTerm(item) && this.role !== this.sellerRole ? 'n/a' : null,
+    },
+  ];
+
+  orderFilters: FormField[] = [
+    {
+      name: 'action',
+      label: 'PRODUCT_ORDERS._filter_action',
+      type: 'select',
+      icon: faSwatchbook,
+      multiple: true,
+      defaultValue: [],
+      colSpan: 1,
+      options: [
+        { value: 'add', label: 'PRODUCT_ORDERS._action_add' },
+        { value: 'modify', label: 'PRODUCT_ORDERS._action_modify' },
+        { value: 'delete', label: 'PRODUCT_ORDERS._action_delete' },
+      ],
+    },
+    {
+      name: 'status',
+      label: 'PRODUCT_ORDERS._filter_state',
+      type: 'select',
+      icon: faSwatchbook,
+      multiple: true,
+      defaultValue: [],
+      colSpan: 1,
+      options: [
+        { value: 'acknowledged', label: 'PRODUCT_ORDERS._acknowledged' },
+        { value: 'inProgress', label: 'PRODUCT_ORDERS._in_progress' },
+        { value: 'partial', label: 'PRODUCT_ORDERS._partial' },
+        { value: 'completed', label: 'PRODUCT_ORDERS._completed' },
+        { value: 'failed', label: 'PRODUCT_ORDERS._failed' },
+        { value: 'pending', label: 'PRODUCT_ORDERS._pending' },
+        { value: 'cancelled', label: 'PRODUCT_ORDERS._cancelled' },
+      ],
+    },
+  ];
 
   // Confirm modal stuff
   @ViewChild('confirmModal') confirmModal!: ElementRef;
@@ -86,12 +180,10 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected readonly faIdCard = faIdCard;
   protected readonly faSort = faSort;
-  protected readonly faSwatchbook = faSwatchbook;
   private destroy$ = new Subject<void>();
 
   constructor(
     private localStorage: LocalStorageService,
-    private api: ApiServiceService,
     private cdr: ChangeDetectorRef,
     private router: Router,
     private accountService: AccountServiceService,
@@ -100,18 +192,18 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     private paginationService: PaginationService,
   ) {
     this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'ChangedSession') {
-        this.initPartyInfo();
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'ChangedSession') {
+          this.initPartyInfo();
+        }
+      })
   }
 
   @HostListener('document:click')
   onClick() {
-    if(this.showOrderDetails==true){
-      this.showOrderDetails=false;
+    if (this.showOrderDetails == true) {
+      this.showOrderDetails = false;
       this.cdr.detectChanges();
     }
     //initFlowbite();
@@ -124,7 +216,8 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
       this.modalInstance.show();
     } else {
       console.error("Modal instance is not initialized!");
-    }  }
+    }
+  }
 
   closeModal() {
     if (this.modalInstance) {
@@ -166,6 +259,9 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log("Order state updated successfully:", stateResponse);
 
       this.orderToShow.state = stateResponse.state;
+      // orderToShow is a separate (enriched) object from the row cached by the orders
+      // table, so its state change doesn't propagate there on its own - patch it locally.
+      this.paginatedTable?.patchItem((o: any) => o.id === this.orderToShow.id, { state: stateResponse.state });
     } catch (error) {
       this.selectedItem.productOrderItem['state'] = prevState
 
@@ -207,19 +303,18 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.loading = true;
     this.initPartyInfo();
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  initPartyInfo(){
+  initPartyInfo() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
-      if(aux.logged_as==aux.id){
+    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+      if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
         this.currentUser = aux.user;
         let userRoles = aux.roles.map((elem: any) => {
@@ -239,14 +334,12 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
       //this.partyId = aux.partyId;
-      this.page = 0;
-      this.orders = [];
-      this.getOrders(false);
+      this.paginatedTable?.refresh(true);
     }
     initFlowbite();
   }
 
-  ngAfterViewInit(): void{
+  ngAfterViewInit(): void {
     initFlowbite();
     const drawerElement = document.getElementById('drawer-notes');
     if (drawerElement) {
@@ -302,123 +395,119 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  getProductImage(prod:ProductOffering) {
+  getProductImage(prod: ProductOffering) {
     let profile = prod?.attachment?.filter(item => item.name === 'Profile Picture') ?? [];
     let images = prod.attachment?.filter(item => item.attachmentType === 'Picture') ?? [];
-    if(profile.length!=0){
+    if (profile.length != 0) {
       images = profile;
     }
     return images.length > 0 ? images?.at(0)?.url : 'https://placehold.co/600x400/svg';
   }
 
-  async getOrders(next:boolean){
-    if(next==false){
-      this.loading=true;
-    }
-
-    let options = {
-      "filters": this.filters,
-      "partyId": this.partyId,
-      "orders": this.orders,
-      "role": this.role,
-      "actionFilters": this.actionFilters
-    }
-
-    this.paginationService.getItemsPaginated(this.page, this.ORDER_LIMIT, next, this.orders,this.nextOrders, options,
-      this.paginationService.getOrders.bind(this.paginationService)).then(data => {
-        console.log('--pag')
-        console.log(data)
-        console.log(this.orders)
-      this.page_check=data.page_check;
-      this.orders=data.items;
-      /*this.orders=[{
-        id: '12345',
-        quantity: 1,
-        action: 'add',
-        //billingAccount?: components["schemas"]["BillingAccountRef"];
-        itemPrice: [],
-        itemTerm: [],
-        itemTotalPrice: [],
-        payment: [],
-        product: {},
-        productOffering: {},
-        productOrderItem: [],
-        productOrderItemRelationship: [],
-        state: 'acknowledged'
-    }]*/
-      this.nextOrders=data.nextItems;
-      this.page=data.page;
-      this.loading=false;
-      this.loading_more=false;
-    })
+  fetchOrders = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
+    const status = (filters['status'] ?? []) as string[];
+    const action = (filters['action'] ?? []) as string[];
+    params.orderBy = 'orderDate';
+    params.orderDirection = 'desc';
+    return this.paginationService.getOrdersPaged(params, status, this.partyId, this.role, action);
   }
 
-  async next(){
-    console.log("-order-info-NEXT--")
-    await this.getOrders(true);
-  }
-
-  onStateFilterChange(filter:string){
-    const index = this.filters.findIndex(item => item === filter);
-    if (index !== -1) {
-      this.filters.splice(index, 1);
-    } else {
-      this.filters.push(filter)
-    }
-    this.getOrders(false);
-  }
-
-  onActionFilterChange(action:string){
-    const index = this.actionFilters.findIndex(item => item === action);
-    if (index !== -1) {
-      this.actionFilters.splice(index, 1);
-    } else {
-      this.actionFilters.push(action)
-    }
-    this.getOrders(false);
-  }
-
-  isFilterSelected(filter:any){
-    const index = this.filters.findIndex(item => item === filter);
-    if (index !== -1) {
-      return true
-    } else {
-      return false;
+  private orderStateClass(state: string): string {
+    const base = 'text-xs font-medium me-2 px-2.5 py-0.5 rounded border';
+    switch (state) {
+      case 'inProgress':
+      case 'acknowledged':
+        return `bg-blue-100 dark:bg-secondary-300 text-blue-600 border-blue-400 ${base}`;
+      case 'completed':
+        return `bg-blue-100 dark:bg-secondary-300 text-green-500 border-green-500 ${base}`;
+      case 'partial':
+        return `bg-blue-100 dark:bg-secondary-300 text-purple-500 border-purple-500 ${base}`;
+      case 'failed':
+      case 'cancelled':
+        return `bg-blue-100 dark:bg-secondary-300 text-red-500 border-red-500 ${base}`;
+      case 'pending':
+        return `bg-blue-100 dark:bg-secondary-300 text-yellow-500 border-yellow-500 ${base}`;
+      default:
+        return `bg-amber-500 dark:bg-amber-900 text-amber-900 dark:text-amber-100 border-amber-950 ${base}`;
     }
   }
 
-  getTotalPrice(items:any[]){
+  private orderItemActionClass(action: string): string {
+    const base = 'text-xs font-medium me-2 px-2.5 py-0.5 rounded border';
+    switch (action) {
+      case 'add':
+        return `bg-blue-100 dark:bg-secondary-300 text-blue-600 border-blue-400 ${base}`;
+      case 'delete':
+        return `bg-blue-100 dark:bg-secondary-300 text-red-500 border-red-500 ${base}`;
+      case 'modify':
+        return `bg-blue-100 dark:bg-secondary-300 text-yellow-500 border-yellow-500 ${base}`;
+      default:
+        return '';
+    }
+  }
+
+  private getPricePlanLabel(item: any): string {
+    const price = item.productOfferingPrice;
+    if (!price) return 'SHOPPING_CART._free';
+
+    if (price.priceType === 'custom') {
+      return price.name ?? 'Custom';
+    }
+
+    if (price.bundledPopRelationship?.length > 1) {
+      return `Bundled price plan: ${price.name}`;
+    }
+
+    let label = `${price.price?.value ?? ''} ${price.price?.unit ?? ''}`.trim();
+    if (price.unitOfMeasure) {
+      label += ` / ${price.unitOfMeasure.units}`;
+    }
+    if (price.recurringChargePeriodType) {
+      label += ` / ${price.recurringChargePeriodType}`;
+    }
+    return label;
+  }
+
+  private canAcknowledgeOrReject(item: any): boolean {
+    return !this.hasProcurementAutomaticTerm(item) && !item.productOrderItem.state && this.role === this.sellerRole;
+  }
+
+  private isSellerTreatingManualItem(item: any): boolean {
+    return !this.hasProcurementAutomaticTerm(item) && this.role === this.sellerRole;
+  }
+
+  getTotalPrice(items: any[]) {
     let totalPrice = [];
     let insertCheck = false;
-    this.check_custom=false;
-    for(let i=0; i<items.length; i++){
+    this.check_custom = false;
+    for (let i = 0; i < items.length; i++) {
       insertCheck = false;
-      if(totalPrice.length == 0 && items[i].productOfferingPrice != undefined){
-        if(items[i].productOfferingPrice.priceType != 'custom'){
+      if (totalPrice.length == 0 && items[i].productOfferingPrice != undefined) {
+        if (items[i].productOfferingPrice.priceType != 'custom') {
           totalPrice.push(items[i].productOfferingPrice);
         } else {
-          this.check_custom=true;
+          this.check_custom = true;
         }
       } else {
-        for(let j=0; j<totalPrice.length; j++){
-          if(items[i].productOfferingPrice != undefined){
-            if(items[i].productOfferingPrice.priceType != 'custom'){
-              if(items[i].productOfferingPrice.priceType == totalPrice[j].priceType && items[i].productOfferingPrice.unit == totalPrice[j].unit && items[i].productOfferingPrice.text == totalPrice[j].text){
-                totalPrice[j].price=totalPrice[j].price+items[i].productOfferingPrice.price;
-                insertCheck=true;
+        for (let j = 0; j < totalPrice.length; j++) {
+          if (items[i].productOfferingPrice != undefined) {
+            if (items[i].productOfferingPrice.priceType != 'custom') {
+              if (items[i].productOfferingPrice.priceType == totalPrice[j].priceType && items[i].productOfferingPrice.unit == totalPrice[j].unit && items[i].productOfferingPrice.text == totalPrice[j].text) {
+                totalPrice[j].price = totalPrice[j].price + items[i].productOfferingPrice.price;
+                insertCheck = true;
               }
             } else {
-              this.check_custom=true;
+              this.check_custom = true;
             }
           }
         }
-        if(insertCheck==false){
-          if(items[i].productOfferingPrice != undefined){
-            if(items[i].productOfferingPrice.priceType != 'custom'){
+        if (insertCheck == false) {
+          if (items[i].productOfferingPrice != undefined) {
+            if (items[i].productOfferingPrice.priceType != 'custom') {
               totalPrice.push(items[i].productOfferingPrice);
-              insertCheck=true;
+              insertCheck = true;
             } else {
-              this.check_custom=true;
+              this.check_custom = true;
             }
           }
         }
@@ -427,27 +516,29 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     return totalPrice
   }
 
-  toggleShowDetails(order:any){
-    //console.log(order)
-    this.showOrderDetails=true;
-    this.orderToShow=order;
+  async toggleShowDetails(order: any) {
+    this.showOrderDetails = true;
+    this.orderToShow = order;
     this.customerName$ = from(this.getCustomerName());
+    this.loadingOrderDetails = true;
+    try {
+      this.orderToShow = await this.paginationService.enrichOrder(order);
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+    } finally {
+      this.loadingOrderDetails = false;
+    }
   }
 
-  async onRoleChange(role: any) {
+  onRoleChange(role: any) {
     this.role = role;
-    await this.getOrders(false);
+    this.paginatedTable?.refresh(true);
   }
 
   hasProcurementAutomaticTerm(item: any): boolean {
     return item.productOfferingTerm?.some(
       (term: any) => term.name === "procurement" && term.description === "automatic"
     );
-  }
-
-
-  hasNotes(order: any): boolean{
-    return !!order.note;
   }
 
   async addNote(): Promise<void> {

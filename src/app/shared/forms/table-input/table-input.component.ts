@@ -1,12 +1,17 @@
-import { CommonModule } from '@angular/common';
-import { Component, forwardRef, Input } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
+import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { TableColumn } from 'src/app/models/formFields/form-field.model';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faChevronDown } from '@fortawesome/pro-solid-svg-icons';
+import { TranslateModule } from '@ngx-translate/core';
+import { TableColumn, TableColumnAction, TableSort } from 'src/app/models/table-column.model';
+
+const DEFAULT_DATE_FORMAT = 'EEEE, dd/MM/yy, HH:mm';
 
 @Component({
   selector: 'app-table-input',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, TranslateModule, FaIconComponent],
   templateUrl: './table-input.component.html',
   providers: [
     {
@@ -14,6 +19,7 @@ import { TableColumn } from 'src/app/models/formFields/form-field.model';
       useExisting: forwardRef(() => TableInputComponent),
       multi: true,
     },
+    DatePipe,
   ],
 })
 export class TableInputComponent implements ControlValueAccessor {
@@ -21,9 +27,22 @@ export class TableInputComponent implements ControlValueAccessor {
   @Input() items: any[] = [];
   @Input() multiple: boolean = false;
   @Input() readonly: boolean = false;
+  @Input() selectable: boolean = true;
+  @Input() clickable: boolean = false;
+  /** When provided, rows for which this returns false are disabled (no toggle, no row click). */
+  @Input() isSelectable?: (item: any) => boolean;
+  @Input() sort?: TableSort;
+  @Output() rowClick = new EventEmitter<any>();
+  @Output() sortChange = new EventEmitter<string>();
 
   selected: any[] = [];
+  tooltipText: string | null = null;
+  tooltipPosition = { top: 0, left: 0 };
   private isDisabled: boolean = false;
+
+  protected readonly faChevronDown = faChevronDown;
+
+  constructor(private datePipe: DatePipe) { }
 
   get isReadonly(): boolean {
     return this.readonly || this.isDisabled;
@@ -56,8 +75,12 @@ export class TableInputComponent implements ControlValueAccessor {
     return this.selected.some(s => s === item || (s?.id != null && s.id === item?.id));
   }
 
+  isRowSelectable(item: any): boolean {
+    return !this.isSelectable || this.isSelectable(item);
+  }
+
   toggle(item: any): void {
-    if (this.isReadonly) return;
+    if (this.isReadonly || !this.selectable || !this.isRowSelectable(item)) return;
     if (this.multiple) {
       const exists = this.isSelected(item);
       this.selected = exists
@@ -72,9 +95,76 @@ export class TableInputComponent implements ControlValueAccessor {
     this.onTouched();
   }
 
+  onSortClick(column: TableColumn): void {
+    if (!column.sortKey) return;
+    this.sortChange.emit(column.sortKey);
+  }
+
+  isSortAscending(column: TableColumn): boolean {
+    return column.sortKey === this.sort?.key && this.sort?.direction === 'asc';
+  }
+
+  onRowClick(item: any, event?: Event): void {
+    if (this.isReadonly || !this.isRowSelectable(item)) return;
+    this.toggle(item);
+    if (this.clickable) {
+      event?.stopPropagation();
+      this.rowClick.emit(item);
+    }
+  }
+
+  onColumnAction(column: TableColumn, item: any, event: Event): void {
+    event.stopPropagation();
+    if (column.type === 'icon-button') {
+      column.onClick(item);
+    }
+  }
+
+  onActionClick(action: TableColumnAction, item: any, event: Event): void {
+    event.stopPropagation();
+    action.onClick(item);
+  }
+
+  visibleActions(column: TableColumn, item: any): TableColumnAction[] {
+    if (column.type !== 'actions') return [];
+    return column.actions.filter(action => !action.showIf || action.showIf(item));
+  }
+
+  getActionsEmptyLabel(column: TableColumn, item: any): string {
+    if (column.type !== 'actions' || !column.emptyLabel) return '';
+    return column.emptyLabel(item) ?? '';
+  }
+
+  showTooltip(event: MouseEvent, tooltip: string | undefined): void {
+    if (!tooltip) return;
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.tooltipPosition = { top: rect.top - 8, left: rect.left + rect.width / 2 };
+    this.tooltipText = tooltip;
+  }
+
+  hideTooltip(): void {
+    this.tooltipText = null;
+  }
+
   getCellClass(column: TableColumn, item: any): string {
     if (!column.cellClass) return '';
     return typeof column.cellClass === 'function' ? column.cellClass(item) : column.cellClass;
+  }
+
+  getCellValue(column: TableColumn, item: any): string {
+    if (column.type === 'icon-button' || column.type === 'date' || column.type === 'actions' || column.type === 'image') return '';
+    const value = column.getValue ? column.getValue(item) : null;
+    return value == null ? '' : String(value);
+  }
+
+  getDateValue(column: TableColumn, item: any): string {
+    if (column.type !== 'date') return '';
+    return this.datePipe.transform(column.getValue(item), column.format ?? DEFAULT_DATE_FORMAT) ?? '-';
+  }
+
+  getImageValue(column: TableColumn, item: any): string {
+    if (column.type !== 'image') return '';
+    return column.getValue(item) ?? '';
   }
 
 }

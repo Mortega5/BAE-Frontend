@@ -4,6 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { catchError, lastValueFrom, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Category } from '../models/interfaces';
+import { applySort, PageRequest, PageResult } from '../models/pagination.model';
 import { components } from "../models/product-catalog";
 import { ProductOffering as ProductOfferingModel } from '../models/product.model';
 import { ResourceStatusType, SoftwareResource } from '../models/software.model';
@@ -204,6 +205,30 @@ export class ApiServiceService {
     return lastValueFrom(this.http.get<any[]>(url));
   }
 
+  async getProductOfferByOwnerPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any, isBundle: any): Promise<PageResult<any>> {
+    const codeParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      'relatedParty.id': partyId,
+    };
+
+    if (isBundle != undefined) {
+      codeParams['isBundle'] = isBundle;
+    }
+    if (status && status.length > 0) {
+      codeParams['lifecycleStatus'] = status.join(',');
+    }
+    applySort(params, codeParams);
+
+    const queryParams = { ...filter, ...codeParams };
+
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productOffering`;
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
+  }
+
   getProductSpecification(id: any) {
     let url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productSpecification/${id}`;
 
@@ -346,6 +371,25 @@ export class ApiServiceService {
     }
 
     return lastValueFrom(this.http.get<any>(url));
+  }
+
+  async getCatalogsByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any): Promise<PageResult<any>> {
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog`;
+    const codeParams: Record<string, string> = {
+      limit: String(params.limit),
+      offset: String(params.offset),
+      'relatedParty.id': partyId,
+    };
+    if (status && status.length > 0) {
+      codeParams['lifecycleStatus'] = status.join(',');
+    }
+    applySort(params, codeParams);
+    const queryParams = { ...filter, ...codeParams };
+
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
   }
 
   getCatalog(id: any) {
@@ -499,6 +543,26 @@ export class ApiServiceService {
 
     const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_SOFTWARE}/resource`;
     return lastValueFrom(this.http.get<SoftwareResource[]>(url, { params }));
+  }
+
+  async getSoftwareResourceByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: ResourceStatusType[], partyId: any): Promise<PageResult<SoftwareResource>> {
+    const codeParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      'relatedParty.id': partyId,
+      '@type': 'SoftwareSupportPackage'
+    };
+    if (status?.length > 0) {
+      codeParams['resourceStatus'] = status.join(',');
+    }
+    applySort(params, codeParams);
+    const queryParams = { ...filter, ...codeParams };
+
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_SOFTWARE}/resource`;
+    const response = await lastValueFrom(this.http.get<SoftwareResource[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
   }
 
   postSoftware(software: any) {

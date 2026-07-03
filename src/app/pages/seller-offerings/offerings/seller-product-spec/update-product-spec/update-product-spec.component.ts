@@ -8,9 +8,11 @@ import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
-import { FormField, TableColumn, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { buildLifecycleStatusOptions, FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
@@ -56,8 +58,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
   //PAGE SIZES:
   PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;
-  SERV_SPEC_LIMIT: number = environment.SERV_SPEC_LIMIT;
-  RES_SPEC_LIMIT: number = environment.RES_SPEC_LIMIT;
   DOME_TRUST_LINK: string = environment.DOME_TRUST_LINK;
   BUNDLE_ENABLED: boolean = environment.BUNDLE_ENABLED;
   DATA_SPACE_ENABLED: boolean = environment.DATA_SPACE_ENABLED;
@@ -169,31 +169,21 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   initialComplianceEvidenceSignature: string = '';
 
   //SERVICE INFO:
-  serviceSpecPage = 0;
-  serviceSpecPageCheck: boolean = false;
-  loadingServiceSpec: boolean = false;
-  loadingServiceSpec_more: boolean = false;
-  serviceSpecs: any[] = [];
-  nextServiceSpecs: any[] = [];
+  defaultServSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
   selectedServiceSpecs: any[] = [];
   servColumns: TableColumn[] = [
-    { header: 'Name', getValue: (item: any) => item.name ?? '-' },
-    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus) },
-    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52' },
+    { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
+    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
+    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52', sortKey: 'lastUpdate' },
   ];
 
   //RESOURCE INFO:
-  resourceSpecPage = 0;
-  resourceSpecPageCheck: boolean = false;
-  loadingResourceSpec: boolean = false;
-  loadingResourceSpec_more: boolean = false;
-  resourceSpecs: any[] = [];
-  nextResourceSpecs: any[] = [];
+  defaultResSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
   selectedResourceSpecs: any[] = [];
   resColumns: TableColumn[] = [
-    { header: 'Name', getValue: (item: any) => item.name ?? '-' },
-    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus) },
-    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52' },
+    { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
+    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
+    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52', sortKey: 'lastUpdate' },
   ];
 
   //RELATIONSHIPS INFO:
@@ -338,12 +328,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     { type: 'string', name: 'number', label: 'UPDATE_PROD_SPEC._id_number', colSpan: 1 },
     {
       type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_RES_SPEC._status',
-      options: [
-        { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
-        { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700', dataCy: 'productSpecStatusLaunched' },
-        { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
-        { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
-      ],
+      options: buildLifecycleStatusOptions('productSpecStatus'),
     },
     { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS, readonly: true },
 
@@ -365,8 +350,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     this.currentStepId = event.stepId as ProductSpecFormStep;
     this.refreshChars();
     if (this.currentStepId === 'compliance') { setTimeout(() => { initFlowbite(); }, 100); }
-    if (this.currentStepId === 'resource') { this.getResSpecs(false); }
-    if (this.currentStepId === 'service') { this.getServSpecs(false); }
     if (this.currentStepId === 'attachments') { setTimeout(() => { initFlowbite(); }, 100); }
     if (this.currentStepId === 'relationships') { this.getProdSpecsRel(false); }
     if (event.isLastStep) { this.showFinish(); }
@@ -969,63 +952,12 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     }
   }
 
-  async getResSpecs(next: boolean) {
-    if (next == false) {
-      this.loadingResourceSpec = true;
-    }
-
-    let options = {
-      "filters": ['Active', 'Launched'],
-      "partyId": this.partyId,
-      //"sort": undefined,
-      //"isBundle": false
-    }
-
-    this.paginationService.getItemsPaginated(this.resourceSpecPage, this.RES_SPEC_LIMIT, next, this.resourceSpecs, this.nextResourceSpecs, options,
-      this.resSpecService.getResourceSpecByUser.bind(this.resSpecService)).then(data => {
-        this.resourceSpecPageCheck = data.page_check;
-        this.resourceSpecs = data.items;
-        this.nextResourceSpecs = data.nextItems;
-        this.resourceSpecPage = data.page;
-        this.loadingResourceSpec = false;
-        this.loadingResourceSpec_more = false;
-      })
+  fetchResourceSpecs = (params: PageRequest): Promise<PageResult<any>> => {
+    return this.resSpecService.getResourceSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId);
   }
 
-  async nextRes() {
-    await this.getResSpecs(true);
-  }
-
-
-  async getServSpecs(next: boolean) {
-    if (next == false) {
-      this.loadingServiceSpec = true;
-    }
-
-    let options = {
-      "filters": ['Active', 'Launched'],
-      "partyId": this.partyId,
-      //"sort": undefined,
-      //"isBundle": false
-    }
-
-    this.paginationService.getItemsPaginated(this.serviceSpecPage, this.SERV_SPEC_LIMIT, next, this.serviceSpecs, this.nextServiceSpecs, options,
-      this.servSpecService.getServiceSpecByUser.bind(this.servSpecService)).then(data => {
-        this.serviceSpecPageCheck = data.page_check;
-        this.serviceSpecs = data.items;
-        this.nextServiceSpecs = data.nextItems;
-        this.serviceSpecPage = data.page;
-        this.loadingServiceSpec = false;
-        this.loadingServiceSpec_more = false;
-      })
-  }
-
-  async nextServ() {
-    this.loadingServiceSpec_more = true;
-    this.serviceSpecPage = this.serviceSpecPage + this.SERV_SPEC_LIMIT;
-    this.cdr.detectChanges;
-    console.log(this.serviceSpecPage)
-    await this.getServSpecs(true);
+  fetchServiceSpecs = (params: PageRequest): Promise<PageResult<any>> => {
+    return this.servSpecService.getServiceSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId);
   }
 
 

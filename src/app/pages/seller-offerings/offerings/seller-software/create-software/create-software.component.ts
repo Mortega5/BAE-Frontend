@@ -5,20 +5,20 @@ import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ApiServiceService } from 'src/app/services/product-service.service';
-import { PaginationService } from 'src/app/services/pagination.service';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 
 import { components } from "src/app/models/software-catalog";
 import { environment } from 'src/environments/environment';
-import { FormField, SelectOption, TableFormField } from '../../../../../models/formFields/form-field.model';
+import { FormField, SelectOption } from '../../../../../models/formFields/form-field.model';
 import { RESOURCE_STATUS_TYPES } from '../../../../../models/software.model';
-import { lifecycleStatusClass } from '../../../../../shared/utils/lifecycle-status.utils';
+import { TableColumn, TableSort } from '../../../../../models/table-column.model';
 import { ResourceSpecServiceService } from '../../../../../services/resource-spec-service.service';
-import { buildFormGroup } from '../../../../../shared/forms/dynamic-form/build-form-group.util';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
+import { lifecycleStatusClass } from '../../../../../shared/utils/lifecycle-status.utils';
 
 type SoftwareCreate = components["schemas"]["Resource_Create"];
 type CharacteristicValueSpecification = components["schemas"]["Characteristic"];
@@ -60,31 +60,18 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
     description: new FormControl('', Validators.maxLength(100000)),
   });
 
-  softwareSpecFields: TableFormField[] = [
-    {
-      name: 'softwareSpec',
-      label: 'Software specification',
-      type: 'table',
-      required: true,
-      multiple: false,
-      items: [],
-      columns: [
-        { header: 'Name', getValue: item => item.name ?? '-' },
-        { header: 'Version', getValue: item => item.version ?? '-', width: 'w-24' },
-        { header: 'Status', getValue: item => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: item => lifecycleStatusClass(item.lifecycleStatus) },
-        { header: 'Last update', getValue: item => this.datePipe.transform(item.lastUpdate, 'dd/MM/yy, HH:mm') ?? '-', width: 'w-36' },
-      ],
-    },
+  defaultSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
+  softwareSpecColumns: TableColumn[] = [
+    { header: 'Name', getValue: item => item.name ?? '-', sortKey: 'name' },
+    { header: 'Version', getValue: item => item.version ?? '-', width: 'w-24' },
+    { header: 'Status', getValue: item => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: item => lifecycleStatusClass(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
+    { header: 'Last update', getValue: item => this.datePipe.transform(item.lastUpdate, 'dd/MM/yy, HH:mm') ?? '-', width: 'w-36', sortKey: 'lastUpdate' },
   ];
-  softwareSpecForm = buildFormGroup(this.softwareSpecFields);
+  softwareSpecForm = new FormGroup({
+    softwareSpec: new FormControl<any>(null, Validators.required),
+  });
 
   resourceCharacteristics: CharacteristicValueSpecification[] = [];
-
-  SPEC_LIMIT = environment.RES_SPEC_LIMIT;
-  specPage = 0;
-  specPageCheck = false;
-  loadingSpec_more = false;
-  nextSpecs: any[] = [];
 
   errorMessage: any = '';
   showError = false;
@@ -95,7 +82,6 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService,
     private api: ApiServiceService,
     private resSpecService: ResourceSpecServiceService,
-    private paginationService: PaginationService,
     private datePipe: DatePipe,
   ) {
     this.eventMessage.messages$
@@ -109,35 +95,16 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.initPartyInfo();
-    this.getSpecs(false);
   }
 
-  async getSpecs(next: boolean) {
-    if (!next) {
-      this.loading = true;
-    } else {
-      this.loadingSpec_more = true;
-    }
-
-    const options = { filters: ['Active', 'Launched'], partyId: this.partyId };
-    const currentItems = this.softwareSpecFields[0]?.items ?? [];
-
-    this.paginationService.getItemsPaginated(
-      this.specPage, this.SPEC_LIMIT, next, currentItems, this.nextSpecs, options,
-      this.resSpecService.getSoftwarePackageSpecsByUser.bind(this.resSpecService)
-    ).then(data => {
-      this.specPageCheck = data.page_check;
-      const field = this.softwareSpecFields[0];
-      if (field) field.items = data.items;
-      this.nextSpecs = data.nextItems;
-      this.specPage = data.page;
-      this.loading = false;
-      this.loadingSpec_more = false;
-    });
+  fetchSoftwareSpecs = (params: PageRequest): Promise<PageResult<any>> => {
+    return this.resSpecService.getResourceSpecByUserPaged(
+      params, { '@type': 'SoftwareSupportPackageSpecification' }, ['Active', 'Launched'], this.partyId, 'SoftwareSupportPackageSpecification'
+    );
   }
 
-  async nextSpec() {
-    await this.getSpecs(true);
+  onSoftwareSpecChange(spec: any): void {
+    this.softwareSpecForm.get('softwareSpec')?.setValue(spec);
   }
 
   ngOnDestroy() {
