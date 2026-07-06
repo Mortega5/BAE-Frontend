@@ -48,16 +48,13 @@ describe('SellerCatalogsComponent', () => {
 
   it('onStateFilterChange should remove existing filter and reload catalogs', () => {
     component.status = ['Active', 'Launched'];
-    const getCatalogsSpy = spyOn(component, 'getCatalogs');
+    const refreshSpy = jasmine.createSpy('refresh');
+    component.paginatedTable = { refresh: refreshSpy } as any;
 
     component.onStateFilterChange('Active');
 
     expect(component.status).toEqual(['Launched']);
-    expect(component.loading).toBeTrue();
-    expect(component.page).toBe(0);
-    expect(component.catalogs).toEqual([]);
-    expect(component.nextCatalogs).toEqual([]);
-    expect(getCatalogsSpy).toHaveBeenCalledWith(false);
+    expect(refreshSpy).toHaveBeenCalledWith(true);
   });
 
   it('hasLongWord should detect long words and handle undefined', () => {

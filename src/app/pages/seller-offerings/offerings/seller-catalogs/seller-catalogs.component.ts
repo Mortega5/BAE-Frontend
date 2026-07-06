@@ -1,18 +1,20 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import {faIdCard, faSort, faSwatchbook} from "@fortawesome/pro-solid-svg-icons";
-import {components} from "src/app/models/product-catalog";
-type Catalog = components["schemas"]["Catalog"];
-import { environment } from 'src/environments/environment';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import {LocalStorageService} from "src/app/services/local-storage.service";
-import { LoginInfo } from 'src/app/models/interfaces';
-import {EventMessageService} from "src/app/services/event-message.service";
-import { PaginationService } from 'src/app/services/pagination.service';
+import { Router } from '@angular/router';
+import { faIdCard, faSort, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TableColumn } from 'src/app/models/formFields/form-field.model';
+import { LoginInfo } from 'src/app/models/interfaces';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { components } from "src/app/models/product-catalog";
+import { EventMessageService } from "src/app/services/event-message.service";
+import { LocalStorageService } from "src/app/services/local-storage.service";
+import { ApiServiceService } from 'src/app/services/product-service.service';
+import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/paginated-table.component';
+import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+type Catalog = components["schemas"]["Catalog"];
 
 @Component({
   selector: 'seller-catalogs',
@@ -25,34 +27,50 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
   protected readonly faSort = faSort;
   protected readonly faSwatchbook = faSwatchbook;
 
+  @ViewChild(PaginatedTableComponent) paginatedTable?: PaginatedTableComponent<Catalog>;
+
   searchField = new FormControl();
-  catalogs:Catalog[]=[];
-  nextCatalogs:Catalog[]=[];
-  page:number=0;
-  CATALOG_LIMIT: number = environment.CATALOG_LIMIT;
-  loading: boolean = false;
-  loading_more: boolean = false;
-  page_check:boolean = true;
-  filter:any=undefined;
-  partyId:any;
-  status:any[]=['Active','Launched'];
+  filter: Record<string, string> | undefined = undefined;
+  partyId: any;
+  status: any[] = ['Active', 'Launched'];
   private destroy$ = new Subject<void>();
+
+  catalogColumns: TableColumn<Catalog>[];
 
   constructor(
     private router: Router,
     private api: ApiServiceService,
     private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
-    private eventMessage: EventMessageService,
-    private paginationService: PaginationService
+    private eventMessage: EventMessageService
   ) {
+    this.catalogColumns = [
+      {
+        header: 'OFFERINGS._name',
+        getValue: (item: Catalog) => item.name ?? '-',
+        cellClass: (item: Catalog) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
+      },
+      {
+        header: 'OFFERINGS._status',
+        getValue: (item: Catalog) => item.lifecycleStatus ?? '-',
+        type: 'badge',
+        width: 'w-28',
+        cellClass: (item: Catalog) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
+      },
+      {
+        header: 'OFFERINGS._role',
+        getValue: (item: Catalog) => item.relatedParty?.at(0)?.role ?? '-',
+        width: 'w-28',
+      },
+    ];
+
     this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'ChangedSession') {
-        this.initCatalogs();
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'ChangedSession') {
+          this.initCatalogs();
+        }
+      })
   }
 
   private searchInputListener = (_e: Event) => {
@@ -71,7 +89,7 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     const input = document.querySelector('[type=search]')
     if (input != undefined) {
       input.removeEventListener('input', this.searchInputListener);
@@ -80,69 +98,47 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  goToCreate(){
+  goToCreate() {
     this.eventMessage.emitSellerCreateCatalog(true);
   }
 
-  goToUpdate(cat:any){
+  goToUpdate(cat: any) {
     this.eventMessage.emitSellerUpdateCatalog(cat);
   }
 
-  initCatalogs(){
-    this.loading=true;
-    this.catalogs=[];
-    this.nextCatalogs=[];
+  initCatalogs() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(aux.logged_as==aux.id){
+    if (aux.logged_as == aux.id) {
       this.partyId = aux.partyId;
     } else {
       let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
       this.partyId = loggedOrg.partyId
     }
 
-    this.getCatalogs(false);
+    this.paginatedTable?.refresh(true);
+    let input = document.querySelector('[type=search]')
+    if (input != undefined) {
+      input.addEventListener('input', e => {
+        // Easy way to get the value of the element who trigger the current `e` event
+        console.log(`Input updated`)
+        if (this.searchField.value == '') {
+          this.filter = undefined;
+          this.paginatedTable?.refresh(true);
+        }
+      });
+    }
     initFlowbite();
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     initFlowbite();
   }
 
-  async getCatalogs(next:boolean){
-    if(next==false){
-      this.loading=true;
-    }
-
-    //async getItemsPaginated(page:number, pageSize:any, next:boolean, items:any[], nextItems:any[], options:any
-    let options = {
-      "keywords": this.filter,
-      "filters": this.status,
-      "partyId": this.partyId
-    }
-
-    try {
-      const data = await this.paginationService.getItemsPaginated(this.page, this.CATALOG_LIMIT, next, this.catalogs, this.nextCatalogs, options,
-        this.api.getCatalogsByUser.bind(this.api));
-      this.page_check=data.page_check;
-      this.catalogs=data.items;
-      this.nextCatalogs=data.nextItems;
-      this.page=data.page;
-    } finally {
-      this.loading=false;
-      this.loading_more=false;
-    }
+  fetchCatalogs = (params: PageRequest): Promise<PageResult<Catalog>> => {
+    return this.api.getCatalogsByUserPaged(params, this.filter, this.status, this.partyId);
   }
 
-  async next(){
-    this.loading_more = true;
-    await this.getCatalogs(true);
-  }
-
-  filterInventoryByKeywords(){
-
-  }
-
-  onStateFilterChange(filter:string){
+  onStateFilterChange(filter: string) {
     const index = this.status.findIndex(item => item === filter);
     if (index !== -1) {
       this.status.splice(index, 1);
@@ -153,18 +149,14 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
       console.log(this.status)
       this.status.push(filter)
     }
-    this.loading=true;
-    this.page=0;
-    this.catalogs=[];
-    this.nextCatalogs=[];
-    this.getCatalogs(false);
+    this.paginatedTable?.refresh(true);
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
-    if(str){
+    if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
   }
 }

@@ -8,6 +8,7 @@ import { components } from "../models/product-catalog";
 import { ProductOffering as ProductOfferingModel } from '../models/product.model';
 import { ResourceStatusType, SoftwareResource } from '../models/software.model';
 import { LocalStorageService } from "./local-storage.service";
+import { PageRequest, PageResult } from '../models/pagination.model';
 type ProductOffering = components["schemas"]["ProductOffering"];
 
 @Injectable({
@@ -317,6 +318,24 @@ export class ApiServiceService {
     }
 
     return lastValueFrom(this.http.get<any>(url));
+  }
+
+  async getCatalogsByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any): Promise<PageResult<any>> {
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog`;
+    const codeParams: Record<string, string> = {
+      limit: String(params.limit),
+      offset: String(params.offset),
+      'relatedParty.id': partyId,
+    };
+    if (status && status.length > 0) {
+      codeParams['lifecycleStatus'] = status.join(',');
+    }
+    const queryParams = { ...filter, ...codeParams };
+
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
   }
 
   getCatalog(id: any) {
