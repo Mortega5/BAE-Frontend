@@ -61,6 +61,8 @@ import { UpdateProductSpecComponent } from './pages/seller-offerings/offerings/s
 import { ResourceSpecFormComponent } from './pages/seller-offerings/offerings/seller-resource-spec/resource-spec-form/resource-spec-form.component';
 import { TableInputComponent } from './shared/forms/table-input/table-input.component';
 import { PaginatedTableComponent } from './shared/forms/paginated-table/paginated-table.component';
+import { FilterBarComponent } from './shared/forms/filter-bar/filter-bar.component';
+import { FilteredPaginatedTableComponent } from './shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { SellerResourceSpecComponent } from './pages/seller-offerings/offerings/seller-resource-spec/seller-resource-spec.component';
 import { SellerServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/seller-service-spec.component';
 import { ServiceSpecFormComponent } from './pages/seller-offerings/offerings/seller-service-spec/service-spec-form/service-spec-form.component';
@@ -194,6 +196,8 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     ReactiveFormsModule,
     TableInputComponent,
     PaginatedTableComponent,
+    FilterBarComponent,
+    FilteredPaginatedTableComponent,
     PickerComponent,
     NgxFileDropModule,
     ChatbotWidgetComponent,

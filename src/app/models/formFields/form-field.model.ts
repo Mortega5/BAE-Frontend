@@ -1,6 +1,9 @@
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+
 interface BaseFormField {
   name: string;
   label: string;
+  icon?: IconDefinition;
   required?: boolean;
   readonly?: boolean;
   colSpan?: number;

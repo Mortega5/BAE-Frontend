@@ -1,5 +1,5 @@
-<div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-secondary-200" [class.opacity-80]="isReadonly"
-  [class.cursor-not-allowed]="isReadonly">
+<div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-secondary-200 bg-white dark:bg-secondary-300"
+  [class.opacity-80]="isReadonly" [class.cursor-not-allowed]="isReadonly">
   <table class="w-full table-fixed text-sm text-left text-gray-500 dark:text-gray-200">
     <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-gray-300">
       <tr>
@@ -15,7 +15,7 @@
       @for (item of items; track $index) {
       <tr class="border-b dark:border-gray-700" [class.cursor-pointer]="!isReadonly && (selectable || clickable)"
         [class.hover:bg-gray-200]="!isReadonly && (selectable || clickable)" [class.dark:hover:bg-secondary-200]="!isReadonly && (selectable || clickable)"
-        [class.bg-blue-50]="isSelected(item)" [class.dark:bg-secondary-300]="isSelected(item)" (click)="onRowClick(item)">
+        [class.bg-blue-50]="isSelected(item)" [ngClass]="{'dark:bg-primary-100/20': isSelected(item)}" (click)="onRowClick(item)">
         @if (selectable) {
         <td class="px-4 py-3 w-12">
           @if (multiple) {

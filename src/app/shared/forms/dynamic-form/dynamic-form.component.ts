@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { CodeFormField, FormField, MultiValueStringFormField, RangeValueFormField, SelectableFormField, StatusPickerFormField, TableFormField, UnitValueFormField } from 'src/app/models/formFields/form-field.model';
 import { MarkdownTextareaComponent } from '../markdown-textarea/markdown-textarea.component';
 import { MultiValueInputComponent } from '../multi-value-input/multi-value-input.component';
@@ -10,12 +11,13 @@ import { UnitValueInputComponent } from '../unit-value-input/unit-value-input.co
 import { StatusFieldComponent } from '../../status-field/status-field.component';
 import { TableInputComponent } from '../table-input/table-input.component';
 import { CodeEditorComponent } from '../code-editor/code-editor.component';
+import { MultipleSelectComponent } from 'src/app/shared/multiple-select/multiple-select.component';
 
 @Component({
   selector: 'app-dynamic-form',
   templateUrl: './dynamic-form.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent, MultiValueInputComponent, UnitValueInputComponent, RangeValueInputComponent, TableInputComponent, CodeEditorComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent, MultiValueInputComponent, UnitValueInputComponent, RangeValueInputComponent, TableInputComponent, CodeEditorComponent, MultipleSelectComponent, FaIconComponent],
 })
 export class DynamicFormComponent {
   @Input() fields: FormField[] = [];
