@@ -31,6 +31,8 @@ export class TableInputComponent implements ControlValueAccessor {
   @Output() rowClick = new EventEmitter<any>();
 
   selected: any[] = [];
+  tooltipText: string | null = null;
+  tooltipPosition = { top: 0, left: 0 };
   private isDisabled: boolean = false;
 
   constructor(private datePipe: DatePipe) { }
@@ -95,6 +97,17 @@ export class TableInputComponent implements ControlValueAccessor {
     if (column.type === 'icon-button') {
       column.onClick(item);
     }
+  }
+
+  showTooltip(event: MouseEvent, column: TableColumn): void {
+    if (column.type !== 'icon-button' || !column.tooltip) return;
+    const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+    this.tooltipPosition = { top: rect.top - 8, left: rect.left + rect.width / 2 };
+    this.tooltipText = column.tooltip;
+  }
+
+  hideTooltip(): void {
+    this.tooltipText = null;
   }
 
   getCellClass(column: TableColumn, item: any): string {

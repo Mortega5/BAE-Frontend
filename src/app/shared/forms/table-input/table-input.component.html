@@ -41,6 +41,7 @@
           <button type="button" [attr.data-cy]="col.dataCy"
             [attr.aria-label]="col.tooltip ? (col.tooltip | translate) : null"
             class="w-9 h-9 flex items-center justify-center text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full me-2"
+            (mouseenter)="showTooltip($event, col)" (mouseleave)="hideTooltip()"
             (click)="onColumnAction(col, item, $event)">
             <fa-icon [icon]="col.icon"></fa-icon>
           </button>
@@ -65,3 +66,10 @@
     </tbody>
   </table>
 </div>
+@if (tooltipText) {
+<span
+  class="pointer-events-none fixed z-50 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-lg bg-primary-100 px-3 py-2 text-sm font-medium text-white shadow-sm"
+  [style.top.px]="tooltipPosition.top" [style.left.px]="tooltipPosition.left">
+  {{ tooltipText | translate }}
+</span>
+}
