@@ -12,3 +12,15 @@ export function lifecycleStatusClass(status: string): string {
   const color = STATUS_CLASSES[status] ?? 'text-gray-500 border-gray-400';
   return `${BASE} ${color}`;
 }
+
+const RESOURCE_STATUS_CLASSES: Record<string, string> = {
+  standby: 'text-blue-600 border-blue-400',
+  available: 'text-green-500 border-green-500',
+  suspended: 'text-yellow-500 border-yellow-500',
+  unknown: 'text-red-500 border-red-500',
+};
+
+export function resourceStatusClass(status: string): string {
+  const color = RESOURCE_STATUS_CLASSES[status] ?? 'text-gray-500 border-gray-400';
+  return `${BASE} ${color}`;
+}

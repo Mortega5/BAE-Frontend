@@ -486,6 +486,25 @@ export class ApiServiceService {
     return lastValueFrom(this.http.get<SoftwareResource[]>(url, { params }));
   }
 
+  async getSoftwareResourceByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: ResourceStatusType[], partyId: any): Promise<PageResult<SoftwareResource>> {
+    const codeParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      'relatedParty.id': partyId,
+      '@type': 'SoftwareSupportPackage'
+    };
+    if (status?.length > 0) {
+      codeParams['resourceStatus'] = status.join(',');
+    }
+    const queryParams = { ...filter, ...codeParams };
+
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_SOFTWARE}/resource`;
+    const response = await lastValueFrom(this.http.get<SoftwareResource[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
+  }
+
   postSoftware(software: any) {
 
     const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_SOFTWARE}/resource`;

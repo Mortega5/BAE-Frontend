@@ -1,50 +1,78 @@
 
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { faIdCard, faSort, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
+import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { FormField, TableColumn } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
-import { PaginationService } from 'src/app/services/pagination.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
-import { environment } from 'src/environments/environment';
 import { RESOURCE_STATUS_TYPES, ResourceStatusType, SoftwareResource } from '../../../../models/software.model';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
+import { resourceStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 
 @Component({
   selector: 'app-seller-software',
   templateUrl: './seller-software.html',
   styleUrl: './seller-software.css'
 })
-export class SellerSoftware {
+export class SellerSoftware implements OnInit, OnDestroy {
 
-  protected readonly faIdCard = faIdCard;
-  protected readonly faSort = faSort;
-  protected readonly faSwatchbook = faSwatchbook;
-  protected readonly resourceStatusTypes = RESOURCE_STATUS_TYPES;
+  @ViewChild(FilteredPaginatedTableComponent) paginatedTable?: FilteredPaginatedTableComponent<SoftwareResource>;
 
   searchField = new FormControl();
-  software: SoftwareResource[] = [];
-  nextPage: SoftwareResource[] = [];
-  page: number = 0;
-  // TODO: update
-  CATALOG_LIMIT: number = environment.CATALOG_LIMIT;
-  loading: boolean = false;
-  loading_more: boolean = false;
-  page_check: boolean = true;
-  filter: any = undefined;
+  filter: Record<string, string> | undefined = undefined;
   partyId: any;
-  status: ResourceStatusType[] = ['standby', 'available'];
   private destroy$ = new Subject<void>();
+
+  softwareColumns: TableColumn<SoftwareResource>[];
+
+  softwareFilters: FormField[] = [
+    {
+      name: 'status',
+      label: 'OFFERINGS._filter_state',
+      type: 'select',
+      icon: faSwatchbook,
+      multiple: true,
+      defaultValue: ['standby', 'available'],
+      options: RESOURCE_STATUS_TYPES.map(status => ({
+        value: status,
+        label: status.charAt(0).toUpperCase() + status.slice(1),
+      })),
+    },
+  ];
 
   constructor(
     private api: ApiServiceService,
     private localStorage: LocalStorageService,
-    private eventMessage: EventMessageService,
-    private paginationService: PaginationService
+    private eventMessage: EventMessageService
   ) {
+    this.softwareColumns = [
+      {
+        header: 'OFFERINGS._name',
+        getValue: (item: SoftwareResource) => item.name ?? '-',
+        width: 'w-1/2',
+        cellClass: (item: SoftwareResource) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
+      },
+      {
+        header: 'OFFERINGS._status',
+        getValue: (item: SoftwareResource) => item.resourceStatus ?? '-',
+        type: 'badge',
+        width: 'w-1/4',
+        cellClass: (item: SoftwareResource) => resourceStatusClass(item.resourceStatus ?? ''),
+      },
+      {
+        header: 'OFFERINGS._type',
+        getValue: (item: SoftwareResource) => item['@type'] ?? '-',
+        width: 'w-1/4',
+        cellClass: () => 'break-all',
+      },
+    ];
+
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
       .subscribe(ev => {
@@ -72,9 +100,6 @@ export class SellerSoftware {
   }
 
   initSoftware() {
-    this.loading = true;
-    this.software = [];
-    this.nextPage = [];
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
     if (aux.logged_as == aux.id) {
       this.partyId = aux.partyId;
@@ -83,7 +108,7 @@ export class SellerSoftware {
       this.partyId = loggedOrg.partyId
     }
 
-    this.getSoftware(false);
+    this.paginatedTable?.refresh(true);
     let input = document.querySelector('[type=search]')
     if (input != undefined) {
       input.addEventListener('input', e => {
@@ -91,7 +116,7 @@ export class SellerSoftware {
         console.log(`Input updated`)
         if (this.searchField.value == '') {
           this.filter = undefined;
-          this.getSoftware(false);
+          this.paginatedTable?.refresh(true);
         }
       });
     }
@@ -102,51 +127,13 @@ export class SellerSoftware {
     initFlowbite();
   }
 
-  async getSoftware(next: boolean) {
-    if (next == false) {
-      this.loading = true;
-    }
-
-    //async getItemsPaginated(page:number, pageSize:any, next:boolean, items:any[], nextItems:any[], options:any
-    let options = {
-      "keywords": this.filter,
-      "filters": this.status,
-      "partyId": this.partyId
-    }
-
-    this.paginationService.getItemsPaginated(this.page, this.CATALOG_LIMIT, next, this.software, this.nextPage, options,
-      this.api.getSoftwareResourceByUser.bind(this.api)).then(data => {
-        this.page_check = data.page_check;
-        this.software = data.items;
-        this.nextPage = data.nextItems;
-        this.page = data.page;
-        this.loading = false;
-        this.loading_more = false;
-      })
-  }
-
-  async next() {
-    await this.getSoftware(true);
+  fetchSoftware = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<SoftwareResource>> => {
+    const status = (filters['status'] ?? []) as ResourceStatusType[];
+    return this.api.getSoftwareResourceByUserPaged(params, this.filter, status, this.partyId);
   }
 
   filterInventoryByKeywords() {
 
-  }
-
-  onStateFilterChange(filter: ResourceStatusType) {
-    const index = this.status.findIndex(item => item === filter);
-    if (index !== -1) {
-      this.status.splice(index, 1);
-      console.log(this.status)
-    } else {
-      console.log(this.status)
-      this.status.push(filter)
-    }
-    this.loading = true;
-    this.page = 0;
-    this.software = [];
-    this.nextPage = [];
-    this.getSoftware(false);
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
