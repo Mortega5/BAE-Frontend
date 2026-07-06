@@ -64,6 +64,7 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
         header: 'OFFERINGS._name',
         getValue: (item: Catalog) => item.name ?? '-',
         cellClass: (item: Catalog) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
+        width: 'w-2/3',
       },
       {
         header: 'OFFERINGS._status',

@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-4">
+<div class="flex flex-col gap-6">
   @if (filters.length > 0) {
   <app-filter-bar [filters]="filters" [columns]="filterColumns" [debounceMs]="debounceMs"
     (filtersChange)="onFiltersChange($event)">
