@@ -1,12 +1,11 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { lastValueFrom, map } from 'rxjs';
-import { Category, LoginInfo } from '../models/interfaces';
+import { lastValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import {components} from "../models/product-catalog";
+import { PageRequest, PageResult } from '../models/pagination.model';
+import { components } from "../models/product-catalog";
+import { LocalStorageService } from "./local-storage.service";
 type ProductOffering = components["schemas"]["ProductOffering"];
-import {LocalStorageService} from "./local-storage.service";
-import moment from 'moment';
 
 export type ProductSpecType = 'ProductSpecification' | 'BlueprintProductSpecification'
 
@@ -20,35 +19,56 @@ export class ServiceSpecServiceService {
   public static API_SERVICE_SPEC: String = environment.SERVICE_SPEC;
   public static SERV_SPEC_LIMIT: number = environment.SERV_SPEC_LIMIT;
 
-  constructor(private http: HttpClient,private localStorage: LocalStorageService) { }
+  constructor(private http: HttpClient, private localStorage: LocalStorageService) { }
 
-  getServiceSpecByUser(page:any,status:any[],partyId:any,sort:any) {
+  getServiceSpecByUser(page: any, status: any[], partyId: any, sort: any) {
     let url = `${ServiceSpecServiceService.BASE_URL}${ServiceSpecServiceService.SERVICE}${ServiceSpecServiceService.API_SERVICE_SPEC}?limit=${ServiceSpecServiceService.SERV_SPEC_LIMIT}&offset=${page}&relatedParty.id=${partyId}`;
 
-    if(sort!=undefined){
-      url=url+'&sort='+sort
+    if (sort != undefined) {
+      url = url + '&sort=' + sort
     }
-    let lifeStatus=''
-    if(status.length>0){
-      for(let i=0; i < status.length; i++){
-        if(i==status.length-1){
-          lifeStatus=lifeStatus+status[i]
+    let lifeStatus = ''
+    if (status.length > 0) {
+      for (let i = 0; i < status.length; i++) {
+        if (i == status.length - 1) {
+          lifeStatus = lifeStatus + status[i]
         } else {
-          lifeStatus=lifeStatus+status[i]+','
+          lifeStatus = lifeStatus + status[i] + ','
         }
       }
-      url=url+'&lifecycleStatus='+lifeStatus;
+      url = url + '&lifecycleStatus=' + lifeStatus;
     }
 
     return lastValueFrom(this.http.get<any>(url));
   }
 
-  postServSpec(body:any){
+  async getServiceSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any, sort: any): Promise<PageResult<any>> {
+    const codeParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      'relatedParty.id': partyId,
+    };
+    if (sort != undefined) {
+      codeParams['sort'] = sort;
+    }
+    if (status && status.length > 0) {
+      codeParams['lifecycleStatus'] = status.join(',');
+    }
+    const queryParams = { ...filter, ...codeParams };
+
+    const url = `${ServiceSpecServiceService.BASE_URL}${ServiceSpecServiceService.SERVICE}${ServiceSpecServiceService.API_SERVICE_SPEC}`;
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
+  }
+
+  postServSpec(body: any) {
     let url = `${ServiceSpecServiceService.BASE_URL}${ServiceSpecServiceService.SERVICE}${ServiceSpecServiceService.API_SERVICE_SPEC}`;
     return this.http.post<any>(url, body);
   }
 
-  updateServSpec(body:any,id:any){
+  updateServSpec(body: any, id: any) {
     let url = `${ServiceSpecServiceService.BASE_URL}${ServiceSpecServiceService.SERVICE}${ServiceSpecServiceService.API_SERVICE_SPEC}/${id}`;
     return this.http.patch<any>(url, body);
   }

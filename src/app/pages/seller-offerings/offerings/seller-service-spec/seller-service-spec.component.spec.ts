@@ -47,11 +47,12 @@ describe('SellerServiceSpecComponent', () => {
   });
 
   it('onSortChange should map sort options and reload service specs', () => {
-    const getServSpecsSpy = spyOn(component, 'getServSpecs');
+    const refreshSpy = jasmine.createSpy('refresh');
+    component.paginatedTable = { refresh: refreshSpy } as any;
 
     component.onSortChange({ target: { value: 'name' } });
     expect(component.sort).toBe('name');
-    expect(getServSpecsSpy).toHaveBeenCalledWith(false);
+    expect(refreshSpy).toHaveBeenCalledWith(true);
 
     component.onSortChange({ target: { value: 'none' } });
     expect(component.sort).toBeUndefined();
