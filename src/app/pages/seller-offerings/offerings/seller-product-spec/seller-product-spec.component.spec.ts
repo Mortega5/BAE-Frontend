@@ -47,22 +47,24 @@ describe('SellerProductSpecComponent', () => {
   });
 
   it('onSortChange should map sort options and reload product specs', () => {
-    const getProdSpecsSpy = spyOn(component, 'getProdSpecs');
+    const refreshSpy = jasmine.createSpy('refresh');
+    component.paginatedTable = { refresh: refreshSpy } as any;
 
     component.onSortChange({ target: { value: 'name' } });
     expect(component.sort).toBe('name');
-    expect(getProdSpecsSpy).toHaveBeenCalledWith(false);
+    expect(refreshSpy).toHaveBeenCalledWith(true);
 
     component.onSortChange({ target: { value: 'none' } });
     expect(component.sort).toBeUndefined();
   });
 
   it('onTypeChange should map bundle filters and reload product specs', () => {
-    const getProdSpecsSpy = spyOn(component, 'getProdSpecs');
+    const refreshSpy = jasmine.createSpy('refresh');
+    component.paginatedTable = { refresh: refreshSpy } as any;
 
     component.onTypeChange({ target: { value: 'simple' } });
     expect(component.isBundle).toBeFalse();
-    expect(getProdSpecsSpy).toHaveBeenCalledWith(false);
+    expect(refreshSpy).toHaveBeenCalledWith(true);
 
     component.onTypeChange({ target: { value: 'bundle' } });
     expect(component.isBundle).toBeTrue();

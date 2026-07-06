@@ -32,9 +32,9 @@
         @for (col of columns; track $index) {
         <td class="px-6 py-4" [ngClass]="col.type !== 'badge' ? getCellClass(col, item) : ''">
           @if (col.type === 'badge') {
-          <span [ngClass]="getCellClass(col, item)">{{ col.getValue(item) }}</span>
+          <span [ngClass]="getCellClass(col, item)">{{ getCellValue(col, item) | translate }}</span>
           } @else {
-          {{ col.getValue(item) }}
+          {{ getCellValue(col, item) | translate }}
           }
         </td>
         }

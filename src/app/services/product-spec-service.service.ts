@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { PageRequest, PageResult } from '../models/pagination.model';
 import { LocalStorageService } from "./local-storage.service";
 
 @Injectable({
@@ -39,6 +40,30 @@ export class ProductSpecServiceService {
       }
 
     return lastValueFrom(this.http.get<any>(url));
+  }
+
+  async getProdSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any, sort: any, isBundle: any): Promise<PageResult<any>> {
+    const codeParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      'relatedParty.id': partyId,
+    };
+    if (sort != undefined) {
+      codeParams['sort'] = sort;
+    }
+    if (isBundle != undefined) {
+      codeParams['isBundle'] = isBundle;
+    }
+    if (status && status.length > 0) {
+      codeParams['lifecycleStatus'] = status.join(',');
+    }
+    const queryParams = { ...filter, ...codeParams };
+
+    const url = `${ProductSpecServiceService.BASE_URL}${ProductSpecServiceService.API_PRODUCT_CATALOG}${ProductSpecServiceService.API_PRODUCT_SPEC}`;
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
   }
 
   getResSpecById(id: any) {

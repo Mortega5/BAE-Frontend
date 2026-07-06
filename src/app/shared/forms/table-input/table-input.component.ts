@@ -89,4 +89,9 @@ export class TableInputComponent implements ControlValueAccessor {
     return typeof column.cellClass === 'function' ? column.cellClass(item) : column.cellClass;
   }
 
+  getCellValue(column: TableColumn, item: any): string {
+    const value = column.getValue(item);
+    return value == null ? '' : String(value);
+  }
+
 }
