@@ -14,8 +14,10 @@
     <tbody>
       @for (item of items; track $index) {
       <tr class="border-b dark:border-gray-700" [class.cursor-pointer]="!isReadonly && (selectable || clickable)"
-        [class.hover:bg-gray-200]="!isReadonly && (selectable || clickable)" [class.dark:hover:bg-secondary-200]="!isReadonly && (selectable || clickable)"
-        [class.bg-blue-50]="isSelected(item)" [ngClass]="{'dark:bg-primary-100/20': isSelected(item)}" (click)="onRowClick(item)">
+        [class.hover:bg-gray-200]="!isReadonly && (selectable || clickable)"
+        [class.dark:hover:bg-secondary-200]="!isReadonly && (selectable || clickable)"
+        [class.bg-blue-50]="isSelected(item)" [ngClass]="{'dark:bg-primary-100/20': isSelected(item)}"
+        (click)="onRowClick(item)">
         @if (selectable) {
         <td class="px-4 py-3 w-12">
           @if (multiple) {
@@ -30,9 +32,21 @@
         </td>
         }
         @for (col of columns; track $index) {
-        <td class="px-6 py-4" [ngClass]="col.type !== 'badge' ? getCellClass(col, item) : ''">
+        <td class="px-6 py-4"
+          [ngClass]="col.type !== 'badge' && col.type !== 'icon-button' ? getCellClass(col, item) : ''">
           @if (col.type === 'badge') {
           <span [ngClass]="getCellClass(col, item)">{{ getCellValue(col, item) | translate }}</span>
+          } @else if (col.type === 'icon-button') {
+          @if (!col.showIf || col.showIf(item)) {
+          <button type="button" [attr.data-cy]="col.dataCy"
+            [attr.aria-label]="col.tooltip ? (col.tooltip | translate) : null"
+            class="w-9 h-9 flex items-center justify-center text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full me-2"
+            (click)="onColumnAction(col, item, $event)">
+            <fa-icon [icon]="col.icon"></fa-icon>
+          </button>
+          }
+          } @else if (col.type === 'date') {
+          {{ getDateValue(col, item) }}
           } @else {
           {{ getCellValue(col, item) | translate }}
           }
@@ -42,7 +56,8 @@
       }
       @empty {
       <tr>
-        <td [attr.colspan]="columns.length + (selectable ? 1 : 0)" class="px-6 py-8 text-center text-gray-400 dark:text-gray-500">
+        <td [attr.colspan]="columns.length + (selectable ? 1 : 0)"
+          class="px-6 py-8 text-center text-gray-400 dark:text-gray-500">
           No items available
         </td>
       </tr>

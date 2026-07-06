@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { TableColumn } from 'src/app/models/formFields/form-field.model';
+import { TableColumn } from 'src/app/models/table-column.model';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';

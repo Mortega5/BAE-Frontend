@@ -1,4 +1,5 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { TableColumn } from 'src/app/models/table-column.model';
 
 interface BaseFormField {
   name: string;
@@ -82,15 +83,6 @@ export interface RangeValueFormField extends BaseFormField {
   toPlaceholder?: string;
   unitPlaceholder?: string;
   setLabel?: string;
-}
-
-export interface TableColumn<T = any> {
-  header: string;
-  getValue: (item: T) => string | number | boolean | null | undefined;
-  type?: 'text' | 'badge';
-  cellClass?: string | ((item: T) => string);
-  /** Tailwind width class applied to the `<th>` to control column width when used with `table-fixed`. e.g. `'w-1/2'`, `'w-32'`. Columns without a width share the remaining space equally. */
-  width?: string;
 }
 
 export interface TableFormField extends BaseFormField {

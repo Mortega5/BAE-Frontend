@@ -5,10 +5,11 @@ import { faIdCard, faSort, faSwatchbook } from "@fortawesome/pro-solid-svg-icons
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { FormField, TableColumn } from 'src/app/models/formFields/form-field.model';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
+import { TableColumn } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ApiServiceService } from 'src/app/services/product-service.service';

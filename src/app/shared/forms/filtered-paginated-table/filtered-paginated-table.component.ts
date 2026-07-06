@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
-import { FormField, TableColumn } from 'src/app/models/formFields/form-field.model';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { TableColumn } from 'src/app/models/table-column.model';
 import { FilterBarComponent } from 'src/app/shared/forms/filter-bar/filter-bar.component';
 import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/paginated-table.component';
 

@@ -2,8 +2,9 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import moment from 'moment';
 import { Subject } from 'rxjs';
-import { FormField, TableColumn } from 'src/app/models/formFields/form-field.model';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { TableColumn } from 'src/app/models/table-column.model';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
@@ -116,6 +117,10 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
       { header: 'Product', getValue: (s: OrchestrationStep) => this.findSpec(s.componentProductSpec)?.name ?? s.componentProductSpec },
       { header: 'Depends On', getValue: (s: OrchestrationStep) => (s.dependsOn ?? []).map(d => d.id).join(', ') },
     ];
+  }
+
+  getColumnValue(col: TableColumn, item: any): string | number | boolean | null | undefined {
+    return col.getValue ? col.getValue(item) : '';
   }
 
   private destroy$ = new Subject<void>();

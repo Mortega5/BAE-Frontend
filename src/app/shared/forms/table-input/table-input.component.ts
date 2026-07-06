@@ -1,13 +1,16 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
-import { TableColumn } from 'src/app/models/formFields/form-field.model';
+import { TableColumn } from 'src/app/models/table-column.model';
+
+const DEFAULT_DATE_FORMAT = 'EEEE, dd/MM/yy, HH:mm';
 
 @Component({
   selector: 'app-table-input',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, FaIconComponent],
   templateUrl: './table-input.component.html',
   providers: [
     {
@@ -15,6 +18,7 @@ import { TableColumn } from 'src/app/models/formFields/form-field.model';
       useExisting: forwardRef(() => TableInputComponent),
       multi: true,
     },
+    DatePipe,
   ],
 })
 export class TableInputComponent implements ControlValueAccessor {
@@ -28,6 +32,8 @@ export class TableInputComponent implements ControlValueAccessor {
 
   selected: any[] = [];
   private isDisabled: boolean = false;
+
+  constructor(private datePipe: DatePipe) { }
 
   get isReadonly(): boolean {
     return this.readonly || this.isDisabled;
@@ -84,14 +90,27 @@ export class TableInputComponent implements ControlValueAccessor {
     }
   }
 
+  onColumnAction(column: TableColumn, item: any, event: Event): void {
+    event.stopPropagation();
+    if (column.type === 'icon-button') {
+      column.onClick(item);
+    }
+  }
+
   getCellClass(column: TableColumn, item: any): string {
     if (!column.cellClass) return '';
     return typeof column.cellClass === 'function' ? column.cellClass(item) : column.cellClass;
   }
 
   getCellValue(column: TableColumn, item: any): string {
-    const value = column.getValue(item);
+    if (column.type === 'icon-button' || column.type === 'date') return '';
+    const value = column.getValue ? column.getValue(item) : null;
     return value == null ? '' : String(value);
+  }
+
+  getDateValue(column: TableColumn, item: any): string {
+    if (column.type !== 'date') return '';
+    return this.datePipe.transform(column.getValue(item), column.format ?? DEFAULT_DATE_FORMAT) ?? '-';
   }
 
 }

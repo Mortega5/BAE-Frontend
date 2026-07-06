@@ -6,7 +6,7 @@ import {PaginationService} from "../../../../services/pagination.service";
 import {ApiServiceService} from "../../../../services/product-service.service";
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { TableInputComponent } from '../../table-input/table-input.component';
-import { TableColumn } from 'src/app/models/formFields/form-field.model';
+import { TableColumn } from 'src/app/models/table-column.model';
 import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 
 @Component({

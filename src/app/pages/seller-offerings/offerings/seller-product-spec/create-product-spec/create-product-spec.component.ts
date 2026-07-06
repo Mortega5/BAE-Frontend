@@ -7,9 +7,10 @@ import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
-import { FormField, TableColumn, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
+import { TableColumn } from 'src/app/models/table-column.model';
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";

@@ -14,7 +14,7 @@ import { FormChangeState } from "src/app/models/interfaces";
 import { Subscription } from "rxjs";
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { TableInputComponent } from '../../table-input/table-input.component';
-import { TableColumn } from 'src/app/models/formFields/form-field.model';
+import { TableColumn } from 'src/app/models/table-column.model';
 import { BADGE_BASE, lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 
 interface ProductSpec {

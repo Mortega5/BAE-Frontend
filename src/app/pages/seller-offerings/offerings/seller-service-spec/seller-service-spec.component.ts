@@ -1,13 +1,13 @@
-import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { FormField, TableColumn } from 'src/app/models/formFields/form-field.model';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { TableColumn } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
@@ -17,8 +17,7 @@ import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.util
 @Component({
   selector: 'seller-service-spec',
   templateUrl: './seller-service-spec.component.html',
-  styleUrl: './seller-service-spec.component.css',
-  providers: [DatePipe]
+  styleUrl: './seller-service-spec.component.css'
 })
 export class SellerServiceSpecComponent implements OnInit, OnDestroy {
 
@@ -52,8 +51,7 @@ export class SellerServiceSpecComponent implements OnInit, OnDestroy {
   constructor(
     private servSpecService: ServiceSpecServiceService,
     private localStorage: LocalStorageService,
-    private eventMessage: EventMessageService,
-    private datePipe: DatePipe
+    private eventMessage: EventMessageService
   ) {
     this.servSpecColumns = [
       {
@@ -71,7 +69,8 @@ export class SellerServiceSpecComponent implements OnInit, OnDestroy {
       },
       {
         header: 'OFFERINGS._last_update',
-        getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-',
+        type: 'date',
+        getValue: (item: any) => item.lastUpdate,
         width: 'w-1/4',
       },
     ];
