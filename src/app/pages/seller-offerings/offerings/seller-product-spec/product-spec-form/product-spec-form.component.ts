@@ -1592,7 +1592,7 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
       if (this.blueprintConfig) {
         this.productSpecToCreate!['@type'] = 'BlueprintProductSpecification';
         this.productSpecToCreate!['@schemaLocation'] = environment.BLUEPRINT_SCHEMA;
-        this.productSpecToCreate!['@baseType'] = 'BlueprintProductSpecification';
+        this.productSpecToCreate!['@baseType'] = 'ProductSpecification';
         (this.productSpecToCreate as any).orchestrationPlan = {
           steps: this.blueprintConfig.orchestrationSteps,
         };
