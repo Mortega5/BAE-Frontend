@@ -1486,7 +1486,8 @@
       "_role": "Role",
       "_choose": "Choose between our Catalogues",
       "_offerings": "Offerings",
-      "_my_offerings": "My offerings"
+      "_my_offerings": "My offerings",
+      "_create_custom_offer": "Create custom offer"
     },
     "ADMIN": {
       "_admin": "Administration",
@@ -2645,7 +2646,8 @@
     "_role": "Role",
     "_choose": "Choose between our Catalogues",
     "_offerings": "Offerings",
-    "_my_offerings": "My offerings"
+    "_my_offerings": "My offerings",
+    "_create_custom_offer": "Create custom offer"
   },
   "ADMIN": {
     "_admin": "Administration",

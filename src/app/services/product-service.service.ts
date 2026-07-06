@@ -180,6 +180,30 @@ export class ApiServiceService {
     return lastValueFrom(this.http.get<any>(url));
   }
 
+  async getProductOfferByOwnerPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any, sort: any, isBundle: any): Promise<PageResult<any>> {
+    const codeParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      'relatedParty.id': partyId,
+    };
+    if (sort != undefined) {
+      codeParams['sort'] = sort;
+    }
+    if (isBundle != undefined) {
+      codeParams['isBundle'] = isBundle;
+    }
+    if (status && status.length > 0) {
+      codeParams['lifecycleStatus'] = status.join(',');
+    }
+    const queryParams = { ...filter, ...codeParams };
+
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productOffering`;
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
+  }
+
   getProductSpecification(id: any) {
     let url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productSpecification/${id}`;
 
