@@ -46,17 +46,6 @@ describe('SellerCatalogsComponent', () => {
     expect(eventMessage.emitSellerUpdateCatalog).toHaveBeenCalledWith(cat);
   });
 
-  it('onStateFilterChange should remove existing filter and reload catalogs', () => {
-    component.status = ['Active', 'Launched'];
-    const refreshSpy = jasmine.createSpy('refresh');
-    component.paginatedTable = { refresh: refreshSpy } as any;
-
-    component.onStateFilterChange('Active');
-
-    expect(component.status).toEqual(['Launched']);
-    expect(refreshSpy).toHaveBeenCalledWith(true);
-  });
-
   it('hasLongWord should detect long words and handle undefined', () => {
     expect(component.hasLongWord('short words', 20)).toBeFalse();
     expect(component.hasLongWord('averyveryverylongword', 10)).toBeTrue();

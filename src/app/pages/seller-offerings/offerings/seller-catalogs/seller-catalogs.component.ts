@@ -5,14 +5,14 @@ import { faIdCard, faSort, faSwatchbook } from "@fortawesome/pro-solid-svg-icons
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { TableColumn } from 'src/app/models/formFields/form-field.model';
+import { FormField, TableColumn } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ApiServiceService } from 'src/app/services/product-service.service';
-import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/paginated-table.component';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 type Catalog = components["schemas"]["Catalog"];
 
@@ -25,17 +25,32 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
 
   protected readonly faIdCard = faIdCard;
   protected readonly faSort = faSort;
-  protected readonly faSwatchbook = faSwatchbook;
 
-  @ViewChild(PaginatedTableComponent) paginatedTable?: PaginatedTableComponent<Catalog>;
+  @ViewChild(FilteredPaginatedTableComponent) paginatedTable?: FilteredPaginatedTableComponent<Catalog>;
 
   searchField = new FormControl();
   filter: Record<string, string> | undefined = undefined;
   partyId: any;
-  status: any[] = ['Active', 'Launched'];
   private destroy$ = new Subject<void>();
 
   catalogColumns: TableColumn<Catalog>[];
+
+  catalogFilters: FormField[] = [
+    {
+      name: 'status',
+      label: 'OFFERINGS._filter_state',
+      type: 'select',
+      icon: faSwatchbook,
+      multiple: true,
+      defaultValue: ['Active', 'Launched'],
+      options: [
+        { value: 'Active', label: 'OFFERINGS._active' },
+        { value: 'Launched', label: 'OFFERINGS._launched' },
+        { value: 'Retired', label: 'OFFERINGS._retired' },
+        { value: 'Obsolete', label: 'OFFERINGS._obsolete' },
+      ],
+    },
+  ];
 
   constructor(
     private router: Router,
@@ -134,22 +149,9 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
     initFlowbite();
   }
 
-  fetchCatalogs = (params: PageRequest): Promise<PageResult<Catalog>> => {
-    return this.api.getCatalogsByUserPaged(params, this.filter, this.status, this.partyId);
-  }
-
-  onStateFilterChange(filter: string) {
-    const index = this.status.findIndex(item => item === filter);
-    if (index !== -1) {
-      this.status.splice(index, 1);
-      console.log('elimina filtro')
-      console.log(this.status)
-    } else {
-      console.log('añade filtro')
-      console.log(this.status)
-      this.status.push(filter)
-    }
-    this.paginatedTable?.refresh(true);
+  fetchCatalogs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<Catalog>> => {
+    const status = (filters['status'] ?? []) as string[];
+    return this.api.getCatalogsByUserPaged(params, this.filter, status, this.partyId);
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
