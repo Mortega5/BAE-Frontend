@@ -7,7 +7,8 @@
         <th scope="col" class="px-4 py-3 w-12"></th>
         }
         @for (col of columns; track $index) {
-        <th scope="col" class="px-6 py-3" [ngClass]="col.width ?? ''">{{ col.header | translate }}</th>
+        <th scope="col" class="px-6 py-3" [ngClass]="[col.width ?? '', col.hideOnMobile ? 'hidden sm:table-cell' : '']">
+          {{ col.header | translate }}</th>
         }
       </tr>
     </thead>
@@ -33,7 +34,7 @@
         }
         @for (col of columns; track $index) {
         <td class="px-6 py-4"
-          [ngClass]="col.type !== 'badge' && col.type !== 'icon-button' ? getCellClass(col, item) : ''">
+          [ngClass]="[col.type !== 'badge' && col.type !== 'icon-button' ? getCellClass(col, item) : '', col.hideOnMobile ? 'hidden sm:table-cell' : '']">
           @if (col.type === 'badge') {
           <span [ngClass]="getCellClass(col, item)">{{ getCellValue(col, item) | translate }}</span>
           } @else if (col.type === 'icon-button') {

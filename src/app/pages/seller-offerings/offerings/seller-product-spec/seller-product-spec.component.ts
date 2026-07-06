@@ -58,20 +58,20 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
       {
         header: 'OFFERINGS._name',
         getValue: (item: any) => item.name ?? '-',
-        width: 'w-4/10',
         cellClass: (item: any) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
       },
       {
         header: 'OFFERINGS._type',
         getValue: (item: any) => item['@type'] ?? 'ProductSpecification',
         type: 'text',
-        width: 'w-3/10'
+        hideOnMobile: true,
+        width: 'w-60'
       },
       {
         header: 'OFFERINGS._status',
         getValue: (item: any) => item.lifecycleStatus ?? '-',
         type: 'badge',
-        width: 'w-28',
+        width: 'w-24',
         cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
       },
       {
@@ -79,13 +79,15 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
         getValue: (item: any) => item.isBundle ? 'OFFERINGS._bundle' : 'OFFERINGS._simple',
         type: 'badge',
         width: 'w-28',
+        hideOnMobile: true,
         cellClass: (item: any) => `${BADGE_BASE} ${item.isBundle ? 'text-green-500 border-green-500' : 'text-blue-600 border-blue-400'}`,
       },
       {
         header: 'OFFERINGS._last_update',
         type: 'date',
+        hideOnMobile: true,
         getValue: (item: any) => item.lastUpdate,
-        width: 'w-2/10',
+        width: 'w-60',
       },
     ];
 

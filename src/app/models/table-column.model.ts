@@ -7,6 +7,8 @@ interface BaseTableColumn<T = any> {
   cellClass?: string | ((item: T) => string);
   dataCy?: string;
   getValue?: (item: T) => any;
+  /** Hides the column below the `sm` breakpoint. Defaults to always visible. */
+  hideOnMobile?: boolean;
 }
 
 export interface TextTableColumn<T = any> extends BaseTableColumn<T> {
