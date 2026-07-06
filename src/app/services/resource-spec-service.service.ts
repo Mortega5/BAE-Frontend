@@ -5,6 +5,7 @@ import { environment } from 'src/environments/environment';
 import { components } from "../models/resource-catalog";
 import { SoftwareSupportPackage, SoftwareSupportPackageSpecification } from "../models/software.model";
 import { LocalStorageService } from "./local-storage.service";
+import { PageRequest, PageResult } from '../models/pagination.model';
 
 type ResourceSpecification_Create = components["schemas"]["ResourceSpecification_Create"];
 
@@ -73,6 +74,30 @@ export class ResourceSpecServiceService {
     }
 
     return lastValueFrom(this.http.get<any>(url));
+  }
+
+  async getResourceSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any, sort: any, type: ResourceSpecType = 'ResourceSpecification'): Promise<PageResult<any>> {
+    const resource = this.RESOURCE_API[type]?.resource;
+    const spec = this.RESOURCE_API[type].spec;
+
+    const codeParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      'relatedParty.id': partyId,
+    };
+    if (sort != undefined) {
+      codeParams['sort'] = sort;
+    }
+    if (status && status.length > 0) {
+      codeParams['lifecycleStatus'] = status.join(',');
+    }
+    const queryParams = { ...filter, ...codeParams };
+
+    const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}`;
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
   }
 
   getResSpecById(id: any, type: ResourceSpecType = 'ResourceSpecification') {

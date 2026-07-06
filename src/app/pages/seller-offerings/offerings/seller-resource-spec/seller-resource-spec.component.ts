@@ -1,60 +1,88 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { DatePipe } from '@angular/common';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import {faIdCard, faSort, faSwatchbook} from "@fortawesome/pro-solid-svg-icons";
-import {components} from "src/app/models/product-catalog";
-import { environment } from 'src/environments/environment';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
-import { PaginationService } from 'src/app/services/pagination.service';
-import {LocalStorageService} from "src/app/services/local-storage.service";
-import { LoginInfo } from 'src/app/models/interfaces';
-import {EventMessageService} from "src/app/services/event-message.service";
+import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { FormField, TableColumn } from 'src/app/models/formFields/form-field.model';
+import { LoginInfo } from 'src/app/models/interfaces';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { EventMessageService } from "src/app/services/event-message.service";
+import { LocalStorageService } from "src/app/services/local-storage.service";
+import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
+import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 
 @Component({
   selector: 'seller-resource-spec',
   templateUrl: './seller-resource-spec.component.html',
-  styleUrl: './seller-resource-spec.component.css'
+  styleUrl: './seller-resource-spec.component.css',
+  providers: [DatePipe]
 })
 export class SellerResourceSpecComponent implements OnInit, OnDestroy {
-  protected readonly faIdCard = faIdCard;
-  protected readonly faSort = faSort;
-  protected readonly faSwatchbook = faSwatchbook;
+
+  @ViewChild(FilteredPaginatedTableComponent) paginatedTable?: FilteredPaginatedTableComponent<any>;
 
   searchField = new FormControl();
-
-  resSpecs:any[]=[];
-  nextResSpecs:any[]=[];
-  page:number=0;
-  RES_SPEC_LIMIT: number = environment.RES_SPEC_LIMIT;
-  loading: boolean = false;
-  loading_more: boolean = false;
-  page_check:boolean = true;
-  filter:any=undefined;
-  status:any[]=['Active','Launched'];
-  partyId:any;
-  sort:any=undefined;
+  filter: Record<string, string> | undefined = undefined;
+  sort: any = undefined;
+  partyId: any;
   private destroy$ = new Subject<void>();
 
+  resSpecColumns: TableColumn<any>[];
+
+  resSpecFilters: FormField[] = [
+    {
+      name: 'status',
+      label: 'OFFERINGS._filter_state',
+      type: 'select',
+      icon: faSwatchbook,
+      multiple: true,
+      defaultValue: ['Active', 'Launched'],
+      options: [
+        { value: 'Active', label: 'OFFERINGS._active' },
+        { value: 'Launched', label: 'OFFERINGS._launched' },
+        { value: 'Retired', label: 'OFFERINGS._retired' },
+        { value: 'Obsolete', label: 'OFFERINGS._obsolete' },
+      ],
+    },
+  ];
+
   constructor(
-    private router: Router,
-    private api: ApiServiceService,
     private resSpecService: ResourceSpecServiceService,
-    private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
-    private paginationService: PaginationService
+    private datePipe: DatePipe
   ) {
+    this.resSpecColumns = [
+      {
+        header: 'OFFERINGS._name',
+        getValue: (item: any) => item.name ?? '-',
+        width: 'w-1/2',
+        cellClass: (item: any) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
+      },
+      {
+        header: 'OFFERINGS._status',
+        getValue: (item: any) => item.lifecycleStatus ?? '-',
+        type: 'badge',
+        width: 'w-1/4',
+        cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
+      },
+      {
+        header: 'OFFERINGS._last_update',
+        getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-',
+        width: 'w-1/4',
+      },
+    ];
+
     this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'ChangedSession') {
-        this.initResources();
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'ChangedSession') {
+          this.initResources();
+        }
+      })
   }
 
   private searchInputListener = (_e: Event) => {
@@ -73,7 +101,7 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     const input = document.querySelector('[type=search]')
     if (input != undefined) {
       input.removeEventListener('input', this.searchInputListener);
@@ -82,95 +110,57 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  initResources(){
-    this.loading=true;
-    this.resSpecs=[];
+  goToCreate() {
+    this.eventMessage.emitSellerCreateResourceSpec(true);
+  }
+
+  goToUpdate(res: any) {
+    this.eventMessage.emitSellerUpdateResourceSpec(res);
+  }
+
+  initResources() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(aux.logged_as==aux.id){
+    if (aux.logged_as == aux.id) {
       this.partyId = aux.partyId;
     } else {
       let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
       this.partyId = loggedOrg.partyId
     }
 
-    this.getResSpecs(false);
+    this.paginatedTable?.refresh(true);
+    let input = document.querySelector('[type=search]')
+    if (input != undefined) {
+      input.addEventListener('input', e => {
+        // Easy way to get the value of the element who trigger the current `e` event
+        console.log(`Input updated`)
+        if (this.searchField.value == '') {
+          this.filter = undefined;
+          this.paginatedTable?.refresh(true);
+        }
+      });
+    }
     initFlowbite();
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     initFlowbite();
   }
 
-
-  goToCreate(){
-    this.eventMessage.emitSellerCreateResourceSpec(true);
-  }
-
-  goToUpdate(res:any){
-    this.eventMessage.emitSellerUpdateResourceSpec(res);
-  }
-
-  async getResSpecs(next:boolean){
-    if(next==false){
-      this.loading=true;
-    }
-
-    let options = {
-      "filters": this.status,
-      "partyId": this.partyId,
-      "sort": this.sort
-    }
-
-    try {
-      const data = await this.paginationService.getItemsPaginated(this.page, this.RES_SPEC_LIMIT, next, this.resSpecs,this.nextResSpecs, options,
-        this.resSpecService.getResourceSpecByUser.bind(this.resSpecService));
-      this.page_check=data.page_check;
-      this.resSpecs=data.items;
-      this.nextResSpecs=data.nextItems;
-      this.page=data.page;
-    } finally {
-      this.loading=false;
-      this.loading_more=false;
-    }
-  }
-
-  async next(){
-    this.loading_more = true;
-    await this.getResSpecs(true);
-  }
-
-  filterInventoryByKeywords(){
-
-  }
-
-  onStateFilterChange(filter:string){
-    const index = this.status.findIndex(item => item === filter);
-    if (index !== -1) {
-      this.status.splice(index, 1);
-      console.log('elimina filtro')
-      console.log(this.status)
-    } else {
-      console.log('añade filtro')
-      console.log(this.status)
-      this.status.push(filter)
-    }
-    this.getResSpecs(false);
+  fetchResSpecs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
+    const status = (filters['status'] ?? []) as string[];
+    return this.resSpecService.getResourceSpecByUserPaged(params, this.filter, status, this.partyId, this.sort);
   }
 
   onSortChange(event: any) {
-    if(event.target.value=='name'){
-      this.sort='name'
-    }else{
-      this.sort=undefined
-    }
-    this.getResSpecs(false);
+    this.sort = event.target.value == 'name' ? 'name' : undefined;
+    this.paginatedTable?.refresh(true);
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
-    if(str){
+    if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
   }
 }
