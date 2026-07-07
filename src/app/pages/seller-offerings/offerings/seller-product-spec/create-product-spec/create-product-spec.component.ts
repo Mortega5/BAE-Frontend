@@ -9,6 +9,7 @@ import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
 import { TableColumn } from 'src/app/models/table-column.model';
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
@@ -51,8 +52,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
 
   //PAGE SIZES:
   PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;
-  SERV_SPEC_LIMIT: number = environment.SERV_SPEC_LIMIT;
-  RES_SPEC_LIMIT: number = environment.RES_SPEC_LIMIT;
   BUNDLE_ENABLED: boolean = environment.BUNDLE_ENABLED;
   DATA_SPACE_ENABLED: boolean = environment.DATA_SPACE_ENABLED;
   MAX_FILE_SIZE: number = environment.MAX_FILE_SIZE;
@@ -157,12 +156,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   showCert: boolean = false;
 
   //SERVICE INFO:
-  serviceSpecPage = 0;
-  serviceSpecPageCheck: boolean = false;
-  loadingServiceSpec: boolean = false;
-  loadingServiceSpec_more: boolean = false;
-  serviceSpecs: any[] = [];
-  nextServiceSpecs: any[] = [];
   selectedServiceSpecs: any[] = [];
   servColumns: TableColumn[] = [
     { header: 'Name', getValue: (item: any) => item.name ?? '-' },
@@ -171,12 +164,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   ];
 
   //RESOURCE INFO:
-  resourceSpecPage = 0;
-  resourceSpecPageCheck: boolean = false;
-  loadingResourceSpec: boolean = false;
-  loadingResourceSpec_more: boolean = false;
-  resourceSpecs: any[] = [];
-  nextResourceSpecs: any[] = [];
   selectedResourceSpecs: any[] = [];
   resColumns: TableColumn[] = [
     { header: 'Name', getValue: (item: any) => item.name ?? '-' },
@@ -355,12 +342,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
       case 'compliance':
       case 'attachments':
         setTimeout(() => { initFlowbite(); }, 100);
-        break;
-      case 'resource':
-        this.getResSpecs(false);
-        break;
-      case 'service':
-        this.getServSpecs(false);
         break;
       case 'relationships':
         this.getProdSpecsRel(false);
@@ -745,59 +726,12 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     }
   }
 
-  async getResSpecs(next: boolean) {
-    if (next == false) {
-      this.loadingResourceSpec = true;
-    }
-
-    let options = {
-      "filters": ['Active', 'Launched'],
-      "partyId": this.partyId,
-      //"sort": undefined,
-      //"isBundle": false
-    }
-
-    this.paginationService.getItemsPaginated(this.resourceSpecPage, this.RES_SPEC_LIMIT, next, this.resourceSpecs, this.nextResourceSpecs, options,
-      this.resSpecService.getResourceSpecByUser.bind(this.resSpecService)).then(data => {
-        this.resourceSpecPageCheck = data.page_check;
-        this.resourceSpecs = data.items;
-        this.nextResourceSpecs = data.nextItems;
-        this.resourceSpecPage = data.page;
-        this.loadingResourceSpec = false;
-        this.loadingResourceSpec_more = false;
-      })
+  fetchResourceSpecs = (params: PageRequest): Promise<PageResult<any>> => {
+    return this.resSpecService.getResourceSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId, undefined);
   }
 
-  async nextRes() {
-    await this.getResSpecs(true);
-  }
-
-
-  async getServSpecs(next: boolean) {
-    if (next == false) {
-      this.loadingServiceSpec = true;
-    }
-
-    let options = {
-      "filters": ['Active', 'Launched'],
-      "partyId": this.partyId,
-      //"sort": undefined,
-      //"isBundle": false
-    }
-
-    this.paginationService.getItemsPaginated(this.serviceSpecPage, this.SERV_SPEC_LIMIT, next, this.serviceSpecs, this.nextServiceSpecs, options,
-      this.servSpecService.getServiceSpecByUser.bind(this.servSpecService)).then(data => {
-        this.serviceSpecPageCheck = data.page_check;
-        this.serviceSpecs = data.items;
-        this.nextServiceSpecs = data.nextItems;
-        this.serviceSpecPage = data.page;
-        this.loadingServiceSpec = false;
-        this.loadingServiceSpec_more = false;
-      })
-  }
-
-  async nextServ() {
-    await this.getServSpecs(true);
+  fetchServiceSpecs = (params: PageRequest): Promise<PageResult<any>> => {
+    return this.servSpecService.getServiceSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId, undefined);
   }
 
 
