@@ -123,6 +123,9 @@
             {{ customerName$ | async }}
           </h3>
         </div>
+        @if (loadingOrderDetails) {
+        <app-loading-spinner containerClass="w-full h-24 flex justify-center items-center" />
+        } @else {
         <div class="flex flex-row gap-2 pb-2 ml-2 text-gray-600">
           <p class="w-fit text-base font-bold shrink-0 dark:text-white">
             {{ 'PRODUCT_ORDERS._billing_address' | translate }}
@@ -313,6 +316,7 @@
             }
           </tbody>
         </table>
+        }
       </div>
     </div>
   </div>

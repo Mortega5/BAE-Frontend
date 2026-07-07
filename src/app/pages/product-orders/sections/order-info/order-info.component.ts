@@ -21,6 +21,7 @@ import { LocalStorageService } from "src/app/services/local-storage.service";
 import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductOrderService } from 'src/app/services/product-order-service.service';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { SharedModule } from "../../../../shared/shared.module";
@@ -30,7 +31,7 @@ type ProductOffering = components["schemas"]["ProductOffering"];
   selector: 'app-order-info',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule, SharedModule,
-    FilteredPaginatedTableComponent
+    FilteredPaginatedTableComponent, LoadingSpinnerComponent
   ],
   providers: [DatePipe],
   templateUrl: './order-info.component.html',
@@ -41,6 +42,7 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
   partyId: any = '';
   showOrderDetails: boolean = false;
   orderToShow: any;
+  loadingOrderDetails: boolean = false;
   dateRange = new FormControl();
   countries: any[] = countries;
   preferred: boolean = false;
@@ -59,11 +61,11 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(FilteredPaginatedTableComponent) paginatedTable?: FilteredPaginatedTableComponent<any>;
 
   orderColumns: TableColumn[] = [
-    { header: 'PRODUCT_INVENTORY._order_id', getValue: (item: any) => `...${item.id.slice(-6)}`, hideOnMobile: true },
-    { header: 'PRODUCT_INVENTORY._status', type: 'badge', getValue: (item: any) => item.state ?? 'PRODUCT_ORDERS._unchecked', cellClass: (item: any) => this.orderStateClass(item.state) },
-    { header: 'PRODUCT_INVENTORY._bill', getValue: (item: any) => item.billingAccount?.name ?? '-', hideOnMobile: true },
-    { header: 'PRODUCT_ORDERS._date', type: 'date', getValue: (item: any) => item.orderDate },
-    { header: 'PRODUCT_ORDERS._actions', type: 'icon-button', icon: faStickyNote, tooltip: 'PRODUCT_ORDERS._show_notes', dataCy: 'orderNotesButton', onClick: (item: any) => this.toggleDrawer(item) },
+    { header: 'PRODUCT_INVENTORY._order_id', getValue: (item: any) => `...${item.id.slice(-6)}`, width: 'w-28', hideOnMobile: true },
+    { header: 'PRODUCT_INVENTORY._status', type: 'badge', getValue: (item: any) => item.state ?? 'PRODUCT_ORDERS._unchecked', cellClass: (item: any) => this.orderStateClass(item.state), width: 'w-28' },
+    { header: 'PRODUCT_INVENTORY._bill', getValue: (item: any) => item.billingAccount?.name ?? '-', width: 'w-1/3', hideOnMobile: true },
+    { header: 'PRODUCT_ORDERS._date', type: 'date', getValue: (item: any) => item.orderDate, width: 'w-52' },
+    { header: 'PRODUCT_ORDERS._actions', type: 'icon-button', icon: faStickyNote, tooltip: 'PRODUCT_ORDERS._show_notes', dataCy: 'orderNotesButton', onClick: (item: any) => this.toggleDrawer(item), width: 'w-16' },
   ];
 
   orderFilters: FormField[] = [
@@ -410,11 +412,18 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     return totalPrice
   }
 
-  toggleShowDetails(order: any) {
-    //console.log(order)
+  async toggleShowDetails(order: any) {
     this.showOrderDetails = true;
     this.orderToShow = order;
     this.customerName$ = from(this.getCustomerName());
+    this.loadingOrderDetails = true;
+    try {
+      this.orderToShow = await this.paginationService.enrichOrder(order);
+    } catch (error) {
+      console.error('Error fetching order details:', error);
+    } finally {
+      this.loadingOrderDetails = false;
+    }
   }
 
   onRoleChange(role: any) {
