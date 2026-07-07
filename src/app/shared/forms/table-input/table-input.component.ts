@@ -84,10 +84,11 @@ export class TableInputComponent implements ControlValueAccessor {
     this.onTouched();
   }
 
-  onRowClick(item: any): void {
+  onRowClick(item: any, event?: Event): void {
     if (this.isReadonly) return;
     this.toggle(item);
     if (this.clickable) {
+      event?.stopPropagation();
       this.rowClick.emit(item);
     }
   }

@@ -2777,7 +2777,8 @@
     "_show_customer_details": "Show Customer Details",
     "_img": "Img",
     "_price_plan": "Price Plan",
-    "_state": "State"
+    "_state": "State",
+    "_show_notes": "Ver notas"
   },
   "FORMS": {
     "PROCUREMENT_MODE": {
