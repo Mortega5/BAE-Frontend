@@ -6,7 +6,6 @@ import {ProductOrderService} from 'src/app/services/product-order-service.servic
 import {ProductInventoryServiceService} from 'src/app/services/product-inventory-service.service';
 import {environment} from 'src/environments/environment';
 import {components} from "../models/product-catalog";
-import {InvoicesService} from "./invoices-service";
 import {PageRequest, PageResult} from '../models/pagination.model';
 
 type ProductOffering = components["schemas"]["ProductOffering"];
@@ -22,8 +21,7 @@ export class PaginationService {
     private api: ApiServiceService,
     private accountService: AccountServiceService,
     private orderService: ProductOrderService,
-    private inventoryService: ProductInventoryServiceService,
-    private invoicesService: InvoicesService
+    private inventoryService: ProductInventoryServiceService
   ) { }
 
   async getItemsPaginated(page:number, pageSize:any, next:boolean, items:any[], nextItems:any[], options:any,
@@ -699,16 +697,4 @@ export class PaginationService {
     }
   }
 
-  async getInvoices(page:number, filters:Category[], partyId:any, selectedDate:any, role:any): Promise<any[]> {
-    console.log("---getInvoices---")
-    let invoices = []
-    try{
-      invoices = await this.invoicesService.getInvoices(partyId,page,filters,selectedDate,role)
-    } finally {
-      console.log("params:", partyId,page,filters,selectedDate,role)
-      console.log("---getInvoices result:---", invoices)
-      console.log(invoices)
-      return invoices
-    }
-  }
 }

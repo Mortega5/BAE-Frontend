@@ -34,126 +34,11 @@
   </ul>
 </div>
 
-@if (loading && !loading_more) {
-<app-loading-spinner containerClass="w-3/4 md:w-4/5 h-full flex justify-center align-middle" />
-} @else {
-<div class="">
-  <!-- <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._order_list' | translate }}</h2>
-    <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">-->
-  <div class="m-4 relative overflow-x-auto border border-primary-100 dark:border-secondary-50 sm:rounded-lg">
-    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-      <thead class="text-xs text-gray-700 uppercase bg-secondary-50 dark:bg-primary-50 dark:text-secondary-100">
-        <tr>
-          <th scope="col" class="px-6 py-3 text-center align-middle">
-            {{ 'INVOICES._date' | translate }}
-          </th>
-          <th scope="col" class="px-6 py-3 text-center align-middle">
-            {{ 'INVOICES._billno' | translate }}
-          </th>
-          <th scope="col" class="hidden md:table-cell px-6 py-3 text-center align-middle">
-            {{ 'INVOICES._tax_included_amount' | translate }}
-          </th>
-          <th scope="col" class="hidden md:table-cell px-6 py-3 text-center align-middle">
-            {{ 'INVOICES._status' | translate }}
-          </th>
-          <th scope="col" class="text-center align-middle">
-            {{ 'INVOICES._actions' | translate }}
-          </th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (invoice of invoices; track invoice.id; let idx = $index) {
-        <tr data-cy="invoiceRow"
-          class="border-b bg-gray-100 hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-          <td class="px-6 py-4 text-center align-middle">
-            {{invoice?.billDate | date:'EEEE, dd/MM/yy, HH:mm'}}
-          </td>
-          <td class="px-6 py-4 text-center align-middle">
-            @if (role == sellerRole && editingIndex === idx) {
-            <input [(ngModel)]="editableInvoiceName" type="text" id="invoicename" class="mb-2 border-gray-300 dark:border-secondary-200 bg-gray-50 dark:bg-secondary-300 border
-      dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500
-      block w-full p-2.5" />
-            } @else {
-            {{ invoice?.billNo }}
-            }
-          </td>
-          <td class="md:table-cell px-6 py-4 text-center align-middle">
-            {{invoice?.taxIncludedAmount.value}}{{invoice?.taxIncludedAmount.unit}}
-          </td>
-          <td class="md:table-cell px-6 py-4 text-center align-middle">
-            {{invoice?.state}}
-          </td>
-          <td class="px-6 py-4 text-center align-middle">
-            <div class="flex flex-row justify-center items-center">
-              <button data-cy="invoiceDetails" (click)="toggleShowDetails(invoice);$event.stopPropagation();"
-                type="button"
-                class="text-white bg-primary-100 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2">
-                <svg class="w-[18px] h-[18px] text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                  fill="none" viewBox="0 0 20 14">
-                  <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2">
-                    <path d="M10 10a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
-                    <path d="M10 13c4.97 0 9-2.686 9-6s-4.03-6-9-6-9 2.686-9 6 4.03 6 9 6Z" />
-                  </g>
-                </svg>
-              </button>
-              <button (click)="downloadInvoice(invoice);" type="button"
-                class="text-white bg-primary-100 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2">
-                <svg class="w-[18px] h-[18px] text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                  width="24" height="24" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M4 15v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2m-8 1V4m0 12-4-4m4 4 4-4" />
-                </svg>
-              </button>
-              @if(role==sellerRole){
-              @if (editingIndex === idx) {
-              <!-- Save button -->
-              <button (click)="saveInvoice(idx, invoice);" type="button"
-                class="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:outline-none
-                      focus:ring-green-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2">
-                <fa-icon [icon]="faSave" class="text-[18px] text-white align-middle"></fa-icon>
-              </button>
-              } @else {
-              <!-- Edit button -->
-              <button (click)="editInvoice(idx, invoice);" type="button"
-                class="text-white bg-primary-100 hover:bg-blue-800 focus:ring-4 focus:outline-none
-                      focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2">
-                <fa-icon [icon]="faEdit" class="text-[18px] text-white align-middle"></fa-icon>
-              </button>
-              }
-              }
-            </div>
-          </td>
-        </tr>
-        }
-      </tbody>
-    </table>
-    @if(invoices.length == 0){
-    <div class="text-center items-center w-full col-span-2">
-      <span class="text-gray-900 dark:text-primary-50 text-sm text-center w-full font-medium">{{ 'PROFILE._no_orders' |
-        translate }}</span>
-    </div>
-    }
-  </div>
-
-  @if (!loading_more) {
-  @if (page_check) {
-  <div class="flex pb-6 justify-center align-middle">
-    <button (click)="next()"
-      class="flex cursor-pointer shadow-lg items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 dark:text-white bg-white dark:bg-primary-100 dark:hover:bg-secondary-100 border border-gray-300 dark:border-secondary-200 rounded-lg hover:bg-gray-200">
-      Load more
-      <svg class="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-        viewBox="0 0 24 24">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M5 12h14m-7 7V5" />
-      </svg>
-    </button>
-  </div>
-  }
-  } @else {
-  <app-loading-spinner />
-  }
+<div class="w-full h-fit mb-4 p-4">
+  <app-paginated-table data-cy="invoicesTable" [columns]="invoiceColumns" [fetchPage]="fetchInvoices" [clickable]="true"
+    (rowClick)="toggleShowDetails($event)">
+  </app-paginated-table>
 </div>
-}
 
 
 <!-- INVOICE DETAILS modal-->
@@ -166,16 +51,41 @@
     <!-- Modal header -->
     <div class="flex items-center justify-between p-2 rounded-t dark:border-gray-600 shadow-lg">
       <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{
-        'INVOICES._applied_billing_rates' | translate }}</h2>
+        'INVOICES._invoice_details' | translate }}</h2>
       <button (click)="showInvoiceDetails=false;" type="button"
-        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
-        data-modal-hide="delete-bill-modal">
+        class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white">
         <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
             d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
         </svg>
         <span class="sr-only">{{ 'CARD._close' | translate }}</span>
       </button>
+    </div>
+    <div data-cy="invoiceBillNo" class="px-6 py-6 border-b border-gray-200 dark:border-gray-700">
+      <label for="invoicename" class="block mb-2 text-sm font-bold text-gray-700 dark:text-white">
+        {{ 'INVOICES._billno' | translate }}
+      </label>
+      <div class="flex items-center gap-3">
+        <input [(ngModel)]="editableInvoiceName" type="text" id="invoicename" [disabled]="!isEditingBillNo"
+          class="border-gray-300 dark:border-secondary-200 bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 w-64 disabled:opacity-60 disabled:cursor-not-allowed" />
+        @if (isEditingBillNo) {
+        <button data-cy="saveInvoice" (click)="saveInvoice()" type="button"
+          class="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2.5 inline-flex items-center gap-2">
+          <fa-icon [icon]="faSave" class="text-[14px]"></fa-icon>
+          {{ 'INVOICES._save' | translate }}
+        </button>
+        <button data-cy="cancelEditInvoice" (click)="cancelEditBillNo()" type="button"
+          class="text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-secondary-300 hover:bg-gray-200 dark:hover:bg-secondary-200 font-medium rounded-lg text-sm px-4 py-2.5 inline-flex items-center">
+          {{ 'INVOICES._cancel' | translate }}
+        </button>
+        } @else if (role === sellerRole) {
+        <button data-cy="editInvoice" (click)="editInvoice()" type="button"
+          class="text-primary-100 dark:text-primary-50 hover:underline text-sm font-medium inline-flex items-center gap-1.5">
+          <fa-icon [icon]="faEdit" class="text-[13px]"></fa-icon>
+          {{ 'INVOICES._edit' | translate }}
+        </button>
+        }
+      </div>
     </div>
     <!-- Modal body -->
     <div class="w-full h-full">

@@ -1,24 +1,13 @@
 <div>
-  <div <<<<<<< HEAD
-    class="w-full h-fit mb-4 bg-secondary-50 rounded-lg  dark:bg-secondary-100 dark:border-gray-800 border-gray-300 border-secondary-50 border flex flex-col shadow-lg">
+  <div
+    class="w-full h-fit mb-4 bg-secondary-50 rounded-lg dark:bg-secondary-100 dark:border-gray-800 border-gray-300
+    border-secondary-50 border flex flex-col shadow-lg">
     <div class="flex w-full flex-cols items-center md:flex-row justify-between">
       <div class="mb-4 md:mb-0 md:w-1/4 p-8">
         <h2 class="text-2xl font-bold mb-4 dark:text-white">{{ 'OFFERINGS._res_spec' | translate }}</h2>
       </div>
 
       <div class="flex flex-row w-full justify-end">
-        <!--<form class="max-w-lg w-1/2 pr-4 z-10">
-                <div class="relative">
-                    <input type="search" id="search" [formControl]="searchField" class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-white shadow rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
-                    placeholder="Filter resource specifications..." />
-                    <button type="submit" (click)="filterInventoryByKeywords()" class="absolute shadow top-0 end-0 inline-flex items-center p-2.5 text-sm font-medium h-full text-white bg-primary-100 rounded-e-lg hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300">
-                        <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                        </svg>
-                        <span class="ml-2">{{ 'OFFERINGS._search' | translate }}</span>
-                    </button>
-                </div>
-              </form>-->
         <button data-cy="createResSpec" (click)="goToCreate()" type="button"
           class="ml-2 mr-8 mb-4 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center align-middle me-2">
           <p class="pl-2 pr-2">{{ 'OFFERINGS._add_new_res' | translate }}</p>
@@ -29,95 +18,13 @@
           </svg>
         </button>
       </div>
-
     </div>
-    <div class="flex w-full flex-col items-center md:flex-row justify-between">
+  </div>
 
-      <div class="p-8 w-full">
-        <div class="flex flex-row mb-1">
-          <fa-icon [icon]="faSwatchbook" class="fa-base text-primary-100 align-middle mr-2"></fa-icon>
-          <h2 class="text-base font-bold dark:text-white">{{ 'OFFERINGS._filter_state' | translate }}</h2>
-        </div>
-        <button id="dropdownDefault" data-dropdown-toggle="dropdown"
-          class="text-black dark:text-white w-full justify-between shadow bg-white dark:bg-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-300 focus:ring-4 focus:outline-none focus:ring-primary-100 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center shadow-lg"
-          type="button">
-          {{ 'OFFERINGS._filter_state' | translate }}
-          <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-          </svg>
-        </button>
-
-        <div id="dropdown" class="z-20 hidden w-fit md:w-1/5 p-3 bg-white rounded-lg shadow dark:bg-secondary-200">
-          <h6 class="mb-3 text-sm font-medium text-gray-900 dark:text-white">
-            {{ 'OFFERINGS._status' | translate }}
-          </h6>
-          <ul class="space-y-2 text-sm" aria-labelledby="dropdownDefault">
-
-            <li class="flex items-center">
-              <input id="active" type="checkbox" value="" checked (change)="onStateFilterChange('Active')"
-                class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded text-primary-600 focus:ring-primary-100" />
-
-              <label for="active" class="ml-2 text-sm font-medium text-gray-900 dark:text-white">
-                {{ 'OFFERINGS._active' | translate }}
-              </label>
-            </li>
-
-            <li class="flex items-center">
-              <input id="launched" type="checkbox" value="" checked (change)="onStateFilterChange('Launched')"
-                class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded text-primary-600 focus:ring-primary-100" />
-
-              <label for="launched" class="ml-2 text-sm font-medium text-gray-900 dark:text-white">
-                {{ 'OFFERINGS._launched' | translate }}
-              </label>
-            </li>
-
-            <li class="flex items-center">
-              <input id="retired" type="checkbox" value="" (change)="onStateFilterChange('Retired')"
-                class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded text-primary-600 focus:ring-primary-100" />
-
-              <label for="retired" class="ml-2 text-sm font-medium text-gray-900 dark:text-white">
-                {{ 'OFFERINGS._retired' | translate }}
-              </label>
-            </li>
-
-            <li class="flex items-center">
-              <input id="obsolete" type="checkbox" value="" (change)="onStateFilterChange('Obsolete')"
-                class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded text-primary-600 focus:ring-primary-100" />
-
-              <label for="obsolete" class="ml-2 text-sm font-medium text-gray-900 dark:text-white">
-                {{ 'OFFERINGS._obsolete' | translate }}
-              </label>
-            </li>
-          </ul>
-        </div>
-        =======
-        class="w-full h-fit mb-4 bg-secondary-50 rounded-lg dark:bg-secondary-100 dark:border-gray-800 border-gray-300
-        border-secondary-50 border flex flex-col shadow-lg">
-        <div class="flex w-full flex-cols items-center md:flex-row justify-between">
-          <div class="mb-4 md:mb-0 md:w-1/4 p-8">
-            <h2 class="text-2xl font-bold mb-4 dark:text-white">{{ 'OFFERINGS._res_spec' | translate }}</h2>
-            >>>>>>> 4fa51cfe (migrate seller-resource-spec status filter to filtered paginated table)
-          </div>
-
-          <div class="flex flex-row w-full justify-end">
-            <button data-cy="createResSpec" (click)="goToCreate()" type="button"
-              class="ml-2 mr-8 mb-4 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center align-middle me-2">
-              <p class="pl-2 pr-2">{{ 'OFFERINGS._add_new_res' | translate }}</p>
-              <svg class="w-[18px] h-[18px] text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                height="24" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M5 12h14m-7 7V5" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div
-        class="bg-secondary-50 dark:bg-secondary-100 dark:border-gray-800 border-secondary-50 border mt-8 p-4 rounded-lg shadow-lg">
-        <app-filtered-paginated-table data-cy="resSpecTable" [columns]="resSpecColumns" [fetchPage]="fetchResSpecs"
-          [filters]="resSpecFilters" [filterColumns]="1" [clickable]="true" (rowClick)="goToUpdate($event)">
-        </app-filtered-paginated-table>
-      </div>
-    </div>
+  <div
+    class="bg-secondary-50 dark:bg-secondary-100 dark:border-gray-800 border-secondary-50 border mt-8 p-4 rounded-lg shadow-lg">
+    <app-filtered-paginated-table data-cy="resSpecTable" [columns]="resSpecColumns" [fetchPage]="fetchResSpecs"
+      [filters]="resSpecFilters" [filterColumns]="1" [clickable]="true" (rowClick)="goToUpdate($event)">
+    </app-filtered-paginated-table>
+  </div>
+</div>

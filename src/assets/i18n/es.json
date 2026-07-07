@@ -1996,7 +1996,11 @@
     "_applied_billing_rates": "Applied Billing Rates",
     "_product_acbr_ref": "Product ACBR reference",
     "_no_billing_rates": "No billing rates found",
-    "_period_coverage": "Period Coverage"
+    "_period_coverage": "Period Coverage",
+    "_download": "Descargar",
+    "_edit": "Editar",
+    "_save": "Guardar",
+    "_cancel": "Cancelar"
   },
   "CREATE_CATALOG": {
     "_back": "Back",
