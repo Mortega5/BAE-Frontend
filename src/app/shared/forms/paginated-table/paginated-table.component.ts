@@ -136,4 +136,12 @@ export class PaginatedTableComponent<T = any> implements OnInit, OnChanges {
     }
     this.loadPage();
   }
+
+  /** Patches the currently loaded item matching `predicate` in place, without refetching the page. */
+  patchItem(predicate: (item: T) => boolean, patch: Partial<T>): void {
+    const index = this.items.findIndex(predicate);
+    if (index !== -1) {
+      this.items[index] = { ...this.items[index], ...patch };
+    }
+  }
 }

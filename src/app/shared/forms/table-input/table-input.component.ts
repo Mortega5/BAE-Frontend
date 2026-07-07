@@ -110,6 +110,11 @@ export class TableInputComponent implements ControlValueAccessor {
     return column.actions.filter(action => !action.showIf || action.showIf(item));
   }
 
+  getActionsEmptyLabel(column: TableColumn, item: any): string {
+    if (column.type !== 'actions' || !column.emptyLabel) return '';
+    return column.emptyLabel(item) ?? '';
+  }
+
   showTooltip(event: MouseEvent, tooltip: string | undefined): void {
     if (!tooltip) return;
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
@@ -127,7 +132,7 @@ export class TableInputComponent implements ControlValueAccessor {
   }
 
   getCellValue(column: TableColumn, item: any): string {
-    if (column.type === 'icon-button' || column.type === 'date' || column.type === 'actions') return '';
+    if (column.type === 'icon-button' || column.type === 'date' || column.type === 'actions' || column.type === 'image') return '';
     const value = column.getValue ? column.getValue(item) : null;
     return value == null ? '' : String(value);
   }
@@ -135,6 +140,11 @@ export class TableInputComponent implements ControlValueAccessor {
   getDateValue(column: TableColumn, item: any): string {
     if (column.type !== 'date') return '';
     return this.datePipe.transform(column.getValue(item), column.format ?? DEFAULT_DATE_FORMAT) ?? '-';
+  }
+
+  getImageValue(column: TableColumn, item: any): string {
+    if (column.type !== 'image') return '';
+    return column.getValue(item) ?? '';
   }
 
 }

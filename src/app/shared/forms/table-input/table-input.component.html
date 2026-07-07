@@ -34,7 +34,7 @@
         }
         @for (col of columns; track $index) {
         <td class="px-6 py-4"
-          [ngClass]="[col.type !== 'badge' && col.type !== 'icon-button' && col.type !== 'actions' ? getCellClass(col, item) : '', col.hideOnMobile ? 'hidden sm:table-cell' : '']">
+          [ngClass]="[col.type !== 'badge' && col.type !== 'icon-button' && col.type !== 'actions' && col.type !== 'image' ? getCellClass(col, item) : '', col.hideOnMobile ? 'hidden sm:table-cell' : '']">
           @if (col.type === 'badge') {
           <span [ngClass]="getCellClass(col, item)">{{ getCellValue(col, item) | translate }}</span>
           } @else if (col.type === 'icon-button') {
@@ -58,10 +58,18 @@
               (click)="onActionClick(action, item, $event)">
               <fa-icon [icon]="action.icon"></fa-icon>
             </button>
+            } @empty {
+            @if (getActionsEmptyLabel(col, item)) {
+            <span class="text-gray-400 dark:text-gray-500 text-sm">{{ getActionsEmptyLabel(col, item) | translate }}</span>
+            }
             }
           </div>
           } @else if (col.type === 'date') {
           {{ getDateValue(col, item) }}
+          } @else if (col.type === 'image') {
+          <div class="flex items-center justify-center">
+            <img class="w-16 object-contain" [src]="getImageValue(col, item)" [alt]="col.alt ?? ''">
+          </div>
           } @else {
           {{ getCellValue(col, item) | translate }}
           }

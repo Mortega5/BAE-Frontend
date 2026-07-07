@@ -52,4 +52,9 @@ export class FilteredPaginatedTableComponent<T = any> {
   refresh(resetToFirstPage: boolean = false): void {
     this.paginatedTable?.refresh(resetToFirstPage);
   }
+
+  /** Patches the currently loaded item matching `predicate` in place, without refetching the page. */
+  patchItem(predicate: (item: T) => boolean, patch: Partial<T>): void {
+    this.paginatedTable?.patchItem(predicate, patch);
+  }
 }

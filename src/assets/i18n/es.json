@@ -2782,7 +2782,12 @@
     "_img": "Img",
     "_price_plan": "Price Plan",
     "_state": "State",
-    "_show_notes": "Ver notas"
+    "_show_notes": "Ver notas",
+    "_acknowledge_order": "Confirmar el item del pedido",
+    "_reject_order": "Rechazar el item del pedido",
+    "_start_treatment": "Iniciar tratamiento del pedido",
+    "_complete_order": "Pedido completado",
+    "_fail_order": "Pedido fallido"
   },
   "FORMS": {
     "PROCUREMENT_MODE": {

@@ -3,7 +3,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, 
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faIdCard, faSort, faStickyNote, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
+import { faCheck, faCircleCheck, faCircleXmark, faIdCard, faPlay, faSort, faStickyNote, faSwatchbook, faXmark } from "@fortawesome/pro-solid-svg-icons";
 import { TranslateModule } from '@ngx-translate/core';
 import { Drawer, initFlowbite, Modal } from 'flowbite';
 import moment from 'moment';
@@ -21,6 +21,7 @@ import { LocalStorageService } from "src/app/services/local-storage.service";
 import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductOrderService } from 'src/app/services/product-order-service.service';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
+import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
@@ -31,7 +32,7 @@ type ProductOffering = components["schemas"]["ProductOffering"];
   selector: 'app-order-info',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule, SharedModule,
-    FilteredPaginatedTableComponent, LoadingSpinnerComponent
+    FilteredPaginatedTableComponent, TableInputComponent, LoadingSpinnerComponent
   ],
   providers: [DatePipe],
   templateUrl: './order-info.component.html',
@@ -66,6 +67,58 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     { header: 'PRODUCT_INVENTORY._bill', getValue: (item: any) => item.billingAccount?.name ?? '-', width: 'w-1/3', hideOnMobile: true },
     { header: 'PRODUCT_ORDERS._date', type: 'date', getValue: (item: any) => item.orderDate },
     { header: 'PRODUCT_ORDERS._actions', type: 'icon-button', icon: faStickyNote, tooltip: 'PRODUCT_ORDERS._show_notes', dataCy: 'orderNotesButton', onClick: (item: any) => this.toggleDrawer(item), width: 'w-24' },
+  ];
+
+  orderItemColumns: TableColumn[] = [
+    { header: 'PRODUCT_ORDERS._img', type: 'image', getValue: (item: any) => this.getProductImage(item), width: 'w-24' },
+    { header: 'PRODUCT_ORDERS._name', getValue: (item: any) => item.name },
+    { header: 'PRODUCT_ORDERS._price_plan', getValue: (item: any) => this.getPricePlanLabel(item) },
+    {
+      header: 'PRODUCT_ORDERS._state', type: 'badge', width: 'w-28',
+      getValue: (item: any) => item.productOrderItem.state ?? 'Unchecked',
+      cellClass: (item: any) => this.orderStateClass(item.productOrderItem.state),
+    },
+    {
+      header: 'PRODUCT_ORDERS._items_action', type: 'badge', width: 'w-28',
+      getValue: (item: any) => item.productOrderItem.action,
+      cellClass: (item: any) => this.orderItemActionClass(item.productOrderItem.action),
+    },
+    {
+      header: 'PRODUCT_ORDERS._actions', type: 'actions', width: 'w-40',
+      actions: [
+        {
+          icon: faCheck, tooltip: 'PRODUCT_ORDERS._acknowledge_order', dataCy: 'acknowledgeOrder',
+          buttonClass: 'bg-primary-100 hover:bg-blue-800 focus:ring-blue-300',
+          onClick: (item: any) => this.openModal('acknowledged', item),
+          showIf: (item: any) => this.canAcknowledgeOrReject(item),
+        },
+        {
+          icon: faXmark, tooltip: 'PRODUCT_ORDERS._reject_order', dataCy: 'rejectOrder',
+          buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300',
+          onClick: (item: any) => this.openModal('cancelled', item),
+          showIf: (item: any) => this.canAcknowledgeOrReject(item),
+        },
+        {
+          icon: faPlay, tooltip: 'PRODUCT_ORDERS._start_treatment', dataCy: 'startOrderTreatment',
+          buttonClass: 'bg-green-500 hover:bg-green-600 focus:ring-green-300',
+          onClick: (item: any) => this.openModal('inProgress', item),
+          showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'acknowledged',
+        },
+        {
+          icon: faCircleCheck, tooltip: 'PRODUCT_ORDERS._complete_order', dataCy: 'completeOrder',
+          buttonClass: 'bg-green-500 hover:bg-green-600 focus:ring-green-300',
+          onClick: (item: any) => this.openModal('completed', item),
+          showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'inProgress',
+        },
+        {
+          icon: faCircleXmark, tooltip: 'PRODUCT_ORDERS._fail_order', dataCy: 'failOrder',
+          buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300',
+          onClick: (item: any) => this.openModal('failed', item),
+          showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'inProgress',
+        },
+      ],
+      emptyLabel: (item: any) => this.hasProcurementAutomaticTerm(item) && this.role !== this.sellerRole ? 'n/a' : null,
+    },
   ];
 
   orderFilters: FormField[] = [
@@ -204,6 +257,9 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
       console.log("Order state updated successfully:", stateResponse);
 
       this.orderToShow.state = stateResponse.state;
+      // orderToShow is a separate (enriched) object from the row cached by the orders
+      // table, so its state change doesn't propagate there on its own - patch it locally.
+      this.paginatedTable?.patchItem((o: any) => o.id === this.orderToShow.id, { state: stateResponse.state });
     } catch (error) {
       this.selectedItem.productOrderItem['state'] = prevState
 
@@ -370,6 +426,50 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
       default:
         return `bg-amber-500 dark:bg-amber-900 text-amber-900 dark:text-amber-100 border-amber-950 ${base}`;
     }
+  }
+
+  private orderItemActionClass(action: string): string {
+    const base = 'text-xs font-medium me-2 px-2.5 py-0.5 rounded border';
+    switch (action) {
+      case 'add':
+        return `bg-blue-100 dark:bg-secondary-300 text-blue-600 border-blue-400 ${base}`;
+      case 'delete':
+        return `bg-blue-100 dark:bg-secondary-300 text-red-500 border-red-500 ${base}`;
+      case 'modify':
+        return `bg-blue-100 dark:bg-secondary-300 text-yellow-500 border-yellow-500 ${base}`;
+      default:
+        return '';
+    }
+  }
+
+  private getPricePlanLabel(item: any): string {
+    const price = item.productOfferingPrice;
+    if (!price) return 'SHOPPING_CART._free';
+
+    if (price.priceType === 'custom') {
+      return price.name ?? 'Custom';
+    }
+
+    if (price.bundledPopRelationship?.length > 1) {
+      return `Bundled price plan: ${price.name}`;
+    }
+
+    let label = `${price.price?.value ?? ''} ${price.price?.unit ?? ''}`.trim();
+    if (price.unitOfMeasure) {
+      label += ` / ${price.unitOfMeasure.units}`;
+    }
+    if (price.recurringChargePeriodType) {
+      label += ` / ${price.recurringChargePeriodType}`;
+    }
+    return label;
+  }
+
+  private canAcknowledgeOrReject(item: any): boolean {
+    return !this.hasProcurementAutomaticTerm(item) && !item.productOrderItem.state && this.role === this.sellerRole;
+  }
+
+  private isSellerTreatingManualItem(item: any): boolean {
+    return !this.hasProcurementAutomaticTerm(item) && this.role === this.sellerRole;
   }
 
   getTotalPrice(items: any[]) {

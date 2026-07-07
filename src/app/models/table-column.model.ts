@@ -43,6 +43,8 @@ export interface TableColumnAction<T = any> {
 export interface ActionsTableColumn<T = any> extends BaseTableColumn<T> {
   type: 'actions';
   actions: TableColumnAction<T>[];
+  /** Text shown when none of `actions` is visible for the row (all `showIf` returned false). */
+  emptyLabel?: (item: T) => string | null | undefined;
 }
 
 export interface DateTableColumn<T = any> extends BaseTableColumn<T> {
@@ -52,4 +54,10 @@ export interface DateTableColumn<T = any> extends BaseTableColumn<T> {
   format?: string;
 }
 
-export type TableColumn<T = any> = TextTableColumn<T> | BadgeTableColumn<T> | IconButtonTableColumn<T> | DateTableColumn<T> | ActionsTableColumn<T>;
+export interface ImageTableColumn<T = any> extends BaseTableColumn<T> {
+  type: 'image';
+  getValue: (item: T) => string | null | undefined;
+  alt?: string;
+}
+
+export type TableColumn<T = any> = TextTableColumn<T> | BadgeTableColumn<T> | IconButtonTableColumn<T> | DateTableColumn<T> | ActionsTableColumn<T> | ImageTableColumn<T>;
