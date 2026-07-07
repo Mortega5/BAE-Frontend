@@ -64,8 +64,8 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     { header: 'PRODUCT_INVENTORY._order_id', getValue: (item: any) => `...${item.id.slice(-6)}`, width: 'w-28', hideOnMobile: true },
     { header: 'PRODUCT_INVENTORY._status', type: 'badge', getValue: (item: any) => item.state ?? 'PRODUCT_ORDERS._unchecked', cellClass: (item: any) => this.orderStateClass(item.state), width: 'w-28' },
     { header: 'PRODUCT_INVENTORY._bill', getValue: (item: any) => item.billingAccount?.name ?? '-', width: 'w-1/3', hideOnMobile: true },
-    { header: 'PRODUCT_ORDERS._date', type: 'date', getValue: (item: any) => item.orderDate, width: 'w-52' },
-    { header: 'PRODUCT_ORDERS._actions', type: 'icon-button', icon: faStickyNote, tooltip: 'PRODUCT_ORDERS._show_notes', dataCy: 'orderNotesButton', onClick: (item: any) => this.toggleDrawer(item), width: 'w-16' },
+    { header: 'PRODUCT_ORDERS._date', type: 'date', getValue: (item: any) => item.orderDate },
+    { header: 'PRODUCT_ORDERS._actions', type: 'icon-button', icon: faStickyNote, tooltip: 'PRODUCT_ORDERS._show_notes', dataCy: 'orderNotesButton', onClick: (item: any) => this.toggleDrawer(item), width: 'w-24' },
   ];
 
   orderFilters: FormField[] = [

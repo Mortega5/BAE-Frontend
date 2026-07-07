@@ -3,7 +3,7 @@ import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/cor
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
-import { TableColumn } from 'src/app/models/table-column.model';
+import { TableColumn, TableColumnAction } from 'src/app/models/table-column.model';
 
 const DEFAULT_DATE_FORMAT = 'EEEE, dd/MM/yy, HH:mm';
 
@@ -100,11 +100,21 @@ export class TableInputComponent implements ControlValueAccessor {
     }
   }
 
-  showTooltip(event: MouseEvent, column: TableColumn): void {
-    if (column.type !== 'icon-button' || !column.tooltip) return;
+  onActionClick(action: TableColumnAction, item: any, event: Event): void {
+    event.stopPropagation();
+    action.onClick(item);
+  }
+
+  visibleActions(column: TableColumn, item: any): TableColumnAction[] {
+    if (column.type !== 'actions') return [];
+    return column.actions.filter(action => !action.showIf || action.showIf(item));
+  }
+
+  showTooltip(event: MouseEvent, tooltip: string | undefined): void {
+    if (!tooltip) return;
     const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
     this.tooltipPosition = { top: rect.top - 8, left: rect.left + rect.width / 2 };
-    this.tooltipText = column.tooltip;
+    this.tooltipText = tooltip;
   }
 
   hideTooltip(): void {
@@ -117,7 +127,7 @@ export class TableInputComponent implements ControlValueAccessor {
   }
 
   getCellValue(column: TableColumn, item: any): string {
-    if (column.type === 'icon-button' || column.type === 'date') return '';
+    if (column.type === 'icon-button' || column.type === 'date' || column.type === 'actions') return '';
     const value = column.getValue ? column.getValue(item) : null;
     return value == null ? '' : String(value);
   }

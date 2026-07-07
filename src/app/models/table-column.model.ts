@@ -29,6 +29,22 @@ export interface IconButtonTableColumn<T = any> extends BaseTableColumn<T> {
   tooltip?: string;
 }
 
+export interface TableColumnAction<T = any> {
+  icon: IconDefinition;
+  onClick: (item: T) => void;
+  /** Defaults to always visible when omitted. */
+  showIf?: (item: T) => boolean;
+  tooltip?: string;
+  dataCy?: string;
+  /** Tailwind classes for the button background/focus ring. Defaults to the primary color. */
+  buttonClass?: string;
+}
+
+export interface ActionsTableColumn<T = any> extends BaseTableColumn<T> {
+  type: 'actions';
+  actions: TableColumnAction<T>[];
+}
+
 export interface DateTableColumn<T = any> extends BaseTableColumn<T> {
   type: 'date';
   getValue: (item: T) => string | number | Date | null | undefined;
@@ -36,4 +52,4 @@ export interface DateTableColumn<T = any> extends BaseTableColumn<T> {
   format?: string;
 }
 
-export type TableColumn<T = any> = TextTableColumn<T> | BadgeTableColumn<T> | IconButtonTableColumn<T> | DateTableColumn<T>;
+export type TableColumn<T = any> = TextTableColumn<T> | BadgeTableColumn<T> | IconButtonTableColumn<T> | DateTableColumn<T> | ActionsTableColumn<T>;

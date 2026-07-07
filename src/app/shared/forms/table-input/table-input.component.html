@@ -34,7 +34,7 @@
         }
         @for (col of columns; track $index) {
         <td class="px-6 py-4"
-          [ngClass]="[col.type !== 'badge' && col.type !== 'icon-button' ? getCellClass(col, item) : '', col.hideOnMobile ? 'hidden sm:table-cell' : '']">
+          [ngClass]="[col.type !== 'badge' && col.type !== 'icon-button' && col.type !== 'actions' ? getCellClass(col, item) : '', col.hideOnMobile ? 'hidden sm:table-cell' : '']">
           @if (col.type === 'badge') {
           <span [ngClass]="getCellClass(col, item)">{{ getCellValue(col, item) | translate }}</span>
           } @else if (col.type === 'icon-button') {
@@ -42,11 +42,24 @@
           <button type="button" [attr.data-cy]="col.dataCy"
             [attr.aria-label]="col.tooltip ? (col.tooltip | translate) : null"
             class="w-9 h-9 flex items-center justify-center text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full me-2"
-            (mouseenter)="showTooltip($event, col)" (mouseleave)="hideTooltip()"
+            (mouseenter)="showTooltip($event, col.tooltip)" (mouseleave)="hideTooltip()"
             (click)="onColumnAction(col, item, $event)">
             <fa-icon [icon]="col.icon"></fa-icon>
           </button>
           }
+          } @else if (col.type === 'actions') {
+          <div class="flex items-center justify-center">
+            @for (action of visibleActions(col, item); track $index) {
+            <button type="button" [attr.data-cy]="action.dataCy"
+              [attr.aria-label]="action.tooltip ? (action.tooltip | translate) : null"
+              [ngClass]="action.buttonClass ?? 'bg-primary-100 hover:bg-primary-50 focus:ring-blue-300'"
+              class="w-9 h-9 flex items-center justify-center text-white focus:ring-4 focus:outline-none font-medium rounded-full me-2"
+              (mouseenter)="showTooltip($event, action.tooltip)" (mouseleave)="hideTooltip()"
+              (click)="onActionClick(action, item, $event)">
+              <fa-icon [icon]="action.icon"></fa-icon>
+            </button>
+            }
+          </div>
           } @else if (col.type === 'date') {
           {{ getDateValue(col, item) }}
           } @else {
