@@ -8,7 +8,7 @@ import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
-import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { buildLifecycleStatusOptions, FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
@@ -57,12 +57,7 @@ const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
   { type: 'string', name: 'number', label: 'UPDATE_PROD_SPEC._id_number', colSpan: 1 },
   {
     type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_RES_SPEC._status',
-    options: [
-      { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
-      { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700' },
-      { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
-      { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
-    ],
+    options: buildLifecycleStatusOptions('productSpecStatus'),
   },
   { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS, readonly: true },
   { type: 'markdownTextarea', name: 'description', label: 'UPDATE_PROD_SPEC._product_description' },

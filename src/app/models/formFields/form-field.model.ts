@@ -65,6 +65,34 @@ export interface StatusPickerFormField extends BaseFormField {
   options: StatusPickerOption[];
 }
 
+const LIFECYCLE_STATUSES = ['Active', 'Launched', 'Retired', 'Obsolete'] as const;
+export type LifecycleStatus = typeof LIFECYCLE_STATUSES[number];
+
+const LIFECYCLE_STATUS_ACTIVE_CLASSES: Record<LifecycleStatus, string> = {
+  Active: 'text-blue-500',
+  Launched: 'text-green-700 dark:text-green-400',
+  Retired: 'text-red-700 dark:text-red-400',
+  Obsolete: 'text-gray-700 dark:text-gray-400',
+};
+
+const LIFECYCLE_STATUS_LABELS: Record<LifecycleStatus, string> = {
+  Active: 'UPDATE_CATALOG._active',
+  Launched: 'UPDATE_CATALOG._launched',
+  Retired: 'UPDATE_CATALOG._retired',
+  Obsolete: 'UPDATE_CATALOG._obsolete',
+};
+
+export function buildLifecycleStatusOptions(dataCyPrefix: string = '', disabledStatuses: string[] = []): StatusPickerOption[] {
+  return LIFECYCLE_STATUSES
+    .filter(status => !disabledStatuses.includes(status))
+    .map(status => ({
+      value: status,
+      label: LIFECYCLE_STATUS_LABELS[status],
+      activeClass: LIFECYCLE_STATUS_ACTIVE_CLASSES[status],
+      dataCy: `${dataCyPrefix}${status}`,
+    }));
+}
+
 export interface MultiValueStringFormField extends TextBaseFormField {
   type: 'multiValueString';
   addLabel?: string;

@@ -4,7 +4,7 @@ import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { buildLifecycleStatusOptions, FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from 'src/app/models/resource-catalog';
 import { EventMessageService } from 'src/app/services/event-message.service';
@@ -42,12 +42,7 @@ const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
   { type: 'select', name: 'baseTemplate', label: 'CREATE_RES_SPEC._base_template', readonly: true, options: BASE_TEMPLATE_OPTIONS },
   {
     type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_RES_SPEC._status',
-    options: [
-      { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
-      { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700', dataCy: 'resourceSpecStatusLaunched' },
-      { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
-      { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
-    ],
+    options: buildLifecycleStatusOptions('resourceSpecStatus'),
   },
   { type: 'markdownTextarea', name: 'description', label: 'UPDATE_RES_SPEC._description' },
 ];

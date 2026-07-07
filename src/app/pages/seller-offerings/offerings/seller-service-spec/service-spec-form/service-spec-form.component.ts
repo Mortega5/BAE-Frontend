@@ -3,7 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { FormField } from 'src/app/models/formFields/form-field.model';
+import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
@@ -31,12 +31,7 @@ const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
   { type: 'string', name: 'name', label: 'UPDATE_SERV_SPEC._name', required: true, maxLength: 100, dataCy: 'servSpecName' },
   {
     type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_SERV_SPEC._status',
-    options: [
-      { value: 'Active', label: 'UPDATE_CATALOG._active', activeClass: 'text-blue-500' },
-      { value: 'Launched', label: 'UPDATE_CATALOG._launched', activeClass: 'text-green-700', dataCy: 'serviceSpecStatusLaunched' },
-      { value: 'Retired', label: 'UPDATE_CATALOG._retired', activeClass: 'text-yellow-500' },
-      { value: 'Obsolete', label: 'UPDATE_CATALOG._obsolete', activeClass: 'text-red-800' },
-    ],
+    options: buildLifecycleStatusOptions('serviceSpecStatus'),
   },
   { type: 'markdownTextarea', name: 'description', label: 'UPDATE_SERV_SPEC._description' },
 ];
