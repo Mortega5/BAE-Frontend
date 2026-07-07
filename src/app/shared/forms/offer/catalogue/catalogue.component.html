@@ -1,41 +1,5 @@
-@if(loadingCatalog){
-<app-loading-spinner containerClass="w-full h-fit flex justify-center align-middle" />
-} @else {
-@if(catalogs.length==0){
-<div class="flex justify-center w-full m-4">
-  <div
-    class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
-    role="alert">
-    <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-      fill="currentColor" viewBox="0 0 20 20">
-      <path
-        d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-    </svg>
-    <div>
-      {{ 'OFFERINGS._no_cat' | translate }}
-    </div>
-  </div>
-</div>
-}@else{
 <div class="w-full mt-4">
-  <app-table-input data-cy="catalogList" [columns]="catColumns" [items]="catalogs" [multiple]="false"
-    [ngModel]="selectedCatalogInternal" (ngModelChange)="onCatalogChange($event)">
-  </app-table-input>
+  <app-paginated-table data-cy="catalogList" [columns]="catColumns" [fetchPage]="fetchCatalogs" [multiple]="false"
+    [selectable]="true" [selected]="selectedCatalogInternal" (selectedChange)="onCatalogChange($event)">
+  </app-paginated-table>
 </div>
-}
-@if (!loadingCatalog_more) {
-@if (catalogPageCheck) {
-<div class="flex pt-6 pb-2 justify-center align-middle">
-  <button data-cy="loadMore" (click)="nextCatalog()"
-    class="flex cursor-pointer shadow-lg items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 dark:text-white bg-white dark:bg-primary-100 dark:hover:bg-secondary-100 border border-gray-300 dark:border-secondary-200 rounded-lg hover:bg-gray-200">
-    {{ 'CREATE_PROD_SPEC._load_more' | translate }}
-    <svg class="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5" />
-    </svg>
-  </button>
-</div>
-}
-} @else {
-<app-loading-spinner containerClass="w-full h-full flex justify-center align-middle mt-2" />
-}
-}

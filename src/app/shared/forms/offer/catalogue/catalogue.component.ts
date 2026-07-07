@@ -1,22 +1,19 @@
-import {AfterViewInit, ChangeDetectorRef, Component, forwardRef, Input, OnInit} from '@angular/core';
-import {TranslateModule} from "@ngx-translate/core";
-import {environment} from "../../../../../environments/environment";
-import {ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR} from "@angular/forms";
-import {PaginationService} from "../../../../services/pagination.service";
-import {ApiServiceService} from "../../../../services/product-service.service";
-import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
-import { TableInputComponent } from '../../table-input/table-input.component';
+import { Component, forwardRef, Input } from '@angular/core';
+import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { TranslateModule } from "@ngx-translate/core";
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { TableColumn } from 'src/app/models/table-column.model';
 import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { ApiServiceService } from "../../../../services/product-service.service";
+import { PaginatedTableComponent } from '../../paginated-table/paginated-table.component';
 
 @Component({
   selector: 'app-catalogue',
   standalone: true,
   imports: [
     TranslateModule,
-    LoadingSpinnerComponent,
     FormsModule,
-    TableInputComponent,
+    PaginatedTableComponent,
   ],
   providers: [
     {
@@ -29,17 +26,9 @@ import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.util
   styleUrl: './catalogue.component.css'
 })
 
-export class CatalogueComponent implements ControlValueAccessor, OnInit, AfterViewInit {
+export class CatalogueComponent implements ControlValueAccessor {
   @Input() partyId: any;
 
-  //CATALOG INFO:
-  CATALOG_LIMIT: number= environment.CATALOG_LIMIT;
-  catalogPage=0;
-  catalogPageCheck:boolean=false;
-  loadingCatalog:boolean=false;
-  loadingCatalog_more:boolean=false;
-  catalogs:any[]=[];
-  nextCatalogs:any[]=[];
   selectedCatalogInternal: any = null;
 
   catColumns: TableColumn[] = [
@@ -48,15 +37,12 @@ export class CatalogueComponent implements ControlValueAccessor, OnInit, AfterVi
     { header: 'Role', getValue: (item: any) => item.relatedParty?.at(0)?.role ?? '-', width: 'w-28' },
   ];
 
-  constructor(
-      private api: ApiServiceService,
-      private paginationService: PaginationService,
-      private cdr: ChangeDetectorRef) {
+  constructor(private api: ApiServiceService) {
   }
 
   // As ControlValueAccessor
-  onChange: (value: any) => void = () => {};
-  onTouched: () => void = () => {};
+  onChange: (value: any) => void = () => { };
+  onTouched: () => void = () => { };
 
   writeValue(selectedCatalog: any): void {
     this.selectedCatalogInternal = selectedCatalog;
@@ -71,42 +57,8 @@ export class CatalogueComponent implements ControlValueAccessor, OnInit, AfterVi
     this.onTouched = fn;
   }
 
-  async ngOnInit() {
-    // Si hay valores iniciales en el formulario, los cargamos
-    await this.getSellerCatalogs(false);
-  }
-
-  ngAfterViewInit() {
-    setTimeout(() => this.cdr.detectChanges(), 0);
-  }
-
-  async getSellerCatalogs(next:boolean){
-    if(next==false){
-      this.loadingCatalog=true;
-    }
-
-    let options = {
-      "keywords": undefined,
-      "filters": ['Active','Launched'],
-      "partyId": this.partyId
-    }
-
-    try {
-      const data = await this.paginationService.getItemsPaginated(this.catalogPage, this.CATALOG_LIMIT, next, this.catalogs,this.nextCatalogs, options,
-        this.api.getCatalogsByUser.bind(this.api));
-      this.catalogPageCheck=data.page_check;
-      this.catalogs=data.items;
-      this.nextCatalogs=data.nextItems;
-      this.catalogPage=data.page;
-    } finally {
-      this.loadingCatalog=false;
-      this.loadingCatalog_more=false;
-    }
-  }
-
-  async nextCatalog(){
-    this.loadingCatalog_more=true;
-    await this.getSellerCatalogs(true);
+  fetchCatalogs = (params: PageRequest): Promise<PageResult<any>> => {
+    return this.api.getCatalogsByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId);
   }
 
   onCatalogChange(cat: any): void {
