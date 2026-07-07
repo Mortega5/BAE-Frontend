@@ -2,8 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { TableColumn } from 'src/app/models/table-column.model';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { TableColumn } from 'src/app/models/table-column.model';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 
@@ -59,6 +59,13 @@ export class PaginatedTableComponent<T = any> implements OnInit, OnChanges {
 
   get rangeEnd(): number {
     return Math.min(this.offset + this.pageSize, this.total);
+  }
+
+  get selectedCount(): number {
+    if (this.multiple) {
+      return Array.isArray(this.selected) ? this.selected.length : 0;
+    }
+    return this.selected != null ? 1 : 0;
   }
 
   ngOnInit(): void {

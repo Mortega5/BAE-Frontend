@@ -1,21 +1,20 @@
-import {Component, forwardRef, Input, OnInit, OnDestroy, Output, EventEmitter} from '@angular/core';
+import { DatePipe } from "@angular/common";
+import { Component, EventEmitter, forwardRef, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import {
   ControlValueAccessor,
   FormControl,
   FormsModule,
   NG_VALUE_ACCESSOR,
 } from "@angular/forms";
-import {DatePipe} from "@angular/common";
-import {TranslateModule} from "@ngx-translate/core";
-import {ProductSpecServiceService} from "../../../../services/product-spec-service.service";
-import {PaginationService} from "../../../../services/pagination.service";
-import {environment} from "../../../../../environments/environment";
-import { FormChangeState } from "src/app/models/interfaces";
+import { TranslateModule } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
-import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
-import { TableInputComponent } from '../../table-input/table-input.component';
+import { FormChangeState } from "src/app/models/interfaces";
+import { PageRequest, PageResult } from "src/app/models/pagination.model";
 import { TableColumn } from 'src/app/models/table-column.model';
 import { BADGE_BASE, lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { ProductSpecServiceService } from "../../../../services/product-spec-service.service";
+import { PaginatedTableComponent } from '../../paginated-table/paginated-table.component';
+import { TableInputComponent } from '../../table-input/table-input.component';
 
 interface ProductSpec {
   id: string;
@@ -32,9 +31,9 @@ interface ProductSpec {
   imports: [
     DatePipe,
     TranslateModule,
-    LoadingSpinnerComponent,
     FormsModule,
     TableInputComponent,
+    PaginatedTableComponent,
   ],
   providers: [
     {
@@ -60,16 +59,6 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
   private hasBeenModified: boolean = false;
   isEditMode: boolean = false;
 
-  //PAGE SIZES:
-  PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;
-
-  prodSpecPage=0;
-  prodSpecPageCheck:boolean=false;
-  loadingProdSpec:boolean=false;
-  loadingProdSpec_more:boolean=false;
-  prodSpecs:any[]=[];
-  nextProdSpecs:any[]=[];
-
   protected readonly FormControl = FormControl;
 
   prodColumns: TableColumn[] = [
@@ -87,14 +76,12 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
 
   constructor(
     private prodSpecService: ProductSpecServiceService,
-    private paginationService: PaginationService,
     private datePipe: DatePipe,
-  ) {}
+  ) { }
 
-  async ngOnInit() {
+  ngOnInit() {
     console.log('📝 Initializing form in', this.formType, 'mode');
     this.isEditMode = this.formType === 'update';
-    await this.getSellerProdSpecs(false);
   }
 
   ngOnDestroy() {
@@ -125,32 +112,8 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
     }
   }
 
-  async getSellerProdSpecs(next:boolean){
-    if(!next){
-      this.loadingProdSpec=true;
-    }
-
-    let options = {
-      "filters": ['Active','Launched'],
-      "partyId": this.partyId
-    }
-
-    try {
-      const data = await this.paginationService.getItemsPaginated(this.prodSpecPage, this.PROD_SPEC_LIMIT, next, this.prodSpecs, this.nextProdSpecs, options,
-        this.prodSpecService.getProdSpecByUser.bind(this.prodSpecService));
-      this.prodSpecPageCheck=data.page_check;
-      this.prodSpecs=data.items;
-      this.nextProdSpecs=data.nextItems;
-      this.prodSpecPage=data.page;
-    } finally {
-      this.loadingProdSpec=false;
-      this.loadingProdSpec_more=false;
-    }
-  }
-
-  async nextProdSpec() {
-    this.loadingProdSpec_more = true;
-    await this.getSellerProdSpecs(true);
+  fetchProdSpecs = (params: PageRequest): Promise<PageResult<any>> => {
+    return this.prodSpecService.getProdSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId, undefined, undefined);
   }
 
   onProdSpecChange(prod: ProductSpec | null): void {
@@ -161,8 +124,8 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
   }
 
   // As ControlValueAccessor
-  onChange: (value: any) => void = () => {};
-  onTouched: () => void = () => {};
+  onChange: (value: any) => void = () => { };
+  onTouched: () => void = () => { };
 
   writeValue(prodSpec: ProductSpec): void {
     console.log('📝 Writing value:', prodSpec);

@@ -2871,7 +2871,8 @@
       "_previous": "Previous page",
       "_next": "Next page",
       "_last": "Last page",
-      "_error_loading": "Error loading data"
+      "_error_loading": "Error loading data",
+      "_selected_count": "{{count}} selected"
     }
   },
   "USAGE_SPECS": {

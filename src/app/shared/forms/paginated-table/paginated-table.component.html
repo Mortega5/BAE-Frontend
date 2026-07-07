@@ -1,5 +1,13 @@
 <div class="flex flex-col gap-3">
   <div class="relative">
+    @if (selectable && selectedCount > 0) {
+    <div
+      class="absolute top-0 left-0 w-12 px-4 py-3 flex items-center justify-center text-xs font-semibold text-gray-500 dark:text-gray-300 pointer-events-none"
+      [title]="'FORMS.PAGINATED_TABLE._selected_count' | translate: { count: selectedCount }">
+      [ {{ selectedCount }} ]
+    </div>
+    }
+
     <app-table-input [columns]="columns" [items]="items" [multiple]="multiple" [selectable]="selectable"
       [clickable]="clickable" [readonly]="readonly || loading" [ngModel]="selected"
       (ngModelChange)="onSelectionChange($event)" (rowClick)="onRowClick($event)">
