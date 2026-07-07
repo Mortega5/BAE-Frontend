@@ -1,4 +1,4 @@
- {
+{
   "_yes": "Yes",
   "_no": "No",
   "europeTrademark": "Distributed Open Marketplace for Europe (DOME) Project has received funding from European Union’s Digital Europe Programme under the Grant Agreement No 101084071.",
@@ -907,7 +907,8 @@
     },
     "UPDATE_SOFTWARE": {
       "_save": "Save",
-      "_edit": "Update Software Resource"
+      "_edit": "Update Software Resource",
+      "_update": "Update Software"
     },
     "CREATE_CATALOG": {
       "_back": "Back",
@@ -2045,7 +2046,8 @@
   },
   "UPDATE_SOFTWARE": {
     "_save": "Save",
-    "_edit": "Update Software Resource"
+    "_edit": "Update Software Resource",
+    "_update": "Update Software"
   },
   "UPDATE_CATALOG": {
     "_back": "Back",

@@ -41,7 +41,8 @@
 
     <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance"
       [submitLabel]="isUpdate ? 'UPDATE_RES_SPEC._update_res' : 'CREATE_RES_SPEC._create_res'"
-      [submitDisabled]="!generalForm.valid || loading" (stepChanged)="onStepChanged($event)" (submitted)="save()">
+      [submitAlwaysVisible]="isUpdate" [submitDisabled]="!generalForm.valid || loading"
+      (stepChanged)="onStepChanged($event)" (submitted)="save()">
 
       <!-- Step 1: General Info -->
       <ng-template stepperStep="General Info" stepId="general">

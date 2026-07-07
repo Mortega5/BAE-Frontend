@@ -907,7 +907,8 @@
     },
     "UPDATE_SOFTWARE": {
       "_save": "Guardar",
-      "_edit": "Actualizar Recurso Software"
+      "_edit": "Actualizar Recurso Software",
+      "_update": "Actualizar Software"
     },
     "CREATE_CATALOG": {
       "_back": "Back",
@@ -2046,7 +2047,8 @@
   },
   "UPDATE_SOFTWARE": {
     "_save": "Save",
-    "_edit": "Actualizar Recurso Software"
+    "_edit": "Actualizar Recurso Software",
+    "_update": "Actualizar Software"
   },
   "UPDATE_CATALOG": {
     "_back": "Back",

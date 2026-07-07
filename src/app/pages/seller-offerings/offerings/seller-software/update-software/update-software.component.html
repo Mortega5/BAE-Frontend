@@ -37,9 +37,9 @@
     <h2 class="text-3xl font-bold text-primary-100 dark:text-white ml-4 pb-4">{{ 'UPDATE_SOFTWARE._edit' | translate }}
     </h2>
 
-    <app-stepper [allUnlocked]="true" [canAdvance]="canAdvance" submitLabel="UPDATE_SOFTWARE._save"
+    <app-stepper [allUnlocked]="true" [canAdvance]="canAdvance" submitLabel="UPDATE_SOFTWARE._update"
       [submitDisabled]="!generalForm.valid || loading" (stepChanged)="onStepChanged($event)"
-      (submitted)="updateSoftware()">
+      (submitted)="updateSoftware()" [submitAlwaysVisible]="true">
 
       <ng-template stepperStep="General Info" stepId="general">
         <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" />

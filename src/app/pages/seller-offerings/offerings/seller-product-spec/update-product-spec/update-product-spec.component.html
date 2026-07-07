@@ -37,7 +37,8 @@
     <h2 class="text-3xl font-bold text-primary-100 ml-4 pb-4 dark:text-white">{{ 'UPDATE_PROD_SPEC._update_prod' |
       translate }}</h2>
     <app-stepper [canAdvance]="canAdvance" [allUnlocked]="true" submitLabel="UPDATE_PROD_SPEC._update_prod"
-      [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="updateProduct()">
+      [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="updateProduct()"
+      [submitAlwaysVisible]="true">
 
       <ng-template stepperStep="General INfo" stepId="general">
         <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" [columns]="2" />
@@ -890,17 +891,20 @@
             <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
               <tr>
                 <th scope="col" class="px-6 py-3">{{ 'UPDATE_PROD_SPEC._product_name' | translate }}</th>
-                <th scope="col" class="hidden lg:table-cell px-6 py-3">{{ 'UPDATE_PROD_SPEC._product_description' | translate }}</th>
+                <th scope="col" class="hidden lg:table-cell px-6 py-3">{{ 'UPDATE_PROD_SPEC._product_description' |
+                  translate }}</th>
                 <th scope="col" class="px-6 py-3">{{ 'UPDATE_PROD_SPEC._values' | translate }}</th>
                 <th scope="col" class="px-6 py-3">{{ 'UPDATE_PROD_SPEC._actions' | translate }}</th>
               </tr>
             </thead>
             <tbody>
               @for (prod of getFilteredCharacteristicsForCurrentStep(); track prod.id) {
-              <tr class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
+              <tr
+                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
                 <td [ngClass]="{'break-all': hasLongWord(prod.name, 20), 'break-words': !hasLongWord(prod.name, 20)}"
                   class="px-6 py-4 max-w-1/6 text-wrap break-words">{{prod.name}}</td>
-                <td [ngClass]="{'break-all': hasLongWord(prod.description, 20), 'break-words': !hasLongWord(prod.description, 20)}"
+                <td
+                  [ngClass]="{'break-all': hasLongWord(prod.description, 20), 'break-words': !hasLongWord(prod.description, 20)}"
                   class="hidden lg:table-cell px-6 py-4 text-wrap break-words">{{prod.description}}</td>
                 <td class="px-6 py-4 text-wrap break-all">
                   @for (char of prod.productSpecCharacteristicValue; track char; let last=$last) {
@@ -912,9 +916,12 @@
                   }
                 </td>
                 <td class="px-6 py-4">
-                  <button type="button" (click)="deleteChar(prod)" class="font-bold text-white bg-red-500 rounded-3xl p-1">
-                    <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6" />
+                  <button type="button" (click)="deleteChar(prod)"
+                    class="font-bold text-white bg-red-500 rounded-3xl p-1">
+                    <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                      viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M6 18 17.94 6M18 18 6.06 6" />
                     </svg>
                   </button>
                 </td>
@@ -930,15 +937,15 @@
           <button type="button" (click)="showCreateChar = true"
             class="flex items-center gap-2 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
             <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5" />
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 12h14m-7 7V5" />
             </svg>
             {{ 'UPDATE_PROD_SPEC._new_char' | translate }}
           </button>
         </div>
         } @else {
         <div class="m-4 flex flex-col gap-3">
-          <app-specification-characteristic-form
-            [supportedTypes]="['string', 'number', 'range', 'boolean', 'object']"
+          <app-specification-characteristic-form [supportedTypes]="['string', 'number', 'range', 'boolean', 'object']"
             (formChange)="onStandardCharFormChange($event)" />
           <div class="flex justify-end gap-3">
             <button type="button" (click)="showCreateChar = false; currentStandardChar = null"
@@ -980,10 +987,7 @@
         </div>
         }@else{
         <div class="w-full m-4">
-          <app-table-input
-            [columns]="resColumns"
-            [items]="resourceSpecs"
-            [multiple]="true"
+          <app-table-input [columns]="resColumns" [items]="resourceSpecs" [multiple]="true"
             [(ngModel)]="selectedResourceSpecs">
           </app-table-input>
         </div>
@@ -1036,10 +1040,7 @@
         </div>
         }@else{
         <div class="w-full m-4">
-          <app-table-input
-            [columns]="servColumns"
-            [items]="serviceSpecs"
-            [multiple]="true"
+          <app-table-input [columns]="servColumns" [items]="serviceSpecs" [multiple]="true"
             [(ngModel)]="selectedServiceSpecs">
           </app-table-input>
         </div>
