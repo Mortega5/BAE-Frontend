@@ -123,6 +123,9 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
 
   updateCatalog() {
     this.loading = true;
+    if (this.catalogToUpdate == null) {
+      this.setCatalogData();
+    }
     this.api.updateCatalog(this.catalogToUpdate, this.cat.id).subscribe({
       next: () => {
         this.loading = false;

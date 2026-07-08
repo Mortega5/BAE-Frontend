@@ -236,6 +236,9 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
 
   save(): void {
     this.loading = true;
+    if (this.resourceData == null) {
+      this.prepareData();
+    }
     if (this.isUpdate) {
       this.resSpecService.updateResSpec(this.resourceData as ResourceSpecification_Update, this.res.id, this.res?.['@type'] as ResourceSpecType)
         .subscribe({ next: () => { this.loading = false; this.goBack(); }, error: e => this.handleError(e) });

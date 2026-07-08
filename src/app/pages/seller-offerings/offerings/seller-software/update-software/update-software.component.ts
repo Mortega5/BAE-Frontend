@@ -12,10 +12,10 @@ import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { components } from 'src/app/models/software-catalog';
 import { FormField, SelectOption, TableFormField } from '../../../../../models/formFields/form-field.model';
 import { RESOURCE_STATUS_TYPES } from '../../../../../models/software.model';
-import { lifecycleStatusClass } from '../../../../../shared/utils/lifecycle-status.utils';
 import { NotificationService } from '../../../../../services/notification.service';
 import { ResourceSpecServiceService } from '../../../../../services/resource-spec-service.service';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
+import { lifecycleStatusClass } from '../../../../../shared/utils/lifecycle-status.utils';
 
 type SoftwareSupportPackage = components['schemas']['SoftwareResource'];
 type CharacteristicValueSpecification = components['schemas']['Characteristic'];
@@ -175,6 +175,9 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
   }
 
   updateSoftware() {
+    if (this.softwareToUpdate == null) {
+      this.setSoftwareData();
+    }
     this.resSpecService.updateSoftwareSupportPackage(this.software.id, this.softwareToUpdate).subscribe({
       next: () => {
         this.notificationService.showInfo('Software package resource updated');
