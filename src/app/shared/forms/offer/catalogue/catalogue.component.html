@@ -1,5 +1,6 @@
 <div class="w-full mt-4">
   <app-paginated-table data-cy="catalogList" [columns]="catColumns" [fetchPage]="fetchCatalogs" [multiple]="false"
-    [selectable]="true" [selected]="selectedCatalogInternal" (selectedChange)="onCatalogChange($event)">
+    [selectable]="true" [selected]="selectedCatalogInternal" (selectedChange)="onCatalogChange($event)"
+    [defaultSort]="defaultSort">
   </app-paginated-table>
 </div>

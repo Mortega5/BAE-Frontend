@@ -2,7 +2,7 @@ import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
-import { TableColumn } from 'src/app/models/table-column.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 import { ApiServiceService } from "../../../../services/product-service.service";
 import { PaginatedTableComponent } from '../../paginated-table/paginated-table.component';
@@ -30,10 +30,10 @@ export class CatalogueComponent implements ControlValueAccessor {
   @Input() partyId: any;
 
   selectedCatalogInternal: any = null;
-
+  defaultSort: TableSort = { key: 'name', direction: 'asc' };
   catColumns: TableColumn[] = [
-    { header: 'Name', getValue: (item: any) => item.name ?? '-', cellClass: 'break-words' },
-    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus) },
+    { header: 'Name', getValue: (item: any) => item.name ?? '-', cellClass: 'break-words', sortKey: 'name' },
+    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
     { header: 'Role', getValue: (item: any) => item.relatedParty?.at(0)?.role ?? '-', width: 'w-28' },
   ];
 

@@ -37,11 +37,8 @@
     <h2 class="text-3xl font-bold text-primary-100 dark:text-white ml-4 pb-4">{{ 'CREATE_SOFTWARE._new' | translate }}
     </h2>
 
-    <app-stepper
-      [canAdvance]="canAdvance"
-      submitLabel="CREATE_SOFTWARE._create"
-      [submitDisabled]="!generalForm.valid || loading"
-      (stepChanged)="onStepChanged($event)"
+    <app-stepper [canAdvance]="canAdvance" submitLabel="CREATE_SOFTWARE._create"
+      [submitDisabled]="!generalForm.valid || loading" (stepChanged)="onStepChanged($event)"
       (submitted)="createSoftware()">
 
       <ng-template stepperStep="General Info" stepId="general">
@@ -50,14 +47,10 @@
 
       <ng-template stepperStep="Software Specification" stepId="software">
         <div class="block m-4">
-          <app-paginated-table
-            data-cy="softwareSpecTable"
-            [columns]="softwareSpecColumns"
-            [fetchPage]="fetchSoftwareSpecs"
-            [multiple]="false"
-            [selectable]="true"
-            [selected]="softwareSpecForm.get('softwareSpec')?.value"
-            (selectedChange)="onSoftwareSpecChange($event)">
+          <app-paginated-table data-cy="softwareSpecTable" [columns]="softwareSpecColumns"
+            [fetchPage]="fetchSoftwareSpecs" [multiple]="false" [selectable]="true"
+            [selected]="softwareSpecForm.get('softwareSpec')?.value" (selectedChange)="onSoftwareSpecChange($event)"
+            [defaultSort]="defaultSort">
           </app-paginated-table>
         </div>
       </ng-template>
@@ -114,8 +107,7 @@
             <markdown [ngClass]="{
                 'break-all': hasLongWord(softwareToCreate?.description, 20),
                 'break-words': !hasLongWord(softwareToCreate?.description, 20)
-              }"
-              class="bg-gray-50 text-wrap break-words dark:bg-secondary-300 dark:text-white text-gray-900"
+              }" class="bg-gray-50 text-wrap break-words dark:bg-secondary-300 dark:text-white text-gray-900"
               [data]="softwareToCreate?.description"></markdown>
           </div>
           }

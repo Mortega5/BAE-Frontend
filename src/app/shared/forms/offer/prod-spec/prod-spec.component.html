@@ -26,7 +26,8 @@
 } @else {
 <div class="w-full mt-4 mb-4">
   <app-paginated-table data-cy="prodSpecs" [columns]="prodColumns" [fetchPage]="fetchProdSpecs" [multiple]="false"
-    [selectable]="true" [selected]="selectedProdSpecInternal" (selectedChange)="onProdSpecChange($event)">
+    [selectable]="true" [selected]="selectedProdSpecInternal" (selectedChange)="onProdSpecChange($event)"
+    [defaultSort]="defaultSort">
   </app-paginated-table>
 </div>
 }

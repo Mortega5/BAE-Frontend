@@ -10,7 +10,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { Subscription } from "rxjs";
 import { FormChangeState } from "src/app/models/interfaces";
 import { PageRequest, PageResult } from "src/app/models/pagination.model";
-import { TableColumn } from 'src/app/models/table-column.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { BADGE_BASE, lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 import { ProductSpecServiceService } from "../../../../services/product-spec-service.service";
 import { PaginatedTableComponent } from '../../paginated-table/paginated-table.component';
@@ -61,8 +61,10 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
 
   protected readonly FormControl = FormControl;
 
+  defaultSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
+
   prodColumns: TableColumn[] = [
-    { header: 'Name', getValue: (item: any) => item.name ?? '-' },
+    { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
     {
       header: 'Type', width: 'w-28', type: 'badge',
       getValue: (item: any) => item.isBundle ? 'Bundle' : 'Simple',
@@ -70,8 +72,8 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
         ? `${BADGE_BASE} text-green-500 border-green-500`
         : `${BADGE_BASE} text-blue-600 border-blue-400`,
     },
-    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus) },
-    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52' },
+    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
+    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52', sortKey: 'lastUpdate' },
   ];
 
   constructor(

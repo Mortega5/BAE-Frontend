@@ -947,28 +947,18 @@
 
       <ng-template stepperStep="Resource specifications" stepId="resource">
         <div class="w-full m-4">
-          <app-paginated-table
-            data-cy="tableResourceSpecs"
-            [columns]="resColumns"
-            [fetchPage]="fetchResourceSpecs"
-            [multiple]="true"
-            [selectable]="true"
-            [selected]="selectedResourceSpecs"
-            (selectedChange)="selectedResourceSpecs = $event">
+          <app-paginated-table data-cy="tableResourceSpecs" [columns]="resColumns" [fetchPage]="fetchResourceSpecs"
+            [multiple]="true" [selectable]="true" [selected]="selectedResourceSpecs"
+            (selectedChange)="selectedResourceSpecs = $event" [defaultSort]="defaultResSort">
           </app-paginated-table>
         </div>
       </ng-template>
 
       <ng-template stepperStep="Service specifications" stepId="service">
         <div class="w-full m-4">
-          <app-paginated-table
-            data-cy="tableServiceSpecs"
-            [columns]="servColumns"
-            [fetchPage]="fetchServiceSpecs"
-            [multiple]="true"
-            [selectable]="true"
-            [selected]="selectedServiceSpecs"
-            (selectedChange)="selectedServiceSpecs = $event">
+          <app-paginated-table data-cy="tableServiceSpecs" [columns]="servColumns" [fetchPage]="fetchServiceSpecs"
+            [multiple]="true" [selectable]="true" [selected]="selectedServiceSpecs"
+            (selectedChange)="selectedServiceSpecs = $event" [defaultSort]="defaultServSort">
           </app-paginated-table>
         </div>
       </ng-template>
@@ -1743,7 +1733,8 @@
               </thead>
               <tbody>
                 @for (res of selectedResourceSpecs; track res) {
-                <tr class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
+                <tr
+                  class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
                   <td [ngClass]="{
                                                     'break-all': hasLongWord(res.name, 20),
                                                     'break-words': !hasLongWord(res.name, 20)
