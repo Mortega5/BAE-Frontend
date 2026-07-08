@@ -968,25 +968,17 @@
       }
       <ng-template stepperStep="Resource specifications" stepId="resource">
         <div class="w-full m-4">
-          <app-paginated-table
-            [columns]="resColumns"
-            [fetchPage]="fetchResourceSpecs"
-            [multiple]="true"
-            [selectable]="true"
-            [selected]="selectedResourceSpecs"
-            (selectedChange)="selectedResourceSpecs = $event">
+          <app-paginated-table [columns]="resColumns" [fetchPage]="fetchResourceSpecs" [multiple]="true"
+            [selectable]="true" [selected]="selectedResourceSpecs" (selectedChange)="selectedResourceSpecs = $event"
+            [defaultSort]="defaultResSort">
           </app-paginated-table>
         </div>
       </ng-template>
       <ng-template stepperStep="Service specifications" stepId="service">
         <div class="w-full m-4">
-          <app-paginated-table
-            [columns]="servColumns"
-            [fetchPage]="fetchServiceSpecs"
-            [multiple]="true"
-            [selectable]="true"
-            [selected]="selectedServiceSpecs"
-            (selectedChange)="selectedServiceSpecs = $event">
+          <app-paginated-table [columns]="servColumns" [fetchPage]="fetchServiceSpecs" [multiple]="true"
+            [selectable]="true" [selected]="selectedServiceSpecs" (selectedChange)="selectedServiceSpecs = $event"
+            [defaultSort]="defaultServSort">
           </app-paginated-table>
         </div>
       </ng-template>
