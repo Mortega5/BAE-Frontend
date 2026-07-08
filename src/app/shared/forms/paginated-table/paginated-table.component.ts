@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
-import { TableColumn } from 'src/app/models/table-column.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 
@@ -23,6 +23,7 @@ export class PaginatedTableComponent<T = any> implements OnInit, OnChanges {
   @Input() multiple: boolean = false;
   @Input() readonly: boolean = false;
   @Input() selected: any;
+  @Input() defaultSort?: TableSort;
   @Output() selectedChange = new EventEmitter<any>();
   @Output() rowClick = new EventEmitter<T>();
 
@@ -31,6 +32,7 @@ export class PaginatedTableComponent<T = any> implements OnInit, OnChanges {
   currentPage: number = 1;
   loading: boolean = false;
   error: boolean = false;
+  sort?: TableSort;
 
   private _pageSize?: number;
 
@@ -69,6 +71,7 @@ export class PaginatedTableComponent<T = any> implements OnInit, OnChanges {
   }
 
   ngOnInit(): void {
+    this.sort = this.defaultSort;
     this.loadPage();
   }
 
@@ -91,7 +94,12 @@ export class PaginatedTableComponent<T = any> implements OnInit, OnChanges {
     this.loading = true;
     this.error = false;
     try {
-      const result = await this.fetchPage({ limit: this.pageSize, offset: this.offset });
+      const result = await this.fetchPage({
+        limit: this.pageSize,
+        offset: this.offset,
+        orderBy: this.sort?.key,
+        orderDirection: this.sort?.direction,
+      });
       this.items = result.items;
       this.total = result.total;
 
@@ -117,6 +125,18 @@ export class PaginatedTableComponent<T = any> implements OnInit, OnChanges {
 
   onPageSizeChange(size: number): void {
     this.pageSize = Number(size);
+    this.currentPage = 1;
+    this.loadPage();
+  }
+
+  onSortChange(key: string): void {
+    if (this.sort?.key !== key) {
+      this.sort = { key, direction: 'desc' };
+    } else if (this.sort.direction === 'desc') {
+      this.sort = { key, direction: 'asc' };
+    } else {
+      this.sort = undefined;
+    }
     this.currentPage = 1;
     this.loadPage();
   }

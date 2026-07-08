@@ -9,8 +9,8 @@
     }
 
     <app-table-input [columns]="columns" [items]="items" [multiple]="multiple" [selectable]="selectable"
-      [clickable]="clickable" [readonly]="readonly || loading" [ngModel]="selected"
-      (ngModelChange)="onSelectionChange($event)" (rowClick)="onRowClick($event)">
+      [clickable]="clickable" [readonly]="readonly || loading" [ngModel]="selected" [sort]="sort"
+      (ngModelChange)="onSelectionChange($event)" (rowClick)="onRowClick($event)" (sortChange)="onSortChange($event)">
     </app-table-input>
 
     @if (loading) {

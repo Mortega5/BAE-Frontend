@@ -2,8 +2,9 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faChevronDown } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
-import { TableColumn, TableColumnAction } from 'src/app/models/table-column.model';
+import { TableColumn, TableColumnAction, TableSort } from 'src/app/models/table-column.model';
 
 const DEFAULT_DATE_FORMAT = 'EEEE, dd/MM/yy, HH:mm';
 
@@ -28,12 +29,16 @@ export class TableInputComponent implements ControlValueAccessor {
   @Input() readonly: boolean = false;
   @Input() selectable: boolean = true;
   @Input() clickable: boolean = false;
+  @Input() sort?: TableSort;
   @Output() rowClick = new EventEmitter<any>();
+  @Output() sortChange = new EventEmitter<string>();
 
   selected: any[] = [];
   tooltipText: string | null = null;
   tooltipPosition = { top: 0, left: 0 };
   private isDisabled: boolean = false;
+
+  protected readonly faChevronDown = faChevronDown;
 
   constructor(private datePipe: DatePipe) { }
 
@@ -82,6 +87,15 @@ export class TableInputComponent implements ControlValueAccessor {
       this.onChange(alreadySelected ? null : item);
     }
     this.onTouched();
+  }
+
+  onSortClick(column: TableColumn): void {
+    if (!column.sortKey) return;
+    this.sortChange.emit(column.sortKey);
+  }
+
+  isSortAscending(column: TableColumn): boolean {
+    return column.sortKey === this.sort?.key && this.sort?.direction === 'asc';
   }
 
   onRowClick(item: any, event?: Event): void {

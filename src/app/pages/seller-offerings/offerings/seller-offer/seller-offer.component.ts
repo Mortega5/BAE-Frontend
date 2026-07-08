@@ -7,7 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
-import { TableColumn } from 'src/app/models/table-column.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { PriceServiceService } from 'src/app/services/price-service.service';
@@ -30,6 +30,7 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
   isBundle: any = undefined;
   partyId: any;
   customMap: Record<string, boolean> = {};
+  defaultSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
   private destroy$ = new Subject<void>();
 
   offerColumns: TableColumn<any>[];
@@ -60,6 +61,7 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
     this.offerColumns = [
       {
         header: 'OFFERINGS._name',
+        sortKey: 'name',
         getValue: (item: any) => item.name ?? '-',
         cellClass: (item: any) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
       },
@@ -68,6 +70,7 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
         getValue: (item: any) => item.lifecycleStatus ?? '-',
         type: 'badge',
         width: 'w-24',
+        sortKey: 'lifecycleStatus',
         cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
       },
       {
@@ -83,6 +86,7 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
         type: 'date',
         getValue: (item: any) => item.lastUpdate,
         width: 'w-60',
+        sortKey: 'lastUpdate',
         hideOnMobile: true,
       },
       {
@@ -172,8 +176,6 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
 
   fetchOffers = async (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
     const status = (filters['status'] ?? []) as string[];
-    params.orderBy = this.sort || 'lastUpdate';
-    params.orderDirection = this.sort ? undefined : 'desc';
     const result = await this.api.getProductOfferByOwnerPaged(params, this.filter, status, this.partyId, this.isBundle);
 
     this.customMap = {};

@@ -9,6 +9,13 @@ interface BaseTableColumn<T = any> {
   getValue?: (item: T) => any;
   /** Hides the column below the `sm` breakpoint. Defaults to always visible. */
   hideOnMobile?: boolean;
+  /** Server-side sort key for this column (e.g. the field name expected by the API). Omit to make the column unsortable. */
+  sortKey?: string;
+}
+
+export interface TableSort {
+  key: string;
+  direction: 'asc' | 'desc';
 }
 
 export interface TextTableColumn<T = any> extends BaseTableColumn<T> {

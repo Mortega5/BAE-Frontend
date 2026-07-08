@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
-import { TableColumn } from 'src/app/models/table-column.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { FilterBarComponent } from 'src/app/shared/forms/filter-bar/filter-bar.component';
 import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/paginated-table.component';
 
@@ -28,6 +28,7 @@ export class FilteredPaginatedTableComponent<T = any> {
   @Input() multiple: boolean = false;
   @Input() readonly: boolean = false;
   @Input() selected: any;
+  @Input() defaultSort?: TableSort;
   @Output() selectedChange = new EventEmitter<any>();
   @Output() rowClick = new EventEmitter<T>();
 
