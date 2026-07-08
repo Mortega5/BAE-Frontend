@@ -2,10 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { PageRequest, PageResult } from '../models/pagination.model';
-import { components } from "../models/product-catalog";
+import { applySort, PageRequest, PageResult } from '../models/pagination.model';
 import { LocalStorageService } from "./local-storage.service";
-type ProductOffering = components["schemas"]["ProductOffering"];
 
 export type ProductSpecType = 'ProductSpecification' | 'BlueprintProductSpecification'
 
@@ -42,15 +40,13 @@ export class ServiceSpecServiceService {
     return lastValueFrom(this.http.get<any>(url));
   }
 
-  async getServiceSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any, sort: any): Promise<PageResult<any>> {
+  async getServiceSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any): Promise<PageResult<any>> {
     const codeParams: Record<string, any> = {
       limit: params.limit,
       offset: params.offset,
       'relatedParty.id': partyId,
     };
-    if (sort != undefined) {
-      codeParams['sort'] = sort;
-    }
+    applySort(params, codeParams);
     if (status && status.length > 0) {
       codeParams['lifecycleStatus'] = status.join(',');
     }

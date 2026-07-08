@@ -147,7 +147,8 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
 
   fetchResSpecs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
     const status = (filters['status'] ?? []) as string[];
-    return this.resSpecService.getResourceSpecByUserPaged(params, this.filter, status, this.partyId, this.sort);
+    params.orderBy = this.sort;
+    return this.resSpecService.getResourceSpecByUserPaged(params, this.filter, status, this.partyId);
   }
 
   onSortChange(event: any) {

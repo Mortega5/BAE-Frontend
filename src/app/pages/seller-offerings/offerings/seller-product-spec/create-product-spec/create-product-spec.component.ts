@@ -727,11 +727,11 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   fetchResourceSpecs = (params: PageRequest): Promise<PageResult<any>> => {
-    return this.resSpecService.getResourceSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId, undefined);
+    return this.resSpecService.getResourceSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId);
   }
 
   fetchServiceSpecs = (params: PageRequest): Promise<PageResult<any>> => {
-    return this.servSpecService.getServiceSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId, undefined);
+    return this.servSpecService.getServiceSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId);
   }
 
 

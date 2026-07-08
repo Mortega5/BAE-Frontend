@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { PageRequest, PageResult } from '../models/pagination.model';
+import { applySort, PageRequest, PageResult } from '../models/pagination.model';
 import { LocalStorageService } from "./local-storage.service";
 
 @Injectable({
@@ -42,15 +42,13 @@ export class ProductSpecServiceService {
     return lastValueFrom(this.http.get<any>(url));
   }
 
-  async getProdSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any, sort: any, isBundle: any): Promise<PageResult<any>> {
+  async getProdSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any, isBundle: any): Promise<PageResult<any>> {
     const codeParams: Record<string, any> = {
       limit: params.limit,
       offset: params.offset,
       'relatedParty.id': partyId,
     };
-    if (sort != undefined) {
-      codeParams['sort'] = sort;
-    }
+    applySort(params, codeParams);
     if (isBundle != undefined) {
       codeParams['isBundle'] = isBundle;
     }

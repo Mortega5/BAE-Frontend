@@ -163,7 +163,8 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
 
   fetchProdSpecs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
     const status = (filters['status'] ?? []) as string[];
-    return this.prodSpecService.getProdSpecByUserPaged(params, this.filter, status, this.partyId, this.sort, this.isBundle);
+    params.orderBy = this.sort;
+    return this.prodSpecService.getProdSpecByUserPaged(params, this.filter, status, this.partyId, this.isBundle);
   }
 
   filterInventoryByKeywords() {

@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { PageRequest, PageResult } from '../models/pagination.model';
+import { applySort, PageRequest, PageResult } from '../models/pagination.model';
 import { components } from "../models/product-catalog";
 import { LocalStorageService } from "./local-storage.service";
 type ProductOffering = components["schemas"]["ProductOffering"];
@@ -58,6 +58,7 @@ export class ProductOrderService {
     if (actionFilters && actionFilters.length > 0) {
       codeParams['productOrderItem.action'] = actionFilters.join(',');
     }
+    applySort(params, codeParams);
     const queryParams = { ...filter, ...codeParams };
 
     const url = `${ProductOrderService.BASE_URL}${ProductOrderService.API_ORDERING}/productOrder`;

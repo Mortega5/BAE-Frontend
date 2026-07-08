@@ -16,9 +16,9 @@ import { environment } from 'src/environments/environment';
 import { FormField, SelectOption } from '../../../../../models/formFields/form-field.model';
 import { RESOURCE_STATUS_TYPES } from '../../../../../models/software.model';
 import { TableColumn } from '../../../../../models/table-column.model';
-import { lifecycleStatusClass } from '../../../../../shared/utils/lifecycle-status.utils';
 import { ResourceSpecServiceService } from '../../../../../services/resource-spec-service.service';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
+import { lifecycleStatusClass } from '../../../../../shared/utils/lifecycle-status.utils';
 
 type SoftwareCreate = components["schemas"]["Resource_Create"];
 type CharacteristicValueSpecification = components["schemas"]["Characteristic"];
@@ -98,7 +98,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
 
   fetchSoftwareSpecs = (params: PageRequest): Promise<PageResult<any>> => {
     return this.resSpecService.getResourceSpecByUserPaged(
-      params, { '@type': 'SoftwareSupportPackageSpecification' }, ['Active', 'Launched'], this.partyId, undefined, 'SoftwareSupportPackageSpecification'
+      params, { '@type': 'SoftwareSupportPackageSpecification' }, ['Active', 'Launched'], this.partyId, 'SoftwareSupportPackageSpecification'
     );
   }
 

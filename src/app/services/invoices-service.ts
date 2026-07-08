@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
-import { PageRequest, PageResult } from '../models/pagination.model';
+import { applySort, PageRequest, PageResult } from '../models/pagination.model';
 import { LocalStorageService } from "./local-storage.service";
 
 @Injectable({
@@ -26,6 +26,8 @@ export class InvoicesService {
       'relatedParty.role': role,
       state: 'settled',
     };
+
+    applySort(params, queryParams);
 
     const url = `${InvoicesService.BASE_URL}${InvoicesService.BASE_PATCH}${InvoicesService.API_ORDERING}`;
     const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));

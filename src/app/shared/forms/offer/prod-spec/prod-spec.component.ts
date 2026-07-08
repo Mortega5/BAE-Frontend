@@ -113,7 +113,7 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
   }
 
   fetchProdSpecs = (params: PageRequest): Promise<PageResult<any>> => {
-    return this.prodSpecService.getProdSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId, undefined, undefined);
+    return this.prodSpecService.getProdSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId, undefined);
   }
 
   onProdSpecChange(prod: ProductSpec | null): void {

@@ -4,11 +4,11 @@ import { jwtDecode } from "jwt-decode";
 import { catchError, lastValueFrom, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Category } from '../models/interfaces';
+import { applySort, PageRequest, PageResult } from '../models/pagination.model';
 import { components } from "../models/product-catalog";
 import { ProductOffering as ProductOfferingModel } from '../models/product.model';
 import { ResourceStatusType, SoftwareResource } from '../models/software.model';
 import { LocalStorageService } from "./local-storage.service";
-import { PageRequest, PageResult } from '../models/pagination.model';
 type ProductOffering = components["schemas"]["ProductOffering"];
 
 @Injectable({
@@ -180,21 +180,21 @@ export class ApiServiceService {
     return lastValueFrom(this.http.get<any>(url));
   }
 
-  async getProductOfferByOwnerPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any, sort: any, isBundle: any): Promise<PageResult<any>> {
+  async getProductOfferByOwnerPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any, isBundle: any): Promise<PageResult<any>> {
     const codeParams: Record<string, any> = {
       limit: params.limit,
       offset: params.offset,
       'relatedParty.id': partyId,
     };
-    if (sort != undefined) {
-      codeParams['sort'] = sort;
-    }
+
     if (isBundle != undefined) {
       codeParams['isBundle'] = isBundle;
     }
     if (status && status.length > 0) {
       codeParams['lifecycleStatus'] = status.join(',');
     }
+    applySort(params, codeParams);
+
     const queryParams = { ...filter, ...codeParams };
 
     const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productOffering`;
@@ -354,6 +354,7 @@ export class ApiServiceService {
     if (status && status.length > 0) {
       codeParams['lifecycleStatus'] = status.join(',');
     }
+    applySort(params, codeParams);
     const queryParams = { ...filter, ...codeParams };
 
     const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
@@ -520,6 +521,7 @@ export class ApiServiceService {
     if (status?.length > 0) {
       codeParams['resourceStatus'] = status.join(',');
     }
+    applySort(params, codeParams);
     const queryParams = { ...filter, ...codeParams };
 
     const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_SOFTWARE}/resource`;

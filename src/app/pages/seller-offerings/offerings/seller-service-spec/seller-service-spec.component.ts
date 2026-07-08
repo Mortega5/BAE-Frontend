@@ -147,7 +147,8 @@ export class SellerServiceSpecComponent implements OnInit, OnDestroy {
 
   fetchServSpecs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
     const status = (filters['status'] ?? []) as string[];
-    return this.servSpecService.getServiceSpecByUserPaged(params, this.filter, status, this.partyId, this.sort);
+    params.orderBy = this.sort;
+    return this.servSpecService.getServiceSpecByUserPaged(params, this.filter, status, this.partyId);
   }
 
   filterInventoryByKeywords() {

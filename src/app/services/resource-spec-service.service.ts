@@ -2,10 +2,10 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, lastValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { applySort, PageRequest, PageResult } from '../models/pagination.model';
 import { components } from "../models/resource-catalog";
 import { SoftwareSupportPackage, SoftwareSupportPackageSpecification } from "../models/software.model";
 import { LocalStorageService } from "./local-storage.service";
-import { PageRequest, PageResult } from '../models/pagination.model';
 
 type ResourceSpecification_Create = components["schemas"]["ResourceSpecification_Create"];
 
@@ -76,7 +76,7 @@ export class ResourceSpecServiceService {
     return lastValueFrom(this.http.get<any>(url));
   }
 
-  async getResourceSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any, sort: any, type: ResourceSpecType = 'ResourceSpecification'): Promise<PageResult<any>> {
+  async getResourceSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: any[], partyId: any, type: ResourceSpecType = 'ResourceSpecification'): Promise<PageResult<any>> {
     const resource = this.RESOURCE_API[type]?.resource;
     const spec = this.RESOURCE_API[type].spec;
 
@@ -85,9 +85,8 @@ export class ResourceSpecServiceService {
       offset: params.offset,
       'relatedParty.id': partyId,
     };
-    if (sort != undefined) {
-      codeParams['sort'] = sort;
-    }
+    applySort(params, codeParams);
+
     if (status && status.length > 0) {
       codeParams['lifecycleStatus'] = status.join(',');
     }

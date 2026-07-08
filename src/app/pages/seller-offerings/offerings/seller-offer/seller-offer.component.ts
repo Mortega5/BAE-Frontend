@@ -172,7 +172,8 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
 
   fetchOffers = async (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
     const status = (filters['status'] ?? []) as string[];
-    const result = await this.api.getProductOfferByOwnerPaged(params, this.filter, status, this.partyId, this.sort, this.isBundle);
+    params.orderBy = this.sort;
+    const result = await this.api.getProductOfferByOwnerPaged(params, this.filter, status, this.partyId, this.isBundle);
 
     this.customMap = {};
     for (const offer of result.items) {
