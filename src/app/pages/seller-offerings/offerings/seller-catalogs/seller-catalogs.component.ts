@@ -153,6 +153,8 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
 
   fetchCatalogs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<Catalog>> => {
     const status = (filters['status'] ?? []) as string[];
+    params.orderBy = 'lastUpdate'
+    params.orderDirection = 'desc';
     return this.api.getCatalogsByUserPaged(params, this.filter, status, this.partyId);
   }
 
