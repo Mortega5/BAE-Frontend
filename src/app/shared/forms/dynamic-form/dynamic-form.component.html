@@ -109,6 +109,14 @@
       [readonly]="field.readonly ?? false" />
     }
 
+    @if (field.type === 'paginatedTable') {
+    <app-paginated-table [columns]="asPaginatedTableField(field).columns" [fetchPage]="asPaginatedTableField(field).fetchPage"
+      [multiple]="asPaginatedTableField(field).multiple ?? false"
+      [pageSizeOptions]="asPaginatedTableField(field).pageSizeOptions ?? [5, 10, 20, 50]"
+      [defaultSort]="asPaginatedTableField(field).defaultSort" [selectable]="true" [readonly]="field.readonly ?? false"
+      [selected]="formGroup.get(field.name)?.value" (selectedChange)="formGroup.get(field.name)?.setValue($event)" />
+    }
+
     @if (field.type === 'code') {
     <app-code-editor [formControlName]="field.name" [language]="asCode(field).language"
       [minHeight]="asCode(field).minHeight ?? '120px'" [readonly]="field.readonly ?? false"

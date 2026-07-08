@@ -1,5 +1,6 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { TableColumn } from 'src/app/models/table-column.model';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 
 interface BaseFormField {
   name: string;
@@ -120,6 +121,15 @@ export interface TableFormField extends BaseFormField {
   multiple?: boolean;
 }
 
+export interface PaginatedTableFormField extends BaseFormField {
+  type: 'paginatedTable';
+  columns: TableColumn[];
+  fetchPage: (params: PageRequest) => Promise<PageResult<any>>;
+  multiple?: boolean;
+  pageSizeOptions?: number[];
+  defaultSort?: TableSort;
+}
+
 export type CodeLanguage = 'json' | 'yaml' | 'typescript' | 'javascript';
 export type CodeTheme = 'auto' | 'oneDark';
 
@@ -132,4 +142,4 @@ export interface CodeFormField extends BaseFormField {
   theme?: CodeTheme;
 }
 
-export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | CodeFormField;
+export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | PaginatedTableFormField | CodeFormField;
