@@ -1,15 +1,15 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { TableColumn } from 'src/app/models/table-column.model';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { jsonValidator } from 'src/app/validators/validators';
-import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { components } from '../../../../../models/product-catalog';
 
@@ -51,15 +51,10 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
 
   get isValid(): boolean { return this.orchestrationSteps.length > 0; }
 
-  // Product spec picker pagination
-  PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;
   partyId = '';
-  prodSpecPage = 0;
-  prodSpecPageCheck = false;
-  loadingProdSpec = false;
-  loadingProdSpec_more = false;
-  prodSpecs: any[] = [];
-  nextProdSpecs: any[] = [];
+  // Every product spec ever seen (initial config + fetched pages), so ids can be resolved to
+  // a full object for display even when they're not on the currently loaded page.
+  private specsCache = new Map<string, any>();
 
   // — Orchestration plan —
   orchestrationSteps: OrchestrationStep[] = [];
@@ -78,22 +73,17 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   });
 
   get stepFormFields(): FormField[] {
-    const usedProducts = new Set(
-      this.orchestrationSteps
-        .filter((_, i) => i !== this.editingIndex)
-        .map(s => s.componentProductSpec)
-    );
-    const availableSpecs = this.prodSpecs.filter(item => !usedProducts.has(item.id) && item.id !== this.blueprintId);
-
     const dependsOnItems = this.orchestrationSteps.filter((_, i) => i !== this.editingIndex);
 
     return [
       {
-        type: 'table', name: 'componentProductSpec', label: 'BLUEPRINT_PROD._step_service',
+        type: 'paginatedTable', name: 'componentProductSpec', label: 'BLUEPRINT_PROD._step_service',
         required: true, multiple: false, colSpan: 6,
-        items: availableSpecs,
+        fetchPage: this.fetchProdSpecsPaged,
+        isSelectable: this.isProdSpecSelectable,
+        defaultSort: { key: 'name', direction: 'asc' },
         columns: [
-          { header: 'Name', getValue: (item: any) => item.name ?? '-' },
+          { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
           { header: 'Type', getValue: (item: any) => item.isBundle ? 'Bundle' : 'Simple', width: 'w-28' },
         ],
       } as FormField,
@@ -116,27 +106,37 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     return [
       { header: 'Product', getValue: (s: OrchestrationStep) => this.findSpec(s.componentProductSpec)?.name ?? s.componentProductSpec },
       { header: 'Depends On', getValue: (s: OrchestrationStep) => (s.dependsOn ?? []).map(d => d.id).join(', ') },
+      {
+        header: 'BLUEPRINT_PROD._actions', type: 'actions', width: 'w-36 text-center',
+        actions: [
+          {
+            icon: faEdit, tooltip: 'BLUEPRINT_PROD._edit_step', dataCy: 'editStep',
+            buttonClass: 'bg-blue-500 hover:bg-blue-600 focus:ring-blue-300',
+            onClick: (s: OrchestrationStep) => this.editStep(this.orchestrationSteps.indexOf(s)),
+          },
+          {
+            icon: faTrash, tooltip: 'BLUEPRINT_PROD._delete_step', dataCy: 'deleteStep',
+            buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300',
+            onClick: (s: OrchestrationStep) => this.deleteStep(this.orchestrationSteps.indexOf(s)),
+          },
+        ],
+      },
     ];
-  }
-
-  getColumnValue(col: TableColumn, item: any): string | number | boolean | null | undefined {
-    return col.getValue ? col.getValue(item) : '';
   }
 
   private destroy$ = new Subject<void>();
 
   constructor(
     private prodSpecService: ProductSpecServiceService,
-    private paginationService: PaginationService,
     private localStorage: LocalStorageService,
   ) { }
 
   ngOnInit(): void {
     this.initPartyInfo();
+    this.blueprintConfig?.selectedItems?.forEach(item => this.specsCache.set(item.id, item));
     if (this.blueprintConfig) {
       this.loadProdData();
     }
-    this.getProdSpecs(false);
   }
 
   ngOnDestroy(): void {
@@ -156,31 +156,25 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  async getProdSpecs(next: boolean) {
-    if (!next) this.loadingProdSpec = true;
-    else this.loadingProdSpec_more = true;
-    const options = { filters: ['Active', 'Launched'], partyId: this.partyId };
-    this.paginationService.getItemsPaginated(
-      this.prodSpecPage, this.PROD_SPEC_LIMIT, next,
-      this.prodSpecs, this.nextProdSpecs, options,
-      this.prodSpecService.getProdSpecByUser.bind(this.prodSpecService)
-    ).then(data => {
-      this.prodSpecPageCheck = data.page_check;
-      this.prodSpecs = data.items;
-      this.nextProdSpecs = data.nextItems;
-      this.prodSpecPage = data.page;
-      this.loadingProdSpec = false;
-      this.loadingProdSpec_more = false;
-    });
+  fetchProdSpecsPaged = async (params: PageRequest): Promise<PageResult<any>> => {
+    const result = await this.prodSpecService.getProdSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId, undefined);
+    result.items.forEach(item => this.specsCache.set(item.id, item));
+    return result;
   }
 
-  async nextProdSpecsPage() {
-    await this.getProdSpecs(true);
+  // Disables (rather than filters out) specs already used by another step, so the paginated
+  // list's page size/total stay consistent with what the backend reports.
+  isProdSpecSelectable = (item: any): boolean => {
+    const usedProducts = new Set(
+      this.orchestrationSteps
+        .filter((_, i) => i !== this.editingIndex)
+        .map(s => s.componentProductSpec)
+    );
+    return !usedProducts.has(item.id) && item.id !== this.blueprintId;
   }
 
   private findSpec(id: string): any {
-    return this.prodSpecs.find(s => s.id === id)
-      ?? this.blueprintConfig?.selectedItems?.find((s: any) => s.id === id);
+    return this.specsCache.get(id);
   }
 
   private loadProdData(): void {

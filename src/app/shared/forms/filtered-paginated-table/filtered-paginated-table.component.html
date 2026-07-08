@@ -7,7 +7,7 @@
 
   <app-paginated-table [columns]="columns" [fetchPage]="innerFetchPage" [pageSizeOptions]="pageSizeOptions"
     [pageSizeSelected]="pageSizeSelected" [selectable]="selectable" [clickable]="clickable" [multiple]="multiple"
-    [readonly]="readonly" [selected]="selected" [defaultSort]="defaultSort" (selectedChange)="onSelectedChange($event)"
-    (rowClick)="rowClick.emit($event)">
+    [readonly]="readonly" [selected]="selected" [isSelectable]="isSelectable" [defaultSort]="defaultSort"
+    (selectedChange)="onSelectedChange($event)" (rowClick)="rowClick.emit($event)">
   </app-paginated-table>
 </div>

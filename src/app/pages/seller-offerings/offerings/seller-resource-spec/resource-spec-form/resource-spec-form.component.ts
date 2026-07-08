@@ -4,7 +4,7 @@ import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { buildLifecycleStatusOptions, FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from 'src/app/models/resource-catalog';
 import { EventMessageService } from 'src/app/services/event-message.service';
@@ -16,7 +16,7 @@ import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
-import { resourceConfigUpdate, resourceConfiguration } from '../../../../../models/formFields/software-resource-fields';
+import { buildResourceConfigUpdate, buildResourceConfiguration } from '../../../../../models/formFields/software-resource-fields';
 import { SoftwareSpecification } from '../../../../../models/software.model';
 import { CharValueType } from '../../../../../shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
 
@@ -115,16 +115,10 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
       this.generalForm.get('baseTemplate')!.valueChanges
         .pipe(takeUntil(this.destroy$))
         .subscribe((value: string | null) => {
-          const config = value ? resourceConfiguration[value as ResourceSpecType] : undefined;
+          const configs = buildResourceConfiguration({ partyId: this.partyId, resSpecService: this.resSpecService });
+          const config = value ? configs[value as ResourceSpecType] : undefined;
           this.templateConfigFields = config ? [...config.fields] : [];
           this.templateConfigForm = buildFormGroup(this.templateConfigFields);
-          if (value === 'SoftwareSpecification') {
-            this.resSpecService.getSoftwareSupportPackages(this.partyId)
-              .subscribe(packages => {
-                const field = this.templateConfigFields.find(f => f.name === 'softwareSupportPackage') as TableFormField;
-                if (field) field.items = packages ?? [];
-              });
-          }
         });
     }
   }
@@ -154,7 +148,8 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     this.generalForm.controls['lifecycleStatus'].setValue(this.res.lifecycleStatus);
     this.prodChars = this.res.resourceSpecCharacteristic;
 
-    const templateConfig = type ? resourceConfigUpdate[type] : undefined;
+    const configs = type ? buildResourceConfigUpdate({ partyId: this.partyId, resSpecService: this.resSpecService }) : undefined;
+    const templateConfig = configs && type ? configs[type] : undefined;
     this.templateConfigFields = templateConfig ? templateConfig.fields : [];
     this.templateConfigColumnCount = templateConfig ? templateConfig.columnCount : 1;
     this.templateConfigForm = buildFormGroup(this.templateConfigFields);
@@ -163,11 +158,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     if (type === 'SoftwareSpecification') {
       this.resSpecService.getSoftwareSupportPackage((this.res as SoftwareSpecification).softwareSupportPackage?.id!)
         .subscribe(pkg => {
-          const field = this.templateConfigFields.find(f => f.name === 'softwareSupportPackage') as TableFormField;
-          if (field) {
-            field.items = [pkg];
-            this.templateConfigForm.patchValue({ softwareSupportPackage: pkg });
-          }
+          this.templateConfigForm.patchValue({ softwareSupportPackage: pkg });
         });
     }
   }

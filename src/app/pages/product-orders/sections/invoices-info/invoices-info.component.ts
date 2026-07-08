@@ -5,7 +5,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faDownload, faEdit, faSave } from "@fortawesome/pro-solid-svg-icons";
 import { TranslateModule } from '@ngx-translate/core';
 import { initFlowbite } from 'flowbite';
-import * as moment from 'moment';
+import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LoginInfo } from 'src/app/models/interfaces';

@@ -2333,6 +2333,8 @@
     "_cancel": "Cancelar",
     "_no_steps": "No se han añadido pasos.",
     "_actions": "Acciones",
+    "_edit_step": "Editar paso",
+    "_delete_step": "Eliminar paso",
     "_none": "Ninguno",
     "_on_failure_abort": "Abortar",
     "_on_failure_continue": "Continuar",

@@ -8,46 +8,7 @@
 
     <!-- Steps table -->
     @if (orchestrationSteps.length > 0) {
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300">
-      <table class="w-full table-fixed text-sm text-left text-gray-500 dark:text-gray-200">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-          <tr>
-            @for (col of stepsTableColumns; track col.header) {
-            <th scope="col" class="px-4 py-3" [ngClass]="col.width ?? ''">{{ col.header }}</th>
-            }
-            <th scope="col" class="px-4 py-3 w-24">{{ 'BLUEPRINT_PROD._actions' | translate }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (step of orchestrationSteps; track step.id; let i = $index) {
-          <tr class="border-b hover:bg-gray-50 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200"
-            [ngClass]="editingIndex === i ? 'bg-blue-50 dark:bg-secondary-200' : ''">
-            @for (col of stepsTableColumns; track col.header) {
-            <td class="px-4 py-3 break-words">{{ getColumnValue(col, step) }}</td>
-            }
-            <td class="px-4 py-3">
-              <div class="flex gap-2">
-                <button type="button" (click)="editStep(i)"
-                  class="p-1.5 text-white bg-blue-500 rounded-lg hover:bg-blue-600">
-                  <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.845 6.745L9 17.016l.96-3.545 6.844-6.745a2.015 2.015 0 0 1 2.853 0Z" />
-                  </svg>
-                </button>
-                <button type="button" (click)="deleteStep(i)"
-                  class="p-1.5 text-white bg-red-500 rounded-lg hover:bg-red-600">
-                  <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M6 18 17.94 6M18 18 6.06 6" />
-                  </svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-          }
-        </tbody>
-      </table>
-    </div>
+    <app-table-input [columns]="stepsTableColumns" [items]="orchestrationSteps" [selectable]="false"></app-table-input>
     } @else {
     <div
       class="flex w-full items-center p-4 text-sm text-red-700 rounded-lg bg-red-50 dark:bg-secondary-200 dark:text-red-400"
@@ -64,23 +25,6 @@
     <!-- Toggle / Step form -->
     @if (showStepForm) {
     <div class="bg-white dark:bg-secondary-300 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mt-4">
-      @if (prodSpecPageCheck) {
-      <div class="flex justify-center mt-2 mb-1">
-        @if (loadingProdSpec_more) {
-        <app-loading-spinner containerClass="w-full h-fit flex justify-center align-middle" />
-        } @else {
-        <button type="button" (click)="nextProdSpecsPage()"
-          class="flex cursor-pointer shadow-sm items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 dark:text-white bg-white dark:bg-primary-100 dark:hover:bg-secondary-100 border border-gray-300 dark:border-secondary-200 rounded-lg hover:bg-gray-200">
-          {{ 'BLUEPRINT_PROD._load_more' | translate }}
-          <svg class="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-            viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M5 12h14m-7 7V5" />
-          </svg>
-        </button>
-        }
-      </div>
-      }
       <app-dynamic-form [fields]="stepFormFields" [formGroup]="stepForm" [columns]="6" />
 
       @if (cycleError) {

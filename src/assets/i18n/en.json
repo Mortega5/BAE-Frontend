@@ -2332,6 +2332,8 @@
     "_cancel": "Cancel",
     "_no_steps": "No steps added yet.",
     "_actions": "Actions",
+    "_edit_step": "Edit step",
+    "_delete_step": "Delete step",
     "_none": "None",
     "_on_failure_abort": "Abort",
     "_on_failure_continue": "Continue",

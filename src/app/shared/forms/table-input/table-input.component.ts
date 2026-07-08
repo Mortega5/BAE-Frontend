@@ -29,6 +29,8 @@ export class TableInputComponent implements ControlValueAccessor {
   @Input() readonly: boolean = false;
   @Input() selectable: boolean = true;
   @Input() clickable: boolean = false;
+  /** When provided, rows for which this returns false are disabled (no toggle, no row click). */
+  @Input() isSelectable?: (item: any) => boolean;
   @Input() sort?: TableSort;
   @Output() rowClick = new EventEmitter<any>();
   @Output() sortChange = new EventEmitter<string>();
@@ -73,8 +75,12 @@ export class TableInputComponent implements ControlValueAccessor {
     return this.selected.some(s => s === item || (s?.id != null && s.id === item?.id));
   }
 
+  isRowSelectable(item: any): boolean {
+    return !this.isSelectable || this.isSelectable(item);
+  }
+
   toggle(item: any): void {
-    if (this.isReadonly || !this.selectable) return;
+    if (this.isReadonly || !this.selectable || !this.isRowSelectable(item)) return;
     if (this.multiple) {
       const exists = this.isSelected(item);
       this.selected = exists
@@ -99,7 +105,7 @@ export class TableInputComponent implements ControlValueAccessor {
   }
 
   onRowClick(item: any, event?: Event): void {
-    if (this.isReadonly) return;
+    if (this.isReadonly || !this.isRowSelectable(item)) return;
     this.toggle(item);
     if (this.clickable) {
       event?.stopPropagation();

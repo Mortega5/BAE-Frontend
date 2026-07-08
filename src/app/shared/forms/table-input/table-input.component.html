@@ -26,21 +26,23 @@
     </thead>
     <tbody>
       @for (item of items; track $index) {
-      <tr class="border-b dark:border-gray-700" [class.cursor-pointer]="!isReadonly && (selectable || clickable)"
-        [class.hover:bg-gray-200]="!isReadonly && (selectable || clickable)"
-        [class.dark:hover:bg-secondary-200]="!isReadonly && (selectable || clickable)"
+      <tr class="border-b dark:border-gray-700"
+        [class.cursor-pointer]="!isReadonly && isRowSelectable(item) && (selectable || clickable)"
+        [class.hover:bg-gray-200]="!isReadonly && isRowSelectable(item) && (selectable || clickable)"
+        [class.dark:hover:bg-secondary-200]="!isReadonly && isRowSelectable(item) && (selectable || clickable)"
+        [class.opacity-50]="!isRowSelectable(item)" [class.cursor-not-allowed]="!isRowSelectable(item)"
         [class.bg-blue-50]="isSelected(item)" [ngClass]="{'dark:bg-primary-100/20': isSelected(item)}"
         (click)="onRowClick(item, $event)">
         @if (selectable) {
         <td class="px-4 py-3 w-12">
           @if (multiple) {
           <input type="checkbox" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-            [class.cursor-not-allowed]="isReadonly" [checked]="isSelected(item)" [disabled]="isReadonly"
-            (click)="$event.stopPropagation(); toggle(item)">
+            [class.cursor-not-allowed]="isReadonly || !isRowSelectable(item)" [checked]="isSelected(item)"
+            [disabled]="isReadonly || !isRowSelectable(item)" (click)="$event.stopPropagation(); toggle(item)">
           } @else {
           <input type="radio" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500"
-            [class.cursor-not-allowed]="isReadonly" [checked]="isSelected(item)" [disabled]="isReadonly"
-            (click)="$event.stopPropagation(); toggle(item)">
+            [class.cursor-not-allowed]="isReadonly || !isRowSelectable(item)" [checked]="isSelected(item)"
+            [disabled]="isReadonly || !isRowSelectable(item)" (click)="$event.stopPropagation(); toggle(item)">
           }
         </td>
         }

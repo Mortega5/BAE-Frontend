@@ -28,6 +28,7 @@ export class FilteredPaginatedTableComponent<T = any> {
   @Input() multiple: boolean = false;
   @Input() readonly: boolean = false;
   @Input() selected: any;
+  @Input() isSelectable?: (item: T) => boolean;
   @Input() defaultSort?: TableSort;
   @Output() selectedChange = new EventEmitter<any>();
   @Output() rowClick = new EventEmitter<T>();

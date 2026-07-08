@@ -106,15 +106,16 @@
     @if (field.type === 'table') {
     <app-table-input [formControlName]="field.name" [columns]="asTableField(field).columns"
       [items]="asTableField(field).items" [multiple]="asTableField(field).multiple ?? false"
-      [readonly]="field.readonly ?? false" />
+      [isSelectable]="asTableField(field).isSelectable" [readonly]="field.readonly ?? false" />
     }
 
     @if (field.type === 'paginatedTable') {
     <app-paginated-table [columns]="asPaginatedTableField(field).columns" [fetchPage]="asPaginatedTableField(field).fetchPage"
       [multiple]="asPaginatedTableField(field).multiple ?? false"
       [pageSizeOptions]="asPaginatedTableField(field).pageSizeOptions ?? [5, 10, 20, 50]"
-      [defaultSort]="asPaginatedTableField(field).defaultSort" [selectable]="true" [readonly]="field.readonly ?? false"
-      [selected]="formGroup.get(field.name)?.value" (selectedChange)="formGroup.get(field.name)?.setValue($event)" />
+      [defaultSort]="asPaginatedTableField(field).defaultSort" [isSelectable]="asPaginatedTableField(field).isSelectable"
+      [selectable]="true" [readonly]="field.readonly ?? false" [selected]="formGroup.get(field.name)?.value"
+      (selectedChange)="formGroup.get(field.name)?.setValue($event)" />
     }
 
     @if (field.type === 'code') {

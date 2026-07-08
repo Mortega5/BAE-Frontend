@@ -108,27 +108,11 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
       })
   }
 
-  private searchInputListener = (_e: Event) => {
-    console.log(`Input updated`)
-    if (this.searchField.value == '') {
-      this.filter = undefined;
-      this.getOffers(false);
-    }
-  }
-
   ngOnInit() {
     this.initOffers();
-    const input = document.querySelector('[type=search]')
-    if (input != undefined) {
-      input.addEventListener('input', this.searchInputListener);
-    }
   }
 
   ngOnDestroy() {
-    const input = document.querySelector('[type=search]')
-    if (input != undefined) {
-      input.removeEventListener('input', this.searchInputListener);
-    }
     this.destroy$.next();
     this.destroy$.complete();
   }

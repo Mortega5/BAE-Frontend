@@ -119,6 +119,8 @@ export interface TableFormField extends BaseFormField {
   columns: TableColumn[];
   items: any[];
   multiple?: boolean;
+  /** When provided, rows for which this returns false are disabled (no toggle, no row click). */
+  isSelectable?: (item: any) => boolean;
 }
 
 export interface PaginatedTableFormField extends BaseFormField {
@@ -128,6 +130,8 @@ export interface PaginatedTableFormField extends BaseFormField {
   multiple?: boolean;
   pageSizeOptions?: number[];
   defaultSort?: TableSort;
+  /** When provided, rows for which this returns false are disabled (no toggle, no row click). */
+  isSelectable?: (item: any) => boolean;
 }
 
 export type CodeLanguage = 'json' | 'yaml' | 'typescript' | 'javascript';

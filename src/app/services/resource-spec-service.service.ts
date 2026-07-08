@@ -146,6 +146,24 @@ export class ResourceSpecServiceService {
     return this.http.get<SoftwareSupportPackage[]>(url, { params });
   }
 
+  async getSoftwareSupportPackagesPaged(params: PageRequest, partyId: string): Promise<PageResult<SoftwareSupportPackage>> {
+    const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackage'];
+    const codeParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      resourceStatus: 'available',
+      'relatedParty.id': partyId,
+      '@type': 'SoftwareSupportPackage',
+    };
+    applySort(params, codeParams);
+
+    const url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}`;
+    const response = await lastValueFrom(this.http.get<SoftwareSupportPackage[]>(url, { params: codeParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
+  }
+
   getSoftwareSupportPackage(id: string): Observable<SoftwareSupportPackage> {
 
     const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackage'];
