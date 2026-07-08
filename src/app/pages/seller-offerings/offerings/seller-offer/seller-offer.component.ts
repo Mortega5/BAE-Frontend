@@ -26,7 +26,6 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
 
   searchField = new FormControl();
   filter: Record<string, string> | undefined = undefined;
-  sort: any = undefined;
   isBundle: any = undefined;
   partyId: any;
   customMap: Record<string, boolean> = {};
@@ -184,11 +183,6 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
     }
 
     return result;
-  }
-
-  onSortChange(event: any) {
-    this.sort = event.target.value == 'name' ? 'name' : undefined;
-    this.paginatedTable?.refresh(true);
   }
 
   onTypeChange(event: any) {

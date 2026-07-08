@@ -8,7 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
-import { TableColumn } from 'src/app/models/table-column.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ApiServiceService } from 'src/app/services/product-service.service';
@@ -29,6 +29,7 @@ export class SellerSoftware implements OnInit, OnDestroy {
   filter: Record<string, string> | undefined = undefined;
   partyId: any;
   private destroy$ = new Subject<void>();
+  defaultSort: TableSort = { key: 'name', direction: 'desc' };
 
   softwareColumns: TableColumn<SoftwareResource>[];
 
@@ -57,6 +58,7 @@ export class SellerSoftware implements OnInit, OnDestroy {
         header: 'OFFERINGS._name',
         getValue: (item: SoftwareResource) => item.name ?? '-',
         width: 'w-1/2',
+        sortKey: 'name',
         cellClass: (item: SoftwareResource) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
       },
       {
@@ -64,6 +66,7 @@ export class SellerSoftware implements OnInit, OnDestroy {
         getValue: (item: SoftwareResource) => item.resourceStatus ?? '-',
         type: 'badge',
         width: 'w-1/4',
+        sortKey: 'resourceStatus',
         cellClass: (item: SoftwareResource) => resourceStatusClass(item.resourceStatus ?? ''),
       },
       {

@@ -10,7 +10,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
-import { TableColumn } from 'src/app/models/table-column.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { InvoicesService } from 'src/app/services/invoices-service';
 import { LocalStorageService } from "src/app/services/local-storage.service";
@@ -50,11 +50,13 @@ export class InvoicesInfoComponent implements OnInit, OnDestroy {
   protected readonly faSave = faSave;
   private destroy$ = new Subject<void>();
 
+  defaultSort: TableSort = { key: 'billDate', direction: 'desc' };
+
   invoiceColumns: TableColumn[] = [
-    { header: 'INVOICES._date', type: 'date', getValue: (item: any) => item.billDate },
-    { header: 'INVOICES._billno', getValue: (item: any) => item.billNo ?? '-' },
+    { header: 'INVOICES._date', type: 'date', getValue: (item: any) => item.billDate, sortKey: 'billDate' },
+    { header: 'INVOICES._billno', getValue: (item: any) => item.billNo ?? '-', sortKey: 'billNo' },
     { header: 'INVOICES._tax_included_amount', getValue: (item: any) => `${item.taxIncludedAmount?.value ?? ''}${item.taxIncludedAmount?.unit ?? ''}`, hideOnMobile: true },
-    { header: 'INVOICES._status', getValue: (item: any) => item.state ?? '-', hideOnMobile: true },
+    { header: 'INVOICES._status', getValue: (item: any) => item.state ?? '-', hideOnMobile: true, sortKey: 'state' },
     { header: 'INVOICES._actions', type: 'icon-button', icon: faDownload, tooltip: 'INVOICES._download', dataCy: 'downloadInvoice', onClick: (item: any) => this.downloadInvoice(item) },
   ];
 

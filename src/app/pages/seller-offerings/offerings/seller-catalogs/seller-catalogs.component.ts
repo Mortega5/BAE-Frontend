@@ -1,6 +1,5 @@
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Router } from '@angular/router';
 import { faIdCard, faSort, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
@@ -9,7 +8,7 @@ import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
-import { TableColumn } from 'src/app/models/table-column.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ApiServiceService } from 'src/app/services/product-service.service';
@@ -36,6 +35,8 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
 
   catalogColumns: TableColumn<Catalog>[];
 
+  defaultSort: TableSort = { key: 'name', direction: 'asc' };
+
   catalogFilters: FormField[] = [
     {
       name: 'status',
@@ -54,9 +55,7 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
   ];
 
   constructor(
-    private router: Router,
     private api: ApiServiceService,
-    private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService
   ) {
@@ -65,6 +64,7 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
         header: 'OFFERINGS._name',
         getValue: (item: Catalog) => item.name ?? '-',
         cellClass: (item: Catalog) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
+        sortKey: 'name',
         width: 'w-2/3',
       },
       {
@@ -72,6 +72,7 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
         getValue: (item: Catalog) => item.lifecycleStatus ?? '-',
         type: 'badge',
         width: 'w-28',
+        sortKey: 'lifecycleStatus',
         cellClass: (item: Catalog) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
       },
       {
@@ -153,8 +154,6 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
 
   fetchCatalogs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<Catalog>> => {
     const status = (filters['status'] ?? []) as string[];
-    params.orderBy = 'lastUpdate'
-    params.orderDirection = 'desc';
     return this.api.getCatalogsByUserPaged(params, this.filter, status, this.partyId);
   }
 

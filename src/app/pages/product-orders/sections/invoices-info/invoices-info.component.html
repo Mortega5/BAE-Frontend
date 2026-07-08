@@ -36,7 +36,7 @@
 
 <div class="w-full h-fit mb-4 p-4">
   <app-paginated-table data-cy="invoicesTable" [columns]="invoiceColumns" [fetchPage]="fetchInvoices" [clickable]="true"
-    (rowClick)="toggleShowDetails($event)">
+    (rowClick)="toggleShowDetails($event)" [defaultSort]="defaultSort">
   </app-paginated-table>
 </div>
 

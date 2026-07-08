@@ -7,7 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
-import { TableColumn } from 'src/app/models/table-column.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
@@ -25,12 +25,12 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
 
   searchField = new FormControl();
   filter: Record<string, string> | undefined = undefined;
-  sort: any = undefined;
   isBundle: any = undefined;
   partyId: any;
   private destroy$ = new Subject<void>();
 
   prodSpecColumns: TableColumn<any>[];
+  defaultSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
 
   prodSpecFilters: FormField[] = [
     {
@@ -58,6 +58,7 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
       {
         header: 'OFFERINGS._name',
         getValue: (item: any) => item.name ?? '-',
+        sortKey: 'name',
         cellClass: (item: any) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
       },
       {
@@ -72,6 +73,7 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
         getValue: (item: any) => item.lifecycleStatus ?? '-',
         type: 'badge',
         width: 'w-24',
+        sortKey: 'lifecycleStatus',
         cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
       },
       {
@@ -86,6 +88,7 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
         header: 'OFFERINGS._last_update',
         type: 'date',
         hideOnMobile: true,
+        sortKey: 'lastUpdate',
         getValue: (item: any) => item.lastUpdate,
         width: 'w-60',
       },
@@ -163,18 +166,7 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
 
   fetchProdSpecs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
     const status = (filters['status'] ?? []) as string[];
-    params.orderBy = this.sort || 'lastUpdate';
-    params.orderDirection = this.sort ? undefined : 'desc';
     return this.prodSpecService.getProdSpecByUserPaged(params, this.filter, status, this.partyId, this.isBundle);
-  }
-
-  filterInventoryByKeywords() {
-
-  }
-
-  onSortChange(event: any) {
-    this.sort = event.target.value == 'name' ? 'name' : undefined;
-    this.paginatedTable?.refresh(true);
   }
 
   onTypeChange(event: any) {

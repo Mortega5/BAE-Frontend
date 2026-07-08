@@ -67,7 +67,7 @@ describe('SellerOfferComponent', () => {
       set: { template: '' },
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(SellerOfferComponent);
     component = fixture.componentInstance;
   });
@@ -198,17 +198,6 @@ describe('SellerOfferComponent', () => {
 
     expect(component.status).toEqual(['Active', 'Launched']);
     expect(getOffersSpy).toHaveBeenCalledWith(false);
-  });
-
-  it('onSortChange should set sort and reload offers', () => {
-    const getOffersSpy = spyOn(component, 'getOffers');
-
-    component.onSortChange({ target: { value: 'name' } });
-    expect(component.sort).toBe('name');
-    expect(getOffersSpy).toHaveBeenCalledWith(false);
-
-    component.onSortChange({ target: { value: 'none' } });
-    expect(component.sort).toBeUndefined();
   });
 
   it('onTypeChange should set isBundle and reload offers', () => {

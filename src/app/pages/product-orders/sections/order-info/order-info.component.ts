@@ -14,7 +14,7 @@ import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
-import { TableColumn } from 'src/app/models/table-column.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
@@ -61,11 +61,13 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @ViewChild(FilteredPaginatedTableComponent) paginatedTable?: FilteredPaginatedTableComponent<any>;
 
+  defaultSort: TableSort = { key: 'orderDate', direction: 'desc' };
+
   orderColumns: TableColumn[] = [
-    { header: 'PRODUCT_INVENTORY._order_id', getValue: (item: any) => `...${item.id.slice(-6)}`, width: 'w-28', hideOnMobile: true },
-    { header: 'PRODUCT_INVENTORY._status', type: 'badge', getValue: (item: any) => item.state ?? 'PRODUCT_ORDERS._unchecked', cellClass: (item: any) => this.orderStateClass(item.state), width: 'w-28' },
+    { header: 'PRODUCT_INVENTORY._order_id', getValue: (item: any) => `...${item.id.slice(-6)}`, width: 'w-28', hideOnMobile: true, sortKey: 'id' },
+    { header: 'PRODUCT_INVENTORY._status', type: 'badge', getValue: (item: any) => item.state ?? 'PRODUCT_ORDERS._unchecked', cellClass: (item: any) => this.orderStateClass(item.state), width: 'w-28', sortKey: 'state' },
     { header: 'PRODUCT_INVENTORY._bill', getValue: (item: any) => item.billingAccount?.name ?? '-', width: 'w-1/3', hideOnMobile: true },
-    { header: 'PRODUCT_ORDERS._date', type: 'date', getValue: (item: any) => item.orderDate },
+    { header: 'PRODUCT_ORDERS._date', type: 'date', getValue: (item: any) => item.orderDate, sortKey: 'orderDate' },
     { header: 'PRODUCT_ORDERS._actions', type: 'icon-button', icon: faStickyNote, tooltip: 'PRODUCT_ORDERS._show_notes', dataCy: 'orderNotesButton', onClick: (item: any) => this.toggleDrawer(item), width: 'w-24' },
   ];
 

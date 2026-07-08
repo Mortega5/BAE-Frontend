@@ -19,7 +19,7 @@ describe('SellerResourceSpecComponent', () => {
       declarations: [SellerResourceSpecComponent]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(SellerResourceSpecComponent);
     component = fixture.componentInstance;
     eventMessage = TestBed.inject(EventMessageService);
@@ -44,18 +44,6 @@ describe('SellerResourceSpecComponent', () => {
     component.goToUpdate(res);
 
     expect(eventMessage.emitSellerUpdateResourceSpec).toHaveBeenCalledWith(res);
-  });
-
-  it('onSortChange should map sort options and reload resource specs', () => {
-    const refreshSpy = jasmine.createSpy('refresh');
-    component.paginatedTable = { refresh: refreshSpy } as any;
-
-    component.onSortChange({ target: { value: 'name' } });
-    expect(component.sort).toBe('name');
-    expect(refreshSpy).toHaveBeenCalledWith(true);
-
-    component.onSortChange({ target: { value: 'none' } });
-    expect(component.sort).toBeUndefined();
   });
 
   it('hasLongWord should detect long words and handle undefined', () => {

@@ -36,7 +36,8 @@
 
 <div class="w-full h-fit mb-4 p-4">
   <app-filtered-paginated-table data-cy="ordersTable" [columns]="orderColumns" [fetchPage]="fetchOrders"
-    [filters]="orderFilters" [filterColumns]="2" [clickable]="true" (rowClick)="toggleShowDetails($event)">
+    [filters]="orderFilters" [filterColumns]="2" [clickable]="true" (rowClick)="toggleShowDetails($event)"
+    [defaultSort]="defaultSort">
   </app-filtered-paginated-table>
 </div>
 

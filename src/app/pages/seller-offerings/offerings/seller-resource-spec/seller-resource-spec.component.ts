@@ -7,7 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
-import { TableColumn } from 'src/app/models/table-column.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
@@ -30,6 +30,7 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   resSpecColumns: TableColumn<any>[];
+  defaultSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
 
   resSpecFilters: FormField[] = [
     {
@@ -58,6 +59,7 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
         header: 'OFFERINGS._name',
         getValue: (item: any) => item.name ?? '-',
         width: 'w-1/2',
+        sortKey: 'name',
         cellClass: (item: any) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
       },
       {
@@ -65,11 +67,13 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
         getValue: (item: any) => item.lifecycleStatus ?? '-',
         type: 'badge',
         width: 'w-1/4',
+        sortKey: 'lifecycleStatus',
         cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
       },
       {
         header: 'OFFERINGS._last_update',
         type: 'date',
+        sortKey: 'lastUpdate',
         getValue: (item: any) => item.lastUpdate,
         width: 'w-1/4',
       },
@@ -147,14 +151,7 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
 
   fetchResSpecs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
     const status = (filters['status'] ?? []) as string[];
-    params.orderBy = this.sort || 'lastUpdate';
-    params.orderDirection = this.sort ? undefined : 'desc';
     return this.resSpecService.getResourceSpecByUserPaged(params, this.filter, status, this.partyId);
-  }
-
-  onSortChange(event: any) {
-    this.sort = event.target.value == 'name' ? 'name' : undefined;
-    this.paginatedTable?.refresh(true);
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {

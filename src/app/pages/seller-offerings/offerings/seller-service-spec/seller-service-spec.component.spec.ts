@@ -1,8 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { EventMessageService } from 'src/app/services/event-message.service';
 
 import { SellerServiceSpecComponent } from './seller-service-spec.component';
@@ -18,8 +18,8 @@ describe('SellerServiceSpecComponent', () => {
       imports: [HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()],
       declarations: [SellerServiceSpecComponent]
     })
-    .compileComponents();
-    
+      .compileComponents();
+
     fixture = TestBed.createComponent(SellerServiceSpecComponent);
     component = fixture.componentInstance;
     eventMessage = TestBed.inject(EventMessageService);
@@ -44,18 +44,6 @@ describe('SellerServiceSpecComponent', () => {
     component.goToUpdate(serv);
 
     expect(eventMessage.emitSellerUpdateServiceSpec).toHaveBeenCalledWith(serv);
-  });
-
-  it('onSortChange should map sort options and reload service specs', () => {
-    const refreshSpy = jasmine.createSpy('refresh');
-    component.paginatedTable = { refresh: refreshSpy } as any;
-
-    component.onSortChange({ target: { value: 'name' } });
-    expect(component.sort).toBe('name');
-    expect(refreshSpy).toHaveBeenCalledWith(true);
-
-    component.onSortChange({ target: { value: 'none' } });
-    expect(component.sort).toBeUndefined();
   });
 
   it('hasLongWord should detect long words and handle undefined', () => {
