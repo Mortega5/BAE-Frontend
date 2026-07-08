@@ -405,6 +405,8 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
   fetchOrders = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
     const status = (filters['status'] ?? []) as string[];
     const action = (filters['action'] ?? []) as string[];
+    params.orderBy = 'orderDate';
+    params.orderDirection = 'desc';
     return this.paginationService.getOrdersPaged(params, status, this.partyId, this.role, action);
   }
 
