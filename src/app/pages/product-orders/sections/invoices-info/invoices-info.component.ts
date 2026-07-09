@@ -50,6 +50,7 @@ export class InvoicesInfoComponent implements OnInit, OnDestroy {
   protected readonly faSave = faSave;
   private destroy$ = new Subject<void>();
 
+  pageSizeOptions: number[] = [10, 20, 50];
   defaultSort: TableSort = { key: 'billDate', direction: 'desc' };
 
   invoiceColumns: TableColumn[] = [
