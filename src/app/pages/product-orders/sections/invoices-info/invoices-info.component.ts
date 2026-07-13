@@ -58,7 +58,7 @@ export class InvoicesInfoComponent implements OnInit, OnDestroy {
     { header: 'INVOICES._billno', getValue: (item: any) => item.billNo ?? '-', sortKey: 'billNo' },
     { header: 'INVOICES._tax_included_amount', getValue: (item: any) => `${item.taxIncludedAmount?.value ?? ''}${item.taxIncludedAmount?.unit ?? ''}`, hideOnMobile: true },
     { header: 'INVOICES._status', getValue: (item: any) => item.state ?? '-', hideOnMobile: true, sortKey: 'state' },
-    { header: 'INVOICES._actions', type: 'icon-button', icon: faDownload, tooltip: 'INVOICES._download', dataCy: 'downloadInvoice', onClick: (item: any) => this.downloadInvoice(item) },
+    { header: 'INVOICES._actions', type: 'icon-button', icon: faDownload, tooltip: 'INVOICES._download', dataCy: 'downloadInvoice', onClick: (item: any) => this.downloadInvoice(item), width: 'w-24' },
   ];
 
   constructor(
