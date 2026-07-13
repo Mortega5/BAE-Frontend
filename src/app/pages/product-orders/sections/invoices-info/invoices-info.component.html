@@ -2,11 +2,11 @@
   <ul class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400">
     <li class="me-2">
       <a (click)="onRoleChange(buyerRole)"
-        [ngClass]="role !== buyerRole ? 'text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300' : 'text-blue-600 border-blue-600 active dark:text-blue-500 dark:border-blue-500'"
+        [ngClass]="role !== buyerRole ? 'text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300' : 'text-primary-100 border-primary-100 active dark:text-primary-50 dark:border-primary-50'"
         class="inline-flex cursor-pointer items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg group"
         aria-current="page">
         <svg
-          [ngClass]="role !== buyerRole ? 'text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300' : 'text-blue-600 dark:text-blue-500'"
+          [ngClass]="role !== buyerRole ? 'text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300' : 'text-primary-100 dark:text-primary-50'"
           class="w-4 h-4 me-2" aria-hidden="true" fill="currentColor" xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 640 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
           <path
@@ -18,10 +18,10 @@
     @if(isSeller){
     <li class="me-2">
       <a (click)="onRoleChange(sellerRole)"
-        [ngClass]="{'text-blue-600 border-blue-600 active dark:text-blue-500 dark:border-blue-500 group': role == sellerRole}"
+        [ngClass]="{'text-primary-100 border-primary-100 active dark:text-primary-50 dark:border-primary-50 group': role == sellerRole}"
         class="inline-flex cursor-pointer items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 group">
         <svg
-          [ngClass]="role !== sellerRole ? 'text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300' : 'text-blue-600 dark:text-blue-500'"
+          [ngClass]="role !== sellerRole ? 'text-gray-400 group-hover:text-gray-500 dark:text-gray-500 dark:group-hover:text-gray-300' : 'text-primary-100 dark:text-primary-50'"
           class="w-4 h-4 me-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 640 512"><!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
           <path
@@ -142,7 +142,7 @@
                 <p class="text-sm font-bold text-gray-700 dark:text-white">
                   {{ 'INVOICES._product_acbr_ref' | translate }}:
                 </p>
-                <p class="text-sm text-blue-100 dark:text-blue-200 font-mono">
+                <p class="text-sm text-primary-100 dark:text-primary-50 font-mono">
                   <u><a href="/product-inventory/{{acbr.product?.href}}">
                       {{acbr.product?.href}}
                     </a></u>
