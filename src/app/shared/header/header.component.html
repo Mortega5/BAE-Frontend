@@ -78,7 +78,8 @@
 
         @if ((isAdmin && loggedAsOrg === false) || roles.includes(certifierRole)) {
         <li>
-          <button id="administration" data-cy="administration" type="button" class="dropdown-item" (click)="goTo('/admin')">
+          <button id="administration" data-cy="administration" type="button" class="dropdown-item"
+            (click)="goTo('/admin')">
             <fa-icon [icon]="faCogs" class="mr-2"></fa-icon>{{ 'HEADER._admin' | translate }}
           </button>
         </li>
@@ -270,6 +271,61 @@
   </ng-template>
 
   <ng-template #headerActionsTemplate let-mobile="mobile">
+    @if (mobile) {
+    <div class="mobile-nav-item flex items-center justify-between">
+      <span class="flex items-center"><fa-icon [icon]="themeModeIcon" class="mr-2"></fa-icon>{{ 'HEADER._theme' |
+        translate }}</span>
+      <div class="flex gap-3">
+        <button type="button" data-cy="themeLight" aria-label="Light theme"
+          [class.opacity-50]="themeMode !== ThemeMode.Light" (click)="setThemeMode(ThemeMode.Light)">
+          <fa-icon [icon]="lightIcon"></fa-icon>
+        </button>
+        <button type="button" data-cy="themeDark" aria-label="Dark theme"
+          [class.opacity-50]="themeMode !== ThemeMode.Dark" (click)="setThemeMode(ThemeMode.Dark)">
+          <fa-icon [icon]="darkIcon"></fa-icon>
+        </button>
+        <button type="button" data-cy="themeSystem" aria-label="System theme"
+          [class.opacity-50]="themeMode !== ThemeMode.System" (click)="setThemeMode(ThemeMode.System)">
+          <fa-icon [icon]="systemIcon"></fa-icon>
+        </button>
+      </div>
+    </div>
+    } @else {
+    <div class="relative">
+      <button type="button" data-cy="themeSelector" aria-label="Theme selector"
+        class="inline-flex h-[44px] w-[44px] items-center justify-center rounded-[10px] text-white/90 hover:text-white hover:bg-white/10 transition"
+        (click)="toggleThemeDropdown($event)">
+        <fa-icon [icon]="themeModeIcon"></fa-icon>
+      </button>
+      @if (themeDropdownOpen) {
+      <div class="absolute right-0 mt-2 w-40 rounded-lg bg-white dark:bg-gray-800 shadow-lg py-1 z-50"
+        (click)="$event.stopPropagation()">
+        <button type="button" data-cy="themeLight"
+          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          [class.font-semibold]="themeMode === ThemeMode.Light" (click)="setThemeMode(ThemeMode.Light)">
+          <fa-icon [icon]="lightIcon"></fa-icon>{{ 'HEADER._theme_light' | translate }}
+        </button>
+        <button type="button" data-cy="themeDark"
+          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          [class.font-semibold]="themeMode === ThemeMode.Dark" (click)="setThemeMode(ThemeMode.Dark)">
+          <fa-icon [icon]="darkIcon"></fa-icon>{{ 'HEADER._theme_dark' | translate }}
+        </button>
+        <button type="button" data-cy="themeSystem"
+          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          [class.font-semibold]="themeMode === ThemeMode.System" (click)="setThemeMode(ThemeMode.System)">
+          <fa-icon [icon]="systemIcon"></fa-icon>{{ 'HEADER._theme_system' | translate }}
+        </button>
+      </div>
+      }
+    </div>
+    }
+
+    @if (mobile) {
+    <div class="h-px mx-2 my-1 bg-white/10"></div>
+    } @else {
+    <div class="w-px h-6 bg-white/20"></div>
+    }
+
     @if (!is_logged) {
     @if (providerThemeName === 'DOME') {
     @if (mobile) {
