@@ -11,10 +11,13 @@ import {
   faCartShopping,
   faClipboardCheck,
   faCogs,
+  faDisplay,
   faHandHoldingBox,
+  faMoon,
   faPieChart,
   faReceipt,
   faRuler,
+  faSun,
   faUser,
   faUsers
 } from '@fortawesome/sharp-solid-svg-icons';
@@ -38,7 +41,7 @@ import { UserProfilePaths } from 'src/app/pages/user-profile/user-profile.paths'
 import { EventMessageService } from '../../services/event-message.service';
 import { LocalStorageService } from '../../services/local-storage.service';
 import { ShoppingCartServiceService } from '../../services/shopping-cart-service.service';
-import { ThemeService } from '../../services/theme.service';
+import { ThemeMode, ThemeService } from '../../services/theme.service';
 import { NavLink, ThemeAuthUrlsConfig, ThemeConfig } from '../../themes';
 
 @Component({
@@ -108,6 +111,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
 
   isNavBarOpen = false;
   flagDropdownOpen = false;
+  themeDropdownOpen = false;
 
   cartCount = 0;
   scrolled = false;
@@ -119,8 +123,30 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   headerLinks: NavLink[] = [];
   themeAuthUrls?: ThemeAuthUrlsConfig;
 
+  themeMode: ThemeMode = ThemeMode.System;
+  protected readonly ThemeMode = ThemeMode;
+
+
   private themeSubscription: Subscription = new Subscription();
   private destroy$ = new Subject<void>();
+
+  get themeModeIcon() {
+    switch (this.themeMode) {
+      case ThemeMode.Light: return this.lightIcon;
+      case ThemeMode.Dark: return this.darkIcon;
+      default: return this.systemIcon;
+    }
+  }
+
+  setThemeMode(mode: ThemeMode): void {
+    this.themeService.setThemeMode(mode);
+    this.themeDropdownOpen = false;
+  }
+
+  toggleThemeDropdown(event: Event): void {
+    event.stopPropagation();
+    this.themeDropdownOpen = !this.themeDropdownOpen;
+  }
 
   @HostListener('window:scroll')
   onScroll() {
@@ -135,6 +161,9 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
     }
     if (this.isNavBarOpen) {
       this.isNavBarOpen = false;
+    }
+    if (this.themeDropdownOpen) {
+      this.themeDropdownOpen = false;
     }
   }
 
@@ -168,6 +197,10 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
       if (theme?.links) {
         theme.links.headerLinks = this.headerLinks;
       }
+    });
+
+    this.themeService.themeMode$.pipe(takeUntil(this.destroy$)).subscribe(mode => {
+      this.themeMode = mode;
     });
 
     this.hydrateLoginFromStorage();
@@ -441,4 +474,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   protected readonly faPieChart = faPieChart;
   protected readonly faBars = faBars;
   protected readonly faArrowRight = faArrowRight;
+  protected readonly lightIcon = faSun;
+  protected readonly darkIcon = faMoon;
+  protected readonly systemIcon = faDisplay;
 }
