@@ -1,6 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faDownload, faEdit, faSave } from "@fortawesome/pro-solid-svg-icons";
 import { TranslateModule } from '@ngx-translate/core';
@@ -66,6 +67,8 @@ export class InvoicesInfoComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private invoicesService: InvoicesService,
     private eventMessage: EventMessageService,
+    private router: Router,
+    private route: ActivatedRoute,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -115,6 +118,8 @@ export class InvoicesInfoComponent implements OnInit, OnDestroy {
           this.isSeller = true;
         }
       }
+      const requestedRole = this.route.snapshot.queryParamMap.get('role');
+      this.role = (requestedRole === this.sellerRole && this.isSeller) ? this.sellerRole : this.buyerRole;
       this.paginatedTable?.refresh(true);
     }
     initFlowbite();
@@ -147,6 +152,7 @@ export class InvoicesInfoComponent implements OnInit, OnDestroy {
 
   onRoleChange(role: any) {
     this.role = role;
+    this.router.navigate([], { relativeTo: this.route, queryParams: { role }, queryParamsHandling: 'merge' });
     this.paginatedTable?.refresh(true);
   }
 
