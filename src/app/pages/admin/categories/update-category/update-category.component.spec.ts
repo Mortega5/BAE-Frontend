@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { RouterTestingModule } from '@angular/router/testing';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of, Subject, throwError } from 'rxjs';
-import { Router } from '@angular/router';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { EventMessageService } from 'src/app/services/event-message.service';
+import { AdminPaths } from 'src/app/pages/admin/admin.paths';
 
 import { UpdateCategoryComponent } from './update-category.component';
 
@@ -19,6 +19,18 @@ describe('UpdateCategoryComponent', () => {
   let localStorageSpy: jasmine.SpyObj<LocalStorageService>;
   let eventMessageSpy: jasmine.SpyObj<EventMessageService>;
   const routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
+  const activatedRouteStub = {
+    snapshot: { paramMap: convertToParamMap({ id: 'cat-1' }) },
+  } as unknown as ActivatedRoute;
+
+  const category = {
+    id: 'cat-1',
+    name: 'Category 1',
+    description: 'Description',
+    lifecycleStatus: 'Active',
+    isRoot: true,
+    parentId: 'root',
+  };
 
   beforeEach(async () => {
     messages$ = new Subject<any>();
@@ -26,11 +38,12 @@ describe('UpdateCategoryComponent', () => {
       'getLaunchedCategories',
       'updateCategory',
       'getCategoriesByParentId',
+      'getCategoryById',
     ]);
     localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject']);
     eventMessageSpy = jasmine.createSpyObj<EventMessageService>(
       'EventMessageService',
-      ['emitAdminCategories'],
+      [],
       { messages$: messages$.asObservable() }
     );
 
@@ -43,13 +56,15 @@ describe('UpdateCategoryComponent', () => {
     } as any);
     apiSpy.getLaunchedCategories.and.resolveTo([]);
     apiSpy.updateCategory.and.returnValue(of({}));
+    apiSpy.getCategoryById.and.resolveTo(category);
 
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()],
+      imports: [HttpClientTestingModule, TranslateModule.forRoot()],
       declarations: [UpdateCategoryComponent],
       providers: [
         { provide: Router, useValue: routerSpy },
+        { provide: ActivatedRoute, useValue: activatedRouteStub },
         { provide: ApiServiceService, useValue: apiSpy },
         { provide: LocalStorageService, useValue: localStorageSpy },
         { provide: EventMessageService, useValue: eventMessageSpy },
@@ -59,29 +74,24 @@ describe('UpdateCategoryComponent', () => {
       set: { template: '' },
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(UpdateCategoryComponent);
     component = fixture.componentInstance;
-    component.category = {
-      id: 'cat-1',
-      name: 'Category 1',
-      description: 'Description',
-      lifecycleStatus: 'Active',
-      isRoot: true,
-      parentId: 'root',
-    };
+    component.category = { ...category };
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ngOnInit should call initPartyInfo', () => {
+  it('ngOnInit should call initPartyInfo and load the category by route id', async () => {
     const initSpy = spyOn(component, 'initPartyInfo');
 
-    component.ngOnInit();
+    await component.ngOnInit();
 
     expect(initSpy).toHaveBeenCalled();
+    expect(apiSpy.getCategoryById).toHaveBeenCalledWith('cat-1');
+    expect(component.category).toEqual(category);
   });
 
   it('constructor should react to ChangedSession and CategoryAdded events', () => {
@@ -112,8 +122,8 @@ describe('UpdateCategoryComponent', () => {
     component.initPartyInfo();
 
     expect(component.partyId).toBe('party-user');
-    expect(getCategoriesSpy).toHaveBeenCalled();
-    expect(populateSpy).toHaveBeenCalled();
+    expect(getCategoriesSpy).not.toHaveBeenCalled();
+    expect(populateSpy).not.toHaveBeenCalled();
   });
 
   it('initPartyInfo should set partyId for organization session', () => {
@@ -123,8 +133,6 @@ describe('UpdateCategoryComponent', () => {
       expire: Math.floor(Date.now() / 1000) + 300,
       organizations: [{ id: 'org-1', partyId: 'party-org' }],
     } as any);
-    spyOn(component, 'getCategories');
-    spyOn(component, 'populateCatInfo');
 
     component.initPartyInfo();
 
@@ -163,9 +171,9 @@ describe('UpdateCategoryComponent', () => {
     expect(component.checkDisableParent).toBeTrue();
   });
 
-  it('goBack should emit admin categories event', () => {
+  it('goBack should navigate to the categories list', () => {
     component.goBack();
-    expect(eventMessageSpy.emitAdminCategories).toHaveBeenCalledWith(true);
+    expect(routerSpy.navigate).toHaveBeenCalledWith([AdminPaths.categories.list()]);
   });
 
   it('toggleParent should invert parent flags', () => {

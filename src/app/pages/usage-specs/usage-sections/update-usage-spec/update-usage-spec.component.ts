@@ -1,14 +1,15 @@
-import { Component, OnInit, ChangeDetectorRef, HostListener, ElementRef, ViewChild, Input } from '@angular/core';
-import { UsageSpecComponent } from 'src/app/shared/forms/usage-spec/usage-spec.component'
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
-import {NgClass, NgIf} from "@angular/common";
-import { lastValueFrom } from 'rxjs';
-import {components} from "src/app/models/product-catalog";
-import {EventMessageService} from "src/app/services/event-message.service";
-import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { LoginInfo } from 'src/app/models/interfaces';
+import { ChangeDetectorRef, Component, ElementRef, OnInit } from '@angular/core';
+import { ReactiveFormsModule } from "@angular/forms";
+import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateModule } from "@ngx-translate/core";
 import moment from 'moment';
+import { LoginInfo } from 'src/app/models/interfaces';
+import { UsageSpecsPaths } from 'src/app/pages/usage-specs/usage-specs.paths';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { UsageServiceService } from 'src/app/services/usage-service.service';
+import { UsageSpecComponent } from 'src/app/shared/forms/usage-spec/usage-spec.component';
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { NotFoundStateComponent } from 'src/app/shared/not-found-state/not-found-state.component';
 
 @Component({
   selector: 'update-usage-spec',
@@ -17,30 +18,47 @@ import moment from 'moment';
     UsageSpecComponent,
     TranslateModule,
     ReactiveFormsModule,
-    NgClass
+    LoadingSpinnerComponent,
+    NotFoundStateComponent,
   ],
   templateUrl: './update-usage-spec.component.html',
   styleUrl: './update-usage-spec.component.css'
 })
 export class UpdateUsageSpecComponent implements OnInit {
-  partyId:any='';
-  @Input() usageSpec: any;
+  partyId: any = '';
+  usageSpec: any;
+  loading = false;
+
+  get notFound(): boolean {
+    return !this.loading && !this.usageSpec;
+  }
 
   constructor(
     private cdr: ChangeDetectorRef,
     private el: ElementRef,
     private localStorage: LocalStorageService,
-    private eventMessage: EventMessageService,
-  ){}
+    private usageService: UsageServiceService,
+    private router: Router,
+    private route: ActivatedRoute,
+  ) { }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.initPartyInfo();
+    const id = this.route.snapshot.paramMap.get('id')!;
+    this.loading = true;
+    try {
+      this.usageSpec = await this.usageService.getUsageSpec(id, this.partyId);
+    } catch (error) {
+      console.error('Error loading usage specification', error);
+    } finally {
+      this.loading = false;
+    }
   }
 
-  initPartyInfo(){
+  initPartyInfo() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
-      if(aux.logged_as==aux.id){
+    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+      if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
       } else {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
@@ -50,6 +68,6 @@ export class UpdateUsageSpecComponent implements OnInit {
   }
 
   goBack() {
-    this.eventMessage.emitUsageSpecList(true);
+    this.router.navigate([UsageSpecsPaths.list()]);
   }
 }

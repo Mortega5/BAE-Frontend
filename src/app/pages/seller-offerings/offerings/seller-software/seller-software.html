@@ -23,7 +23,7 @@
   <div
     class="bg-secondary-50 dark:bg-secondary-100 dark:border-gray-800 border-secondary-50 border mt-8 p-4 rounded-lg shadow-lg">
     <app-filtered-paginated-table data-cy="softwareTable" [columns]="softwareColumns" [fetchPage]="fetchSoftware"
-      [filters]="softwareFilters" [filterColumns]="1" [clickable]="true" (rowClick)="goToUpdate($event)"
+      [filters]="softwareFilters" [filterColumns]="1" [clickable]="true" (rowClick)="goToUpdate($event.id)"
       [defaultSort]="defaultSort">
     </app-filtered-paginated-table>
   </div>

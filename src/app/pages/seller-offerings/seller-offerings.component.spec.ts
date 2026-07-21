@@ -1,12 +1,14 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { EventMessageService } from '../../services/event-message.service';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
+import { of } from 'rxjs';
 import { QuoteService } from 'src/app/features/quotes/services/quote.service';
-import { ApiServiceService } from 'src/app/services/product-service.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { environment } from 'src/environments/environment';
+import { EventMessageService } from '../../services/event-message.service';
+import { SellerOfferingsPaths } from './seller-offerings.paths';
 
 import { SellerOfferingsComponent } from './seller-offerings.component';
 
@@ -14,25 +16,29 @@ describe('SellerOfferingsComponent', () => {
   let component: SellerOfferingsComponent;
   let fixture: ComponentFixture<SellerOfferingsComponent>;
   let eventMessage: EventMessageService;
+  let quoteServiceSpy: jasmine.SpyObj<QuoteService>;
+  let localStorageSpy: jasmine.SpyObj<LocalStorageService>;
+  let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
+    quoteServiceSpy = jasmine.createSpyObj<QuoteService>('QuoteService', ['getQuoteById']);
+    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject']);
+    routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    localStorageSpy.getObject.and.returnValue({});
+
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
       declarations: [SellerOfferingsComponent],
-      imports: [HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()],
+      imports: [HttpClientTestingModule, TranslateModule.forRoot()],
       providers: [
-        {
-          provide: QuoteService,
-          useValue: jasmine.createSpyObj<QuoteService>('QuoteService', ['getQuoteById']),
-        },
-        {
-          provide: ApiServiceService,
-          useValue: jasmine.createSpyObj<ApiServiceService>('ApiServiceService', ['getProductById']),
-        },
+        { provide: QuoteService, useValue: quoteServiceSpy },
+        { provide: LocalStorageService, useValue: localStorageSpy },
+        { provide: Router, useValue: routerSpy },
+        { provide: ActivatedRoute, useValue: {} },
       ],
     })
-    .compileComponents();
-    
+      .compileComponents();
+
     fixture = TestBed.createComponent(SellerOfferingsComponent);
     component = fixture.componentInstance;
     eventMessage = TestBed.inject(EventMessageService);
@@ -42,75 +48,38 @@ describe('SellerOfferingsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('setActiveSection should update section and persist it', () => {
-    const setItemSpy = spyOn(localStorage, 'setItem');
+  it('ngOnInit should read userInfo from local storage', async () => {
+    const info = { id: 'user-1', expire: 9999999999 };
+    localStorageSpy.getObject.and.returnValue(info);
 
-    component.setActiveSection('offers');
+    await component.ngOnInit();
 
-    expect(component.activeSection).toBe('offers');
-    expect(setItemSpy).toHaveBeenCalledWith('activeSection', 'offers');
+    expect(component.userInfo).toEqual(info);
   });
 
-  it('goToCatalogs should activate catalogs section and reset others', () => {
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
+  it('ngOnInit should navigate to the custom offer route when a quoteId is present in history state', async () => {
+    spyOnProperty(history, 'state', 'get').and.returnValue({ quoteId: 'quote-1' });
+    quoteServiceSpy.getQuoteById.and.returnValue(of({
+      quoteItem: [{ productOffering: { id: 'offer-1' } }],
+      relatedParty: [{ id: 'buyer-1', role: environment.BUYER_ROLE }],
+    } as any));
 
-    component.goToCatalogs();
+    await component.ngOnInit();
 
-    expect(component.activeView).toBe('catalogs');
-    expect(component.show_catalogs).toBeTrue();
-    expect(component.show_offers).toBeFalse();
-    expect(component.show_prod_specs).toBeFalse();
-    expect(component.showWorkspaceNav).toBeTrue();
-    expect(detectSpy).toHaveBeenCalled();
+    expect(quoteServiceSpy.getQuoteById).toHaveBeenCalledWith('quote-1');
+    expect(routerSpy.navigate).toHaveBeenCalledWith(
+      [SellerOfferingsPaths.segments.offers, SellerOfferingsPaths.segments.custom],
+      { relativeTo: TestBed.inject(ActivatedRoute), queryParams: { offerId: 'offer-1', partyId: 'buyer-1' } }
+    );
   });
 
-  it('goToCreateOffer should show create offer view', () => {
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
+  it('ngOnInit should not fetch a quote when history state has no quoteId', async () => {
+    spyOnProperty(history, 'state', 'get').and.returnValue({});
 
-    component.goToCreateOffer();
+    await component.ngOnInit();
 
-    expect(component.activeView).toBe('createOffer');
-    expect(component.show_create_offer).toBeTrue();
-    expect(component.show_catalogs).toBeFalse();
-    expect(component.show_offers).toBeFalse();
-    expect(component.showWorkspaceNav).toBeFalse();
-    expect(detectSpy).toHaveBeenCalled();
-  });
-
-  it('typed activeView should only expose one active view getter', () => {
-    component.goToOffers();
-    expect([
-      component.show_catalogs,
-      component.show_offers,
-      component.show_prod_specs,
-      component.show_service_specs,
-      component.show_resource_specs,
-      component.show_usage_specs,
-      component.show_create_offer,
-      component.show_update_offer,
-    ].filter(Boolean).length).toBe(1);
-
-    component.goToUpdateOffer();
-    expect([
-      component.show_catalogs,
-      component.show_offers,
-      component.show_prod_specs,
-      component.show_service_specs,
-      component.show_resource_specs,
-      component.show_usage_specs,
-      component.show_create_offer,
-      component.show_update_offer,
-    ].filter(Boolean).length).toBe(1);
-  });
-
-  it('event subscription should route to update offer and store payload', () => {
-    const goToUpdateOfferSpy = spyOn(component, 'goToUpdateOffer');
-    const offer = { id: 'offer-1' };
-
-    eventMessage.emitSellerUpdateOffer(offer);
-
-    expect(component.offer_to_update).toEqual(offer);
-    expect(goToUpdateOfferSpy).toHaveBeenCalled();
+    expect(quoteServiceSpy.getQuoteById).not.toHaveBeenCalled();
+    expect(routerSpy.navigate).not.toHaveBeenCalled();
   });
 
   it('event subscription should route to product specs after product spec creation', () => {
@@ -120,33 +89,4 @@ describe('SellerOfferingsComponent', () => {
 
     expect(goToProdSpecSpy).toHaveBeenCalled();
   });
-
-  it('should hide workspace help box when theme does not configure it', () => {
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.querySelector('[data-cy="sellerWorkspaceHelp"]')).toBeNull();
-  });
-
-  it('should show workspace help box when theme configures it', () => {
-    fixture.detectChanges();
-
-    component.workspaceHelpAction = {
-      title: 'OFFERINGS._need_help',
-      description: 'OFFERINGS._explore_guidelines',
-      actionLabel: 'OFFERINGS._view_kb'
-    };
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.querySelector('[data-cy="sellerWorkspaceHelp"]')).not.toBeNull();
-  });
-
-  it('goToResources should open configured knowledge base URL', () => {
-    const openSpy = spyOn(window, 'open');
-    const fallbackUrl = environment.KNOWLEDGE_BASE_URL || environment.KB_GUIDELNES_URL;
-
-    component.goToResources();
-
-    expect(openSpy).toHaveBeenCalledWith(fallbackUrl, '_blank', 'noopener');
-  });
-
 });

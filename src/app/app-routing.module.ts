@@ -7,9 +7,13 @@ import { DomeBlogComponent } from "src/app/pages/dome-blog/dome-blog.component";
 import { EntryFormComponent } from "src/app/pages/dome-blog/entry-form/entry-form.component";
 import { FaqComponent } from "src/app/offerings/faq/faq.component";
 import { UsageSpecsComponent } from "src/app/pages/usage-specs/usage-specs.component";
+import { UsageSpecsPaths } from "src/app/pages/usage-specs/usage-specs.paths";
+import { usageSpecsRoutes } from "src/app/pages/usage-specs/usage-specs.routes";
 import { AuthGuard } from './guard/auth.guard';
 import { quoteGuardGuard } from './guard/quote-guard.guard';
 import { AdminComponent } from "./pages/admin/admin.component";
+import { AdminPaths } from "./pages/admin/admin.paths";
+import { adminRoutes } from "./pages/admin/admin.routes";
 import { CatalogsComponent } from "./pages/catalogs/catalogs.component";
 import { CheckoutComponent } from "./pages/checkout/checkout.component";
 import { ContactUsFormComponent } from "./pages/contact-us/contact-us-form.component";
@@ -18,11 +22,20 @@ import { OrganizationDetailsComponent } from "./pages/organization-details/organ
 import { ProductDetailsComponent } from "./pages/product-details/product-details.component";
 import { ProductInvDetailComponent } from './pages/product-inventory/inventory-items/product-inv-detail/product-inv-detail.component';
 import { ProductInventoryComponent } from './pages/product-inventory/product-inventory.component';
+import { ProductInventoryPaths } from './pages/product-inventory/product-inventory.paths';
+import { productInventoryRoutes } from './pages/product-inventory/product-inventory.routes';
 import { ProductOrdersComponent } from './pages/product-orders/product-orders.component';
+import { ProductOrdersPaths } from './pages/product-orders/product-orders.paths';
+import { productOrdersRoutes } from './pages/product-orders/product-orders.routes';
+import { SearchCatalogComponent } from "./pages/search-catalog/search-catalog.component";
 import { SearchComponent } from "./pages/search/search.component";
 import { SellerOfferingsComponent } from "./pages/seller-offerings/seller-offerings.component";
+import { SellerOfferingsPaths } from "./pages/seller-offerings/seller-offerings.paths";
+import { sellerOfferingsRoutes } from "./pages/seller-offerings/seller-offerrings.routes";
 import { ShoppingCartComponent } from "./pages/shopping-cart/shopping-cart.component";
 import { UserProfileComponent } from "./pages/user-profile/user-profile.component";
+import { UserProfilePaths } from "./pages/user-profile/user-profile.paths";
+import { userProfileRoutes } from "./pages/user-profile/user-profile.routes";
 
 
 
@@ -73,37 +86,42 @@ const routes: Routes = [
     canActivate: [AuthGuard], data: { roles: [] }
   },
   {
-    path: 'product-inventory',
+    path: ProductInventoryPaths.rootSegment,
     component: ProductInventoryComponent,
-    canActivate: [AuthGuard], data: { roles: [] }
+    canActivate: [AuthGuard], data: { roles: [] },
+    children: productInventoryRoutes,
   },
   {
-    path: 'product-inventory/:id',
+    path: `${ProductInventoryPaths.rootSegment}/:id`,
     component: ProductInvDetailComponent
   },
   {
-    path: 'profile',
+    path: UserProfilePaths.rootSegment,
     component: UserProfileComponent,
-    canActivate: [AuthGuard], data: { roles: [] }
+    canActivate: [AuthGuard], data: { roles: [] },
+    children: userProfileRoutes,
   },
   {
-    path: 'my-offerings',
+    path: SellerOfferingsPaths.rootSegment,
     component: SellerOfferingsComponent,
-    canActivate: [AuthGuard], data: { roles: ['seller'] }
+    canActivate: [AuthGuard], data: { roles: ['seller'] },
+    children: sellerOfferingsRoutes,
   },
   {
-    path: 'admin',
+    path: AdminPaths.rootSegment,
     component: AdminComponent,
-    canActivate: [AuthGuard], data: { roles: ['admin', 'certifier'] }
+    canActivate: [AuthGuard], data: { roles: ['admin', 'certifier'] },
+    children: adminRoutes,
   },
   {
     path: 'contact-us',
     component: ContactUsFormComponent
   },
   {
-    path: 'product-orders',
+    path: ProductOrdersPaths.rootSegment,
     component: ProductOrdersComponent,
-    canActivate: [AuthGuard], data: { roles: [] }
+    canActivate: [AuthGuard], data: { roles: [] },
+    children: productOrdersRoutes,
   },
   {
     path: 'analytics',
@@ -122,9 +140,10 @@ const routes: Routes = [
     data: { roles: [] }
   },
   {
-    path: 'usage-spec',
+    path: UsageSpecsPaths.rootSegment,
     component: UsageSpecsComponent,
-    canActivate: [AuthGuard], data: { roles: ['seller'] }
+    canActivate: [AuthGuard], data: { roles: ['seller'] },
+    children: usageSpecsRoutes,
   },
   {
     path: 'blog',

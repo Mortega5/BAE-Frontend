@@ -1,6 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faDownload, faEdit, faSave } from "@fortawesome/pro-solid-svg-icons";
 import { TranslateModule } from '@ngx-translate/core';
@@ -14,6 +15,7 @@ import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { InvoicesService } from 'src/app/services/invoices-service';
 import { LocalStorageService } from "src/app/services/local-storage.service";
+import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
 import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/paginated-table.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { environment } from 'src/environments/environment';
@@ -29,6 +31,8 @@ import { environment } from 'src/environments/environment';
   styleUrl: './invoices-info.component.css'
 })
 export class InvoicesInfoComponent implements OnInit, OnDestroy {
+  readonly productInventoryPaths = ProductInventoryPaths;
+
   partyId: any = '';
   showInvoiceDetails: boolean = false;
   invoiceToShow: any;
@@ -66,6 +70,8 @@ export class InvoicesInfoComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private invoicesService: InvoicesService,
     private eventMessage: EventMessageService,
+    private router: Router,
+    private route: ActivatedRoute,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -115,6 +121,8 @@ export class InvoicesInfoComponent implements OnInit, OnDestroy {
           this.isSeller = true;
         }
       }
+      const requestedRole = this.route.snapshot.queryParamMap.get('role');
+      this.role = (requestedRole === this.sellerRole && this.isSeller) ? this.sellerRole : this.buyerRole;
       this.paginatedTable?.refresh(true);
     }
     initFlowbite();
@@ -147,6 +155,7 @@ export class InvoicesInfoComponent implements OnInit, OnDestroy {
 
   onRoleChange(role: any) {
     this.role = role;
+    this.router.navigate([], { relativeTo: this.route, queryParams: { role }, queryParamsHandling: 'merge' });
     this.paginatedTable?.refresh(true);
   }
 

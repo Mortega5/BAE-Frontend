@@ -1,6 +1,7 @@
-import { Component, OnInit, ChangeDetectorRef, HostListener, ElementRef, ViewChild, Input, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit, ChangeDetectorRef, HostListener, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ApiServiceService } from 'src/app/services/product-service.service';
+import { AdminPaths } from 'src/app/pages/admin/admin.paths';
 import {LocalStorageService} from "src/app/services/local-storage.service";
 import {EventMessageService} from "src/app/services/event-message.service";
 import { LoginInfo } from 'src/app/models/interfaces';
@@ -19,7 +20,12 @@ type Category_Update = components["schemas"]["Category_Update"];
   styleUrl: './update-category.component.css'
 })
 export class UpdateCategoryComponent implements OnInit, OnDestroy {
-  @Input() category: any;
+  category: any;
+  loadingCategory: boolean = false;
+
+  get notFound(): boolean {
+    return !this.loadingCategory && !this.category;
+  }
 
   partyId:any='';
   categoryToUpdate:Category_Update | undefined;
@@ -61,6 +67,7 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
@@ -87,8 +94,19 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.initPartyInfo();
+    const id = this.route.snapshot.paramMap.get('id')!;
+    this.loadingCategory = true;
+    try {
+      this.category = await this.api.getCategoryById(id);
+      this.populateCatInfo();
+      void this.getCategories();
+    } catch (error) {
+      console.error('Error loading category', error);
+    } finally {
+      this.loadingCategory = false;
+    }
   }
 
   ngOnDestroy(){
@@ -106,8 +124,6 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
         this.partyId = loggedOrg.partyId
       }
     }
-    void this.getCategories();
-    this.populateCatInfo();
   }
 
 
@@ -127,7 +143,7 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.eventMessage.emitAdminCategories(true);
+    this.router.navigate([AdminPaths.categories.list()]);
   }
 
   async getCategories(){

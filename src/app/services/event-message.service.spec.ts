@@ -1,7 +1,7 @@
-import { TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
-import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { EventMessage, EventMessageService } from './event-message.service';
 
 describe('EventMessageService', () => {
@@ -53,15 +53,6 @@ describe('EventMessageService', () => {
     );
   });
 
-  it('emitSellerCreateCustomOffer should publish SellerCreateCustomOffer with offer and partyId', async () => {
-    const offer = { id: 'offer-1' };
-    const partyId = 'party-1';
-    await expectNextEvent(
-      () => service.emitSellerCreateCustomOffer(offer, partyId),
-      { type: 'SellerCreateCustomOffer', value: { offer, partyId } },
-    );
-  });
-
   it('emitCloseCartCard should publish CloseCartCard event even when value is undefined', async () => {
     await expectNextEvent(
       () => service.emitCloseCartCard(undefined),
@@ -74,21 +65,6 @@ describe('EventMessageService', () => {
     await expectNextEvent(
       () => service.emitSubformChange(changeState as any),
       { type: 'SubformChange', value: changeState as any },
-    );
-  });
-
-  it('emitUpdateUsageSpec should publish UpdateUsageSpec event', async () => {
-    const usageSpec = { id: 'usage-1' };
-    await expectNextEvent(
-      () => service.emitUpdateUsageSpec(usageSpec),
-      { type: 'UpdateUsageSpec', value: usageSpec },
-    );
-  });
-
-  it('emitCreateUsageSpec should publish CreateUsageSpec event', async () => {
-    await expectNextEvent(
-      () => service.emitCreateUsageSpec(false),
-      { type: 'CreateUsageSpec', value: false },
     );
   });
 

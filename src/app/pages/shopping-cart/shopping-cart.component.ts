@@ -14,6 +14,7 @@ import moment from 'moment';
 import { environment } from 'src/environments/environment';
 import {LocalStorageService} from "../../services/local-storage.service";
 import { Router } from '@angular/router';
+import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.paths';
 import {firstValueFrom} from "rxjs";
 
 @Component({
@@ -315,6 +316,6 @@ export class ShoppingCartComponent implements OnInit, AfterViewInit{
 
 goToInventory() {
     //this.router.navigate(['/product-inventory']);
-    this.router.navigate(['/product-orders']);
+    this.router.navigate([ProductOrdersPaths.root()]);
   }
 }

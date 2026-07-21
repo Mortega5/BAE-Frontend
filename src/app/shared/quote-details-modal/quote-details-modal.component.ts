@@ -2,6 +2,7 @@ import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChange
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { switchMap } from 'rxjs/operators';
 import { forkJoin, Observable, of } from 'rxjs';
 import { QuoteService } from 'src/app/features/quotes/services/quote.service';
@@ -1168,7 +1169,7 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
   createOffer() {
     if (!this.quote?.id) return;
     this.closeModal();
-    this.router.navigate(['/my-offerings'], { state: { quoteId: this.quote.id } });
+    this.router.navigate([SellerOfferingsPaths.root()], { state: { quoteId: this.quote.id } });
   }
 
   // Coordinator-specific actions

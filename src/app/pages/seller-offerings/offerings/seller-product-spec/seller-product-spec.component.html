@@ -1,157 +1,31 @@
-<div class="bg-white rounded-2xl border border-[#EBECEE] shadow-sm p-6 w-full flex-1 flex flex-col gap-8">
-  <div class="flex items-start justify-between">
-    <div>
-      <h2 class="text-2xl font-extrabold text-gray-900">{{ 'OFFERINGS._prod_spec' | translate }}</h2>
-      <p class="text-sm text-gray-500 mt-1">{{ 'OFFERINGS._manage_offerings_subtitle' | translate }}</p>
-    </div>
-    <button data-cy="createProdSpec" (click)="goToCreate()" type="button"
-      class="inline-flex items-center gap-2 bg-primary-100 hover:bg-primary-50 text-white text-sm font-semibold rounded-lg h-10 px-4">
-      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.4" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-      </svg>
-      {{ 'OFFERINGS._add_new_prod' | translate }}
-    </button>
-  </div>
-
-  <div class="border-b border-[#EBECEE] flex items-stretch">
-    @for (tab of ['Draft','Validated','Deleted']; track tab) {
-      <button type="button" (click)="selectTab(tab)"
-        class="w-56 flex items-center justify-center gap-2 px-4 py-3 text-lg font-semibold tracking-[0.5px] leading-6 border-b-[3px] -mb-px transition-colors"
-        [ngClass]="selectedTab === tab ? 'text-[#131B25] border-[#2D58A7]' : 'text-gray-500 border-transparent hover:text-gray-700'">
-        {{ ('OFFERINGS._' + tab.toLowerCase()) | translate }}
-        <span class="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full text-sm font-semibold"
-          [style.background-color]="selectedTab === tab ? '#DDE6F6' : '#EBECEE'"
-          [style.color]="selectedTab === tab ? '#14274a' : '#374151'">{{ statusCounts[tab] }}</span>
-      </button>
-    }
-  </div>
-
-  <div class="rounded-2xl flex-1" [class.dashed-pane]="loading || prodSpecs.length === 0">
-    @if (loading) {
-      <div role="status" class="w-full flex justify-center items-center py-24">
-        <svg aria-hidden="true" class="w-10 h-10 text-gray-200 animate-spin fill-primary-100" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-          <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-        </svg>
-        <span class="sr-only">{{ 'COMMON._loading' | translate }}</span>
+<div>
+  <div
+    class="w-full h-fit mb-4 bg-secondary-50 rounded-lg dark:bg-secondary-100 dark:border-gray-800 border-gray-300 border-secondary-50 border flex flex-col shadow-lg">
+    <div class="flex w-full flex-cols items-center md:flex-row justify-between">
+      <div class="mb-4 lg:mb-0 lg:w-1/4 p-8">
+        <h2 class="text-2xl font-bold mb-4 dark:text-white">{{ 'OFFERINGS._prod_spec' | translate }}</h2>
       </div>
-    } @else if (prodSpecs.length === 0) {
-      <div class="flex flex-col items-center justify-center flex-1 py-12 px-6">
-        <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 p-4" style="background-color: #DDE6F6;">
-          <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#2D58A7">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v.75c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875v-.75C22.5 3.839 21.66 3 20.625 3H3.375z"/>
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M3.087 9l.54 9.176A3 3 0 006.62 21h10.757a3 3 0 002.995-2.824L20.913 9H3.087zm6.133 2.845a.75.75 0 011.06 0l1.72 1.72 1.72-1.72a.75.75 0 111.06 1.06l-1.72 1.72 1.72 1.72a.75.75 0 11-1.06 1.06L12 15.685l-1.72 1.72a.75.75 0 11-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06z"/>
+
+      <div class="flex flex-row w-full justify-end">
+        <button data-cy="createProdSpec" (click)="goToCreate()" type="button"
+          class="ml-2 mr-8 mb-4 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center align-middle me-2">
+          <p class="hidden lg:block pl-2 pr-2">{{ 'OFFERINGS._add_new_prod' | translate }}</p>
+          <p class="block lg:hidden pl-2 pr-2">{{ 'OFFERINGS._add_new_prod_short' | translate }}</p>
+          <svg class="w-[18px] h-[18px] text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+            height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5 12h14m-7 7V5" />
           </svg>
-        </div>
-        <p class="text-base font-bold text-gray-900 mb-1">{{ 'OFFERINGS._no_prod' | translate }}</p>
-        <p class="text-sm text-gray-500 mb-6">{{ 'OFFERINGS._add_new_to_collect' | translate }}</p>
-        <button (click)="goToCreate()" type="button"
-          class="inline-flex items-center gap-2 bg-primary-100 hover:bg-primary-50 text-white text-sm font-semibold rounded-lg h-10 px-4">
-          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.4" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          {{ 'OFFERINGS._add_new_prod' | translate }}
         </button>
       </div>
-    } @else {
-      <div class="rounded-2xl overflow-visible bg-white" style="border: 1px solid #D8DADE;">
-        <table data-cy="prodSpecTable" class="w-full text-sm text-left text-gray-700">
-          <thead class="text-xs text-gray-500 uppercase bg-white" style="border-bottom: 1px solid #EBECEE;">
-            <tr class="h-[56px]">
-              <th scope="col" class="px-6 font-semibold rounded-tl-2xl">{{ 'OFFERINGS._name' | translate }}</th>
-              <th scope="col" class="px-6 font-semibold">{{ 'OFFERINGS._status' | translate }}</th>
-              <th scope="col" class="hidden md:table-cell px-6 font-semibold">{{ 'OFFERINGS._last_update' | translate }}</th>
-              <th scope="col" class="px-6 font-semibold text-right rounded-tr-2xl">{{ 'OFFERINGS._actions' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (prod of prodSpecs; track prod.id; let idx = $index; let last = $last) {
-              <tr data-cy="prodSpecRow" class="h-[56px] group" [style.border-bottom]="!last ? '1px solid #EBECEE' : null">
-                <td [ngClass]="{'break-all': hasLongWord(prod.name, 20),'break-words': !hasLongWord(prod.name, 20), 'rounded-bl-2xl': last}" class="px-6 text-gray-900 group-hover:bg-gray-50">
-                  {{ prod.name }}
-                </td>
-                <td class="px-6 group-hover:bg-gray-50">
-                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    [style.background-color]="rowStatusBadge(prod).bg"
-                    [style.color]="rowStatusBadge(prod).color">{{ rowStatusBadge(prod).text }}</span>
-                </td>
-                <td class="hidden md:table-cell px-6 text-gray-500 whitespace-nowrap group-hover:bg-gray-50">
-                  {{ prod.lastUpdate | date:'dd/MM/yyyy - HH:mm' }}
-                </td>
-                <td class="px-6 text-right relative group-hover:bg-gray-50" [ngClass]="{'rounded-br-2xl': last}">
-                  <button type="button" (click)="toggleMenu(idx, $event)" class="p-1 hover:bg-gray-100 rounded text-gray-500">
-                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                      <circle cx="12" cy="5" r="2"/>
-                      <circle cx="12" cy="12" r="2"/>
-                      <circle cx="12" cy="19" r="2"/>
-                    </svg>
-                  </button>
-                  @if(openMenuIdx === idx){
-                    <div class="absolute right-4 top-12 z-20 bg-white rounded-xl shadow-lg border border-gray-100 py-2 w-40 text-left" (click)="$event.stopPropagation()">
-                      <button data-cy="prodSpecEdit" type="button" (click)="goToUpdate(prod); openMenuIdx=null" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
-                        </svg>
-                        {{ 'OFFERINGS._edit' | translate }}
-                      </button>
-                      @if(prod.lifecycleStatus === 'Active'){
-                        <button type="button" (click)="validateProd(prod)" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                          </svg>
-                          {{ 'OFFERINGS._validate' | translate }}
-                        </button>
-                      }
-                      <button type="button" (click)="deleteProd(prod)" class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
-                        <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
-                        </svg>
-                        {{ 'OFFERINGS._delete' | translate }}
-                      </button>
-                    </div>
-                  }
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-      @if (!loading_more && page_check) {
-        <div class="flex pt-4 justify-center">
-          <button data-cy="loadMore" (click)="next()" class="inline-flex items-center px-4 h-9 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-            {{ 'OFFERINGS._load_more' | translate }}
-            <svg class="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
-            </svg>
-          </button>
-        </div>
-      }
-    }
-  </div>
-</div>
-
-@if(deleteConfirmation){
-  <div data-cy="deleteProdSpecConfirmModal" (click)="cancelDeleteProd()" class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background-color: rgba(11, 21, 40, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
-    <div (click)="$event.stopPropagation()" role="dialog" aria-modal="true" class="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-gray-100">
-      <div class="p-6">
-        <div class="flex items-start gap-4">
-          <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-red-50 text-red-600">
-            <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m0 3.75h.008v.008H12V16.5Zm9-4.5a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-            </svg>
-          </div>
-          <div class="min-w-0">
-            <h2 class="text-lg font-bold text-gray-900">{{ 'OFFERINGS._delete_product_spec_title' | translate }}</h2>
-            <p class="mt-2 text-sm leading-6 text-gray-600">{{ 'OFFERINGS._delete_product_spec_desc' | translate:{ name: deleteProdName } }}</p>
-          </div>
-        </div>
-        <div class="mt-6 flex justify-end gap-3">
-          <button type="button" (click)="cancelDeleteProd()" [disabled]="deleteLoading" class="h-10 px-4 rounded-lg border border-gray-300 text-sm font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50">{{ 'OFFERINGS._cancel' | translate }}</button>
-          <button data-cy="confirmDeleteProdSpec" type="button" (click)="confirmDeleteProd()" [disabled]="deleteLoading" class="h-10 px-4 rounded-lg bg-red-600 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50">
-            {{ (deleteLoading ? 'OFFERINGS._deleting' : 'OFFERINGS._delete') | translate }}
-          </button>
-        </div>
-      </div>
     </div>
   </div>
-}
+
+  <div
+    class="bg-secondary-50 dark:bg-secondary-100 dark:border-gray-800 border-secondary-50 border mt-8 p-4 rounded-lg shadow-lg">
+    <app-filtered-paginated-table data-cy="prodSpecTable" [columns]="prodSpecColumns" [fetchPage]="fetchProdSpecs"
+      [filters]="prodSpecFilters" [filterColumns]="1" [clickable]="true" (rowClick)="goToUpdate($event.id)"
+      [defaultSort]="defaultSort">
+    </app-filtered-paginated-table>
+  </div>
+</div>

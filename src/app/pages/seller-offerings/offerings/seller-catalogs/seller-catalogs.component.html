@@ -1,120 +1,43 @@
-<div class="bg-white rounded-2xl border border-[#EBECEE] shadow-sm p-6 w-full flex-1 flex flex-col gap-8">
-  <div class="flex items-start justify-between">
-    <div>
-      <h2 class="text-2xl font-extrabold text-gray-900">{{ 'OFFERINGS._catalogs' | translate }}</h2>
-      <p class="text-sm text-gray-500 mt-1">{{ 'OFFERINGS._manage_catalogs_subtitle' | translate }}</p>
-    </div>
-    <button data-cy="newCatalog" type="button" (click)="goToCreate()"
-      class="inline-flex items-center gap-2 bg-primary-100 hover:bg-primary-50 text-white text-sm font-semibold rounded-lg h-10 px-4">
-      <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.4" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-      </svg>
-      {{ 'OFFERINGS._add_new_catalog' | translate }}
-    </button>
-  </div>
-
-  <div class="border-b border-[#EBECEE] flex items-stretch overflow-x-auto">
-    @for (tab of ['Draft','Published','Unpublished','Archived']; track tab) {
-      <button type="button" (click)="selectTab(tab)"
-        class="w-56 flex items-center justify-center gap-2 px-4 py-3 text-lg font-semibold tracking-[0.5px] leading-6 border-b-[3px] -mb-px transition-colors"
-        [ngClass]="selectedTab === tab ? 'text-[#131B25] border-[#2D58A7]' : 'text-gray-500 border-transparent hover:text-gray-700'">
-        {{ ('OFFERINGS._' + tab.toLowerCase()) | translate }}
-        <span class="inline-flex items-center justify-center min-w-[28px] h-6 px-2 rounded-full text-sm font-semibold"
-          [style.background-color]="selectedTab === tab ? '#DDE6F6' : '#EBECEE'"
-          [style.color]="selectedTab === tab ? '#14274a' : '#374151'">{{ statusCounts[tab] }}</span>
-      </button>
-    }
-  </div>
-
-  <div class="rounded-2xl flex-1" [class.dashed-pane]="loading || catalogs.length === 0">
-    @if(loading){
-      <div role="status" class="w-full flex justify-center items-center py-24">
-        <svg aria-hidden="true" class="w-10 h-10 text-gray-200 animate-spin fill-primary-100" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
-          <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
-        </svg>
-        <span class="sr-only">{{ 'COMMON._loading' | translate }}</span>
+<div>
+  <div
+    class="w-full h-fit mb-4 bg-secondary-50 rounded-lg dark:bg-secondary-100 dark:border-gray-800 border-secondary-50 border flex flex-col shadow-lg">
+    <div class="flex w-full flex-cols items-center justify-between">
+      <div class="mb-4 lg:mb-0 lg:w-1/4 p-8 justify-start">
+        <h2 class="text-2xl font-bold mb-4 dark:text-white">{{ 'OFFERINGS._catalogs' | translate }}</h2>
       </div>
-    } @else if (catalogs.length === 0) {
-      <div class="flex flex-col items-center justify-center flex-1 py-12 px-6">
-        <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 p-4" style="background-color: #DDE6F6;">
-          <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#2D58A7">
-            <path d="M12.378 1.602a.75.75 0 00-.756 0L3 6.632l9 5.25 9-5.25-8.622-5.03zM21.75 7.93l-9 5.25v9l8.628-5.032a.75.75 0 00.372-.648V7.93zM11.25 22.18v-9l-9-5.25v8.57a.75.75 0 00.372.648l8.628 5.033z"/>
+
+      <div class="flex flex-row w-full justify-end">
+        <!--<form class="max-w-lg w-1/2 pr-4 z-10">
+                <div class="relative">
+                    <input type="search" id="search" [formControl]="searchField" class="block p-2.5 w-full z-20 text-sm text-gray-900 bg-white shadow rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
+                    placeholder="Filter catalogs..." />
+                    <button type="submit" (click)="filterInventoryByKeywords()" class="absolute shadow top-0 end-0 inline-flex items-center p-2.5 text-sm font-medium h-full text-white bg-primary-100 rounded-e-lg hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300">
+                        <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                        </svg>
+                        <span class="ml-2">{{ 'OFFERINGS._search' | translate }}</span>
+                    </button>
+                </div>
+              </form>-->
+        <button data-cy="newCatalog" type="button" (click)="goToCreate()"
+          class="ml-2 mr-8 mb-4 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center align-middle me-2">
+          <p class="pl-2 pr-2">{{ 'OFFERINGS._add_new_catalog' | translate }}</p>
+          <svg class="w-[18px] h-[18px] text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+            height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5 12h14m-7 7V5" />
           </svg>
-        </div>
-        <p class="text-base font-bold text-gray-900 mb-1">{{ 'OFFERINGS._no_cat' | translate }}</p>
-        <p class="text-sm text-gray-500 mb-6">{{ 'OFFERINGS._add_new_to_collect' | translate }}</p>
-        <button type="button" (click)="goToCreate()"
-          class="inline-flex items-center gap-2 bg-primary-100 hover:bg-primary-50 text-white text-sm font-semibold rounded-lg h-10 px-4">
-          <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.4" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-          </svg>
-          {{ 'OFFERINGS._add_new_catalog' | translate }}
         </button>
       </div>
-    } @else {
-      <div class="rounded-2xl overflow-visible bg-white" style="border: 1px solid #D8DADE;">
-        <div class="overflow-x-auto">
-          <table data-cy="catalogTable" class="w-full min-w-[760px] text-sm text-left text-gray-700">
-            <thead class="text-xs text-gray-500 uppercase bg-white" style="border-bottom: 1px solid #EBECEE;">
-              <tr class="h-[56px]">
-                <th scope="col" class="px-6 font-semibold rounded-tl-2xl">{{ 'OFFERINGS._name' | translate }}</th>
-                <th scope="col" class="px-6 font-semibold">{{ 'OFFERINGS._status' | translate }}</th>
-                <th scope="col" class="hidden md:table-cell px-6 font-semibold">{{ 'OFFERINGS._last_update' | translate }}</th>
-                <th scope="col" class="px-6 font-semibold text-right rounded-tr-2xl">{{ 'OFFERINGS._actions' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (cat of catalogs; track cat.id; let last = $last) {
-                <tr data-cy="catalogRow" class="h-[56px] group" [style.border-bottom]="!last ? '1px solid #EBECEE' : null">
-                  <td data-cy="catalogName" [ngClass]="{
-                      'break-all': hasLongWord(cat.name, 20),
-                      'break-words': !hasLongWord(cat.name, 20),
-                      'rounded-bl-2xl': last
-                    }" class="px-6 text-gray-900 group-hover:bg-gray-50">
-                    {{cat.name}}
-                  </td>
-                  <td data-cy="catalogStatus" class="px-6 group-hover:bg-gray-50">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                      [style.background-color]="rowStatusBadge(cat).bg"
-                      [style.color]="rowStatusBadge(cat).color">{{ rowStatusBadge(cat).text }}</span>
-                  </td>
-                  <td class="hidden md:table-cell px-6 text-gray-500 whitespace-nowrap group-hover:bg-gray-50">
-                    {{ cat.lastUpdate | date:'dd/MM/yyyy - HH:mm' }}
-                  </td>
-                  <td class="px-6 text-right group-hover:bg-gray-50" [ngClass]="{'rounded-br-2xl': last}">
-                    <button data-cy="catalogEdit" type="button" (click)="goToUpdate(cat)" class="p-1 hover:bg-gray-100 rounded text-gray-500"
-                      [attr.aria-label]="'OFFERINGS._edit' | translate">
-                      <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"/>
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-      </div>
 
-      @if (!loading_more && page_check) {
-        <div class="flex pt-4 justify-center">
-          <button data-cy="loadMore" (click)="next()" class="inline-flex items-center px-4 h-9 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50">
-            {{ 'OFFERINGS._load_more' | translate }}
-            <svg class="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
-            </svg>
-          </button>
-        </div>
-      } @else if (loading_more) {
-        <div role="status" class="flex justify-center pt-4">
-          <svg aria-hidden="true" class="h-8 w-8 animate-spin fill-primary-100 text-gray-200" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908Z" fill="currentColor"/>
-            <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289Z" fill="currentFill"/>
-          </svg>
-          <span class="sr-only">{{ 'COMMON._loading' | translate }}</span>
-        </div>
-      }
-    }
+    </div>
+  </div>
+
+  <div
+    class="bg-secondary-50 dark:bg-secondary-100 dark:border-gray-800 border-secondary-50 border mt-8 p-4 rounded-lg shadow-lg">
+    <app-filtered-paginated-table data-cy="catalogTable" [columns]="catalogColumns" [fetchPage]="fetchCatalogs"
+      [filters]="catalogFilters" [filterColumns]="1" [clickable]="true" (rowClick)="goToUpdate($event.id!)"
+      [defaultSort]="defaultSort">
+    </app-filtered-paginated-table>
   </div>
 </div>

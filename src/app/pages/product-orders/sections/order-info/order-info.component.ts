@@ -1,7 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCheck, faCircleCheck, faCircleXmark, faIdCard, faPlay, faSort, faStickyNote, faSwatchbook, faXmark } from "@fortawesome/pro-solid-svg-icons";
 import { TranslateModule } from '@ngx-translate/core';
@@ -186,6 +186,7 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     private localStorage: LocalStorageService,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private route: ActivatedRoute,
     private accountService: AccountServiceService,
     private orderService: ProductOrderService,
     private eventMessage: EventMessageService,
@@ -334,6 +335,8 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       }
       //this.partyId = aux.partyId;
+      const requestedRole = this.route.snapshot.queryParamMap.get('role');
+      this.role = (requestedRole === this.sellerRole && this.isSeller) ? this.sellerRole : this.buyerRole;
       this.paginatedTable?.refresh(true);
     }
     initFlowbite();
@@ -532,6 +535,7 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onRoleChange(role: any) {
     this.role = role;
+    this.router.navigate([], { relativeTo: this.route, queryParams: { role }, queryParamsHandling: 'merge' });
     this.paginatedTable?.refresh(true);
   }
 

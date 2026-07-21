@@ -1,6 +1,8 @@
-import { Component, Input, ChangeDetectorRef } from '@angular/core';
-import {Category} from "../../models/interfaces";
-import {EventMessageService} from "src/app/services/event-message.service";
+import { Component, Input } from '@angular/core';
+import { Router } from '@angular/router';
+import { EventMessageService } from "src/app/services/event-message.service";
+import { Category } from "../../models/interfaces";
+import { AdminPaths } from '../../pages/admin/admin.paths';
 
 @Component({
   selector: 'categories-recursion-list',
@@ -13,18 +15,18 @@ export class CategoriesRecursionListComponent {
   @Input() path: string;
 
   constructor(
-    private cdr: ChangeDetectorRef,
+    private router: Router,
     private eventMessage: EventMessageService,
   ) {
-    
+
   }
 
-  addCategory(cat:any){
+  addCategory(cat: any) {
     this.eventMessage.emitCategoryAdded(cat);
   }
 
-  goToUpdate(cat:any){
-    this.eventMessage.emitUpdateCategory(cat);
+  goToUpdate(catId: any) {
+    this.router.navigate([AdminPaths.categories.edit(catId)]);
   }
 
 }

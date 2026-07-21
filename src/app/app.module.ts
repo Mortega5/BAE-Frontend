@@ -72,8 +72,8 @@ import { ServiceSpecFormComponent } from './pages/seller-offerings/offerings/sel
 import { SellerOfferingsComponent } from "./pages/seller-offerings/seller-offerings.component";
 import { ShoppingCartComponent } from "./pages/shopping-cart/shopping-cart.component";
 import { BillingInfoComponent } from './pages/user-profile/profile-sections/billing-info/billing-info.component';
-import { OrderInfoComponent } from './pages/user-profile/profile-sections/order-info/order-info.component';
 import { OrgInfoComponent } from './pages/user-profile/profile-sections/org-info/org-info.component';
+import { ProfileGeneralComponent } from './pages/user-profile/profile-sections/profile-general/profile-general.component';
 import { UserInfoComponent } from './pages/user-profile/profile-sections/user-info/user-info.component';
 import { UserProfileComponent } from "./pages/user-profile/user-profile.component";
 import { AppInitService } from './services/app-init.service';
@@ -92,6 +92,7 @@ import { CharacteristicComponent } from "./shared/characteristic/characteristic.
 import { CustomOfferComponent } from "./shared/forms/offer/custom-offer/custom-offer.component";
 import { OfferComponent } from "./shared/forms/offer/offer.component";
 import { LoadingSpinnerComponent } from './shared/loading-spinner/loading-spinner.component';
+import { NotFoundStateComponent } from './shared/not-found-state/not-found-state.component';
 import { NotificationComponent } from './shared/notification/notification.component';
 import { PricePlanDrawerComponent } from "./shared/price-plan-drawer/price-plan-drawer.component";
 import { RevenueReportComponent } from './shared/revenue-report/revenue-report.component';
@@ -146,7 +147,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     InventoryProductsComponent,
     UserInfoComponent,
     BillingInfoComponent,
-    OrderInfoComponent,
+    ProfileGeneralComponent,
     SellerCatalogsComponent,
     SellerProductSpecComponent,
     SellerServiceSpecComponent,
@@ -241,6 +242,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     StepperStepDirective,
     StatusFieldComponent,
     LoadingSpinnerComponent,
+    NotFoundStateComponent,
   ],
   providers: [
     AppInitService,

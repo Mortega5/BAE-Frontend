@@ -1,7 +1,6 @@
 import { Component } from '@angular/core';
 import {faAtom} from "@fortawesome/pro-regular-svg-icons";
 import { Router } from '@angular/router';
-import {EventMessageService} from "../../services/event-message.service";
 
 @Component({
   selector: 'contact-us',
@@ -13,7 +12,6 @@ export class ContactUsComponent {
 
   constructor(
     private router: Router,
-    private eventMessage: EventMessageService
   ) {  }
 
   contact(){
@@ -25,6 +23,5 @@ export class ContactUsComponent {
   }
 
   closeModal(){
-    this.eventMessage.emitCloseContact(true);
   }
 }

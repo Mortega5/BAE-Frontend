@@ -1,6 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, DoCheck, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs/operators';
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   faAddressCard,
   faAnglesLeft,
@@ -31,6 +30,11 @@ import { LoginInfo } from 'src/app/models/interfaces';
 import { LoginServiceService } from 'src/app/services/login-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { QrVerifierService } from 'src/app/services/qr-verifier.service';
+import { AdminPaths } from 'src/app/pages/admin/admin.paths';
+import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
+import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.paths';
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
+import { UserProfilePaths } from 'src/app/pages/user-profile/user-profile.paths';
 import { EventMessageService } from '../../services/event-message.service';
 import { LocalStorageService } from '../../services/local-storage.service';
 import { ShoppingCartServiceService } from '../../services/shopping-cart-service.service';
@@ -43,6 +47,12 @@ import { NavLink, ThemeAuthUrlsConfig, ThemeConfig } from '../../themes';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestroy {
+  readonly userProfilePaths = UserProfilePaths;
+  readonly productInventoryPaths = ProductInventoryPaths;
+  readonly adminPaths = AdminPaths;
+  readonly productOrdersPaths = ProductOrdersPaths;
+  readonly sellerOfferingsPaths = SellerOfferingsPaths;
+
   @ViewChild('navbarbutton') navbarbutton?: ElementRef<HTMLElement>;
 
   constructor(
@@ -98,30 +108,6 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
 
   isNavBarOpen = false;
   flagDropdownOpen = false;
-  isWorkspace = false;
-  activeEditor: 'offer' | 'productSpec' | 'serviceSpec' | 'resourceSpec' | 'catalog' | null = null;
-  get isOfferEditorActive(): boolean { return this.activeEditor === 'offer'; }
-
-  get backLabelKey(): string {
-    switch (this.activeEditor) {
-      case 'offer':        return 'CREATE_OFFER._back_to_offers';
-      case 'productSpec':  return 'OFFERINGS._back_to_product_specs';
-      case 'serviceSpec':  return 'OFFERINGS._back_to_service_specs';
-      case 'resourceSpec': return 'OFFERINGS._back_to_resource_specs';
-      case 'catalog':      return 'OFFERINGS._back_to_catalogues';
-      default:             return 'OFFERINGS._back_to_marketplace';
-    }
-  }
-  private workspaceRoutes = [
-    '/profile',
-    '/my-offerings',
-    '/admin',
-    '/product-orders',
-    '/quote-list',
-    '/tenders',
-    '/analytics',
-    '/product-inventory'
-  ];
 
   cartCount = 0;
   scrolled = false;
@@ -200,42 +186,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
       if (ev.type === 'LoginProcess') {
         this.hydrateLoginFromStorage();
       }
-
-      if ((ev.type === 'SellerCreateOffer' && ev.value === true) || ev.type === 'SellerUpdateOffer') {
-        this.activeEditor = 'offer';
-        this.cdr.detectChanges();
-      }
-      if ((ev.type === 'SellerCreateProductSpec' && ev.value === true) || ev.type === 'SellerUpdateProductSpec') {
-        this.activeEditor = 'productSpec';
-        this.cdr.detectChanges();
-      }
-      if ((ev.type === 'SellerCreateServiceSpec' && ev.value === true) || ev.type === 'SellerUpdateServiceSpec') {
-        this.activeEditor = 'serviceSpec';
-        this.cdr.detectChanges();
-      }
-      if ((ev.type === 'SellerCreateResourceSpec' && ev.value === true) || ev.type === 'SellerUpdateResourceSpec') {
-        this.activeEditor = 'resourceSpec';
-        this.cdr.detectChanges();
-      }
-      if ((ev.type === 'SellerCatalogCreate' && ev.value === true) || ev.type === 'SellerCatalogUpdate') {
-        this.activeEditor = 'catalog';
-        this.cdr.detectChanges();
-      }
-      if ((ev.type === 'SellerOffer' || ev.type === 'SellerProductSpec' || ev.type === 'SellerServiceSpec'
-        || ev.type === 'SellerResourceSpec' || ev.type === 'SellerCatalog') && ev.value === true) {
-        this.activeEditor = null;
-        this.cdr.detectChanges();
-      }
     });
-
-    this.isWorkspace = this.workspaceRoutes.some(r => this.router.url.startsWith(r));
-    this.router.events
-      .pipe(takeUntil(this.destroy$), filter((e): e is NavigationEnd => e instanceof NavigationEnd))
-      .subscribe(ev => {
-        this.isWorkspace = this.workspaceRoutes.some(r => ev.urlAfterRedirects.startsWith(r));
-        this.cdr.detectChanges();
-        setTimeout(() => initFlowbite(), 0);
-      });
 
     initFlowbite();
   }
@@ -325,43 +276,14 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
     this.router.navigate(['/search/catalogue', id]);
   }
 
-  goToResources() {
-    const targetUrl = environment.KNOWLEDGE_BASE_URL || environment.KB_GUIDELNES_URL;
-    if (!targetUrl) return;
-
-    window.open(targetUrl, '_blank', 'noopener');
-  }
-
-  goTo(path: string, dropdownMenuId?: string) {
+  goTo(path: string, id?: string) {
     this.closeUserDropdown();
 
-    if (dropdownMenuId) {
-      this.closeDropdown(dropdownMenuId);
+    if (id) {
+      this.closeDropdown('dropdown-marketplaceMenu');
     }
 
     this.router.navigate([path]);
-  }
-
-  onWorkspaceBackClick() {
-    switch (this.activeEditor) {
-      case 'offer':
-        this.eventMessage.emitLeaveOfferEditorRequest();
-        break;
-      case 'productSpec':
-        this.eventMessage.emitSellerProductSpec(true);
-        break;
-      case 'serviceSpec':
-        this.eventMessage.emitSellerServiceSpec(true);
-        break;
-      case 'resourceSpec':
-        this.eventMessage.emitSellerResourceSpec(true);
-        break;
-      case 'catalog':
-        this.eventMessage.emitSellerCatalog(true);
-        break;
-      default:
-        this.goTo('/dashboard');
-    }
   }
 
   toggleCartDrawer() {
@@ -473,17 +395,13 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
         const newUrl = new URL(oldUrl.origin);
         newUrl.pathname = environment.SIOP_INFO.requestUri;
 
-
         const finalUrl = newUrl.toString();
         const nonce = uuid.v4();
 
-        // verifierUrl =
-        //   `${verifierUrl}&response_type=code&request_uri=${finalUrl}` +
-        //   `&scope=openid%20learcredential&nonce=${nonce}`;
-        const redirectUri = 'http://localhost:8004/auth/vc/callback';
         verifierUrl =
-          `${verifierUrl}&response_type=code&redirect_uri=${redirectUri}` +
+          `${verifierUrl}&response_type=code&request_uri=${finalUrl}` +
           `&scope=openid%20learcredential&nonce=${nonce}`;
+
         window.location.href = verifierUrl;
         return;
       }
