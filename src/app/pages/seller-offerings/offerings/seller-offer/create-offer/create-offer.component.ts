@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { currencies } from 'currencies.json';
 import { initFlowbite } from 'flowbite';
 import moment from 'moment';
@@ -213,6 +213,7 @@ export class CreateOfferComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private api: ApiServiceService,
     private prodSpecService: ProductSpecServiceService,
     private cdr: ChangeDetectorRef,
@@ -294,7 +295,7 @@ export class CreateOfferComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.eventMessage.emitSellerOffer(true);
+    this.router.navigate(['/my-offerings/offers']);
   }
 
   toggleGeneral() {

@@ -1,5 +1,6 @@
-import {Component, Input, OnInit, OnDestroy} from '@angular/core';
+import {Component, OnInit, OnDestroy} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {ActivatedRoute, Router} from "@angular/router";
 import {TranslateModule} from "@ngx-translate/core";
 import {ProdSpecComponent} from "../prod-spec/prod-spec.component";
 import {NgClass, NgIf} from "@angular/common";
@@ -17,6 +18,7 @@ import moment from 'moment';
 import { environment } from 'src/environments/environment';
 import { QuoteService } from 'src/app/features/quotes/services/quote.service';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { NotFoundStateComponent } from 'src/app/shared/not-found-state/not-found-state.component';
 
 type ProductOffering_Create = components["schemas"]["ProductOffering_Create"];
 type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
@@ -33,14 +35,19 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
     OfferSummaryComponent,
     RelatedPartyIdComponent,
     NgClass,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    NotFoundStateComponent
   ],
   templateUrl: './custom-offer.component.html',
   styleUrl: './custom-offer.component.css'
 })
 export class CustomOfferComponent implements OnInit {
-  @Input() offer: any = {};
-  @Input() partyId: any | undefined;
+  offer: any;
+  partyId: any | undefined;
+
+  get notFound(): boolean {
+    return !this.loadingData && !this.offer;
+  }
 
   productOfferForm: FormGroup;
   currentStep = 0;
@@ -66,7 +73,8 @@ export class CustomOfferComponent implements OnInit {
 
   constructor(private api: ApiServiceService,
     private eventMessage: EventMessageService,
-    private fb: FormBuilder, private quoteService: QuoteService) {
+    private fb: FormBuilder, private quoteService: QuoteService,
+    private route: ActivatedRoute, private router: Router) {
 
       this.productOfferForm = this.fb.group({
         prodSpec: new FormControl(null, [Validators.required]),
@@ -78,13 +86,19 @@ export class CustomOfferComponent implements OnInit {
     }
 
     async ngOnInit() {
-      console.log('--------- OFFER DATA ----------')
-      console.log(this.offer)
-      console.log(this.partyId)
-      console.log('-------------------------------')
-
-      await this.loadOfferData();
-      this.loadingData = false;  
+      this.loadingData = true;
+      this.partyId = this.route.snapshot.queryParamMap.get('partyId') ?? undefined;
+      const offerId = this.route.snapshot.queryParamMap.get('offerId');
+      if (offerId) {
+        try {
+          this.offer = await this.api.getProductById(offerId);
+          await this.loadOfferData();
+        } catch (error) {
+          console.error('Error loading offer for custom offer creation', error);
+          this.offer = undefined;
+        }
+      }
+      this.loadingData = false;
     }
 
     async loadOfferData() {
@@ -381,7 +395,7 @@ export class CustomOfferComponent implements OnInit {
     }
 
     goBack() {
-      this.eventMessage.emitSellerOffer(true);
+      this.router.navigate(['/my-offerings/offers']);
     }
 
     private handleApiError(error: any): void {

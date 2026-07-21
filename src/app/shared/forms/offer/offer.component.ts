@@ -1,18 +1,19 @@
-import { Component, Input, OnInit, OnDestroy } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
+import moment from 'moment';
 import { lastValueFrom, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import moment from 'moment';
-import { environment } from '../../../../environments/environment';
-import { FormChangeState, PricePlanChangeState } from "../../../models/interfaces";
-import { ApiServiceService } from "../../../services/product-service.service";
 import { components } from "src/app/models/product-catalog";
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
-import { StepperComponent, StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
+import { StepChangedEvent, StepperComponent } from 'src/app/shared/stepper/stepper.component';
 import { v4 as uuidv4 } from 'uuid';
+import { environment } from '../../../../environments/environment';
+import { FormChangeState, PricePlanChangeState } from "../../../models/interfaces";
+import { ApiServiceService } from "../../../services/product-service.service";
 import { CatalogueComponent } from "./catalogue/catalogue.component";
 import { CategoryComponent } from "./category/category.component";
 import { EdcContractDefinitionComponent } from "./edc-contract-definition/edc-contract-definition.component";
@@ -83,7 +84,8 @@ export class OfferComponent implements OnInit, OnDestroy {
 
   constructor(private api: ApiServiceService,
     private eventMessage: EventMessageService,
-    private fb: FormBuilder) {
+    private fb: FormBuilder,
+    private router: Router) {
 
     this.productOfferForm = this.fb.group({
       generalInfo: this.fb.group({}),
@@ -757,7 +759,7 @@ export class OfferComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.eventMessage.emitSellerOffer(true);
+    this.router.navigate(['/my-offerings/offers']);
   }
 
   addToISOString(duration: number, unit: string): string {

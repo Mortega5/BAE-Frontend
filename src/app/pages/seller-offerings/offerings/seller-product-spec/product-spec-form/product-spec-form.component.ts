@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { initFlowbite } from 'flowbite';
 import { jwtDecode } from "jwt-decode";
 import * as moment from 'moment';
@@ -284,7 +285,8 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
     private servSpecService: ServiceSpecServiceService,
     private resSpecService: ResourceSpecServiceService,
     private paginationService: PaginationService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private router: Router
   ) {
     for (let i = 0; i < certifications.length; i++) {
       this.availableISOS.push(certifications[i]);
@@ -496,7 +498,7 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.eventMessage.emitSellerProductSpec(!this.isUpdate);
+    this.router.navigate(['/my-offerings/productSpecs']);
   }
 
   toggleBundleCheck() {

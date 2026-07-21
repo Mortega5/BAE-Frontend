@@ -1,5 +1,6 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -41,11 +42,12 @@ const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
   templateUrl: './service-spec-form.component.html',
 })
 export class ServiceSpecFormComponent implements OnInit, OnDestroy {
-  @Input() mode: 'create' | 'update' = 'create';
-  @Input() serv?: any;
+  mode: 'create' | 'update' = 'create';
+  serv?: any;
 
   get isUpdate(): boolean { return this.mode === 'update'; }
   get i18nPrefix(): string { return this.isUpdate ? 'UPDATE_SERV_SPEC' : 'CREATE_SERV_SPEC'; }
+  get notFound(): boolean { return this.isUpdate && !this.loading && !this.serv; }
 
   get generalFormFields(): FormField[] {
     return this.isUpdate ? GENERAL_FORM_FIELDS_UPDATE : GENERAL_FORM_FIELDS_CREATE;
@@ -76,6 +78,8 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
     private servSpecService: ServiceSpecServiceService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -84,9 +88,21 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    this.mode = this.route.snapshot.data['mode'] ?? 'create';
     this.initPartyInfo();
-    if (this.isUpdate) this.populateServInfo();
+    if (this.isUpdate) {
+      this.loading = true;
+      const id = this.route.snapshot.paramMap.get('id')!;
+      try {
+        this.serv = await this.servSpecService.getServSpecById(id);
+        this.populateServInfo();
+      } catch (error) {
+        console.error('Error loading service spec', error);
+      } finally {
+        this.loading = false;
+      }
+    }
   }
 
   ngOnDestroy(): void {
@@ -125,7 +141,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.eventMessage.emitSellerServiceSpec(true);
+    this.router.navigate(['/my-offerings/serviceSpecs']);
   }
 
   onFormChange(value: CharacteristicFormValue): void {

@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
@@ -297,7 +298,9 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     private servSpecService: ServiceSpecServiceService,
     private resSpecService: ResourceSpecServiceService,
     private paginationService: PaginationService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
     for (let i = 0; i < certifications.length; i++) {
       this.availableISOS.push(certifications[i])
@@ -366,7 +369,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.eventMessage.emitSellerProductSpec(true);
+    this.router.navigate(['/my-offerings/productSpecs']);
   }
 
   toggleBundleCheck() {

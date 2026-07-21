@@ -3,7 +3,9 @@
         {{ 'CREATE_OFFER._create' | translate }}
       </h2>
   
-  @if(loadingData){
+  @if(notFound){
+      <app-not-found-state message="This offer could not be found." (back)="goBack()" />
+  } @else if(loadingData){
       <app-loading-spinner />
   } @else {
     <!-- Stepper -->

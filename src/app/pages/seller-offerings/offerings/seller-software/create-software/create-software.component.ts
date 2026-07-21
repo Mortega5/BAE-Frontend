@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -83,6 +84,8 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
     private api: ApiServiceService,
     private resSpecService: ResourceSpecServiceService,
     private datePipe: DatePipe,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -140,7 +143,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.eventMessage.emitSellerSoftware(true);
+    this.router.navigate(['/my-offerings/softwares']);
   }
 
   setSoftwareData() {

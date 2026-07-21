@@ -1,5 +1,6 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -22,12 +23,16 @@ type Catalog_Update = components['schemas']['Catalog_Update'];
 })
 export class UpdateCatalogComponent implements OnInit, OnDestroy {
 
-  @Input() cat: any;
+  cat: any;
 
   partyId: any = '';
   catalogToUpdate: Catalog_Update | undefined;
   currentStep = 0;
   loading = false;
+
+  get notFound(): boolean {
+    return !this.loading && !this.cat;
+  }
 
   generalFormFields: FormField[] = [
     { type: 'string', name: 'name', label: 'UPDATE_CATALOG._name', required: true, maxLength: 100, dataCy: 'catalogName' },
@@ -54,6 +59,8 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
     private api: ApiServiceService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -64,9 +71,18 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.initPartyInfo();
-    this.populateCatInfo();
+    this.loading = true;
+    const id = this.route.snapshot.paramMap.get('id')!;
+    try {
+      this.cat = await this.api.getCatalog(id);
+      this.populateCatInfo();
+    } catch (error) {
+      console.error('Error loading catalog', error);
+    } finally {
+      this.loading = false;
+    }
   }
 
   ngOnDestroy() {
@@ -106,7 +122,7 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.eventMessage.emitSellerCatalog(true);
+    this.router.navigate(['/my-offerings/catalogues']);
   }
 
   setCatalogData() {

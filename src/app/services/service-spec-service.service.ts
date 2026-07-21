@@ -59,6 +59,12 @@ export class ServiceSpecServiceService {
     return { items, total };
   }
 
+  getServSpecById(id: any) {
+    let url = `${ServiceSpecServiceService.BASE_URL}${ServiceSpecServiceService.SERVICE}${ServiceSpecServiceService.API_SERVICE_SPEC}/${id}`;
+
+    return lastValueFrom(this.http.get<any>(url));
+  }
+
   postServSpec(body: any) {
     let url = `${ServiceSpecServiceService.BASE_URL}${ServiceSpecServiceService.SERVICE}${ServiceSpecServiceService.API_SERVICE_SPEC}`;
     return this.http.post<any>(url, body);

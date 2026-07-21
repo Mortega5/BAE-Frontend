@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -32,12 +33,16 @@ const statusOptions: SelectOption[] = RESOURCE_STATUS_TYPES.map(value => ({
 })
 export class UpdateSoftwareComponent implements OnInit, OnDestroy {
 
-  @Input() software!: SoftwareSupportPackage;
+  software!: SoftwareSupportPackage;
 
   partyId: any = '';
   softwareToUpdate: any;
   currentStepId = 'general';
   loading = false;
+
+  get notFound(): boolean {
+    return !this.loading && !this.software;
+  }
 
   generalFormFields: FormField[] = [
     { type: 'string', name: 'name', label: 'CREATE_RES_SPEC._name', required: true, maxLength: 100, readonly: true },
@@ -82,6 +87,8 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
     private resSpecService: ResourceSpecServiceService,
     private notificationService: NotificationService,
     private datePipe: DatePipe,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -95,8 +102,22 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loading = true;
     this.initPartyInfo();
-    this.populateForms();
 
+    const id = this.route.snapshot.paramMap.get('id')!;
+    this.resSpecService.getSoftwareSupportPackage(id).subscribe({
+      next: software => {
+        this.software = software;
+        this.populateForms();
+        this.loadSoftwareSpec();
+      },
+      error: error => {
+        console.error('Error getting the software resource', error);
+        this.loading = false;
+      },
+    });
+  }
+
+  private loadSoftwareSpec() {
     const specId = this.software.resourceSpecification?.id;
     if (!specId) {
       this.loading = false;
@@ -162,7 +183,7 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.eventMessage.emitSellerSoftware(true);
+    this.router.navigate(['/my-offerings/softwares']);
   }
 
   setSoftwareData() {

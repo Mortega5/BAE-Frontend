@@ -29,32 +29,31 @@
     class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
     <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-nav">
       <li>
-        <a (click)="goToCatalogs()"
+        <a routerLink="catalogues"
           class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{
           'OFFERINGS._catalogs' | translate }}</a>
       </li>
       <li>
-        <a (click)="goToOffers()"
+        <a routerLink="offers"
           class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{
           'OFFERINGS._offers' | translate }}</a>
       </li>
       <li>
-        <a (click)="goToOffers()"
-          class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{
-          'OFFERINGS._offers' | translate }}</a>
+        <a routerLink="softwares"
+          class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Software</a>
       </li>
       <li>
-        <a (click)="goToProdSpec()"
+        <a routerLink="productSpecs"
           class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{
           'OFFERINGS._prod_spec' | translate }}</a>
       </li>
       <li>
-        <a (click)="goToServiceSpec()"
+        <a routerLink="serviceSpecs"
           class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{
           'OFFERINGS._serv_spec' | translate }}</a>
       </li>
       <li>
-        <a (click)="goToResourceSpec()"
+        <a routerLink="resourceSpecs"
           class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{
           'OFFERINGS._res_spec' | translate }}</a>
       </li>
@@ -66,93 +65,39 @@
     <div class="hidden lg:block">
       <div
         class="w-48 h-fit text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white mb-8">
-        <button data-cy="catalogSection" (click)="goToCatalogs()" id="catalogs-button" aria-current="true"
-          class="block w-full px-4 py-2 text-white bg-primary-100 border-b border-gray-200 rounded-t-lg cursor-pointer dark:border-gray-600 hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+        <a data-cy="catalogSection" routerLink="catalogues" routerLinkActive="text-white bg-primary-100" id="catalogs-button"
+          class="block w-full px-4 py-2 border-b border-gray-200 rounded-t-lg cursor-pointer text-center dark:border-gray-600 hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
           {{ 'OFFERINGS._catalogs' | translate }}
-        </button>
-        <button data-cy="offerSection" (click)="goToOffers()" id="offers-button"
-          class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+        </a>
+        <a data-cy="offerSection" routerLink="offers" routerLinkActive="text-white bg-primary-100" id="offers-button"
+          class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
           {{ 'OFFERINGS._offers' | translate }}
-        </button>
-        <button data-cy="softwareSection" (click)="goToSoftwareList()" id="software-button"
-          class="block w-full px-4 py-2 border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-          {{ 'Software' }}
-        </button>
+        </a>
+        <a data-cy="softwareSection" routerLink="softwares" routerLinkActive="text-white bg-primary-100" id="software-button"
+          class="block w-full px-4 py-2 border-gray-200 cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+          Software
+        </a>
       </div>
 
       <div
         class="w-48 h-fit text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-        <button data-cy="prdSpecSection" (click)="goToProdSpec()" id="prod-spec-button"
-          class="block w-full rounded-t-lg px-4 py-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+        <a data-cy="prdSpecSection" routerLink="productSpecs" routerLinkActive="text-white bg-primary-100" id="prod-spec-button"
+          class="block w-full rounded-t-lg px-4 py-2 border-b border-gray-200 cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
           {{ 'OFFERINGS._prod_spec' | translate }}
-        </button>
-        <button data-cy="servSpecSection" (click)="goToServiceSpec()" id="sev-spec-button"
-          class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+        </a>
+        <a data-cy="servSpecSection" routerLink="serviceSpecs" routerLinkActive="text-white bg-primary-100" id="sev-spec-button"
+          class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
           {{ 'OFFERINGS._serv_spec' | translate }}
-        </button>
-        <button data-cy="resSpecSection" (click)="goToResourceSpec()" id="res-spec-button"
-          class="block w-full px-4 py-2 border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+        </a>
+        <a data-cy="resSpecSection" routerLink="resourceSpecs" routerLinkActive="text-white bg-primary-100" id="res-spec-button"
+          class="block w-full px-4 py-2 border-gray-200 cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
           {{ 'OFFERINGS._res_spec' | translate }}
-        </button>
+        </a>
       </div>
     </div>
 
-    @if(currentSection === SellerSection.CATALOGS){
-    <seller-catalogs></seller-catalogs>
-    }
-    @if(currentSection === SellerSection.PROD_SPECS){
-    <seller-product-spec></seller-product-spec>
-    }
-    @if(currentSection === SellerSection.SERVICE_SPECS){
-    <seller-service-spec></seller-service-spec>
-    }
-    @if(currentSection === SellerSection.RESOURCE_SPECS){
-    <seller-resource-spec></seller-resource-spec>
-    }
-    @if(currentSection === SellerSection.OFFERS){
-    <seller-offer></seller-offer>
-    }
-    @if(currentSection === SellerSection.SOFTWARE_LIST){
-    <app-seller-software></app-seller-software>
-    }
-    @if(currentSection === SellerSection.CREATE_PROD_SPEC){
-    <create-product-spec></create-product-spec>
-    }
-    @if(currentSection === SellerSection.CREATE_SERV_SPEC){
-    <app-service-spec-form mode="create"></app-service-spec-form>
-    }
-    @if(currentSection === SellerSection.CREATE_RES_SPEC){
-    <app-resource-spec-form mode="create"></app-resource-spec-form>
-    }
-    @if(currentSection === SellerSection.CREATE_OFFER){
-    <create-offer></create-offer>
-    }
-    @if(currentSection === SellerSection.CREATE_CATALOG){
-    <create-catalog></create-catalog>
-    }
-    @if(currentSection === SellerSection.UPDATE_PROD_SPEC){
-    <update-product-spec [prod]="prod_to_update"></update-product-spec>
-    }
-    @if(currentSection === SellerSection.UPDATE_SERV_SPEC){
-    <app-service-spec-form mode="update" [serv]="serv_to_update"></app-service-spec-form>
-    }
-    @if(currentSection === SellerSection.UPDATE_RES_SPEC){
-    <app-resource-spec-form mode="update" [res]="res_to_update"></app-resource-spec-form>
-    }
-    @if(currentSection === SellerSection.UPDATE_OFFER){
-    <update-offer [offer]="offer_to_update"></update-offer>
-    }
-    @if(currentSection === SellerSection.UPDATE_CATALOG){
-    <update-catalog [cat]="catalog_to_update"></update-catalog>
-    }
-    @if(currentSection === SellerSection.CREATE_CUSTOM_OFFER){
-    <app-custom-offer [offer]="offer_to_update" [partyId]="custom_offer_partyId"></app-custom-offer>
-    }
-    @if(currentSection === SellerSection.CREATE_SOFTWARE) {
-    <create-software />
-    }
-    @if(currentSection === SellerSection.UPDATE_SOFTWARE) {
-    <update-software [software]="software_to_update"></update-software>
-    }
+    <div class="w-full">
+      <router-outlet></router-outlet>
+    </div>
   </div>
 </div>

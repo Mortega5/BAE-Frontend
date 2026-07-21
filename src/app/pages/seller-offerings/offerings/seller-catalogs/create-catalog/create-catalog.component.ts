@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -48,6 +49,8 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
     private api: ApiServiceService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -91,7 +94,7 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.eventMessage.emitSellerCatalog(true);
+    this.router.navigate(['/my-offerings/catalogues']);
   }
 
   setCatalogData() {

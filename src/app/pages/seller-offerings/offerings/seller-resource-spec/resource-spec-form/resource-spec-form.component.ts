@@ -1,5 +1,6 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { Subject } from 'rxjs';
@@ -53,11 +54,12 @@ const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
 
 })
 export class ResourceSpecFormComponent implements OnInit, OnDestroy {
-  @Input() mode: 'create' | 'update' = 'create';
-  @Input() res?: any;
+  mode: 'create' | 'update' = 'create';
+  res?: any;
 
   get isUpdate(): boolean { return this.mode === 'update'; }
   get i18nPrefix(): string { return this.isUpdate ? 'UPDATE_RES_SPEC' : 'CREATE_RES_SPEC'; }
+  get notFound(): boolean { return this.isUpdate && !this.loading && !this.res; }
 
   partyId: any = '';
 
@@ -97,6 +99,8 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
     private resSpecService: ResourceSpecServiceService,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -105,12 +109,22 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
       });
   }
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
     this.initPartyInfo();
+    this.mode = this.route.snapshot.data['mode'] ?? 'create';
     if (this.isUpdate) {
-      this.generalForm.get('baseTemplate')!.disable();
-      this.populateResInfo();
-      initFlowbite();
+      this.loading = true;
+      const id = this.route.snapshot.paramMap.get('id')!;
+      try {
+        this.res = await this.fetchResSpecById(id);
+        this.generalForm.get('baseTemplate')!.disable();
+        this.populateResInfo();
+        initFlowbite();
+      } catch (error) {
+        console.error('Error loading resource spec', error);
+      } finally {
+        this.loading = false;
+      }
     } else {
       this.generalForm.get('baseTemplate')!.valueChanges
         .pipe(takeUntil(this.destroy$))
@@ -126,6 +140,16 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  private async fetchResSpecById(id: string): Promise<any> {
+    const primaryType: ResourceSpecType = id.startsWith('urn:ngsi-ld:software-') ? 'SoftwareSpecification' : 'ResourceSpecification';
+    const fallbackType: ResourceSpecType = primaryType === 'ResourceSpecification' ? 'SoftwareSpecification' : 'ResourceSpecification';
+    try {
+      return await this.resSpecService.getResSpecById(id, primaryType);
+    } catch {
+      return await this.resSpecService.getResSpecById(id, fallbackType);
+    }
   }
 
   private initPartyInfo(): void {
@@ -164,7 +188,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.eventMessage.emitSellerResourceSpec(true);
+    this.router.navigate(['/my-offerings/resourceSpecs']);
   }
 
   onFormChange(value: CharacteristicFormValue): void {

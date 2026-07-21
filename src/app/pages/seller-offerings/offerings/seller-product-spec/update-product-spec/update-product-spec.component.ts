@@ -1,6 +1,7 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { initFlowbite } from 'flowbite';
 import { jwtDecode } from "jwt-decode";
 import moment from 'moment';
@@ -54,7 +55,7 @@ const BASE_TEMPLATE_OPTIONS = [
   providers: [DatePipe],
 })
 export class UpdateProductSpecComponent implements OnInit, OnDestroy {
-  @Input() prod: any;
+  prod: any;
 
   //PAGE SIZES:
   PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;
@@ -244,6 +245,10 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   showError: boolean = false;
   loading: boolean = false;
 
+  get notFound(): boolean {
+    return !this.loading && !this.prod;
+  }
+
   //CHARS
   stringValue: string = '';
   numberValue: string = '';
@@ -281,7 +286,9 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     private servSpecService: ServiceSpecServiceService,
     private resSpecService: ResourceSpecServiceService,
     private paginationService: PaginationService,
-    private datePipe: DatePipe
+    private datePipe: DatePipe,
+    private route: ActivatedRoute,
+    private router: Router,
   ) {
     for (let i = 0; i < certifications.length; i++) {
       this.availableISOS.push(certifications[i])
@@ -309,11 +316,19 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
 
   public files: NgxFileDropEntry[] = [];
 
-  ngOnInit() {
+  async ngOnInit() {
     this.initPartyInfo();
-    console.log(this.prod)
-    this.populateProductInfo();
-    initFlowbite();
+    this.loading = true;
+    const id = this.route.snapshot.paramMap.get('id')!;
+    try {
+      this.prod = await this.prodSpecService.getResSpecById(id);
+      this.populateProductInfo();
+      initFlowbite();
+    } catch (error) {
+      console.error('Error loading product spec', error);
+    } finally {
+      this.loading = false;
+    }
   }
 
   ngOnDestroy() {
@@ -533,7 +548,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.eventMessage.emitSellerProductSpec(false);
+    this.router.navigate(['/my-offerings/productSpecs']);
   }
 
   toggleBundleCheck() {

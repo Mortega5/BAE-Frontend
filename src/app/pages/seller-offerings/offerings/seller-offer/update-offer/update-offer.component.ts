@@ -1,6 +1,6 @@
-import { ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { currencies } from 'currencies.json';
 import { initFlowbite } from 'flowbite';
 import moment from 'moment';
@@ -29,7 +29,12 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
   styleUrl: './update-offer.component.css'
 })
 export class UpdateOfferComponent implements OnInit, OnDestroy {
-  @Input() offer: any;
+  offer: any;
+  loading = false;
+
+  get notFound(): boolean {
+    return !this.loading && !this.offer;
+  }
 
   //PAGE SIZES:
   PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;
@@ -205,6 +210,7 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private api: ApiServiceService,
     private prodSpecService: ProductSpecServiceService,
     private cdr: ChangeDetectorRef,
@@ -257,12 +263,18 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
     }
   }
 
-  ngOnInit() {
-    console.log(this.offer)
+  async ngOnInit() {
     this.initPartyInfo();
-    this.populateOfferInfo();
-    console.log('offer to update')
-    console.log(this.offer)
+    this.loading = true;
+    const id = this.route.snapshot.paramMap.get('id')!;
+    try {
+      this.offer = await this.api.getProductById(id);
+      this.populateOfferInfo();
+    } catch (error) {
+      console.error('Error loading offer', error);
+    } finally {
+      this.loading = false;
+    }
     this.editPrice = false;
     this.showCreatePrice = false;
   }
@@ -379,7 +391,7 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.eventMessage.emitSellerOffer(true);
+    this.router.navigate(['/my-offerings/offers']);
   }
 
   setOfferStatus(status: any) {

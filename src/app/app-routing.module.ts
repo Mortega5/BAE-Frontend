@@ -21,6 +21,7 @@ import { ProductOrdersComponent } from './pages/product-orders/product-orders.co
 import { SearchCatalogComponent } from "./pages/search-catalog/search-catalog.component";
 import { SearchComponent } from "./pages/search/search.component";
 import { SellerOfferingsComponent } from "./pages/seller-offerings/seller-offerings.component";
+import { sellerOfferingsRoutes } from "./pages/seller-offerings/seller-offerrings.routes";
 import { ShoppingCartComponent } from "./pages/shopping-cart/shopping-cart.component";
 import { UserProfileComponent } from "./pages/user-profile/user-profile.component";
 
@@ -87,7 +88,8 @@ const routes: Routes = [
   {
     path: 'my-offerings',
     component: SellerOfferingsComponent,
-    canActivate: [AuthGuard], data: { roles: ['seller'] }
+    canActivate: [AuthGuard], data: { roles: ['seller'] },
+    children: sellerOfferingsRoutes,
   },
   {
     path: 'admin',
