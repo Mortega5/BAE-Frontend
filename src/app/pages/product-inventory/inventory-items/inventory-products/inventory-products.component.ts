@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
 import { LoginInfo, billingAccountCart } from 'src/app/models/interfaces';
 import { ProductInventoryServiceService } from 'src/app/services/product-inventory-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
@@ -8,7 +8,7 @@ import { PaginationService } from 'src/app/services/pagination.service';
 import {EventMessageService} from "src/app/services/event-message.service";
 import { FastAverageColor } from 'fast-average-color';
 import {components} from "src/app/models/product-catalog";
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { initFlowbite } from 'flowbite';
 import { environment } from 'src/environments/environment';
 type ProductOffering = components["schemas"]["ProductOffering"];
@@ -32,7 +32,7 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
   protected readonly faSort = faSort;
   protected readonly faSwatchbook = faSwatchbook;
 
-  @Input() prodId: any = undefined;
+  prodId: any = undefined;
 
   inventory:any[] = [];
   nextInventory:any[] =[];
@@ -79,6 +79,7 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private priceService: PriceServiceService,
     private router: Router,
+    private route: ActivatedRoute,
     private orderService: ProductOrderService,
     private eventMessage: EventMessageService,
     private paginationService: PaginationService,
@@ -102,6 +103,7 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.prodId = this.route.snapshot.queryParamMap.get('openProdId') ?? undefined;
     if(this.prodId==undefined){
       this.checkFrom=false;
     }
@@ -326,11 +328,11 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
   }
 
   selectService(id:any){
-    this.eventMessage.emitOpenServiceDetails({serviceId: id, prodId: this.selectedProduct.id});
+    this.router.navigate(['/product-inventory/services'], { queryParams: { openServiceId: id, openProdId: this.selectedProduct.id } });
   }
 
   selectResource(id:any){
-    this.eventMessage.emitOpenResourceDetails({resourceId: id, prodId: this.selectedProduct.id});
+    this.router.navigate(['/product-inventory/resources'], { queryParams: { openResourceId: id, openProdId: this.selectedProduct.id } });
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {

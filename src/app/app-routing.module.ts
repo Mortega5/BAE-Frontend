@@ -17,6 +17,7 @@ import { OrganizationDetailsComponent } from "./pages/organization-details/organ
 import { ProductDetailsComponent } from "./pages/product-details/product-details.component";
 import { ProductInvDetailComponent } from './pages/product-inventory/inventory-items/product-inv-detail/product-inv-detail.component';
 import { ProductInventoryComponent } from './pages/product-inventory/product-inventory.component';
+import { productInventoryRoutes } from './pages/product-inventory/product-inventory.routes';
 import { ProductOrdersComponent } from './pages/product-orders/product-orders.component';
 import { productOrdersRoutes } from './pages/product-orders/product-orders.routes';
 import { SearchCatalogComponent } from "./pages/search-catalog/search-catalog.component";
@@ -75,7 +76,8 @@ const routes: Routes = [
   {
     path: 'product-inventory',
     component: ProductInventoryComponent,
-    canActivate: [AuthGuard], data: { roles: [] }
+    canActivate: [AuthGuard], data: { roles: [] },
+    children: productInventoryRoutes,
   },
   {
     path: 'product-inventory/:id',

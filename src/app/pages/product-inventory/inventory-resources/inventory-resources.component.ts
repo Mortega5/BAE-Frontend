@@ -1,9 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { ProductInventoryServiceService } from 'src/app/services/product-inventory-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PaginationService } from 'src/app/services/pagination.service';
 import {EventMessageService} from "src/app/services/event-message.service";
 import {faIdCard, faSort, faSwatchbook} from "@fortawesome/pro-solid-svg-icons";
@@ -24,8 +24,8 @@ export class InventoryResourcesComponent implements OnInit, OnDestroy {
   protected readonly faSort = faSort;
   protected readonly faSwatchbook = faSwatchbook;
 
-  @Input() resourceId: any = undefined;
-  @Input() prodId: any = undefined;
+  resourceId: any = undefined;
+  prodId: any = undefined;
 
   partyId:any='';
   loading: boolean = false;
@@ -46,6 +46,7 @@ export class InventoryResourcesComponent implements OnInit, OnDestroy {
     private api: ApiServiceService,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private route: ActivatedRoute,
     private eventMessage: EventMessageService,
     private paginationService: PaginationService
   ) {
@@ -59,12 +60,12 @@ export class InventoryResourcesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    if(this.resourceId!=undefined){      
+    this.resourceId = this.route.snapshot.queryParamMap.get('openResourceId') ?? undefined;
+    this.prodId = this.route.snapshot.queryParamMap.get('openProdId') ?? undefined;
+    if(this.resourceId!=undefined){
       this.api.getResourceSpec(this.resourceId).then(res => {
         this.selectResource(res)
-        console.log('entre')
-        console.log(res)
-      })      
+      })
     }
     this.initInventory();
   }
@@ -126,11 +127,10 @@ export class InventoryResourcesComponent implements OnInit, OnDestroy {
 
   back(){
     if(this.prodId!=undefined){
-      this.eventMessage.emitOpenProductInvDetails(this.prodId);
-      this.showDetails=false;
+      this.router.navigate(['/product-inventory/products'], { queryParams: { openProdId: this.prodId } });
     } else {
       this.showDetails=false;
-    }    
+    }
   }
 
   onStateFilterChange(filter:string){

@@ -1,9 +1,9 @@
-import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, Input, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { ProductInventoryServiceService } from 'src/app/services/product-inventory-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { PaginationService } from 'src/app/services/pagination.service';
 import {EventMessageService} from "src/app/services/event-message.service";
 import {faIdCard, faSort, faSwatchbook} from "@fortawesome/pro-solid-svg-icons";
@@ -24,8 +24,8 @@ export class InventoryServicesComponent implements OnInit, OnDestroy {
   protected readonly faSort = faSort;
   protected readonly faSwatchbook = faSwatchbook;
 
-  @Input() serviceId: any = undefined;
-  @Input() prodId: any = undefined;
+  serviceId: any = undefined;
+  prodId: any = undefined;
 
   partyId:any='';
   loading: boolean = false;
@@ -46,6 +46,7 @@ export class InventoryServicesComponent implements OnInit, OnDestroy {
     private api: ApiServiceService,
     private cdr: ChangeDetectorRef,
     private router: Router,
+    private route: ActivatedRoute,
     private eventMessage: EventMessageService,
     private paginationService: PaginationService
   ) {
@@ -59,10 +60,12 @@ export class InventoryServicesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    if(this.serviceId!=undefined){      
+    this.serviceId = this.route.snapshot.queryParamMap.get('openServiceId') ?? undefined;
+    this.prodId = this.route.snapshot.queryParamMap.get('openProdId') ?? undefined;
+    if(this.serviceId!=undefined){
       this.api.getServiceSpec(this.serviceId).then(serv => {
         this.selectService(serv)
-      })      
+      })
     }
     this.initInventory();
   }
@@ -122,8 +125,7 @@ export class InventoryServicesComponent implements OnInit, OnDestroy {
 
   back(){
     if(this.prodId!=undefined){
-      this.eventMessage.emitOpenProductInvDetails(this.prodId);
-      this.showDetails=false;
+      this.router.navigate(['/product-inventory/products'], { queryParams: { openProdId: this.prodId } });
     } else {
       this.showDetails=false;
     }

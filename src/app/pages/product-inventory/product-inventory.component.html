@@ -19,13 +19,13 @@
     <div id="dropdown-nav-content" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
       <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-nav">
         <li>
-          <a data-cy="inventoryProducts" (click)="goToOffers()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'PRODUCT_INVENTORY._products' | translate }}</a>
+          <a data-cy="inventoryProducts" routerLink="/product-inventory/products" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'PRODUCT_INVENTORY._products' | translate }}</a>
         </li>
         <li>
-          <a (click)="getServices()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'PRODUCT_INVENTORY._services' | translate }}</a>
+          <a routerLink="/product-inventory/services" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'PRODUCT_INVENTORY._services' | translate }}</a>
         </li>
         <li>
-          <a (click)="getResources()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'PRODUCT_INVENTORY._resources' | translate }}</a>
+          <a routerLink="/product-inventory/resources" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'PRODUCT_INVENTORY._resources' | translate }}</a>
         </li>
       </ul>
     </div>
@@ -33,28 +33,20 @@
     <div class="w-full grid lg:grid-cols-20/80">
       <div class="hidden lg:block">
         <div class="w-48 h-fit text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-            <button data-cy="inventoryProducts" id="prod-button" (click)="goToOffers()" aria-current="true" class="block w-full px-4 py-2 text-white bg-primary-100 border-b border-gray-200 rounded-t-lg cursor-pointer dark:border-gray-600 hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+            <a data-cy="inventoryProducts" id="prod-button" routerLink="/product-inventory/products" routerLinkActive="text-white bg-primary-100" class="block w-full px-4 py-2 border-b border-gray-200 rounded-t-lg cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
               {{ 'PRODUCT_INVENTORY._products' | translate }}
-            </button>
-            <button data-cy="inventoryServices" id="serv-button" (click)="getServices()" class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+            </a>
+            <a data-cy="inventoryServices" id="serv-button" routerLink="/product-inventory/services" routerLinkActive="text-white bg-primary-100" class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
               {{ 'PRODUCT_INVENTORY._services' | translate }}
-            </button>
-            <button data-cy="inventoryResources" id="res-button" (click)="getResources()" class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+            </a>
+            <a data-cy="inventoryResources" id="res-button" routerLink="/product-inventory/resources" routerLinkActive="text-white bg-primary-100" class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
               {{ 'PRODUCT_INVENTORY._resources' | translate }}
-            </button>
+            </a>
         </div>
       </div>
-        <div>
-          @if(show_prods){
-            <inventory-products [prodId]="openProdId"></inventory-products>
-          }
-          @if(show_serv){
-            <inventory-services [serviceId]="openServiceId" [prodId]="openProdId"></inventory-services>
-          }
-          @if(show_res){
-            <inventory-resources [resourceId]="openResourceId" [prodId]="openProdId"></inventory-resources>
-          }
-        </div>      
+        <div class="w-full">
+          <router-outlet></router-outlet>
+        </div>
     </div>
 
 </div>

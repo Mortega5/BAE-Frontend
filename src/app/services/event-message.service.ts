@@ -8,7 +8,7 @@ export interface EventMessage {
   'SellerCreateProductSpec' | 'SellerServiceSpec' | 'SellerCreateServiceSpec' | 'SellerResourceSpec' | 'SellerCreateResourceSpec' |
   'SellerOffer' | 'SellerCreateOffer' | 'SellerUpdateProductSpec' | 'SellerUpdateServiceSpec' | 'SellerUpdateResourceSpec' | 'SellerUpdateOffer' | 'SellerCreateCustomOffer' |
   'SellerCatalog' | 'SellerCatalogCreate' | 'SellerCatalogUpdate' | 'CategoryAdded' | 'CategoryRemoved' | 'ChangedSession' | 'CloseCartCard' |
-  'AdminCategories' | 'CreateCategory' | 'UpdateCategory' | 'ShowCartToast' | 'HideCartToast' | 'CloseContact' | 'OpenServiceDetails' | 'OpenResourceDetails' | 'OpenProductInvDetails' |
+  'AdminCategories' | 'CreateCategory' | 'UpdateCategory' | 'ShowCartToast' | 'HideCartToast' | 'CloseContact' |
   'SavePricePlan' | 'UpdatePricePlan' | 'ToggleEditPrice' | 'ToggleNewPrice' |
   'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'UpdateUsageSpec' | 'UsageSpecList' | 'CreateUsageSpec' | 'AiSearchFacets' | 'AiSearchCleared' | 'FiltersCommitted' | 'SellerSoftware' | 'SellerCreateSoftware' | 'SellerSoftwareUpdate';
   text?: string,
@@ -154,18 +154,6 @@ export class EventMessageService {
 
   emitCloseContact(close: boolean) {
     this.eventMessageSubject.next({ type: 'CloseContact', value: close })
-  }
-
-  emitOpenServiceDetails(id: any) {
-    this.eventMessageSubject.next({ type: 'OpenServiceDetails', value: id })
-  }
-
-  emitOpenResourceDetails(id: object) {
-    this.eventMessageSubject.next({ type: 'OpenResourceDetails', value: id })
-  }
-
-  emitOpenProductInvDetails(id: any) {
-    this.eventMessageSubject.next({ type: 'OpenProductInvDetails', value: id })
   }
 
   emitSavePricePlan(pricePlan: any) {
