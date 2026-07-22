@@ -227,7 +227,6 @@ export class SearchCatalogComponent implements OnInit, OnDestroy {
     const oldState = this.showPanel;
     this.showPanel = filters.length > 0;
     if (this.showPanel != oldState) {
-      this.eventMessage.emitFilterShown(this.showPanel);
       this.localStorage.setItem('is_filter_panel_shown', this.showPanel.toString())
     }
   }

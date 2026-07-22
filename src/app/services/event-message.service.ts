@@ -4,11 +4,10 @@ import { LoginInfo } from 'src/app/models/interfaces';
 import { cartProduct, Category, FormChangeState, PricePlanChangeState } from "../models/interfaces";
 
 export interface EventMessage {
-  type: 'AddedFilter' | 'RemovedFilter' | 'AddedCartItem' | 'RemovedCartItem' | 'FilterShown' | 'ToggleCartDrawer' | 'LoginProcess' | 'BillAccChanged' |
+  type: 'AddedFilter' | 'RemovedFilter' | 'AddedCartItem' | 'RemovedCartItem' | 'ToggleCartDrawer' | 'LoginProcess' | 'BillAccChanged' |
   'SellerProductSpec' |
-  'CategoryAdded' | 'CategoryRemoved' | 'ChangedSession' | 'CloseCartCard' |
-  'ShowCartToast' | 'HideCartToast' | 'CloseContact' |
-  'SavePricePlan' | 'UpdatePricePlan' | 'ToggleEditPrice' | 'ToggleNewPrice' |
+  'CategoryAdded' | 'ChangedSession' | 'CloseCartCard' |
+  'SavePricePlan' | 'UpdatePricePlan' |
   'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'AiSearchFacets' | 'AiSearchCleared' | 'FiltersCommitted';
   text?: string,
   value?: object | boolean | FormChangeState | PricePlanChangeState
@@ -43,11 +42,6 @@ export class EventMessageService {
   emitRemovedCartItem(productOff: object) {
     this.eventMessageSubject.next({ type: 'RemovedCartItem', value: productOff });
   }
-  /** Emit an event to notify if the filter panel is shown or hidden */
-  emitFilterShown(shown: boolean) {
-    this.eventMessageSubject.next({ type: 'FilterShown', value: shown });
-  }
-
   emitToggleDrawer(shown: boolean) {
     this.eventMessageSubject.next({ type: 'ToggleCartDrawer', value: shown });
   }
@@ -76,31 +70,12 @@ export class EventMessageService {
     this.eventMessageSubject.next({ type: 'CloseCartCard', value: val })
   }
 
-  emitShowCartToast(val: cartProduct | undefined) {
-    this.eventMessageSubject.next({ type: 'ShowCartToast', value: val })
-  }
-  emitHideCartToast(val: cartProduct | undefined) {
-    this.eventMessageSubject.next({ type: 'HideCartToast', value: val })
-  }
-
-  emitCloseContact(close: boolean) {
-    this.eventMessageSubject.next({ type: 'CloseContact', value: close })
-  }
-
   emitSavePricePlan(pricePlan: any) {
     this.eventMessageSubject.next({ type: 'SavePricePlan', value: pricePlan })
   }
 
   emitUpdatePricePlan(pricePlan: any) {
     this.eventMessageSubject.next({ type: 'UpdatePricePlan', value: pricePlan })
-  }
-
-  emitToggleEditPricePlan(pricePlan: any) {
-    this.eventMessageSubject.next({ type: 'ToggleEditPrice', value: pricePlan })
-  }
-
-  emitToggleNewPricePlan(pricePlan: any) {
-    this.eventMessageSubject.next({ type: 'ToggleNewPrice', value: pricePlan })
   }
 
   emitSubformChange(changeState: FormChangeState | PricePlanChangeState) {
