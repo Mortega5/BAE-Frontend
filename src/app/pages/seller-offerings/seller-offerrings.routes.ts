@@ -16,56 +16,59 @@ import { SellerServiceSpecComponent } from './offerings/seller-service-spec/sell
 import { CreateSoftwareComponent } from './offerings/seller-software/create-software/create-software.component';
 import { SellerSoftware } from './offerings/seller-software/seller-software';
 import { UpdateSoftwareComponent } from './offerings/seller-software/update-software/update-software.component';
+import { SellerOfferingsPaths } from './seller-offerings.paths';
+
+const { segments } = SellerOfferingsPaths;
 
 export const sellerOfferingsRoutes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: 'catalogues' },
+  { path: '', pathMatch: 'full', redirectTo: segments.catalogues },
   {
-    path: 'catalogues',
+    path: segments.catalogues,
     children: [
       { path: '', component: SellerCatalogsComponent },
-      { path: 'new', component: CreateCatalogComponent },
-      { path: ':id', component: UpdateCatalogComponent },
+      { path: segments.new, component: CreateCatalogComponent },
+      { path: segments.id, component: UpdateCatalogComponent },
     ],
   },
   {
-    path: 'offers',
+    path: segments.offers,
     children: [
       { path: '', component: SellerOfferComponent },
-      { path: 'new', component: CreateOfferComponent },
-      { path: 'custom', component: CustomOfferComponent },
-      { path: ':id', component: UpdateOfferComponent },
+      { path: segments.new, component: CreateOfferComponent },
+      { path: segments.custom, component: CustomOfferComponent },
+      { path: segments.id, component: UpdateOfferComponent },
     ],
   },
   {
-    path: 'softwares',
+    path: segments.softwares,
     children: [
       { path: '', component: SellerSoftware },
-      { path: 'new', component: CreateSoftwareComponent },
-      { path: ':id', component: UpdateSoftwareComponent },
+      { path: segments.new, component: CreateSoftwareComponent },
+      { path: segments.id, component: UpdateSoftwareComponent },
     ],
   },
   {
-    path: 'productSpecs',
+    path: segments.productSpecs,
     children: [
       { path: '', component: SellerProductSpecComponent },
-      { path: 'new', component: CreateProductSpecComponent },
-      { path: ':id', component: UpdateProductSpecComponent },
+      { path: segments.new, component: CreateProductSpecComponent },
+      { path: segments.id, component: UpdateProductSpecComponent },
     ],
   },
   {
-    path: 'serviceSpecs',
+    path: segments.serviceSpecs,
     children: [
       { path: '', component: SellerServiceSpecComponent },
-      { path: 'new', component: ServiceSpecFormComponent, data: { mode: 'create' } },
-      { path: ':id', component: ServiceSpecFormComponent, data: { mode: 'update' } },
+      { path: segments.new, component: ServiceSpecFormComponent, data: { mode: 'create' } },
+      { path: segments.id, component: ServiceSpecFormComponent, data: { mode: 'update' } },
     ],
   },
   {
-    path: 'resourceSpecs',
+    path: segments.resourceSpecs,
     children: [
       { path: '', component: SellerResourceSpecComponent },
-      { path: 'new', component: ResourceSpecFormComponent, data: { mode: 'create' } },
-      { path: ':id', component: ResourceSpecFormComponent, data: { mode: 'update' } },
+      { path: segments.new, component: ResourceSpecFormComponent, data: { mode: 'create' } },
+      { path: segments.id, component: ResourceSpecFormComponent, data: { mode: 'update' } },
     ],
   },
 ];

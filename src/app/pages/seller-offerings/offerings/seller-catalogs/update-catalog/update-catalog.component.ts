@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
@@ -122,7 +123,7 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.router.navigate(['/my-offerings/catalogues']);
+    this.router.navigate([SellerOfferingsPaths.catalogues.list()]);
   }
 
   setCatalogData() {

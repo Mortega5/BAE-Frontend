@@ -4,14 +4,17 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { initFlowbite } from 'flowbite';
 import { jwtDecode } from "jwt-decode";
-import * as moment from 'moment';
+import moment from 'moment';
 import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { buildLifecycleStatusOptions, FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
@@ -21,7 +24,8 @@ import { ProductSpecServiceService } from 'src/app/services/product-spec-service
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
-import { noWhitespaceValidator } from 'src/app/validators/validators';
+import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
@@ -35,7 +39,9 @@ type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecific
 type ServiceSpecificationRef = components["schemas"]["ServiceSpecificationRef"];
 type ResourceSpecificationRef = components["schemas"]["ResourceSpecificationRef"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
-type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' | 'relationships' | 'summary' | 'configuration';
+type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' | 'relationships' | 'summary' | 'orchestrationPlan' | 'dsp_config';
+
+const DSP_CHARS: string[] = ['endpointUrl', 'upstreamAddress', 'targetSpecification', 'serviceConfiguration', 'credentialsConfig', 'authorizationPolicy', 'transferPath', 'transferType'];
 
 const BASE_TEMPLATE_OPTIONS = [
   { value: '', label: 'None' },
@@ -90,6 +96,7 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
   MAX_FILE_SIZE: number = environment.MAX_FILE_SIZE;
 
   currentStepId: ProductSpecFormStep = 'general';
+  showDspConfigStep = false;
   partyId: any = '';
 
   //PRODUCT GENERAL INFO:
@@ -101,6 +108,23 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
     lifecycleStatus: new FormControl('Active'),
     baseTemplate: new FormControl(''),
     description: new FormControl('', Validators.maxLength(100000)),
+    dspCompatible: new FormControl(false),
+  });
+
+  //DSP CONFIG INFO:
+  newEndpointUrl: string = '';
+  newEndpointDescription: string = '';
+  newEndpointName: string = '';
+  endpointUrls: { url: string; description: string; name: string, id?: string }[] = [];
+  readonly transferTypes: string[] = ['HttpData-PULL', 'HttpData-PUSH'];
+  dspConfigForm = new FormGroup({
+    upstreamAddress: new FormControl('', [Validators.required]),
+    transferPath: new FormControl(''),
+    transferType: new FormControl('HttpData-PULL', [Validators.required]),
+    targetSpecification: new FormControl('', [Validators.required, jsonValidator]),
+    serviceConfiguration: new FormControl('', [Validators.required, jsonValidator]),
+    credentialsConfig: new FormControl('', [Validators.required, jsonValidator]),
+    policyConfig: new FormControl('', [Validators.required, jsonValidator]),
   });
 
   //CHARS INFO
@@ -150,22 +174,22 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
   // --- END UPDATE ONLY ---
 
   //SERVICE INFO:
-  serviceSpecPage = 0;
-  serviceSpecPageCheck: boolean = false;
-  loadingServiceSpec: boolean = false;
-  loadingServiceSpec_more: boolean = false;
-  serviceSpecs: any[] = [];
-  nextServiceSpecs: any[] = [];
-  selectedServiceSpecs: ServiceSpecificationRef[] = [];
+  defaultServSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
+  selectedServiceSpecs: any[] = [];
+  servColumns: TableColumn[] = [
+    { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
+    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
+    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52', sortKey: 'lastUpdate' },
+  ];
 
   //RESOURCE INFO:
-  resourceSpecPage = 0;
-  resourceSpecPageCheck: boolean = false;
-  loadingResourceSpec: boolean = false;
-  loadingResourceSpec_more: boolean = false;
-  resourceSpecs: any[] = [];
-  nextResourceSpecs: any[] = [];
-  selectedResourceSpecs: ResourceSpecificationRef[] = [];
+  defaultResSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
+  selectedResourceSpecs: any[] = [];
+  resColumns: TableColumn[] = [
+    { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
+    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
+    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52', sortKey: 'lastUpdate' },
+  ];
 
   //RELATIONSHIPS INFO:
   showCreateRel: boolean = false;
@@ -236,17 +260,10 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
   blueprintConfig: BlueprintProductFormValue;
 
   readonly dataSpaceCharacteristicTypes: string[] = [
-    'endpointUrl',
-    'upstreamAddress',
-    'endpointDescription',
-    'targetSpecification',
-    'serviceConfiguration',
     'credentialsConfiguration',
     'authorizationPolicy'
   ];
   readonly dataSpaceJsonCharacteristicTypes: string[] = [
-    'targetSpecification',
-    'serviceConfiguration',
     'credentialsConfiguration',
     'authorizationPolicy'
   ];
@@ -256,6 +273,10 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
 
   get templateName(): string {
     return this.generalForm.get('baseTemplate')?.value || '';
+  }
+
+  get dspEnable(): boolean {
+    return environment.DSP_ENABLED && this.DATA_SPACE_ENABLED;
   }
 
   get canAdvance(): boolean {
@@ -269,7 +290,7 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
     if (!this.isUpdate && this.currentStepId === 'relationships' && this.templateName === 'BlueprintProductSpecification') {
       return this.prodRelationships.length > 0;
     }
-    if (this.currentStepId === 'configuration') {
+    if (this.currentStepId === 'orchestrationPlan') {
       return this.blueprintConfig?.valid ?? false;
     }
     return true;
@@ -314,6 +335,11 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.initPartyInfo();
+    this.generalForm.get('dspCompatible')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(dspCompatible => {
+        this.showDspConfigStep = !!dspCompatible;
+      });
     if (this.isUpdate) {
       console.log(this.prod);
       this.populateProductInfo();
@@ -333,12 +359,6 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
       case 'compliance':
       case 'attachments':
         setTimeout(() => { initFlowbite(); }, 100);
-        break;
-      case 'resource':
-        this.getResSpecs(false);
-        break;
-      case 'service':
-        this.getServSpecs(false);
         break;
       case 'relationships':
         this.getProdSpecsRel(false);
@@ -436,19 +456,23 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
 
     //CHARS
     if (this.prod.productSpecCharacteristic) {
-      for (let i = 0; i < this.prod.productSpecCharacteristic.length; i++) {
-        const index = this.selectedISOS.findIndex(item => item.name === this.prod.productSpecCharacteristic[i].name);
+      let chars = this.prod.productSpecCharacteristic;
+      if (this.prod.externalId) {
+        chars = chars.filter((char: any) => !DSP_CHARS.includes(char.valueType));
+      }
+      chars.forEach((char: any) => {
+        const index = this.selectedISOS.findIndex(item => item.name === char.name);
         if (index == -1) {
           this.prodChars.push({
-            id: this.prod.productSpecCharacteristic[i].id ? this.prod.productSpecCharacteristic[i].id : 'urn:ngsi-ld:characteristic:' + uuidv4(),
-            name: this.prod.productSpecCharacteristic[i].name,
-            description: this.prod.productSpecCharacteristic[i].description ? this.prod.productSpecCharacteristic[i].description : '',
-            valueType: this.prod.productSpecCharacteristic[i].valueType,
-            '@schemaLocation': this.prod.productSpecCharacteristic[i]['@schemaLocation'],
-            productSpecCharacteristicValue: this.prod.productSpecCharacteristic[i].productSpecCharacteristicValue
+            id: char.id ? char.id : 'urn:ngsi-ld:characteristic:' + uuidv4(),
+            name: char.name,
+            description: char.description ? char.description : '',
+            valueType: char.valueType,
+            '@schemaLocation': char['@schemaLocation'],
+            productSpecCharacteristicValue: char.productSpecCharacteristicValue
           });
         }
-      }
+      });
     }
 
     //RESOURCE
@@ -491,14 +515,19 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
     // Orchestration Plan
     if (this.prod.orchestrationPlan) {
       this.blueprintConfig = {
+        selectedItems: [],
         orchestrationSteps: this.prod.orchestrationPlan.steps,
         valid: true
       };
     }
+
+    if (this.prod.externalId) {
+      this.addDspConfigStep();
+    }
   }
 
   goBack() {
-    this.router.navigate(['/my-offerings/productSpecs']);
+    this.router.navigate([SellerOfferingsPaths.productSpecs.list()]);
   }
 
   toggleBundleCheck() {
@@ -899,110 +928,12 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  async getResSpecs(next: boolean) {
-    if (next == false) {
-      this.loadingResourceSpec = true;
-    }
-
-    let options = {
-      "filters": ['Active', 'Launched'],
-      "partyId": this.partyId,
-    };
-
-    this.paginationService.getItemsPaginated(this.resourceSpecPage, this.RES_SPEC_LIMIT, next, this.resourceSpecs, this.nextResourceSpecs, options,
-      this.resSpecService.getResourceSpecByUser.bind(this.resSpecService)).then(data => {
-        this.resourceSpecPageCheck = data.page_check;
-        this.resourceSpecs = data.items;
-        this.nextResourceSpecs = data.nextItems;
-        this.resourceSpecPage = data.page;
-        this.loadingResourceSpec = false;
-        this.loadingResourceSpec_more = false;
-      });
+  fetchResourceSpecs = (params: PageRequest): Promise<PageResult<any>> => {
+    return this.resSpecService.getResourceSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId);
   }
 
-  async nextRes() {
-    await this.getResSpecs(true);
-  }
-
-  addResToSelected(res: any) {
-    const index = this.selectedResourceSpecs.findIndex(item => item.id === res.id);
-    if (index !== -1) {
-      console.log('eliminar');
-      this.selectedResourceSpecs.splice(index, 1);
-    } else {
-      console.log('añadir');
-      this.selectedResourceSpecs.push({
-        id: res.id,
-        href: res.href,
-        name: res.name
-      });
-    }
-    this.cdr.detectChanges();
-    console.log(this.selectedResourceSpecs);
-  }
-
-  isResSelected(res: any) {
-    const index = this.selectedResourceSpecs.findIndex(item => item.id === res.id);
-    if (index !== -1) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  async getServSpecs(next: boolean) {
-    if (next == false) {
-      this.loadingServiceSpec = true;
-    }
-
-    let options = {
-      "filters": ['Active', 'Launched'],
-      "partyId": this.partyId,
-    };
-
-    this.paginationService.getItemsPaginated(this.serviceSpecPage, this.SERV_SPEC_LIMIT, next, this.serviceSpecs, this.nextServiceSpecs, options,
-      this.servSpecService.getServiceSpecByUser.bind(this.servSpecService)).then(data => {
-        this.serviceSpecPageCheck = data.page_check;
-        this.serviceSpecs = data.items;
-        this.nextServiceSpecs = data.nextItems;
-        this.serviceSpecPage = data.page;
-        this.loadingServiceSpec = false;
-        this.loadingServiceSpec_more = false;
-      });
-  }
-
-  async nextServ() {
-    this.loadingServiceSpec_more = true;
-    this.serviceSpecPage = this.serviceSpecPage + this.SERV_SPEC_LIMIT;
-    this.cdr.detectChanges;
-    console.log(this.serviceSpecPage);
-    await this.getServSpecs(true);
-  }
-
-  addServToSelected(serv: any) {
-    const index = this.selectedServiceSpecs.findIndex(item => item.id === serv.id);
-    if (index !== -1) {
-      console.log('eliminar');
-      this.selectedServiceSpecs.splice(index, 1);
-    } else {
-      console.log('añadir');
-      this.selectedServiceSpecs.push({
-        id: serv.id,
-        href: serv.href,
-        name: serv.name
-      });
-    }
-    this.cdr.detectChanges();
-    console.log(this.selectedServiceSpecs);
-  }
-
-  isServSelected(serv: any) {
-    const index = this.selectedServiceSpecs.findIndex(item => item.id === serv.id);
-    if (index !== -1) {
-      return true;
-    } else {
-      return false;
-    }
+  fetchServiceSpecs = (params: PageRequest): Promise<PageResult<any>> => {
+    return this.servSpecService.getServiceSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId);
   }
 
   removeImg() {
@@ -1540,6 +1471,83 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
         });
       }
 
+      if (this.prod.externalId) {
+        this.endpointUrls.forEach(endpoint => {
+          this.finishChars.push({
+            id: endpoint.id,
+            description: endpoint.description,
+            valueType: 'endpointUrl',
+            name: endpoint.name,
+            productSpecCharacteristicValue: [
+              { value: endpoint.url! as any, isDefault: true }
+            ]
+          });
+        });
+        const dspConfigValue = this.dspConfigForm.value;
+        this.finishChars.push(
+          {
+            id: "upstreamAddress",
+            name: "Address of the upstream serving the data",
+            valueType: "upstreamAddress",
+            productSpecCharacteristicValue: [
+              { value: dspConfigValue.upstreamAddress! as any, isDefault: true }
+            ]
+          },
+          {
+            id: "targetSpecification",
+            name: "Detailed specification of the ODRL target. Allows to over services via OID4VC",
+            valueType: "targetSpecification",
+            productSpecCharacteristicValue: [
+              { value: JSON.parse(dspConfigValue.targetSpecification!), isDefault: true }
+            ]
+          },
+          {
+            id: "serviceConfiguration",
+            name: "Service config to be used in the credentials config service when provisioning transfers through OID4VC",
+            valueType: "serviceConfiguration",
+            productSpecCharacteristicValue: [
+              { value: JSON.parse(dspConfigValue.serviceConfiguration!), isDefault: true }
+            ]
+          },
+          {
+            id: "credentialsConfig",
+            name: "Credentials Config",
+            valueType: "credentialsConfig",
+            "@schemaLocation": "https://raw.githubusercontent.com/FIWARE/contract-management/refs/heads/main/schemas/credentials/credentialConfigCharacteristic.json",
+            productSpecCharacteristicValue: [
+              { value: JSON.parse(dspConfigValue.credentialsConfig!), isDefault: true }
+            ]
+          },
+          {
+            id: "policyConfig",
+            name: "Policy for creation of K8S clusters.",
+            valueType: "authorizationPolicy",
+            "@schemaLocation": "https://raw.githubusercontent.com/FIWARE/contract-management/refs/heads/policy-support/schemas/odrl/policyCharacteristic.json",
+            productSpecCharacteristicValue: [
+              { value: JSON.parse(dspConfigValue.policyConfig!), isDefault: true }
+            ]
+          },
+          {
+            id: 'transferType',
+            name: 'transferType',
+            valueType: 'transferType',
+            productSpecCharacteristicValue: [
+              { value: dspConfigValue.transferType as any, isDefault: true }
+            ]
+          }
+        );
+        if (dspConfigValue.transferPath) {
+          this.finishChars.push({
+            id: 'transferPath',
+            name: 'transferPath',
+            valueType: 'transferPath',
+            productSpecCharacteristicValue: [
+              { value: dspConfigValue.transferPath as any, isDefault: true }
+            ]
+          });
+        }
+      }
+
       if (this.generalForm.value.name != null && this.generalForm.value.version != null && this.generalForm.value.brand != null) {
         this.productSpecToUpdate = {
           name: this.generalForm.value.name,
@@ -1551,8 +1559,8 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
           productSpecCharacteristic: this.finishChars,
           productSpecificationRelationship: rels,
           attachment: this.prodAttachments,
-          resourceSpecification: this.selectedResourceSpecs,
-          serviceSpecification: this.selectedServiceSpecs
+          resourceSpecification: this.selectedResourceSpecs.map((res: any) => ({ id: res.id, href: res.href })),
+          serviceSpecification: this.selectedServiceSpecs.map((res: any) => ({ id: res.id, href: res.href }))
         };
       }
       if (this.blueprintConfig) {
@@ -1582,8 +1590,8 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
               "@referredType": ''
             }
           ],
-          resourceSpecification: this.selectedResourceSpecs,
-          serviceSpecification: this.selectedServiceSpecs
+          resourceSpecification: this.selectedResourceSpecs.map((res: any) => ({ id: res.id, href: res.href })),
+          serviceSpecification: this.selectedServiceSpecs.map((res: any) => ({ id: res.id, href: res.href }))
         };
       }
       if (this.blueprintConfig) {
@@ -1593,6 +1601,85 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
         (this.productSpecToCreate as any).orchestrationPlan = {
           steps: this.blueprintConfig.orchestrationSteps,
         };
+      }
+      if (this.generalForm.value.dspCompatible) {
+        this.productSpecToCreate!.productSpecCharacteristic = this.productSpecToCreate?.productSpecCharacteristic || [];
+        (this.productSpecToCreate! as any).externalId = uuidv4();
+        this.productSpecToCreate!['@schemaLocation'] = environment.DSP_SCHEMA;
+        this.endpointUrls.forEach(endpoint => {
+          this.productSpecToCreate!.productSpecCharacteristic!.push({
+            id: uuidv4(),
+            description: endpoint.description,
+            valueType: 'endpointUrl',
+            name: endpoint.name,
+            productSpecCharacteristicValue: [
+              { value: endpoint.url! as any, isDefault: true }
+            ]
+          });
+        });
+        const dspConfigValue = this.dspConfigForm.value;
+        this.productSpecToCreate!.productSpecCharacteristic!.push(
+          {
+            id: "upstreamAddress",
+            name: "Address of the upstream serving the data",
+            valueType: "upstreamAddress",
+            productSpecCharacteristicValue: [
+              { value: dspConfigValue.upstreamAddress! as any, isDefault: true }
+            ]
+          },
+          {
+            id: "targetSpecification",
+            name: "Detailed specification of the ODRL target. Allows to over services via OID4VC",
+            valueType: "targetSpecification",
+            productSpecCharacteristicValue: [
+              { value: JSON.parse(dspConfigValue.targetSpecification!), isDefault: true }
+            ]
+          },
+          {
+            id: "serviceConfiguration",
+            name: "Service config to be used in the credentials config service when provisioning transfers through OID4VC",
+            valueType: "serviceConfiguration",
+            productSpecCharacteristicValue: [
+              { value: JSON.parse(dspConfigValue.serviceConfiguration!), isDefault: true }
+            ]
+          },
+          {
+            id: "credentialsConfig",
+            name: "Credentials Config",
+            valueType: "credentialsConfig",
+            "@schemaLocation": "https://raw.githubusercontent.com/FIWARE/contract-management/refs/heads/main/schemas/credentials/credentialConfigCharacteristic.json",
+            productSpecCharacteristicValue: [
+              { value: JSON.parse(dspConfigValue.credentialsConfig!), isDefault: true }
+            ]
+          },
+          {
+            id: "policyConfig",
+            name: "Policy for creation of K8S clusters.",
+            valueType: "authorizationPolicy",
+            "@schemaLocation": "https://raw.githubusercontent.com/FIWARE/contract-management/refs/heads/policy-support/schemas/odrl/policyCharacteristic.json",
+            productSpecCharacteristicValue: [
+              { value: JSON.parse(dspConfigValue.policyConfig!), isDefault: true }
+            ]
+          },
+          {
+            id: 'transferType',
+            name: 'transferType',
+            valueType: 'transferType',
+            productSpecCharacteristicValue: [
+              { value: dspConfigValue.transferType as any, isDefault: true }
+            ]
+          }
+        );
+        if (dspConfigValue.transferPath) {
+          this.productSpecToCreate!.productSpecCharacteristic!.push({
+            id: 'transferPath',
+            name: 'transferPath',
+            valueType: 'transferPath',
+            productSpecCharacteristicValue: [
+              { value: dspConfigValue.transferPath as any, isDefault: true }
+            ]
+          });
+        }
       }
     }
 
@@ -1735,5 +1822,56 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
 
   onBlueprintConfigChange(value: BlueprintProductFormValue) {
     this.blueprintConfig = value;
+    this.prodRelationships = value.selectedItems.map((item: any) => ({
+      id: item.id,
+      href: item.href,
+      relationshipType: 'dependency',
+      name: item.name,
+      productSpec: item
+    }));
+  }
+
+  addEndpointUrl(): void {
+    const url = this.newEndpointUrl.trim();
+    const description = this.newEndpointDescription.trim();
+    const name = this.newEndpointName.trim();
+    if (!url || !description) return;
+    this.endpointUrls = [...this.endpointUrls, { url, description, name, id: uuidv4() }];
+    this.newEndpointUrl = '';
+    this.newEndpointDescription = '';
+    this.newEndpointName = '';
+  }
+
+  removeEndpointUrl(idx: number): void {
+    this.endpointUrls = this.endpointUrls.filter((_, i) => i !== idx);
+  }
+
+  private addDspConfigStep(): void {
+    if (this.showDspConfigStep) return;
+    this.showDspConfigStep = true;
+    const patch: any = {}
+    if (this.prod?.productSpecCharacteristic) {
+      this.prod.productSpecCharacteristic.forEach((char: any) => {
+        const value: string = char.productSpecCharacteristicValue?.[0]?.value ?? '';
+        switch (char.valueType) {
+          case 'endpointUrl':
+            this.endpointUrls.push({ name: char.name ?? '', url: value, description: char.description ?? '', id: char.id });
+            break;
+          case 'upstreamAddress':
+          case 'transferPath':
+          case 'transferType':
+            patch[char.valueType] = value;
+            break;
+          case 'targetSpecification':
+          case 'serviceConfiguration':
+          case 'credentialsConfig':
+            patch[char.valueType] = JSON.stringify(value);
+            break;
+          case 'authorizationPolicy':
+            patch['policyConfig'] = JSON.stringify(value);
+        }
+      });
+    }
+    this.dspConfigForm.patchValue(patch);
   }
 }

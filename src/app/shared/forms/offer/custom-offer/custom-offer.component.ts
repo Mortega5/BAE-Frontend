@@ -1,6 +1,7 @@
 import {Component, OnInit, OnDestroy} from '@angular/core';
 import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
 import {ActivatedRoute, Router} from "@angular/router";
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import {TranslateModule} from "@ngx-translate/core";
 import {ProdSpecComponent} from "../prod-spec/prod-spec.component";
 import {NgClass, NgIf} from "@angular/common";
@@ -395,7 +396,7 @@ export class CustomOfferComponent implements OnInit {
     }
 
     goBack() {
-      this.router.navigate(['/my-offerings/offers']);
+      this.router.navigate([SellerOfferingsPaths.offers.list()]);
     }
 
     private handleApiError(error: any): void {

@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
@@ -94,7 +95,7 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.router.navigate(['/my-offerings/catalogues']);
+    this.router.navigate([SellerOfferingsPaths.catalogues.list()]);
   }
 
   setCatalogData() {

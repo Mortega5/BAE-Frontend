@@ -4,6 +4,7 @@ import { ProductInventoryServiceService } from 'src/app/services/product-invento
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
 import { PaginationService } from 'src/app/services/pagination.service';
 import {EventMessageService} from "src/app/services/event-message.service";
 import {faIdCard, faSort, faSwatchbook} from "@fortawesome/pro-solid-svg-icons";
@@ -127,7 +128,7 @@ export class InventoryResourcesComponent implements OnInit, OnDestroy {
 
   back(){
     if(this.prodId!=undefined){
-      this.router.navigate(['/product-inventory/products'], { queryParams: { openProdId: this.prodId } });
+      this.router.navigate([ProductInventoryPaths.products()], { queryParams: { openProdId: this.prodId } });
     } else {
       this.showDetails=false;
     }

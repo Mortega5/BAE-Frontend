@@ -6,6 +6,7 @@ import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
@@ -183,7 +184,7 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.router.navigate(['/my-offerings/softwares']);
+    this.router.navigate([SellerOfferingsPaths.softwares.list()]);
   }
 
   setSoftwareData() {

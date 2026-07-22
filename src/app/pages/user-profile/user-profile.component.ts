@@ -3,6 +3,7 @@ import { AfterViewInit, Component } from '@angular/core';
 import { initFlowbite } from 'flowbite';
 import { lastValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { UserProfilePaths } from './user-profile.paths';
 
 @Component({
   selector: 'app-user-profile',
@@ -10,6 +11,8 @@ import { environment } from 'src/environments/environment';
   styleUrl: './user-profile.component.css'
 })
 export class UserProfileComponent implements AfterViewInit {
+  readonly paths = UserProfilePaths;
+
   constructor(private http: HttpClient) { }
 
   ngAfterViewInit() {

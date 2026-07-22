@@ -7,6 +7,7 @@ import {PriceServiceService} from "../../services/price-service.service";
 import {ShoppingCartServiceService} from "../../services/shopping-cart-service.service";
 import {ApiServiceService} from "../../services/product-service.service";
 import {ActivatedRoute, Router} from "@angular/router";
+import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.paths';
 import {billingAccountCart, cartProduct, LoginInfo} from "../../models/interfaces";
 import {faCartShopping} from "@fortawesome/sharp-solid-svg-icons";
 import {environment} from "../../../environments/environment";
@@ -190,7 +191,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   goToInventory() {
     //this.router.navigate(['/product-inventory']);
-    this.router.navigate(['/product-orders']);
+    this.router.navigate([ProductOrdersPaths.root()]);
   }
 
   async orderProduct() {

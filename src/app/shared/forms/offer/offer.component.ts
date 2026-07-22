@@ -6,6 +6,7 @@ import moment from 'moment';
 import { lastValueFrom, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { components } from "src/app/models/product-catalog";
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
@@ -759,7 +760,7 @@ export class OfferComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.router.navigate(['/my-offerings/offers']);
+    this.router.navigate([SellerOfferingsPaths.offers.list()]);
   }
 
   addToISOString(duration: number, unit: string): string {

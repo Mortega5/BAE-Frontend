@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { initFlowbite } from 'flowbite';
 import { jwtDecode } from "jwt-decode";
 import moment from 'moment';
@@ -548,7 +549,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.router.navigate(['/my-offerings/productSpecs']);
+    this.router.navigate([SellerOfferingsPaths.productSpecs.list()]);
   }
 
   toggleBundleCheck() {

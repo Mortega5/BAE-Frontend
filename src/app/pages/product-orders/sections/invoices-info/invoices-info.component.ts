@@ -15,6 +15,7 @@ import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { InvoicesService } from 'src/app/services/invoices-service';
 import { LocalStorageService } from "src/app/services/local-storage.service";
+import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
 import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/paginated-table.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { environment } from 'src/environments/environment';
@@ -30,6 +31,8 @@ import { environment } from 'src/environments/environment';
   styleUrl: './invoices-info.component.css'
 })
 export class InvoicesInfoComponent implements OnInit, OnDestroy {
+  readonly productInventoryPaths = ProductInventoryPaths;
+
   partyId: any = '';
   showInvoiceDetails: boolean = false;
   invoiceToShow: any;

@@ -2,6 +2,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { forkJoin, of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { QuoteService } from '../../services/quote.service';
@@ -914,7 +915,7 @@ export class QuoteListComponent implements OnInit {
 
   createOffer(quote: Quote) {
     // we send the current quote ID to open the proper from
-    this.router.navigate(['/my-offerings'], { state: {
+    this.router.navigate([SellerOfferingsPaths.root()], { state: {
       quoteId: quote.id
     } });
   }

@@ -63,14 +63,14 @@
 
       <ul class="flex flex-col">
         <li>
-          <button id="userProfile" type="button" class="dropdown-item" (click)="goTo('/profile')">
+          <button id="userProfile" type="button" class="dropdown-item" (click)="goTo(userProfilePaths.root())">
             <fa-icon [icon]="faAddressCard" class="mr-2"></fa-icon>{{ 'HEADER._profile' | translate }}
           </button>
         </li>
 
         @if (roles.includes(sellerRole)) {
         <li>
-          <button id="myOfferings" type="button" class="dropdown-item" (click)="goTo('/my-offerings')">
+          <button id="myOfferings" type="button" class="dropdown-item" (click)="goTo(sellerOfferingsPaths.root())">
             <fa-icon [icon]="faHandHoldingBox" class="mr-2"></fa-icon>{{ 'HEADER._offerings' | translate }}
           </button>
         </li>
@@ -85,7 +85,7 @@
         }
 
         <li>
-          <button id="productOrders" type="button" class="dropdown-item" (click)="goTo('/product-orders')">
+          <button id="productOrders" type="button" class="dropdown-item" (click)="goTo(productOrdersPaths.root())">
             <fa-icon [icon]="faReceipt" class="mr-2"></fa-icon>{{ 'HEADER._orders' | translate }}
           </button>
         </li>
@@ -123,7 +123,7 @@
         }
 
         <li>
-          <button id="myInventory" type="button" class="dropdown-item" (click)="goTo('/product-inventory')">
+          <button id="myInventory" type="button" class="dropdown-item" (click)="goTo(productInventoryPaths.root())">
             <fa-icon [icon]="faBoxesStacked" class="mr-2"></fa-icon>{{ 'HEADER._inventory' | translate }}
           </button>
         </li>
@@ -325,12 +325,12 @@
       </div>
     </div>
 
-    <button type="button" class="mobile-nav-item" (click)="goTo('/profile')">
+    <button type="button" class="mobile-nav-item" (click)="goTo(userProfilePaths.root())">
       <fa-icon [icon]="faAddressCard" class="mr-2"></fa-icon>{{ 'HEADER._profile' | translate }}
     </button>
 
     @if (roles.includes(sellerRole)) {
-    <button type="button" class="mobile-nav-item" (click)="goTo('/my-offerings')">
+    <button type="button" class="mobile-nav-item" (click)="goTo(sellerOfferingsPaths.root())">
       <fa-icon [icon]="faHandHoldingBox" class="mr-2"></fa-icon>{{ 'HEADER._offerings' | translate }}
     </button>
     }
@@ -341,7 +341,7 @@
     </button>
     }
 
-    <button type="button" class="mobile-nav-item" (click)="goTo('/product-orders')">
+    <button type="button" class="mobile-nav-item" (click)="goTo(productOrdersPaths.root())">
       <fa-icon [icon]="faReceipt" class="mr-2"></fa-icon>{{ 'HEADER._orders' | translate }}
     </button>
 
@@ -369,7 +369,7 @@
     </button>
     }
 
-    <button type="button" class="mobile-nav-item" (click)="goTo('/product-inventory')">
+    <button type="button" class="mobile-nav-item" (click)="goTo(productInventoryPaths.root())">
       <fa-icon [icon]="faBoxesStacked" class="mr-2"></fa-icon>{{ 'HEADER._inventory' | translate }}
     </button>
 

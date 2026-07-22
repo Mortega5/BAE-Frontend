@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
@@ -141,7 +142,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
-    this.router.navigate(['/my-offerings/serviceSpecs']);
+    this.router.navigate([SellerOfferingsPaths.serviceSpecs.list()]);
   }
 
   onFormChange(value: CharacteristicFormValue): void {

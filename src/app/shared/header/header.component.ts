@@ -30,6 +30,10 @@ import { LoginInfo } from 'src/app/models/interfaces';
 import { LoginServiceService } from 'src/app/services/login-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { QrVerifierService } from 'src/app/services/qr-verifier.service';
+import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
+import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.paths';
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
+import { UserProfilePaths } from 'src/app/pages/user-profile/user-profile.paths';
 import { EventMessageService } from '../../services/event-message.service';
 import { LocalStorageService } from '../../services/local-storage.service';
 import { ShoppingCartServiceService } from '../../services/shopping-cart-service.service';
@@ -42,6 +46,11 @@ import { NavLink, ThemeAuthUrlsConfig, ThemeConfig } from '../../themes';
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestroy {
+  readonly userProfilePaths = UserProfilePaths;
+  readonly productInventoryPaths = ProductInventoryPaths;
+  readonly productOrdersPaths = ProductOrdersPaths;
+  readonly sellerOfferingsPaths = SellerOfferingsPaths;
+
   @ViewChild('navbarbutton') navbarbutton?: ElementRef<HTMLElement>;
 
   constructor(
