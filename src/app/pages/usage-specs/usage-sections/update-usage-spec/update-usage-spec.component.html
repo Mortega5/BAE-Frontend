@@ -24,6 +24,12 @@
     </div>
   <!-- End Breadcrumb -->
 
+  @if (notFound) {
+  <app-not-found-state message="This usage specification could not be found." (back)="goBack()" />
+  } @else if (loading) {
+  <app-loading-spinner />
+  } @else {
   <usage-spec-form [partyId]="partyId" [formType]="'update'" [usageSpec]="usageSpec"></usage-spec-form>
+  }
 </div>
 

@@ -10,7 +10,7 @@ export interface EventMessage {
   'SellerCatalog' | 'SellerCatalogCreate' | 'SellerCatalogUpdate' | 'CategoryAdded' | 'CategoryRemoved' | 'ChangedSession' | 'CloseCartCard' |
   'CreateCategory' | 'UpdateCategory' | 'ShowCartToast' | 'HideCartToast' | 'CloseContact' |
   'SavePricePlan' | 'UpdatePricePlan' | 'ToggleEditPrice' | 'ToggleNewPrice' |
-  'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'UpdateUsageSpec' | 'UsageSpecList' | 'CreateUsageSpec' | 'AiSearchFacets' | 'AiSearchCleared' | 'FiltersCommitted' | 'SellerSoftware' | 'SellerCreateSoftware' | 'SellerSoftwareUpdate';
+  'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'UpdateUsageSpec' | 'CreateUsageSpec' | 'AiSearchFacets' | 'AiSearchCleared' | 'FiltersCommitted' | 'SellerSoftware' | 'SellerCreateSoftware' | 'SellerSoftwareUpdate';
   text?: string,
   value?: object | boolean | FormChangeState | PricePlanChangeState
 }
@@ -189,10 +189,6 @@ export class EventMessageService {
 
   emitUpdateUsageSpec(usageSpec: any) {
     this.eventMessageSubject.next({ type: 'UpdateUsageSpec', value: usageSpec })
-  }
-
-  emitUsageSpecList(show: boolean) {
-    this.eventMessageSubject.next({ type: 'UsageSpecList', value: show })
   }
 
   emitCreateUsageSpec(show: boolean) {

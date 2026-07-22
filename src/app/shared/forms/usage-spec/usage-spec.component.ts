@@ -5,7 +5,9 @@ import {NgClass, NgIf} from "@angular/common";
 import {ApiServiceService} from "../../../services/product-service.service";
 import { lastValueFrom } from 'rxjs';
 import {components} from "src/app/models/product-catalog";
+import { Router } from '@angular/router';
 import {EventMessageService} from "src/app/services/event-message.service";
+import { UsageSpecsPaths } from 'src/app/pages/usage-specs/usage-specs.paths';
 import {FormChangeState, PricePlanChangeState} from "../../../models/interfaces";
 import {Subscription} from "rxjs";
 import moment from 'moment';
@@ -65,7 +67,8 @@ export class UsageSpecComponent implements OnInit, OnDestroy {
               private eventMessage: EventMessageService,
               private fb: FormBuilder,
               private accService: AccountServiceService,
-              private usageSpecService: UsageServiceService) {
+              private usageSpecService: UsageServiceService,
+              private router: Router) {
 
     this.usageSpecForm = this.fb.group({
       generalInfo: this.fb.group({}),
@@ -281,7 +284,7 @@ export class UsageSpecComponent implements OnInit, OnDestroy {
 
 
   goBack() {
-    this.eventMessage.emitUsageSpecList(true);
+    this.router.navigate([UsageSpecsPaths.list()]);
   }
 
 }

@@ -1,14 +1,12 @@
-import { Component, OnInit, ChangeDetectorRef, HostListener, ElementRef, ViewChild } from '@angular/core';
-import { UsageSpecComponent } from 'src/app/shared/forms/usage-spec/usage-spec.component'
-import {FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
-import {TranslateModule} from "@ngx-translate/core";
-import {NgClass, NgIf} from "@angular/common";
-import { lastValueFrom } from 'rxjs';
-import {components} from "src/app/models/product-catalog";
-import {EventMessageService} from "src/app/services/event-message.service";
-import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { LoginInfo } from 'src/app/models/interfaces';
+import { ChangeDetectorRef, Component, ElementRef, OnInit } from '@angular/core';
+import { ReactiveFormsModule } from "@angular/forms";
+import { Router } from '@angular/router';
+import { TranslateModule } from "@ngx-translate/core";
 import moment from 'moment';
+import { LoginInfo } from 'src/app/models/interfaces';
+import { UsageSpecsPaths } from 'src/app/pages/usage-specs/usage-specs.paths';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { UsageSpecComponent } from 'src/app/shared/forms/usage-spec/usage-spec.component';
 
 @Component({
   selector: 'create-usage-spec',
@@ -16,30 +14,29 @@ import moment from 'moment';
   imports: [
     UsageSpecComponent,
     TranslateModule,
-    ReactiveFormsModule,
-    NgClass],
+    ReactiveFormsModule],
   templateUrl: './create-usage-spec.component.html',
   styleUrl: './create-usage-spec.component.css'
 })
 
 export class CreateUsageSpecComponent implements OnInit {
-  partyId:any='';
+  partyId: any = '';
 
   constructor(
     private cdr: ChangeDetectorRef,
     private el: ElementRef,
     private localStorage: LocalStorageService,
-    private eventMessage: EventMessageService,
-  ){}
+    private router: Router,
+  ) { }
 
   ngOnInit() {
     this.initPartyInfo();
   }
 
-  initPartyInfo(){
+  initPartyInfo() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
-      if(aux.logged_as==aux.id){
+    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+      if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
       } else {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
@@ -49,7 +46,7 @@ export class CreateUsageSpecComponent implements OnInit {
   }
 
   goBack() {
-    this.eventMessage.emitUsageSpecList(true);
+    this.router.navigate([UsageSpecsPaths.list()]);
   }
 
 }
