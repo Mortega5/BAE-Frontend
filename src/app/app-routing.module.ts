@@ -26,6 +26,7 @@ import { SellerOfferingsComponent } from "./pages/seller-offerings/seller-offeri
 import { sellerOfferingsRoutes } from "./pages/seller-offerings/seller-offerrings.routes";
 import { ShoppingCartComponent } from "./pages/shopping-cart/shopping-cart.component";
 import { UserProfileComponent } from "./pages/user-profile/user-profile.component";
+import { userProfileRoutes } from "./pages/user-profile/user-profile.routes";
 
 
 
@@ -86,7 +87,8 @@ const routes: Routes = [
   {
     path: 'profile',
     component: UserProfileComponent,
-    canActivate: [AuthGuard], data: { roles: [] }
+    canActivate: [AuthGuard], data: { roles: [] },
+    children: userProfileRoutes,
   },
   {
     path: 'my-offerings',

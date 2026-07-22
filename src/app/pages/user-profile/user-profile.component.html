@@ -19,36 +19,27 @@
     <div id="dropdown-nav-content" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
         <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-nav">
         <li>
-            <a (click)="getProfile()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'PROFILE._general' | translate }}</a>
+            <a routerLink="/profile/general" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'PROFILE._general' | translate }}</a>
         </li>
         <li>
-            <a (click)="getBilling()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'PROFILE._bill' | translate }}</a>
+            <a routerLink="/profile/billing" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'PROFILE._bill' | translate }}</a>
         </li>
-        <!--li>
-            <a (click)="goToOrders()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'PROFILE._orders' | translate }}</a>
-        </li-->
         </ul>
     </div>
 
      <div class="w-full grid lg:grid-cols-20/80">
         <div class="hidden lg:block">
         <div class="w-48 h-fit text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-            @if(loggedAsUser){
-                <button (click)="getProfile()" id="general-button" aria-current="true" class="block w-full px-4 py-2 text-white bg-primary-100 border-b border-gray-200 rounded-t-lg cursor-pointer dark:border-gray-600 hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                    {{ 'PROFILE._general' | translate }}
-                </button>
-            } @else {
-                <button (click)="getOrgProfile()" id="general-button" aria-current="true" class="block w-full px-4 py-2 text-white bg-primary-100 border-b border-gray-200 rounded-t-lg cursor-pointer dark:border-gray-600 hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                    {{ 'PROFILE._general' | translate }}
-                </button>
-            }
-            <button (click)="getBilling()" id="bill-button" class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+            <a routerLink="/profile/general" routerLinkActive="text-white bg-primary-100" id="general-button" class="block w-full px-4 py-2 border-b border-gray-200 rounded-t-lg cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+                {{ 'PROFILE._general' | translate }}
+            </a>
+            <a routerLink="/profile/billing" routerLinkActive="text-white bg-primary-100" id="bill-button" class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
                 {{ 'PROFILE._bill' | translate }}
-            </button>
+            </a>
 
-            <button (click)="getRevenue()" id="revenue-button" class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+            <a routerLink="/profile/revenue" routerLinkActive="text-white bg-primary-100" id="revenue-button" class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
                 {{ 'PROFILE._revenue' | translate }}
-            </button>
+            </a>
 
             <button (click)="getPayment()" id="payment-button" class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
                 {{ 'PROFILE._payment_dashboard' | translate }}
@@ -59,22 +50,8 @@
             </button>
         </div>
         </div>
-        <div>
-        @if(show_profile){
-            <user-info></user-info>
-        }
-        @if(show_org_profile){
-            <org-info></org-info>
-        }
-        @if(show_orders){
-            <order-info></order-info>
-        }
-        @if(show_billing){
-            <billing-info></billing-info>
-        }
-        @if(show_revenue){
-            <provider-revenue-sharing></provider-revenue-sharing>
-        }
+        <div class="w-full">
+          <router-outlet></router-outlet>
         </div>
     </div>
 </div>
