@@ -1,11 +1,11 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { EventMessageService } from '../../services/event-message.service';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { QuoteService } from 'src/app/features/quotes/services/quote.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
+import { EventMessageService } from '../../services/event-message.service';
 
 import { SellerOfferingsComponent } from './seller-offerings.component';
 
@@ -30,8 +30,8 @@ describe('SellerOfferingsComponent', () => {
         },
       ],
     })
-    .compileComponents();
-    
+      .compileComponents();
+
     fixture = TestBed.createComponent(SellerOfferingsComponent);
     component = fixture.componentInstance;
     eventMessage = TestBed.inject(EventMessageService);
@@ -72,16 +72,6 @@ describe('SellerOfferingsComponent', () => {
     expect(component.show_catalogs).toBeFalse();
     expect(component.show_offers).toBeFalse();
     expect(detectSpy).toHaveBeenCalled();
-  });
-
-  it('event subscription should route to update offer and store payload', () => {
-    const goToUpdateOfferSpy = spyOn(component, 'goToUpdateOffer');
-    const offer = { id: 'offer-1' };
-
-    eventMessage.emitSellerUpdateOffer(offer);
-
-    expect(component.offer_to_update).toEqual(offer);
-    expect(goToUpdateOfferSpy).toHaveBeenCalled();
   });
 
   it('event subscription should route to product specs after product spec creation', () => {

@@ -12,6 +12,7 @@ import { EventMessageService } from 'src/app/services/event-message.service';
 import { PriceServiceService } from 'src/app/services/price-service.service';
 
 import { SellerOfferComponent } from './seller-offer.component';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
 describe('SellerOfferComponent', () => {
   let component: SellerOfferComponent;
@@ -20,7 +21,7 @@ describe('SellerOfferComponent', () => {
   let apiSpy: jasmine.SpyObj<ApiServiceService>;
   let paginationSpy: jasmine.SpyObj<PaginationService>;
   let localStorageSpy: jasmine.SpyObj<LocalStorageService>;
-  let eventMessageSpy: jasmine.SpyObj<EventMessageService>;
+  let routerSpy: jasmine.SpyObj<Router>;
   let priceServiceSpy: jasmine.SpyObj<PriceServiceService>;
 
   const routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
@@ -30,11 +31,6 @@ describe('SellerOfferComponent', () => {
     apiSpy = jasmine.createSpyObj<ApiServiceService>('ApiServiceService', ['getProductOfferByOwner']);
     paginationSpy = jasmine.createSpyObj<PaginationService>('PaginationService', ['getItemsPaginated']);
     localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject']);
-    eventMessageSpy = jasmine.createSpyObj<EventMessageService>(
-      'EventMessageService',
-      ['emitSellerCreateOffer', 'emitSellerUpdateOffer', 'emitSellerCreateCustomOffer'],
-      { messages$: messages$.asObservable() }
-    );
     priceServiceSpy = jasmine.createSpyObj<PriceServiceService>('PriceServiceService', ['isCustomOffering']);
     priceServiceSpy.isCustomOffering.and.resolveTo(false);
     paginationSpy.getItemsPaginated.and.resolveTo({
@@ -59,7 +55,7 @@ describe('SellerOfferComponent', () => {
         { provide: ApiServiceService, useValue: apiSpy },
         { provide: PaginationService, useValue: paginationSpy },
         { provide: LocalStorageService, useValue: localStorageSpy },
-        { provide: EventMessageService, useValue: eventMessageSpy },
+        { provide: EventMessageService, useValue: routerSpy },
         { provide: PriceServiceService, useValue: priceServiceSpy },
       ]
     })
@@ -70,6 +66,7 @@ describe('SellerOfferComponent', () => {
 
     fixture = TestBed.createComponent(SellerOfferComponent);
     component = fixture.componentInstance;
+    routerSpy = spyOn()
   });
 
   it('should create', () => {
@@ -216,19 +213,19 @@ describe('SellerOfferComponent', () => {
 
   it('goToCreate should emit seller create offer event', () => {
     component.goToCreate();
-    expect(eventMessageSpy.emitSellerCreateOffer).toHaveBeenCalledWith(true);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.offers.new());
   });
 
   it('goToUpdate should emit seller update offer event', () => {
     const offer = { id: 'off-1' };
-    component.goToUpdate(offer);
-    expect(eventMessageSpy.emitSellerUpdateOffer).toHaveBeenCalledWith(offer);
+    component.goToUpdate(offer.id);
+    expect(routerSpy.navigate1).toHaveBeenCalledWith(SellerOfferingsPaths.offers.edit(offer.id));
   });
 
   it('goToCreateCustom should emit seller create custom offer event', () => {
     const offer = { id: 'off-2' };
-    component.goToCreateCustom(offer);
-    expect(eventMessageSpy.emitSellerCreateCustomOffer).toHaveBeenCalledWith(offer);
+    component.goToCreateCustom(offer.id);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.offers.edit(offer.id));
   });
 
   it('hasLongWord should detect words above threshold', () => {

@@ -1,16 +1,17 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { EventMessageService } from 'src/app/services/event-message.service';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { TranslateModule } from '@ngx-translate/core';
 
+import { Router } from '@angular/router';
+import { SellerOfferingsPaths } from '../../../seller-offerings.paths';
 import { CreateOfferComponent } from './create-offer.component';
 
 describe('CreateOfferComponent', () => {
   let component: CreateOfferComponent;
   let fixture: ComponentFixture<CreateOfferComponent>;
-  let eventMessage: EventMessageService;
+  let router: Router;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -18,11 +19,11 @@ describe('CreateOfferComponent', () => {
       declarations: [CreateOfferComponent],
       imports: [HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()]
     })
-    .compileComponents();
-    
+      .compileComponents();
+
     fixture = TestBed.createComponent(CreateOfferComponent);
     component = fixture.componentInstance;
-    eventMessage = TestBed.inject(EventMessageService);
+    router = TestBed.inject(Router);
   });
 
   it('should create', () => {
@@ -44,11 +45,11 @@ describe('CreateOfferComponent', () => {
   });
 
   it('goBack should emit seller offer event', () => {
-    spyOn(eventMessage, 'emitSellerOffer');
+    spyOn(router, 'navigate');
 
     component.goBack();
 
-    expect(eventMessage.emitSellerOffer).toHaveBeenCalledWith(true);
+    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.offers.list());
   });
 
   it('toggleGeneral should reset section visibility', () => {

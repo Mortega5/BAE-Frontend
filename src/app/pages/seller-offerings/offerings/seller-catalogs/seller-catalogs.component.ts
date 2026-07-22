@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
 import { faIdCard, faSort, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
@@ -14,6 +15,7 @@ import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 type Catalog = components["schemas"]["Catalog"];
 
 @Component({
@@ -57,7 +59,8 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
   constructor(
     private api: ApiServiceService,
     private localStorage: LocalStorageService,
-    private eventMessage: EventMessageService
+    private eventMessage: EventMessageService,
+    private router: Router
   ) {
     this.catalogColumns = [
       {
@@ -101,11 +104,11 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
   }
 
   goToCreate() {
-    this.eventMessage.emitSellerCreateCatalog(true);
+    this.router.navigate([SellerOfferingsPaths.catalogues.new()])
   }
 
-  goToUpdate(cat: any) {
-    this.eventMessage.emitSellerUpdateCatalog(cat);
+  goToUpdate(catId: string) {
+    this.router.navigate([SellerOfferingsPaths.catalogues.edit(catId)])
   }
 
   initCatalogs() {

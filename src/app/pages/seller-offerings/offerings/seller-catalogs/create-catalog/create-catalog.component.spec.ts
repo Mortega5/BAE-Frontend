@@ -1,17 +1,18 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { EventMessageService } from 'src/app/services/event-message.service';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { TranslateModule } from '@ngx-translate/core';
 import { environment } from 'src/environments/environment';
 
+import { Router } from '@angular/router';
+import { SellerOfferingsPaths } from '../../../seller-offerings.paths';
 import { CreateCatalogComponent } from './create-catalog.component';
 
 describe('CreateCatalogComponent', () => {
   let component: CreateCatalogComponent;
   let fixture: ComponentFixture<CreateCatalogComponent>;
-  let eventMessage: EventMessageService;
+  let router: Router;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -19,11 +20,11 @@ describe('CreateCatalogComponent', () => {
       imports: [HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()],
       declarations: [CreateCatalogComponent]
     })
-    .compileComponents();
-    
+      .compileComponents();
+
     fixture = TestBed.createComponent(CreateCatalogComponent);
     component = fixture.componentInstance;
-    eventMessage = TestBed.inject(EventMessageService);
+    router = TestBed.inject(Router);
   });
 
   it('should create', () => {
@@ -57,11 +58,11 @@ describe('CreateCatalogComponent', () => {
   });
 
   it('goBack should emit seller catalog event', () => {
-    spyOn(eventMessage, 'emitSellerCatalog');
+    spyOn(router, 'navigate');
 
     component.goBack();
 
-    expect(eventMessage.emitSellerCatalog).toHaveBeenCalledWith(true);
+    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.catalogues.list());
   });
 
   it('hasLongWord should detect long words and handle undefined', () => {

@@ -1,22 +1,25 @@
-
 <div>
-    <div class="w-full h-fit mb-4 bg-secondary-50 rounded-lg  dark:bg-secondary-100 dark:border-gray-800 border-gray-300 border-secondary-50 border flex flex-col shadow-lg">
-      <div class="flex w-full flex-cols items-center md:flex-row justify-between">
-        <div class="mb-4 md:mb-0 md:w-1/4 p-8">
-            <h2 class="text-2xl font-bold mb-4 dark:text-white">{{ 'CATEGORIES._categories' | translate }}</h2>  
-        </div>
-
-        <div class="flex flex-row w-full justify-end">
-            <button data-cy="adminAddNewCategory" type="button" (click)="createCategory()" class="ml-2 mr-8 mb-4 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center align-middle me-2">
-                <p class="pl-2 pr-2 dark:text-white">{{ 'CATEGORIES._add_new_cat' | translate }}</p>
-                <svg class="w-[18px] h-[18px] text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
-                </svg>
-            </button>
-        </div>
-
+  <div
+    class="w-full h-fit mb-4 bg-secondary-50 rounded-lg  dark:bg-secondary-100 dark:border-gray-800 border-gray-300 border-secondary-50 border flex flex-col shadow-lg">
+    <div class="flex w-full flex-cols items-center md:flex-row justify-between">
+      <div class="mb-4 md:mb-0 md:w-1/4 p-8">
+        <h2 class="text-2xl font-bold mb-4 dark:text-white">{{ 'CATEGORIES._categories' | translate }}</h2>
       </div>
-      <!-- <div class="flex w-full flex-col items-center md:flex-row justify-between">
+
+      <div class="flex flex-row w-full justify-end">
+        <button data-cy="adminAddNewCategory" type="button" (click)="createCategory()"
+          class="ml-2 mr-8 mb-4 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center align-middle me-2">
+          <p class="pl-2 pr-2 dark:text-white">{{ 'CATEGORIES._add_new_cat' | translate }}</p>
+          <svg class="w-[18px] h-[18px] text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+            height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M5 12h14m-7 7V5" />
+          </svg>
+        </button>
+      </div>
+
+    </div>
+    <!-- <div class="flex w-full flex-col items-center md:flex-row justify-between">
 
         <div class="p-8 w-full">
           <div class="flex flex-row mb-1">
@@ -32,35 +35,35 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
             </svg>
             </button>
-            
+
             <div id="dropdown" class="z-20 hidden w-fit md:w-1/5 p-3 bg-white rounded-lg shadow dark:bg-secondary-200">
             <h6 class="mb-3 text-sm font-medium text-gray-900 dark:text-white">
                 {{ 'ADMIN._status' | translate }}
             </h6>
             <ul class="space-y-2 text-sm" aria-labelledby="dropdownDefault">
-  
+
                 <li class="flex items-center">
                 <input id="active" type="checkbox" value="" checked (change)="onStateFilterChange('Active')"
                     class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded text-primary-600 focus:ring-primary-100" />
-    
+
                 <label for="active" class="ml-2 text-sm font-medium text-gray-900 dark:text-white">
                     {{ 'ADMIN._active' | translate }}
                 </label>
                 </li>
-    
+
                 <li class="flex items-center">
                 <input id="launched" type="checkbox" value="" checked (change)="onStateFilterChange('Launched')"
                     class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded text-primary-600 focus:ring-primary-100" />
-    
+
                 <label for="launched" class="ml-2 text-sm font-medium text-gray-900 dark:text-white">
                     {{ 'ADMIN._launched' | translate }}
                 </label>
                 </li>
-    
+
                 <li class="flex items-center">
                 <input id="retired" type="checkbox" value="" (change)="onStateFilterChange('Retired')"
                     class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded text-primary-600 focus:ring-primary-100" />
-    
+
                 <label for="retired" class="ml-2 text-sm font-medium text-gray-900 dark:text-white">
                     {{ 'ADMIN._retired' | translate }}
                 </label>
@@ -69,7 +72,7 @@
                 <li class="flex items-center">
                   <input id="obsolete" type="checkbox" value="" (change)="onStateFilterChange('Obsolete')"
                       class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded text-primary-600 focus:ring-primary-100" />
-      
+
                   <label for="obsolete" class="ml-2 text-sm font-medium text-gray-900 dark:text-white">
                     {{ 'ADMIN._obsolete' | translate }}
                   </label>
@@ -81,86 +84,100 @@
     </div>-->
   </div>
 
-@if(loading){
-    <app-loading-spinner />
-} @else {
-    <div class="bg-secondary-50 dark:bg-secondary-100 border dark:border-gray-800 mt-8 p-4 rounded-lg">
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full dark:bg-secondary-300">
-        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                <tr class="flex w-full justify-between">
-                    <th scope="col" class="flex px-6 py-3 w-2/4">
-                        {{ 'ADMIN._name' | translate }}
-                    </th>
-                    <th scope="col" class="hidden md:flex px-6 py-3 w-fit">
-                        {{ 'ADMIN._status' | translate }}
-                    </th>
-                    <th scope="col" class="hidden md:table-cell px-6 py-3 w-fit">
-                        {{ 'ADMIN._last_update' | translate }}
-                    </th>
-                    <th scope="col" class="flex px-6 py-3 w-fit">
-                        {{ 'ADMIN._actions' | translate }}
-                    </th>
-                </tr>
-            </thead>
-            <tbody data-cy="adminCategoriesTable">
-                @for (cat of categories; track cat.id;let idx = $index) {
-                    <tr data-cy="adminCategoryRow" class="flex border-b dark:border-gray-700 hover:bg-gray-200 w-full justify-between dark:bg-secondary-300 dark:hover:bg-secondary-200">
-                        <td data-cy="adminTableOfferName" class="flex px-6 py-4 w-2/4">
-                            <b data-cy="adminCategoryName">{{cat.name}}</b>
-                        </td>
-                        <td data-cy="adminTableOfferStatus" class="hidden md:flex px-6 py-4 w-fit">
-                            @if(cat.lifecycleStatus == 'Active'){
-                                <span data-cy="adminCategoryStatus" class="bg-blue-100 max-h-6 dark:bg-secondary-300 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{cat.lifecycleStatus}}</span>
-                            } @else if(cat.lifecycleStatus == 'Launched') {
-                                <span data-cy="adminCategoryStatus" class="bg-blue-100 max-h-6 dark:bg-secondary-300 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">{{cat.lifecycleStatus}}</span>
-                            } @else if(cat.lifecycleStatus == 'Retired') {
-                                <span data-cy="adminCategoryStatus" class="bg-blue-100 max-h-6 dark:bg-secondary-300 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{cat.lifecycleStatus}}</span>
-                            } @else if(cat.lifecycleStatus == 'Obsolete') {
-                                <span data-cy="adminCategoryStatus" class="bg-blue-100 max-h-6 dark:bg-secondary-300 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{cat.lifecycleStatus}}</span>
-                            }
-                        </td>
-                        <td class="hidden md:table-cell px-6 py-4 w-fit">
-                            {{cat.lastUpdate | date:'EEEE, dd/MM/yy, HH:mm'}} 
-                        </td> 
-                        <td class="flex px-6 py-4 w-fit justify-end">
-                            <button data-cy="adminEditCategory" type="button" (click)="goToUpdate(cat)" class="text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2">
-                                <svg class="w-[18px] h-[18px] text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                    <path fill-rule="evenodd" d="M14 4.182A4.136 4.136 0 0 1 16.9 3c1.087 0 2.13.425 2.899 1.182A4.01 4.01 0 0 1 21 7.037c0 1.068-.43 2.092-1.194 2.849L18.5 11.214l-5.8-5.71 1.287-1.31.012-.012Zm-2.717 2.763L6.186 12.13l2.175 2.141 5.063-5.218-2.141-2.108Zm-6.25 6.886-1.98 5.849a.992.992 0 0 0 .245 1.026 1.03 1.03 0 0 0 1.043.242L10.282 19l-5.25-5.168Zm6.954 4.01 5.096-5.186-2.218-2.183-5.063 5.218 2.185 2.15Z" clip-rule="evenodd"/>
-                                </svg>
-                            </button>
-                            <!--<button type="button" class="text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2">
+  @if(loading){
+  <app-loading-spinner />
+  } @else {
+  <div class="bg-secondary-50 dark:bg-secondary-100 border dark:border-gray-800 mt-8 p-4 rounded-lg">
+    <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full dark:bg-secondary-300">
+      <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+          <tr class="flex w-full justify-between">
+            <th scope="col" class="flex px-6 py-3 w-2/4">
+              {{ 'ADMIN._name' | translate }}
+            </th>
+            <th scope="col" class="hidden md:flex px-6 py-3 w-fit">
+              {{ 'ADMIN._status' | translate }}
+            </th>
+            <th scope="col" class="hidden md:table-cell px-6 py-3 w-fit">
+              {{ 'ADMIN._last_update' | translate }}
+            </th>
+            <th scope="col" class="flex px-6 py-3 w-fit">
+              {{ 'ADMIN._actions' | translate }}
+            </th>
+          </tr>
+        </thead>
+        <tbody data-cy="adminCategoriesTable">
+          @for (cat of categories; track cat.id;let idx = $index) {
+          <tr data-cy="adminCategoryRow"
+            class="flex border-b dark:border-gray-700 hover:bg-gray-200 w-full justify-between dark:bg-secondary-300 dark:hover:bg-secondary-200">
+            <td data-cy="adminTableOfferName" class="flex px-6 py-4 w-2/4">
+              <b data-cy="adminCategoryName">{{cat.name}}</b>
+            </td>
+            <td data-cy="adminTableOfferStatus" class="hidden md:flex px-6 py-4 w-fit">
+              @if(cat.lifecycleStatus == 'Active'){
+              <span data-cy="adminCategoryStatus"
+                class="bg-blue-100 max-h-6 dark:bg-secondary-300 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{cat.lifecycleStatus}}</span>
+              } @else if(cat.lifecycleStatus == 'Launched') {
+              <span data-cy="adminCategoryStatus"
+                class="bg-blue-100 max-h-6 dark:bg-secondary-300 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">{{cat.lifecycleStatus}}</span>
+              } @else if(cat.lifecycleStatus == 'Retired') {
+              <span data-cy="adminCategoryStatus"
+                class="bg-blue-100 max-h-6 dark:bg-secondary-300 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{cat.lifecycleStatus}}</span>
+              } @else if(cat.lifecycleStatus == 'Obsolete') {
+              <span data-cy="adminCategoryStatus"
+                class="bg-blue-100 max-h-6 dark:bg-secondary-300 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{cat.lifecycleStatus}}</span>
+              }
+            </td>
+            <td class="hidden md:table-cell px-6 py-4 w-fit">
+              {{cat.lastUpdate | date:'EEEE, dd/MM/yy, HH:mm'}}
+            </td>
+            <td class="flex px-6 py-4 w-fit justify-end">
+              <button data-cy="adminEditCategory" type="button" (click)="goToUpdate(cat.id)"
+                class="text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2">
+                <svg class="w-[18px] h-[18px] text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                  width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                  <path fill-rule="evenodd"
+                    d="M14 4.182A4.136 4.136 0 0 1 16.9 3c1.087 0 2.13.425 2.899 1.182A4.01 4.01 0 0 1 21 7.037c0 1.068-.43 2.092-1.194 2.849L18.5 11.214l-5.8-5.71 1.287-1.31.012-.012Zm-2.717 2.763L6.186 12.13l2.175 2.141 5.063-5.218-2.141-2.108Zm-6.25 6.886-1.98 5.849a.992.992 0 0 0 .245 1.026 1.03 1.03 0 0 0 1.043.242L10.282 19l-5.25-5.168Zm6.954 4.01 5.096-5.186-2.218-2.183-5.063 5.218 2.185 2.15Z"
+                    clip-rule="evenodd" />
+                </svg>
+              </button>
+              <!--<button type="button" class="text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2">
                                 <svg class="w-[18px] h-[18px] text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                                     <path stroke="currentColor" stroke-width="2" d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"/>
                                     <path stroke="currentColor" stroke-width="2" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                                    </svg>                                  
+                                    </svg>
                             </button>-->
-                        </td>
-                    </tr>
-                    @if(cat.children.length>0){
-                        @for(child of cat.children; track child){
-                            <tr>
-                                <td colspan=3>
-                                <categories-recursion-list class="w-full" [child]="child" [parent]="cat" [path]="cat.name"></categories-recursion-list>
-                                </td>
-                            </tr>
-                        }
-                    }
-                } @empty {
-                    <div class="flex justify-center m-4">
-                        <div class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50" role="alert">
-                          <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-                          </svg>
-                          <div>
-                              {{ 'CATEGORIES._no_cat' | translate }}
-                          </div>
-                        </div>
-                    </div>                          
-                }
-            </tbody>
-        </table>
+            </td>
+          </tr>
+          @if(cat.children.length>0){
+          @for(child of cat.children; track child){
+          <tr>
+            <td colspan=3>
+              <categories-recursion-list class="w-full" [child]="child" [parent]="cat"
+                [path]="cat.name"></categories-recursion-list>
+            </td>
+          </tr>
+          }
+          }
+          } @empty {
+          <div class="flex justify-center m-4">
+            <div
+              class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
+              role="alert">
+              <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+              </svg>
+              <div>
+                {{ 'CATEGORIES._no_cat' | translate }}
+              </div>
+            </div>
+          </div>
+          }
+        </tbody>
+      </table>
     </div>
   </div>
-}
+  }
 </div>

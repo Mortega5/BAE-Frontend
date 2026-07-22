@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
 import { faCirclePlus, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
@@ -14,6 +15,7 @@ import { PriceServiceService } from 'src/app/services/price-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { BADGE_BASE, lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
 @Component({
   selector: 'seller-offer',
@@ -55,7 +57,8 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
     private api: ApiServiceService,
     private priceService: PriceServiceService,
     private localStorage: LocalStorageService,
-    private eventMessage: EventMessageService
+    private eventMessage: EventMessageService,
+    private router: Router
   ) {
     this.offerColumns = [
       {
@@ -118,15 +121,16 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
   }
 
   goToCreate() {
-    this.eventMessage.emitSellerCreateOffer(true);
+    this.router.navigate([SellerOfferingsPaths.offers.new()])
   }
 
-  goToUpdate(offer: any) {
-    this.eventMessage.emitSellerUpdateOffer(offer);
+  goToUpdate(offerId: any) {
+    this.router.navigate([SellerOfferingsPaths.offers.edit(offerId)])
   }
 
   goToCreateCustom(offer: any) {
-    this.eventMessage.emitSellerCreateCustomOffer(offer);
+    this.router.navigate([SellerOfferingsPaths.offers.custom()],
+      { queryParams: { offerId: offer.offer?.id, partyId: offer.partyId } })
   }
 
   initOffers() {

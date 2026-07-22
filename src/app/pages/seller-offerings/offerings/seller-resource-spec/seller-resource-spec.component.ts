@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
 import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
@@ -13,6 +14,7 @@ import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
 @Component({
   selector: 'seller-resource-spec',
@@ -52,7 +54,8 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
   constructor(
     private resSpecService: ResourceSpecServiceService,
     private localStorage: LocalStorageService,
-    private eventMessage: EventMessageService
+    private eventMessage: EventMessageService,
+    private router: Router
   ) {
     this.resSpecColumns = [
       {
@@ -98,11 +101,11 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
   }
 
   goToCreate() {
-    this.eventMessage.emitSellerCreateResourceSpec(true);
+    this.router.navigate([SellerOfferingsPaths.resourceSpecs.new()])
   }
 
-  goToUpdate(res: any) {
-    this.eventMessage.emitSellerUpdateResourceSpec(res);
+  goToUpdate(resId: string) {
+    this.router.navigate([SellerOfferingsPaths.resourceSpecs.edit(resId)])
   }
 
   initResources() {

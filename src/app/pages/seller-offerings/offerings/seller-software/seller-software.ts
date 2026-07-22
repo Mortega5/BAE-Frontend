@@ -1,6 +1,7 @@
 
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
@@ -12,9 +13,10 @@ import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ApiServiceService } from 'src/app/services/product-service.service';
-import { RESOURCE_STATUS_TYPES, ResourceStatusType, SoftwareResource } from '../../../../models/software.model';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { resourceStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { RESOURCE_STATUS_TYPES, ResourceStatusType, SoftwareResource } from '../../../../models/software.model';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
 @Component({
   selector: 'app-seller-software',
@@ -51,7 +53,9 @@ export class SellerSoftware implements OnInit, OnDestroy {
   constructor(
     private api: ApiServiceService,
     private localStorage: LocalStorageService,
-    private eventMessage: EventMessageService
+    private eventMessage: EventMessageService,
+    private router: Router,
+    private route: ActivatedRoute,
   ) {
     this.softwareColumns = [
       {
@@ -96,11 +100,11 @@ export class SellerSoftware implements OnInit, OnDestroy {
   }
 
   goToCreate() {
-    this.eventMessage.emitSellerSoftwareCreate(true);
+    this.router.navigate([SellerOfferingsPaths.softwares.new()])
   }
 
-  goToUpdate(software: any) {
-    this.eventMessage.emitSellerSoftwareUpdate(software);
+  goToUpdate(softwareId: string) {
+    this.router.navigate([SellerOfferingsPaths.softwares.edit(softwareId)]);
   }
 
   initSoftware() {

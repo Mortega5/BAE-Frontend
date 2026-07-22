@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
 import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
@@ -13,6 +14,7 @@ import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { BADGE_BASE, lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
 @Component({
   selector: 'seller-product-spec',
@@ -52,7 +54,8 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
   constructor(
     private prodSpecService: ProductSpecServiceService,
     private localStorage: LocalStorageService,
-    private eventMessage: EventMessageService
+    private eventMessage: EventMessageService,
+    private router: Router,
   ) {
     this.prodSpecColumns = [
       {
@@ -113,11 +116,11 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
   }
 
   goToCreate() {
-    this.eventMessage.emitSellerCreateProductSpec(true);
+    this.router.navigate([SellerOfferingsPaths.productSpecs.new()])
   }
 
-  goToUpdate(prod: any) {
-    this.eventMessage.emitSellerUpdateProductSpec(prod);
+  goToUpdate(prodId: string) {
+    this.router.navigate([SellerOfferingsPaths.productSpecs.edit(prodId)])
   }
 
   initProdSpecs() {

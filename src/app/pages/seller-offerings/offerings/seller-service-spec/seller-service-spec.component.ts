@@ -13,6 +13,8 @@ import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'seller-service-spec',
@@ -51,7 +53,8 @@ export class SellerServiceSpecComponent implements OnInit, OnDestroy {
   constructor(
     private servSpecService: ServiceSpecServiceService,
     private localStorage: LocalStorageService,
-    private eventMessage: EventMessageService
+    private eventMessage: EventMessageService,
+    private router: Router
   ) {
     this.servSpecColumns = [
       {
@@ -97,11 +100,11 @@ export class SellerServiceSpecComponent implements OnInit, OnDestroy {
   }
 
   goToCreate() {
-    this.eventMessage.emitSellerCreateServiceSpec(true);
+    this.router.navigate([SellerOfferingsPaths.serviceSpecs.new()])
   }
 
-  goToUpdate(serv: any) {
-    this.eventMessage.emitSellerUpdateServiceSpec(serv);
+  goToUpdate(servId: string) {
+    this.router.navigate([SellerOfferingsPaths.serviceSpecs.edit(servId)])
   }
 
   initServices() {

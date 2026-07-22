@@ -1,16 +1,17 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { EventMessageService } from 'src/app/services/event-message.service';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { TranslateModule } from '@ngx-translate/core';
 
+import { Router } from '@angular/router';
+import { SellerOfferingsPaths } from '../../../seller-offerings.paths';
 import { UpdateCatalogComponent } from './update-catalog.component';
 
 describe('UpdateCatalogComponent', () => {
   let component: UpdateCatalogComponent;
   let fixture: ComponentFixture<UpdateCatalogComponent>;
-  let eventMessage: EventMessageService;
+  let router: Router;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -18,11 +19,11 @@ describe('UpdateCatalogComponent', () => {
       imports: [HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()],
       declarations: [UpdateCatalogComponent]
     })
-    .compileComponents();
-    
+      .compileComponents();
+
     fixture = TestBed.createComponent(UpdateCatalogComponent);
     component = fixture.componentInstance;
-    eventMessage = TestBed.inject(EventMessageService);
+    router = TestBed.inject(Router);
     component.cat = {
       id: 'cat-1',
       name: 'Current Catalog',
@@ -56,11 +57,11 @@ describe('UpdateCatalogComponent', () => {
   });
 
   it('goBack should emit seller catalog event', () => {
-    spyOn(eventMessage, 'emitSellerCatalog');
+    spyOn(router, 'navigate');
 
     component.goBack();
 
-    expect(eventMessage.emitSellerCatalog).toHaveBeenCalledWith(true);
+    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.catalogues.list());
   });
 
   it('hasLongWord should detect long words and handle undefined', () => {

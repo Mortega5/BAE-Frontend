@@ -6,11 +6,13 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { EventMessageService } from 'src/app/services/event-message.service';
 
 import { UpdateOfferComponent } from './update-offer.component';
+import { Router } from '@angular/router';
+import { SellerOfferingsPaths } from '../../../seller-offerings.paths';
 
 describe('UpdateOfferComponent', () => {
   let component: UpdateOfferComponent;
   let fixture: ComponentFixture<UpdateOfferComponent>;
-  let eventMessage: EventMessageService;
+  let router: Router;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -19,10 +21,10 @@ describe('UpdateOfferComponent', () => {
       declarations: [UpdateOfferComponent]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(UpdateOfferComponent);
     component = fixture.componentInstance;
-    eventMessage = TestBed.inject(EventMessageService);
+    router = TestBed.inject(Router);
     component.offer = {
       id: 'offer-1',
       name: 'Offer',
@@ -50,11 +52,11 @@ describe('UpdateOfferComponent', () => {
   });
 
   it('goBack should emit seller offer event', () => {
-    spyOn(eventMessage, 'emitSellerOffer');
+    spyOn(router, 'navigate');
 
     component.goBack();
 
-    expect(eventMessage.emitSellerOffer).toHaveBeenCalledWith(true);
+    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.offers.list());
   });
 
   it('toggleGeneral should reset section visibility', () => {

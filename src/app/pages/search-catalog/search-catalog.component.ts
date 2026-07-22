@@ -1,33 +1,32 @@
-import { Component, OnInit, ChangeDetectorRef, HostListener, OnDestroy } from '@angular/core';
-import { ActivatedRoute, NavigationStart } from '@angular/router';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import { PriceServiceService } from 'src/app/services/price-service.service';
-import { PaginationService } from 'src/app/services/pagination.service';
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { initFlowbite } from 'flowbite';
-import {components} from "../../models/product-catalog";
-type ProductOffering = components["schemas"]["ProductOffering"];
-import {EventMessageService} from "../../services/event-message.service";
-import {LocalStorageService} from "../../services/local-storage.service";
-import {AccountServiceService} from "src/app/services/account-service.service"
-import {Category, LoginInfo} from "../../models/interfaces";
-import { environment } from 'src/environments/environment';
-import { Router } from '@angular/router';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { SearchStateService } from "../../services/search-state.service"
+import { AccountServiceService } from "src/app/services/account-service.service";
+import { PaginationService } from 'src/app/services/pagination.service';
+import { PriceServiceService } from 'src/app/services/price-service.service';
+import { ApiServiceService } from 'src/app/services/product-service.service';
+import { environment } from 'src/environments/environment';
+import { Category, LoginInfo } from "../../models/interfaces";
+import { components } from "../../models/product-catalog";
+import { EventMessageService } from "../../services/event-message.service";
+import { LocalStorageService } from "../../services/local-storage.service";
+import { SearchStateService } from "../../services/search-state.service";
+type ProductOffering = components["schemas"]["ProductOffering"];
 
 @Component({
   selector: 'app-search-catalog',
   templateUrl: './search-catalog.component.html',
   styleUrl: './search-catalog.component.css'
 })
-export class SearchCatalogComponent implements OnInit, OnDestroy{
+export class SearchCatalogComponent implements OnInit, OnDestroy {
   constructor(
     private route: ActivatedRoute,
     private api: ApiServiceService,
     private accService: AccountServiceService,
-    private priceService: PriceServiceService, 
+    private priceService: PriceServiceService,
     private cdr: ChangeDetectorRef,
     private eventMessage: EventMessageService,
     private localStorage: LocalStorageService,
@@ -36,45 +35,38 @@ export class SearchCatalogComponent implements OnInit, OnDestroy{
     private state: SearchStateService
   ) {
     this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'AddedFilter' || ev.type === 'RemovedFilter') {
-        this.checkPanel();
-      }
-    })
-    this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'CloseFeedback') {
-        this.feedback = false;
-      }
-    })
-    this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'AddedFilter' || ev.type === 'RemovedFilter') {
-        this.getProducts(false);
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        switch (ev.type) {
+          case 'AddedFilter':
+          case 'RemovedFilter':
+            this.checkPanel();
+            this.getProducts(false);
+            break;
+          case 'CloseFeedback':
+            this.feedback = false;
+            break;
+        }
+      })
   }
 
-  id:any;
-  catalog:any;
-  providerName:string='';
-  providerDescription:string='';
-  products: ProductOffering[]=[];
-  nextProducts: ProductOffering[]=[];
+  id: any;
+  catalog: any;
+  providerName: string = '';
+  providerDescription: string = '';
+  products: ProductOffering[] = [];
+  nextProducts: ProductOffering[] = [];
   loading: boolean = false;
   loading_more: boolean = false;
-  page_check:boolean = true;
-  page: number=0;
+  page_check: boolean = true;
+  page: number = 0;
   PRODUCT_LIMIT: number = environment.PRODUCT_LIMIT;
-  showDrawer:boolean=false;
+  showDrawer: boolean = false;
   searchEnabled = environment.SEARCH_ENABLED;
   showPanel = false;
-  feedback:boolean=false;
-  providerThemeName=environment.providerThemeName;
-  logo='';
+  feedback: boolean = false;
+  providerThemeName = environment.providerThemeName;
+  logo = '';
   private destroy$ = new Subject<void>();
   private navigatingToDetail = false;
 
@@ -84,42 +76,42 @@ export class SearchCatalogComponent implements OnInit, OnDestroy{
     this.checkPanel();
     this.id = this.route.snapshot.paramMap.get('id');
     this.api.getCatalog(this.id).then(catalog => {
-      this.catalog=catalog;
+      this.catalog = catalog;
       this.cdr.detectChanges();
       const owner = this.catalog.relatedParty.find((item: { role: string; }) => item.role === environment.SELLER_ROLE);
 
-      if(owner.id.startsWith('urn:ngsi-ld:individual')){
-        this.accService.getUserInfo(owner.id).then(info  => {
+      if (owner.id.startsWith('urn:ngsi-ld:individual')) {
+        this.accService.getUserInfo(owner.id).then(info => {
           console.log('info')
           console.log(info)
-          this.providerName=info.givenName;
+          this.providerName = info.givenName;
           const provdesc = info.partyCharacteristic.find((item: { name: string; }) => item.name === 'description')
-          this.providerDescription=provdesc.value;
+          this.providerDescription = provdesc.value;
         })
-        this.logo='assets/images/Dome-Marketplace.svg';
+        this.logo = 'assets/images/Dome-Marketplace.svg';
       } else {
-        this.accService.getOrgInfo(owner.id).then(info  => {
+        this.accService.getOrgInfo(owner.id).then(info => {
           console.log('info')
           console.log(info)
-          this.providerName=info.tradingName;
+          this.providerName = info.tradingName;
           if (Array.isArray(info?.partyCharacteristic) && info.partyCharacteristic.length > 0) {
             const provdesc = info.partyCharacteristic.find((item: { name: string; }) => item.name === 'description')
-            if(provdesc?.value){
-              this.providerDescription=provdesc.value;
+            if (provdesc?.value) {
+              this.providerDescription = provdesc.value;
             } else {
-              this.providerDescription=''
+              this.providerDescription = ''
             }
             const logo = info.partyCharacteristic.find((item: { name: string; }) => item.name === 'logo')
-            if(logo?.value){
-              this.logo=logo.value
+            if (logo?.value) {
+              this.logo = logo.value
             } else {
-              this.logo='assets/images/Dome-Marketplace.svg'
+              this.logo = 'assets/images/Dome-Marketplace.svg'
             }
           } else {
-            this.logo='assets/images/Dome-Marketplace.svg'
+            this.logo = 'assets/images/Dome-Marketplace.svg'
           }
         })
-      }      
+      }
       console.log('--- catalogo')
       console.log(this.catalog)
     })
@@ -145,44 +137,44 @@ export class SearchCatalogComponent implements OnInit, OnDestroy{
     const userInfo = this.localStorage.getObject('login_items') as LoginInfo;
 
     // The user is logged in
-    if ((JSON.stringify(userInfo) != '{}' && (((userInfo.expire - moment().unix())-4) > 0))) {
-      this.feedback=true;
+    if ((JSON.stringify(userInfo) != '{}' && (((userInfo.expire - moment().unix()) - 4) > 0))) {
+      this.feedback = true;
     }
 
     this.router.events
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(event => {
-      if (event instanceof NavigationStart) {
-        // Detecta navegación al detalle del producto
-        if (event.url.startsWith('/search/urn:ngsi-ld:product-offering')) {
-          this.navigatingToDetail = true;
-        } else {
-          this.navigatingToDetail = false;
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(event => {
+        if (event instanceof NavigationStart) {
+          // Detecta navegación al detalle del producto
+          if (event.url.startsWith('/search/urn:ngsi-ld:product-offering')) {
+            this.navigatingToDetail = true;
+          } else {
+            this.navigatingToDetail = false;
+          }
         }
-      }
-    });
+      });
   }
 
   @HostListener('document:click')
   onClick() {
-    if(this.showDrawer==true){
-      this.showDrawer=false;
+    if (this.showDrawer == true) {
+      this.showDrawer = false;
       this.cdr.detectChanges();
     }
   }
 
-  goTo(path:string) {
+  goTo(path: string) {
     this.router.navigate([path]);
   }
 
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     if (this.navigatingToDetail) {
       return;
     }
 
     let storedFilters = this.localStorage.getObject('selected_categories') as Category[] || [];
-    for(let i=0;i<storedFilters.length;i++){
+    for (let i = 0; i < storedFilters.length; i++) {
       this.localStorage.removeCategoryFilter(storedFilters[i]);
       this.eventMessage.emitRemovedFilter(storedFilters[i]);
     }
@@ -193,28 +185,28 @@ export class SearchCatalogComponent implements OnInit, OnDestroy{
     this.destroy$.complete();
   }
 
-  async getProducts(next:boolean){
+  async getProducts(next: boolean) {
     let filters = this.localStorage.getObject('selected_categories') as Category[] || [];
-    if(next==false){
-      this.loading=true;
+    if (next == false) {
+      this.loading = true;
     }
-    
+
     let options = {
       "keywords": undefined,
       "filters": filters,
       "catalogId": this.id
     }
-    this.paginationService.getItemsPaginated(this.page, this.PRODUCT_LIMIT, next, this.products,this.nextProducts, options,
+    this.paginationService.getItemsPaginated(this.page, this.PRODUCT_LIMIT, next, this.products, this.nextProducts, options,
       this.paginationService.getProductsByCatalog.bind(this.paginationService)).then(async data => {
         console.log('---- pagination -----')
         console.log(data.items)
         console.log(data.nextItems)
-        this.products=await this.api.getProductsDetails(data.items);
-        this.page_check=data.page_check;
-        this.nextProducts=await this.api.getProductsDetails(data.nextItems);
-        this.page=data.page;
-        this.loading=false;
-        this.loading_more=false;
+        this.products = await this.api.getProductsDetails(data.items);
+        this.page_check = data.page_check;
+        this.nextProducts = await this.api.getProductsDetails(data.nextItems);
+        this.page = data.page;
+        this.loading = false;
+        this.loading_more = false;
 
         // SAVE STATE
         this.state.save({
@@ -223,28 +215,28 @@ export class SearchCatalogComponent implements OnInit, OnDestroy{
           page: this.page,
           page_check: this.page_check
         });
-    })
+      })
   }
 
-  async next(){
+  async next() {
     await this.getProducts(true);
   }
 
   checkPanel() {
-    const filters = this.localStorage.getObject('selected_categories') as Category[] || [] ;
+    const filters = this.localStorage.getObject('selected_categories') as Category[] || [];
     const oldState = this.showPanel;
     this.showPanel = filters.length > 0;
-    if(this.showPanel != oldState) {
+    if (this.showPanel != oldState) {
       this.eventMessage.emitFilterShown(this.showPanel);
       this.localStorage.setItem('is_filter_panel_shown', this.showPanel.toString())
     }
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
-    if(str){
+    if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
   }
 }

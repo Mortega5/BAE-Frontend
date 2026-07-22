@@ -3,14 +3,15 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslateModule } from '@ngx-translate/core';
-import { EventMessageService } from 'src/app/services/event-message.service';
 
+import { Router } from '@angular/router';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 import { SellerServiceSpecComponent } from './seller-service-spec.component';
 
 describe('SellerServiceSpecComponent', () => {
   let component: SellerServiceSpecComponent;
   let fixture: ComponentFixture<SellerServiceSpecComponent>;
-  let eventMessage: EventMessageService;
+  let router: Router;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -22,7 +23,7 @@ describe('SellerServiceSpecComponent', () => {
 
     fixture = TestBed.createComponent(SellerServiceSpecComponent);
     component = fixture.componentInstance;
-    eventMessage = TestBed.inject(EventMessageService);
+    router = TestBed.inject(Router);
   });
 
   it('should create', () => {
@@ -30,20 +31,20 @@ describe('SellerServiceSpecComponent', () => {
   });
 
   it('goToCreate should emit seller create service spec event', () => {
-    spyOn(eventMessage, 'emitSellerCreateServiceSpec');
+    spyOn(router, 'navigate');
 
     component.goToCreate();
 
-    expect(eventMessage.emitSellerCreateServiceSpec).toHaveBeenCalledWith(true);
+    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.serviceSpecs.new());
   });
 
   it('goToUpdate should emit seller update service spec event', () => {
     const serv = { id: 'serv-1' };
-    spyOn(eventMessage, 'emitSellerUpdateServiceSpec');
+    spyOn(router, 'navigate');
 
-    component.goToUpdate(serv);
+    component.goToUpdate(serv.id);
 
-    expect(eventMessage.emitSellerUpdateServiceSpec).toHaveBeenCalledWith(serv);
+    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.serviceSpecs.edit(serv.id));
   });
 
   it('hasLongWord should detect long words and handle undefined', () => {

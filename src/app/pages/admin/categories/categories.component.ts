@@ -1,17 +1,18 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
-import { Router } from '@angular/router';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import {faIdCard, faSort, faSwatchbook} from "@fortawesome/pro-solid-svg-icons";
-import {components} from "src/app/models/product-catalog";
-type Category = components["schemas"]["Category"];
-import { environment } from 'src/environments/environment';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import {LocalStorageService} from "src/app/services/local-storage.service";
-import { LoginInfo } from 'src/app/models/interfaces';
-import {EventMessageService} from "src/app/services/event-message.service";
+import { Router } from '@angular/router';
+import { faIdCard, faSort, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { LoginInfo } from 'src/app/models/interfaces';
+import { components } from "src/app/models/product-catalog";
+import { EventMessageService } from "src/app/services/event-message.service";
+import { LocalStorageService } from "src/app/services/local-storage.service";
+import { ApiServiceService } from 'src/app/services/product-service.service';
+import { environment } from 'src/environments/environment';
+import { AdminPaths } from '../admin.paths';
+type Category = components["schemas"]["Category"];
 
 @Component({
   selector: 'admin-categories',
@@ -24,13 +25,13 @@ export class CategoriesComponent implements OnDestroy {
   protected readonly faSwatchbook = faSwatchbook;
 
   searchField = new FormControl();
-  categories:any[]=[];
-  unformattedCategories:any[]=[];
-  page:number=0;
+  categories: any[] = [];
+  unformattedCategories: any[] = [];
+  page: number = 0;
   CATEGOY_LIMIT: number = environment.CATEGORY_LIMIT;
   loading: boolean = false;
-  partyId:any;
-  status:any[]=['Active','Launched'];
+  partyId: any;
+  status: any[] = ['Active', 'Launched'];
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -41,29 +42,29 @@ export class CategoriesComponent implements OnDestroy {
     private eventMessage: EventMessageService,
   ) {
     this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'ChangedSession') {
-        this.initCatalogs();
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'ChangedSession') {
+          this.initCatalogs();
+        }
+      })
   }
 
   ngOnInit() {
     this.initCatalogs();
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  initCatalogs(){
-    this.loading=true;
-    this.categories=[];
-    this.unformattedCategories=[];
+  initCatalogs() {
+    this.loading = true;
+    this.categories = [];
+    this.unformattedCategories = [];
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(aux.logged_as==aux.id){
+    if (aux.logged_as == aux.id) {
       this.partyId = aux.partyId;
     } else {
       let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
@@ -74,15 +75,15 @@ export class CategoriesComponent implements OnDestroy {
     initFlowbite();
   }
 
-  createCategory(){
-    this.eventMessage.emitCreateCategory(true);
+  createCategory() {
+    this.router.navigate([AdminPaths.categories.new()]);
   }
 
-  goToUpdate(cat:any){
-    this.eventMessage.emitUpdateCategory(cat);
+  goToUpdate(catId: string) {
+    this.router.navigate([AdminPaths.categories.edit(catId)]);
   }
 
-  async getCategories(){
+  async getCategories() {
     /*this.api.getCatalog(this.selectedCatalog.id).then(data => {
       if(data.category){
         for (let i=0; i<data.category.length; i++){
@@ -98,7 +99,7 @@ export class CategoriesComponent implements OnDestroy {
           }
           this.cdr.detectChanges();
           initFlowbite();
-        })           
+        })
       }
     })*/
     console.log('Getting categories...')
@@ -111,12 +112,12 @@ export class CategoriesComponent implements OnDestroy {
     );
 
     this.categories = categoryTrees.filter((cat): cat is Category => !!cat);
-    this.loading=false;
+    this.loading = false;
     this.cdr.detectChanges();
     initFlowbite();
   }
 
-  private async loadCategorySubtree(parent:any): Promise<Category> {
+  private async loadCategorySubtree(parent: any): Promise<Category> {
     const children = await this.api.getCategoriesByParentId(parent.id).catch(() => []);
     const childList = Array.isArray(children) ? children : [];
     const resolvedChildren = await Promise.all(
@@ -129,10 +130,10 @@ export class CategoriesComponent implements OnDestroy {
     };
   }
 
-  /*addParent(parentId:any){    
+  /*addParent(parentId:any){
     const index = this.unformattedCategories.findIndex(item => item.id === parentId);
     if (index != -1) {
-      //Si el padre no está seleccionado se añade a la selección      
+      //Si el padre no está seleccionado se añade a la selección
       if(this.unformattedCategories[index].isRoot==false){
         this.addCategory(this.unformattedCategories[index])
       } else {
@@ -141,7 +142,7 @@ export class CategoriesComponent implements OnDestroy {
     }
   }*/
 
-  onStateFilterChange(filter:string){
+  onStateFilterChange(filter: string) {
     const index = this.status.findIndex(item => item === filter);
     if (index !== -1) {
       this.status.splice(index, 1);
@@ -152,9 +153,9 @@ export class CategoriesComponent implements OnDestroy {
       console.log(this.status)
       this.status.push(filter)
     }
-    this.loading=true;
-    this.categories=[];
-    this.unformattedCategories=[];
+    this.loading = true;
+    this.categories = [];
+    this.unformattedCategories = [];
     void this.getCategories();
     console.log('filter')
   }

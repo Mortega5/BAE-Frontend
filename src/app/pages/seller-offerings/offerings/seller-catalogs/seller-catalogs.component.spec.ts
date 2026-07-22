@@ -1,16 +1,17 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { EventMessageService } from 'src/app/services/event-message.service';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { RouterTestingModule } from '@angular/router/testing';
+import { TranslateModule } from '@ngx-translate/core';
 
+import { Router } from '@angular/router';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 import { SellerCatalogsComponent } from './seller-catalogs.component';
 
 describe('SellerCatalogsComponent', () => {
   let component: SellerCatalogsComponent;
   let fixture: ComponentFixture<SellerCatalogsComponent>;
-  let eventMessage: EventMessageService;
+  let router: Router;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -18,11 +19,11 @@ describe('SellerCatalogsComponent', () => {
       imports: [HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()],
       declarations: [SellerCatalogsComponent]
     })
-    .compileComponents();
-    
+      .compileComponents();
+
     fixture = TestBed.createComponent(SellerCatalogsComponent);
     component = fixture.componentInstance;
-    eventMessage = TestBed.inject(EventMessageService);
+    router = TestBed.inject(Router);
   });
 
   it('should create', () => {
@@ -30,20 +31,20 @@ describe('SellerCatalogsComponent', () => {
   });
 
   it('goToCreate should emit seller create catalog event', () => {
-    spyOn(eventMessage, 'emitSellerCreateCatalog');
+    spyOn(router, 'navigate');
 
     component.goToCreate();
 
-    expect(eventMessage.emitSellerCreateCatalog).toHaveBeenCalledWith(true);
+    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.catalogues.new()]);
   });
 
   it('goToUpdate should emit seller update catalog event', () => {
     const cat = { id: 'cat-1' };
-    spyOn(eventMessage, 'emitSellerUpdateCatalog');
+    spyOn(router, 'navigate');
 
-    component.goToUpdate(cat);
+    component.goToUpdate(cat.id);
 
-    expect(eventMessage.emitSellerUpdateCatalog).toHaveBeenCalledWith(cat);
+    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.catalogues.edit(cat.id));
   });
 
   it('hasLongWord should detect long words and handle undefined', () => {

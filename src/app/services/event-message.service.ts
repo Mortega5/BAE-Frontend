@@ -5,12 +5,11 @@ import { cartProduct, Category, FormChangeState, PricePlanChangeState } from "..
 
 export interface EventMessage {
   type: 'AddedFilter' | 'RemovedFilter' | 'AddedCartItem' | 'RemovedCartItem' | 'FilterShown' | 'ToggleCartDrawer' | 'LoginProcess' | 'BillAccChanged' |
-  'SellerCreateProductSpec' | 'SellerServiceSpec' | 'SellerCreateServiceSpec' | 'SellerResourceSpec' | 'SellerCreateResourceSpec' |
-  'SellerOffer' | 'SellerCreateOffer' | 'SellerUpdateProductSpec' | 'SellerUpdateServiceSpec' | 'SellerUpdateResourceSpec' | 'SellerUpdateOffer' | 'SellerCreateCustomOffer' |
-  'SellerCatalog' | 'SellerCatalogCreate' | 'SellerCatalogUpdate' | 'CategoryAdded' | 'CategoryRemoved' | 'ChangedSession' | 'CloseCartCard' |
-  'CreateCategory' | 'UpdateCategory' | 'ShowCartToast' | 'HideCartToast' | 'CloseContact' |
+  'SellerProductSpec' |
+  'CategoryAdded' | 'CategoryRemoved' | 'ChangedSession' | 'CloseCartCard' |
+  'ShowCartToast' | 'HideCartToast' | 'CloseContact' |
   'SavePricePlan' | 'UpdatePricePlan' | 'ToggleEditPrice' | 'ToggleNewPrice' |
-  'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'UpdateUsageSpec' | 'CreateUsageSpec' | 'AiSearchFacets' | 'AiSearchCleared' | 'FiltersCommitted' | 'SellerSoftware' | 'SellerCreateSoftware' | 'SellerSoftwareUpdate';
+  'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'AiSearchFacets' | 'AiSearchCleared' | 'FiltersCommitted';
   text?: string,
   value?: object | boolean | FormChangeState | PricePlanChangeState
 }
@@ -61,64 +60,8 @@ export class EventMessageService {
     this.eventMessageSubject.next({ type: 'BillAccChanged', value: changed });
   }
 
-  emitSellerCreateProductSpec(show: boolean) {
-    this.eventMessageSubject.next({ type: 'SellerCreateProductSpec', value: show });
-  }
-
-  emitSellerUpdateProductSpec(prod: any) {
-    this.eventMessageSubject.next({ type: 'SellerUpdateProductSpec', value: prod });
-  }
-
-  emitSellerServiceSpec(show: boolean) {
-    this.eventMessageSubject.next({ type: 'SellerServiceSpec', value: show });
-  }
-
-  emitSellerCreateServiceSpec(show: boolean) {
-    this.eventMessageSubject.next({ type: 'SellerCreateServiceSpec', value: show });
-  }
-
-  emitSellerUpdateServiceSpec(serv: any) {
-    this.eventMessageSubject.next({ type: 'SellerUpdateServiceSpec', value: serv });
-  }
-
-  emitSellerResourceSpec(show: boolean) {
-    this.eventMessageSubject.next({ type: 'SellerResourceSpec', value: show });
-  }
-
-  emitSellerCreateResourceSpec(show: boolean) {
-    this.eventMessageSubject.next({ type: 'SellerCreateResourceSpec', value: show });
-  }
-
-  emitSellerUpdateResourceSpec(res: any) {
-    this.eventMessageSubject.next({ type: 'SellerUpdateResourceSpec', value: res });
-  }
-
-  emitSellerOffer(show: boolean) {
-    this.eventMessageSubject.next({ type: 'SellerOffer', value: show });
-  }
-
-  emitSellerCreateOffer(show: boolean) {
-    this.eventMessageSubject.next({ type: 'SellerCreateOffer', value: show });
-  }
-
-  emitSellerUpdateOffer(offer: any) {
-    this.eventMessageSubject.next({ type: 'SellerUpdateOffer', value: offer });
-  }
-
-  emitSellerCreateCustomOffer(offer: any, partyId?: string) {
-    this.eventMessageSubject.next({ type: 'SellerCreateCustomOffer', value: { offer, partyId } })
-  }
-
-  emitSellerCatalog(show: boolean) {
-    this.eventMessageSubject.next({ type: 'SellerCatalog', value: show });
-  }
-
-  emitSellerUpdateCatalog(cat: any) {
-    this.eventMessageSubject.next({ type: 'SellerCatalogUpdate', value: cat });
-  }
-
-  emitSellerCreateCatalog(show: boolean) {
-    this.eventMessageSubject.next({ type: 'SellerCatalogCreate', value: show });
+  emitSellerProductSpec(show: boolean) {
+    this.eventMessageSubject.next({ type: 'SellerProductSpec', value: show });
   }
 
   emitCategoryAdded(cat: Category) {
@@ -138,14 +81,6 @@ export class EventMessageService {
   }
   emitHideCartToast(val: cartProduct | undefined) {
     this.eventMessageSubject.next({ type: 'HideCartToast', value: val })
-  }
-
-  emitCreateCategory(show: boolean) {
-    this.eventMessageSubject.next({ type: 'CreateCategory', value: show });
-  }
-
-  emitUpdateCategory(cat: any) {
-    this.eventMessageSubject.next({ type: 'UpdateCategory', value: cat });
   }
 
   emitCloseContact(close: boolean) {
@@ -187,14 +122,6 @@ export class EventMessageService {
     this.eventMessageSubject.next({ type: 'UpdateOffer', value: show })
   }
 
-  emitUpdateUsageSpec(usageSpec: any) {
-    this.eventMessageSubject.next({ type: 'UpdateUsageSpec', value: usageSpec })
-  }
-
-  emitCreateUsageSpec(show: boolean) {
-    this.eventMessageSubject.next({ type: 'CreateUsageSpec', value: show })
-  }
-
   emitAiSearchFacets(facets: Record<string, Record<string | number, number>>) {
     this.eventMessageSubject.next({ type: 'AiSearchFacets', value: facets })
   }
@@ -205,16 +132,5 @@ export class EventMessageService {
 
   emitAiSearchCleared() {
     this.eventMessageSubject.next({ type: 'AiSearchCleared', value: true })
-  }
-
-  emitSellerSoftware(show: boolean) {
-    this.eventMessageSubject.next({ type: 'SellerSoftware', value: show })
-  }
-  emitSellerSoftwareCreate(show: boolean) {
-    this.eventMessageSubject.next({ type: 'SellerCreateSoftware', value: show })
-  }
-
-  emitSellerSoftwareUpdate(software: any) {
-    this.eventMessageSubject.next({ type: 'SellerSoftwareUpdate', value: software })
   }
 }
