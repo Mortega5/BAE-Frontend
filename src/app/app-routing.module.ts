@@ -9,6 +9,8 @@ import { UsageSpecsComponent } from "src/app/pages/usage-specs/usage-specs.compo
 import { AuthGuard } from './guard/auth.guard';
 import { quoteGuardGuard } from './guard/quote-guard.guard';
 import { AdminComponent } from "./pages/admin/admin.component";
+import { AdminPaths } from "./pages/admin/admin.paths";
+import { adminRoutes } from "./pages/admin/admin.routes";
 import { CatalogsComponent } from "./pages/catalogs/catalogs.component";
 import { CheckoutComponent } from "./pages/checkout/checkout.component";
 import { ContactUsFormComponent } from "./pages/contact-us/contact-us-form.component";
@@ -101,9 +103,10 @@ const routes: Routes = [
     children: sellerOfferingsRoutes,
   },
   {
-    path: 'admin',
+    path: AdminPaths.rootSegment,
     component: AdminComponent,
-    canActivate: [AuthGuard], data: { roles: ['admin', 'certifier'] }
+    canActivate: [AuthGuard], data: { roles: ['admin', 'certifier'] },
+    children: adminRoutes,
   },
   {
     path: 'contact-us',

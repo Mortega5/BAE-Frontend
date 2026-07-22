@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import { EventMessageService } from 'src/app/services/event-message.service';
+import { Router } from '@angular/router';
+import { AdminPaths } from 'src/app/pages/admin/admin.paths';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -20,12 +21,12 @@ export class VerificationComponent {
   });
 
   constructor(
-    private eventMessage: EventMessageService,
+    private router: Router,
     private http: HttpClient
   ) {}
 
   goBack() {
-    this.eventMessage.emitAdminCategories(true);
+    this.router.navigate([AdminPaths.categories.list()]);
   }
 
   verifyCredential() {

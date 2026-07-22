@@ -1,138 +1,147 @@
 <div class="container mx-auto pt-2 pb-8">
-    <h1 class="hidden lg:block mb-8 mt-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-4xl lg:text-5xl dark:text-white w-full">
-      <span class="underline underline-offset-3 decoration-8 decoration-primary-100 dark:decoration-primary-100">{{ 'ADMIN._admin' | translate }}</span>
+  <h1
+    class="hidden lg:block mb-8 mt-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-4xl lg:text-5xl dark:text-white w-full">
+    <span class="underline underline-offset-3 decoration-8 decoration-primary-100 dark:decoration-primary-100">{{
+      'ADMIN._admin' | translate }}</span>
+  </h1>
+  <div class="flex flex-cols mr-2 ml-2 lg:hidden">
+    <h1
+      class="mb-8 mt-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 lg:text-4xl lg:text-5xl dark:text-white w-full">
+      <span class="underline underline-offset-3 decoration-8 decoration-primary-100 dark:decoration-primary-100">My
+        offerings</span>
     </h1>
-    <div class="flex flex-cols mr-2 ml-2 lg:hidden">
-      <h1 class="mb-8 mt-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 lg:text-4xl lg:text-5xl dark:text-white w-full"><span class="underline underline-offset-3 decoration-8 decoration-primary-100 dark:decoration-primary-100">My offerings</span></h1>
-      <div class="flex align-middle content-center items-center">
-        <button id="dropdown-nav" data-dropdown-toggle="dropdown-nav-content" 
+    <div class="flex align-middle content-center items-center">
+      <button id="dropdown-nav" data-dropdown-toggle="dropdown-nav-content"
         class="text-black dark:text-white h-fit w-fit justify-between shadow bg-white dark:bg-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-300 focus:ring-4 focus:outline-none focus:ring-primary-100 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center shadow-lg"
         type="button">
         <svg class="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15"/>
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M1 1h15M1 7h15M1 13h15" />
         </svg>
         Administration
       </button>
-      </div>
-  
     </div>
-    <!-- Dropdown menu -->
-    <div id="dropdown-nav-content" class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
-      <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-nav">
-        <li class="px-4 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-          Catalog
-        </li>
-        <li>
-          <a (click)="goToDefaultCatalog()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'ADMIN._defaultCatalog' | translate }}</a>
-        </li>
-        <li>
-          <a (click)="goToCategories()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'ADMIN._categories' | translate }}</a>
-        </li>
-        <li class="my-1 border-t border-gray-100 dark:border-gray-600"></li>
-        <li class="px-4 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-          Business
-        </li>
-        <li>
-          <a (click)="goToVerification()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'ADMIN._verification' | translate }}</a>
-        </li>
-        <li>
-          <a (click)="goToRevenue()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'ADMIN._revenue' | translate }}</a>
-        </li>
-        <li class="my-1 border-t border-gray-100 dark:border-gray-600"></li>
-        <li class="px-4 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-          Config
-        </li>
-        <li>
-          <a (click)="goToEmail()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{ 'ADMIN._email' | translate }}</a>
-        </li>
-        <li>
-          <a (click)="goToAnalytics()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Analytics</a>
-        </li>
-        <li>
-          <a (click)="goToSearchFilters()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Search &amp; filters</a>
-        </li>
-        <li>
-          <a (click)="goToFeatures()" class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Features</a>
-        </li>
-      </ul>
-    </div>
-    
-    <div class="w-full grid lg:grid-cols-20/80">
-        <div class="hidden lg:block">
-          <div class="w-48 h-fit text-sm font-medium text-gray-900 dark:text-white mb-8 space-y-4">
-            <div>
-              <p class="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Catalog</p>
-              <div class="bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600">
-                <button (click)="goToDefaultCatalog()" id="default-catalog-button" data-cy="adminDefaultCatalogSection" class="block w-full px-4 py-2 border-b border-gray-200 rounded-t-lg cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                  {{ 'ADMIN._defaultCatalog' | translate }}
-                </button>
-                <button (click)="goToCategories()" id="categories-button" data-cy="adminCategoriesSection" aria-current="true" class="block w-full px-4 py-2 text-white bg-primary-100 rounded-b-lg cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                  {{ 'ADMIN._categories' | translate }}
-                </button>
-              </div>
-            </div>
 
-            <div>
-              <p class="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Business</p>
-              <div class="bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600">
-                <button (click)="goToVerification()" id="verify-button" class="block w-full px-4 py-2 border-b border-gray-200 rounded-t-lg cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                  {{ 'ADMIN._verification' | translate }}
-                </button>
-                <button (click)="goToRevenue()" id="revenue-button" class="block w-full px-4 py-2 rounded-b-lg cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                  {{ 'ADMIN._revenue' | translate }}
-                </button>
-              </div>
-            </div>
+  </div>
+  <!-- Dropdown menu -->
+  <div id="dropdown-nav-content"
+    class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+    <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdown-nav">
+      <li class="px-4 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        Catalog
+      </li>
+      <li>
+        <a [routerLink]="paths.defaultCatalog()"
+          class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{
+          'ADMIN._defaultCatalog' | translate }}</a>
+      </li>
+      <li>
+        <a [routerLink]="paths.categories.list()"
+          class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{
+          'ADMIN._categories' | translate }}</a>
+      </li>
+      <li class="my-1 border-t border-gray-100 dark:border-gray-600"></li>
+      <li class="px-4 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        Business
+      </li>
+      <li>
+        <a [routerLink]="paths.verification()"
+          class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{
+          'ADMIN._verification' | translate }}</a>
+      </li>
+      <li>
+        <a [routerLink]="paths.revenue()"
+          class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{
+          'ADMIN._revenue' | translate }}</a>
+      </li>
+      <li class="my-1 border-t border-gray-100 dark:border-gray-600"></li>
+      <li class="px-4 pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        Config
+      </li>
+      <li>
+        <a [routerLink]="paths.email()"
+          class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{
+          'ADMIN._email' | translate }}</a>
+      </li>
+      <li>
+        <a [routerLink]="paths.analytics()"
+          class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Analytics</a>
+      </li>
+      <li>
+        <a [routerLink]="paths.searchFilters()"
+          class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Search
+          &amp; filters</a>
+      </li>
+      <li>
+        <a [routerLink]="paths.features()"
+          class="cursor-pointer block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Features</a>
+      </li>
+    </ul>
+  </div>
 
-            <div>
-              <p class="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Config</p>
-              <div class="bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600">
-                <button (click)="goToEmail()" id="email-button" class="block w-full px-4 py-2 border-b border-gray-200 rounded-t-lg cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                  {{ 'ADMIN._email' | translate }}
-                </button>
-                <button (click)="goToAnalytics()" id="analytics-button" data-cy="adminAnalyticsSection" class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                  Analytics
-                </button>
-                <button (click)="goToSearchFilters()" id="search-filters-button" data-cy="adminSearchFiltersSection" class="block w-full px-4 py-2 border-b border-gray-200 cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                  Search &amp; filters
-                </button>
-                <button (click)="goToFeatures()" id="features-button" data-cy="adminFeaturesSection" class="block w-full px-4 py-2 rounded-b-lg cursor-pointer hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
-                  Features
-                </button>
-              </div>
-            </div>
+  <div class="w-full grid lg:grid-cols-20/80">
+    <div class="hidden lg:block">
+      <div class="w-48 h-fit text-sm font-medium text-gray-900 dark:text-white mb-8 space-y-4">
+        <div>
+          <p class="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Catalog
+          </p>
+          <div class="bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600">
+            <a [routerLink]="paths.defaultCatalog()" routerLinkActive="text-white bg-primary-100"
+              id="default-catalog-button" data-cy="adminDefaultCatalogSection"
+              class="block w-full px-4 py-2 border-b border-gray-200 rounded-t-lg cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+              {{ 'ADMIN._defaultCatalog' | translate }}
+            </a>
+            <a [routerLink]="paths.categories.list()" routerLinkActive="text-white bg-primary-100"
+              id="categories-button" data-cy="adminCategoriesSection"
+              class="block w-full px-4 py-2 rounded-b-lg cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+              {{ 'ADMIN._categories' | translate }}
+            </a>
           </div>
-       </div>
+        </div>
 
-        @if(show_categories){
-          <admin-categories></admin-categories>
-        }
-        @if(show_create_categories){
-          <create-category></create-category>
-        }
-        @if(show_update_categories){
-          <update-category [category]="category_to_update"></update-category>
-        }
-        @if(show_verification){
-          <verification></verification>
-        }
-        @if(show_revenue){
-          <operator-revenue-sharing></operator-revenue-sharing>
-        }
-        @if(show_email){
-          <email></email>
-        }
-        @if(show_analytics){
-          <analytics-config></analytics-config>
-        }
-        @if(show_search_filters){
-          <search-filters-config></search-filters-config>
-        }
-        @if(show_features){
-          <features-config></features-config>
-        }
-        @if(show_default_catalog){
-          <default-catalog></default-catalog>
-        }
+        <div>
+          <p class="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Business
+          </p>
+          <div class="bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600">
+            <a [routerLink]="paths.verification()" routerLinkActive="text-white bg-primary-100" id="verify-button"
+              class="block w-full px-4 py-2 border-b border-gray-200 rounded-t-lg cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+              {{ 'ADMIN._verification' | translate }}
+            </a>
+            <a [routerLink]="paths.revenue()" routerLinkActive="text-white bg-primary-100" id="revenue-button"
+              class="block w-full px-4 py-2 rounded-b-lg cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+              {{ 'ADMIN._revenue' | translate }}
+            </a>
+          </div>
+        </div>
+
+        <div>
+          <p class="mb-2 px-1 text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Config</p>
+          <div class="bg-white border border-gray-200 rounded-lg dark:bg-gray-700 dark:border-gray-600">
+            <a [routerLink]="paths.email()" routerLinkActive="text-white bg-primary-100" id="email-button"
+              class="block w-full px-4 py-2 border-b border-gray-200 rounded-t-lg cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+              {{ 'ADMIN._email' | translate }}
+            </a>
+            <a [routerLink]="paths.analytics()" id="analytics-button" data-cy="adminAnalyticsSection"
+              class="block w-full px-4 py-2 rounded-b-lg cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+              Analytics
+            </a>
+
+            <a [routerLink]="paths.features()" id="features-button" data-cy="adminFeaturesSection"
+              class="block w-full px-4 py-2 rounded-b-lg cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+              Features
+            </a>
+            <a [routerLink]="paths.searchFilters()" routerLinkActive="text-white bg-primary-100"
+              id="search-filters-button" data-cy="adminSearchFiltersSection"
+              class="block w-full px-4 py-2 rounded-b-lg cursor-pointer text-center hover:bg-gray-100 hover:text-secondary-400 dark:border-gray-600 dark:hover:bg-gray-600 dark:hover:text-white dark:focus:ring-gray-500 dark:focus:text-white">
+              Search &amp; filters
+            </a>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <div class="w-full">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
 </div>

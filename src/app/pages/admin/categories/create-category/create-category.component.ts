@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, HostListener, ElementRef, ViewChild, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { ApiServiceService } from 'src/app/services/product-service.service';
+import { AdminPaths } from 'src/app/pages/admin/admin.paths';
 import {LocalStorageService} from "src/app/services/local-storage.service";
 import {EventMessageService} from "src/app/services/event-message.service";
 import { LoginInfo } from 'src/app/models/interfaces';
@@ -105,7 +106,7 @@ export class CreateCategoryComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
-    this.eventMessage.emitAdminCategories(true);
+    this.router.navigate([AdminPaths.categories.list()]);
   }
 
   async getCategories(){

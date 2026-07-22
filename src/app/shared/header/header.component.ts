@@ -30,6 +30,7 @@ import { LoginInfo } from 'src/app/models/interfaces';
 import { LoginServiceService } from 'src/app/services/login-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { QrVerifierService } from 'src/app/services/qr-verifier.service';
+import { AdminPaths } from 'src/app/pages/admin/admin.paths';
 import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
 import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.paths';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
@@ -48,6 +49,7 @@ import { NavLink, ThemeAuthUrlsConfig, ThemeConfig } from '../../themes';
 export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestroy {
   readonly userProfilePaths = UserProfilePaths;
   readonly productInventoryPaths = ProductInventoryPaths;
+  readonly adminPaths = AdminPaths;
   readonly productOrdersPaths = ProductOrdersPaths;
   readonly sellerOfferingsPaths = SellerOfferingsPaths;
 

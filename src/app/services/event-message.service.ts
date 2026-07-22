@@ -8,7 +8,7 @@ export interface EventMessage {
   'SellerCreateProductSpec' | 'SellerServiceSpec' | 'SellerCreateServiceSpec' | 'SellerResourceSpec' | 'SellerCreateResourceSpec' |
   'SellerOffer' | 'SellerCreateOffer' | 'SellerUpdateProductSpec' | 'SellerUpdateServiceSpec' | 'SellerUpdateResourceSpec' | 'SellerUpdateOffer' | 'SellerCreateCustomOffer' |
   'SellerCatalog' | 'SellerCatalogCreate' | 'SellerCatalogUpdate' | 'CategoryAdded' | 'CategoryRemoved' | 'ChangedSession' | 'CloseCartCard' |
-  'AdminCategories' | 'CreateCategory' | 'UpdateCategory' | 'ShowCartToast' | 'HideCartToast' | 'CloseContact' |
+  'CreateCategory' | 'UpdateCategory' | 'ShowCartToast' | 'HideCartToast' | 'CloseContact' |
   'SavePricePlan' | 'UpdatePricePlan' | 'ToggleEditPrice' | 'ToggleNewPrice' |
   'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'UpdateUsageSpec' | 'UsageSpecList' | 'CreateUsageSpec' | 'AiSearchFacets' | 'AiSearchCleared' | 'FiltersCommitted' | 'SellerSoftware' | 'SellerCreateSoftware' | 'SellerSoftwareUpdate';
   text?: string,
@@ -138,10 +138,6 @@ export class EventMessageService {
   }
   emitHideCartToast(val: cartProduct | undefined) {
     this.eventMessageSubject.next({ type: 'HideCartToast', value: val })
-  }
-
-  emitAdminCategories(show: boolean) {
-    this.eventMessageSubject.next({ type: 'AdminCategories', value: show });
   }
 
   emitCreateCategory(show: boolean) {
