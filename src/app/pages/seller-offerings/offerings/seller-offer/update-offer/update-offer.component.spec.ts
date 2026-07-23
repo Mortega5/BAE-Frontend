@@ -56,7 +56,7 @@ describe('UpdateOfferComponent', () => {
 
     component.goBack();
 
-    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.offers.list());
+    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.offers.list()]);
   });
 
   it('toggleGeneral should reset section visibility', () => {

@@ -35,7 +35,7 @@ describe('SellerResourceSpecComponent', () => {
 
     component.goToCreate();
 
-    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.resourceSpecs.new());
+    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.resourceSpecs.new()]);
   });
 
   it('goToUpdate should emit seller update resource spec event', () => {
@@ -44,7 +44,7 @@ describe('SellerResourceSpecComponent', () => {
 
     component.goToUpdate(res.id);
 
-    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.resourceSpecs.edit(res.id));
+    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.resourceSpecs.edit(res.id)]);
   });
 
   it('hasLongWord should detect long words and handle undefined', () => {

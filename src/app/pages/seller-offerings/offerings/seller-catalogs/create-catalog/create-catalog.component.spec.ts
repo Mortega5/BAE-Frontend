@@ -31,16 +31,6 @@ describe('CreateCatalogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('onClick should hide emoji picker when open', () => {
-    component.showEmoji = true;
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
-
-    component.onClick();
-
-    expect(component.showEmoji).toBeFalse();
-    expect(detectSpy).toHaveBeenCalled();
-  });
-
   it('setCatalogData should build catalog payload from form values', () => {
     component.partyId = 'party-1';
     component.generalForm.patchValue({
@@ -62,7 +52,7 @@ describe('CreateCatalogComponent', () => {
 
     component.goBack();
 
-    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.catalogues.list());
+    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.catalogues.list()]);
   });
 
   it('hasLongWord should detect long words and handle undefined', () => {

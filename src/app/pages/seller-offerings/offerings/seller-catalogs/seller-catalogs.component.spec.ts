@@ -44,7 +44,7 @@ describe('SellerCatalogsComponent', () => {
 
     component.goToUpdate(cat.id);
 
-    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.catalogues.edit(cat.id));
+    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.catalogues.edit(cat.id)]);
   });
 
   it('hasLongWord should detect long words and handle undefined', () => {

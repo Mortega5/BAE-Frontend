@@ -36,18 +36,8 @@ describe('UpdateCatalogComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('setCatStatus should update status and trigger change detection', () => {
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
-
-    component.setCatStatus('Launched');
-
-    expect(component.catStatus).toBe('Launched');
-    expect(detectSpy).toHaveBeenCalled();
-  });
-
   it('setCatalogData should include changed name and status', () => {
-    component.catStatus = 'Launched';
-    component.generalForm.patchValue({ name: 'Updated Catalog', description: 'New desc' });
+    component.generalForm.patchValue({ name: 'Updated Catalog', description: 'New desc', lifecycleStatus: 'Launched' });
 
     component.setCatalogData();
 
@@ -61,7 +51,7 @@ describe('UpdateCatalogComponent', () => {
 
     component.goBack();
 
-    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.catalogues.list());
+    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.catalogues.list()]);
   });
 
   it('hasLongWord should detect long words and handle undefined', () => {

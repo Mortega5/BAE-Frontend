@@ -35,7 +35,7 @@ describe('SellerServiceSpecComponent', () => {
 
     component.goToCreate();
 
-    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.serviceSpecs.new());
+    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.serviceSpecs.new()]);
   });
 
   it('goToUpdate should emit seller update service spec event', () => {
@@ -44,7 +44,7 @@ describe('SellerServiceSpecComponent', () => {
 
     component.goToUpdate(serv.id);
 
-    expect(router.navigate).toHaveBeenCalledWith(SellerOfferingsPaths.serviceSpecs.edit(serv.id));
+    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.serviceSpecs.edit(serv.id)]);
   });
 
   it('hasLongWord should detect long words and handle undefined', () => {

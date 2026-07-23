@@ -56,7 +56,6 @@ describe('SearchComponent', () => {
       'emitAddedFilter',
       'emitAiSearchCleared',
       'emitAiSearchFacets',
-      'emitFilterShown',
       'emitFiltersCommitted',
       'emitRemovedFilter',
     ]);
@@ -309,21 +308,18 @@ describe('SearchComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/search'], { replaceUrl: true });
   });
 
-  it('checkPanel should toggle panel visibility and emit only on state change', () => {
+  it('checkPanel should toggle panel visibility and persist only on state change', () => {
     localStorageSpy.getObject.and.returnValue([{ id: 'cat-1' }] as any);
     component.showPanel = false;
 
     component.checkPanel();
 
     expect(component.showPanel).toBeTrue();
-    expect(eventMessageSpy.emitFilterShown).toHaveBeenCalledWith(true);
     expect(localStorageSpy.setItem).toHaveBeenCalledWith('is_filter_panel_shown', 'true');
 
-    eventMessageSpy.emitFilterShown.calls.reset();
     localStorageSpy.setItem.calls.reset();
     component.checkPanel();
 
-    expect(eventMessageSpy.emitFilterShown).not.toHaveBeenCalled();
     expect(localStorageSpy.setItem).not.toHaveBeenCalled();
   });
 
