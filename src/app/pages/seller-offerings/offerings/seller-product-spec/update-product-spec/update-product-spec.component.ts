@@ -10,7 +10,7 @@ import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
-import { buildLifecycleStatusOptions, FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { buildLifecycleStatusOptions, FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
@@ -85,7 +85,10 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   newEndpointDescription: string = '';
   newEndpointName: string = '';
   endpointUrls: { url: string; description: string; name: string, id?: string }[] = [];
-  readonly transferTypes: string[] = ['HttpData-PULL', 'HttpData-PUSH'];
+  readonly transferTypes: SelectOption[] = [
+    { value: 'HttpData-PULL', label: 'HttpData-PULL' },
+    { value: 'HttpData-PUSH', label: 'HttpData-PUSH' }
+  ];
   dspConfigForm = new FormGroup({
     upstreamAddress: new FormControl('', [Validators.required]),
     transferPath: new FormControl(''),
@@ -349,6 +352,16 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
     { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS, readonly: true },
 
     { type: 'markdownTextarea', name: 'description', label: 'UPDATE_PROD_SPEC._product_description' },
+  ];
+
+  dspFormFields: FormField[] = [
+    { type: 'string', name: 'upstreamAddress', label: 'Upstream Address', required: true, colSpan: 1 },
+    { type: 'string', name: 'transferPath', label: 'Transfer path', required: false, colSpan: 1 },
+    { type: 'select', name: 'transferType', label: 'Transfer Type', options: this.transferTypes, colSpan: 1 },
+    { type: 'code', name: 'targetSpecification', label: 'Target Specification', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
+    { type: 'code', name: 'serviceConfiguration', label: 'Service Configuration', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
+    { type: 'code', name: 'credentialsConfig', label: 'Credentials Configuration', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
+    { type: 'code', name: 'policyConfig', label: 'Policy Configuration', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' }
   ];
 
   get canAdvance(): boolean {

@@ -1,14 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
-import { FormField, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
@@ -43,6 +43,7 @@ const BASE_TEMPLATE_OPTIONS = [
   { value: 'BlueprintProductSpecification', label: 'Blueprint Product Specification' },
 ];
 
+const BASE_TEMPLATE_IDX = 4
 @Component({
   selector: 'create-product-spec',
   templateUrl: './create-product-spec.component.html',
@@ -78,7 +79,10 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   newEndpointDescription: string = '';
   newEndpointName: string = '';
   endpointUrls: { url: string; description: string, name: string }[] = [];
-  readonly transferTypes: string[] = ['HttpData-PULL', 'HttpData-PUSH'];
+  readonly transferTypes: SelectOption[] = [
+    { value: 'HttpData-PULL', label: 'HttpData-PULL' },
+    { value: 'HttpData-PUSH', label: 'HttpData-PUSH' }
+  ];
   dspConfigForm = new FormGroup({
     upstreamAddress: new FormControl('', [Validators.required]),
     transferPath: new FormControl(''),
@@ -264,10 +268,20 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     { type: 'string', name: 'brand', label: 'CREATE_PROD_SPEC._product_brand', required: true, colSpan: 1, dataCy: 'inputBrand' },
     { type: 'string', name: 'version', label: 'CREATE_PROD_SPEC._product_version', required: true, colSpan: 1, dataCy: 'inputVersion' },
     { type: 'string', name: 'number', label: 'CREATE_PROD_SPEC._id_number', colSpan: 1, dataCy: 'inputIdNumber' },
-    { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS },
+    { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS, colSpan: 1 },
     { type: 'markdownTextarea', name: 'description', label: 'CREATE_PROD_SPEC._product_description' },
   ];
 
+  dspFormFields: FormField[] = [
+    { type: 'string', name: 'upstreamAddress', label: 'Upstream Address', required: true, colSpan: 1 },
+    { type: 'string', name: 'transferPath', label: 'Transfer path', required: false, colSpan: 1 },
+    { type: 'select', name: 'transferType', label: 'Transfer Type', options: this.transferTypes, colSpan: 1 },
+    { type: 'code', name: 'targetSpecification', label: 'Target Specification', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
+    { type: 'code', name: 'serviceConfiguration', label: 'Service Configuration', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
+    { type: 'code', name: 'credentialsConfig', label: 'Credentials Configuration', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
+    { type: 'code', name: 'policyConfig', label: 'Policy Configuration', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' }
+
+  ]
   get canAdvance(): boolean {
     if (this.currentStepId === 'general') return this.generalForm?.valid ?? false;
     if (this.currentStepId === 'bundle') {
@@ -278,6 +292,9 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     }
     if (this.currentStepId === 'relationships' && this.templateName === 'BlueprintProductSpecification') {
       return this.prodRelationships.length > 0;
+    }
+    if (this.currentStepId === 'dsp_config') {
+      return this.dspConfigForm.valid ?? false
     }
 
     if (this.currentStepId === 'orchestrationPlan') {
@@ -300,7 +317,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     private resSpecService: ResourceSpecServiceService,
     private paginationService: PaginationService,
     private datePipe: DatePipe,
-    private route: ActivatedRoute,
     private router: Router,
   ) {
     for (let i = 0; i < certifications.length; i++) {
@@ -329,6 +345,16 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
 
 
   ngOnInit() {
+    if (this.dspEnable) {
+      this.generalFormFields.splice(BASE_TEMPLATE_IDX, 0, {
+        type: 'boolean',
+        label: 'DSP Compatible',
+        name: 'dspCompatible',
+        required: false,
+        defaultValue: true,
+        colSpan: 1
+      })
+    }
     this.initPartyInfo();
     this.generalForm.get('dspCompatible')!.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -940,7 +966,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   isTextCharacteristicType(type: string | undefined): boolean {
-    return type === 'string' || type === 'endpointUrl' || type === 'upstreamAddress' || type === 'endpointDescription' || type === 'transferPath';
+    return type === 'string';
   }
 
   getFilteredCharacteristicsForCurrentStep(): ProductSpecificationCharacteristic[] {

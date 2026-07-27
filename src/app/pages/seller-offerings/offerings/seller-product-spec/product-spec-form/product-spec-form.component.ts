@@ -1137,7 +1137,7 @@ export class ProductSpecFormComponent implements OnInit, OnDestroy {
   }
 
   isTextCharacteristicType(type: string | undefined): boolean {
-    return type === 'string' || type === 'endpointUrl' || type === 'upstreamAddress' || type === 'endpointDescription';
+    return type === 'string';
   }
 
   getFilteredCharacteristicsForCurrentStep(): ProductSpecificationCharacteristic[] {

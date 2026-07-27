@@ -42,17 +42,6 @@
 
       <ng-template stepperStep="General Info" stepId="general">
         <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" [columns]="2" />
-        @if(dspEnable) {
-        <div [formGroup]="generalForm" class="col-span-2 flex items-center h-fit m-4">
-          <label for="dsp-compatible" class="font-bold text-lg dark:text-white">DSP Compatible</label>
-          <label class="inline-flex items-center me-5 cursor-pointer ml-4">
-            <input type="checkbox" id="dsp-compatible" formControlName="dspCompatible" class="sr-only peer">
-            <div
-              class="relative w-11 h-6 bg-gray-400 dark:bg-gray-700 rounded-full peer peer-focus:ring-4 peer-focus:ring-primary-100 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-100">
-            </div>
-          </label>
-        </div>
-        }
       </ng-template>
       @if (BUNDLE_ENABLED) {
       <ng-template stepperStep="Bundle" stepId="bundle">
@@ -617,11 +606,6 @@
               (change)="onTypeChange($event)"
               class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
               @if(isDataspaceConfigurationStep()){
-              <option value="endpointUrl">Endpoint URL</option>
-              <option value="upstreamAddress">Upstream Address</option>
-              <option value="endpointDescription">Endpoint Description</option>
-              <option value="targetSpecification">Target Specification</option>
-              <option value="serviceConfiguration">Service Configuration</option>
               <option value="credentialsConfiguration">Credentials Configuration</option>
               <option value="authorizationPolicy">Authorization Policy</option>
               } @else {
@@ -939,29 +923,12 @@
         </div>
         }
       </ng-template>
-      @if (DATA_SPACE_ENABLED) {
+
+      @if (DATA_SPACE_ENABLED && !showDspConfigStep) {
       <ng-template stepperStep="Dataspace Configuration" stepId="dataspace">
         <ng-container [ngTemplateOutlet]="charsShared"></ng-container>
       </ng-template>
       }
-
-      <ng-template stepperStep="Resource specifications" stepId="resource">
-        <div class="w-full m-4">
-          <app-paginated-table data-cy="tableResourceSpecs" [columns]="resColumns" [fetchPage]="fetchResourceSpecs"
-            [multiple]="true" [selectable]="true" [selected]="selectedResourceSpecs"
-            (selectedChange)="selectedResourceSpecs = $event" [defaultSort]="defaultResSort">
-          </app-paginated-table>
-        </div>
-      </ng-template>
-
-      <ng-template stepperStep="Service specifications" stepId="service">
-        <div class="w-full m-4">
-          <app-paginated-table data-cy="tableServiceSpecs" [columns]="servColumns" [fetchPage]="fetchServiceSpecs"
-            [multiple]="true" [selectable]="true" [selected]="selectedServiceSpecs"
-            (selectedChange)="selectedServiceSpecs = $event" [defaultSort]="defaultServSort">
-          </app-paginated-table>
-        </div>
-      </ng-template>
 
       @if (showDspConfigStep) {
       <ng-template stepperStep="DSP Config" stepId="dsp_config">
@@ -1049,89 +1016,29 @@
           }
 
           <hr class="my-6 border-gray-200 dark:border-gray-700" />
+          <app-dynamic-form class="block" [fields]="dspFormFields" [formGroup]="dspConfigForm" [columns]="3" />
 
-          <form [formGroup]="dspConfigForm" class="flex flex-col gap-4">
-            <div class="flex gap-4">
-              <div class="w-3/6">
-                <label class="font-bold text-lg dark:text-white">Upstream Address</label>
-                <input data-cy="dspUpstreamAddress" formControlName="upstreamAddress" type="text"
-                  class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  [ngClass]="dspConfigForm.get('upstreamAddress')?.invalid && dspConfigForm.get('upstreamAddress')?.value !== '' ? 'border-red-600' : ''" />
-              </div>
-              <div class="w-2/6">
-                <label class="font-bold text-lg dark:text-white">Transfer path</label>
-                <input data-cy="dspTransferPath" formControlName="transferPath" type="text"
-                  class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                  [ngClass]="dspConfigForm.get('transferPath')?.invalid && dspConfigForm.get('transferPath')?.value !== '' ? 'border-red-600' : ''" />
-              </div>
-              <div class="w-2/6">
-                <label class="font-bold text-lg dark:text-white">Transfer Type</label>
-                <select data-cy="dspTransferType" formControlName="transferType"
-                  class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                  <option *ngFor="let type of transferTypes" [value]="type">{{ type }}</option>
-                </select>
-              </div>
-            </div>
-            <div>
-              <label class="font-bold text-lg dark:text-white">Target Specification</label>
-              <textarea data-cy="dspTargetSpecification" formControlName="targetSpecification" rows="4"
-                class="font-mono bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                [ngClass]="dspConfigForm.get('targetSpecification')?.invalid && dspConfigForm.get('targetSpecification')?.touched ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
-                placeholder='{"key": "value"}'></textarea>
-              @if (dspConfigForm.get('targetSpecification')?.touched) {
-              @if (dspConfigForm.get('targetSpecification')?.errors?.['required']) {
-              <p class="mt-1 text-sm text-red-500">This field is required</p>
-              } @else if (dspConfigForm.get('targetSpecification')?.errors?.['invalidJson']) {
-              <p class="mt-1 text-sm text-red-500">Invalid JSON</p>
-              }
-              }
-            </div>
-            <div>
-              <label class="font-bold text-lg dark:text-white">Service Configuration</label>
-              <textarea data-cy="dspServiceConfiguration" formControlName="serviceConfiguration" rows="4"
-                class="font-mono bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                [ngClass]="dspConfigForm.get('serviceConfiguration')?.invalid && dspConfigForm.get('serviceConfiguration')?.touched ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
-                placeholder='{"key": "value"}'></textarea>
-              @if (dspConfigForm.get('serviceConfiguration')?.touched) {
-              @if (dspConfigForm.get('serviceConfiguration')?.errors?.['required']) {
-              <p class="mt-1 text-sm text-red-500">This field is required</p>
-              } @else if (dspConfigForm.get('serviceConfiguration')?.errors?.['invalidJson']) {
-              <p class="mt-1 text-sm text-red-500">Invalid JSON</p>
-              }
-              }
-            </div>
-            <div>
-              <label class="font-bold text-lg dark:text-white">Credentials Configuration</label>
-              <textarea data-cy="dspCredentialsConfig" formControlName="credentialsConfig" rows="4"
-                class="font-mono bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                [ngClass]="dspConfigForm.get('credentialsConfig')?.invalid && dspConfigForm.get('credentialsConfig')?.touched ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
-                placeholder='{"key": "value"}'></textarea>
-              @if (dspConfigForm.get('credentialsConfig')?.touched) {
-              @if (dspConfigForm.get('credentialsConfig')?.errors?.['required']) {
-              <p class="mt-1 text-sm text-red-500">This field is required</p>
-              } @else if (dspConfigForm.get('credentialsConfig')?.errors?.['invalidJson']) {
-              <p class="mt-1 text-sm text-red-500">Invalid JSON</p>
-              }
-              }
-            </div>
-            <div>
-              <label class="font-bold text-lg dark:text-white">Policy Configuration</label>
-              <textarea data-cy="dspPolicyConfig" formControlName="policyConfig" rows="4"
-                class="font-mono bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                [ngClass]="dspConfigForm.get('policyConfig')?.invalid && dspConfigForm.get('policyConfig')?.touched ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
-                placeholder='{"key": "value"}'></textarea>
-              @if (dspConfigForm.get('policyConfig')?.touched) {
-              @if (dspConfigForm.get('policyConfig')?.errors?.['required']) {
-              <p class="mt-1 text-sm text-red-500">This field is required</p>
-              } @else if (dspConfigForm.get('policyConfig')?.errors?.['invalidJson']) {
-              <p class="mt-1 text-sm text-red-500">Invalid JSON</p>
-              }
-              }
-            </div>
-          </form>
         </div>
       </ng-template>
       }
+
+      <ng-template stepperStep="Resource specifications" stepId="resource">
+        <div class="w-full m-4">
+          <app-paginated-table data-cy="tableResourceSpecs" [columns]="resColumns" [fetchPage]="fetchResourceSpecs"
+            [multiple]="true" [selectable]="true" [selected]="selectedResourceSpecs"
+            (selectedChange)="selectedResourceSpecs = $event" [defaultSort]="defaultResSort">
+          </app-paginated-table>
+        </div>
+      </ng-template>
+
+      <ng-template stepperStep="Service specifications" stepId="service">
+        <div class="w-full m-4">
+          <app-paginated-table data-cy="tableServiceSpecs" [columns]="servColumns" [fetchPage]="fetchServiceSpecs"
+            [multiple]="true" [selectable]="true" [selected]="selectedServiceSpecs"
+            (selectedChange)="selectedServiceSpecs = $event" [defaultSort]="defaultServSort">
+          </app-paginated-table>
+        </div>
+      </ng-template>
 
       <ng-template stepperStep="Attachments" stepId="attachments">
         <div class="inline-flex">
