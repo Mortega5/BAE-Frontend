@@ -1,19 +1,20 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import {faIdCard, faSort, faSwatchbook} from "@fortawesome/pro-solid-svg-icons";
-import {components} from "src/app/models/product-catalog";
-import { environment } from 'src/environments/environment';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
-import { PaginationService } from 'src/app/services/pagination.service';
-import {LocalStorageService} from "src/app/services/local-storage.service";
-import { LoginInfo } from 'src/app/models/interfaces';
-import {EventMessageService} from "src/app/services/event-message.service";
+import { Router } from '@angular/router';
+import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { TranslateService } from '@ngx-translate/core';
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { LoginInfo } from 'src/app/models/interfaces';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
+import { EventMessageService } from "src/app/services/event-message.service";
+import { LocalStorageService } from "src/app/services/local-storage.service";
+import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
+import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
 @Component({
   selector: 'seller-resource-spec',
@@ -21,293 +22,137 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrl: './seller-resource-spec.component.css'
 })
 export class SellerResourceSpecComponent implements OnInit, OnDestroy {
-  protected readonly faIdCard = faIdCard;
-  protected readonly faSort = faSort;
-  protected readonly faSwatchbook = faSwatchbook;
+
+  @ViewChild(FilteredPaginatedTableComponent) paginatedTable?: FilteredPaginatedTableComponent<any>;
 
   searchField = new FormControl();
-
-  resSpecs:any[]=[];
-  nextResSpecs:any[]=[];
-  page:number=0;
-  RES_SPEC_LIMIT: number = environment.RES_SPEC_LIMIT;
-  loading: boolean = false;
-  loading_more: boolean = false;
-  page_check:boolean = true;
-  filter:any=undefined;
-  status:any[]=['Active'];
-  selectedTab: string = 'Draft';
-  tabStatusMap: { [k: string]: string[] } = {
-    Draft: ['Active'],
-    Validated: ['Launched'],
-    Deleted: ['Retired', 'Obsolete']
-  };
-  statusCounts: { [k: string]: number } = { Draft: 0, Validated: 0, Deleted: 0 };
-  openMenuIdx: number | null = null;
-  deleteConfirmation: any | null = null;
-  deleteLoading: boolean = false;
-  partyId:any;
-  sort:any=undefined;
+  filter: Record<string, string> | undefined = undefined;
+  sort: any = undefined;
+  partyId: any;
   private destroy$ = new Subject<void>();
 
+  resSpecColumns: TableColumn<any>[];
+  defaultSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
+
+  resSpecFilters: FormField[] = [
+    {
+      name: 'status',
+      label: 'OFFERINGS._filter_state',
+      type: 'select',
+      icon: faSwatchbook,
+      multiple: true,
+      defaultValue: ['Active', 'Launched'],
+      options: [
+        { value: 'Active', label: 'OFFERINGS._active' },
+        { value: 'Launched', label: 'OFFERINGS._launched' },
+        { value: 'Retired', label: 'OFFERINGS._retired' },
+        { value: 'Obsolete', label: 'OFFERINGS._obsolete' },
+      ],
+    },
+  ];
+
   constructor(
-    private router: Router,
-    private api: ApiServiceService,
     private resSpecService: ResourceSpecServiceService,
-    private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
-    private paginationService: PaginationService,
-    private translate: TranslateService
+    private router: Router
   ) {
+    this.resSpecColumns = [
+      {
+        header: 'OFFERINGS._name',
+        getValue: (item: any) => item.name ?? '-',
+        width: 'w-1/2',
+        sortKey: 'name',
+        cellClass: (item: any) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
+      },
+      {
+        header: 'OFFERINGS._type',
+        getValue: (item: any) => item['@type'] ?? 'ResourceSpecification',
+        width: 'w-1/3',
+        hideOnMobile: true,
+        type: 'text'
+      },
+      {
+        header: 'OFFERINGS._status',
+        getValue: (item: any) => item.lifecycleStatus ?? '-',
+        type: 'badge',
+        width: 'w-[140px]',
+        sortKey: 'lifecycleStatus',
+        cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
+      },
+      {
+        header: 'OFFERINGS._last_update',
+        type: 'date',
+        sortKey: 'lastUpdate',
+        getValue: (item: any) => item.lastUpdate,
+        width: 'w-[220px]',
+      },
+    ];
+
     this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'ChangedSession') {
-        this.initResources();
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'ChangedSession') {
+          this.initResources();
+        }
+      })
   }
 
   ngOnInit() {
     this.initResources();
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  initResources(){
-    this.loading=true;
-    this.resSpecs=[];
+  goToCreate() {
+    this.router.navigate([SellerOfferingsPaths.resourceSpecs.new()])
+  }
+
+  goToUpdate(resId: string) {
+    this.router.navigate([SellerOfferingsPaths.resourceSpecs.edit(resId)])
+  }
+
+  initResources() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(aux.logged_as==aux.id){
+    if (aux.logged_as == aux.id) {
       this.partyId = aux.partyId;
     } else {
       let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
       this.partyId = loggedOrg.partyId
     }
 
-    this.getResSpecs(false);
-    this.loadStatusCounts();
+    this.paginatedTable?.refresh(true);
     let input = document.querySelector('[type=search]')
-    if(input!=undefined){
+    if (input != undefined) {
       input.addEventListener('input', e => {
         // Easy way to get the value of the element who trigger the current `e` event
         console.log(`Input updated`)
-        if(this.searchField.value==''){
-          this.filter=undefined;
-          this.getResSpecs(false);
+        if (this.searchField.value == '') {
+          this.filter = undefined;
+          this.paginatedTable?.refresh(true);
         }
       });
     }
     initFlowbite();
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     initFlowbite();
   }
 
-
-  goToCreate(){
-    this.eventMessage.emitSellerCreateResourceSpec(true);
-  }
-
-  goToUpdate(res:any){
-    this.eventMessage.emitSellerUpdateResourceSpec(res);
-  }
-
-  async getResSpecs(next:boolean){
-    if(next==false){
-      this.loading=true;
-    }
-    
-    let options = {
-      "filters": this.status,
-      "partyId": this.partyId,
-      "sort": this.sort
-    }
-    
-    this.paginationService.getItemsPaginated(this.page, this.RES_SPEC_LIMIT, next, this.resSpecs,this.nextResSpecs, options,
-      this.resSpecService.getResourceSpecByUser.bind(this.resSpecService)).then(data => {
-      this.page_check=data.page_check;      
-      this.resSpecs=data.items;
-      this.nextResSpecs=data.nextItems;
-      this.page=data.page;
-      this.loading=false;
-      this.loading_more=false;
-    })
-  }
-
-  async next(){
-    await this.getResSpecs(true);
-  }
-
-  filterInventoryByKeywords(){
-
-  }
-
-  onStateFilterChange(filter:string){
-    const index = this.status.findIndex(item => item === filter);
-    if (index !== -1) {
-      this.status.splice(index, 1);
-      console.log('elimina filtro')
-      console.log(this.status)
-    } else {
-      console.log('añade filtro')
-      console.log(this.status)
-      this.status.push(filter)
-    }
-    this.getResSpecs(false);
-  }
-
-  selectTab(tab: string) {
-    if (tab === this.selectedTab) return;
-    this.selectedTab = tab;
-    this.status = [...this.tabStatusMap[tab]];
-    this.page = 0;
-    this.getResSpecs(false);
-  }
-
-  async loadStatusCounts() {
-    try {
-      const all: any[] = [];
-      let offset = 0;
-      while (offset < 10000) {
-        const page = await this.resSpecService.getResourceSpecByUser(offset, [], this.partyId);
-        const items = Array.isArray(page) ? page : [];
-        all.push(...items);
-        if (items.length < this.RES_SPEC_LIMIT) break;
-        offset += this.RES_SPEC_LIMIT;
-      }
-      const counts: { [k: string]: number } = {};
-      for (const tab of Object.keys(this.tabStatusMap)) counts[tab] = 0;
-      for (const item of all) {
-        const status = item?.lifecycleStatus;
-        for (const tab of Object.keys(this.tabStatusMap)) {
-          if (this.tabStatusMap[tab].includes(status)) { counts[tab]++; break; }
-        }
-      }
-      this.statusCounts = counts;
-    } catch {
-    }
-    this.cdr.detectChanges();
-  }
-
-  toggleMenu(idx: number, event: Event){
-    event.stopPropagation();
-    this.openMenuIdx = this.openMenuIdx === idx ? null : idx;
-  }
-
-  @HostListener('document:click')
-  onDocClick(){
-    if(this.openMenuIdx !== null){
-      this.openMenuIdx = null;
-      this.cdr.detectChanges();
-    }
-  }
-
-  rowStatusBadge(res: any): { text: string, bg: string, color: string } {
-    const hasChars = (res?.resourceSpecCharacteristic && res.resourceSpecCharacteristic.length > 0);
-    if(res?.lifecycleStatus === 'Launched'){
-      return { text: 'Validated', bg: '#BBF7D0', color: '#052E16' };
-    }
-    if(res?.lifecycleStatus === 'Retired' || res?.lifecycleStatus === 'Obsolete'){
-      return { text: 'Deleted', bg: '#FEE2E2', color: '#991B1B' };
-    }
-    if(hasChars){
-      return { text: 'Ready to be validated', bg: '#DCFCE7', color: '#166534' };
-    }
-    return { text: 'Not completed', bg: '#FEF3C7', color: '#92400E' };
-  }
-
-  validateRes(res: any){
-    if(!res?.id) return;
-    this.resSpecService.updateResSpec({ lifecycleStatus: 'Launched' }, res.id).subscribe({
-      next: () => {
-        this.openMenuIdx = null;
-        this.eventMessage.emitSpecCreated(this.translate.instant('CREATE_RES_SPEC._validate_success'));
-        this.getResSpecs(false);
-        this.loadStatusCounts();
-      },
-      error: () => {
-        this.openMenuIdx = null;
-      }
-    });
-  }
-
-  deleteRes(res: any){
-    if(!res?.id) return;
-    this.openMenuIdx = null;
-    this.deleteConfirmation = res;
-  }
-
-  cancelDeleteRes(): void {
-    if (this.deleteLoading) return;
-    this.deleteConfirmation = null;
-  }
-
-  confirmDeleteRes(): void {
-    if (!this.deleteConfirmation || this.deleteLoading) return;
-    const res = this.deleteConfirmation;
-    this.deleteLoading = true;
-    this.performDeleteRes(res);
-  }
-
-  get deleteResName(): string {
-    return this.deleteConfirmation?.name || '';
-  }
-
-  private clearDeleteConfirmation(): void {
-    this.deleteLoading = false;
-    this.deleteConfirmation = null;
-  }
-
-  private performDeleteRes(res: any){
-    const onSuccess = () => {
-      this.clearDeleteConfirmation();
-      this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._resource_spec_delete_success'));
-      this.getResSpecs(false);
-      this.loadStatusCounts();
-    };
-    const onError = (err: any) => {
-      this.clearDeleteConfirmation();
-      console.error('Resource spec delete failed', err);
-      this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._resource_spec_delete_error'), 'error');
-    };
-    if(res.lifecycleStatus === 'Active'){
-      this.resSpecService.updateResSpec({ lifecycleStatus: 'Launched' }, res.id).subscribe({
-        next: () => {
-          this.resSpecService.updateResSpec({ lifecycleStatus: 'Retired' }, res.id).subscribe({
-            next: onSuccess,
-            error: onError
-          });
-        },
-        error: onError
-      });
-    } else {
-      this.resSpecService.updateResSpec({ lifecycleStatus: 'Retired' }, res.id).subscribe({
-        next: onSuccess,
-        error: onError
-      });
-    }
-  }
-
-  onSortChange(event: any) {
-    if(event.target.value=='name'){
-      this.sort='name'
-    }else{
-      this.sort=undefined
-    }
-    this.getResSpecs(false);
+  fetchResSpecs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
+    const status = (filters['status'] ?? []) as string[];
+    return this.resSpecService.getResourceSpecByUserPaged(params, this.filter, status, this.partyId);
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
-    if(str){
+    if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
   }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
@@ -12,7 +12,7 @@ import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/pa
   imports: [CommonModule, FilterBarComponent, PaginatedTableComponent],
   templateUrl: './filtered-paginated-table.component.html',
 })
-export class FilteredPaginatedTableComponent<T = any> {
+export class FilteredPaginatedTableComponent<T = any> implements OnInit {
   // Filter-bar inputs
   @Input() filters: FormField[] = [];
   @Input() filterColumns: number = 3;
@@ -36,6 +36,18 @@ export class FilteredPaginatedTableComponent<T = any> {
   @ViewChild(PaginatedTableComponent) private paginatedTable?: PaginatedTableComponent<T>;
 
   currentFilters: Record<string, any> = {};
+
+  ngOnInit(): void {
+    this.currentFilters = this.buildDefaultFilters();
+  }
+
+  private buildDefaultFilters(): Record<string, any> {
+    const defaults: Record<string, any> = {};
+    for (const field of this.filters) {
+      defaults[field.name] = field.defaultValue ?? null;
+    }
+    return defaults;
+  }
 
   innerFetchPage = (params: PageRequest): Promise<PageResult<T>> => {
     return this.fetchPage(params, this.currentFilters);

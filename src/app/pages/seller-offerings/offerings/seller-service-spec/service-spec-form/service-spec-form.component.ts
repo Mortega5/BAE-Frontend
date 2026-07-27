@@ -192,9 +192,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
 
   save(): void {
     this.loading = true;
-    if (this.serviceData == null) {
-      this.setServiceData();
-    }
+    this.setServiceData();
     if (this.isUpdate) {
       this.servSpecService.updateServSpec(this.serviceData as ServiceSpecification_Update, this.serv.id).subscribe({
         next: () => { this.loading = false; this.goBack(); },
