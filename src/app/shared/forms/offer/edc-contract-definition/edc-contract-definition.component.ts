@@ -3,8 +3,10 @@ import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validator
 import { TranslateModule } from "@ngx-translate/core";
 import { Subject } from "rxjs";
 import { takeUntil } from 'rxjs/operators';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { jsonValidator } from "src/app/validators/validators";
+import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { FormChangeState } from "../../../../models/interfaces";
 
 interface EdcContractDefinition {
@@ -19,7 +21,8 @@ interface EdcContractDefinition {
   standalone: true,
   imports: [
     ReactiveFormsModule,
-    TranslateModule
+    TranslateModule,
+    DynamicFormComponent
   ],
   templateUrl: './edc-contract-definition.component.html',
   styleUrl: './edc-contract-definition.component.css'
@@ -85,6 +88,13 @@ export class EdcContractDefinitionComponent implements OnInit, OnDestroy {
   get contractControl(): FormControl | null {
     const control = this.formGroup.get('contractPolicy');
     return control instanceof FormControl ? control : null;
+  }
+
+  get policyFormFields(): FormField[] {
+    return [
+      { type: 'code', name: 'accessPolicy', label: 'Access Policy', language: 'json', required: this.dspCompatible, lineNumbers: false, placeholder: '{"example": "Enter your JSON here"}' },
+      { type: 'code', name: 'contractPolicy', label: 'Contract Policy', language: 'json', required: this.dspCompatible, lineNumbers: false, placeholder: '{"example": "Enter your JSON here"}' },
+    ];
   }
 
   private updatePolicyValidators(checked: boolean): void {

@@ -964,7 +964,7 @@
         </div>
         }
       </ng-template>
-      @if (DATA_SPACE_ENABLED && !prod.externalId) {
+      @if (DATA_SPACE_ENABLED && !prod?.externalId) {
       <ng-template stepperStep="Dataspace Configuration" stepId="dataspace">
         <ng-container [ngTemplateOutlet]="charsShared"></ng-container>
       </ng-template>
