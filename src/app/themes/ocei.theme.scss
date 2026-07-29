@@ -1,0 +1,142 @@
+.dark\:bg-tertiary-50:is(.dark *) {
+  background-color: #263238 !important;
+}
+
+.dark\:bg-tertiary-100:is(.dark *) {
+  background-color: #446e68;
+}
+
+body.theme-ocei {
+
+  --ocei-text-primary: #00d084;
+  --ocei-text-background-hover: #7bdcb5;
+  --ocei-text-secondary: #4AC5D9;
+  --ocei-secondary-50: #f2f2f2;
+  --ocei-bg-primary-100: #F7FAFC;
+  --ocei-text-secondary-50: #ffffff;
+
+  /* Example HEX: #8A2BE2 */
+  --theme-primary-50: 76 199 212;
+  /* Example HEX: #4B0082 */
+  --theme-primary-100: 68 213 185;
+
+  /* Secondary colors - Greys, whites and blacks for foundation */
+  --theme-secondary-50: #ffffff;
+  /* Very light grey/white */
+  --theme-secondary-100: #212121;
+  /* Dark grey/black */
+  --theme-secondary-200: #191919;
+  /* Darker grey/black */
+  --theme-secondary-300: #424242;
+  /* Medium grey */
+  --theme-secondary-400: #757575;
+  /* Light grey */
+  --theme-secondary-500: #0d0d0d;
+  /* Very dark grey/black */
+
+  /* Tertiary colors - Teal accents */
+  --theme-tertiary-50: #263238;
+  /* Dark teal/grey accent */
+  --theme-tertiary-100: #446e68;
+  /* Teal accent */
+
+  /* Header v2 tokens (scoped to avoid collisions with shared theme tokens) */
+  --theme-header-v2-top-bg: var(--ocei-bg-primary-100);
+  --theme-header-v2-glass-bg: rgba(7, 18, 40, 0.55);
+  --theme-header-v2-outline-border: #2D58A7;
+  --theme-header-v2-outline-hover-bg: rgba(47, 111, 214, 0.9);
+  --theme-header-v2-outline-hover-text: #ffffff;
+  --theme-header-v2-solid-bg: #2D58A7;
+  --theme-header-v2-solid-hover-bg: rgba(47, 111, 214, 0.9);
+
+  /* ---------- Utility text classes ---------- */
+  .text-white {
+    color: var(--ocei-text-primary);
+
+    &:hover {
+      color: var(--ocei-text-secondary-50);
+    }
+  }
+
+  button.text-white:hover,
+  a.text-white:hover {
+    color: var(--ocei-text-secondary-50);
+    background-color: var(--ocei-text-background-hover);
+  }
+
+  .text-primary-100 {
+    color: var(--ocei-text-primary);
+  }
+
+  .text-primary-50 {
+    color: var(--ocei-text-primary);
+  }
+
+  .text-secondary-50 {
+    color: var(--ocei-text-secondary-50);
+  }
+
+  /* ---------- Background utility classes (consolidated) ---------- */
+  /* Several background utilities shared the same color; combine them */
+  .bg-primary-100,
+  .bg-blue-300,
+  .bg-green-700,
+  .bg-blue-700 {
+    background-color: var(--ocei-bg-primary-100);
+  }
+
+  .bg-primary-50 {
+    background-color: var(--theme-secondary-50);
+  }
+
+  .bg-gray-100 {
+    background-color: var(--ocei-text-secondary);
+  }
+
+  .bg-secondary-50\/80 {
+    background-color: rgb(255 255 255 / 80%);
+  }
+
+  .bg-secondary-50 {
+    background-color: var(--ocei-secondary-50);
+  }
+
+  /* ---------- Dark mode overrides ---------- */
+  /* Keep dark mode selectors compatible with existing utilities */
+  &.dark,
+  .dark & {
+
+    .bg-secondary-50 {
+      background-color: var(--theme-tertiary-50) !important;
+    }
+
+    .dark\:bg-secondary-50 {
+      background-color: var(--theme-tertiary-50) !important;
+    }
+
+    .bg-primary-100 {
+      background-color: var(--theme-tertiary-100) !important;
+    }
+
+    .dark\:bg-primary-100 {
+      background-color: var(--theme-tertiary-100) !important;
+    }
+
+    .dark\:bg-tertiary-50 {
+      background-color: var(--theme-tertiary-50) !important;
+    }
+  }
+
+  /* ---------- Other utility classes ---------- */
+  .border-secondary-50 {
+    border-color: var(--ocei-text-background-hover);
+  }
+
+  .hover\:bg-gray-100:hover {
+    background-color: var(--ocei-text-background-hover);
+  }
+
+  .decoration-primary-100 {
+    text-decoration-color: var(--ocei-text-primary);
+  }
+}

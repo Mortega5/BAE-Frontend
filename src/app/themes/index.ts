@@ -4,6 +4,7 @@ export * from './theme.interfaces';
 // Importar configuraciones de temas individuales
 import { BAE_THEME_CONFIG } from './bae.theme';
 import { DOME_THEME_CONFIG } from './dome.theme';
+import { OCEI_THEME_CONFIG } from './ocei.theme';
 // Importa aquí otras configuraciones de temas que crees:
 // import { FOREST_THEME_CONFIG } from './forest.theme';
 
@@ -12,6 +13,7 @@ import { DOME_THEME_CONFIG } from './dome.theme';
 export const AVAILABLE_THEMES = [
   BAE_THEME_CONFIG,
   DOME_THEME_CONFIG,
+  OCEI_THEME_CONFIG
   // FOREST_THEME_CONFIG,
   // Añade otras configuraciones de temas aquí
 ];
