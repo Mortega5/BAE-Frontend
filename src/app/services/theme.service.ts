@@ -1,14 +1,24 @@
-import {Injectable, Renderer2, RendererFactory2, Inject, PLATFORM_ID, Injector} from '@angular/core';
 import { DOCUMENT, isPlatformBrowser } from '@angular/common';
+import { Inject, Injectable, Injector, PLATFORM_ID, Renderer2, RendererFactory2 } from '@angular/core';
+import { TranslateService } from "@ngx-translate/core";
 import { BehaviorSubject, Observable } from 'rxjs';
-import { ThemeConfig, AVAILABLE_THEMES } from '../themes';
-import {TranslateService} from "@ngx-translate/core";
+import { AVAILABLE_THEMES, ThemeConfig } from '../themes';
+import { LocalStorageService } from './local-storage.service';
+
+/** Color scheme the user picked - independent from the branding `ThemeConfig` above. */
+export enum ThemeMode {
+  Light = 'light',
+  Dark = 'dark',
+  System = 'system',
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class ThemeService {
   private readonly themeManagedMetaAttribute = 'data-theme-managed-meta';
+
+  private readonly themeModeStorageKey = 'color-theme';
   private renderer: Renderer2;
 
   private availableThemes: ThemeConfig[] = AVAILABLE_THEMES;
@@ -17,11 +27,22 @@ export class ThemeService {
   private currentThemeSubject: BehaviorSubject<ThemeConfig | null>; // Puede ser null inicialmente
   public currentTheme$: Observable<ThemeConfig | null>;
 
+  private darkMediaQuery?: MediaQueryList;
+  private themeModeSubject: BehaviorSubject<ThemeMode>;
+  public themeMode$: Observable<ThemeMode>;
+
+  private readonly onSystemColorSchemeChange = (): void => {
+    if (this.themeModeSubject.value === ThemeMode.System) {
+      this.applyColorScheme(ThemeMode.System);
+    }
+  };
+
   constructor(
     private rendererFactory: RendererFactory2,
     @Inject(DOCUMENT) private document: Document,
     @Inject(PLATFORM_ID) private platformId: Object,
-    private injector: Injector
+    private injector: Injector,
+    private localStorage: LocalStorageService,
   ) {
     this.renderer = this.rendererFactory.createRenderer(null, null);
     this.currentThemeSubject = new BehaviorSubject<ThemeConfig | null>(null);
@@ -36,6 +57,56 @@ export class ThemeService {
       console.error("ThemeService: No hay temas disponibles. El sistema de temas no funcionará correctamente.");
       // Considera un tema mock básico para evitar errores, aunque esto es un problema de configuración.
       this.defaultTheme = { name: 'fallback', displayName: 'Fallback', assets: { logoUrl: '' } };
+    }
+
+    if (isPlatformBrowser(this.platformId)) {
+      this.darkMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+      this.darkMediaQuery.addEventListener('change', this.onSystemColorSchemeChange);
+    }
+
+    const initialMode = this.resolveInitialThemeMode();
+    this.themeModeSubject = new BehaviorSubject<ThemeMode>(initialMode);
+    this.themeMode$ = this.themeModeSubject.asObservable();
+    this.applyColorScheme(initialMode);
+  }
+
+  private resolveInitialThemeMode(): ThemeMode {
+    const stored = this.localStorage.getItem(this.themeModeStorageKey);
+    return stored === ThemeMode.Light || stored === ThemeMode.Dark ? stored : ThemeMode.System;
+  }
+
+  get currentThemeMode(): ThemeMode {
+    return this.themeModeSubject.value;
+  }
+
+  /**
+   * Selects the color scheme (dark, light, or follow the OS setting) and updates the `<html>`
+   * element's `dark` class accordingly. Persisted so it survives a reload.
+   */
+  setThemeMode(mode: ThemeMode): void {
+    this.themeModeSubject.next(mode);
+    if (mode === ThemeMode.System) {
+      this.localStorage.removeItem(this.themeModeStorageKey);
+    } else {
+      this.localStorage.setItem(this.themeModeStorageKey, mode);
+    }
+    this.applyColorScheme(mode);
+  }
+
+  private prefersDarkColorScheme(): boolean {
+    return this.darkMediaQuery?.matches ?? false;
+  }
+
+  private applyColorScheme(mode: ThemeMode): void {
+    if (!isPlatformBrowser(this.platformId) || !this.document?.documentElement) {
+      return;
+    }
+    const isDark = mode === ThemeMode.Dark || (mode === ThemeMode.System && this.prefersDarkColorScheme());
+    const html = this.document.documentElement;
+    if (isDark) {
+      this.renderer.addClass(html, 'dark');
+    } else {
+      this.renderer.removeClass(html, 'dark');
     }
   }
 
