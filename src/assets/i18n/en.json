@@ -1769,7 +1769,8 @@
     "_forCustomers": "For Customers",
     "_forProviders": "For Providers",
     "_marketplaceH": "Marketplace",
-    "_resources": "Resources"
+    "_resources": "Resources",
+    "_blueprints": "Blueprints"
   },
   "PRODUCT_DETAILS": {
     "_back": "Back",

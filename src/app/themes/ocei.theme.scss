@@ -1,9 +1,9 @@
 .dark\:bg-tertiary-50:is(.dark *) {
-  background-color: #263238 !important;
+  background-color: var(--theme-tertiary-50) !important;
 }
 
 .dark\:bg-tertiary-100:is(.dark *) {
-  background-color: #446e68;
+  background-color: var(--theme-tertiary-50);
 }
 
 body.theme-ocei {
@@ -11,9 +11,9 @@ body.theme-ocei {
   --ocei-text-primary: #00d084;
   --ocei-text-background-hover: #7bdcb5;
   --ocei-text-secondary: #4AC5D9;
-  --ocei-secondary-50: #f2f2f2;
+  --ocei-secondary-50: #EDF9FB;
   --ocei-bg-primary-100: #F7FAFC;
-  --ocei-text-secondary-50: #ffffff;
+  --ocei-text-secondary-50: var(--ocei-secondary-50);
 
   /* Example HEX: #8A2BE2 */
   --theme-primary-50: 76 199 212;
@@ -50,16 +50,31 @@ body.theme-ocei {
   --theme-header-v2-solid-hover-bg: rgba(47, 111, 214, 0.9);
 
   /* ---------- Utility text classes ---------- */
-  .text-white {
-    color: var(--ocei-text-primary);
+  multiple-select .text-white {
+    color: var(--ocei-secondary-50);
+    background-color: var(--ocei-text-secondary);
 
     &:hover {
       color: var(--ocei-text-secondary-50);
+      background-color: var(--ocei-text-background-hover);
+    }
+  }
+
+  #loggedAcc {
+    color: var(--ocei-text-primary);
+    background-color: color-mix(in srgb, var(--ocei-text-background-hover) 30%, transparent);
+
+    &:hover {
+      color: var(--ocei-text-secondary-50);
+      background-color: var(--ocei-text-background-hover);
+      opacity: 1;
     }
   }
 
   button.text-white:hover,
-  a.text-white:hover {
+  a.text-white:hover,
+  a.text-white:active,
+  a.text-white[routerlinkactive] {
     color: var(--ocei-text-secondary-50);
     background-color: var(--ocei-text-background-hover);
   }
@@ -76,35 +91,90 @@ body.theme-ocei {
     color: var(--ocei-text-secondary-50);
   }
 
-  /* ---------- Background utility classes (consolidated) ---------- */
-  /* Several background utilities shared the same color; combine them */
-  .bg-primary-100,
-  .bg-blue-300,
-  .bg-green-700,
-  .bg-blue-700 {
-    background-color: var(--ocei-bg-primary-100);
+  bae-header>nav {
+
+    a,
+    button {
+      color: var(--ocei-text-primary) !important;
+    }
+
+    #login {
+      &:hover {
+        background-color: var(--ocei-text-background-hover)
+      }
+
+      color: var(--ocei-secondary-50) !important;
+      background-color: var(--ocei-text-primary)
+    }
   }
 
-  .bg-primary-50 {
-    background-color: var(--theme-secondary-50);
-  }
+  bae-off-featured>div>div>div>div {
+    position: relative;
+    background-image: none !important;
 
-  .bg-gray-100 {
-    background-color: var(--ocei-text-secondary);
-  }
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-position: center;
+      background-size: cover;
+      background-image: url("/assets/themes/ocei/cardBackground.png") !important;
+      /* Fade the artwork so the green title (--ocei-text-primary) stands out on top */
+      filter: opacity(0.15);
+      z-index: 0;
+    }
 
-  .bg-secondary-50\/80 {
-    background-color: rgb(255 255 255 / 80%);
-  }
-
-  .bg-secondary-50 {
-    background-color: var(--ocei-secondary-50);
+    >* {
+      position: relative;
+      z-index: 1;
+    }
   }
 
   /* ---------- Dark mode overrides ---------- */
   /* Keep dark mode selectors compatible with existing utilities */
   &.dark,
   .dark & {
+    --ocei-text-primary: #00d084;
+    --ocei-text-background-hover: #7bdcb5;
+    --ocei-text-secondary: #4AC5D9;
+    --ocei-secondary-50: #f2f2f2;
+    --ocei-bg-primary-100: #F7FAFC;
+    --ocei-text-secondary-50: #ffffff;
+
+    /* Example HEX: #8A2BE2 */
+    --theme-primary-50: 76 199 212;
+    /* Example HEX: #4B0082 */
+    --theme-primary-100: 68 213 185;
+
+    /* Secondary colors - Greys, whites and blacks for foundation */
+    --theme-secondary-50: #ffffff;
+    /* Very light grey/white */
+    --theme-secondary-100: #212121;
+    /* Dark grey/black */
+    --theme-secondary-200: #191919;
+    /* Darker grey/black */
+    --theme-secondary-300: #424242;
+    /* Medium grey */
+    --theme-secondary-400: #757575;
+    /* Light grey */
+    --theme-secondary-500: #0d0d0d;
+    /* Very dark grey/black */
+
+    /* Tertiary colors - Teal accents */
+    --theme-tertiary-50: #263238;
+    /* Dark teal/grey accent */
+    --theme-tertiary-100: #446e68;
+    /* Teal accent */
+
+    /* Header v2 tokens (scoped to avoid collisions with shared theme tokens) */
+    /* Dark surface derived from the OCEI brand green (#00d084), not a copy of the light-mode value */
+    --theme-header-v2-top-bg: #10241d;
+    --theme-header-v2-glass-bg: rgba(16, 36, 29, 0.6);
+    --theme-header-v2-outline-border: #00b884;
+    --theme-header-v2-outline-hover-bg: rgba(0, 208, 132, 0.85);
+    --theme-header-v2-outline-hover-text: #ffffff;
+    --theme-header-v2-solid-bg: #00724d;
+    --theme-header-v2-solid-hover-bg: rgba(0, 208, 132, 0.9);
 
     .bg-secondary-50 {
       background-color: var(--theme-tertiary-50) !important;
@@ -125,6 +195,19 @@ body.theme-ocei {
     .dark\:bg-tertiary-50 {
       background-color: var(--theme-tertiary-50) !important;
     }
+
+    #searchDropdownMenu {
+      background-color: var(--theme-tertiary-50);
+
+      li:hover {
+        background-color: var(--ocei-text-background-hover) !important;
+
+        button,
+        a {
+          color: var(--ocei-bg-primary-100) !important;
+        }
+      }
+    }
   }
 
   /* ---------- Other utility classes ---------- */
@@ -133,10 +216,15 @@ body.theme-ocei {
   }
 
   .hover\:bg-gray-100:hover {
+    color: var(--ocei-secondary-50);
     background-color: var(--ocei-text-background-hover);
   }
 
   .decoration-primary-100 {
     text-decoration-color: var(--ocei-text-primary);
+  }
+
+  .bg-white\/20:has(+ #shoppingCart) {
+    background-color: var(--ocei-text-primary);
   }
 }
