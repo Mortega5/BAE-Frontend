@@ -1,7 +1,7 @@
-<div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-secondary-200 bg-white dark:bg-secondary-300"
+<div class="overflow-x-auto rounded-lg border border-[var(--table-border-color)] bg-white dark:bg-secondary-300"
   [class.opacity-80]="isReadonly" [class.cursor-not-allowed]="isReadonly">
   <table class="w-full table-fixed text-sm text-left text-gray-500 dark:text-gray-200">
-    <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-gray-300">
+    <thead class="text-xs uppercase bg-[var(--table-header-bg)] text-[var(--table-header-text)]">
       <tr>
         @if (selectable) {
         <th scope="col" class="px-4 py-3 w-12"></th>
@@ -9,13 +9,12 @@
         @for (col of columns; track $index) {
         <th scope="col" class="px-6 py-3" [ngClass]="[col.width ?? '', col.hideOnMobile ? 'hidden sm:table-cell' : '']">
           @if (col.sortKey) {
-          <button type="button" class="group inline-flex items-center gap-1.5 hover:text-gray-900 dark:hover:text-white"
-            [class.font-bold]="col.sortKey === sort?.key" [class.text-gray-900]="col.sortKey === sort?.key"
-            [class.dark:text-white]="col.sortKey === sort?.key" (click)="onSortClick(col)">
+          <button type="button" class="table-sort-btn group inline-flex items-center gap-1.5 px-2 py-1 rounded"
+            [class.font-bold]="col.sortKey === sort?.key" (click)="onSortClick(col)">
             {{ col.header | translate }}
             <fa-icon [icon]="faChevronDown" class="transition-all" [class.rotate-180]="isSortAscending(col)"
-              [class.opacity-0]="col.sortKey !== sort?.key" [class.group-hover:opacity-100]="col.sortKey !== sort?.key"
-              [class.text-gray-400]="col.sortKey !== sort?.key" [class.dark:text-gray-500]="col.sortKey !== sort?.key"></fa-icon>
+              [class.opacity-0]="col.sortKey !== sort?.key"
+              [class.group-hover:opacity-100]="col.sortKey !== sort?.key"></fa-icon>
           </button>
           } @else {
           {{ col.header | translate }}
@@ -26,13 +25,12 @@
     </thead>
     <tbody>
       @for (item of items; track $index) {
-      <tr class="border-b dark:border-gray-700"
+      <tr class="border-b border-[var(--table-row-border-color)]"
         [class.cursor-pointer]="!isReadonly && isRowSelectable(item) && (selectable || clickable)"
-        [class.hover:bg-gray-200]="!isReadonly && isRowSelectable(item) && (selectable || clickable)"
-        [class.dark:hover:bg-secondary-200]="!isReadonly && isRowSelectable(item) && (selectable || clickable)"
-        [class.opacity-50]="!isRowSelectable(item)" [class.cursor-not-allowed]="!isRowSelectable(item)"
-        [class.bg-blue-50]="isSelected(item)" [ngClass]="{'dark:bg-primary-100/20': isSelected(item)}"
-        (click)="onRowClick(item, $event)">
+        [class.opacity-50]="!isRowSelectable(item)" [class.cursor-not-allowed]="!isRowSelectable(item)" [ngClass]="{
+          'hover:bg-[var(--table-row-hover-bg)]': !isReadonly && isRowSelectable(item) && (selectable || clickable),
+          'bg-[var(--table-row-selected-bg)]': isSelected(item)
+        }" (click)="onRowClick(item, $event)">
         @if (selectable) {
         <td class="px-4 py-3 w-12">
           @if (multiple) {
@@ -74,7 +72,8 @@
             </button>
             } @empty {
             @if (getActionsEmptyLabel(col, item)) {
-            <span class="text-gray-400 dark:text-gray-500 text-sm">{{ getActionsEmptyLabel(col, item) | translate }}</span>
+            <span class="text-gray-400 dark:text-gray-500 text-sm">{{ getActionsEmptyLabel(col, item) | translate
+              }}</span>
             }
             }
           </div>

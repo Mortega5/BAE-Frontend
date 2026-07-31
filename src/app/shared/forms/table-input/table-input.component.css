@@ -1,0 +1,22 @@
+:host {
+  --table-border-color: rgb(var(--theme-primary-100));
+  --table-header-bg: rgb(var(--theme-primary-100));
+  --table-header-text: var(--theme-primary-text);
+  --table-header-hover-bg: rgb(var(--theme-primary-50) / 30%);
+  --table-row-border-color: rgb(var(--theme-primary-50) / 40%);
+  --table-row-hover-bg: rgb(var(--theme-primary-50) / 25%);
+  --table-row-selected-bg: rgb(var(--theme-primary-50) / 35%);
+}
+
+:host-context(.dark) {
+  --table-border-color: rgb(var(--theme-secondary-200));
+  --table-header-bg: rgb(var(--theme-secondary-200));
+  --table-header-hover-bg: rgb(var(--theme-secondary-300) / 60%);
+  --table-row-border-color: rgb(var(--theme-secondary-200));
+  --table-row-hover-bg: rgb(var(--theme-secondary-400));
+  --table-row-selected-bg: rgb(var(--theme-primary-100) / 20%);
+}
+
+.table-sort-btn:hover {
+  background-color: var(--table-header-hover-bg);
+}

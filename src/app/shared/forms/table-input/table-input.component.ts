@@ -13,6 +13,7 @@ const DEFAULT_DATE_FORMAT = 'EEEE, dd/MM/yy, HH:mm';
   standalone: true,
   imports: [CommonModule, TranslateModule, FaIconComponent],
   templateUrl: './table-input.component.html',
+  styleUrl: './table-input.component.css',
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
