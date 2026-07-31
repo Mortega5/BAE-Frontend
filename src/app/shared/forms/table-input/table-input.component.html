@@ -53,7 +53,7 @@
           @if (!col.showIf || col.showIf(item)) {
           <button type="button" [attr.data-cy]="col.dataCy"
             [attr.aria-label]="col.tooltip ? (col.tooltip | translate) : null"
-            class="w-9 h-9 flex items-center justify-center text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full me-2"
+            class="w-9 h-9 flex items-center justify-center text-[var(--table-action-text)] bg-[var(--table-action-bg)] hover:bg-[var(--table-action-hover-bg)] focus:ring-4 focus:outline-none focus:ring-[var(--table-action-focus-ring)] font-medium rounded-full me-2"
             (mouseenter)="showTooltip($event, col.tooltip)" (mouseleave)="hideTooltip()"
             (click)="onColumnAction(col, item, $event)">
             <fa-icon [icon]="col.icon"></fa-icon>
@@ -64,15 +64,15 @@
             @for (action of visibleActions(col, item); track $index) {
             <button type="button" [attr.data-cy]="action.dataCy"
               [attr.aria-label]="action.tooltip ? (action.tooltip | translate) : null"
-              [ngClass]="action.buttonClass ?? 'bg-primary-100 hover:bg-primary-50 focus:ring-blue-300'"
-              class="w-9 h-9 flex items-center justify-center text-white focus:ring-4 focus:outline-none font-medium rounded-full me-2"
+              [ngClass]="action.buttonClass ?? 'bg-[var(--table-action-bg)] hover:bg-[var(--table-action-hover-bg)] focus:ring-[var(--table-action-focus-ring)]'"
+              class="w-9 h-9 flex items-center justify-center text-[var(--table-action-text)] focus:ring-4 focus:outline-none font-medium rounded-full me-2"
               (mouseenter)="showTooltip($event, action.tooltip)" (mouseleave)="hideTooltip()"
               (click)="onActionClick(action, item, $event)">
               <fa-icon [icon]="action.icon"></fa-icon>
             </button>
             } @empty {
             @if (getActionsEmptyLabel(col, item)) {
-            <span class="text-gray-400 dark:text-gray-500 text-sm">{{ getActionsEmptyLabel(col, item) | translate
+            <span class="text-[var(--table-empty-text)] text-sm">{{ getActionsEmptyLabel(col, item) | translate
               }}</span>
             }
             }
@@ -93,7 +93,7 @@
       @empty {
       <tr>
         <td [attr.colspan]="columns.length + (selectable ? 1 : 0)"
-          class="px-6 py-8 text-center text-gray-400 dark:text-gray-500">
+          class="px-6 py-8 text-center text-[var(--table-empty-text)]">
           No items available
         </td>
       </tr>

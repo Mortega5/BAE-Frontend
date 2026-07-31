@@ -17,6 +17,11 @@ Each variable has a default value in `:host` (light theme) and, where applicable
 | `--table-row-border-color` | Divider line between body rows | `rgb(var(--theme-primary-50) / 40%)` | `rgb(var(--theme-secondary-200))` |
 | `--table-row-hover-bg` | Background on hover over a selectable/clickable row | `rgb(var(--theme-primary-50) / 25%)` | `rgb(var(--theme-secondary-400))` |
 | `--table-row-selected-bg` | Background of a selected row | `rgb(var(--theme-primary-50) / 35%)` | `rgb(var(--theme-primary-100) / 20%)` |
+| `--table-empty-text` | Text color for the "No items available" row and the actions-column empty label | `#9ca3af` | `var(--theme-primary-text)` |
+| `--table-action-bg` | Background of action/icon-button cells (default, overridable per-action via `buttonClass`) | `rgb(var(--theme-primary-100))` | *(inherits the same value)* |
+| `--table-action-hover-bg` | Hover background of action/icon-button cells | `rgb(var(--theme-primary-50))` | *(inherits the same value)* |
+| `--table-action-text` | Icon color inside action/icon-button cells | `#ffffff` | *(inherits the same value)* |
+| `--table-action-focus-ring` | Focus ring color of action/icon-button cells | `rgb(var(--theme-primary-50) / 50%)` | *(inherits the same value)* |
 
 These variables build on the global theme tokens (`--theme-primary-*`, `--theme-secondary-*`, `--theme-primary-text`) defined in `src/app/themes/*.theme.scss`. Switching the app theme (bae/dome) automatically updates these colors without touching the component.
 

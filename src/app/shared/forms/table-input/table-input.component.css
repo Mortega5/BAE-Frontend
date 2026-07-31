@@ -6,6 +6,11 @@
   --table-row-border-color: rgb(var(--theme-primary-50) / 40%);
   --table-row-hover-bg: rgb(var(--theme-primary-50) / 25%);
   --table-row-selected-bg: rgb(var(--theme-primary-50) / 35%);
+  --table-empty-text: var(--theme-primary-text);
+  --table-action-bg: rgb(var(--theme-primary-100));
+  --table-action-hover-bg: rgb(var(--theme-primary-50));
+  --table-action-text: var(--theme-primary-text);
+  --table-action-focus-ring: rgb(var(--theme-primary-50) / 50%);
 }
 
 :host-context(.dark) {
@@ -15,6 +20,7 @@
   --table-row-border-color: rgb(var(--theme-secondary-200));
   --table-row-hover-bg: rgb(var(--theme-secondary-400));
   --table-row-selected-bg: rgb(var(--theme-primary-100) / 20%);
+  --table-empty-text: var(--theme-primary-text);
 }
 
 .table-sort-btn:hover {
