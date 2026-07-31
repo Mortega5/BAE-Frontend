@@ -20,6 +20,8 @@ body.theme-ocei {
   /* Example HEX: #4B0082 */
   --theme-primary-100: 68 213 185;
 
+  --theme-primary-text: rgb(255 255 255);
+
   /* Secondary colors - Greys, whites and blacks for foundation */
   --theme-secondary-50: #ffffff;
   /* Very light grey/white */
@@ -51,12 +53,12 @@ body.theme-ocei {
 
   /* ---------- Utility text classes ---------- */
   multiple-select .text-white {
-    color: var(--ocei-secondary-50);
-    background-color: var(--ocei-text-secondary);
+    color: var(--ocei-secondary-50) !important;
+    background-color: rgb(var(--theme-primary-100)) !important;
 
     &:hover {
-      color: var(--ocei-text-secondary-50);
-      background-color: var(--ocei-text-background-hover);
+      color: var(--ocei-text-secondary-50) !important;
+      background-color: rgb(var(--theme-primary-50)) !important;
     }
   }
 
@@ -206,6 +208,21 @@ body.theme-ocei {
         a {
           color: var(--ocei-bg-primary-100) !important;
         }
+      }
+    }
+
+    /* app-table-input: lift the table surface off the dark page background
+       and retint its accents with the OCEI teal so it reads clearly as its own block */
+    app-table-input {
+      --table-border-color: rgb(var(--theme-primary-100) / 50%);
+      --table-header-bg: rgb(var(--theme-primary-100) / 55%);
+      --table-header-hover-bg: rgb(var(--theme-primary-100) / 25%);
+      --table-row-hover-bg: rgb(var(--theme-primary-100) / 25%);
+      --table-row-selected-bg: rgb(var(--theme-primary-100) / 35%);
+      --table-row-border-color: rgb(var(--theme-primary-100) / 50%);
+
+      .dark\:bg-secondary-300 {
+        background-color: var(--theme-tertiary-100) !important;
       }
     }
   }
