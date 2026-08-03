@@ -64,11 +64,15 @@ export class PaginatedTableComponent<T = any> implements OnInit, OnChanges {
     return Math.min(this.offset + this.pageSize, this.total);
   }
 
+  private hasIdentity(value: any): boolean {
+    return value != null && value !== '';
+  }
+
   get selectedCount(): number {
     if (this.multiple) {
-      return Array.isArray(this.selected) ? this.selected.length : 0;
+      return Array.isArray(this.selected) ? this.selected.filter(v => this.hasIdentity(v)).length : 0;
     }
-    return this.selected != null ? 1 : 0;
+    return this.hasIdentity(this.selected) ? 1 : 0;
   }
 
   ngOnInit(): void {
