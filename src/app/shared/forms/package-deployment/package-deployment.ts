@@ -5,6 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField, SelectOption } from '../../../models/formFields/form-field.model';
+import { yamlValidator } from '../../../validators/validators';
 import { buildFormGroup } from '../dynamic-form/build-form-group.util';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
 
@@ -26,13 +27,13 @@ const HELM_FIELDS: FormField[] = [
   { type: 'string', name: 'releaseName', label: 'Release name', required: true },
   { type: 'string', name: 'version', label: 'Chart version', required: true, colSpan: 2 },
   { type: 'string', name: 'namespace', label: 'Namespace', defaultValue: 'default', colSpan: 2 },
-  { type: 'textarea', name: 'values', label: 'Values (YAML)' },
+  { type: 'code', language: 'yaml', name: 'values', label: 'Values (YAML)', validators: [yamlValidator] },
 ];
 
 const DOCKER_FIELDS: FormField[] = [
   { type: 'string', name: 'image', label: 'Docker image', required: true, colSpan: 3 },
   { type: 'string', name: 'tag', label: 'Image tag', defaultValue: 'latest', colSpan: 1 },
-  { type: 'textarea', name: 'composeFile', label: 'Compose file (YAML)' },
+  { type: 'code', language: 'yaml', name: 'composeFile', label: 'Compose file (YAML)', validators: [yamlValidator] },
   { type: 'textarea', name: 'envFile', label: 'Env file' },
 ];
 

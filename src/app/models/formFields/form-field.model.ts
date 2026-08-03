@@ -1,4 +1,5 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { ValidatorFn } from '@angular/forms';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 
@@ -11,6 +12,8 @@ interface BaseFormField {
   colSpan?: number;
   defaultValue?: any;
   dataCy?: string;
+  /** Extra validators merged with the ones `buildFormGroup` derives automatically (e.g. required, code-language checks). */
+  validators?: ValidatorFn[];
 }
 
 interface TextBaseFormField extends BaseFormField {

@@ -3,11 +3,32 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { javascript } from '@codemirror/lang-javascript';
 import { json, jsonParseLinter } from '@codemirror/lang-json';
 import { yaml } from '@codemirror/lang-yaml';
-import { lintGutter, linter } from '@codemirror/lint';
+import { Diagnostic, lintGutter, linter } from '@codemirror/lint';
 import { Compartment, EditorState } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { basicSetup, EditorView } from 'codemirror';
+import * as yamlParser from 'js-yaml';
 import { CodeLanguage, CodeTheme } from 'src/app/models/formFields/form-field.model';
+
+function yamlParseLinter() {
+  return (view: EditorView): Diagnostic[] => {
+    const doc = view.state.doc.toString();
+    if (!doc.trim()) return [];
+    try {
+      yamlParser.load(doc);
+      return [];
+    } catch (error: any) {
+      const mark = error?.mark;
+      const pos = mark?.position != null ? Math.min(mark.position, doc.length) : 0;
+      return [{
+        from: pos,
+        to: pos,
+        severity: 'error',
+        message: error?.reason ?? error?.message ?? 'Invalid YAML',
+      }];
+    }
+  };
+}
 
 const LANG_EXTENSIONS: Record<CodeLanguage, () => any> = {
   json: () => json(),
@@ -18,6 +39,7 @@ const LANG_EXTENSIONS: Record<CodeLanguage, () => any> = {
 
 const LANG_LINTERS: Partial<Record<CodeLanguage, () => any>> = {
   json: () => [linter(jsonParseLinter()), lintGutter()],
+  yaml: () => [linter(yamlParseLinter()), lintGutter()],
 };
 
 const HIDE_LINE_NUMBERS = EditorView.theme({
