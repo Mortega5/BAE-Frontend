@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { Subject } from 'rxjs';
@@ -9,6 +8,7 @@ import { takeUntil } from 'rxjs/operators';
 import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from 'src/app/models/resource-catalog';
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/resource-spec-service.service';
@@ -252,9 +252,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
 
   save(): void {
     this.loading = true;
-    if (this.resourceData == null) {
-      this.prepareData();
-    }
+    this.prepareData();
     if (this.isUpdate) {
       this.resSpecService.updateResSpec(this.resourceData as ResourceSpecification_Update, this.res.id, this.res?.['@type'] as ResourceSpecType)
         .subscribe({ next: () => { this.loading = false; this.goBack(); }, error: e => this.handleError(e) });
