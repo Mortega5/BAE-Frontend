@@ -65,6 +65,7 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
 
   prodColumns: TableColumn[] = [
     { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
+    { header: 'Product Type', getValue: (item: any) => item['@type'] ?? 'ProductSpecification', hideOnMobile: true },
     {
       header: 'Type', width: 'w-28', type: 'badge',
       getValue: (item: any) => item.isBundle ? 'Bundle' : 'Simple',

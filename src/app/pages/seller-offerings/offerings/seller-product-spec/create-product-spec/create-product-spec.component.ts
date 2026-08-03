@@ -176,6 +176,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   selectedResourceSpecs: any[] = [];
   resColumns: TableColumn[] = [
     { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
+    { header: 'Type', getValue: (item: any) => item['@type'] ?? 'ResourceSpecification', hideOnMobile: true },
     { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
     { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52', sortKey: 'lastUpdate' },
   ];

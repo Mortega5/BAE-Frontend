@@ -66,10 +66,17 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
         cellClass: (item: any) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
       },
       {
+        header: 'OFFERINGS._type',
+        getValue: (item: any) => item['@type'] ?? 'ResourceSpecification',
+        width: 'w-1/3',
+        hideOnMobile: true,
+        type: 'text'
+      },
+      {
         header: 'OFFERINGS._status',
         getValue: (item: any) => item.lifecycleStatus ?? '-',
         type: 'badge',
-        width: 'w-1/4',
+        width: 'w-[140px]',
         sortKey: 'lifecycleStatus',
         cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
       },
@@ -78,7 +85,7 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
         type: 'date',
         sortKey: 'lastUpdate',
         getValue: (item: any) => item.lastUpdate,
-        width: 'w-1/4',
+        width: 'w-[220px]',
       },
     ];
 

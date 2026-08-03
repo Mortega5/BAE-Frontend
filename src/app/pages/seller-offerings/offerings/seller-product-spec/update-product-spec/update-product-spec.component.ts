@@ -2,7 +2,6 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { initFlowbite } from 'flowbite';
 import { jwtDecode } from "jwt-decode";
 import moment from 'moment';
@@ -15,6 +14,7 @@ import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
@@ -187,6 +187,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy {
   selectedResourceSpecs: any[] = [];
   resColumns: TableColumn[] = [
     { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
+    { header: 'Type', getValue: (item: any) => item['@type'] ?? 'ResourceSpecification', hideOnMobile: true },
     { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
     { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52', sortKey: 'lastUpdate' },
   ];
