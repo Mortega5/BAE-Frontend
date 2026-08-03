@@ -31,9 +31,11 @@ body.theme-bae {
   --theme-header-v2-outline-hover-text: #ffffff;
   --theme-header-v2-solid-bg: #00724d;
   --theme-header-v2-solid-hover-bg: rgba(0, 196, 140, 0.9);
+}
 
-  &.dark,
-  .dark & {
-    --theme-primary-text: rgb(255 255 255);
-  }
+/* Production's CSS optimizer doesn't understand SCSS "&" nesting and silently
+   drops rules that use it, so this stays a plain, fully-qualified selector. */
+body.theme-bae.dark,
+.dark body.theme-bae {
+  --theme-primary-text: rgb(255 255 255);
 }

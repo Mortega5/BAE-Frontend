@@ -1,18 +1,20 @@
-import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { faIdCard, faSort, faSparkles, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
+import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
-import { PaginationService } from 'src/app/services/pagination.service';
-import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
-import { environment } from 'src/environments/environment';
-import { TranslateService } from '@ngx-translate/core';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
+import { getBundleTypeClass, lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
 @Component({
   selector: 'seller-product-spec',
@@ -20,47 +22,81 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrl: './seller-product-spec.component.css'
 })
 export class SellerProductSpecComponent implements OnInit, OnDestroy {
-  protected readonly faIdCard = faIdCard;
-  protected readonly faSort = faSort;
-  protected readonly faSwatchbook = faSwatchbook;
-  protected readonly faSparkles = faSparkles;
+
+  @ViewChild(FilteredPaginatedTableComponent) paginatedTable?: FilteredPaginatedTableComponent<any>;
 
   searchField = new FormControl();
-
-  prodSpecs: any[] = [];
-  nextProdSpecs: any[] = [];
-  page: number = 0;
-  PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;
-  loading: boolean = false;
-  loading_more: boolean = false;
-  page_check: boolean = true;
-  filter: any = undefined;
-  status: any[] = ['Active'];
-  selectedTab: string = 'Draft';
-  tabStatusMap: { [k: string]: string[] } = {
-    Draft: ['Active'],
-    Validated: ['Launched'],
-    Deleted: ['Retired', 'Obsolete']
-  };
-  statusCounts: { [k: string]: number } = { Draft: 0, Validated: 0, Deleted: 0 };
-  openMenuIdx: number | null = null;
-  deleteConfirmation: any | null = null;
-  deleteLoading: boolean = false;
-  partyId: any;
-  sort: any = undefined;
+  filter: Record<string, string> | undefined = undefined;
   isBundle: any = undefined;
+  partyId: any;
   private destroy$ = new Subject<void>();
 
+  prodSpecColumns: TableColumn<any>[];
+  defaultSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
+
+  prodSpecFilters: FormField[] = [
+    {
+      name: 'status',
+      label: 'OFFERINGS._filter_state',
+      type: 'select',
+      icon: faSwatchbook,
+      multiple: true,
+      defaultValue: ['Active', 'Launched'],
+      options: [
+        { value: 'Active', label: 'OFFERINGS._active' },
+        { value: 'Launched', label: 'OFFERINGS._launched' },
+        { value: 'Retired', label: 'OFFERINGS._retired' },
+        { value: 'Obsolete', label: 'OFFERINGS._obsolete' },
+      ],
+    },
+  ];
+
   constructor(
-    private router: Router,
-    private api: ApiServiceService,
     private prodSpecService: ProductSpecServiceService,
-    private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
-    private paginationService: PaginationService,
-    private translate: TranslateService
+    private router: Router,
   ) {
+    this.prodSpecColumns = [
+      {
+        header: 'OFFERINGS._name',
+        getValue: (item: any) => item.name ?? '-',
+        sortKey: 'name',
+        cellClass: (item: any) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
+      },
+      {
+        header: 'OFFERINGS._type',
+        getValue: (item: any) => item['@type'] ?? 'ProductSpecification',
+        type: 'text',
+        hideOnMobile: true,
+        width: 'w-60'
+      },
+      {
+        header: 'OFFERINGS._status',
+        getValue: (item: any) => item.lifecycleStatus ?? '-',
+        type: 'badge',
+        width: 'w-24',
+        sortKey: 'lifecycleStatus',
+        cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
+      },
+      {
+        header: 'OFFERINGS._type',
+        getValue: (item: any) => item.isBundle ? 'OFFERINGS._bundle' : 'OFFERINGS._simple',
+        type: 'badge',
+        width: 'w-28',
+        hideOnMobile: true,
+        cellClass: (item: any) => getBundleTypeClass(item.isBundle)
+      },
+      {
+        header: 'OFFERINGS._last_update',
+        type: 'date',
+        hideOnMobile: true,
+        sortKey: 'lastUpdate',
+        getValue: (item: any) => item.lastUpdate,
+        width: 'w-60',
+      },
+    ];
+
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
       .subscribe(ev => {
@@ -79,9 +115,15 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  goToCreate() {
+    this.router.navigate([SellerOfferingsPaths.productSpecs.new()])
+  }
+
+  goToUpdate(prodId: string) {
+    this.router.navigate([SellerOfferingsPaths.productSpecs.edit(prodId)])
+  }
+
   initProdSpecs() {
-    this.loading = true;
-    this.prodSpecs = [];
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
     if (aux.logged_as == aux.id) {
       this.partyId = aux.partyId;
@@ -90,8 +132,7 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
       this.partyId = loggedOrg.partyId
     }
 
-    this.getProdSpecs(false);
-    this.loadStatusCounts();
+    this.paginatedTable?.refresh(true);
     let input = document.querySelector('[type=search]')
     if (input != undefined) {
       input.addEventListener('input', e => {
@@ -99,7 +140,7 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
         console.log(`Input updated`)
         if (this.searchField.value == '') {
           this.filter = undefined;
-          this.getProdSpecs(false);
+          this.paginatedTable?.refresh(true);
         }
       });
     }
@@ -110,205 +151,20 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
     initFlowbite();
   }
 
-  goToCreate() {
-    this.eventMessage.emitSellerCreateProductSpec(true);
-  }
-
-  goToUpdate(prod: any) {
-    this.eventMessage.emitSellerUpdateProductSpec(prod);
-  }
-
-  async getProdSpecs(next: boolean) {
-    if (next == false) {
-      this.loading = true;
-    }
-
-    let options = {
-      "filters": this.status,
-      "partyId": this.partyId,
-      "sort": this.sort,
-      "isBundle": this.isBundle
-    }
-
-    this.paginationService.getItemsPaginated(this.page, this.PROD_SPEC_LIMIT, next, this.prodSpecs, this.nextProdSpecs, options,
-      this.prodSpecService.getProdSpecByUser.bind(this.prodSpecService)).then(data => {
-        this.page_check = data.page_check;
-        this.prodSpecs = data.items;
-        this.nextProdSpecs = data.nextItems;
-        this.page = data.page;
-        this.loading = false;
-        this.loading_more = false;
-      })
-  }
-
-  async next() {
-    await this.getProdSpecs(true);
-  }
-
-  filterInventoryByKeywords() {
-
-  }
-
-  onStateFilterChange(filter: string) {
-    const index = this.status.findIndex(item => item === filter);
-    if (index !== -1) {
-      this.status.splice(index, 1);
-    } else {
-      this.status.push(filter)
-    }
-    this.getProdSpecs(false);
-  }
-
-  selectTab(tab: string) {
-    if (tab === this.selectedTab) return;
-    this.selectedTab = tab;
-    this.status = [...this.tabStatusMap[tab]];
-    this.page = 0;
-    this.getProdSpecs(false);
-  }
-
-  async loadStatusCounts() {
-    try {
-      const all: any[] = [];
-      let offset = 0;
-      while (offset < 10000) {
-        const page = await this.prodSpecService.getProdSpecByUser(offset, [], this.partyId);
-        const items = Array.isArray(page) ? page : [];
-        all.push(...items);
-        if (items.length < this.PROD_SPEC_LIMIT) break;
-        offset += this.PROD_SPEC_LIMIT;
-      }
-      const counts: { [k: string]: number } = {};
-      for (const tab of Object.keys(this.tabStatusMap)) counts[tab] = 0;
-      for (const item of all) {
-        const status = item?.lifecycleStatus;
-        for (const tab of Object.keys(this.tabStatusMap)) {
-          if (this.tabStatusMap[tab].includes(status)) { counts[tab]++; break; }
-        }
-      }
-      this.statusCounts = counts;
-    } catch {
-    }
-    this.cdr.detectChanges();
-  }
-
-  toggleMenu(idx: number, event: Event) {
-    event.stopPropagation();
-    this.openMenuIdx = this.openMenuIdx === idx ? null : idx;
-  }
-
-  @HostListener('document:click')
-  onDocClick() {
-    if (this.openMenuIdx !== null) {
-      this.openMenuIdx = null;
-      this.cdr.detectChanges();
-    }
-  }
-
-  rowStatusBadge(prod: any): { text: string, bg: string, color: string } {
-    const hasChars = (prod?.productSpecCharacteristic && prod.productSpecCharacteristic.length > 0);
-    if (prod?.lifecycleStatus === 'Launched') {
-      return { text: 'Validated', bg: '#BBF7D0', color: '#052E16' };
-    }
-    if (prod?.lifecycleStatus === 'Retired' || prod?.lifecycleStatus === 'Obsolete') {
-      return { text: 'Deleted', bg: '#FEE2E2', color: '#991B1B' };
-    }
-    if (hasChars) {
-      return { text: 'Ready to be validated', bg: '#DCFCE7', color: '#166534' };
-    }
-    return { text: 'Not completed', bg: '#FEF3C7', color: '#92400E' };
-  }
-
-  validateProd(prod: any) {
-    if (!prod?.id) return;
-    this.prodSpecService.updateProdSpec({ lifecycleStatus: 'Launched' }, prod.id).subscribe({
-      next: () => {
-        this.openMenuIdx = null;
-        this.eventMessage.emitSpecCreated(this.translate.instant('CREATE_PROD_SPEC._validate_success'));
-        this.getProdSpecs(false);
-        this.loadStatusCounts();
-      },
-      error: () => {
-        this.openMenuIdx = null;
-      }
-    });
-  }
-
-  deleteProd(prod: any) {
-    if (!prod?.id) return;
-    this.openMenuIdx = null;
-    this.deleteConfirmation = prod;
-  }
-
-  cancelDeleteProd(): void {
-    if (this.deleteLoading) return;
-    this.deleteConfirmation = null;
-  }
-
-  confirmDeleteProd(): void {
-    if (!this.deleteConfirmation || this.deleteLoading) return;
-    const prod = this.deleteConfirmation;
-    this.deleteLoading = true;
-    this.performDeleteProd(prod);
-  }
-
-  get deleteProdName(): string {
-    return this.deleteConfirmation?.name || '';
-  }
-
-  private clearDeleteConfirmation(): void {
-    this.deleteLoading = false;
-    this.deleteConfirmation = null;
-  }
-
-  private performDeleteProd(prod: any) {
-    const onSuccess = () => {
-      this.clearDeleteConfirmation();
-      this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._product_spec_delete_success'));
-      this.getProdSpecs(false);
-      this.loadStatusCounts();
-    };
-    const onError = (err: any) => {
-      this.clearDeleteConfirmation();
-      console.error('Product spec delete failed', err);
-      this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._product_spec_delete_error'), 'error');
-    };
-    if (prod.lifecycleStatus === 'Active') {
-      this.prodSpecService.updateProdSpec({ lifecycleStatus: 'Launched' }, prod.id).subscribe({
-        next: () => {
-          this.prodSpecService.updateProdSpec({ lifecycleStatus: 'Retired' }, prod.id).subscribe({
-            next: onSuccess,
-            error: onError
-          });
-        },
-        error: onError
-      });
-    } else {
-      this.prodSpecService.updateProdSpec({ lifecycleStatus: 'Retired' }, prod.id).subscribe({
-        next: onSuccess,
-        error: onError
-      });
-    }
-  }
-
-  onSortChange(event: any) {
-    if (event.target.value == 'name') {
-      this.sort = 'name'
-    } else {
-      this.sort = undefined
-    }
-    this.getProdSpecs(false);
+  fetchProdSpecs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
+    const status = (filters['status'] ?? []) as string[];
+    return this.prodSpecService.getProdSpecByUserPaged(params, this.filter, status, this.partyId, this.isBundle);
   }
 
   onTypeChange(event: any) {
     if (event.target.value == 'simple') {
-      this.isBundle = false
+      this.isBundle = false;
     } else if (event.target.value == 'bundle') {
-      this.isBundle = true
+      this.isBundle = true;
     } else {
-      this.isBundle = undefined
+      this.isBundle = undefined;
     }
-    this.getProdSpecs(false);
+    this.paginatedTable?.refresh(true);
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {

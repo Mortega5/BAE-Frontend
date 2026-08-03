@@ -35,7 +35,10 @@ export class GeneralInfoComponent implements OnInit, OnDestroy {
   private disabledStatuses: string[] = [];
   private destroy$ = new Subject<void>();
 
-  constructor(private eventMessage: EventMessageService, private apiService: ApiServiceService) { }
+  constructor(
+    private eventMessage: EventMessageService,
+    private apiService: ApiServiceService,
+  ) { }
 
   get formGroup(): FormGroup {
     return this.form as FormGroup;
@@ -43,11 +46,6 @@ export class GeneralInfoComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.isEditMode = this.formType === 'update';
-
-    this.formGroup.addControl('name', new FormControl<string>(this.data?.name ?? '', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]));
-    this.formGroup.addControl('status', new FormControl<string>(this.data?.lifecycleStatus ?? 'Active'));
-    this.formGroup.addControl('description', new FormControl<string>(this.data?.description ?? '', Validators.maxLength(100000)));
-    this.formGroup.addControl('version', new FormControl<string>(this.data?.version ?? '0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*(\\.\\d*)?)?$'), noWhitespaceValidator]));
 
     if (this.isEditMode) {
       this.originalValue = {
@@ -86,7 +84,18 @@ export class GeneralInfoComponent implements OnInit, OnDestroy {
       });
     }
 
-    this.buildFields();
+    // Deferred: addControl() changes this shared FormGroup's validity synchronously,
+    // which can land mid change-detection pass (the stepper above already read
+    // canAdvance off this same group in this pass) and trigger NG0100. buildFields()
+    // (which is what makes <app-dynamic-form> render its formControlName bindings)
+    // is deferred together with it so the template never sees fields without controls.
+    Promise.resolve().then(() => {
+      this.formGroup.addControl('name', new FormControl<string>(this.data?.name ?? '', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]));
+      this.formGroup.addControl('status', new FormControl<string>(this.data?.lifecycleStatus ?? 'Active'));
+      this.formGroup.addControl('description', new FormControl<string>(this.data?.description ?? '', Validators.maxLength(100000)));
+      this.formGroup.addControl('version', new FormControl<string>(this.data?.version ?? '0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*(\\.\\d*)?)?$'), noWhitespaceValidator]));
+      this.buildFields();
+    });
   }
 
   ngOnDestroy() {

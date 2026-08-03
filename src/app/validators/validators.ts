@@ -1,4 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import * as yaml from 'js-yaml';
 
 export const pricePlanValidator: ValidatorFn = (form: AbstractControl): ValidationErrors | null => {
   const paymentOnline = form.get('paymentOnline')?.value;
@@ -42,5 +43,16 @@ export function jsonValidator(control: AbstractControl): ValidationErrors | null
     return null;
   } catch {
     return { invalidJson: true };
+  }
+}
+
+export function yamlValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  if (!value || value.trim() === '') return null;
+  try {
+    yaml.load(value);
+    return null;
+  } catch {
+    return { invalidYaml: true };
   }
 }

@@ -11,9 +11,8 @@ import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
-import { CharacteristicFormValue } from 'src/app/shared/forms/specification-characteristic/specification-characteristic-form.component';
+import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
-import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 
 import { components } from 'src/app/models/service-catalog';
@@ -66,8 +65,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
   });
 
   prodChars: ServiceSpecificationCharacteristic[] = [];
-  showCreateChar = false;
-  currentChar: CharacteristicFormValue | null = null;
+  characteristicItems: CharacteristicItem[] = [];
   allowedChars: CharValueType[] = ['string', 'number', 'range', 'object'];
 
   errorMessage: any = '';
@@ -116,10 +114,6 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  get canSaveChar(): boolean {
-    return !!this.currentChar?.name?.trim() && (this.currentChar?.values?.length ?? 0) > 0;
-  }
-
   private initPartyInfo(): void {
     const aux = this.localStorage.getObject('login_items') as LoginInfo;
     if (JSON.stringify(aux) !== '{}' && ((aux.expire - moment().unix()) - 4) > 0) {
@@ -139,36 +133,34 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
       description: this.serv.description,
     });
     this.prodChars = this.serv.specCharacteristic;
+    this.characteristicItems = this.buildCharacteristicItems();
   }
 
   goBack(): void {
     this.router.navigate([SellerOfferingsPaths.serviceSpecs.list()]);
   }
 
-  onFormChange(value: CharacteristicFormValue): void {
-    this.currentChar = value;
+  private buildCharacteristicItems(): CharacteristicItem[] {
+    return this.prodChars.map(c => ({
+      id: c.id,
+      name: c.name ?? '',
+      description: c.description ?? '',
+      configurable: c.configurable ?? false,
+      valueType: c.valueType as CharValueType,
+      values: (c.characteristicValueSpecification ?? []) as CharacteristicValueSpecification[],
+    }));
   }
 
-  saveChar(): void {
-    if (!this.currentChar?.name) return;
-    this.prodChars = [...this.prodChars, {
-      id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
-      name: this.currentChar.name,
-      description: this.currentChar.description ?? '',
-      configurable: this.currentChar.configurable,
-      valueType: this.currentChar.valueType,
-      characteristicValueSpecification: this.currentChar.values as CharacteristicValueSpecification[],
-    }];
-    this.refreshChars();
-  }
-
-  deleteChar(char: any): void {
-    this.prodChars = this.prodChars.filter(item => item.id !== char.id);
-  }
-
-  refreshChars(): void {
-    this.currentChar = null;
-    this.showCreateChar = false;
+  onCharacteristicsChange(items: CharacteristicItem[]): void {
+    this.characteristicItems = items;
+    this.prodChars = items.map(item => ({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      configurable: item.configurable,
+      valueType: item.valueType,
+      characteristicValueSpecification: item.values as CharacteristicValueSpecification[],
+    }));
   }
 
   private setServiceData(): void {
@@ -186,7 +178,6 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
 
   onStepChanged(event: StepChangedEvent): void {
     this.currentStepId = event.stepId!;
-    this.refreshChars();
     if (event.isLastStep) this.setServiceData();
   }
 

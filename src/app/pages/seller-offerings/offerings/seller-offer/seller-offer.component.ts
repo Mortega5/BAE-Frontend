@@ -1,19 +1,21 @@
-import { Component, OnInit, ChangeDetectorRef, OnDestroy, HostListener } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import {faIdCard, faSort, faSwatchbook, faSparkles} from "@fortawesome/pro-solid-svg-icons";
-import {components} from "src/app/models/product-catalog";
-import { environment } from 'src/environments/environment';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import { PaginationService } from 'src/app/services/pagination.service';
-import {LocalStorageService} from "src/app/services/local-storage.service";
-import { LoginInfo } from 'src/app/models/interfaces';
-import {EventMessageService} from "src/app/services/event-message.service";
+import { Router } from '@angular/router';
+import { faCirclePlus, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
-import { PriceServiceService } from 'src/app/services/price-service.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { TranslateService } from '@ngx-translate/core';
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { LoginInfo } from 'src/app/models/interfaces';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
+import { EventMessageService } from "src/app/services/event-message.service";
+import { LocalStorageService } from "src/app/services/local-storage.service";
+import { PriceServiceService } from 'src/app/services/price-service.service';
+import { ApiServiceService } from 'src/app/services/product-service.service';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
+import { getBundleTypeClass, lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
 @Component({
   selector: 'seller-offer',
@@ -21,503 +23,172 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrl: './seller-offer.component.css'
 })
 export class SellerOfferComponent implements OnInit, OnDestroy {
-  protected readonly faIdCard = faIdCard;
-  protected readonly faSort = faSort;
-  protected readonly faSwatchbook = faSwatchbook;
-  protected readonly faSparkles = faSparkles;
+
+  @ViewChild(FilteredPaginatedTableComponent) paginatedTable?: FilteredPaginatedTableComponent<any>;
 
   searchField = new FormControl();
-
-  offers:any[]=[];
-  nextOffers:any[]=[];
-  page:number=0;
-  PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;
-  loading: boolean = false;
-  loading_more: boolean = false;
-  page_check:boolean = true;
-  filter:any=undefined;
-  status:any[]=['Active'];
-  selectedTab: string = 'Draft';
-  tabStatusMap: { [k: string]: string[] } = {
-    Draft: ['Active'],
-    Published: ['Launched'],
-    Unpublished: ['Retired'],
-    Archived: ['Obsolete']
-  };
-  statusCounts: { [k: string]: number } = { Draft: 0, Published: 0, Unpublished: 0, Archived: 0 };
-  totalViewsCount: number = 0;
-  offersDelta: number = 0;
-  publishedDelta: number = 2;
-  viewsDelta: number = 18;
-  openMenuIdx: number | null = null;
-  deleteConfirmation: { offer: any; permanent: boolean } | null = null;
-  deleteLoading: boolean = false;
-
-  get totalOffersCount(): number {
-    return Object.values(this.statusCounts).reduce((sum, n) => sum + (n || 0), 0);
-  }
-  partyId:any;
-  sort:any='name';
-  isBundle:any=undefined;
+  filter: Record<string, string> | undefined = undefined;
+  isBundle: any = undefined;
+  partyId: any;
   customMap: Record<string, boolean> = {};
+  defaultSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
   private destroy$ = new Subject<void>();
 
+  offerColumns: TableColumn<any>[];
+
+  offerFilters: FormField[] = [
+    {
+      name: 'status',
+      label: 'OFFERINGS._filter_state',
+      type: 'select',
+      icon: faSwatchbook,
+      multiple: true,
+      defaultValue: ['Active', 'Launched'],
+      options: [
+        { value: 'Active', label: 'OFFERINGS._active' },
+        { value: 'Launched', label: 'OFFERINGS._launched' },
+        { value: 'Retired', label: 'OFFERINGS._retired' },
+        { value: 'Obsolete', label: 'OFFERINGS._obsolete' },
+      ],
+    },
+  ];
+
   constructor(
-    private router: Router,
     private api: ApiServiceService,
-    private cdr: ChangeDetectorRef,
+    private priceService: PriceServiceService,
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
-    private paginationService: PaginationService,
-    private priceService: PriceServiceService,
-    private translate: TranslateService
+    private router: Router
   ) {
+    this.offerColumns = [
+      {
+        header: 'OFFERINGS._name',
+        sortKey: 'name',
+        getValue: (item: any) => item.name ?? '-',
+        cellClass: (item: any) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
+      },
+      {
+        header: 'OFFERINGS._status',
+        getValue: (item: any) => item.lifecycleStatus ?? '-',
+        type: 'badge',
+        width: 'w-24',
+        sortKey: 'lifecycleStatus',
+        cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
+      },
+      {
+        header: 'OFFERINGS._type',
+        getValue: (item: any) => item.isBundle ? 'OFFERINGS._bundle' : 'OFFERINGS._simple',
+        type: 'badge',
+        width: 'w-24',
+        hideOnMobile: true,
+        cellClass: (item: any) => getBundleTypeClass(item.isBundle)
+      },
+      {
+        header: 'OFFERINGS._last_update',
+        type: 'date',
+        getValue: (item: any) => item.lastUpdate,
+        width: 'w-60',
+        sortKey: 'lastUpdate',
+        hideOnMobile: true,
+      },
+      {
+        header: 'OFFERINGS._actions',
+        type: 'icon-button',
+        icon: faCirclePlus,
+        width: '  w-24',
+        tooltip: 'OFFERINGS._create_custom_offer',
+        showIf: (item: any) => !!this.customMap[item.id],
+        onClick: (item: any) => this.goToCreateCustom(item),
+      },
+    ];
+
     this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'ChangedSession') {
-        this.initOffers();
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'ChangedSession') {
+          this.initOffers();
+        }
+      })
   }
 
   ngOnInit() {
     this.initOffers();
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  initOffers(){
-    this.loading=true;
+  goToCreate() {
+    this.router.navigate([SellerOfferingsPaths.offers.new()])
+  }
+
+  goToUpdate(offerId: any) {
+    this.router.navigate([SellerOfferingsPaths.offers.edit(offerId)])
+  }
+
+  goToCreateCustom(offer: any) {
+    this.router.navigate([SellerOfferingsPaths.offers.custom()],
+      { queryParams: { offerId: offer.offer?.id, partyId: offer.partyId } })
+  }
+
+  initOffers() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(aux.logged_as==aux.id){
+    if (aux.logged_as == aux.id) {
       this.partyId = aux.partyId;
     } else {
       let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
       this.partyId = loggedOrg.partyId
     }
-    this.offers=[];
-    this.nextOffers=[];
-    this.getOffers(false);
-    this.loadStatusCounts();
-    this.loadOffersDelta();
+
+    this.paginatedTable?.refresh(true);
     let input = document.querySelector('[type=search]')
-    if(input!=undefined){
+    if (input != undefined) {
       input.addEventListener('input', e => {
-        if(this.searchField.value==''){
-          this.filter=undefined;
-          this.getOffers(false);
+        // Easy way to get the value of the element who trigger the current `e` event
+        console.log(`Input updated`)
+        if (this.searchField.value == '') {
+          this.filter = undefined;
+          this.paginatedTable?.refresh(true);
         }
       });
     }
     initFlowbite();
   }
 
-  ngAfterViewInit(){
+  ngAfterViewInit() {
     initFlowbite();
   }
 
-  goToCreate(){
-    this.eventMessage.emitSellerCreateOffer(true);
-  }
+  fetchOffers = async (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
+    const status = (filters['status'] ?? []) as string[];
+    const result = await this.api.getProductOfferByOwnerPaged(params, this.filter, status, this.partyId, this.isBundle);
 
-  goToUpdate(offer:any){
-    this.eventMessage.emitSellerUpdateOffer(offer);
-  }
-
-  goToCreateCustom(offer:any){
-    this.eventMessage.emitSellerCreateCustomOffer(offer);
-  }
-
-  async getOffers(next:boolean){
-    if(next == false){
-      this.loading=true;
+    this.customMap = {};
+    for (const offer of result.items) {
+      this.customMap[offer.id] = await this.priceService.isCustomOffering(offer);
     }
 
-    let options = {
-      "filters": this.status,
-      "partyId": this.partyId,
-      "sort": this.sort,
-      "isBundle": this.isBundle
-    }
-
-    this.paginationService.getItemsPaginated(this.page, this.PROD_SPEC_LIMIT, next, this.offers,this.nextOffers, options,
-      this.api.getProductOfferByOwner.bind(this.api)).then(async data => {
-      this.page_check=data.page_check;
-      this.offers=this.sortByName(data.items);
-      this.nextOffers=this.sortByName(data.nextItems);
-      this.page=data.page;
-      this.loading=false;
-      this.loading_more=false;
-
-      this.customMap={}
-      for (const offer of this.offers) {
-        this.customMap[offer.id] = await this.priceService.isCustomOffering(offer);
-      }
-    })
-
-  }
-
-  private sortByName(items: any[]): any[] {
-    if (!Array.isArray(items)) return items;
-    return [...items].sort((a, b) => (a?.name || '').localeCompare(b?.name || ''));
-  }
-
-  async next(){
-    await this.getOffers(true);
-  }
-
-  selectTab(tab: string) {
-    if (tab === this.selectedTab) return;
-    this.selectedTab = tab;
-    this.status = [...this.tabStatusMap[tab]];
-    this.page = 0;
-    this.getOffers(false);
-  }
-
-  async loadStatusCounts() {
-    try {
-      const all = await this.fetchAllOffers([]);
-      const counts: { [k: string]: number } = { Draft: 0, Published: 0, Unpublished: 0, Archived: 0 };
-      for (const offer of all) {
-        const status = offer?.lifecycleStatus;
-        for (const tab of Object.keys(this.tabStatusMap)) {
-          if (this.tabStatusMap[tab].includes(status)) { counts[tab]++; break; }
-        }
-      }
-      this.statusCounts = counts;
-    } catch {
-    }
-    this.cdr.detectChanges();
-  }
-
-  async loadOffersDelta() {
-    try {
-      const all = await this.fetchAllOffers([]);
-      const now = new Date();
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
-      this.offersDelta = all.filter(o => this.offerCreatedAt(o) >= startOfMonth).length;
-    } catch {
-      this.offersDelta = 0;
-    }
-    this.cdr.detectChanges();
-  }
-
-  private offerCreatedAt(offer: any): number {
-    const date = offer?.validFor?.startDateTime || offer?.lastUpdate;
-    return date ? new Date(date).getTime() : 0;
-  }
-
-  private async fetchAllOffers(status: string[]): Promise<any[]> {
-    const limit = environment.PRODUCT_LIMIT;
-    const all: any[] = [];
-    let offset = 0;
-    while (offset < 10000) {
-      const page = await this.api.getProductOfferByOwner(offset, status, this.partyId, undefined, undefined);
-      const items = Array.isArray(page) ? page : [];
-      all.push(...items);
-      if (items.length < limit) break;
-      offset += limit;
-    }
-    return all;
-  }
-
-  toggleMenu(idx: number, event: Event){
-    event.stopPropagation();
-    this.openMenuIdx = this.openMenuIdx === idx ? null : idx;
-  }
-
-  @HostListener('document:click')
-  onDocClick(){
-    if(this.openMenuIdx !== null){
-      this.openMenuIdx = null;
-      this.cdr.detectChanges();
-    }
-  }
-
-  rowStatusBadge(offer: any): { text: string, bg: string, color: string } {
-    if(offer?.lifecycleStatus === 'Launched'){
-      return { text: 'Published', bg: '#BBF7D0', color: '#052E16' };
-    }
-    if(offer?.lifecycleStatus === 'Retired'){
-      return { text: 'Unpublished', bg: '#FEF3C7', color: '#92400E' };
-    }
-    if(offer?.lifecycleStatus === 'Obsolete'){
-      return { text: 'Archived', bg: '#FEE2E2', color: '#991B1B' };
-    }
-    if(this.isOfferComplete(offer)){
-      return { text: 'Ready to be published', bg: '#DCFCE7', color: '#166534' };
-    }
-    return { text: 'Not completed', bg: '#FEF3C7', color: '#92400E' };
-  }
-
-  isOfferComplete(offer: any): boolean {
-    if (!offer?.name) return false;
-    const hasSpec = !!(offer?.productSpecification?.id || (Array.isArray(offer?.bundledProductOffering) && offer.bundledProductOffering.length > 0));
-    if (!hasSpec) return false;
-    if (!Array.isArray(offer?.category) || offer.category.length === 0) return false;
-    const terms = Array.isArray(offer?.productOfferingTerm) ? offer.productOfferingTerm : [];
-    const hasProcurement = terms.some((t: any) => t?.name === 'procurement' && (t?.description || '').trim().length > 0);
-    return hasProcurement;
-  }
-
-  publishOffer(offer: any){
-    if(!offer?.id) return;
-    this.openMenuIdx = null;
-    if(!this.isOfferComplete(offer)){
-      this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._publish_incomplete_error'), 'error');
-      return;
-    }
-    this.api.updateProductOffering({ lifecycleStatus: 'Launched' }, offer.id).subscribe({
-      next: () => {
-        this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._offer_publish_success'));
-        this.getOffers(false);
-        this.loadStatusCounts();
-      },
-      error: () => {
-        this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._offer_publish_error'), 'error');
-      }
-    });
-  }
-
-  unpublishOffer(offer: any){
-    if(!offer?.id) return;
-    this.openMenuIdx = null;
-    this.api.updateProductOffering({ lifecycleStatus: 'Retired' }, offer.id).subscribe({
-      next: () => {
-        this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._offer_unpublish_success'));
-        this.getOffers(false);
-        this.loadStatusCounts();
-      },
-      error: () => {
-        this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._offer_unpublish_error'), 'error');
-      }
-    });
-  }
-
-  duplicateOffer(offer: any){
-    if(!offer?.id) return;
-    this.openMenuIdx = null;
-    const copy: any = {
-      name: 'Copy of ' + (offer.name || 'offer'),
-      description: offer.description,
-      lifecycleStatus: 'Active',
-      isBundle: offer.isBundle ?? false,
-      version: offer.version,
-      place: offer.place ?? [],
-      validFor: { startDateTime: new Date().toISOString() },
-      category: (offer.category || []).map((c: any) => ({ id: c.id, href: c.href || c.id })),
-      productOfferingPrice: (offer.productOfferingPrice || []).map((p: any) => ({ id: p.id, href: p.href || p.id })),
-      productOfferingTerm: (offer.productOfferingTerm || []).map((t: any) => ({ name: t.name, description: t.description })),
-    };
-    if (offer.bundledProductOffering) {
-      copy.bundledProductOffering = offer.bundledProductOffering;
-    }
-    if (offer.productSpecification?.id) {
-      copy.productSpecification = {
-        id: offer.productSpecification.id,
-        href: offer.productSpecification.href || offer.productSpecification.id
-      };
-    }
-    if (Array.isArray(offer.pricingLogicAlgorithm) && offer.pricingLogicAlgorithm.length > 0) {
-      copy.pricingLogicAlgorithm = offer.pricingLogicAlgorithm.map((p: any) => ({ name: p.name, plaSpecId: p.plaSpecId }));
-    }
-    const catalogId = Array.isArray(offer.catalog) && offer.catalog.length > 0 ? offer.catalog[0].id : null;
-    this.api.postProductOffering(copy, catalogId).subscribe({
-      next: () => {
-        this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._offer_duplicate_success'));
-        this.getOffers(false);
-        this.loadStatusCounts();
-      },
-      error: () => {
-        this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._offer_duplicate_error'), 'error');
-      }
-    });
-  }
-
-  restoreOffer(offer: any){
-    if(!offer?.id) return;
-    this.openMenuIdx = null;
-    const onSuccess = () => {
-      this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._offer_restore_success'));
-      this.getOffers(false);
-      this.loadStatusCounts();
-    };
-    const onError = (err: any) => {
-      console.error('Product offer restore failed', err);
-      this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._offer_restore_error'), 'error');
-    };
-    this.api.updateProductOffering({ lifecycleStatus: 'Retired' }, offer.id).subscribe({
-      next: () => {
-        this.api.updateProductOffering({ lifecycleStatus: 'Active' }, offer.id).subscribe({
-          next: onSuccess,
-          error: onError
-        });
-      },
-      error: onError
-    });
-  }
-
-  deleteOfferPermanent(offer: any){
-    if(!offer?.id) return;
-    this.openMenuIdx = null;
-    this.deleteConfirmation = { offer, permanent: true };
-  }
-
-  cancelDeleteOffer(): void {
-    if (this.deleteLoading) return;
-    this.deleteConfirmation = null;
-  }
-
-  confirmDeleteOffer(): void {
-    if (!this.deleteConfirmation || this.deleteLoading) return;
-    const { offer, permanent } = this.deleteConfirmation;
-    this.deleteLoading = true;
-    if (permanent) {
-      this.performPermanentDeleteOffer(offer);
-    } else {
-      this.performDeleteOffer(offer);
-    }
-  }
-
-  get deleteOfferTitleKey(): string {
-    return this.deleteConfirmation?.permanent
-      ? 'OFFERINGS._delete_offer_permanent_title'
-      : 'OFFERINGS._delete_offer_title';
-  }
-
-  get deleteOfferDescriptionKey(): string {
-    return this.deleteConfirmation?.permanent
-      ? 'OFFERINGS._delete_offer_permanent_desc'
-      : 'OFFERINGS._delete_offer_desc';
-  }
-
-  get deleteOfferConfirmKey(): string {
-    return this.deleteConfirmation?.permanent
-      ? 'OFFERINGS._delete_permanently'
-      : 'OFFERINGS._delete';
-  }
-
-  get deleteOfferName(): string {
-    return this.deleteConfirmation?.offer?.name || '';
-  }
-
-  private clearDeleteConfirmation(): void {
-    this.deleteLoading = false;
-    this.deleteConfirmation = null;
-  }
-
-  private performPermanentDeleteOffer(offer: any){
-    this.api.deleteProductOffering(offer.id).subscribe({
-      next: () => {
-        this.clearDeleteConfirmation();
-        this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._offer_delete_permanent_success'));
-        this.getOffers(false);
-        this.loadStatusCounts();
-      },
-      error: (err: any) => {
-        this.clearDeleteConfirmation();
-        console.error('Permanent delete failed', err);
-        this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._offer_delete_permanent_error'), 'error');
-      }
-    });
-  }
-
-  deleteOffer(offer: any){
-    if(!offer?.id) return;
-    this.openMenuIdx = null;
-    this.deleteConfirmation = { offer, permanent: false };
-  }
-
-  private performDeleteOffer(offer: any){
-    const onSuccess = () => {
-      this.clearDeleteConfirmation();
-      this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._offer_delete_success'));
-      this.getOffers(false);
-      this.loadStatusCounts();
-    };
-    const onError = (err: any) => {
-      this.clearDeleteConfirmation();
-      console.error('Product offer delete failed', err);
-      this.eventMessage.emitSpecCreated(this.translate.instant('OFFERINGS._offer_delete_error'), 'error');
-    };
-    if(offer.lifecycleStatus === 'Active'){
-      this.api.updateProductOffering({ lifecycleStatus: 'Launched' }, offer.id).subscribe({
-        next: () => {
-          this.api.updateProductOffering({ lifecycleStatus: 'Retired' }, offer.id).subscribe({
-            next: () => {
-              this.api.updateProductOffering({ lifecycleStatus: 'Obsolete' }, offer.id).subscribe({
-                next: onSuccess,
-                error: onError
-              });
-            },
-            error: onError
-          });
-        },
-        error: onError
-      });
-    } else if(offer.lifecycleStatus === 'Launched'){
-      this.api.updateProductOffering({ lifecycleStatus: 'Retired' }, offer.id).subscribe({
-        next: () => {
-          this.api.updateProductOffering({ lifecycleStatus: 'Obsolete' }, offer.id).subscribe({
-            next: onSuccess,
-            error: onError
-          });
-        },
-        error: onError
-      });
-    } else {
-      this.api.updateProductOffering({ lifecycleStatus: 'Obsolete' }, offer.id).subscribe({
-        next: onSuccess,
-        error: onError
-      });
-    }
-  }
-
-  onStateFilterChange(filter:string){
-    const index = this.status.findIndex(item => item === filter);
-    if (index !== -1) {
-      this.status.splice(index, 1);
-    } else {
-      this.status.push(filter)
-    }
-    this.getOffers(false);
-  }
-
-  onSortChange(event: any) {
-    if(event.target.value=='name'){
-      this.sort='name'
-    }else{
-      this.sort=undefined
-    }
-    this.getOffers(false);
+    return result;
   }
 
   onTypeChange(event: any) {
-    if(event.target.value=='simple'){
-      this.isBundle=false
-    }else if (event.target.value=='bundle'){
-      this.isBundle=true
-    }else{
-      this.isBundle=undefined
+    if (event.target.value == 'simple') {
+      this.isBundle = false;
+    } else if (event.target.value == 'bundle') {
+      this.isBundle = true;
+    } else {
+      this.isBundle = undefined;
     }
-    this.getOffers(false);
-  }
-
-
-  filterInventoryByKeywords(){
-
+    this.paginatedTable?.refresh(true);
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
-    if(str){
+    if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
     }
   }
-
 }

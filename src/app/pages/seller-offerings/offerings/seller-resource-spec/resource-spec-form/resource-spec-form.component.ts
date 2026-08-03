@@ -12,12 +12,11 @@ import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offe
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/resource-spec-service.service';
+import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
-import { CharacteristicFormValue } from 'src/app/shared/forms/specification-characteristic/specification-characteristic-form.component';
 import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
-import { v4 as uuidv4 } from 'uuid';
 import { buildResourceConfigUpdate, buildResourceConfiguration } from '../../../../../models/formFields/software-resource-fields';
 import { SoftwareSpecification } from '../../../../../models/software.model';
 import { CharValueType } from '../../../../../shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
@@ -85,8 +84,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   });
 
   prodChars: ResourceSpecificationCharacteristic[] = [];
-  showCreateChar = false;
-  currentChar: CharacteristicFormValue | null = null;
+  characteristicItems: CharacteristicItem[] = [];
 
   errorMessage: any = '';
   showError = false;
@@ -172,6 +170,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     this.generalForm.controls['baseTemplate'].setValue(this.res['@baseType'] ? this.res['@type'] : '');
     this.generalForm.controls['lifecycleStatus'].setValue(this.res.lifecycleStatus);
     this.prodChars = this.res.resourceSpecCharacteristic;
+    this.characteristicItems = this.buildCharacteristicItems();
 
     const configs = type ? buildResourceConfigUpdate({ partyId: this.partyId, resSpecService: this.resSpecService }) : undefined;
     const templateConfig = configs && type ? configs[type] : undefined;
@@ -192,29 +191,27 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     this.router.navigate([SellerOfferingsPaths.resourceSpecs.list()]);
   }
 
-  onFormChange(value: CharacteristicFormValue): void {
-    this.currentChar = value;
+  private buildCharacteristicItems(): CharacteristicItem[] {
+    return this.prodChars.map(c => ({
+      id: c.id,
+      name: c.name ?? '',
+      description: c.description ?? '',
+      configurable: c.configurable ?? false,
+      valueType: c.valueType as CharValueType,
+      values: (c.resourceSpecCharacteristicValue ?? []) as CharacteristicValueSpecification[],
+    }));
   }
 
-  get canSaveChar(): boolean {
-    return !!this.currentChar?.name?.trim() && (this.currentChar?.values?.length ?? 0) > 0;
-  }
-
-  saveChar(): void {
-    if (!this.currentChar?.name) return;
-    this.prodChars = [...this.prodChars, {
-      id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
-      name: this.currentChar.name,
-      description: this.currentChar.description ?? '',
-      configurable: this.currentChar.configurable,
-      valueType: this.currentChar.valueType,
-      resourceSpecCharacteristicValue: this.currentChar.values as CharacteristicValueSpecification[],
-    }];
-    this.refreshChars();
-  }
-
-  deleteChar(char: any): void {
-    this.prodChars = this.prodChars.filter(item => item.id !== char.id);
+  onCharacteristicsChange(items: CharacteristicItem[]): void {
+    this.characteristicItems = items;
+    this.prodChars = items.map(item => ({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      configurable: item.configurable,
+      valueType: item.valueType,
+      resourceSpecCharacteristicValue: item.values as CharacteristicValueSpecification[],
+    }));
   }
 
   private prepareData(): void {
@@ -271,11 +268,6 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     setTimeout(() => this.showError = false, 3000);
   }
 
-  refreshChars(): void {
-    this.currentChar = null;
-    this.showCreateChar = false;
-  }
-
   hasLongWord(str: string | undefined, threshold = 20): boolean {
     return str ? str.split(/\s+/).some(word => word.length > threshold) : false;
   }
@@ -288,7 +280,6 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
 
   onStepChanged(event: StepChangedEvent): void {
     this.currentStep = event.step;
-    this.refreshChars();
     if (this.currentStep === 1 && this.isUpdate) setTimeout(() => initFlowbite(), 100);
     if (event.isLastStep) this.prepareData();
   }

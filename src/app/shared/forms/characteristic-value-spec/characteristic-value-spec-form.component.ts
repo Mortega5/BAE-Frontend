@@ -3,7 +3,10 @@ import { FormGroup } from '@angular/forms';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
 
-export type CharValueType = 'string' | 'number' | 'range' | 'boolean' | 'object';
+export type CharValueType = 'string' | 'number' | 'range' | 'boolean' | 'object' | 'credentialsConfiguration' | 'authorizationPolicy';
+
+/** Value types whose data is JSON-shaped and edited with the same code-editor field as 'object'. */
+export const JSON_VALUE_TYPES: CharValueType[] = ['object', 'credentialsConfiguration', 'authorizationPolicy'];
 
 @Component({
   selector: 'app-characteristic-value-spec-form',
@@ -34,11 +37,12 @@ export class CharacteristicValueSpecFormComponent {
           { type: 'number', name: 'valueTo', label: 'CHAR_SPEC._value_to', required: true, readonly: ro, colSpan: 1, dataCy: 'charRangeTo' },
           { type: 'string', name: 'unitOfMeasure', label: 'CHAR_SPEC._unit', required: true, readonly: ro, colSpan: 1, dataCy: 'charRangeUnit' }
         ];
-      case 'object':
-        return [
-          { type: 'code', name: 'value', label: 'CHAR_SPEC._value', language: 'json', required: true, readonly: ro, colSpan: 3, minHeight: '140px', lineNumbers: false }
-        ];
       default:
+        if (JSON_VALUE_TYPES.includes(this.valueType)) {
+          return [
+            { type: 'code', name: 'value', label: 'CHAR_SPEC._value', language: 'json', required: true, readonly: ro, colSpan: 3, minHeight: '140px', lineNumbers: false, placeholder: '{"key": "value"}' }
+          ];
+        }
         return [];
     }
   }

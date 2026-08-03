@@ -1,6 +1,7 @@
 {
   "_yes": "Yes",
   "_no": "No",
+  "_delete": "Eliminar",
   "COMMON": {
     "_loading": "Loading...",
     "_save": "Save",
@@ -2152,7 +2153,8 @@
     "_amount": "Cantidad",
     "_unit": "Unidad",
     "_from": "Desde",
-    "_to": "Hasta"
+    "_to": "Hasta",
+    "_delete": "Eliminar característica"
   },
   "UPDATE_SOFTWARE": {
     "_save": "Save",
@@ -3672,6 +3674,8 @@
     "_type_range": "Rango",
     "_type_boolean": "Booleano",
     "_type_object": "Objeto (JSON)",
+    "_type_credentials_configuration": "Configuración de Credenciales",
+    "_type_authorization_policy": "Política de Autorización",
     "_value": "Valor",
     "_unit": "Unidad de Medida",
     "_value_from": "Desde",
@@ -3679,6 +3683,12 @@
     "_is_default": "Valor por Defecto",
     "_add_value": "Añadir Valor",
     "_true": "Verdadero",
-    "_false": "Falso"
+    "_false": "Falso",
+    "_no_chars": "No se han añadido características.",
+    "_new_char": "Crear nueva característica",
+    "_save_char": "Guardar característica",
+    "_cancel": "Cancelar",
+    "_actions": "Acciones",
+    "_values": "Valores"
   }
 }

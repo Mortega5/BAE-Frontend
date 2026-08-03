@@ -1,13 +1,17 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faPlus, faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { components } from 'src/app/models/product-catalog';
+import { TableColumn } from 'src/app/models/table-column.model';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
-import { CharacteristicValueSpecFormComponent, CharValueType } from '../characteristic-value-spec/characteristic-value-spec-form.component';
+import { CharacteristicValueSpecFormComponent, CharValueType, JSON_VALUE_TYPES } from '../characteristic-value-spec/characteristic-value-spec-form.component';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
+import { TableInputComponent } from '../table-input/table-input.component';
 import { TruncateValuePipe } from '../../pipes/truncate-value.pipe';
 
 type CharacteristicValueSpecification = components['schemas']['CharacteristicValueSpecification'];
@@ -18,9 +22,12 @@ export interface CharacteristicFormValue {
   configurable: boolean;
   valueType: CharValueType;
   values: CharacteristicValueSpecification[];
+  /** `@schemaLocation` for value types backed by a fixed JSON schema (e.g. dataspace config
+   * types). Computed automatically from `valueType`; consumers just pass it through. */
+  schemaLocation?: string;
 }
 
-const ALL_VALUE_TYPE_OPTIONS = [
+const ALL_BASE_TYPE_OPTIONS = [
   { value: 'string', label: 'CHAR_SPEC._type_string' },
   { value: 'number', label: 'CHAR_SPEC._type_number' },
   { value: 'range', label: 'CHAR_SPEC._type_range' },
@@ -28,13 +35,33 @@ const ALL_VALUE_TYPE_OPTIONS = [
   { value: 'object', label: 'CHAR_SPEC._type_object' },
 ];
 
+const EXTRA_VALUE_TYPE_OPTIONS = [
+  { value: 'credentialsConfiguration', label: 'CHAR_SPEC._type_credentials_configuration' },
+  { value: 'authorizationPolicy', label: 'CHAR_SPEC._type_authorization_policy' },
+];
+
+/** Value types edited as a single JSON blob via the code editor (like 'object'), capped at
+ * exactly one saved value since they represent one fixed config, not a set of alternatives. */
+const SINGLE_VALUE_JSON_TYPES: CharValueType[] = ['credentialsConfiguration', 'authorizationPolicy'];
+
+const SCHEMA_LOCATIONS: Partial<Record<CharValueType, string>> = {
+  credentialsConfiguration: 'https://raw.githubusercontent.com/FIWARE/contract-management/refs/heads/main/schemas/credentials/credentialConfigCharacteristic.json',
+  authorizationPolicy: 'https://raw.githubusercontent.com/FIWARE/contract-management/refs/heads/policy-support/schemas/odrl/policyCharacteristic.json',
+};
+
 @Component({
   selector: 'app-specification-characteristic-form',
   templateUrl: './specification-characteristic-form.component.html',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslateModule, DynamicFormComponent, CharacteristicValueSpecFormComponent, TruncateValuePipe],
+  imports: [FormsModule, ReactiveFormsModule, TranslateModule, FaIconComponent, DynamicFormComponent, CharacteristicValueSpecFormComponent, TableInputComponent],
 })
-export class SpecificationCharacteristicFormComponent implements OnInit, OnDestroy {
+export class SpecificationCharacteristicFormComponent implements OnInit, OnChanges, OnDestroy {
+  protected readonly faPlus = faPlus;
+
+  @Input() editingKey: any = null;
+  @Input() initialName: string = '';
+  @Input() initialDescription: string = '';
+  @Input() initialConfigurable: boolean = false;
   @Input() initialValueType: CharValueType = 'string';
   @Input() initialValues: CharacteristicValueSpecification[] = [];
   @Input() readonly: boolean = false;
@@ -43,6 +70,7 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnDestr
   @Output() formChange = new EventEmitter<CharacteristicFormValue>();
 
   private destroy$ = new Subject<void>();
+  private valueFormDestroy$ = new Subject<void>();
 
   headerForm = new FormGroup({
     name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(100), noWhitespaceValidator] }),
@@ -55,10 +83,9 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnDestr
   savedValues: CharacteristicValueSpecification[] = [];
 
   private get valueTypeOptions() {
-    const filtered = this.supportedTypes.length
-      ? ALL_VALUE_TYPE_OPTIONS.filter(o => this.supportedTypes.includes(o.value as CharValueType))
-      : ALL_VALUE_TYPE_OPTIONS;
-    return filtered;
+    if (!this.supportedTypes.length) return ALL_BASE_TYPE_OPTIONS;
+    const options = [...ALL_BASE_TYPE_OPTIONS, ...EXTRA_VALUE_TYPE_OPTIONS];
+    return options.filter(o => this.supportedTypes.includes(o.value as CharValueType));
   }
 
   get headerFields(): FormField[] {
@@ -79,18 +106,86 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnDestr
     return this.valueForm.valid;
   }
 
-  ngOnInit(): void {
-    this.headerForm.get('valueType')!.setValue(this.initialValueType, { emitEvent: false });
-    this.valueForm = this.buildValueForm();
-    this.savedValues = this.initialValues.length > 0
-      ? [...this.initialValues]
-      : this.initialValueType === 'boolean' ? this.defaultBooleanValues() : [];
+  /** Types that represent one fixed JSON config rather than a set of alternatives — capped at
+   * exactly one saved value, with no "pick a default" concept. */
+  get isSingleValueType(): boolean {
+    return SINGLE_VALUE_JSON_TYPES.includes(this.valueType);
+  }
 
+  private readonly truncateValuePipe = new TruncateValuePipe();
+
+  get defaultValue(): CharacteristicValueSpecification | null {
+    return this.savedValues.find(v => v.isDefault) ?? null;
+  }
+
+  /** table-input emits null when its radio is clicked while already selected; ignore that instead of clearing the default. */
+  onDefaultChange(value: CharacteristicValueSpecification | null): void {
+    if (!value) return;
+    const index = this.savedValues.indexOf(value);
+    if (index !== -1) this.setDefault(index);
+  }
+
+  get columns(): TableColumn[] {
+    const valueColumns: TableColumn[] = (() => {
+      switch (this.valueType) {
+        case 'string':
+          return [{ header: 'CHAR_SPEC._value', getValue: (v: any) => v.value, cellClass: () => 'break-all' }];
+        case 'number':
+          return [
+            { header: 'CHAR_SPEC._value', getValue: (v: any) => v.value, cellClass: () => 'break-all' },
+            { header: 'CHAR_SPEC._unit', getValue: (v: any) => v.unitOfMeasure },
+          ];
+        case 'range':
+          return [
+            { header: 'CHAR_SPEC._value_from', getValue: (v: any) => v.valueFrom },
+            { header: 'CHAR_SPEC._value_to', getValue: (v: any) => v.valueTo },
+            { header: 'CHAR_SPEC._unit', getValue: (v: any) => v.unitOfMeasure },
+          ];
+        case 'boolean':
+          return [{ header: 'CHAR_SPEC._value', getValue: (v: any) => v.value ? 'CHAR_SPEC._true' : 'CHAR_SPEC._false' }];
+        default:
+          if (JSON_VALUE_TYPES.includes(this.valueType)) {
+            return [{
+              header: 'CHAR_SPEC._value', getValue: (v: any) => this.truncateValuePipe.transform(v.value),
+              cellClass: () => 'font-mono text-xs break-all',
+            }];
+          }
+          return [];
+      }
+    })();
+
+    const cols: TableColumn[] = [...valueColumns];
+    if (!this.readonly && this.valueType !== 'boolean') {
+      cols.push({
+        header: '', type: 'actions', width: 'w-24',
+        actions: [{
+          icon: faXmark, tooltip: '_delete', dataCy: 'removeCharValue',
+          buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300',
+          onClick: (v: any) => this.removeValue(this.savedValues.indexOf(v)),
+        }],
+      });
+    }
+    return cols;
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // A parent editing a *different* characteristic while this form is already open
+    // (showCreateChar staying true) rebinds these inputs without recreating this
+    // component, so ngOnInit alone would never pick up the new values. Watching
+    // editingId specifically (instead of the initial* values) avoids re-applying
+    // — and clobbering in-progress edits — every time an unrelated change-detection
+    // pass happens to produce a new array/object reference for those bindings.
+    if (changes['editingKey']) {
+      this.applyInitialValue();
+    }
+  }
+
+  ngOnInit(): void {
     this.headerForm.get('valueType')!.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.savedValues = this.valueType === 'boolean' ? this.defaultBooleanValues() : [];
-        this.valueForm = this.buildValueForm();
+        this.setValueForm(this.buildValueForm());
         this.emitFormChange();
       });
 
@@ -102,16 +197,65 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnDestr
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.valueFormDestroy$.complete();
+  }
+
+  private applyInitialValue(): void {
+    // When adding a new characteristic (not editing an existing one), default to the first
+    // of the offered types instead of initialValueType's own fallback — the caller's fallback
+    // may not even be a valid option for this consumer's supportedTypes (e.g. dataspace config
+    // characteristics don't support 'string').
+    const defaultValueType = this.editingKey == null && this.supportedTypes.length
+      ? this.supportedTypes[0]
+      : this.initialValueType;
+    this.headerForm.patchValue({
+      name: this.initialName,
+      description: this.initialDescription,
+      configurable: this.initialConfigurable,
+      valueType: defaultValueType,
+    }, { emitEvent: false });
+    this.setValueForm(this.buildValueForm());
+    this.savedValues = this.initialValues.length > 0
+      ? [...this.initialValues]
+      : this.valueType === 'boolean' ? this.defaultBooleanValues() : [];
+
+    // Single-value JSON types have no add/list flow — the existing value (if any) loads
+    // straight into the editor so editing it in place is what updates it.
+    if (this.isSingleValueType && this.savedValues.length > 0) {
+      this.valueForm.patchValue({ value: JSON.stringify(this.savedValues[0].value, null, 2) }, { emitEvent: false });
+    }
+
+    // Emit right away so a consumer pre-filling this form via initialName/initialValues/etc.
+    // (edit mode) doesn't have to wait for a user edit before its "save" button enables.
+    this.emitFormChange();
   }
 
   addValue(): void {
     if (!this.canAdd) return;
     const raw = { ...this.valueForm.value, isDefault: this.savedValues.length === 0 };
-    const newValue: CharacteristicValueSpecification = this.valueType === 'object'
+    const newValue: CharacteristicValueSpecification = JSON_VALUE_TYPES.includes(this.valueType)
       ? { ...raw, value: JSON.parse(raw.value) }
       : raw;
     this.savedValues = [...this.savedValues, newValue];
-    this.valueForm = this.buildValueForm();
+    this.setValueForm(this.buildValueForm());
+    this.emitFormChange();
+  }
+
+  /** (Re)binds `valueForm`, wiring live auto-sync for single-value JSON types — those have no
+   * add/list flow, so editing the code editor directly is what updates the saved value. */
+  private setValueForm(form: FormGroup): void {
+    this.valueFormDestroy$.next();
+    this.valueForm = form;
+    if (this.isSingleValueType) {
+      form.valueChanges
+        .pipe(takeUntil(this.valueFormDestroy$), takeUntil(this.destroy$))
+        .subscribe(() => this.syncSingleValue());
+    }
+  }
+
+  private syncSingleValue(): void {
+    if (!this.valueForm.valid) return;
+    this.savedValues = [{ isDefault: true, value: JSON.parse(this.valueForm.value.value) }];
     this.emitFormChange();
   }
 
@@ -138,7 +282,8 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnDestr
       description: this.headerForm.get('description')!.value,
       configurable: this.headerForm.get('configurable')!.value,
       valueType: this.valueType,
-      values: this.savedValues
+      values: this.savedValues,
+      schemaLocation: SCHEMA_LOCATIONS[this.valueType],
     });
   }
 
@@ -167,7 +312,7 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnDestr
           isDefault: new FormControl<boolean>(false, { nonNullable: true }),
           value: new FormControl<boolean>(false, { nonNullable: true })
         });
-      case 'object':
+      default:
         return new FormGroup({
           isDefault: new FormControl<boolean>(false, { nonNullable: true }),
           value: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, jsonValidator] })

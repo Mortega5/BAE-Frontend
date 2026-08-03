@@ -1,28 +1,62 @@
-:host {
-  --table-border-color: rgb(var(--theme-primary-100));
-  --table-header-bg: rgb(var(--theme-primary-100));
-  --table-header-text: var(--theme-primary-text);
-  --table-header-hover-bg: rgb(var(--theme-primary-50) / 30%);
-  --table-row-border-color: rgb(var(--theme-primary-50) / 40%);
-  --table-row-hover-bg: rgb(var(--theme-primary-50) / 25%);
-  --table-row-selected-bg: rgb(var(--theme-primary-50) / 35%);
-  --table-empty-text: var(--theme-primary-text);
-  --table-action-bg: rgb(var(--theme-primary-100));
-  --table-action-hover-bg: rgb(var(--theme-primary-50));
-  --table-action-text: var(--theme-primary-text);
-  --table-action-focus-ring: rgb(var(--theme-primary-50) / 50%);
+/* --table-* variables are defined globally in styles.css (body / .dark body) so
+   any theme can override them directly. Everything below only consumes them. */
+
+.table-input-container {
+  border-color: var(--table-border-color);
+  background-color: var(--table-bg);
 }
 
-:host-context(.dark) {
-  --table-border-color: rgb(var(--theme-secondary-200));
-  --table-header-bg: rgb(var(--theme-secondary-200));
-  --table-header-hover-bg: rgb(var(--theme-secondary-300) / 60%);
-  --table-row-border-color: rgb(var(--theme-secondary-200));
-  --table-row-hover-bg: rgb(var(--theme-secondary-400));
-  --table-row-selected-bg: rgb(var(--theme-primary-100) / 20%);
-  --table-empty-text: var(--theme-primary-text);
+.table-input-text {
+  color: var(--table-text);
 }
 
-.table-sort-btn:hover {
+.table-input-header {
+  background-color: var(--table-header-bg);
+  color: var(--table-header-text);
+}
+
+.table-input-sort-btn:hover {
   background-color: var(--table-header-hover-bg);
+}
+
+.table-input-row {
+  border-color: var(--table-row-border-color);
+}
+
+.table-input-row-hoverable:hover {
+  background-color: var(--table-row-hover-bg);
+}
+
+.table-input-row-selected {
+  background-color: var(--table-row-selected-bg);
+}
+
+.table-input-selection-control {
+  color: var(--table-selection-accent);
+  background-color: var(--table-selection-bg);
+  border-color: var(--table-selection-border);
+}
+
+.table-input-selection-control:focus {
+  --tw-ring-color: var(--table-selection-ring);
+}
+
+.table-input-action-text {
+  color: var(--table-action-text);
+}
+
+.table-input-action-bg {
+  background-color: var(--table-action-bg);
+}
+
+.table-input-action-bg:hover {
+  background-color: var(--table-action-hover-bg);
+}
+
+.table-input-action-bg:focus {
+  --tw-ring-color: var(--table-action-focus-ring);
+}
+
+.table-input-empty-text {
+  color: var(--table-empty-text);
 }
