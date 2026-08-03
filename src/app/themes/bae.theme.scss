@@ -3,7 +3,7 @@ body.theme-bae {
   --theme-primary-50: 0 196 140;
   /* HEX: #00724d */
   --theme-primary-100: 0 114 77;
-  --theme-primary-text: rgb(255 255 255);
+  --theme-primary-text: rgb(0 0 0);
 
   /* HEX: #d7f0e5 */
   --theme-secondary-50: 215 240 229;
@@ -31,4 +31,9 @@ body.theme-bae {
   --theme-header-v2-outline-hover-text: #ffffff;
   --theme-header-v2-solid-bg: #00724d;
   --theme-header-v2-solid-hover-bg: rgba(0, 196, 140, 0.9);
+
+  &.dark,
+  .dark & {
+    --theme-primary-text: rgb(255 255 255);
+  }
 }
