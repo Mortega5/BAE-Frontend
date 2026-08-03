@@ -420,16 +420,16 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     switch (state) {
       case 'inProgress':
       case 'acknowledged':
-        return `bg-blue-100 dark:bg-secondary-300 text-blue-600 border-blue-400 ${base}`;
+        return `bg-blue-100 dark:bg-blue-300 text-blue-600 border-blue-400 ${base}`;
       case 'completed':
-        return `bg-blue-100 dark:bg-secondary-300 text-green-500 border-green-500 ${base}`;
+        return `bg-blue-100 dark:bg-green-300 text-green-500 border-green-500 ${base}`;
       case 'partial':
-        return `bg-blue-100 dark:bg-secondary-300 text-purple-500 border-purple-500 ${base}`;
+        return `bg-blue-100 dark:bg-purple-300 text-purple-500 border-purple-500 ${base}`;
       case 'failed':
       case 'cancelled':
-        return `bg-blue-100 dark:bg-secondary-300 text-red-500 border-red-500 ${base}`;
+        return `bg-blue-100 dark:bg-red-300 text-red-500 border-red-500 ${base}`;
       case 'pending':
-        return `bg-blue-100 dark:bg-secondary-300 text-yellow-500 border-yellow-500 ${base}`;
+        return `bg-blue-100 dark:bg-yello-300 text-yellow-500 border-yellow-500 ${base}`;
       default:
         return `bg-amber-500 dark:bg-amber-900 text-amber-900 dark:text-amber-100 border-amber-950 ${base}`;
     }
@@ -439,11 +439,11 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     const base = 'text-xs font-medium me-2 px-2.5 py-0.5 rounded border';
     switch (action) {
       case 'add':
-        return `bg-blue-100 dark:bg-secondary-300 text-blue-600 border-blue-400 ${base}`;
+        return `bg-blue-100 dark:bg-blue-300 text-blue-600 border-blue-400 ${base}`;
       case 'delete':
-        return `bg-blue-100 dark:bg-secondary-300 text-red-500 border-red-500 ${base}`;
+        return `bg-blue-100 dark:bg-red-300 text-red-500 border-red-500 ${base}`;
       case 'modify':
-        return `bg-blue-100 dark:bg-secondary-300 text-yellow-500 border-yellow-500 ${base}`;
+        return `bg-blue-100 dark:bg-yellow-300 text-yellow-500 border-yellow-500 ${base}`;
       default:
         return '';
     }
