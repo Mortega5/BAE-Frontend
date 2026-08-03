@@ -43,7 +43,7 @@
       [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="updateProduct()"
       [submitAlwaysVisible]="true">
 
-      <ng-template stepperStep="General INfo" stepId="general">
+      <ng-template stepperStep="General Info" stepId="general">
         <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" [columns]="2" />
       </ng-template>
 
