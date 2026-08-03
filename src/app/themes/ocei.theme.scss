@@ -20,8 +20,7 @@ body.theme-ocei {
   /* Example HEX: #4B0082 */
   --theme-primary-100: 68 213 185;
 
-  --theme-primary-text: rgb(255 255 255);
-
+  --theme-primary-text: rgb(0 0 0);
   /* Secondary colors - Greys, whites and blacks for foundation */
   --theme-secondary-50: #ffffff;
   /* Very light grey/white */
@@ -147,6 +146,8 @@ body.theme-ocei {
     --theme-primary-50: 76 199 212;
     /* Example HEX: #4B0082 */
     --theme-primary-100: 68 213 185;
+
+    --theme-primary-text: rgb(255 255 255);
 
     /* Secondary colors - Greys, whites and blacks for foundation */
     --theme-secondary-50: #ffffff;
