@@ -104,11 +104,13 @@ export class OfferComponent implements OnInit, OnDestroy {
     this.productOfferForm.statusChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(status => {
-        if (!this.productOfferForm.controls['generalInfo'].valid || !this.productOfferForm.get('procurementMode')?.valid || !this.productOfferForm.get('edcContractDefinition')?.valid) {
-          this.isFormValid = false
-        } else {
-          this.isFormValid = true
-        }
+        const valid = this.productOfferForm.controls['generalInfo'].valid
+          && (this.productOfferForm.get('procurementMode')?.valid ?? true)
+          && (this.productOfferForm.get('edcContractDefinition')?.valid ?? true);
+        // Deferred: statusChanges can fire synchronously while a nested subform is
+        // still registering its own controls (during that child's ngOnInit), which
+        // happens mid change-detection pass and would otherwise trigger NG0100.
+        Promise.resolve().then(() => { this.isFormValid = valid; });
       });
 
     // Subscribe to subform changes
