@@ -13,7 +13,7 @@ import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
-import { BADGE_BASE, lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { getBundleTypeClass, lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
 @Component({
@@ -85,7 +85,7 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
         type: 'badge',
         width: 'w-28',
         hideOnMobile: true,
-        cellClass: (item: any) => `${BADGE_BASE} ${item.isBundle ? 'text-green-500 border-green-500' : 'text-blue-600 border-blue-400'}`,
+        cellClass: (item: any) => getBundleTypeClass(item.isBundle)
       },
       {
         header: 'OFFERINGS._last_update',

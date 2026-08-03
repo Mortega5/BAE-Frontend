@@ -43,6 +43,28 @@ ngx-file-drop .ngx-file-drop__drop-zone {
   /* your theme color */
 }
 
+/* Order item action badges (app-order-info). Variables declared on that
+   component's :host in order-info.component.css; the classes live here
+   because they're applied to a span rendered inside app-table-input's own
+   template, outside app-order-info's view-encapsulation boundary. */
+.order-action-add {
+  background-color: var(--order-action-add-bg);
+  color: var(--order-action-add-text);
+  border-color: var(--order-action-add-border);
+}
+
+.order-action-delete {
+  background-color: var(--order-action-delete-bg);
+  color: var(--order-action-delete-text);
+  border-color: var(--order-action-delete-border);
+}
+
+.order-action-modify {
+  background-color: var(--order-action-modify-bg);
+  color: var(--order-action-modify-text);
+  border-color: var(--order-action-modify-border);
+}
+
 /* Default styles for Markdown elements */
 markdown {
   font-family: "Blinker", system-ui, sans-serif;

@@ -24,3 +24,10 @@ export function resourceStatusClass(status: string): string {
   const color = RESOURCE_STATUS_CLASSES[status] ?? 'text-gray-500 border-gray-400';
   return `${BASE} ${color}`;
 }
+
+
+export function getBundleTypeClass(isBundle: boolean): string {
+  return isBundle
+    ? `${BADGE_BASE} bg-green-300 text-green-500 border-green-500`
+    : `${BADGE_BASE} bg-blue-300 text-blue-600 border-blue-400`;
+}
