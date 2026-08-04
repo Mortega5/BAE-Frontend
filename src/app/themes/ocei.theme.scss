@@ -62,22 +62,22 @@ body.theme-ocei {
   multiple-select .text-white {
     color: var(--ocei-secondary-50) !important;
     background-color: rgb(var(--theme-primary-100)) !important;
+  }
 
-    &:hover {
-      color: var(--ocei-text-secondary-50) !important;
-      background-color: rgb(var(--theme-primary-50)) !important;
-    }
+  multiple-select .text-white:hover {
+    color: var(--ocei-text-secondary-50) !important;
+    background-color: rgb(var(--theme-primary-50)) !important;
   }
 
   #loggedAcc {
     color: var(--ocei-text-primary);
     background-color: color-mix(in srgb, var(--ocei-text-background-hover) 30%, transparent);
+  }
 
-    &:hover {
-      color: var(--ocei-text-secondary-50);
-      background-color: var(--ocei-text-background-hover);
-      opacity: 1;
-    }
+  #loggedAcc:hover {
+    color: var(--ocei-text-secondary-50);
+    background-color: var(--ocei-text-background-hover);
+    opacity: 1;
   }
 
   button.text-white:hover,
@@ -108,12 +108,12 @@ body.theme-ocei {
     }
 
     #login {
-      &:hover {
-        background-color: var(--ocei-text-background-hover)
-      }
-
       color: var(--ocei-secondary-50) !important;
       background-color: var(--ocei-text-primary)
+    }
+
+    #login:hover {
+      background-color: var(--ocei-text-background-hover)
     }
   }
 
@@ -121,127 +121,22 @@ body.theme-ocei {
     position: relative;
     background-image: none !important;
 
-    &::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background-position: center;
-      background-size: cover;
-      background-image: url("/assets/themes/ocei/cardBackground.png") !important;
-      /* Fade the artwork so the green title (--ocei-text-primary) stands out on top */
-      filter: opacity(0.15);
-      z-index: 0;
-    }
-
     >* {
       position: relative;
       z-index: 1;
     }
   }
 
-  /* ---------- Dark mode overrides ---------- */
-  /* Keep dark mode selectors compatible with existing utilities */
-  &.dark,
-  .dark & {
-    --ocei-text-primary: #00d084;
-    --ocei-text-background-hover: #7bdcb5;
-    --ocei-text-secondary: #4AC5D9;
-    --ocei-secondary-50: #f2f2f2;
-    --ocei-bg-primary-100: #F7FAFC;
-    --ocei-text-secondary-50: #ffffff;
-
-    /* Example HEX: #8A2BE2 */
-    --theme-primary-50: 76 199 212;
-    /* Example HEX: #4B0082 */
-    --theme-primary-100: 68 213 185;
-
-    --theme-primary-text: rgb(255 255 255);
-
-    /* Secondary colors - Greys, whites and blacks for foundation */
-    /* HEX: #ffffff */
-    --theme-secondary-50: 255 255 255;
-    /* Very light grey/white */
-    /* HEX: #212121 */
-    --theme-secondary-100: 33 33 33;
-    /* Dark grey/black */
-    /* HEX: #191919 */
-    --theme-secondary-200: 25 25 25;
-    /* Darker grey/black */
-    /* HEX: #424242 */
-    --theme-secondary-300: 66 66 66;
-    /* Medium grey */
-    /* HEX: #757575 */
-    --theme-secondary-400: 117 117 117;
-    /* Light grey */
-    /* HEX: #0d0d0d */
-    --theme-secondary-500: 13 13 13;
-    /* Very dark grey/black */
-
-    /* Tertiary colors - Teal accents */
-    /* HEX: #263238 */
-    --theme-tertiary-50: 38 50 56;
-    /* Dark teal/grey accent */
-    /* HEX: #446e68 */
-    --theme-tertiary-100: 68 110 104;
-    /* Teal accent */
-
-    /* Header v2 tokens (scoped to avoid collisions with shared theme tokens) */
-    /* Dark surface derived from the OCEI brand green (#00d084), not a copy of the light-mode value */
-    --theme-header-v2-top-bg: #10241d;
-    --theme-header-v2-glass-bg: rgba(16, 36, 29, 0.6);
-    --theme-header-v2-outline-border: #00b884;
-    --theme-header-v2-outline-hover-bg: rgba(0, 208, 132, 0.85);
-    --theme-header-v2-outline-hover-text: #ffffff;
-    --theme-header-v2-solid-bg: #00724d;
-    --theme-header-v2-solid-hover-bg: rgba(0, 208, 132, 0.9);
-
-    .bg-secondary-50 {
-      background-color: rgb(var(--theme-tertiary-50)) !important;
-    }
-
-    .dark\:bg-secondary-50 {
-      background-color: rgb(var(--theme-tertiary-50)) !important;
-    }
-
-    .bg-primary-100 {
-      background-color: rgb(var(--theme-tertiary-100)) !important;
-    }
-
-    .dark\:bg-primary-100 {
-      background-color: rgb(var(--theme-tertiary-100)) !important;
-    }
-
-    .dark\:bg-tertiary-50 {
-      background-color: rgb(var(--theme-tertiary-50)) !important;
-    }
-
-    #searchDropdownMenu {
-      background-color: rgb(var(--theme-tertiary-50));
-
-      li:hover {
-        background-color: var(--ocei-text-background-hover) !important;
-
-        button,
-        a {
-          color: var(--ocei-bg-primary-100) !important;
-        }
-      }
-    }
-
-    /* app-table-input: lift the table surface off the dark page background
-       and retint its accents with the OCEI teal so it reads clearly as its own block */
-    app-table-input {
-      --table-border-color: rgb(var(--theme-primary-100) / 50%);
-      --table-header-bg: rgb(var(--theme-primary-100) / 55%);
-      --table-header-hover-bg: rgb(var(--theme-primary-100) / 25%);
-      --table-row-hover-bg: rgb(var(--theme-primary-100) / 25%);
-      --table-row-selected-bg: rgb(var(--theme-primary-100) / 35%);
-      --table-row-border-color: rgb(var(--theme-primary-100) / 50%);
-
-      .dark\:bg-secondary-300 {
-        background-color: rgb(var(--theme-tertiary-100)) !important;
-      }
-    }
+  bae-off-featured>div>div>div>div::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-position: center;
+    background-size: cover;
+    background-image: url("/assets/themes/ocei/cardBackground.png") !important;
+    /* Fade the artwork so the green title (--ocei-text-primary) stands out on top */
+    filter: opacity(0.15);
+    z-index: 0;
   }
 
   /* ---------- Other utility classes ---------- */
@@ -260,5 +155,113 @@ body.theme-ocei {
 
   .bg-white\/20:has(+ #shoppingCart) {
     background-color: var(--ocei-text-primary);
+  }
+}
+
+/* ---------- Dark mode overrides ---------- */
+/* Keep dark mode selectors compatible with existing utilities. Written as a
+   plain, fully-qualified selector pair (not "&.dark, .dark &") because
+   production's CSS optimizer doesn't understand SCSS "&" nesting and silently
+   drops rules that use it. */
+body.theme-ocei.dark,
+.dark body.theme-ocei {
+  --ocei-text-primary: #00d084;
+  --ocei-text-background-hover: #7bdcb5;
+  --ocei-text-secondary: #4AC5D9;
+  --ocei-secondary-50: #f2f2f2;
+  --ocei-bg-primary-100: #F7FAFC;
+  --ocei-text-secondary-50: #ffffff;
+
+  /* Example HEX: #8A2BE2 */
+  --theme-primary-50: 76 199 212;
+  /* Example HEX: #4B0082 */
+  --theme-primary-100: 68 213 185;
+
+  --theme-primary-text: rgb(255 255 255);
+
+  /* Secondary colors - Greys, whites and blacks for foundation */
+  /* HEX: #ffffff */
+  --theme-secondary-50: 255 255 255;
+  /* Very light grey/white */
+  /* HEX: #212121 */
+  --theme-secondary-100: 33 33 33;
+  /* Dark grey/black */
+  /* HEX: #191919 */
+  --theme-secondary-200: 25 25 25;
+  /* Darker grey/black */
+  /* HEX: #424242 */
+  --theme-secondary-300: 66 66 66;
+  /* Medium grey */
+  /* HEX: #757575 */
+  --theme-secondary-400: 117 117 117;
+  /* Light grey */
+  /* HEX: #0d0d0d */
+  --theme-secondary-500: 13 13 13;
+  /* Very dark grey/black */
+
+  /* Tertiary colors - Teal accents */
+  /* HEX: #263238 */
+  --theme-tertiary-50: 38 50 56;
+  /* Dark teal/grey accent */
+  /* HEX: #446e68 */
+  --theme-tertiary-100: 68 110 104;
+  /* Teal accent */
+
+  /* Header v2 tokens (scoped to avoid collisions with shared theme tokens) */
+  /* Dark surface derived from the OCEI brand green (#00d084), not a copy of the light-mode value */
+  --theme-header-v2-top-bg: #10241d;
+  --theme-header-v2-glass-bg: rgba(16, 36, 29, 0.6);
+  --theme-header-v2-outline-border: #00b884;
+  --theme-header-v2-outline-hover-bg: rgba(0, 208, 132, 0.85);
+  --theme-header-v2-outline-hover-text: #ffffff;
+  --theme-header-v2-solid-bg: #00724d;
+  --theme-header-v2-solid-hover-bg: rgba(0, 208, 132, 0.9);
+
+  .bg-secondary-50 {
+    background-color: rgb(var(--theme-tertiary-50)) !important;
+  }
+
+  .dark\:bg-secondary-50 {
+    background-color: rgb(var(--theme-tertiary-50)) !important;
+  }
+
+  .bg-primary-100 {
+    background-color: rgb(var(--theme-tertiary-100)) !important;
+  }
+
+  .dark\:bg-primary-100 {
+    background-color: rgb(var(--theme-tertiary-100)) !important;
+  }
+
+  .dark\:bg-tertiary-50 {
+    background-color: rgb(var(--theme-tertiary-50)) !important;
+  }
+
+  #searchDropdownMenu {
+    background-color: rgb(var(--theme-tertiary-50));
+
+    li:hover {
+      background-color: var(--ocei-text-background-hover) !important;
+
+      button,
+      a {
+        color: var(--ocei-bg-primary-100) !important;
+      }
+    }
+  }
+
+  /* app-table-input: lift the table surface off the dark page background
+     and retint its accents with the OCEI teal so it reads clearly as its own block */
+  app-table-input {
+    --table-border-color: rgb(var(--theme-primary-100) / 50%);
+    --table-header-bg: rgb(var(--theme-primary-100) / 55%);
+    --table-header-hover-bg: rgb(var(--theme-primary-100) / 25%);
+    --table-row-hover-bg: rgb(var(--theme-primary-100) / 25%);
+    --table-row-selected-bg: rgb(var(--theme-primary-100) / 35%);
+    --table-row-border-color: rgb(var(--theme-primary-100) / 50%);
+
+    .dark\:bg-secondary-300 {
+      background-color: rgb(var(--theme-tertiary-100)) !important;
+    }
   }
 }
