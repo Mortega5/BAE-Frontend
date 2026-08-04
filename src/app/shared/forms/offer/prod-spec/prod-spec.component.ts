@@ -135,7 +135,6 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
       this.originalValue = prodSpec;
       this.hasBeenModified = false;
     }
-    this.onChange(prodSpec);
   }
 
   registerOnChange(fn: any): void {

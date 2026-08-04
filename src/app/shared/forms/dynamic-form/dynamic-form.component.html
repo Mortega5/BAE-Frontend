@@ -1,3 +1,4 @@
+@if (formGroup && fields.length > 0) {
 <div [formGroup]="formGroup" class="grid gap-4" [ngClass]="gridColsClass()">
   @for (field of fields; track field.name) {
   <div [ngClass]="colSpanClass(field)">
@@ -126,3 +127,4 @@
   </div>
   }
 </div>
+}
