@@ -2046,7 +2046,8 @@
     "_amount": "Amount",
     "_unit": "Unit",
     "_from": "From",
-    "_to": "To"
+    "_to": "To",
+    "_delete": "Delete characteristic"
   },
   "UPDATE_SOFTWARE": {
     "_save": "Save",

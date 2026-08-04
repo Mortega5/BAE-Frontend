@@ -1,12 +1,15 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { components } from 'src/app/models/software-catalog';
+import { TableColumn } from 'src/app/models/table-column.model';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { PackageDeploymentComponent } from '../../../../../shared/forms/package-deployment/package-deployment';
@@ -26,7 +29,7 @@ const CHAR_TYPE_OPTIONS: { value: CharType; label: string }[] = [
   templateUrl: './software-characteristics.component.html',
   styleUrl: './software-characteristics.component.css',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, PackageDeploymentComponent, DynamicFormComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, PackageDeploymentComponent, DynamicFormComponent, TableInputComponent],
 })
 export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
   @Input() characteristics: Characteristic[] = [];
@@ -34,6 +37,7 @@ export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
   @Output() characteristicsChange = new EventEmitter<Characteristic[]>();
 
   showAddForm = false;
+  editingIndex: number | null = null;
 
   charForm = new FormGroup({
     charName: new FormControl<string>('', { nonNullable: true }),
@@ -50,8 +54,40 @@ export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
     { type: 'select', name: 'charType', label: 'CREATE_SOFTWARE._type', options: CHAR_TYPE_OPTIONS, colSpan: 1 },
   ];
 
+  get characteristicColumns(): TableColumn[] {
+    const columns: TableColumn[] = [
+      { header: 'CREATE_SOFTWARE._name', getValue: (c: any) => c.name, cellClass: () => 'break-words', width: 'w-1/3' },
+      {
+        header: 'CREATE_SOFTWARE._type', type: 'badge', width: 'w-28',
+        getValue: (c: any) => c.valueType,
+        cellClass: () => 'text-xs font-medium px-2 py-0.5 rounded bg-gray-100 dark:bg-secondary-200 text-gray-700 dark:text-gray-200',
+      },
+      {
+        header: 'CREATE_SOFTWARE._values', getValue: (c: any) => this.displayValue(c),
+        cellClass: () => 'break-all text-gray-500 dark:text-gray-300',
+      },
+    ];
+    if (!this.readonly) {
+      columns.push({
+        header: 'CREATE_SOFTWARE._actions', type: 'actions', width: 'w-24',
+        actions: [
+          {
+            icon: faXmark, tooltip: 'CREATE_SOFTWARE._delete', dataCy: 'deleteChar',
+            buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300',
+            onClick: (c: any) => this.deleteChar(this.characteristics.findIndex(item => item.id === c.id)),
+          },
+        ],
+      });
+    }
+    return columns;
+  }
+
   get charType(): CharType {
     return this.charForm.get('charType')!.value;
+  }
+
+  get editingDeploymentValue(): any {
+    return this.editingIndex != null ? this.characteristics[this.editingIndex]?.value : null;
   }
 
   get valueFields(): FormField[] {
@@ -108,20 +144,56 @@ export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
       value = formValue.length === 1 ? formValue[0] : formValue;
     }
 
+    const editing = this.editingIndex != null ? this.characteristics[this.editingIndex] : null;
     const char: any = {
-      id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
+      id: editing?.id ?? 'urn:ngsi-ld:characteristic:' + uuidv4(),
       name: this.charForm.get('charName')!.value.trim(),
       valueType: this.charType,
       ...(this.charType === 'deployment' && { '@schemaLocation': environment.DEPLOYMENT_SCHEMA_LOCATION }),
       value,
     };
 
-    this.characteristics = [...this.characteristics, char];
+    if (this.editingIndex != null) {
+      const updated = [...this.characteristics];
+      updated[this.editingIndex] = char;
+      this.characteristics = updated;
+    } else {
+      this.characteristics = [...this.characteristics, char];
+    }
     this.characteristicsChange.emit(this.characteristics);
     this.resetForm();
   }
 
+  /** Loads an existing characteristic into the add/edit form so its content can be changed. */
+  onRowClick(char: any): void {
+    if (this.readonly) return;
+    const index = this.characteristics.findIndex(c => c.id === char.id);
+    if (index === -1) return;
+
+    this.editingIndex = index;
+    this.showAddForm = true;
+    this.charForm.patchValue({ charName: char.name, charType: char.valueType });
+    if (char.valueType !== 'deployment') {
+      this.charForm.patchValue({ value: this.reverseValue(char) });
+    }
+  }
+
+  private reverseValue(char: any): any {
+    const v = char.value;
+    switch (char.valueType) {
+      case 'string':
+        return Array.isArray(v) ? v : v != null ? [v] : [];
+      case 'number':
+        return Array.isArray(v) ? v.map((entry: any) => ({ value: entry.amount, unit: entry.unit })) : [];
+      case 'range':
+        return v ?? null;
+      default:
+        return null;
+    }
+  }
+
   deleteChar(index: number) {
+    if (this.editingIndex === index) this.resetForm();
     const updated = [...this.characteristics];
     updated.splice(index, 1);
     this.characteristics = updated;
@@ -150,8 +222,9 @@ export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
     return String(v);
   }
 
-  private resetForm() {
+  resetForm() {
     this.showAddForm = false;
+    this.editingIndex = null;
     this.charForm.reset({ charName: '', charType: 'string', value: null });
     this.deploymentForm = null;
   }

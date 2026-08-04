@@ -2047,7 +2047,8 @@
     "_amount": "Cantidad",
     "_unit": "Unidad",
     "_from": "Desde",
-    "_to": "Hasta"
+    "_to": "Hasta",
+    "_delete": "Eliminar característica"
   },
   "UPDATE_SOFTWARE": {
     "_save": "Save",

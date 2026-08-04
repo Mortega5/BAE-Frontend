@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
@@ -17,7 +17,7 @@ const DEPLOYMENT_TYPE_OPTIONS: SelectOption[] = [
 ];
 
 const TOP_FIELDS: FormField[] = [
-  { type: 'select', name: 'type', label: 'Type', required: true, options: DEPLOYMENT_TYPE_OPTIONS, colSpan: 1 },
+  { type: 'select', name: 'type', label: 'Type', required: true, options: DEPLOYMENT_TYPE_OPTIONS, defaultValue: 'helm', colSpan: 1 },
   { type: 'string', name: 'version', label: 'Schema version', required: true, colSpan: 1 },
 ];
 
@@ -45,6 +45,9 @@ const DOCKER_FIELDS: FormField[] = [
 })
 export class PackageDeploymentComponent implements OnInit, OnDestroy {
 
+  /** Existing deployment value to edit, shaped like this component's own form.value (`{type, version, properties}`). */
+  @Input() initialValue: any;
+
   @Output() formReady = new EventEmitter<FormGroup>();
 
   readonly topFields = TOP_FIELDS;
@@ -62,6 +65,13 @@ export class PackageDeploymentComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   ngOnInit() {
+    if (this.initialValue) {
+      const type: DeploymentType = this.initialValue.type === 'docker' ? 'docker' : 'helm';
+      this.propertiesFields = type === 'docker' ? DOCKER_FIELDS : HELM_FIELDS;
+      this.form.setControl('properties', buildFormGroup(this.propertiesFields));
+      this.form.patchValue(this.initialValue);
+    }
+
     this.form.get('type')!.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(type => this.onTypeChange(type as DeploymentType));

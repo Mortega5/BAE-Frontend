@@ -14,46 +14,8 @@
     </div>
   </div>
   } @else {
-  <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300">
-    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-200">
-      <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-        <tr>
-          <th scope="col" class="px-6 py-3">{{ 'CREATE_SOFTWARE._name' | translate }}</th>
-          <th scope="col" class="px-6 py-3">{{ 'CREATE_SOFTWARE._type' | translate }}</th>
-          <th scope="col" class="px-6 py-3">{{ 'CREATE_SOFTWARE._values' | translate }}</th>
-          @if(!readonly) {
-          <th scope="col" class="px-6 py-3">{{ 'CREATE_SOFTWARE._actions' | translate }}</th>
-          }
-        </tr>
-      </thead>
-      <tbody>
-        @for (char of characteristics; track char.id; let i = $index) {
-        <tr class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-          <td class="px-6 py-4 break-words">{{ char.name }}</td>
-          <td class="px-6 py-4">
-            <span
-              class="text-xs font-medium px-2 py-0.5 rounded bg-gray-100 dark:bg-secondary-200 text-gray-700 dark:text-gray-200">
-              {{ char.valueType }}
-            </span>
-          </td>
-          <td class="px-6 py-4 break-all text-gray-500 dark:text-gray-300">{{ displayValue(char) }}</td>
-          @if(!readonly) {
-          <td class="px-6 py-4">
-            <button type="button" (click)="deleteChar(i)"
-              class="font-bold text-white bg-red-500 hover:bg-red-600 rounded-3xl p-1">
-              <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M6 18 17.94 6M18 18 6.06 6" />
-              </svg>
-            </button>
-          </td>
-          }
-        </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+  <app-table-input [columns]="characteristicColumns" [items]="characteristics" [selectable]="false"
+    [clickable]="true" [readonly]="readonly" (rowClick)="onRowClick($event)" />
   }
 
   @if (!readonly) {
@@ -81,12 +43,12 @@
     @if (charType !== 'deployment') {
     <app-dynamic-form [fields]="valueFields" [formGroup]="charForm" />
     } @else {
-    <app-package-deployment (formReady)="onDeploymentFormReady($event)" />
+    <app-package-deployment [initialValue]="editingDeploymentValue" (formReady)="onDeploymentFormReady($event)" />
     }
 
     @if(!readonly) {
     <div class="flex gap-3 justify-end pt-2 border-t border-gray-200 dark:border-gray-700">
-      <button type="button" (click)="showAddForm = false"
+      <button type="button" (click)="resetForm()"
         class="px-4 py-2 text-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50">
         {{ 'CANCEL' | translate }}
       </button>
