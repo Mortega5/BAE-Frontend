@@ -135,7 +135,6 @@ body.theme-ocei {
     background-size: cover;
     background-image: url("/assets/themes/ocei/cardBackground.png") !important;
     /* Fade the artwork so the green title (--ocei-text-primary) stands out on top */
-    filter: opacity(0.15);
     z-index: 0;
   }
 
