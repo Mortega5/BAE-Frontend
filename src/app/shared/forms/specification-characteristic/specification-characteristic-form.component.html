@@ -3,11 +3,11 @@
   <app-dynamic-form [fields]="headerFields" [formGroup]="headerForm" [columns]="6" />
 
   @if (savedValues.length > 0) {
-  <app-table-input [columns]="columns" [items]="savedValues" [selectable]="!readonly" [multiple]="false"
-    [readonly]="readonly" [ngModel]="defaultValue" (ngModelChange)="onDefaultChange($event)" />
+  <app-table-input [columns]="columns" [items]="savedValues" [selectable]="!readonly && !isSingleValueType"
+    [multiple]="false" [readonly]="readonly" [ngModel]="defaultValue" (ngModelChange)="onDefaultChange($event)" />
   }
 
-  @if (!readonly && valueType !== 'boolean') {
+  @if (!readonly && valueType !== 'boolean' && !(isSingleValueType && savedValues.length > 0)) {
   <div
     class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-secondary-200 flex flex-col gap-3">
     <app-characteristic-value-spec-form [valueType]="valueType" [form]="valueForm" />

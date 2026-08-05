@@ -101,6 +101,7 @@ export class CharacteristicsEditorComponent {
       configurable: this.currentChar.configurable,
       valueType: this.currentChar.valueType,
       values: this.currentChar.values,
+      schemaLocation: this.currentChar.schemaLocation,
     };
 
     let updated: CharacteristicItem[];

@@ -6,6 +6,7 @@ import { yaml } from '@codemirror/lang-yaml';
 import { Diagnostic, lintGutter, linter } from '@codemirror/lint';
 import { Compartment, EditorState } from '@codemirror/state';
 import { oneDark } from '@codemirror/theme-one-dark';
+import { placeholder as placeholderExtension } from '@codemirror/view';
 import { basicSetup, EditorView } from 'codemirror';
 import * as yamlParser from 'js-yaml';
 import { CodeLanguage, CodeTheme } from 'src/app/models/formFields/form-field.model';
@@ -75,6 +76,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy, ControlVal
   @Input() readonly = false;
   @Input() lineNumbers = true;
   @Input() theme: CodeTheme = 'auto';
+  @Input() placeholder = '';
 
   @ViewChild('container') private container!: ElementRef<HTMLElement>;
 
@@ -103,6 +105,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy, ControlVal
           this.readonlyCompartment.of(EditorState.readOnly.of(this.readonly || this.isDisabled)),
           this.lineNumbersCompartment.of(this.lineNumbers ? [] : HIDE_LINE_NUMBERS),
           INPUT_THEME,
+          this.placeholder ? placeholderExtension(this.placeholder) : [],
           EditorView.updateListener.of(update => {
             if (!update.docChanged || this.skipNextEmit) {
               this.skipNextEmit = false;

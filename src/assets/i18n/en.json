@@ -2967,6 +2967,8 @@
     "_type_range": "Range",
     "_type_boolean": "Boolean",
     "_type_object": "Object (JSON)",
+    "_type_credentials_configuration": "Credentials Configuration",
+    "_type_authorization_policy": "Authorization Policy",
     "_value": "Value",
     "_unit": "Unit of Measure",
     "_value_from": "From",

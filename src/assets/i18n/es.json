@@ -2968,6 +2968,8 @@
     "_type_range": "Rango",
     "_type_boolean": "Booleano",
     "_type_object": "Objeto (JSON)",
+    "_type_credentials_configuration": "Configuración de Credenciales",
+    "_type_authorization_policy": "Política de Autorización",
     "_value": "Valor",
     "_unit": "Unidad de Medida",
     "_value_from": "Desde",

@@ -9,7 +9,7 @@ import { FormField } from 'src/app/models/formFields/form-field.model';
 import { components } from 'src/app/models/product-catalog';
 import { TableColumn } from 'src/app/models/table-column.model';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
-import { CharacteristicValueSpecFormComponent, CharValueType } from '../characteristic-value-spec/characteristic-value-spec-form.component';
+import { CharacteristicValueSpecFormComponent, CharValueType, JSON_VALUE_TYPES } from '../characteristic-value-spec/characteristic-value-spec-form.component';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
 import { TableInputComponent } from '../table-input/table-input.component';
 import { TruncateValuePipe } from '../../pipes/truncate-value.pipe';
@@ -22,15 +22,32 @@ export interface CharacteristicFormValue {
   configurable: boolean;
   valueType: CharValueType;
   values: CharacteristicValueSpecification[];
+  /** `@schemaLocation` for value types backed by a fixed JSON schema (e.g. dataspace config
+   * types). Computed automatically from `valueType`; consumers just pass it through. */
+  schemaLocation?: string;
 }
 
-const ALL_VALUE_TYPE_OPTIONS = [
+const ALL_BASE_TYPE_OPTIONS = [
   { value: 'string', label: 'CHAR_SPEC._type_string' },
   { value: 'number', label: 'CHAR_SPEC._type_number' },
   { value: 'range', label: 'CHAR_SPEC._type_range' },
   { value: 'boolean', label: 'CHAR_SPEC._type_boolean' },
   { value: 'object', label: 'CHAR_SPEC._type_object' },
 ];
+
+const EXTRA_VALUE_TYPE_OPTIONS = [
+  { value: 'credentialsConfiguration', label: 'CHAR_SPEC._type_credentials_configuration' },
+  { value: 'authorizationPolicy', label: 'CHAR_SPEC._type_authorization_policy' },
+];
+
+/** Value types edited as a single JSON blob via the code editor (like 'object'), capped at
+ * exactly one saved value since they represent one fixed config, not a set of alternatives. */
+const SINGLE_VALUE_JSON_TYPES: CharValueType[] = ['credentialsConfiguration', 'authorizationPolicy'];
+
+const SCHEMA_LOCATIONS: Partial<Record<CharValueType, string>> = {
+  credentialsConfiguration: 'https://raw.githubusercontent.com/FIWARE/contract-management/refs/heads/main/schemas/credentials/credentialConfigCharacteristic.json',
+  authorizationPolicy: 'https://raw.githubusercontent.com/FIWARE/contract-management/refs/heads/policy-support/schemas/odrl/policyCharacteristic.json',
+};
 
 @Component({
   selector: 'app-specification-characteristic-form',
@@ -40,13 +57,7 @@ const ALL_VALUE_TYPE_OPTIONS = [
 })
 export class SpecificationCharacteristicFormComponent implements OnInit, OnChanges, OnDestroy {
   protected readonly faPlus = faPlus;
-  /** Stable identity of what's being edited — pass the actual characteristic object being
-   * edited (or null when adding a new one), NOT its `.id` (that field is optional on the
-   * backend schema and may be absent for existing data). This — not the initial* values below
-   * — is what ngOnChanges watches to decide whether to (re)load, since initialValues/
-   * initialValueType are often bound to expressions (optional chains, `?? []` fallbacks) that
-   * can produce a new reference every change-detection pass without the underlying data
-   * actually changing. */
+
   @Input() editingKey: any = null;
   @Input() initialName: string = '';
   @Input() initialDescription: string = '';
@@ -71,10 +82,9 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
   savedValues: CharacteristicValueSpecification[] = [];
 
   private get valueTypeOptions() {
-    const filtered = this.supportedTypes.length
-      ? ALL_VALUE_TYPE_OPTIONS.filter(o => this.supportedTypes.includes(o.value as CharValueType))
-      : ALL_VALUE_TYPE_OPTIONS;
-    return filtered;
+    if (!this.supportedTypes.length) return ALL_BASE_TYPE_OPTIONS;
+    const options = [...ALL_BASE_TYPE_OPTIONS, ...EXTRA_VALUE_TYPE_OPTIONS];
+    return options.filter(o => this.supportedTypes.includes(o.value as CharValueType));
   }
 
   get headerFields(): FormField[] {
@@ -92,7 +102,14 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
   }
 
   get canAdd(): boolean {
+    if (this.isSingleValueType && this.savedValues.length > 0) return false;
     return this.valueForm.valid;
+  }
+
+  /** Types that represent one fixed JSON config rather than a set of alternatives — capped at
+   * exactly one saved value, with no "pick a default" concept. */
+  get isSingleValueType(): boolean {
+    return SINGLE_VALUE_JSON_TYPES.includes(this.valueType);
   }
 
   private readonly truncateValuePipe = new TruncateValuePipe();
@@ -126,12 +143,13 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
           ];
         case 'boolean':
           return [{ header: 'CHAR_SPEC._value', getValue: (v: any) => v.value ? 'CHAR_SPEC._true' : 'CHAR_SPEC._false' }];
-        case 'object':
-          return [{
-            header: 'CHAR_SPEC._value', getValue: (v: any) => this.truncateValuePipe.transform(v.value),
-            cellClass: () => 'font-mono text-xs break-all',
-          }];
         default:
+          if (JSON_VALUE_TYPES.includes(this.valueType)) {
+            return [{
+              header: 'CHAR_SPEC._value', getValue: (v: any) => this.truncateValuePipe.transform(v.value),
+              cellClass: () => 'font-mono text-xs break-all',
+            }];
+          }
           return [];
       }
     })();
@@ -182,16 +200,23 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
   }
 
   private applyInitialValue(): void {
+    // When adding a new characteristic (not editing an existing one), default to the first
+    // of the offered types instead of initialValueType's own fallback — the caller's fallback
+    // may not even be a valid option for this consumer's supportedTypes (e.g. dataspace config
+    // characteristics don't support 'string').
+    const defaultValueType = this.editingKey == null && this.supportedTypes.length
+      ? this.supportedTypes[0]
+      : this.initialValueType;
     this.headerForm.patchValue({
       name: this.initialName,
       description: this.initialDescription,
       configurable: this.initialConfigurable,
-      valueType: this.initialValueType,
+      valueType: defaultValueType,
     }, { emitEvent: false });
     this.valueForm = this.buildValueForm();
     this.savedValues = this.initialValues.length > 0
       ? [...this.initialValues]
-      : this.initialValueType === 'boolean' ? this.defaultBooleanValues() : [];
+      : this.valueType === 'boolean' ? this.defaultBooleanValues() : [];
 
     // Emit right away so a consumer pre-filling this form via initialName/initialValues/etc.
     // (edit mode) doesn't have to wait for a user edit before its "save" button enables.
@@ -201,7 +226,7 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
   addValue(): void {
     if (!this.canAdd) return;
     const raw = { ...this.valueForm.value, isDefault: this.savedValues.length === 0 };
-    const newValue: CharacteristicValueSpecification = this.valueType === 'object'
+    const newValue: CharacteristicValueSpecification = JSON_VALUE_TYPES.includes(this.valueType)
       ? { ...raw, value: JSON.parse(raw.value) }
       : raw;
     this.savedValues = [...this.savedValues, newValue];
@@ -232,7 +257,8 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
       description: this.headerForm.get('description')!.value,
       configurable: this.headerForm.get('configurable')!.value,
       valueType: this.valueType,
-      values: this.savedValues
+      values: this.savedValues,
+      schemaLocation: SCHEMA_LOCATIONS[this.valueType],
     });
   }
 
@@ -261,7 +287,7 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
           isDefault: new FormControl<boolean>(false, { nonNullable: true }),
           value: new FormControl<boolean>(false, { nonNullable: true })
         });
-      case 'object':
+      default:
         return new FormGroup({
           isDefault: new FormControl<boolean>(false, { nonNullable: true }),
           value: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, jsonValidator] })

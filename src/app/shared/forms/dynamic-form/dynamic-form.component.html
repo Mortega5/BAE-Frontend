@@ -122,7 +122,8 @@
     @if (field.type === 'code') {
     <app-code-editor [formControlName]="field.name" [language]="asCode(field).language"
       [minHeight]="asCode(field).minHeight ?? '120px'" [readonly]="field.readonly ?? false"
-      [lineNumbers]="asCode(field).lineNumbers ?? true" [theme]="asCode(field).theme ?? 'auto'" />
+      [lineNumbers]="asCode(field).lineNumbers ?? true" [theme]="asCode(field).theme ?? 'auto'"
+      [placeholder]="asCode(field).placeholder ?? ''" />
     }
   </div>
   }

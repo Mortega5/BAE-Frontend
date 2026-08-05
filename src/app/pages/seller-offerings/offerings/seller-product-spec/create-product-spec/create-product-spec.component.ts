@@ -95,20 +95,9 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   });
 
   //CHARS INFO
-  charsForm = new FormGroup({
-    name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
-    description: new FormControl('', [Validators.maxLength(500)])
-  });
-  charTypeSelected: string = 'string';
-  booleanDefaultTrue: boolean = true;
-
-  isOptional: boolean = false;
-  optionalDftTrue: boolean = false;
   prodChars: ProductSpecificationCharacteristic[] = [];
   characteristicItems: CharacteristicItem[] = [];
   finishChars: ProductSpecificationCharacteristic[] = [];
-  creatingChars: CharacteristicValueSpecification[] = [];
-  showCreateChar: boolean = false;
 
   //BUNDLE INFO:
   bundleChecked: boolean = false;
@@ -208,15 +197,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   errorMessage: any = '';
   showError: boolean = false;
   loading: boolean = false;
-
-  //CHARS
-  stringValue: string = '';
-  numberValue: string = '';
-  numberUnit: string = '';
-  fromValue: string = '';
-  toValue: string = '';
-  rangeUnit: string = '';
-  jsonValue: string = '';
 
   blueprintConfig: BlueprintProductFormValue;
 
@@ -343,9 +323,9 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
 
   onStepChanged(event: StepChangedEvent): void {
     this.currentStepId = event.stepId as ProductSpecFormStep
-    this.refreshChars();
     switch (this.currentStepId) {
       case 'characteristics':
+      case 'dataspace':
         this.characteristicItems = this.buildCharacteristicItems();
         break;
       case 'compliance':
@@ -721,20 +701,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     console.log('uploading...')
   }
 
-  toggleCreateCharacteristicForm() {
-    this.showCreateChar = !this.showCreateChar;
-    if (this.showCreateChar) {
-      this.charTypeSelected = this.dataSpaceCharacteristicTypes[0];
-      this.creatingChars = [];
-      this.isOptional = false;
-      this.optionalDftTrue = false;
-      this.booleanDefaultTrue = true;
-      if (this.charTypeSelected === 'boolean') {
-        this.setBooleanDefaultValues();
-      }
-    }
-  }
-
   fetchResourceSpecs = (params: PageRequest): Promise<PageResult<any>> => {
     return this.resSpecService.getResourceSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId);
   }
@@ -868,61 +834,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  refreshChars() {
-    this.stringValue = '';
-    this.numberValue = '';
-    this.numberUnit = '';
-    this.fromValue = '';
-    this.toValue = '';
-    this.rangeUnit = '';
-    this.jsonValue = '';
-    this.charTypeSelected = this.getInitialCharacteristicTypeForCurrentStep();
-    this.booleanDefaultTrue = true;
-    this.isOptional = false;
-    this.optionalDftTrue = false;
-    this.creatingChars = [];
-  }
-
-  setBooleanDefaultValues() {
-    this.creatingChars = [
-      {
-        isDefault: this.booleanDefaultTrue,
-        value: true as any
-      },
-      {
-        isDefault: !this.booleanDefaultTrue,
-        value: false as any
-      }
-    ];
-  }
-
-  onBooleanDefaultChange() {
-    if (this.charTypeSelected == 'boolean') {
-      this.setBooleanDefaultValues();
-    }
-  }
-
-  onTypeChange(event: any) {
-    this.charTypeSelected = event.target.value;
-    this.charsForm.reset();
-    this.stringValue = '';
-    this.numberValue = '';
-    this.numberUnit = '';
-    this.fromValue = '';
-    this.toValue = '';
-    this.rangeUnit = '';
-    this.jsonValue = '';
-    this.isOptional = false;
-    this.optionalDftTrue = false;
-    if (this.charTypeSelected == 'boolean') {
-      this.booleanDefaultTrue = true;
-      this.setBooleanDefaultValues();
-    } else {
-      this.booleanDefaultTrue = true;
-      this.creatingChars = [];
-    }
-  }
-
   isJsonCharacteristicType(type: string | undefined): boolean {
     if (!type) {
       return false;
@@ -941,10 +852,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     return this.currentStepId === 'dataspace';
   }
 
-  isTextCharacteristicType(type: string | undefined): boolean {
-    return type === 'string';
-  }
-
   getFilteredCharacteristicsForCurrentStep(): ProductSpecificationCharacteristic[] {
     const nonCompliance = this.prodChars.filter((char: any) => !char.name?.startsWith('Compliance:'));
     if (this.isDataspaceConfigurationStep()) {
@@ -961,6 +868,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
       configurable: c.configurable ?? false,
       valueType: c.valueType as CharValueType,
       values: (c.productSpecCharacteristicValue ?? []) as CharacteristicValueSpecification[],
+      schemaLocation: c['@schemaLocation'],
     }));
   }
 
@@ -980,216 +888,11 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
       configurable: item.configurable,
       valueType: item.valueType,
       productSpecCharacteristicValue: item.values as any[],
+      ...(item.schemaLocation ? { '@schemaLocation': item.schemaLocation } : {}),
     }));
 
     this.characteristicItems = items;
     this.prodChars = [...untouched, ...updatedEditable].filter(c => !removedEnabledCompanions.includes(c.name ?? ''));
-  }
-
-  getInitialCharacteristicTypeForCurrentStep(): string {
-    if (this.isDataspaceConfigurationStep()) {
-      return 'credentialsConfiguration';
-    }
-    return 'string';
-  }
-
-  private getSchemaLocationForType(type: string): string | null {
-    if (type === 'credentialsConfiguration') {
-      return 'https://raw.githubusercontent.com/FIWARE/contract-management/refs/heads/main/schemas/credentials/credentialConfigCharacteristic.json';
-    }
-    if (type === 'authorizationPolicy') {
-      return 'https://raw.githubusercontent.com/FIWARE/contract-management/refs/heads/policy-support/schemas/odrl/policyCharacteristic.json';
-    }
-    return null;
-  }
-
-  addCharValue() {
-    if (this.isTextCharacteristicType(this.charTypeSelected)) {
-      console.log('string')
-      if (this.creatingChars.length == 0) {
-        this.creatingChars.push({
-          isDefault: true,
-          value: this.stringValue as any
-        })
-      } else {
-        this.creatingChars.push({
-          isDefault: false,
-          value: this.stringValue as any
-        })
-      }
-      this.stringValue = '';
-    } else if (this.charTypeSelected == 'number') {
-      console.log('number')
-      if (this.creatingChars.length == 0) {
-        this.creatingChars.push({
-          isDefault: true,
-          value: this.numberValue as any,
-          unitOfMeasure: this.numberUnit
-        })
-      } else {
-        this.creatingChars.push({
-          isDefault: false,
-          value: this.numberValue as any,
-          unitOfMeasure: this.numberUnit
-        })
-      }
-      this.numberUnit = '';
-      this.numberValue = '';
-    } else if (this.charTypeSelected == 'range') {
-      console.log('range')
-      // Validate that fromValue < toValue
-      const fromVal = Number(this.fromValue);
-      const toVal = Number(this.toValue);
-      if (fromVal >= toVal) {
-        console.log('range validation error: valueFrom >= valueTo')
-        this.errorMessage = 'Invalid range: "From" value must be less than "To" value';
-        this.showError = true;
-        setTimeout(() => { this.showError = false }, 3000);
-        return;
-      }
-
-      if (this.creatingChars.length == 0) {
-        this.creatingChars.push({
-          isDefault: true,
-          valueFrom: this.fromValue as any,
-          valueTo: this.toValue as any,
-          unitOfMeasure: this.rangeUnit
-        })
-      } else {
-        this.creatingChars.push({
-          isDefault: false,
-          valueFrom: this.fromValue as any,
-          valueTo: this.toValue as any,
-          unitOfMeasure: this.rangeUnit
-        })
-      }
-    } else if (this.isJsonCharacteristicType(this.charTypeSelected)) {
-      if (this.creatingChars.length > 0) {
-        this.errorMessage = 'Only one JSON value is allowed';
-        this.showError = true;
-        setTimeout(() => { this.showError = false }, 3000);
-        return;
-      }
-      try {
-        const parsedJson = JSON.parse(this.jsonValue);
-        this.creatingChars.push({
-          isDefault: true,
-          value: parsedJson as any
-        });
-        this.jsonValue = '';
-      } catch (error) {
-        this.errorMessage = 'Invalid JSON format';
-        this.showError = true;
-        setTimeout(() => { this.showError = false }, 3000);
-        return;
-      }
-    } else if (this.charTypeSelected == 'boolean') {
-      console.log('boolean values are fixed')
-      return;
-    } else {
-      console.log('nothing')
-    }
-  }
-
-  removeCharValue(char: any, idx: any) {
-    if (this.charTypeSelected == 'boolean') {
-      return;
-    }
-    console.log(this.creatingChars)
-    this.creatingChars.splice(idx, 1);
-    console.log(this.creatingChars)
-  }
-
-  selectDefaultChar(char: any, idx: any) {
-    for (let i = 0; i < this.creatingChars.length; i++) {
-      if (i == idx) {
-        this.creatingChars[i].isDefault = true;
-      } else {
-        this.creatingChars[i].isDefault = false;
-      }
-    }
-  }
-
-  saveChar() {
-    if (this.charsForm.value.name != null) {
-
-      // In showFinish() only takes the first ocurrence in name for sending to proxy
-      // I validate the duplication here to prevent confusion in client when suddenly a characteristic with the same name dissapeared
-      if (this.prodChars.find((char) => char.name === this.charsForm.value.name)) {
-        console.log('name duplicated error')
-        this.errorMessage = 'Cannot save duplicated name in characteristics';
-        this.showError = true;
-        setTimeout(() => { this.showError = false }, 3000);
-        return
-      }
-
-      // Create the main characteristic
-      const characteristic: any = {
-        id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
-        name: this.charsForm.value.name,
-        description: this.charsForm.value.description != null ? this.charsForm.value.description : '',
-        productSpecCharacteristicValue: this.creatingChars
-      };
-
-      const schemaLocation = this.getSchemaLocationForType(this.charTypeSelected);
-      const primitiveTypes = ['string', 'number', 'boolean', 'range'];
-      if (!primitiveTypes.includes(this.charTypeSelected)) {
-        characteristic.valueType = this.charTypeSelected;
-      }
-      if (schemaLocation) {
-        characteristic['@schemaLocation'] = schemaLocation;
-      }
-
-      this.prodChars.push(characteristic);
-
-      // Create the X - enabled characteristic
-      if (this.isOptional && primitiveTypes.includes(this.charTypeSelected) && this.charTypeSelected !== 'boolean') {
-        this.prodChars.push({
-          id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
-          name: this.charsForm.value.name + ' - enabled',
-          description: 'Optional toggle for ' + this.charsForm.value.name,
-          productSpecCharacteristicValue: [
-            {
-              isDefault: this.optionalDftTrue,
-              value: true as any
-            },
-            {
-              isDefault: !this.optionalDftTrue,
-              value: false as any
-            }
-          ]
-        })
-      }
-    }
-
-    this.charsForm.reset();
-    this.creatingChars = [];
-    this.showCreateChar = false;
-    this.charTypeSelected = 'string';
-    this.isOptional = false;
-    this.optionalDftTrue = false;
-    this.refreshChars();
-    this.cdr.detectChanges();
-  }
-
-  deleteChar(char: any) {
-    const index = this.prodChars.indexOf(char);
-    if (index !== -1) {
-      console.log('eliminar')
-      this.prodChars.splice(index, 1);
-    }
-
-    // If deleting a main characteristic, also delete its "- enabled" variant if it exists
-    if (!char.name.endsWith('- enabled')) {
-      const relatedEnabledIndex = this.prodChars.findIndex(item => item.name === char.name + ' - enabled');
-      if (relatedEnabledIndex !== -1) {
-        console.log('eliminar related enabled')
-        this.prodChars.splice(relatedEnabledIndex, 1);
-      }
-    }
-
-    this.cdr.detectChanges();
-    console.log(this.prodChars)
   }
 
   showFinish() {
