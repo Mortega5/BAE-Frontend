@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { Subject } from 'rxjs';
@@ -9,18 +8,15 @@ import { takeUntil } from 'rxjs/operators';
 import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from 'src/app/models/resource-catalog';
-import { TableColumn } from 'src/app/models/table-column.model';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/resource-spec-service.service';
+import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
-import { CharacteristicFormValue } from 'src/app/shared/forms/specification-characteristic/specification-characteristic-form.component';
-import { TruncateValuePipe } from 'src/app/shared/pipes/truncate-value.pipe';
 import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
-import { v4 as uuidv4 } from 'uuid';
 import { buildResourceConfigUpdate, buildResourceConfiguration } from '../../../../../models/formFields/software-resource-fields';
 import { SoftwareSpecification } from '../../../../../models/software.model';
 import { CharValueType } from '../../../../../shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
@@ -88,8 +84,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   });
 
   prodChars: ResourceSpecificationCharacteristic[] = [];
-  showCreateChar = false;
-  currentChar: CharacteristicFormValue | null = null;
+  characteristicItems: CharacteristicItem[] = [];
 
   errorMessage: any = '';
   showError = false;
@@ -175,6 +170,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     this.generalForm.controls['baseTemplate'].setValue(this.res['@baseType'] ? this.res['@type'] : '');
     this.generalForm.controls['lifecycleStatus'].setValue(this.res.lifecycleStatus);
     this.prodChars = this.res.resourceSpecCharacteristic;
+    this.characteristicItems = this.buildCharacteristicItems();
 
     const configs = type ? buildResourceConfigUpdate({ partyId: this.partyId, resSpecService: this.resSpecService }) : undefined;
     const templateConfig = configs && type ? configs[type] : undefined;
@@ -195,99 +191,27 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     this.router.navigate([SellerOfferingsPaths.resourceSpecs.list()]);
   }
 
-  onFormChange(value: CharacteristicFormValue): void {
-    this.currentChar = value;
+  private buildCharacteristicItems(): CharacteristicItem[] {
+    return this.prodChars.map(c => ({
+      id: c.id,
+      name: c.name ?? '',
+      description: c.description ?? '',
+      configurable: c.configurable ?? false,
+      valueType: c.valueType as CharValueType,
+      values: (c.resourceSpecCharacteristicValue ?? []) as CharacteristicValueSpecification[],
+    }));
   }
 
-  get canSaveChar(): boolean {
-    return !!this.currentChar?.name?.trim() && (this.currentChar?.values?.length ?? 0) > 0;
-  }
-
-  /** The characteristic object currently being edited (or null when adding a new one).
-   * Tracked by reference, not `.id` — that field is optional on the backend schema and is
-   * absent for existing data in practice. */
-  editingChar: ResourceSpecificationCharacteristic | null = null;
-
-  /** Loads an existing characteristic into the add/edit form so its content can be changed. */
-  onCharRowClick(char: any): void {
-    this.editingChar = char;
-    this.showCreateChar = true;
-  }
-
-  private readonly truncateValuePipe = new TruncateValuePipe();
-
-  get characteristicColumns(): TableColumn[] {
-    return [
-      {
-        header: `${this.i18nPrefix}._name`, getValue: (p: any) => p.name,
-        cellClass: (p: any) => this.hasLongWord(p.name, 20) ? 'break-all' : 'break-words',
-      },
-      {
-        header: `${this.i18nPrefix}._description`, getValue: (p: any) => p.description,
-        cellClass: (p: any) => this.hasLongWord(p.description, 20) ? 'break-all' : 'break-words',
-        hideOnMobile: true,
-      },
-      {
-        header: `${this.i18nPrefix}._values`, getValue: (p: any) => this.formatCharValues(p),
-        cellClass: () => 'break-all',
-      },
-      {
-        header: 'CREATE_RES_SPEC._configurable', type: 'badge', width: 'w-32',
-        getValue: (p: any) => p.configurable ? '_yes' : '_no',
-        cellClass: (p: any) => p.configurable ? 'text-green-500' : 'text-red-500',
-      },
-      {
-        header: `${this.i18nPrefix}._actions`, type: 'actions', width: 'w-24',
-        actions: [{
-          icon: faXmark, tooltip: '_delete', dataCy: 'deleteChar',
-          buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300',
-          onClick: (p: any) => this.deleteChar(p),
-        }],
-      },
-    ];
-  }
-
-  private formatCharValues(prod: any): string {
-    return (prod.resourceSpecCharacteristicValue ?? [])
-      .map((v: any) => {
-        if (v.value || v.value === 0) {
-          return v.unitOfMeasure ? `${this.truncateValuePipe.transform(v.value)} (${v.unitOfMeasure})` : this.truncateValuePipe.transform(v.value);
-        }
-        return `${v.valueFrom} - ${v.valueTo} (${v.unitOfMeasure})`;
-      })
-      .join(', ');
-  }
-
-  saveChar(): void {
-    if (!this.currentChar?.name) return;
-    if (this.editingChar != null) {
-      const index = this.prodChars.indexOf(this.editingChar);
-      if (index !== -1) {
-        this.prodChars[index] = {
-          ...this.prodChars[index],
-          name: this.currentChar.name,
-          description: this.currentChar.description ?? '',
-          configurable: this.currentChar.configurable,
-          valueType: this.currentChar.valueType,
-          resourceSpecCharacteristicValue: this.currentChar.values as CharacteristicValueSpecification[],
-        };
-      }
-    } else {
-      this.prodChars = [...this.prodChars, {
-        id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
-        name: this.currentChar.name,
-        description: this.currentChar.description ?? '',
-        configurable: this.currentChar.configurable,
-        valueType: this.currentChar.valueType,
-        resourceSpecCharacteristicValue: this.currentChar.values as CharacteristicValueSpecification[],
-      }];
-    }
-    this.refreshChars();
-  }
-
-  deleteChar(char: any): void {
-    if (this.editingChar === char) this.refreshChars();
-    this.prodChars = this.prodChars.filter(item => item !== char);
+  onCharacteristicsChange(items: CharacteristicItem[]): void {
+    this.characteristicItems = items;
+    this.prodChars = items.map(item => ({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      configurable: item.configurable,
+      valueType: item.valueType,
+      resourceSpecCharacteristicValue: item.values as CharacteristicValueSpecification[],
+    }));
   }
 
   private prepareData(): void {
@@ -344,12 +268,6 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     setTimeout(() => this.showError = false, 3000);
   }
 
-  refreshChars(): void {
-    this.currentChar = null;
-    this.editingChar = null;
-    this.showCreateChar = false;
-  }
-
   hasLongWord(str: string | undefined, threshold = 20): boolean {
     return str ? str.split(/\s+/).some(word => word.length > threshold) : false;
   }
@@ -362,7 +280,6 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
 
   onStepChanged(event: StepChangedEvent): void {
     this.currentStep = event.step;
-    this.refreshChars();
     if (this.currentStep === 1 && this.isUpdate) setTimeout(() => initFlowbite(), 100);
     if (event.isLastStep) this.prepareData();
   }

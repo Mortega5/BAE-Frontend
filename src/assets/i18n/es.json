@@ -2975,6 +2975,12 @@
     "_is_default": "Valor por Defecto",
     "_add_value": "Añadir Valor",
     "_true": "Verdadero",
-    "_false": "Falso"
+    "_false": "Falso",
+    "_no_chars": "No se han añadido características.",
+    "_new_char": "Crear nueva característica",
+    "_save_char": "Guardar característica",
+    "_cancel": "Cancelar",
+    "_actions": "Acciones",
+    "_values": "Valores"
   }
 }

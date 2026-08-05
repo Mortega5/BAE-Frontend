@@ -848,45 +848,11 @@
       </ng-template>
       <!-- Characteristics -->
       <ng-template stepperStep="Characteristics" stepId="characteristics">
-        @if (getFilteredCharacteristicsForCurrentStep().length > 0) {
-        <div class="my-4">
-          <app-table-input [columns]="characteristicColumns" [items]="getFilteredCharacteristicsForCurrentStep()"
-            [selectable]="false" [clickable]="true" (rowClick)="onCharRowClick($event)" />
+        <div class="m-4">
+          <app-characteristics-editor [characteristics]="characteristicItems"
+            [supportedTypes]="['string', 'number', 'range', 'boolean', 'object']"
+            (characteristicsChange)="onCharacteristicsChange($event)" />
         </div>
-        }
-
-        @if (!showCreateChar) {
-        <div class="flex w-full justify-center mt-4">
-          <button type="button" (click)="showCreateChar = true"
-            class="flex items-center gap-2 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
-            <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M5 12h14m-7 7V5" />
-            </svg>
-            {{ 'CREATE_PROD_SPEC._new_char' | translate }}
-          </button>
-        </div>
-        } @else {
-        <div class="m-4 flex flex-col gap-3">
-          <app-specification-characteristic-form [supportedTypes]="['string', 'number', 'range', 'boolean', 'object']"
-            [editingKey]="editingChar" [initialName]="editingChar?.name ?? ''" [initialDescription]="editingChar?.description ?? ''"
-            [initialConfigurable]="editingChar?.configurable ?? false"
-            [initialValueType]="$any(editingChar?.valueType ?? 'string')"
-            [initialValues]="editingChar?.productSpecCharacteristicValue ?? []"
-            (formChange)="onStandardCharFormChange($event)" />
-          <div class="flex justify-end gap-3">
-            <button type="button" (click)="showCreateChar = false; currentStandardChar = null; editingChar = null"
-              class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-secondary-300 dark:text-white dark:border-gray-600 dark:hover:bg-secondary-200">
-              {{ 'CREATE_PROD_SPEC._cancel' | translate }}
-            </button>
-            <button type="button" (click)="saveStandardChar()" [disabled]="!canSaveStandardChar"
-              [class.opacity-50]="!canSaveStandardChar" [class.cursor-not-allowed]="!canSaveStandardChar"
-              class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-100 rounded-lg hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300">
-              {{ 'CREATE_PROD_SPEC._save_char' | translate }}
-            </button>
-          </div>
-        </div>
-        }
       </ng-template>
 
       @if (DATA_SPACE_ENABLED && !showDspConfigStep) {

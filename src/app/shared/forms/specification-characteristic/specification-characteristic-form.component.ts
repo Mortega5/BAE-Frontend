@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faPlus, faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -35,9 +36,10 @@ const ALL_VALUE_TYPE_OPTIONS = [
   selector: 'app-specification-characteristic-form',
   templateUrl: './specification-characteristic-form.component.html',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, TranslateModule, DynamicFormComponent, CharacteristicValueSpecFormComponent, TableInputComponent],
+  imports: [FormsModule, ReactiveFormsModule, TranslateModule, FaIconComponent, DynamicFormComponent, CharacteristicValueSpecFormComponent, TableInputComponent],
 })
 export class SpecificationCharacteristicFormComponent implements OnInit, OnChanges, OnDestroy {
+  protected readonly faPlus = faPlus;
   /** Stable identity of what's being edited — pass the actual characteristic object being
    * edited (or null when adding a new one), NOT its `.id` (that field is optional on the
    * backend schema and may be absent for existing data). This — not the initial* values below

@@ -903,29 +903,29 @@ describe('CreateProductSpecComponent', () => {
     expect(detectSpy).toHaveBeenCalled();
   });
 
-  it('onStandardCharFormChange and canSaveStandardChar should track compliance char draft validity', () => {
-    expect(component.canSaveStandardChar).toBeFalse();
-    component.onStandardCharFormChange({ name: '', description: '', configurable: false, valueType: 'string', values: [] });
-    expect(component.canSaveStandardChar).toBeFalse();
-    component.onStandardCharFormChange({ name: 'ISO Name', description: '', configurable: false, valueType: 'string', values: [{ isDefault: true, value: 'x' } as any] });
-    expect(component.canSaveStandardChar).toBeTrue();
-  });
-
-  it('saveStandardChar should push a new characteristic and reset the form', () => {
-    component.currentStandardChar = { name: 'Custom Char', description: 'desc', configurable: true, valueType: 'string', values: [{ isDefault: true, value: 'x' } as any] };
-    component.saveStandardChar();
+  it('onCharacteristicsChange should map generic items emitted by app-characteristics-editor back into prodChars', () => {
+    component.currentStepId = 'characteristics';
+    component.onCharacteristicsChange([
+      { id: 'char-1', name: 'Custom Char', description: 'desc', configurable: true, valueType: 'string', values: [{ isDefault: true, value: 'x' } as any] }
+    ]);
     expect(component.prodChars.length).toBe(1);
     expect(component.prodChars[0].name).toBe('Custom Char');
-    expect(component.currentStandardChar).toBeNull();
-    expect(component.showCreateChar).toBeFalse();
+    expect(component.characteristicItems.length).toBe(1);
+    expect(component.characteristicItems[0].name).toBe('Custom Char');
   });
 
-  it('saveStandardChar should reject duplicated names', () => {
-    component.prodChars = [{ id: '1', name: 'Custom Char' } as any];
-    component.currentStandardChar = { name: 'Custom Char', description: 'desc', configurable: true, valueType: 'string', values: [] };
-    component.saveStandardChar();
-    expect(component.showError).toBeTrue();
-    expect(component.errorMessage).toBe('Cannot save duplicated name in characteristics');
+  it('onCharacteristicsChange should cascade-delete the related "- enabled" companion when its main characteristic is removed', () => {
+    component.currentStepId = 'characteristics';
+    component.prodChars = [
+      { id: 'a', name: 'Bandwidth', productSpecCharacteristicValue: [] } as any,
+      { id: 'b', name: 'Bandwidth - enabled', productSpecCharacteristicValue: [] } as any,
+      { id: 'c', name: 'Other', productSpecCharacteristicValue: [] } as any
+    ];
+    component.onCharacteristicsChange([
+      { id: 'b', name: 'Bandwidth - enabled', description: '', configurable: false, valueType: 'string', values: [] },
+      { id: 'c', name: 'Other', description: '', configurable: false, valueType: 'string', values: [] }
+    ]);
+    expect(component.prodChars.map(c => c.name)).toEqual(['Other']);
   });
 
   it('showFinish should build the final product payload', () => {

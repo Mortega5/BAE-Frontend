@@ -2,7 +2,6 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
@@ -22,9 +21,9 @@ import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
+import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
+import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
-import { CharacteristicFormValue } from 'src/app/shared/forms/specification-characteristic/specification-characteristic-form.component';
-import { TruncateValuePipe } from 'src/app/shared/pipes/truncate-value.pipe';
 import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
@@ -106,65 +105,10 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   isOptional: boolean = false;
   optionalDftTrue: boolean = false;
   prodChars: ProductSpecificationCharacteristic[] = [];
+  characteristicItems: CharacteristicItem[] = [];
   finishChars: ProductSpecificationCharacteristic[] = [];
   creatingChars: CharacteristicValueSpecification[] = [];
   showCreateChar: boolean = false;
-  currentStandardChar: CharacteristicFormValue | null = null;
-  /** The characteristic object currently being edited (or null when adding a new one).
-   * Tracked by reference, not `.id` — that field is optional on the backend schema and is
-   * absent for existing data in practice. */
-  editingChar: ProductSpecificationCharacteristic | null = null;
-
-  get canSaveStandardChar(): boolean {
-    return !!this.currentStandardChar?.name?.trim() && (this.currentStandardChar?.values?.length ?? 0) > 0;
-  }
-
-  onStandardCharFormChange(value: CharacteristicFormValue): void {
-    this.currentStandardChar = value;
-  }
-
-  /** Loads an existing characteristic into the add/edit form so its content can be changed. */
-  onCharRowClick(char: any): void {
-    this.editingChar = char;
-    this.showCreateChar = true;
-  }
-
-  saveStandardChar(): void {
-    if (!this.currentStandardChar?.name) return;
-    const duplicate = this.prodChars.find(c => c.name === this.currentStandardChar!.name && c !== this.editingChar);
-    if (duplicate) {
-      this.errorMessage = 'Cannot save duplicated name in characteristics';
-      this.showError = true;
-      setTimeout(() => { this.showError = false; }, 3000);
-      return;
-    }
-    if (this.editingChar != null) {
-      const index = this.prodChars.indexOf(this.editingChar);
-      if (index !== -1) {
-        this.prodChars[index] = {
-          ...this.prodChars[index],
-          name: this.currentStandardChar.name,
-          description: this.currentStandardChar.description ?? '',
-          configurable: this.currentStandardChar.configurable,
-          valueType: this.currentStandardChar.valueType,
-          productSpecCharacteristicValue: this.currentStandardChar.values as any[],
-        };
-      }
-    } else {
-      this.prodChars.push({
-        id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
-        name: this.currentStandardChar.name,
-        description: this.currentStandardChar.description ?? '',
-        configurable: this.currentStandardChar.configurable,
-        valueType: this.currentStandardChar.valueType,
-        productSpecCharacteristicValue: this.currentStandardChar.values as any[],
-      });
-    }
-    this.currentStandardChar = null;
-    this.editingChar = null;
-    this.showCreateChar = false;
-    this.refreshChars();
-  }
 
   //BUNDLE INFO:
   bundleChecked: boolean = false;
@@ -401,6 +345,9 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     this.currentStepId = event.stepId as ProductSpecFormStep
     this.refreshChars();
     switch (this.currentStepId) {
+      case 'characteristics':
+        this.characteristicItems = this.buildCharacteristicItems();
+        break;
       case 'compliance':
       case 'attachments':
         setTimeout(() => { initFlowbite(); }, 100);
@@ -1006,40 +953,37 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     return nonCompliance.filter((char: any) => !this.isDataSpaceCharacteristicType(char.valueType));
   }
 
-  private readonly truncateValuePipe = new TruncateValuePipe();
-
-  get characteristicColumns(): TableColumn[] {
-    return [
-      {
-        header: 'CREATE_PROD_SPEC._product_name', getValue: (p: any) => p.name,
-        cellClass: (p: any) => this.hasLongWord(p.name, 20) ? 'break-all' : 'break-words',
-      },
-      {
-        header: 'CREATE_PROD_SPEC._product_description', getValue: (p: any) => p.description,
-        cellClass: (p: any) => this.hasLongWord(p.description, 20) ? 'break-all' : 'break-words',
-        hideOnMobile: true,
-      },
-      {
-        header: 'CREATE_PROD_SPEC._values', getValue: (p: any) => this.formatCharValues(p),
-        cellClass: () => 'break-all',
-      },
-      {
-        header: 'CREATE_PROD_SPEC._actions', type: 'actions', width: 'w-24',
-        actions: [{
-          icon: faXmark, tooltip: '_delete', dataCy: 'deleteCharacteristic',
-          buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
-          onClick: (p: any) => this.deleteChar(p),
-        }],
-      },
-    ];
+  private buildCharacteristicItems(): CharacteristicItem[] {
+    return this.getFilteredCharacteristicsForCurrentStep().map(c => ({
+      id: c.id,
+      name: c.name ?? '',
+      description: c.description ?? '',
+      configurable: c.configurable ?? false,
+      valueType: c.valueType as CharValueType,
+      values: (c.productSpecCharacteristicValue ?? []) as CharacteristicValueSpecification[],
+    }));
   }
 
-  private formatCharValues(prod: any): string {
-    return (prod.productSpecCharacteristicValue ?? [])
-      .map((v: any) => (v.value || v.value === 0)
-        ? this.truncateValuePipe.transform(v.value)
-        : `${v.valueFrom} - ${v.valueTo}`)
-      .join(', ');
+  onCharacteristicsChange(items: CharacteristicItem[]): void {
+    const previousEditable = this.getFilteredCharacteristicsForCurrentStep();
+    const untouched = this.prodChars.filter(c => !previousEditable.includes(c));
+
+    // If a main characteristic was removed, also drop its "- enabled" companion, if any.
+    const removedEnabledCompanions = previousEditable
+      .filter(c => !c.name?.endsWith('- enabled') && !items.some(item => item.name === c.name))
+      .map(c => c.name + ' - enabled');
+
+    const updatedEditable: ProductSpecificationCharacteristic[] = items.map(item => ({
+      id: item.id,
+      name: item.name,
+      description: item.description,
+      configurable: item.configurable,
+      valueType: item.valueType,
+      productSpecCharacteristicValue: item.values as any[],
+    }));
+
+    this.characteristicItems = items;
+    this.prodChars = [...untouched, ...updatedEditable].filter(c => !removedEnabledCompanions.includes(c.name ?? ''));
   }
 
   getInitialCharacteristicTypeForCurrentStep(): string {
@@ -1229,7 +1173,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   deleteChar(char: any) {
-    if (this.editingChar === char) this.refreshChars();
     const index = this.prodChars.indexOf(char);
     if (index !== -1) {
       console.log('eliminar')

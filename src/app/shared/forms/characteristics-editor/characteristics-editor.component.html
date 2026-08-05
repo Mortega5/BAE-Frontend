@@ -1,0 +1,54 @@
+<div class="flex flex-col gap-4">
+
+  @if (characteristics.length === 0) {
+  <div class="flex justify-center w-full">
+    <div
+      class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
+      role="alert">
+      <fa-icon [icon]="faCircleInfo" class="flex-shrink-0 me-3" aria-hidden="true"></fa-icon>
+      <span class="sr-only">Info</span>
+      <div>{{ 'CHAR_SPEC._no_chars' | translate }}</div>
+    </div>
+  </div>
+  } @else {
+  <app-table-input [columns]="columns" [items]="characteristics" [selectable]="false" [clickable]="!readonly"
+    (rowClick)="onRowClick($event)" />
+  }
+
+  @if (!readonly) {
+  @if (!showForm) {
+  <div class="flex w-full justify-center">
+    <button type="button" (click)="showForm = true"
+      class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+      {{ 'CHAR_SPEC._new_char' | translate }}
+      <fa-icon [icon]="faPlus" class="ms-2" aria-hidden="true"></fa-icon>
+    </button>
+  </div>
+  } @else {
+  <div
+    class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-gray-50 dark:bg-secondary-200 flex flex-col gap-4">
+    <app-specification-characteristic-form [supportedTypes]="supportedTypes" [editingKey]="editingChar"
+      [initialName]="editingChar?.name ?? ''" [initialDescription]="editingChar?.description ?? ''"
+      [initialConfigurable]="editingChar?.configurable ?? false" [initialValueType]="editingChar?.valueType ?? 'string'"
+      [initialValues]="editingChar?.values ?? []" (formChange)="onFormChange($event)" />
+
+    @if (showError) {
+    <div class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</div>
+    }
+
+    <div class="flex justify-end gap-3">
+      <button type="button" (click)="cancel()"
+        class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-secondary-300 dark:text-white dark:border-gray-600 dark:hover:bg-secondary-200">
+        {{ 'CHAR_SPEC._cancel' | translate }}
+      </button>
+      <button type="button" (click)="save()" [disabled]="!canSave" [class.opacity-50]="!canSave"
+        [class.cursor-not-allowed]="!canSave"
+        class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-100 rounded-lg hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300">
+        {{ 'CHAR_SPEC._save_char' | translate }}
+      </button>
+    </div>
+  </div>
+  }
+  }
+
+</div>

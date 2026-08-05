@@ -2974,6 +2974,12 @@
     "_is_default": "Default Value",
     "_add_value": "Add Value",
     "_true": "True",
-    "_false": "False"
+    "_false": "False",
+    "_no_chars": "No characteristics included.",
+    "_new_char": "Create new characteristic",
+    "_save_char": "Save characteristic",
+    "_cancel": "Cancel",
+    "_actions": "Actions",
+    "_values": "Values"
   }
 }
