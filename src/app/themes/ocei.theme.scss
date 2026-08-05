@@ -117,7 +117,8 @@ body.theme-ocei {
     }
   }
 
-  bae-off-featured>div>div>div>div {
+  bae-off-featured>div>div>div>div,
+  app-catalogs>div>div>div {
     position: relative;
     background-image: none !important;
 
@@ -127,15 +128,23 @@ body.theme-ocei {
     }
   }
 
-  bae-off-featured>div>div>div>div::before {
+  bae-off-featured>div>div>div>div::before,
+  app-catalogs>div>div>div::before {
     content: "";
     position: absolute;
     inset: 0;
     background-position: center;
     background-size: cover;
     background-image: url("/assets/themes/ocei/cardBackground.png") !important;
+    border-radius: 0.5rem;
     /* Fade the artwork so the green title (--ocei-text-primary) stands out on top */
     z-index: 0;
+  }
+
+  app-catalogs>div>div>div {
+    border-color: var(--ocei-text-background-hover);
+    border-width: 1px;
+    border-radius: 0.5rem;
   }
 
   /* ---------- Other utility classes ---------- */
