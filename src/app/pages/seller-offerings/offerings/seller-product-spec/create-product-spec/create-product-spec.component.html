@@ -506,70 +506,17 @@
           <h3 class="font-bold text-primary-100 dark:text-primary-50 text-left mb-4">DSP Config</h3>
 
           @if (endpointUrls.length > 0) {
-          <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300 mb-4">
-            <table class="table-fixed w-full text-sm text-left text-gray-500 dark:text-gray-200">
-              <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                <tr>
-                  <th scope="col" class="w-96 px-6 py-3">Endpoint URL</th>
-                  <th scope="col" class="px-6 py-3">Description</th>
-                  <th scope="col" class="w-48 px-2 py-3 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (entry of endpointUrls; track entry; let idx = $index) {
-                <tr
-                  class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                  <td class="px-6 py-4 break-all">{{ entry.url }}</td>
-                  <td class="px-6 py-4 break-words">{{ entry.description }}</td>
-                  <td class="px-2 py-4 text-center">
-                    <button (click)="removeEndpointUrl(idx)" type="button"
-                      class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center">
-                      <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                        height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M6 18 17.94 6M18 18 6.06 6" />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
+          <div class="mb-4">
+            <app-table-input [columns]="endpointUrlColumns" [items]="endpointUrls" [selectable]="false" />
           </div>
           }
 
           <div class="flex flex-col gap-2">
-            <div class="flex gap-4">
-              <div class="flex flex-col w-1/2">
-                <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_endpoint_name' | translate
-                  }}</label>
-                <input data-cy="dspEndpointName" [value]="newEndpointName"
-                  (input)="newEndpointName = $any($event.target).value" type="url"
-                  [placeholder]="'CREATE_PROD_SPEC._dsp_endpoint_name_placeholder' | translate"
-                  class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-              </div>
-              <div class="flex flex-col w-1/2">
-                <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_endpoint_url' | translate
-                  }}</label>
-                <input data-cy="dspEndpointUrl" [value]="newEndpointUrl"
-                  (input)="newEndpointUrl = $any($event.target).value" type="url"
-                  [placeholder]="'CREATE_PROD_SPEC._dsp_endpoint_url_placeholder' | translate"
-                  class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-              </div>
-            </div>
-            <div>
-              <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_endpoint_description' |
-                translate }}</label>
-              <textarea data-cy="dspEndpointDescription" [value]="newEndpointDescription"
-                (input)="newEndpointDescription = $any($event.target).value" rows="3"
-                [placeholder]="'CREATE_PROD_SPEC._dsp_endpoint_description_placeholder' | translate" maxlength="100000"
-                class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
-            </div>
+            <app-dynamic-form [fields]="newEndpointFormFields" [formGroup]="newEndpointForm" [columns]="2" />
             <div class="flex justify-center">
               <button data-cy="dspAddEndpoint" type="button" (click)="addEndpointUrl()"
-                [disabled]="!newEndpointUrl.trim() || !newEndpointDescription.trim()"
-                [class.opacity-50]="!newEndpointUrl.trim() || !newEndpointDescription.trim()"
-                [class.cursor-not-allowed]="!newEndpointUrl.trim() || !newEndpointDescription.trim()"
+                [disabled]="!newEndpointForm.valid" [class.opacity-50]="!newEndpointForm.valid"
+                [class.cursor-not-allowed]="!newEndpointForm.valid"
                 class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
                 {{ 'CREATE_PROD_SPEC._dsp_add_endpoint' | translate }}
                 <svg class="w-4 h-4 ml-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"

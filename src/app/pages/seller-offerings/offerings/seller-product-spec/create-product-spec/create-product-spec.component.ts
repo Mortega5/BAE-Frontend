@@ -2,6 +2,7 @@ import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
@@ -76,10 +77,25 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   });
 
   //DSP CONFIG INFO:
-  newEndpointUrl: string = '';
-  newEndpointDescription: string = '';
-  newEndpointName: string = '';
+  newEndpointFormFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'CREATE_PROD_SPEC._dsp_endpoint_name', placeholder: 'CREATE_PROD_SPEC._dsp_endpoint_name_placeholder', colSpan: 1, dataCy: 'dspEndpointName' },
+    { type: 'string', name: 'url', label: 'CREATE_PROD_SPEC._dsp_endpoint_url', required: true, placeholder: 'CREATE_PROD_SPEC._dsp_endpoint_url_placeholder', colSpan: 1, dataCy: 'dspEndpointUrl' },
+    { type: 'textarea', name: 'description', label: 'CREATE_PROD_SPEC._dsp_endpoint_description', required: true, placeholder: 'CREATE_PROD_SPEC._dsp_endpoint_description_placeholder', rows: 3, maxLength: 100000, colSpan: 2, dataCy: 'dspEndpointDescription' },
+  ];
+  newEndpointForm = buildFormGroup(this.newEndpointFormFields);
   endpointUrls: { url: string; description: string, name: string }[] = [];
+  endpointUrlColumns: TableColumn[] = [
+    { header: 'Endpoint URL', getValue: (item: any) => item.url, width: 'w-96', cellClass: () => 'break-all' },
+    { header: 'Description', getValue: (item: any) => item.description, cellClass: () => 'break-words' },
+    {
+      header: 'Actions', type: 'actions', width: 'w-48',
+      actions: [{
+        icon: faXmark, tooltip: '_delete', dataCy: 'removeEndpointUrl',
+        buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
+        onClick: (item: any) => this.removeEndpointUrl(this.endpointUrls.indexOf(item)),
+      }],
+    },
+  ];
   readonly transferTypes: SelectOption[] = [
     { value: 'HttpData-PULL', label: 'HttpData-PULL' },
     { value: 'HttpData-PUSH', label: 'HttpData-PUSH' }
@@ -1177,14 +1193,10 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   addEndpointUrl(): void {
-    const url = this.newEndpointUrl.trim();
-    const description = this.newEndpointDescription.trim();
-    const name = this.newEndpointName.trim();
-    if (!url || !description) return;
-    this.endpointUrls = [...this.endpointUrls, { url, description, name }];
-    this.newEndpointUrl = '';
-    this.newEndpointDescription = '';
-    this.newEndpointName = '';
+    if (!this.newEndpointForm.valid) return;
+    const { name, url, description } = this.newEndpointForm.value;
+    this.endpointUrls = [...this.endpointUrls, { url: url.trim(), description: description.trim(), name: (name ?? '').trim() }];
+    this.newEndpointForm.reset();
   }
 
   removeEndpointUrl(idx: number): void {

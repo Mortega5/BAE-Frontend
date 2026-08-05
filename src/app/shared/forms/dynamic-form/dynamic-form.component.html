@@ -11,7 +11,8 @@
     </label>
 
     @if (field.type === 'string') {
-    <input [id]="field.name" [formControlName]="field.name" type="text" [placeholder]="$any(field).placeholder ?? ''"
+    <input [id]="field.name" [formControlName]="field.name" type="text"
+      [placeholder]="($any(field).placeholder ?? '') | translate"
       [maxLength]="$any(field).maxLength ?? 524288" [attr.readonly]="field.readonly || null"
       [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly"
       [class.cursor-not-allowed]="field.readonly"
@@ -96,7 +97,8 @@
     }
 
     @if (field.type === 'textarea') {
-    <textarea [id]="field.name" [formControlName]="field.name" [placeholder]="$any(field).placeholder ?? ''"
+    <textarea [id]="field.name" [formControlName]="field.name"
+      [placeholder]="($any(field).placeholder ?? '') | translate"
       [maxLength]="$any(field).maxLength ?? 524288" [rows]="$any(field).rows ?? 4"
       [attr.readonly]="field.readonly || null" [class.pointer-events-none]="field.readonly"
       [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"
