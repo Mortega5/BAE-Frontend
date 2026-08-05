@@ -69,54 +69,9 @@
           </div>
         </div>
         } @else {
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white m-4">
-          <table class="w-full table-fixed text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-              <tr>
-                <th scope="col" class="w-52 px-6 py-3">{{ i18nPrefix + '._name' | translate }}</th>
-                <th scope="col" class="hidden lg:table-cell px-6 py-3">{{ i18nPrefix + '._description' | translate }}
-                </th>
-                <th scope="col" class="w-96 px-6 py-3">{{ i18nPrefix + '._values' | translate }}</th>
-                <th scope="col" class="w-24 px-6 py-3">{{ i18nPrefix + '._actions' | translate }}</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (prod of prodChars; track prod) {
-              <tr
-                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                <td [ngClass]="{'break-all': hasLongWord(prod.name, 20), 'break-words': !hasLongWord(prod.name, 20)}"
-                  class="px-6 py-4 text-wrap break-words">{{prod.name}}</td>
-                <td
-                  [ngClass]="{'break-all': hasLongWord(prod.description, 20), 'break-words': !hasLongWord(prod.description, 20)}"
-                  class="hidden lg:table-cell px-6 py-4 text-wrap break-words">{{prod.description}}</td>
-                <td class="px-6 py-4 text-wrap break-all">
-                  @for (char of prod.characteristicValueSpecification; track char; let last = $last) {
-                  @if (char.value || char.value == 0) {
-                  @if (char.unitOfMeasure) {
-                  @if (!last) { {{char.value | truncateValue}} (<i>{{char?.unitOfMeasure}}</i>), } @else { {{char.value
-                  | truncateValue}} (<i>{{char?.unitOfMeasure}}</i>) }
-                  } @else {
-                  @if (!last) { {{char.value | truncateValue}}, } @else { {{char.value | truncateValue}} }
-                  }
-                  } @else {
-                  @if (!last) { {{char.valueFrom}} - {{char.valueTo}} (<i>{{char?.unitOfMeasure}}</i>), } @else {
-                  {{char.valueFrom}} - {{char.valueTo}} (<i>{{char?.unitOfMeasure}}</i>) }
-                  }
-                  }
-                </td>
-                <td class="px-6 py-4">
-                  <button (click)="deleteChar(prod)" class="font-bold text-white bg-red-500 rounded-3xl p-1">
-                    <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                      viewBox="0 0 24 24">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M6 18 17.94 6M18 18 6.06 6" />
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
+        <div class="m-4">
+          <app-table-input [columns]="characteristicColumns" [items]="prodChars" [selectable]="false"
+            [clickable]="true" (rowClick)="onCharRowClick($event)" />
         </div>
         }
         @if (!showCreateChar) {
@@ -133,7 +88,12 @@
         </div>
         } @else {
         <div class="m-4 flex flex-col gap-4">
-          <app-specification-characteristic-form [supportedTypes]="allowedChars" (formChange)="onFormChange($event)" />
+          <app-specification-characteristic-form [supportedTypes]="allowedChars" [editingKey]="editingChar"
+            [initialName]="editingChar?.name ?? ''" [initialDescription]="editingChar?.description ?? ''"
+            [initialConfigurable]="editingChar?.configurable ?? false"
+            [initialValueType]="$any(editingChar?.valueType ?? 'string')"
+            [initialValues]="editingChar?.characteristicValueSpecification ?? []"
+            (formChange)="onFormChange($event)" />
           <div class="flex w-full justify-center">
             <button type="button" data-cy="servSpecSaveChar" (click)="saveChar()" [disabled]="!canSaveChar"
               [ngClass]="!canSaveChar ? 'opacity-50' : 'hover:bg-primary-50'"

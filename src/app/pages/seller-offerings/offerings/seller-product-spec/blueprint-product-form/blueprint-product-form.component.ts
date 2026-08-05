@@ -116,7 +116,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
           },
           {
             icon: faTrash, tooltip: 'BLUEPRINT_PROD._delete_step', dataCy: 'deleteStep',
-            buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300',
+            buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
             onClick: (s: OrchestrationStep) => this.deleteStep(this.orchestrationSteps.indexOf(s)),
           },
         ],

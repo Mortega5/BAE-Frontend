@@ -96,7 +96,7 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         {
           icon: faXmark, tooltip: 'PRODUCT_ORDERS._reject_order', dataCy: 'rejectOrder',
-          buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300',
+          buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
           onClick: (item: any) => this.openModal('cancelled', item),
           showIf: (item: any) => this.canAcknowledgeOrReject(item),
         },
@@ -114,7 +114,7 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
         },
         {
           icon: faCircleXmark, tooltip: 'PRODUCT_ORDERS._fail_order', dataCy: 'failOrder',
-          buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300',
+          buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300',
           onClick: (item: any) => this.openModal('failed', item),
           showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'inProgress',
         },

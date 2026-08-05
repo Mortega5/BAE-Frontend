@@ -73,7 +73,7 @@ export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
         actions: [
           {
             icon: faXmark, tooltip: 'CREATE_SOFTWARE._delete', dataCy: 'deleteChar',
-            buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300',
+            buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
             onClick: (c: any) => this.deleteChar(this.characteristics.findIndex(item => item.id === c.id)),
           },
         ],

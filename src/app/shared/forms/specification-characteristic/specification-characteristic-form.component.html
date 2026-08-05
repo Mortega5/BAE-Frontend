@@ -3,80 +3,8 @@
   <app-dynamic-form [fields]="headerFields" [formGroup]="headerForm" [columns]="6" />
 
   @if (savedValues.length > 0) {
-  <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300">
-    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-200 table-fixed">
-      <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-        <tr>
-          <th class="px-4 py-3 w-48">{{ 'CHAR_SPEC._is_default' | translate }}</th>
-          @switch (valueType) {
-          @case ('string') {
-          <th class="px-4 py-3 w-full">{{ 'CHAR_SPEC._value' | translate }}</th>
-          }
-          @case ('number') {
-          <th class="px-4 py-3 w-full">{{ 'CHAR_SPEC._value' | translate }}</th>
-          <th class="px-4 py-3 w-32">{{ 'CHAR_SPEC._unit' | translate }}</th>
-          }
-          @case ('range') {
-          <th class="px-4 py-3 w-full">{{ 'CHAR_SPEC._value_from' | translate }}</th>
-          <th class="px-4 py-3 w-full">{{ 'CHAR_SPEC._value_to' | translate }}</th>
-          <th class="px-4 py-3 w-32">{{ 'CHAR_SPEC._unit' | translate }}</th>
-          }
-          @case ('boolean') {
-          <th class="px-4 py-3 w-full">{{ 'CHAR_SPEC._value' | translate }}</th>
-          }
-          @case ('object') {
-          <th class="px-4 py-3 w-full">{{ 'CHAR_SPEC._value' | translate }}</th>
-          }
-          }
-          @if (!readonly && valueType !== 'boolean') {
-          <th class="px-4 py-3 w-12"></th>
-          }
-        </tr>
-      </thead>
-      <tbody>
-        @for (val of savedValues; track $index) {
-        <tr class="border-b hover:bg-gray-200 dark:border-gray-700 dark:hover:bg-secondary-200">
-          <td class="px-4 py-3">
-            <input type="radio" name="valueDefault" [checked]="val.isDefault"
-              (change)="setDefault($index)" [disabled]="readonly"
-              class="w-4 h-4 text-primary-100 focus:ring-primary-100 cursor-pointer disabled:cursor-default" />
-          </td>
-          @switch (valueType) {
-          @case ('string') {
-          <td class="px-4 py-3 break-all">{{ val.value }}</td>
-          }
-          @case ('number') {
-          <td class="px-4 py-3 break-all">{{ val.value }}</td>
-          <td class="px-4 py-3">{{ val.unitOfMeasure }}</td>
-          }
-          @case ('range') {
-          <td class="px-4 py-3">{{ val.valueFrom }}</td>
-          <td class="px-4 py-3">{{ val.valueTo }}</td>
-          <td class="px-4 py-3">{{ val.unitOfMeasure }}</td>
-          }
-          @case ('boolean') {
-          <td class="px-4 py-3">{{ (val.value ? 'CHAR_SPEC._true' : 'CHAR_SPEC._false') | translate }}</td>
-          }
-          @case ('object') {
-          <td class="px-4 py-3 font-mono text-xs break-all">{{ val.value | truncateValue }}</td>
-          }
-          }
-          @if (!readonly && valueType !== 'boolean') {
-          <td class="px-4 py-3">
-            <button type="button" (click)="removeValue($index)"
-              class="font-bold text-white bg-red-500 hover:bg-red-600 rounded-3xl p-1">
-              <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M6 18 17.94 6M18 18 6.06 6" />
-              </svg>
-            </button>
-          </td>
-          }
-        </tr>
-        }
-      </tbody>
-    </table>
-  </div>
+  <app-table-input [columns]="columns" [items]="savedValues" [selectable]="!readonly" [multiple]="false"
+    [readonly]="readonly" [ngModel]="defaultValue" (ngModelChange)="onDefaultChange($event)" />
   }
 
   @if (!readonly && valueType !== 'boolean') {
