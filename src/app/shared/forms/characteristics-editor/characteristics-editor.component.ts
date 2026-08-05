@@ -129,7 +129,7 @@ export class CharacteristicsEditorComponent {
   private formatValues(c: CharacteristicItem): string {
     return (c.values ?? [])
       .map((v: any) => {
-        if (v.value || v.value === 0) {
+        if (v.value !== undefined && v.value !== null) {
           return v.unitOfMeasure ? `${this.truncateValuePipe.transform(v.value)} (${v.unitOfMeasure})` : this.truncateValuePipe.transform(v.value);
         }
         return `${v.valueFrom} - ${v.valueTo} (${v.unitOfMeasure})`;
