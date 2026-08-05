@@ -19,8 +19,7 @@ body.theme-ocei {
   --theme-primary-50: 76 199 212;
   /* Example HEX: #4B0082 */
   --theme-primary-100: 68 213 185;
-
-  --theme-primary-text: rgb(0 0 0);
+  --theme-primary-text: var(--ocei-text-primary);
   /* Secondary colors - Greys, whites and blacks for foundation */
   /* HEX: #ffffff */
   --theme-secondary-50: 255 255 255;
