@@ -70,6 +70,7 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
   @Output() formChange = new EventEmitter<CharacteristicFormValue>();
 
   private destroy$ = new Subject<void>();
+  private valueFormDestroy$ = new Subject<void>();
 
   headerForm = new FormGroup({
     name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, Validators.maxLength(100), noWhitespaceValidator] }),
@@ -102,7 +103,6 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
   }
 
   get canAdd(): boolean {
-    if (this.isSingleValueType && this.savedValues.length > 0) return false;
     return this.valueForm.valid;
   }
 
@@ -185,7 +185,7 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => {
         this.savedValues = this.valueType === 'boolean' ? this.defaultBooleanValues() : [];
-        this.valueForm = this.buildValueForm();
+        this.setValueForm(this.buildValueForm());
         this.emitFormChange();
       });
 
@@ -197,6 +197,7 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
+    this.valueFormDestroy$.complete();
   }
 
   private applyInitialValue(): void {
@@ -213,10 +214,16 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
       configurable: this.initialConfigurable,
       valueType: defaultValueType,
     }, { emitEvent: false });
-    this.valueForm = this.buildValueForm();
+    this.setValueForm(this.buildValueForm());
     this.savedValues = this.initialValues.length > 0
       ? [...this.initialValues]
       : this.valueType === 'boolean' ? this.defaultBooleanValues() : [];
+
+    // Single-value JSON types have no add/list flow — the existing value (if any) loads
+    // straight into the editor so editing it in place is what updates it.
+    if (this.isSingleValueType && this.savedValues.length > 0) {
+      this.valueForm.patchValue({ value: JSON.stringify(this.savedValues[0].value, null, 2) }, { emitEvent: false });
+    }
 
     // Emit right away so a consumer pre-filling this form via initialName/initialValues/etc.
     // (edit mode) doesn't have to wait for a user edit before its "save" button enables.
@@ -230,7 +237,25 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
       ? { ...raw, value: JSON.parse(raw.value) }
       : raw;
     this.savedValues = [...this.savedValues, newValue];
-    this.valueForm = this.buildValueForm();
+    this.setValueForm(this.buildValueForm());
+    this.emitFormChange();
+  }
+
+  /** (Re)binds `valueForm`, wiring live auto-sync for single-value JSON types — those have no
+   * add/list flow, so editing the code editor directly is what updates the saved value. */
+  private setValueForm(form: FormGroup): void {
+    this.valueFormDestroy$.next();
+    this.valueForm = form;
+    if (this.isSingleValueType) {
+      form.valueChanges
+        .pipe(takeUntil(this.valueFormDestroy$), takeUntil(this.destroy$))
+        .subscribe(() => this.syncSingleValue());
+    }
+  }
+
+  private syncSingleValue(): void {
+    if (!this.valueForm.valid) return;
+    this.savedValues = [{ isDefault: true, value: JSON.parse(this.valueForm.value.value) }];
     this.emitFormChange();
   }
 
