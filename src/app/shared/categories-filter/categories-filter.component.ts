@@ -1,16 +1,16 @@
-import {Component, EventEmitter, OnInit, Output, ChangeDetectorRef, Input, OnDestroy, OnChanges, SimpleChanges} from '@angular/core';
-import {Category} from "../../models/interfaces";
-import {Subject} from "rxjs";
-import {LocalStorageService} from "../../services/local-storage.service";
-import {EventMessageService} from "../../services/event-message.service";
-import { ApiServiceService } from 'src/app/services/product-service.service';
+import { ChangeDetectorRef, Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
+import { faCircle } from "@fortawesome/pro-regular-svg-icons";
+import { faCircleCheck } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
-import {faCircleCheck} from "@fortawesome/pro-solid-svg-icons";
-import {faCircle} from "@fortawesome/pro-regular-svg-icons";
+import { Subject } from "rxjs";
 import { takeUntil } from 'rxjs/operators';
+import { ApiServiceService } from 'src/app/services/product-service.service';
 import { environment } from 'src/environments/environment';
 import availableFilters, { type Filter, type FilterOption } from '../../data/availableFilters';
 import { iconForCategory } from '../../data/categoryIcons';
+import { Category } from "../../models/interfaces";
+import { EventMessageService } from "../../services/event-message.service";
+import { LocalStorageService } from "../../services/local-storage.service";
 
 @Component({
   selector: 'bae-categories-filter',
@@ -20,19 +20,19 @@ import { iconForCategory } from '../../data/categoryIcons';
 export class CategoriesFilterComponent implements OnInit, OnDestroy, OnChanges {
 
   classListFirst = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
-  classListLast  = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-gray-200 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
-  classList      = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-b-0 border-gray-200 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
-  
+  classListLast = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-gray-200 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
+  classList = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-b-0 border-gray-200 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
+
   classListFirstChecked = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-2 border-primary-50 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-primary-50 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3';
-  classListLastChecked  = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-2 border-primary-50 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-primary-50 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3';
-  classListChecked      = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-2 border-primary-50 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-primary-50 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3';
-    
+  classListLastChecked = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-2 border-primary-50 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-primary-50 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3';
+  classListChecked = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-2 border-primary-50 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-primary-50 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3';
+
   labelClass: string = "text-gray-500 bg-white border-2 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-primary-50 hover:text-gray-600 dark:peer-checked:bg-primary-50 dark:peer-checked:text-secondary-100 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-tertiary-100 dark:hover:bg-primary-50";
   categories: Category[] = [];
   checkedCategories: any[] = [];
   selected: Category[] = [];
   dismissSubject: Subject<any> = new Subject();
-  catalog:any;
+  catalog: any;
   cs: Category[] = [];
   @Output() selectedCategories = new EventEmitter<Category[]>();
   @Input() catalogId: any = undefined;
@@ -73,27 +73,27 @@ export class CategoriesFilterComponent implements OnInit, OnDestroy, OnChanges {
     private eventMessage: EventMessageService,
     private api: ApiServiceService,
     private cdr: ChangeDetectorRef
-    ) {
-      this.categories = [];
-      this.eventMessage.messages$
+  ) {
+    this.categories = [];
+    this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
       .subscribe(ev => {
         const cat = ev.value as Category;
-        if(ev.type === 'AddedFilter' && !this.isCheckedCategory(cat)){
+        if (ev.type === 'AddedFilter' && !this.isCheckedCategory(cat)) {
           this.checkedCategories.push(cat.id);
           this.cdr.detectChanges();
-        } else if(ev.type === 'RemovedFilter' && this.isCheckedCategory(cat)){
+        } else if (ev.type === 'RemovedFilter' && this.isCheckedCategory(cat)) {
           const index = this.checkedCategories.findIndex(item => item === cat.id);
           if (index !== -1) {
             this.checkedCategories.splice(index, 1);
             this.cdr.detectChanges();
           }
-        } else if(ev.type === 'AiSearchFacets' && this.aiSearchEnabled){
+        } else if (ev.type === 'AiSearchFacets' && this.aiSearchEnabled) {
           const facets = ev.value as Record<string, Record<string | number, number>>;
           this.aiFacets = facets || {};
           this.updateAiFacetCategories();
           this.cdr.detectChanges();
-        } else if(ev.type === 'AiSearchCleared' && this.aiSearchEnabled){
+        } else if (ev.type === 'AiSearchCleared' && this.aiSearchEnabled) {
           this.aiFacets = {};
           this.categories = [
             ...this.cloneCategories(this.dynamicAiCategories),
@@ -103,11 +103,11 @@ export class CategoriesFilterComponent implements OnInit, OnDestroy, OnChanges {
           this.cdr.detectChanges();
         }
       })
-    }
+  }
 
   async ngOnInit() {
-    this.selected = this.localStorage.getObject('selected_categories') as Category[] || [] ;
-    for(let i=0; i<this.selected.length;i++){
+    this.selected = this.localStorage.getObject('selected_categories') as Category[] || [];
+    for (let i = 0; i < this.selected.length; i++) {
       this.checkedCategories.push(this.selected[i].id)
     }
 
@@ -133,38 +133,38 @@ export class CategoriesFilterComponent implements OnInit, OnDestroy, OnChanges {
     initFlowbite();
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  findChildren(parent:any,data:any[]){
+  findChildren(parent: any, data: any[]) {
     let childs = data.filter((p => p.parentId === parent.id));
     parent["children"] = childs;
-    if(parent.isRoot == true){
+    if (parent.isRoot == true) {
       this.categories.push(parent)
     } else {
-      this.saveChildren(this.categories,parent)
+      this.saveChildren(this.categories, parent)
     }
-    if(childs.length != 0){
-      for(let i=0; i < childs.length; i++){
-        this.findChildren(childs[i],data)
+    if (childs.length != 0) {
+      for (let i = 0; i < childs.length; i++) {
+        this.findChildren(childs[i], data)
       }
     }
   }
 
-  saveChildren(superCategories:any[],parent:any){
-    for(let i=0; i < superCategories.length; i++){
+  saveChildren(superCategories: any[], parent: any) {
+    for (let i = 0; i < superCategories.length; i++) {
       let children = superCategories[i].children;
-      if (children != undefined){
-        let check = children.find((element: { id: any; }) => element.id == parent.id) 
+      if (children != undefined) {
+        let check = children.find((element: { id: any; }) => element.id == parent.id)
         if (check != undefined) {
           let idx = children.findIndex((element: { id: any; }) => element.id == parent.id)
           children[idx] = parent
-          superCategories[i].children = children         
+          superCategories[i].children = children
         }
-        this.saveChildren(children,parent)
-      }          
+        this.saveChildren(children, parent)
+      }
     }
   }
 
@@ -175,7 +175,7 @@ export class CategoriesFilterComponent implements OnInit, OnDestroy, OnChanges {
 
   addCategory(cat: Category) {
     const index = this.selected.indexOf(cat, 0);
-    if(index == -1) {
+    if (index == -1) {
       this.selected.push(cat);
       this.checkedCategories.push(cat.id);
       this.selectedCategories.emit(this.selected);
@@ -187,8 +187,8 @@ export class CategoriesFilterComponent implements OnInit, OnDestroy, OnChanges {
 
   removeCategory(cat: Category) {
     const index = this.selected.indexOf(cat, 0);
-    if(index > -1) {
-      this.selected.splice(index,1);
+    if (index > -1) {
+      this.selected.splice(index, 1);
       this.selectedCategories.emit(this.selected);
       this.localStorage.setObject('selected_categories', this.selected);
       this.eventMessage.emitRemovedFilter(cat);
@@ -199,12 +199,12 @@ export class CategoriesFilterComponent implements OnInit, OnDestroy, OnChanges {
       this.eventMessage.emitFiltersCommitted();
     }
   }
-  
-  isRoot(cat: Category,idx:any){
+
+  isRoot(cat: Category, idx: any) {
     const index = this.categories.indexOf(cat, 0);
     let children = this.categories[index].children;
 
-    if (children != undefined && children.length >0) {
+    if (children != undefined && children.length > 0) {
       return children
     } else {
       return []
@@ -212,8 +212,8 @@ export class CategoriesFilterComponent implements OnInit, OnDestroy, OnChanges {
 
   }
 
-  onClick(cat:Category){
-    if(!this.isCheckedCategory(cat)) {
+  onClick(cat: Category) {
+    if (!this.isCheckedCategory(cat)) {
       this.checkedCategories.push(cat.id);
       this.localStorage.addCategoryFilter(cat);
       this.eventMessage.emitAddedFilter(cat);
@@ -264,7 +264,7 @@ export class CategoriesFilterComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  isCheckedCategory(cat:Category){
+  isCheckedCategory(cat: Category) {
     const index = this.checkedCategories.findIndex(item => item === cat.id);
     if (index !== -1) {
       return true
@@ -273,40 +273,40 @@ export class CategoriesFilterComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  isChildsChecked(childs:Category[]|undefined):boolean {
+  isChildsChecked(childs: Category[] | undefined): boolean {
     let check = false
-    if (childs != undefined){
-        for(let i=0; i<childs.length;i++){
-          if(this.isCheckedCategory(childs[i])){
-            check = true            
+    if (childs != undefined) {
+      for (let i = 0; i < childs.length; i++) {
+        if (this.isCheckedCategory(childs[i])) {
+          check = true
+          return check;
+        } else {
+          check = this.isChildsChecked(childs[i].children)
+          if (check == true) {
             return check;
-          } else {
-            check = this.isChildsChecked(childs[i].children)
-            if(check==true){
-              return check;
-            }
           }
-        }      
+        }
+      }
     }
     return check
   }
 
-  checkClasses(first:boolean,last:boolean,cat:Category){
-    let categoryCheck=this.isChildsChecked(cat.children);
-    if(first==true){
-      if(categoryCheck){
-        return this.classListFirstChecked
-      } else {
-        return this.classListFirst
-      }
-    } else if(last==true){
-      if(categoryCheck){
+  checkClasses(first: boolean, last: boolean, cat: Category) {
+    let categoryCheck = this.isChildsChecked(cat.children);
+    if (last == true) {
+      if (categoryCheck) {
         return this.classListLastChecked
       } else {
         return this.classListLast
       }
+    } else if (first == true) {
+      if (categoryCheck) {
+        return this.classListFirstChecked
+      } else {
+        return this.classListFirst
+      }
     } else {
-      if(categoryCheck){
+      if (categoryCheck) {
         return this.classListChecked
       } else {
         return this.classList
@@ -315,7 +315,7 @@ export class CategoriesFilterComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
-    if(str){
+    if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
@@ -600,7 +600,7 @@ export class CategoriesFilterComponent implements OnInit, OnDestroy, OnChanges {
 
   private sanitizeIdForCss(str: string): string {
     return str
-      .replace(/\s+/g, '-') 
+      .replace(/\s+/g, '-')
       .replace(/[()]/g, '')
       .replace(/[^a-zA-Z0-9_-]/g, '')
       .toLowerCase();

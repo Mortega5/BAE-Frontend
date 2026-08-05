@@ -139,7 +139,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy, ControlVal
   }
 
   writeValue(value: string): void {
-    const str = value ?? '';
+    const str = typeof value === 'string' ? value : value != null ? JSON.stringify(value, null, 2) : '';
     if (!this.view) { this.pendingValue = str; return; }
     if (this.view.state.doc.toString() === str) return;
     this.skipNextEmit = true;

@@ -22,6 +22,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import { AccountServiceService } from 'src/app/services/account-service.service';
+import { ThemeService } from 'src/app/services/theme.service';
 
 @Component({
   selector: 'inventory-products',
@@ -85,7 +86,8 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     private orderService: ProductOrderService,
     private eventMessage: EventMessageService,
     private paginationService: PaginationService,
-    private accountService: AccountServiceService
+    private accountService: AccountServiceService,
+    private themeService: ThemeService
   ) {
     this.eventMessage.messages$
     .pipe(takeUntil(this.destroy$))
@@ -153,6 +155,10 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     }   
   }
   
+  get cardDefaultBgUrl(): string | undefined {
+    return this.themeService.getCurrentThemeConfig()?.assets?.cardDefaultBgUrl;
+  }
+
   getProductImage(prod:ProductOffering) {
     let images: any[] = []
     if(prod?.attachment){

@@ -1,11 +1,11 @@
-import {Component, EventEmitter, Input, OnInit, Output, ChangeDetectorRef, OnDestroy} from '@angular/core';
-import {faCircleCheck} from "@fortawesome/pro-solid-svg-icons";
-import {faCircle} from "@fortawesome/pro-regular-svg-icons";
-import {Category} from "../../models/interfaces";
-import {Subject} from "rxjs";
-import {EventMessageService} from "../../services/event-message.service";
-import {LocalStorageService} from "../../services/local-storage.service";
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { faCircle } from "@fortawesome/pro-regular-svg-icons";
+import { faCircleCheck } from "@fortawesome/pro-solid-svg-icons";
+import { Subject } from "rxjs";
 import { takeUntil } from 'rxjs/operators';
+import { Category } from "../../models/interfaces";
+import { EventMessageService } from "../../services/event-message.service";
+import { LocalStorageService } from "../../services/local-storage.service";
 
 @Component({
   selector: 'bae-category-item',
@@ -28,7 +28,7 @@ export class CategoryItemComponent implements OnInit, OnDestroy {
   classListFirst = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
   classListLast  = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-gray-200 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
   classList      = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-gray-200 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
-  
+
   classListFirstChecked = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-2 border-primary-50 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-primary-50 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
   classListLastChecked  = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-2 border-primary-50 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-primary-50 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
   classListChecked      = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-2 border-primary-50 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-primary-50 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
@@ -44,7 +44,7 @@ export class CategoryItemComponent implements OnInit, OnDestroy {
     this.eventMessage.messages$
     .pipe(takeUntil(this.destroy$))
     .subscribe(ev => {
-      const cat = ev.value as Category;      
+      const cat = ev.value as Category;
       if(ev.type === 'AddedFilter' && cat?.id === this.data?.id) {
           this.checked = true;
       } else if(ev.type === 'RemovedFilter' && cat?.id === this.data?.id) {
@@ -74,7 +74,7 @@ export class CategoryItemComponent implements OnInit, OnDestroy {
         this.simplifiedId=this.data.id.split(':').pop();
       }
     }
-    
+
     const categories = this.localStorage.getObject('selected_categories') as Category[] || [] ;
     if(categories.length >0){
       const index = categories.findIndex((item:Category) => item.id === this.data?.id);
@@ -105,7 +105,7 @@ export class CategoryItemComponent implements OnInit, OnDestroy {
       const index = this.checkedCategories.findIndex(item => item === (this.data as Category).id);
       if (index !== -1) {
         this.checkedCategories.splice(index, 1);
-      } 
+      }
     }
     this.checked = !this.checked;
     this.eventMessage.emitFiltersCommitted();
@@ -122,7 +122,7 @@ export class CategoryItemComponent implements OnInit, OnDestroy {
       const index = this.checkedCategories.findIndex(item => item === cat.id);
       if (index !== -1) {
         this.checkedCategories.splice(index, 1);
-      }      
+      }
     }
     this.eventMessage.emitFiltersCommitted();
   }
@@ -141,7 +141,7 @@ export class CategoryItemComponent implements OnInit, OnDestroy {
     if (childs != undefined){
         for(let i=0; i<childs.length;i++){
           if(this.isCheckedCategory(childs[i])){
-            check = true            
+            check = true
             return check;
           } else {
             check = this.isChildsChecked(childs[i].children)
@@ -149,7 +149,7 @@ export class CategoryItemComponent implements OnInit, OnDestroy {
               return check;
             }
           }
-        }      
+        }
     }
     return check
   }
@@ -182,7 +182,7 @@ export class CategoryItemComponent implements OnInit, OnDestroy {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
   }
-  
+
 }

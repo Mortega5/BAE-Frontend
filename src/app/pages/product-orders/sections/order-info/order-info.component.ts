@@ -3,7 +3,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, 
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCheck, faCircleCheck, faCircleXmark, faIdCard, faPlay, faSort, faStickyNote, faSwatchbook, faXmark } from "@fortawesome/pro-solid-svg-icons";
+import { faCheck, faIdCard, faPlay, faSort, faStickyNote, faSwatchbook, faXmark } from "@fortawesome/pro-solid-svg-icons";
 import { TranslateModule } from '@ngx-translate/core';
 import { Drawer, initFlowbite, Modal } from 'flowbite';
 import moment from 'moment';
@@ -90,7 +90,7 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
       actions: [
         {
           icon: faCheck, tooltip: 'PRODUCT_ORDERS._acknowledge_order', dataCy: 'acknowledgeOrder',
-          buttonClass: 'bg-primary-100 hover:bg-blue-800 focus:ring-blue-300',
+          buttonClass: '!w-7 !h-7 bg-primary-100 hover:bg-blue-800 focus:ring-blue-300',
           onClick: (item: any) => this.openModal('acknowledged', item),
           showIf: (item: any) => this.canAcknowledgeOrReject(item),
         },
@@ -107,13 +107,13 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
           showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'acknowledged',
         },
         {
-          icon: faCircleCheck, tooltip: 'PRODUCT_ORDERS._complete_order', dataCy: 'completeOrder',
-          buttonClass: 'bg-green-500 hover:bg-green-600 focus:ring-green-300',
+          icon: faCheck, tooltip: 'PRODUCT_ORDERS._complete_order', dataCy: 'completeOrder',
+          buttonClass: '!w-7 !h-7 bg-green-500 hover:bg-green-600 focus:ring-green-300',
           onClick: (item: any) => this.openModal('completed', item),
           showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'inProgress',
         },
         {
-          icon: faCircleXmark, tooltip: 'PRODUCT_ORDERS._fail_order', dataCy: 'failOrder',
+          icon: faXmark, tooltip: 'PRODUCT_ORDERS._fail_order', dataCy: 'failOrder',
           buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300',
           onClick: (item: any) => this.openModal('failed', item),
           showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'inProgress',

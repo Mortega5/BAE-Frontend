@@ -6,6 +6,8 @@ export interface ThemeAssetConfig {
   faviconUrl?: string;
   jumboBgUrl?: string;
   cardDefaultBgUrl?: string;
+  defaultLogoUrl?: string;
+  
   // other specific theme assets
 }
 
@@ -117,5 +119,6 @@ export interface ThemeConfig {
   catalogs?: CatalogsPageConfig;
   workspace?: WorkspaceConfig;
   metaTags?: ThemeMetaTagConfig[];
+
   // More theme specific propierties
 }
