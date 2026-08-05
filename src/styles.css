@@ -43,26 +43,48 @@ ngx-file-drop .ngx-file-drop__drop-zone {
   /* your theme color */
 }
 
-/* Order item action badges (app-order-info). Variables declared on that
-   component's :host in order-info.component.css; the classes live here
-   because they're applied to a span rendered inside app-table-input's own
-   template, outside app-order-info's view-encapsulation boundary. */
-.order-action-add {
-  background-color: var(--order-action-add-bg);
-  color: var(--order-action-add-text);
-  border-color: var(--order-action-add-border);
+/* app-table-input theme tokens. Defined here (not on the component's own :host)
+   so any theme can override them directly by redeclaring these on body/.dark body
+   — a component-scoped :host declaration would always win over an outside
+   override, since it's closer to the consuming elements than anything in a
+   global stylesheet could be. */
+body {
+  --table-bg: #fff;
+  --table-text: rgb(107 114 128);
+  /* gray-500 */
+  --table-border-color: rgb(var(--theme-primary-100));
+  --table-header-bg: rgb(var(--theme-primary-100));
+  --table-header-text: var(--theme-header-v2-outline-hover-text);
+  --table-header-hover-bg: rgb(var(--theme-primary-50) / 30%);
+  --table-row-border-color: rgb(var(--theme-primary-50) / 40%);
+  --table-row-hover-bg: rgb(var(--theme-secondary-50));
+  --table-row-selected-bg: rgb(var(--theme-secondary-50));
+  --table-empty-text: var(--theme-primary-text);
+  --table-action-bg: rgb(var(--theme-primary-100));
+  --table-action-hover-bg: rgb(var(--theme-primary-50));
+  --table-action-text: var(--theme-primary-text);
+  --table-action-focus-ring: rgb(var(--theme-primary-50) / 50%);
+  --table-selection-accent: rgb(37 99 235);
+  /* blue-600 */
+  --table-selection-bg: rgb(243 244 246);
+  /* gray-100 */
+  --table-selection-border: rgb(209 213 219);
+  /* gray-300 */
+  --table-selection-ring: rgb(59 130 246);
+  /* blue-500 */
 }
 
-.order-action-delete {
-  background-color: var(--order-action-delete-bg);
-  color: var(--order-action-delete-text);
-  border-color: var(--order-action-delete-border);
-}
-
-.order-action-modify {
-  background-color: var(--order-action-modify-bg);
-  color: var(--order-action-modify-text);
-  border-color: var(--order-action-modify-border);
+.dark body {
+  --table-bg: rgb(var(--theme-secondary-300));
+  --table-text: rgb(229 231 235);
+  /* gray-200 */
+  --table-border-color: rgb(var(--theme-secondary-200));
+  --table-header-bg: rgb(var(--theme-secondary-200));
+  --table-header-hover-bg: rgb(var(--theme-secondary-300) / 60%);
+  --table-row-border-color: rgb(var(--theme-secondary-200));
+  --table-row-hover-bg: rgb(var(--theme-secondary-400));
+  --table-row-selected-bg: rgb(var(--theme-primary-100) / 20%);
+  --table-empty-text: var(--theme-primary-text);
 }
 
 /* Default styles for Markdown elements */
