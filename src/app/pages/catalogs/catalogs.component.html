@@ -4,7 +4,8 @@
     class="mb-2 text-center mt-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-4xl lg:text-5xl dark:text-white w-full">
     <span
       class="underline underline-offset-3 decoration-8 decoration-primary-100 dark:decoration-primary-100">{{'CATALOGS._all_catalogs'
-      | translate}}</span></h1>
+      | translate}}</span>
+  </h1>
   <p class="mb-8 text-lg font-normal text-gray-500 lg:text-xl sm:px-16 xl:px-48 dark:text-secondary-50 text-center">
     {{'CATALOGS._choose' | translate}}</p>
 
@@ -57,10 +58,10 @@
                               'break-all': hasLongWord(category.name, 20),
                               'break-words': !hasLongWord(category.name, 20)
                             }"
-            class="inline-block bg-blue-300 text-primary-100 text-xs font-bold me-2 px-2.5 py-0.5 rounded-full w-fit text-wrap break-words">{{category.name}}</span>
+            class="inline-block bg-blue-300 text-blue-500 text-xs me-2 px-3 py-1 rounded-full w-fit text-wrap break-words">{{category.name}}</span>
           } @empty {
           <span
-            class="inline-block bg-blue-300 text-primary-100 text-xs font-bold me-2 px-2.5 py-0.5 rounded-full w-fit text-wrap break-words">{{'CATALOGS._no_cat'
+            class="inline-block bg-blue-300 text-blue-500 text-xs me-2 px-3 py-1 rounded-full w-fit text-wrap break-words">{{'CATALOGS._no_cat'
             | translate}}</span>
           }
         </div>
