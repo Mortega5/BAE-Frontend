@@ -103,6 +103,7 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
   }
 
   get canAdd(): boolean {
+    if (this.isSingleValueType && this.savedValues.length > 0) return false;
     return this.valueForm.valid;
   }
 
