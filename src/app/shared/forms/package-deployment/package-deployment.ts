@@ -67,6 +67,7 @@ export class PackageDeploymentComponent implements OnInit, OnDestroy {
   ngOnInit() {
     if (this.initialValue) {
       const type: DeploymentType = this.initialValue.type === 'docker' ? 'docker' : 'helm';
+      this.initialValue.properties.values = this.initialValue.properties.values?.[0];
       this.propertiesFields = type === 'docker' ? DOCKER_FIELDS : HELM_FIELDS;
       this.form.setControl('properties', buildFormGroup(this.propertiesFields));
       this.form.patchValue(this.initialValue);

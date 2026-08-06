@@ -35,24 +35,26 @@ export function noWhitespaceValidator(control: AbstractControl): ValidationError
   return isValid ? null : { whitespace: true };
 }
 
+function isValidSingleValue(value: any, parse: (v: string) => void): boolean {
+  if (typeof value !== 'string' || value.trim() === '') return true;
+  try {
+    parse(value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export function jsonValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value;
-  if (!value || value.trim() === '') return null;
-  try {
-    JSON.parse(value);
-    return null;
-  } catch {
-    return { invalidJson: true };
-  }
+  if (value == null) return null;
+  const values = Array.isArray(value) ? value : [value];
+  return values.every(v => isValidSingleValue(v, JSON.parse)) ? null : { invalidJson: true };
 }
 
 export function yamlValidator(control: AbstractControl): ValidationErrors | null {
   const value = control.value;
-  if (!value || value.trim() === '') return null;
-  try {
-    yaml.load(value);
-    return null;
-  } catch {
-    return { invalidYaml: true };
-  }
+  if (value == null) return null;
+  const values = Array.isArray(value) ? value : [value];
+  return values.every(v => isValidSingleValue(v, yaml.load)) ? null : { invalidYaml: true };
 }
