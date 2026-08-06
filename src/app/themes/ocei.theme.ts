@@ -30,6 +30,7 @@ export const OCEI_THEME_CONFIG: ThemeConfig = {
   assets: {
     logoUrl: 'assets/themes/ocei/ocei-logo.png',
     defaultLogoUrl: 'assets/themes/ocei/ocei-logo.png',
+    faviconUrl: '/assets/themes/ocei/ocei-logo.png',
     jumboBgUrl: 'assets/themes/ocei/jumboBackground.png',
     cardDefaultBgUrl: 'assets/themes/ocei/cardBackground.png'
   },
