@@ -7,6 +7,7 @@ import {LocalStorageService} from "../../services/local-storage.service";
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { MarkdownModule } from 'ngx-markdown';
+import { ThemeService } from 'src/app/services/theme.service';
 
 @Component({
   selector: 'bae-off-featured',
@@ -22,9 +23,14 @@ export class FeaturedComponent implements OnInit {
     private eventMessage: EventMessageService,
     private localStorage: LocalStorageService,
     private router: Router,
-    private api: ApiServiceService
+    private api: ApiServiceService,
+    private themeService: ThemeService
     ) {
     }
+
+  get cardDefaultBgUrl(): string | undefined {
+    return this.themeService.getCurrentThemeConfig()?.assets?.cardDefaultBgUrl;
+  }
 
   ngOnInit(): void {
     this.api.getDefaultCategories().then(data => {

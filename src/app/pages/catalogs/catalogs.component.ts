@@ -7,6 +7,7 @@ import {components} from "../../models/product-catalog";
 type Catalog = components["schemas"]["Catalog"];
 import { environment } from 'src/environments/environment';
 import { FormControl } from '@angular/forms';
+import { ThemeService } from 'src/app/services/theme.service';
 
 @Component({
   selector: 'app-catalogs',
@@ -26,12 +27,17 @@ export class CatalogsComponent implements OnInit{
   protected readonly faEye = faEye;
   showDesc:boolean=false;
   showingCat:any;
-  
+
+  get cardDefaultBgUrl(): string | undefined {
+    return this.themeService.getCurrentThemeConfig()?.assets?.cardDefaultBgUrl;
+  }
+
   constructor(
     private router: Router,
     private api: ApiServiceService,
     private cdr: ChangeDetectorRef,
-    private paginationService: PaginationService
+    private paginationService: PaginationService,
+    private themeService: ThemeService
   ) {
   }
 
@@ -107,7 +113,7 @@ export class CatalogsComponent implements OnInit{
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
   }
 
 }

@@ -120,7 +120,8 @@ export const DOME_THEME_CONFIG: ThemeConfig = {
     logoUrl: 'assets/themes/dome/dome-logo.svg',
     faviconUrl: 'assets/dome_logo.PNG',
     jumboBgUrl: 'assets/themes/dome/jumboBackground.png',
-    cardDefaultBgUrl: 'assets/themes/dome/cardBackground.png'
+    cardDefaultBgUrl: 'assets/themes/dome/cardBackground.png',
+    defaultLogoUrl: 'assets/images/Dome-Marketplace.svg'
   },
   links: {
     headerLinks: domeHeaderLinks,

@@ -14,6 +14,7 @@ import { components } from "../../models/product-catalog";
 import { EventMessageService } from "../../services/event-message.service";
 import { LocalStorageService } from "../../services/local-storage.service";
 import { SearchStateService } from "../../services/search-state.service";
+import { ThemeService } from '../../services/theme.service';
 type ProductOffering = components["schemas"]["ProductOffering"];
 
 @Component({
@@ -32,7 +33,8 @@ export class SearchCatalogComponent implements OnInit, OnDestroy {
     private localStorage: LocalStorageService,
     private router: Router,
     private paginationService: PaginationService,
-    private state: SearchStateService
+    private state: SearchStateService,
+    private themeService: ThemeService
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -67,6 +69,11 @@ export class SearchCatalogComponent implements OnInit, OnDestroy {
   feedback: boolean = false;
   providerThemeName = environment.providerThemeName;
   logo = '';
+
+  get defaultLogoUrl(): string {
+    return this.themeService.getCurrentThemeConfig()?.assets?.defaultLogoUrl || 'assets/images/Dome-Marketplace.svg';
+  }
+
   private destroy$ = new Subject<void>();
   private navigatingToDetail = false;
 
@@ -88,7 +95,7 @@ export class SearchCatalogComponent implements OnInit, OnDestroy {
           const provdesc = info.partyCharacteristic.find((item: { name: string; }) => item.name === 'description')
           this.providerDescription = provdesc.value;
         })
-        this.logo = 'assets/images/Dome-Marketplace.svg';
+        this.logo = this.defaultLogoUrl;
       } else {
         this.accService.getOrgInfo(owner.id).then(info => {
           console.log('info')
@@ -105,10 +112,10 @@ export class SearchCatalogComponent implements OnInit, OnDestroy {
             if (logo?.value) {
               this.logo = logo.value
             } else {
-              this.logo = 'assets/images/Dome-Marketplace.svg'
+              this.logo = this.defaultLogoUrl;
             }
           } else {
-            this.logo = 'assets/images/Dome-Marketplace.svg'
+            this.logo = this.defaultLogoUrl;
           }
         })
       }

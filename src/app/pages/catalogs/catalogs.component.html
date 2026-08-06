@@ -35,7 +35,7 @@
 
     <div data-cy="cataloguesList" (click)="goToCatalogSearch(cat.id)"
       class="block cursor-pointer rounded-lg bg-cover mb-4 md:mb-0"
-      style="background-image: url(assets/logos/dome-logo-element-colour.png);">
+      [style.background-image]="'url(' + cardDefaultBgUrl + ')'">
       <div
         class="block w-full h-full p-6 bg-opacity-100 bg-secondary-50 rounded-lg dark:bg-secondary-100 bg-secondary-50/90 dark:bg-secondary-100/90 bg-cover">
         <h5 data-cy="cataloguesTitle" [ngClass]="{

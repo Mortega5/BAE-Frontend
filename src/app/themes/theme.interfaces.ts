@@ -4,6 +4,8 @@ export interface ThemeAssetConfig {
   faviconUrl?: string;
   jumboBgUrl?: string;
   cardDefaultBgUrl?: string;
+  defaultLogoUrl?: string;
+  
   // other specific theme assets
 }
 
@@ -80,5 +82,6 @@ export interface ThemeConfig {
   colors?: ThemeColorsConfig;
   dashboard?: DashboardConfig;
   metaTags?: ThemeMetaTagConfig[];
+
   // More theme specific propierties
 }

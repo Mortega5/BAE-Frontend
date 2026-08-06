@@ -31,7 +31,8 @@ export const BAE_THEME_CONFIG: ThemeConfig = {
     logoUrl: 'assets/themes/bae/bae-logo.svg',
     faviconUrl: 'assets/themes/bae/bae-logo.svg',
     jumboBgUrl: 'assets/themes/bae/jumboBackground.png',
-    cardDefaultBgUrl: 'assets/themes/bae/cardBackground.svg'
+    cardDefaultBgUrl: 'assets/themes/bae/cardBackground.svg',
+    defaultLogoUrl: 'assets/themes/bae/bae-logo.svg'
   },
   links: {
     headerLinks: baeHeaderLinks,
