@@ -32,7 +32,6 @@
 }
 
 .table-input-selection-control {
-  color: var(--table-selection-accent);
   background-color: var(--table-selection-bg);
   border-color: var(--table-selection-border);
 }
