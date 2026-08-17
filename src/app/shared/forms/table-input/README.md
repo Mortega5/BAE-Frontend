@@ -24,7 +24,6 @@ Each variable has a default value on `body` (light theme) and, where it differs,
 | `--table-action-hover-bg` | Hover background of action/icon-button cells | `rgb(var(--theme-primary-50))` | *(inherits the same value)* |
 | `--table-action-text` | Icon color inside action/icon-button cells | `var(--theme-primary-text)` | *(inherits the same value)* |
 | `--table-action-focus-ring` | Focus ring color of action/icon-button cells | `rgb(var(--theme-primary-50) / 50%)` | *(inherits the same value)* |
-| `--table-selection-accent` | Text/icon color of the row selection checkbox/radio | `rgb(37 99 235)` (blue-600) | *(inherits the same value)* |
 | `--table-selection-checked` | Checked-state accent/background color of the row selection checkbox/radio (`.table-input-selection-control:checked`) | `rgb(var(--theme-primary-100))` | *(inherits the same value)* |
 | `--table-selection-bg` | Unchecked background of the row selection checkbox/radio | `rgb(243 244 246)` (gray-100) | *(inherits the same value)* |
 | `--table-selection-border` | Border of the row selection checkbox/radio | `rgb(209 213 219)` (gray-300) | *(inherits the same value)* |
