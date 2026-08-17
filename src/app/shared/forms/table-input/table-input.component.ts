@@ -29,6 +29,8 @@ export class TableInputComponent implements ControlValueAccessor {
   @Input() multiple: boolean = false;
   @Input() readonly: boolean = false;
   @Input() selectable: boolean = true;
+  /** Shown in the selection column's header cell in place of the row-selection checkbox/radio. */
+  @Input() selectedCount: number | null = null;
   @Input() clickable: boolean = false;
   /** When provided, rows for which this returns false are disabled (no toggle, no row click). */
   @Input() isSelectable?: (item: any) => boolean;

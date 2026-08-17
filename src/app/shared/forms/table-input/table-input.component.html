@@ -4,7 +4,11 @@
     <thead class="text-xs uppercase table-input-header">
       <tr>
         @if (selectable) {
-        <th scope="col" class="px-4 py-3 w-12"></th>
+        <th scope="col" class="px-4 py-3 w-12 text-center font-semibold">
+          @if (selectedCount) {
+          [ {{ selectedCount }} ]
+          }
+        </th>
         }
         @for (col of columns; track $index) {
         <th scope="col" class="px-6 py-3" [ngClass]="[col.width ?? '', col.hideOnMobile ? 'hidden sm:table-cell' : '']">
