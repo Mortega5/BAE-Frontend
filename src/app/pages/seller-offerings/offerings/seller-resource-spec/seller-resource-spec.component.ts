@@ -26,7 +26,6 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
   @ViewChild(FilteredPaginatedTableComponent) paginatedTable?: FilteredPaginatedTableComponent<any>;
 
   searchField = new FormControl();
-  filter: Record<string, string> | undefined = undefined;
   sort: any = undefined;
   partyId: any;
   private destroy$ = new Subject<void>();
@@ -40,6 +39,7 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
       label: 'OFFERINGS._filter_state',
       type: 'select',
       icon: faSwatchbook,
+      colSpan: 1,
       multiple: true,
       defaultValue: ['Active', 'Launched'],
       options: [
@@ -48,7 +48,7 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
         { value: 'Retired', label: 'OFFERINGS._retired' },
         { value: 'Obsolete', label: 'OFFERINGS._obsolete' },
       ],
-    },
+    }
   ];
 
   constructor(
@@ -131,7 +131,6 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
         // Easy way to get the value of the element who trigger the current `e` event
         console.log(`Input updated`)
         if (this.searchField.value == '') {
-          this.filter = undefined;
           this.paginatedTable?.refresh(true);
         }
       });
@@ -143,9 +142,8 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
     initFlowbite();
   }
 
-  fetchResSpecs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
-    const status = (filters['status'] ?? []) as string[];
-    return this.resSpecService.getResourceSpecByUserPaged(params, this.filter, status, this.partyId);
+  fetchResSpecs = (params: PageRequest, { status, ...filters }: Record<string, any>): Promise<PageResult<any>> => {
+    return this.resSpecService.getResourceSpecByUserPaged(params, filters, status, this.partyId);
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
