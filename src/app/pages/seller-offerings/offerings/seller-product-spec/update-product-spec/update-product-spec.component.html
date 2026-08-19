@@ -530,7 +530,7 @@
       <ng-template stepperStep="Resource specifications" stepId="resource">
         <div class="w-full m-4">
           <app-paginated-table [columns]="resColumns" [fetchPage]="fetchResourceSpecs" [multiple]="true"
-            [selectable]="true" [selected]="selectedResourceSpecs" (selectedChange)="selectedResourceSpecs = $event"
+            [selectable]="true" [selected]="selectedResourceSpecs" (selectedChange)="onResourceSpecsChange($event)"
             [defaultSort]="defaultResSort">
           </app-paginated-table>
         </div>

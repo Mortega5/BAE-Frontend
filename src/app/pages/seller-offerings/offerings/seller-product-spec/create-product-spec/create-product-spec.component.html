@@ -535,7 +535,7 @@
         <div class="w-full m-4">
           <app-paginated-table data-cy="tableResourceSpecs" [columns]="resColumns" [fetchPage]="fetchResourceSpecs"
             [multiple]="true" [selectable]="true" [selected]="selectedResourceSpecs"
-            (selectedChange)="selectedResourceSpecs = $event" [defaultSort]="defaultResSort">
+            (selectedChange)="onResourceSpecsChange($event)" [defaultSort]="defaultResSort">
           </app-paginated-table>
         </div>
       </ng-template>
