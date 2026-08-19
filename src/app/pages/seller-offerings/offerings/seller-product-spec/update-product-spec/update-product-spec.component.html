@@ -517,13 +517,7 @@
         }
 
       </ng-template>
-      <ng-template stepperStep="Characteristics" stepId="characteristics">
-        <div class="m-4">
-          <app-characteristics-editor [characteristics]="characteristicItems"
-            [supportedTypes]="['string', 'number', 'range', 'boolean', 'object']"
-            (characteristicsChange)="onCharacteristicsChange($event)" />
-        </div>
-      </ng-template>
+
       @if (DATA_SPACE_ENABLED && !prod?.externalId) {
       <ng-template stepperStep="Dataspace Configuration" stepId="dataspace">
         <div class="m-4">
@@ -539,6 +533,13 @@
             [selectable]="true" [selected]="selectedResourceSpecs" (selectedChange)="selectedResourceSpecs = $event"
             [defaultSort]="defaultResSort">
           </app-paginated-table>
+        </div>
+      </ng-template>
+      <ng-template stepperStep="Characteristics" stepId="characteristics">
+        <div class="m-4">
+          <app-characteristics-editor [characteristics]="characteristicItems"
+            [supportedTypes]="['string', 'number', 'range', 'boolean', 'object']"
+            (characteristicsChange)="onCharacteristicsChange($event)" />
         </div>
       </ng-template>
       <ng-template stepperStep="Service specifications" stepId="service">
