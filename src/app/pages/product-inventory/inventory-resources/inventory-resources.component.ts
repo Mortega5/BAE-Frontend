@@ -88,7 +88,7 @@ export class InventoryResourcesComponent implements OnInit, OnDestroy {
         this.partyId = loggedOrg.partyId
       }
       this.getInventory(false);
-      
+
     }
     initFlowbite();
   }
@@ -102,7 +102,7 @@ export class InventoryResourcesComponent implements OnInit, OnDestroy {
       "partyId": this.partyId,
       "filters": this.status
     }
-    
+
     try {
       const data = await this.paginationService.getItemsPaginated(this.page, this.INVENTORY_LIMIT, next, this.resources, this.nextResources, options,
         this.inventoryService.getResourceInventory.bind(this.inventoryService));
@@ -153,7 +153,7 @@ export class InventoryResourcesComponent implements OnInit, OnDestroy {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
   }
 
 }

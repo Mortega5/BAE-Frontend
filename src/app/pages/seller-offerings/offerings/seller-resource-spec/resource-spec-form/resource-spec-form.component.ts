@@ -5,7 +5,7 @@ import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { buildLifecycleStatusOptions, FormField, SelectOption } from 'src/app/models/formFields/form-field.model';
+import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from 'src/app/models/resource-catalog';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
@@ -80,8 +80,6 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   deploymentForm: FormGroup | null = null;
   deploymentInitialValue?: SoftwareDeploymentDefinition;
   private originalDeploymentChar: SoftwareCharacteristic | null = null;
-
-  artifactType?: string;
 
   get requiresPackageDeployment(): boolean {
     const type = this.isUpdate ? this.res?.['@type'] : this.generalForm.value.baseTemplate;
@@ -198,8 +196,6 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
             const pkgChars = (pkg.resourceCharacteristic ?? []) as SoftwareCharacteristic[];
             this.originalDeploymentChar = pkgChars.find(c => c.valueType === 'deployment') ?? null;
             this.deploymentInitialValue = this.originalDeploymentChar?.value as SoftwareDeploymentDefinition | undefined;
-            const artifactTypeChar = pkgChars.find(c => c.name === 'artifactType' && c.valueType === 'string');
-            this.artifactType = (artifactTypeChar?.value as string) ?? '';
           });
       }
     }
@@ -222,19 +218,17 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
 
   onDeploymentFormReady(form: FormGroup): void {
     this.deploymentForm = form;
-    const deploymentType = form.get('type')!.value;
-    switch (deploymentType) {
-      case 'helm':
-        this.artifactType = 'HelmChart';
-        break;
-      case 'docker':
-        const isCompose = form.get('properties')!.get('composeFile')!.value;
-        this.artifactType = isCompose ? 'DockerCompose' : 'DockerImage';
-        break;
-    }
   }
 
+  private getArtifactType(deployment: SoftwareDeploymentDefinition): string {
 
+    switch (deployment.type) {
+      case 'helm':
+        return 'HelmChart';
+      case 'docker':
+        return deployment.properties?.composeFile ? 'DockerCompose' : 'DockerImage';
+    }
+  }
   private buildResourceCharacteristics(): ResourceCharacteristics[] {
     const chars: any[] = [...this.resourceChars];
     if (!this.requiresPackageDeployment) return chars;
@@ -250,13 +244,11 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
       chars.push(this.originalDeploymentChar);
     }
 
-    if (this.artifactType) {
-      chars.push({
-        name: 'artifactType',
-        valueType: 'string',
-        value: this.artifactType,
-      });
-    }
+    chars.push({
+      name: 'artifactType',
+      valueType: 'string',
+      value: this.getArtifactType(this.deploymentForm?.value || this.originalDeploymentChar),
+    });
 
     return chars;
   }
