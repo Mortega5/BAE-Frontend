@@ -8,6 +8,7 @@ import { FormField, SelectOption } from '../../../models/formFields/form-field.m
 import { yamlValidator } from '../../../validators/validators';
 import { buildFormGroup } from '../dynamic-form/build-form-group.util';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
+import { SoftwareDeploymentDefinition } from '../../../models/software.model';
 
 type DeploymentType = 'helm' | 'docker';
 
@@ -46,7 +47,7 @@ const DOCKER_FIELDS: FormField[] = [
 export class PackageDeploymentComponent implements OnInit, OnDestroy {
 
   /** Existing deployment value to edit, shaped like this component's own form.value (`{type, version, properties}`). */
-  @Input() initialValue: any;
+  @Input() initialValue?: SoftwareDeploymentDefinition;
 
   @Output() formReady = new EventEmitter<FormGroup>();
 
@@ -66,9 +67,10 @@ export class PackageDeploymentComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     if (this.initialValue) {
-      const type: DeploymentType = this.initialValue.type === 'docker' ? 'docker' : 'helm';
-      this.initialValue.properties.values = this.initialValue.properties.values?.[0];
-      this.propertiesFields = type === 'docker' ? DOCKER_FIELDS : HELM_FIELDS;
+      if (this.initialValue.type === 'helm' && Array.isArray(this.initialValue.properties.values)) {
+        this.initialValue.properties.values = this.initialValue.properties.values[0];
+      }
+      this.propertiesFields = this.initialValue.type === 'docker' ? DOCKER_FIELDS : HELM_FIELDS;
       this.form.setControl('properties', buildFormGroup(this.propertiesFields));
       this.form.patchValue(this.initialValue);
     }

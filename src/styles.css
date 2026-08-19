@@ -49,6 +49,7 @@ ngx-file-drop .ngx-file-drop__drop-zone {
    override, since it's closer to the consuming elements than anything in a
    global stylesheet could be. */
 body {
+  --accordion-bg-color: #fff;
   --table-bg: #fff;
   --table-text: rgb(107 114 128);
   /* gray-500 */

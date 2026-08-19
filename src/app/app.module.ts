@@ -116,6 +116,7 @@ import { UpdateSoftwareComponent } from './pages/seller-offerings/offerings/sell
 import { StatusFieldComponent } from './shared/status-field/status-field.component';
 import { StepperStepDirective } from './shared/stepper/stepper-step.directive';
 import { StepperComponent } from './shared/stepper/stepper.component';
+import { PackageDeploymentComponent } from './shared/forms/package-deployment/package-deployment';
 
 @NgModule({
   declarations: [
@@ -237,6 +238,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     StatusFieldComponent,
     LoadingSpinnerComponent,
     NotFoundStateComponent,
+    PackageDeploymentComponent,
   ],
   providers: [
     AppInitService,

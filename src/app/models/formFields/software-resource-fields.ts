@@ -37,7 +37,7 @@ export function buildResourceConfiguration(ctx: ResourceConfigContext): Partial<
         { name: 'majorVersion', label: 'Major Version', type: 'string', required: false, colSpan: 1 },
         { name: 'minorVersion', label: 'Minor Version', type: 'string', required: false, colSpan: 1 },
         { name: 'numberProcessActiveTotal', label: 'Max number of total processes', type: 'number', required: false },
-        softwareSupportPackageField(ctx, false),
+        // softwareSupportPackageField(ctx, false),
       ]
     }
   };
@@ -55,7 +55,7 @@ export function buildResourceConfigUpdate(ctx: ResourceConfigContext): Partial<R
         { name: 'majorVersion', label: 'Major Version', type: 'string', required: false, colSpan: 1 },
         { name: 'minorVersion', label: 'Minor Version', type: 'string', required: false, colSpan: 1 },
         { name: 'numberProcessActiveTotal', label: 'Max number of total processes', type: 'number', required: false },
-        softwareSupportPackageField(ctx, true),
+        // softwareSupportPackageField(ctx, true),
       ]
     }
   };

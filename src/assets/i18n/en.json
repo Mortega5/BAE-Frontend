@@ -1148,7 +1148,9 @@
       "_finish": "Finish",
       "_create_res": "Create resource",
       "_base_template": "Template",
-      "_no_config": "No configuration required for the selected template."
+      "_no_config": "No configuration required for the selected template.",
+      "_advanced_config": "Advanced configuration (optional)",
+      "_artifact_type": "Artifact Type"
     },
     "UPDATE_RES_SPEC": {
       "_back": "Back",
@@ -1178,7 +1180,9 @@
       "_next": "Next",
       "_finish": "Finish",
       "_update_res": "Update resource",
-      "_no_config": "No configuration required for the selected template."
+      "_no_config": "No configuration required for the selected template.",
+      "_advanced_config": "Advanced configuration (optional)",
+      "_artifact_type": "Artifact Type"
     },
     "CREATE_SERV_SPEC": {
       "_back": "Back",
@@ -2285,7 +2289,9 @@
     "_create_res": "Create resource",
     "_base_template": "Template",
     "_configurable": "Configurable",
-    "_no_config": "No configuration required for the selected template."
+    "_no_config": "No configuration required for the selected template.",
+    "_advanced_config": "Advanced configuration (optional)",
+    "_artifact_type": "Artifact Type"
   },
   "UPDATE_RES_SPEC": {
     "_back": "Back",
@@ -2315,7 +2321,9 @@
     "_next": "Next",
     "_finish": "Finish",
     "_update_res": "Update resource",
-    "_no_config": "No configuration required for the selected template."
+    "_no_config": "No configuration required for the selected template.",
+    "_advanced_config": "Advanced configuration (optional)",
+    "_artifact_type": "Artifact Type"
   },
   "BLUEPRINT_PROD": {
     "_items": "Components",

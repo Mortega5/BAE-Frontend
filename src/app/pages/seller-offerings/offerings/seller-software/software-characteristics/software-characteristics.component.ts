@@ -6,15 +6,14 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
-import { components } from 'src/app/models/software-catalog';
 import { TableColumn } from 'src/app/models/table-column.model';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
+import { SoftwareCharacteristic, SoftwareDeploymentDefinition } from '../../../../../models/software.model';
 import { PackageDeploymentComponent } from '../../../../../shared/forms/package-deployment/package-deployment';
 
-type Characteristic = components['schemas']['Characteristic'];
 type CharType = 'string' | 'number' | 'range' | 'deployment';
 
 const CHAR_TYPE_OPTIONS: { value: CharType; label: string }[] = [
@@ -32,9 +31,9 @@ const CHAR_TYPE_OPTIONS: { value: CharType; label: string }[] = [
   imports: [CommonModule, ReactiveFormsModule, TranslateModule, PackageDeploymentComponent, DynamicFormComponent, TableInputComponent],
 })
 export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
-  @Input() characteristics: Characteristic[] = [];
+  @Input() characteristics: SoftwareCharacteristic[] = [];
   @Input() readonly: boolean = false;
-  @Output() characteristicsChange = new EventEmitter<Characteristic[]>();
+  @Output() characteristicsChange = new EventEmitter<SoftwareCharacteristic[]>();
 
   showAddForm = false;
   editingIndex: number | null = null;
@@ -134,7 +133,7 @@ export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
     const formValue = this.charForm.get('value')?.value;
     let value: any;
     if (this.charType === 'deployment') {
-      value = this.deploymentForm!.value;
+      value = this.deploymentForm!.value as SoftwareDeploymentDefinition;
     } else if (this.charType === 'range') {
       value = formValue;
     } else if (this.charType === 'number') {
