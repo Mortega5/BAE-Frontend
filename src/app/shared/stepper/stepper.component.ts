@@ -42,7 +42,7 @@ export class StepperComponent {
   @ContentChildren(StepperStepDirective) stepTemplates!: QueryList<StepperStepDirective>;
 
   currentStep = 0;
-  private _highestReached = 0;
+  highestStep = 0;
 
   get isLastStep(): boolean {
     return this.currentStep === (this.stepTemplates?.length ?? 1) - 1;
@@ -53,7 +53,7 @@ export class StepperComponent {
   }
 
   canNavigate(index: number): boolean {
-    return this.allUnlocked || index <= this.currentStep || index <= this._highestReached;
+    return this.allUnlocked || index <= this.currentStep || index <= this.highestStep;
   }
 
   handleStepClick(index: number): void {
@@ -72,8 +72,8 @@ export class StepperComponent {
 
   private _goToStep(index: number): void {
     this.currentStep = index;
-    if (this.currentStep > this._highestReached) {
-      this._highestReached = this.currentStep;
+    if (this.currentStep > this.highestStep) {
+      this.highestStep = this.currentStep;
     }
     const directive = this.stepTemplates.get(index);
     this.stepChanged.emit({
