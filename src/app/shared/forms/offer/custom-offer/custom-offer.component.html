@@ -1,149 +1,88 @@
-<div class="bg-secondary-50 dark:bg-secondary-100 border border-secondary-50 dark:border-gray-800 mt-4 p-4 md:p-8 rounded-lg w-full">
-      <h2 class="text-3xl font-bold text-primary-100 dark:text-white pb-4">
-        {{ 'CREATE_OFFER._create' | translate }}
-      </h2>
-  
+<h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
+  {{ 'CREATE_OFFER._create' | translate }}
+</h1>
+
+<div class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-4 md:p-6 w-full">
   @if(notFound){
       <app-not-found-state message="This offer could not be found." (back)="goBack()" />
   } @else if(loadingData){
       <app-loading-spinner />
   } @else {
-    <!-- Stepper -->
     <form [formGroup]="productOfferForm">
-      <ol class="flex items-start w-full text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-        @for (step of steps; track i; let i = $index) {
-          <li 
-              (click)="handleStepClick(i)"
-              [class.cursor-not-allowed]="!canNavigate(i)"
-              [class.opacity-50]="!canNavigate(i)"          
-              [class.text-primary-100]="currentStep === i"
-              class="flex-1 cursor-pointer">
-            <span class="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 mx-auto border-2 border-primary-100 dark:border-primary-50 shrink-0 rounded-full"
-                  [class.bg-primary-100]="currentStep === i"
-                  [class.text-white]="currentStep === i">
-              {{ i + 1 }}
-            </span>
-            <span class="md:block mt-2 hidden">{{ step }}</span>
-          </li>
-        }
-      </ol>
-  
-      <h3 class="block md:hidden mt-2 text-center text-2xl text-primary-100 dark:text-white pb-4">{{ this.steps[currentStep] }}</h3>
-      @if(loading){
-        <app-loading-spinner />
-      } @else {
-  
-      <div class="md:p-8">
-  
-          <!-- Step Forms -->
-          @if (currentStep === 0) {
-            <app-related-party-id formControlName="partyInfo" [partyId]="partyId"></app-related-party-id>
-          } @else if (currentStep === 1) {
-              <app-price-plans-form 
-                [form]="productOfferForm" 
-                [prodSpec]="productOfferForm.get('prodSpec')?.value"
-                [custom]="true"
-                >
-              </app-price-plans-form>
-          } @else if (currentStep === 2) {
-            <app-procurement-mode [data]="offer"
+      <app-stepper [canAdvance]="canAdvance" [loading]="loading" submitLabel="CREATE_OFFER._create"
+        [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="createOffer()">
+
+        <ng-template stepperStep="Party Info">
+          <app-related-party-id formControlName="partyInfo" [partyId]="partyId"></app-related-party-id>
+        </ng-template>
+
+        <ng-template stepperStep="Price Plans">
+          <app-price-plans-form
+            [form]="productOfferForm"
+            [prodSpec]="productOfferForm.get('prodSpec')?.value"
+            [custom]="true">
+          </app-price-plans-form>
+        </ng-template>
+
+        <ng-template stepperStep="Procurement Mode">
+          <app-procurement-mode [data]="offer"
             [form]="productOfferForm.controls['procurementMode']">
-            </app-procurement-mode>
-          } @else if(currentStep === 3) {
-            <div class="m-8">
-                <div class="mb-4 grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="font-bold text-lg dark:text-white">{{ 'CREATE_OFFER._name' | translate }}</label>
-                        <label class="mb-2 bg-gray-50 text-wrap break-all dark:bg-secondary-300 dark:border-secondary-200 dark:text-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                            {{ offer?.name }}
-                        </label>
-            
-                    </div>
-                   <div>
-                        <label for="prod-version" class="font-bold text-lg dark:text-white">{{ 'CREATE_OFFER._version' | translate }}</label>
-                        <label class="mb-2 bg-gray-50 text-wrap break-all border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                            {{ offer?.version }}
-                        </label>
-                    </div>
-                </div>
-                @if(productOfferForm.get('partyInfo')?.value){
-                <h2 class="text-md dark:text-white mb-4">Exclusive ad-hoc offer created for <b>{{productOfferForm.get('partyInfo')?.value.tradingName}}</b>.</h2>
-                }
-                @if(productOfferForm.get('pricePlans')?.value){
-                    <h2 class="font-bold text-lg dark:text-white">{{ 'CREATE_OFFER._price_plans' | translate }}</h2>
-                    <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
-                        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-                            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                                <tr>
-                                    <th scope="col" class="px-6 py-3">
-                                        {{ 'CREATE_OFFER._name' | translate }}
-                                    </th>
-                                    <th scope="col" class="hidden md:table-cell px-6 py-3">
-                                        {{ 'CREATE_OFFER._description' | translate }}
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @for (price of productOfferForm.get('pricePlans')?.value; track price.id) {
-                                    <tr class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                                        <td class="px-6 py-4 max-w-1/6 text-wrap break-all">
-                                            {{price.name}}
-                                        </td>
-                                        <td class="hidden md:table-cell px-6 py-4 text-wrap break-all">
-                                            {{price.description}}
-                                        </td>
-                                    </tr>
-                                }
-                            </tbody>
-                        </table>
-                    </div>
-                }
-            </div>
-          }
-      </div>
-    }
-      <!-- Navigation Buttons -->
-      <div class="flex justify-end mt-6 space-x-4">
-        <button (click)="goToStep(currentStep - 1)"
-                [disabled]="currentStep === 0"
-                [ngClass]="{
-                  'text-gray-500 dark:text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white': currentStep !== 0,
-                  'text-gray-300 dark:text-gray-600 cursor-not-allowed': currentStep === 0
-                }"
-                class="px-4 py-2 flex items-center justify-center text-base font-medium rounded-lg  bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 ">
-            <svg class="min-w-4 w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-              <path fill="currentColor"
-                    d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3
-                    256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z"/>
-            </svg>
-            {{ 'CREATE_OFFER._previous' | translate }}
-        </button>
-  
-        <button data-cy="offerNext" (click)="goToStep(currentStep + 1)"
-                [disabled]="currentStep === steps.length - 1 || !validateCurrentStep() || !canNavigate(currentStep)"
-                [ngClass]="{
-                  'hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white': currentStep !== steps.length - 1 && validateCurrentStep() || canNavigate(currentStep),
-                  'cursor-not-allowed opacity-50': currentStep === steps.length - 1 || !validateCurrentStep() || !canNavigate(currentStep)
-                }"
-                class="px-4 py-2 flex items-center justify-center text-base font-medium rounded-lg text-gray-500 bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400">
-              {{ 'CREATE_OFFER._next_step' | translate }}
-          <svg class="min-w-4 w-4 h-4 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-            <path fill="currentColor"
-                  d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7
-                  256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"/>
-          </svg>
-        </button>
-        @if(currentStep === 3){
-          <button data-cy="offerFinish"
-          (click)="createOffer()"
-          [disabled]="loading"
-          [ngClass]="loading ? 'opacity-50' : 'hover:bg-primary-50'"
-  
-          class="px-4 py-2 text-base font-medium text-white rounded-lg bg-primary-100">
-            Create Offer
-          </button>
-        }
-      </div>
+          </app-procurement-mode>
+        </ng-template>
+
+        <ng-template stepperStep="Summary">
+          <div class="m-8">
+              <div class="mb-4 grid grid-cols-2 gap-4">
+                  <div>
+                      <label class="font-bold text-lg dark:text-white">{{ 'CREATE_OFFER._name' | translate }}</label>
+                      <label class="mb-2 bg-gray-50 text-wrap break-all dark:bg-secondary-300 dark:border-secondary-200 dark:text-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                          {{ offer?.name }}
+                      </label>
+
+                  </div>
+                 <div>
+                      <label for="prod-version" class="font-bold text-lg dark:text-white">{{ 'CREATE_OFFER._version' | translate }}</label>
+                      <label class="mb-2 bg-gray-50 text-wrap break-all border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                          {{ offer?.version }}
+                      </label>
+                  </div>
+              </div>
+              @if(productOfferForm.get('partyInfo')?.value){
+              <h2 class="text-md dark:text-white mb-4">Exclusive ad-hoc offer created for <b>{{productOfferForm.get('partyInfo')?.value.tradingName}}</b>.</h2>
+              }
+              @if(productOfferForm.get('pricePlans')?.value){
+                  <h2 class="font-bold text-lg dark:text-white">{{ 'CREATE_OFFER._price_plans' | translate }}</h2>
+                  <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
+                      <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
+                          <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+                              <tr>
+                                  <th scope="col" class="px-6 py-3">
+                                      {{ 'CREATE_OFFER._name' | translate }}
+                                  </th>
+                                  <th scope="col" class="hidden md:table-cell px-6 py-3">
+                                      {{ 'CREATE_OFFER._description' | translate }}
+                                  </th>
+                              </tr>
+                          </thead>
+                          <tbody>
+                              @for (price of productOfferForm.get('pricePlans')?.value; track price.id) {
+                                  <tr class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
+                                      <td class="px-6 py-4 max-w-1/6 text-wrap break-all">
+                                          {{price.name}}
+                                      </td>
+                                      <td class="hidden md:table-cell px-6 py-4 text-wrap break-all">
+                                          {{price.description}}
+                                      </td>
+                                  </tr>
+                              }
+                          </tbody>
+                      </table>
+                  </div>
+              }
+          </div>
+        </ng-template>
+
+      </app-stepper>
     </form>
   }
   </div>

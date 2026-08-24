@@ -4,7 +4,6 @@ import {ActivatedRoute, Router} from "@angular/router";
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import {TranslateModule} from "@ngx-translate/core";
 import {ProdSpecComponent} from "../prod-spec/prod-spec.component";
-import {NgClass, NgIf} from "@angular/common";
 import {ApiServiceService} from "../../../../services/product-service.service";
 import {PricePlansComponent} from "../price-plans/price-plans.component";
 import {ProcurementModeComponent} from "../procurement-mode/procurement-mode.component"
@@ -20,6 +19,8 @@ import { environment } from 'src/environments/environment';
 import { QuoteService } from 'src/app/features/quotes/services/quote.service';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { NotFoundStateComponent } from 'src/app/shared/not-found-state/not-found-state.component';
+import { StepChangedEvent, StepperComponent } from 'src/app/shared/stepper/stepper.component';
+import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
 
 type ProductOffering_Create = components["schemas"]["ProductOffering_Create"];
 type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
@@ -35,9 +36,10 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
     ProcurementModeComponent,
     OfferSummaryComponent,
     RelatedPartyIdComponent,
-    NgClass,
     LoadingSpinnerComponent,
-    NotFoundStateComponent
+    NotFoundStateComponent,
+    StepperComponent,
+    StepperStepDirective
   ],
   templateUrl: './custom-offer.component.html',
   styleUrl: './custom-offer.component.css'
@@ -52,13 +54,6 @@ export class CustomOfferComponent implements OnInit {
 
   productOfferForm: FormGroup;
   currentStep = 0;
-  highestStep = 0;
-  steps = [
-    'Party Info',
-    'Price Plans',
-    'Procurement Mode',
-    'Summary'
-  ];
   isFormValid = false;
   pricePlans:any = [];
   errorMessage:any='';
@@ -381,18 +376,12 @@ export class CustomOfferComponent implements OnInit {
       return price;
     }
 
-    goToStep(index: number) {
-        // Validar el paso actual
-        console.log('click go to step')        
-        const currentStepValid = this.validateCurrentStep();
-        console.log(!currentStepValid)
-        if (!currentStepValid) {
-          return; // No permitir avanzar si el paso actual no es válido
-        }
-        this.currentStep = index;
-        if(this.currentStep>this.highestStep){
-          this.highestStep=this.currentStep
-        }
+    get canAdvance(): boolean {
+      return this.validateCurrentStep();
+    }
+
+    onStepChanged(event: StepChangedEvent): void {
+      this.currentStep = event.step;
     }
 
     goBack() {
@@ -419,16 +408,6 @@ export class CustomOfferComponent implements OnInit {
           return this.productOfferForm.get('procurementMode')?.valid || false;
         default:
           return true;
-      }
-    }
-  
-    canNavigate(index: number) {
-      return (this.productOfferForm.get('partyInfo')?.valid &&  (index <= this.currentStep)) || (this.productOfferForm.get('partyInfo')?.valid &&  (index <= this.highestStep));
-    }  
-  
-    handleStepClick(index: number): void {
-      if (this.canNavigate(index)) {
-        this.goToStep(index);
       }
     }
 
