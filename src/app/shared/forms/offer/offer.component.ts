@@ -6,17 +6,18 @@ import moment from 'moment';
 import { lastValueFrom, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { components } from "src/app/models/product-catalog";
+import { searchCategoriesConfig } from 'src/app/data/availableFilters';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
+import { AccountServiceService } from 'src/app/services/account-service.service';
 import { EventMessageService } from "src/app/services/event-message.service";
+import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
 import { StepChangedEvent, StepperComponent } from 'src/app/shared/stepper/stepper.component';
 import { v4 as uuidv4 } from 'uuid';
 import { environment } from '../../../../environments/environment';
-import { FormChangeState, PricePlanChangeState } from "../../../models/interfaces";
+import { FormChangeState, LoginInfo, PricePlanChangeState } from "../../../models/interfaces";
 import { ApiServiceService } from "../../../services/product-service.service";
-import { CatalogueComponent } from "./catalogue/catalogue.component";
-import { CategoryComponent } from "./category/category.component";
 import { EdcContractDefinitionComponent } from "./edc-contract-definition/edc-contract-definition.component";
 import { GeneralInfoComponent } from "./general-info/general-info.component";
 import { LicenseComponent } from "./license/license.component";
@@ -36,10 +37,8 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
     TranslateModule,
     ProdSpecComponent,
     ReactiveFormsModule,
-    CategoryComponent,
     LicenseComponent,
     PricePlansComponent,
-    CatalogueComponent,
     ProcurementModeComponent,
     OfferSummaryComponent,
     EdcContractDefinitionComponent,
@@ -69,6 +68,18 @@ export class OfferComponent implements OnInit, OnDestroy {
   offersBundle: any[] = [];
   loadingData: boolean = false;
 
+  // Auto-catalogue: the seller no longer picks a catalogue manually — we reuse
+  // their existing one or create a default one on the fly (see ensureCatalogue()).
+  autoCatalogue: any = null;
+
+  // Category: single root + subcategory pick (replaces the old multi-select tree).
+  availableRootCategories: any[] = [];
+  availableSubcategories: any[] = [];
+  loadingCategories: boolean = false;
+  selectedRootCategoryId: string = '';
+  selectedSubcategoryId: string = '';
+  private originalCategoryValue: any[] = [];
+
   get isUpdate() {
     return this.formType === 'update';
   }
@@ -86,12 +97,14 @@ export class OfferComponent implements OnInit, OnDestroy {
   constructor(private api: ApiServiceService,
     private eventMessage: EventMessageService,
     private fb: FormBuilder,
-    private router: Router) {
+    private router: Router,
+    private accountService: AccountServiceService,
+    private localStorage: LocalStorageService) {
 
     this.productOfferForm = this.fb.group({
       generalInfo: this.fb.group({}),
       prodSpec: new FormControl(null, [Validators.required]),
-      catalogue: new FormControl(null, [Validators.required]),
+      catalogue: new FormControl(null),
       category: new FormControl([]),
       license: this.fb.group({}),
       edcContractDefinition: this.fb.group({}),
@@ -163,10 +176,8 @@ export class OfferComponent implements OnInit, OnDestroy {
         return this.productOfferForm.get('generalInfo')?.valid || false;
       case 'productSpec':
         return !!this.productOfferForm.get('prodSpec')?.value;
-      case 'catalogue':
-        return !!this.productOfferForm.get('catalogue')?.value;
       case 'category':
-        return true;
+        return !!this.selectedRootCategoryId;
       case 'license':
         return this.productOfferForm.get('license')?.valid || false;
       case 'contractDefinition':
@@ -200,8 +211,202 @@ export class OfferComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     if (this.formType === 'update' && this.offer) {
       this.loadingData = true;
+      await this.loadCategories();
       await this.loadOfferData();
+      await this.initSelectedCategoriesFromOffer();
       this.loadingData = false;
+    } else {
+      this.loadCategories();
+      this.ensureCatalogue();
+    }
+  }
+
+  /** Auto-assigns the seller's catalogue: reuses an existing one, or creates a default one. */
+  async ensureCatalogue(): Promise<any> {
+    if (this.autoCatalogue) return this.autoCatalogue;
+    if (!this.partyId) return null;
+    try {
+      const existing = await this.api.getCatalogsByUser(0, undefined, [], this.partyId);
+      if (Array.isArray(existing) && existing.length > 0) {
+        this.autoCatalogue = existing[0];
+        this.productOfferForm.patchValue({ catalogue: this.autoCatalogue });
+        return this.autoCatalogue;
+      }
+      const catalogueName = await this.getDefaultCatalogueName();
+      if (!catalogueName) return null;
+      const created = await lastValueFrom(this.api.postCatalog({
+        name: catalogueName,
+        description: '',
+        lifecycleStatus: 'Launched',
+        relatedParty: [{ id: this.partyId, role: environment.SELLER_ROLE, '@referredType': '' }]
+      }));
+      if (created?.id) {
+        this.autoCatalogue = created;
+        this.productOfferForm.patchValue({ catalogue: created });
+      }
+      return this.autoCatalogue;
+    } catch (err) {
+      console.error('Failed to ensure provider catalogue', err);
+      return null;
+    }
+  }
+
+  private async getDefaultCatalogueName(): Promise<string> {
+    let catalogueName = this.getCachedLoggedPartyName();
+
+    if (!catalogueName) {
+      try {
+        const party = this.isOrganizationParty()
+          ? await this.accountService.getOrgInfo(this.partyId)
+          : await this.accountService.getUserInfo(this.partyId);
+        catalogueName = this.isOrganizationParty()
+          ? this.pickOrganizationPartyName(party)
+          : this.pickIndividualPartyName(party);
+      } catch (err) {
+        console.error('Failed to resolve default catalogue name', err);
+      }
+    }
+
+    return catalogueName;
+  }
+
+  private getCachedLoggedPartyName(): string {
+    const loginInfo = this.localStorage.getObject('login_items') as LoginInfo;
+    if (!loginInfo || JSON.stringify(loginInfo) === '{}') return '';
+
+    if (loginInfo.logged_as && loginInfo.id && loginInfo.logged_as !== loginInfo.id) {
+      const loggedOrg = loginInfo.organizations?.find((org: any) => org.id === loginInfo.logged_as || org.partyId === this.partyId);
+      return this.pickOrganizationPartyName(loggedOrg);
+    }
+
+    return this.normalizeCatalogueName(loginInfo.user);
+  }
+
+  private pickOrganizationPartyName(party: any): string {
+    const value = party?.tradingName ?? party?.name;
+    return this.normalizeCatalogueName(value);
+  }
+
+  private pickIndividualPartyName(party: any): string {
+    return [party?.givenName, party?.familyName]
+      .filter((value: any) => typeof value === 'string' && value.trim().length > 0)
+      .join(' ')
+      .trim()
+      .slice(0, 100);
+  }
+
+  private normalizeCatalogueName(value: any): string {
+    return typeof value === 'string' ? value.trim().slice(0, 100) : '';
+  }
+
+  private isOrganizationParty(): boolean {
+    return String(this.partyId || '').toLowerCase().includes('organization');
+  }
+
+  async loadCategories(): Promise<void> {
+    this.loadingCategories = true;
+    try {
+      const roots = await this.api.getDefaultCategories();
+      const list = Array.isArray(roots) ? roots : [];
+
+      if (searchCategoriesConfig.primaryCategoriesMode === 'catalogFirstLevel') {
+        this.availableRootCategories = list;
+        return;
+      }
+
+      const configuredRootName = searchCategoriesConfig.primaryRootName;
+      const primaryCategoryRoot = configuredRootName
+        ? list.find((c: any) => c?.name === configuredRootName)
+        : null;
+
+      if (primaryCategoryRoot?.id) {
+        const children = await this.api.getCategoriesByParentId(primaryCategoryRoot.id);
+        this.availableRootCategories = Array.isArray(children) ? children : [];
+      } else {
+        this.availableRootCategories = [];
+      }
+    } catch (err) {
+      console.error('Failed to load categories', err);
+      this.availableRootCategories = [];
+    } finally {
+      this.loadingCategories = false;
+    }
+  }
+
+  /** Update mode: once the offer's category array is loaded, figure out which root/subcategory it matches. */
+  private async initSelectedCategoriesFromOffer(): Promise<void> {
+    const offerCategories = this.offer?.category || [];
+    const rootIds = new Set(this.availableRootCategories.map((c: any) => c.id));
+    const existingRoot = offerCategories.find((c: any) => rootIds.has(c?.id));
+    if (!existingRoot) return;
+
+    this.selectedRootCategoryId = existingRoot.id;
+    try {
+      const children = await this.api.getCategoriesByParentId(existingRoot.id);
+      this.availableSubcategories = Array.isArray(children) ? children : [];
+    } catch (err) {
+      console.error('Failed to load subcategories', err);
+      this.availableSubcategories = [];
+    }
+    const subIds = new Set(this.availableSubcategories.map((c: any) => c.id));
+    const existingSub = offerCategories.find((c: any) => subIds.has(c?.id));
+    if (existingSub) this.selectedSubcategoryId = existingSub.id;
+  }
+
+  async onRootCategoryChange(event: Event): Promise<void> {
+    const value = (event.target as HTMLSelectElement).value;
+    this.selectedRootCategoryId = value;
+    this.selectedSubcategoryId = '';
+    this.availableSubcategories = [];
+
+    const rootIds = new Set(this.availableRootCategories.map(c => c.id));
+    const current = this.productOfferForm.get('category')?.value || [];
+    const preserved = (Array.isArray(current) ? current : []).filter((c: any) => {
+      if (!c?.id) return true;
+      if (rootIds.has(c.id)) return false;
+      if (c?.parentId && rootIds.has(c.parentId)) return false;
+      return true;
+    });
+    const chosenRoot = this.availableRootCategories.find(c => c.id === value);
+    const next = chosenRoot ? [...preserved, chosenRoot] : preserved;
+    this.patchCategoryValue(next);
+
+    if (value) {
+      try {
+        const children = await this.api.getCategoriesByParentId(value);
+        if (this.selectedRootCategoryId === value) {
+          this.availableSubcategories = Array.isArray(children) ? children : [];
+        }
+      } catch (err) {
+        console.error('Failed to load subcategories', err);
+        this.availableSubcategories = [];
+      }
+    }
+  }
+
+  onSubcategoryChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.selectedSubcategoryId = value;
+    const subIds = new Set(this.availableSubcategories.map(c => c.id));
+    const current = this.productOfferForm.get('category')?.value || [];
+    const withoutPriorSub = (Array.isArray(current) ? current : []).filter((c: any) => !subIds.has(c?.id));
+    const chosen = this.availableSubcategories.find(c => c.id === value);
+    const next = chosen ? [...withoutPriorSub, chosen] : withoutPriorSub;
+    this.patchCategoryValue(next);
+  }
+
+  /** Patches the category control and, in update mode, replays the change through the same
+   * subform-change tracking `app-category-form` used to use, so updateOffer() still picks it up. */
+  private patchCategoryValue(next: any[]): void {
+    this.productOfferForm.patchValue({ category: next });
+    if (this.formType === 'update') {
+      this.handleSubformChange({
+        subformType: 'category',
+        isDirty: true,
+        dirtyFields: ['category'],
+        originalValue: this.originalCategoryValue,
+        currentValue: next
+      });
     }
   }
   async loadOfferData() {
@@ -219,6 +424,7 @@ export class OfferComponent implements OnInit, OnDestroy {
 
     //CATEGORIES
     if (this.offer.category) {
+      this.originalCategoryValue = JSON.parse(JSON.stringify(this.offer.category));
       this.productOfferForm.patchValue({
         category: this.offer.category || null // Cargar si existe, o dejar en null
       });
@@ -678,10 +884,17 @@ export class OfferComponent implements OnInit, OnDestroy {
   saveOfferInfo(): void {
     const formValue = this.productOfferForm.value;
 
-    const categories = formValue.category.map((cat: any) => ({
-      id: cat.id,
-      href: cat.id
-    }));
+    const seenCategoryIds = new Set<string>();
+    const categories = formValue.category
+      .filter((cat: any) => {
+        if (!cat?.id || seenCategoryIds.has(cat.id)) return false;
+        seenCategoryIds.add(cat.id);
+        return true;
+      })
+      .map((cat: any) => ({
+        id: cat.id,
+        href: cat.id
+      }));
 
     const prices = formValue.pricePlans.map((plan: any) => ({
       id: plan.id,
@@ -740,8 +953,17 @@ export class OfferComponent implements OnInit, OnDestroy {
 
     this.offerToCreate = offer;
 
+    const catalogueId = formValue.catalogue?.id || this.autoCatalogue?.id;
+    if (this.formType === 'create' && !catalogueId) {
+      this.errorMessage = 'No catalogue available for this user. Please create one first.';
+      this.loading = false;
+      this.showError = true;
+      setTimeout(() => (this.showError = false), 3000);
+      return;
+    }
+
     const request$ = this.formType === 'create'
-      ? this.api.postProductOffering(offer, formValue.catalogue.id)
+      ? this.api.postProductOffering(offer, catalogueId)
       : this.api.updateProductOffering(offer, this.offer.id);
 
     request$.subscribe({
