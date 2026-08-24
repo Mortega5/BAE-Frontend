@@ -577,6 +577,16 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  goToCustomerDeatils() {
+    const customer = this.orderToShow.relatedParty.find(
+      (party: any) => party.role?.toLowerCase() === this.buyerRole.toLowerCase()
+    );
+
+    window.open(this.router.serializeUrl(
+      this.router.createUrlTree(['/org-details', customer?.id])
+    ), '_blank');
+  }
+
   private async getCustomerName(): Promise<string> {
     if (this.orderToShow?.relatedParty) {
       const customer = this.orderToShow.relatedParty.find(

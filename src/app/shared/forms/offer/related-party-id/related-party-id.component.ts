@@ -110,8 +110,8 @@ export class RelatedPartyIdComponent implements OnInit {
 
   getRowClass(partyId: string): string {
     return partyId === this.selectedParty?.id
-      ? "bg-[#EBF0F7]"
-      : "bg-white";
+      ? "bg-white dark:bg-secondary-100"
+      : "bg-white dark:bg-secondary-300";
   }
 
   // As ControlValueAccessor

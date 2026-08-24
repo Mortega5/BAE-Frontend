@@ -11,11 +11,14 @@ import moment from 'moment';
 import { ConfirmDialogComponent } from "src/app/shared/confirm-dialog/confirm-dialog.component";
 import { environment } from "src/environments/environment";
 import { DomeBlogContentType } from "src/app/services/dome-blog-service.service";
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-entry-form',
   standalone: true,
-  imports: [MarkdownTextareaComponent, ReactiveFormsModule, ConfirmDialogComponent],
+  imports: [MarkdownTextareaComponent, ReactiveFormsModule, ConfirmDialogComponent,
+    LoadingSpinnerComponent
+  ],
   templateUrl: './entry-form.component.html',
   styleUrl: './entry-form.component.css'
 })

@@ -64,7 +64,6 @@ import { PaginatedTableComponent } from './shared/forms/paginated-table/paginate
 import { FilterBarComponent } from './shared/forms/filter-bar/filter-bar.component';
 import { FilteredPaginatedTableComponent } from './shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { SellerResourceSpecComponent } from './pages/seller-offerings/offerings/seller-resource-spec/seller-resource-spec.component';
-import { SellerUsageSpecComponent } from './pages/seller-offerings/offerings/seller-usage-spec/seller-usage-spec.component';
 import { CreateUsageSpecComponent } from './pages/usage-specs/usage-sections/create-usage-spec/create-usage-spec.component';
 import { UpdateUsageSpecComponent } from './pages/usage-specs/usage-sections/update-usage-spec/update-usage-spec.component';
 import { SellerServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/seller-service-spec.component';
@@ -153,7 +152,6 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     SellerProductSpecComponent,
     SellerServiceSpecComponent,
     SellerResourceSpecComponent,
-    SellerUsageSpecComponent,
     SellerOfferComponent,
     BlueprintProductFormComponent,
     CreateProductSpecComponent,
