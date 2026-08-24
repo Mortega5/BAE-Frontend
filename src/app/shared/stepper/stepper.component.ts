@@ -43,6 +43,8 @@ export class StepperComponent {
 
   currentStep = 0;
   highestStep = 0;
+  /** Toggled off/on around each step change to (re)trigger the entrance animation. */
+  animateContent = true;
 
   get isLastStep(): boolean {
     return this.currentStep === (this.stepTemplates?.length ?? 1) - 1;
@@ -81,6 +83,14 @@ export class StepperComponent {
       isLastStep: this.isLastStep,
       label: directive?.stepperStep ?? '',
       stepId: directive?.stepId,
+    });
+    this.replayContentAnimation();
+  }
+
+  private replayContentAnimation(): void {
+    this.animateContent = false;
+    requestAnimationFrame(() => {
+      this.animateContent = true;
     });
   }
 }

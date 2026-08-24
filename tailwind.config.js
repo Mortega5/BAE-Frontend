@@ -50,9 +50,14 @@ module.exports = {
           '0%, 100%': { opacity: 0 },
           '50%': { opacity: 1 },
         },
+        stepIn: {
+          '0%': { opacity: 0, transform: 'translateY(6px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' },
+        },
       },
       animation: {
         fadeInOut: 'fadeInOut 5s ease-in-out infinite',
+        stepIn: 'stepIn 0.3s ease-out',
       },
       gridTemplateColumns:
         {
