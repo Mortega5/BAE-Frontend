@@ -102,6 +102,9 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   productAlreadyInCart: boolean = false;
   activeTab: string = 'overview';
 
+  get isDomeTheme() {
+    return environment.providerThemeName === 'dome';
+  }
   protected readonly faScaleBalanced = faScaleBalanced;
   protected readonly faArrowProgress = faArrowProgress;
   protected readonly faArrowRightArrowLeft = faArrowRightArrowLeft;
