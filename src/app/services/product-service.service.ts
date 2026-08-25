@@ -11,6 +11,11 @@ import { ResourceStatusType, SoftwareResource } from '../models/software.model';
 import { LocalStorageService } from "./local-storage.service";
 type ProductOffering = components["schemas"]["ProductOffering"];
 
+export interface CatalogPageResponse {
+  items: any[];
+  filteredPaginationToken: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -349,6 +354,35 @@ export class ApiServiceService {
     console.log(this)
 
     return lastValueFrom(this.http.get<any>(url));
+  }
+
+  getLaunchedCatalogsPage(
+    page: any,
+    filter: any,
+    limit: number,
+    filteredPaginationToken?: string | null,
+    relatedPartyId?: string | null
+  ): Promise<CatalogPageResponse> {
+    const tokenRequestHeader = 'X-Filtered-Pagination-Token';
+    const tokenResponseHeader = 'x-filtered-pagination-token';
+    let url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog?limit=${limit}&offset=${page}&lifecycleStatus=Launched`;
+    if (filter != undefined) {
+      url = url + `&body=${filter}`;
+    }
+    if (relatedPartyId) {
+      url = url + `&relatedParty.id=${relatedPartyId}`;
+    }
+
+    let options: { observe: 'response', headers?: { [header: string]: string } } = { observe: 'response' };
+    if (filteredPaginationToken && !relatedPartyId) {
+      options.headers = { [tokenRequestHeader]: filteredPaginationToken };
+    }
+
+    return lastValueFrom(this.http.get<any[]>(url, options)).then(response => ({
+      items: response.body ?? [],
+      filteredPaginationToken: response.headers.get(tokenResponseHeader)
+        || response.headers.get(tokenRequestHeader)
+    }));
   }
 
   getCatalogsByUser(page: any, filter: any, status: any[], partyId: any) {
