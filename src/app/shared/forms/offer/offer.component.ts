@@ -72,6 +72,12 @@ export class OfferComponent implements OnInit, OnDestroy {
   // their existing one or create a default one on the fly (see ensureCatalogue()).
   autoCatalogue: any = null;
 
+  // Manual catalogue selection: only shown when the org has catalog management enabled.
+  catalogManagementEnabled: boolean = environment.CATALOG_MANAGEMENT_ENABLED;
+  availableCatalogs: any[] = [];
+  loadingCatalogs: boolean = false;
+  selectedCatalogId: string = '';
+
   // Category: single root + subcategory pick (replaces the old multi-select tree).
   availableRootCategories: any[] = [];
   availableSubcategories: any[] = [];
@@ -173,7 +179,8 @@ export class OfferComponent implements OnInit, OnDestroy {
   validateCurrentStep(): boolean {
     switch (this.currentStepId) {
       case 'general':
-        return this.productOfferForm.get('generalInfo')?.valid || false;
+        return (this.productOfferForm.get('generalInfo')?.valid || false)
+          && (!this.catalogSelectionRequired() || !!this.productOfferForm.get('catalogue')?.value?.id);
       case 'productSpec':
         return !!this.productOfferForm.get('prodSpec')?.value;
       case 'category':
@@ -217,8 +224,47 @@ export class OfferComponent implements OnInit, OnDestroy {
       this.loadingData = false;
     } else {
       this.loadCategories();
-      this.ensureCatalogue();
+      if (this.catalogManagementEnabled) {
+        this.loadAvailableCatalogs();
+      } else {
+        this.ensureCatalogue();
+      }
     }
+  }
+
+  catalogSelectionRequired(): boolean {
+    return this.catalogManagementEnabled && this.formType === 'create';
+  }
+
+  /** Loads every catalogue the seller can publish to, for the manual catalogue selector. */
+  async loadAvailableCatalogs(): Promise<void> {
+    if (!this.partyId) return;
+    this.loadingCatalogs = true;
+    try {
+      const limit = environment.CATALOG_LIMIT;
+      const all: any[] = [];
+      let offset = 0;
+      while (offset < 10000) {
+        const page = await this.api.getCatalogsByUser(offset, undefined, ['Active', 'Launched'], this.partyId);
+        const items = Array.isArray(page) ? page : [];
+        all.push(...items);
+        if (items.length < limit) break;
+        offset += limit;
+      }
+      this.availableCatalogs = all;
+    } catch (err) {
+      console.error('Failed to load catalogs for selector', err);
+      this.availableCatalogs = [];
+    } finally {
+      this.loadingCatalogs = false;
+    }
+  }
+
+  onCatalogChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.selectedCatalogId = value;
+    const summary = value ? this.availableCatalogs.find(c => c.id === value) || null : null;
+    this.productOfferForm.patchValue({ catalogue: summary });
   }
 
   /** Auto-assigns the seller's catalogue: reuses an existing one, or creates a default one. */
@@ -953,7 +999,9 @@ export class OfferComponent implements OnInit, OnDestroy {
 
     this.offerToCreate = offer;
 
-    const catalogueId = formValue.catalogue?.id || this.autoCatalogue?.id;
+    const catalogueId = this.catalogManagementEnabled
+      ? formValue.catalogue?.id
+      : formValue.catalogue?.id || this.autoCatalogue?.id;
     if (this.formType === 'create' && !catalogueId) {
       this.errorMessage = 'No catalogue available for this user. Please create one first.';
       this.loading = false;
