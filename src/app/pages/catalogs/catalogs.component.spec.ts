@@ -2,10 +2,13 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
+import { Observable, of } from 'rxjs';
 
 import { CatalogsComponent } from './catalogs.component';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { PaginationService } from 'src/app/services/pagination.service';
+import { AccountServiceService } from 'src/app/services/account-service.service';
+import { ThemeService } from 'src/app/services/theme.service';
 import { environment } from 'src/environments/environment';
 
 describe('CatalogsComponent', () => {
@@ -13,13 +16,15 @@ describe('CatalogsComponent', () => {
   let fixture: ComponentFixture<CatalogsComponent>;
   let apiServiceSpy: jasmine.SpyObj<ApiServiceService>;
   let paginationServiceSpy: jasmine.SpyObj<PaginationService>;
+  let accServiceSpy: jasmine.SpyObj<AccountServiceService>;
+  let themeServiceStub: { currentTheme$: Observable<any> };
   let routerSpy: jasmine.SpyObj<Router>;
 
   const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
   beforeEach(async () => {
-    apiServiceSpy = jasmine.createSpyObj<ApiServiceService>('ApiServiceService', ['getCatalogs']);
-    apiServiceSpy.getCatalogs.and.returnValue(Promise.resolve([] as any));
+    apiServiceSpy = jasmine.createSpyObj<ApiServiceService>('ApiServiceService', ['getCatalogsWithLimit']);
+    apiServiceSpy.getCatalogsWithLimit.and.returnValue(Promise.resolve([] as any));
 
     paginationServiceSpy = jasmine.createSpyObj<PaginationService>('PaginationService', ['getItemsPaginated']);
     paginationServiceSpy.getItemsPaginated.and.returnValue(
@@ -31,6 +36,11 @@ describe('CatalogsComponent', () => {
       }),
     );
 
+    accServiceSpy = jasmine.createSpyObj<AccountServiceService>('AccountServiceService', ['getOrgInfo']);
+    accServiceSpy.getOrgInfo.and.returnValue(Promise.resolve({} as any));
+
+    themeServiceStub = { currentTheme$: of(null) };
+
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
 
     await TestBed.configureTestingModule({
@@ -39,6 +49,8 @@ describe('CatalogsComponent', () => {
       providers: [
         { provide: ApiServiceService, useValue: apiServiceSpy },
         { provide: PaginationService, useValue: paginationServiceSpy },
+        { provide: AccountServiceService, useValue: accServiceSpy },
+        { provide: ThemeService, useValue: themeServiceStub },
         { provide: Router, useValue: routerSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -52,41 +64,47 @@ describe('CatalogsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ngOnInit should set loading and request catalogs', () => {
-    spyOn(component, 'getCatalogs');
-    spyOn(document, 'querySelector').and.returnValue(null);
+  it('ngOnInit should subscribe to the theme and request providers', () => {
+    spyOn(component, 'getProviders');
 
     component.ngOnInit();
 
-    expect(component.loading).toBeTrue();
-    expect(component.getCatalogs).toHaveBeenCalledWith(false);
+    expect(component.getProviders).toHaveBeenCalledWith(false);
+    expect(component.marketplaceHomeUrl).toBe('/search');
   });
 
-  it('ngOnInit should register input listener and reset filter when search field is empty', () => {
-    let inputListener: ((event: Event) => void) | undefined;
-    const inputMock = {
-      addEventListener: (_name: string, callback: (event: Event) => void) => {
-        inputListener = callback;
-      },
-    };
-    spyOn(document, 'querySelector').and.returnValue(inputMock as any);
-    spyOn(component, 'getCatalogs');
+  it('ngOnInit should apply theme-driven header component and fallback logo when the theme emits', () => {
+    const headerComponent = class {};
+    themeServiceStub.currentTheme$ = of({
+      name: 'dome',
+      links: { marketplaceHomeUrl: '/dome-home' },
+      catalogs: { sections: { header: headerComponent }, cards: { fallbackLogoUrl: 'assets/fallback.svg' } },
+    } as any);
+
+    component.ngOnInit();
+
+    expect(component.marketplaceHomeUrl).toBe('/dome-home');
+    expect(component.catalogsHeaderComponent).toBe(headerComponent);
+    expect(component.defaultCatalogLogoUrl).toBe('assets/fallback.svg');
+  });
+
+  it('ngOnInit should reset filter and reload providers when the search field is cleared', () => {
+    spyOn(component, 'getProviders');
     component.searchField.setValue('seed');
 
     component.ngOnInit();
-    expect(component.getCatalogs).toHaveBeenCalledWith(false);
+    expect(component.getProviders).toHaveBeenCalledWith(false);
 
+    component.filter = 'seed';
     component.searchField.setValue('');
-    inputListener!(new Event('input'));
 
     expect(component.filter).toBeUndefined();
-    expect(component.getCatalogs).toHaveBeenCalledTimes(2);
-    expect(component.getCatalogs).toHaveBeenCalledWith(false);
+    expect(component.getProviders).toHaveBeenCalledTimes(2);
   });
 
-  it('getCatalogs should call pagination service and update state while filtering out default catalog', async () => {
+  it('getProviders should call pagination service, filter out the default catalog and map to providers', async () => {
     const defaultCatalog = { id: environment.DFT_CATALOG_ID, name: 'Default' } as any;
-    const customCatalog = { id: 'custom-cat', name: 'Custom' } as any;
+    const customCatalog = { id: 'custom-cat', name: 'Custom', description: 'desc' } as any;
 
     paginationServiceSpy.getItemsPaginated.and.returnValue(
       Promise.resolve({
@@ -97,10 +115,7 @@ describe('CatalogsComponent', () => {
       }),
     );
 
-    component.loading = false;
-    component.loading_more = true;
-
-    await component.getCatalogs(false);
+    await component.getProviders(false);
     await flushPromises();
 
     const args = paginationServiceSpy.getItemsPaginated.calls.mostRecent().args;
@@ -111,66 +126,101 @@ describe('CatalogsComponent', () => {
     expect(typeof args[6]).toBe('function');
 
     expect(component.page_check).toBeFalse();
-    expect(component.catalogs).toEqual([customCatalog]);
-    expect(component.nextCatalogs).toEqual([{ id: 'next-cat' } as any]);
     expect(component.page).toBe(3);
+    expect(component.providers.map(p => p.id)).toEqual(['custom-cat']);
+    expect(component.totalCount).toBe(1);
     expect(component.loading).toBeFalse();
     expect(component.loading_more).toBeFalse();
   });
 
-  it('filterCatalogs should reset page and call getCatalogs with filter value', () => {
-    spyOn(component, 'getCatalogs');
-    component.page = 8;
-    component.searchField.setValue('my-catalog');
+  it('getProviders should skip requesting the next page while already loading more', async () => {
+    component.page_check = true;
+    component.loading_more = true;
 
-    component.filterCatalogs();
+    await component.getProviders(true);
+
+    expect(paginationServiceSpy.getItemsPaginated).not.toHaveBeenCalled();
+  });
+
+  it('filterProviders should trim the search value and reload from the first page', () => {
+    spyOn(component, 'getProviders');
+    component.searchField.setValue('  my-catalog  ');
+
+    component.filterProviders();
 
     expect(component.filter).toBe('my-catalog');
-    expect(component.page).toBe(0);
-    expect(component.getCatalogs).toHaveBeenCalledWith(false);
+    expect(component.getProviders).toHaveBeenCalledWith(false);
   });
 
-  it('next should request next page', async () => {
-    spyOn(component, 'getCatalogs').and.returnValue(Promise.resolve());
+  it('toggleSortDropdown should flip the dropdown visibility', () => {
+    const event = jasmine.createSpyObj<Event>('Event', ['stopPropagation']);
 
-    await component.next();
+    component.toggleSortDropdown(event);
+    expect(component.showSortDropdown).toBeTrue();
 
-    expect(component.getCatalogs).toHaveBeenCalledWith(true);
+    component.toggleSortDropdown(event);
+    expect(component.showSortDropdown).toBeFalse();
+    expect(event.stopPropagation).toHaveBeenCalledTimes(2);
   });
 
-  it('goToCatalogSearch should navigate to catalog route', () => {
-    component.goToCatalogSearch('cat-123');
+  it('selectSort should update the sort option, close the dropdown and re-apply the view', async () => {
+    const event = jasmine.createSpyObj<Event>('Event', ['stopPropagation']);
+    paginationServiceSpy.getItemsPaginated.and.returnValue(
+      Promise.resolve({
+        page_check: false,
+        items: [{ id: 'b', name: 'Beta' }, { id: 'a', name: 'Alpha' }],
+        nextItems: [],
+        page: 0,
+      }),
+    );
+    await component.getProviders(false);
+
+    component.selectSort('name_asc', event);
+
+    expect(component.sortOption).toBe('name_asc');
+    expect(component.showSortDropdown).toBeFalse();
+    expect(component.providers.map(p => p.name)).toEqual(['Alpha', 'Beta']);
+  });
+
+  it('next should request the next page of providers', () => {
+    spyOn(component, 'getProviders');
+
+    component.next();
+
+    expect(component.getProviders).toHaveBeenCalledWith(true);
+  });
+
+  it('goToProvider should navigate to the catalogue search route', () => {
+    component.goToProvider('cat-123');
 
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/search/catalogue', 'cat-123']);
   });
 
-  it('showFullDesc should set visible description and selected catalog', () => {
-    const cat = { id: 'cat-1', name: 'Catalog 1' };
-
-    component.showFullDesc(cat);
-
-    expect(component.showDesc).toBeTrue();
-    expect(component.showingCat).toBe(cat);
-  });
-
-  it('onClick should close details and trigger change detection when description is open', () => {
-    component.showDesc = true;
+  it('onClick should close an open sort dropdown', () => {
+    component.showSortDropdown = true;
     const cdrSpy = spyOn((component as any).cdr, 'detectChanges');
 
     component.onClick();
 
-    expect(component.showDesc).toBeFalse();
+    expect(component.showSortDropdown).toBeFalse();
     expect(cdrSpy).toHaveBeenCalled();
   });
 
-  it('onClick should do nothing when description is closed', () => {
-    component.showDesc = false;
+  it('onClick should do nothing when the sort dropdown is closed', () => {
+    component.showSortDropdown = false;
     const cdrSpy = spyOn((component as any).cdr, 'detectChanges');
 
     component.onClick();
 
-    expect(component.showDesc).toBeFalse();
     expect(cdrSpy).not.toHaveBeenCalled();
+  });
+
+  it('isDefaultLogo should compare against the theme-provided fallback logo', () => {
+    component.defaultCatalogLogoUrl = 'assets/fallback.svg';
+
+    expect(component.isDefaultLogo('assets/fallback.svg')).toBeTrue();
+    expect(component.isDefaultLogo('assets/other.svg')).toBeFalse();
+    expect(component.isDefaultLogo(undefined)).toBeFalse();
   });
 
   it('hasLongWord should detect words over threshold and handle undefined values', () => {
