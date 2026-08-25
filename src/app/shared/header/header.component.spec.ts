@@ -4,7 +4,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { RouterTestingModule } from '@angular/router/testing';
 import { Router } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { environment } from 'src/environments/environment';
 
 import { HeaderComponent } from './header.component';
 
@@ -29,56 +28,50 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should treat user menu routes as workspace routes', () => {
-    spyOnProperty(router, 'url', 'get').and.returnValue('/product-inventory/123');
-
-    component.ngOnInit();
-
-    expect(component.isWorkspace).toBeTrue();
-  });
-
-  it('should not treat marketplace routes as workspace routes', () => {
-    spyOnProperty(router, 'url', 'get').and.returnValue('/browse');
-
-    component.ngOnInit();
-
-    expect(component.isWorkspace).toBeFalse();
-  });
-
-  it('should keep checkout in marketplace mode', () => {
-    spyOnProperty(router, 'url', 'get').and.returnValue('/checkout');
-
-    component.ngOnInit();
-
-    expect(component.isWorkspace).toBeFalse();
-  });
-
-  it('should render the workspace header for workspace routes', () => {
-    spyOnProperty(router, 'url', 'get').and.returnValue('/product-inventory/123');
-
-    component.ngOnInit();
+  it('should render the usage specs link in the navigation', () => {
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('#workspaceSupport')).not.toBeNull();
-    expect(fixture.nativeElement.querySelector('#usageSpecs')).toBeNull();
+    expect(fixture.nativeElement.querySelector('#usageSpecs')).not.toBeNull();
   });
 
-  it('should render marketplace navigation outside workspace routes', () => {
-    spyOnProperty(router, 'url', 'get').and.returnValue('/browse');
+  it('toggleCartDrawer should flip the cart visibility', () => {
+    expect(component.showCart).toBeFalse();
 
-    component.ngOnInit();
-    fixture.detectChanges();
+    component.toggleCartDrawer();
+    expect(component.showCart).toBeTrue();
 
-    expect(fixture.nativeElement.querySelector('#workspaceSupport')).toBeNull();
-    expect(fixture.nativeElement.querySelector('ul')).not.toBeNull();
+    component.toggleCartDrawer();
+    expect(component.showCart).toBeFalse();
   });
 
-  it('goToResources should open configured knowledge base URL', () => {
-    const openSpy = spyOn(window, 'open');
-    const fallbackUrl = environment.KNOWLEDGE_BASE_URL || environment.KB_GUIDELNES_URL;
+  it('onScroll should track whether the page has been scrolled', () => {
+    const scrollYSpy = spyOnProperty(window, 'scrollY', 'get').and.returnValue(50);
+    component.onScroll();
+    expect(component.scrolled).toBeTrue();
 
-    component.goToResources();
+    scrollYSpy.and.returnValue(0);
+    component.onScroll();
+    expect(component.scrolled).toBeFalse();
+  });
 
-    expect(openSpy).toHaveBeenCalledWith(fallbackUrl, '_blank', 'noopener');
+  it('switchLanguage should update the translation service and persist the choice', () => {
+    const translate = (component as any).translate;
+    const localStorage = (component as any).localStorage;
+    spyOn(translate, 'use');
+    spyOn(localStorage, 'setItem');
+
+    component.switchLanguage('es');
+
+    expect(translate.use).toHaveBeenCalledWith('es');
+    expect(localStorage.setItem).toHaveBeenCalledWith('current_language', 'es');
+    expect(component.defaultLang).toBe('es');
+  });
+
+  it('goTo should navigate to the requested path', () => {
+    const navigateSpy = spyOn(router, 'navigate');
+
+    component.goTo('/browse');
+
+    expect(navigateSpy).toHaveBeenCalledWith(['/browse']);
   });
 });
