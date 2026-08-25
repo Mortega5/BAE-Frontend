@@ -1,4 +1,4 @@
-<div class="bg-[#F7F9FD] dark:bg-secondary-100 min-h-[calc(100vh-88px)]">
+<div class="bg-[#F7F9FD] dark:bg-secondary-300 min-h-[calc(100vh-88px)]">
   <div class="w-full max-w-[1280px] mx-auto px-4 lg:px-8 pt-2 pb-8">
 
     <div class="flex flex-cols mr-2 ml-2 lg:hidden">
@@ -11,7 +11,8 @@
         <button id="dropdown-nav" data-dropdown-toggle="dropdown-nav-content"
           class="text-black dark:text-white h-fit w-fit justify-between shadow bg-white dark:bg-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-300 focus:ring-4 focus:outline-none focus:ring-primary-100 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center shadow-lg"
           type="button">
-          <svg class="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+          <svg class="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+            viewBox="0 0 17 14">
             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
               d="M1 1h15M1 7h15M1 13h15" />
           </svg>
@@ -62,20 +63,25 @@
 
       @if (isListView) {
       <div class="hidden lg:flex lg:flex-col lg:w-[324px] lg:shrink-0 lg:basis-[324px]">
-        <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 mt-4 px-2">{{ 'OFFERINGS._my_offerings' | translate }}</h2>
+        <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 mt-4 px-2">{{ 'OFFERINGS._my_offerings' |
+          translate }}</h2>
 
         @if (catalogManagementEnabled) {
-        <a data-cy="catalogSection" routerLink="catalogues" routerLinkActive #catalogsRla="routerLinkActive" id="catalogs-button"
+        <a data-cy="catalogSection" routerLink="catalogues" routerLinkActive #catalogsRla="routerLinkActive"
+          id="catalogs-button"
           [ngClass]="catalogsRla.isActive ? 'bg-secondary-50 dark:bg-secondary-300' : 'hover:bg-secondary-50/50 dark:hover:bg-secondary-300'"
           class="flex items-center justify-between w-full p-4 mb-3 rounded-2xl text-base font-medium text-gray-900 dark:text-white transition-colors focus:outline-none cursor-pointer">
           <span class="flex items-center gap-3">
-            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 5.25h16.5M3.75 9.75h16.5M6 14.25h12M6 18.75h12"/>
+            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3.75 5.25h16.5M3.75 9.75h16.5M6 14.25h12M6 18.75h12" />
             </svg>
             {{ 'OFFERINGS._catalogs' | translate }}
           </span>
           <span class="inline-flex items-center justify-center min-w-[36px] h-7 px-2 rounded-full text-xs font-semibold"
-            [ngClass]="catalogsRla.isActive ? 'bg-primary-50 dark:bg-primary-100 text-secondary-100 dark:text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{ catalogsCount }}</span>
+            [ngClass]="catalogsRla.isActive ? 'bg-primary-50 dark:bg-primary-100 text-secondary-100 dark:text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{
+            catalogsCount }}</span>
         </a>
         }
 
@@ -83,57 +89,75 @@
           [ngClass]="offersRla.isActive ? 'bg-secondary-50 dark:bg-secondary-300' : 'hover:bg-secondary-50/50 dark:hover:bg-secondary-300'"
           class="flex items-center justify-between w-full p-4 mb-3 rounded-2xl text-base font-medium text-gray-900 dark:text-white transition-colors focus:outline-none cursor-pointer">
           <span class="flex items-center gap-3">
-            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"/>
+            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
             </svg>
             {{ 'OFFERINGS._product_offers' | translate }}
           </span>
           <span class="inline-flex items-center justify-center min-w-[36px] h-7 px-2 rounded-full text-xs font-semibold"
-            [ngClass]="offersRla.isActive ? 'bg-primary-50 dark:bg-primary-100 text-secondary-100 dark:text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{ productOffersCount }}</span>
+            [ngClass]="offersRla.isActive ? 'bg-primary-50 dark:bg-primary-100 text-secondary-100 dark:text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{
+            productOffersCount }}</span>
         </a>
 
-        <a data-cy="softwareSection" routerLink="softwares" routerLinkActive #softwareRla="routerLinkActive" id="software-button"
+        <a data-cy="softwareSection" routerLink="softwares" routerLinkActive #softwareRla="routerLinkActive"
+          id="software-button"
           [ngClass]="softwareRla.isActive ? 'bg-secondary-50 dark:bg-secondary-300' : 'hover:bg-secondary-50/50 dark:hover:bg-secondary-300'"
           class="flex items-center justify-between w-full p-4 mb-6 rounded-2xl text-base font-medium text-gray-900 dark:text-white transition-colors focus:outline-none cursor-pointer">
           <span class="flex items-center gap-3">
-            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 3v2.25M15.75 3v2.25M8.25 18.75V21M15.75 18.75V21M3 8.25H5.25M3 12H5.25M3 15.75H5.25M18.75 8.25H21M18.75 12H21M18.75 15.75H21M6.75 19.5h10.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H6.75A1.5 1.5 0 005.25 6v12a1.5 1.5 0 001.5 1.5zM9 9h6v6H9V9z"/>
+            <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M8.25 3v2.25M15.75 3v2.25M8.25 18.75V21M15.75 18.75V21M3 8.25H5.25M3 12H5.25M3 15.75H5.25M18.75 8.25H21M18.75 12H21M18.75 15.75H21M6.75 19.5h10.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H6.75A1.5 1.5 0 005.25 6v12a1.5 1.5 0 001.5 1.5zM9 9h6v6H9V9z" />
             </svg>
             Software
           </span>
           <span class="inline-flex items-center justify-center min-w-[36px] h-7 px-2 rounded-full text-xs font-semibold"
-            [ngClass]="softwareRla.isActive ? 'bg-primary-50 dark:bg-primary-100 text-secondary-100 dark:text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{ softwaresCount }}</span>
+            [ngClass]="softwareRla.isActive ? 'bg-primary-50 dark:bg-primary-100 text-secondary-100 dark:text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{
+            softwaresCount }}</span>
         </a>
 
-        <p class="text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider mb-3 px-4">{{ 'OFFERINGS._specifications' | translate }}</p>
+        <p class="text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider mb-3 px-4">{{
+          'OFFERINGS._specifications' | translate }}</p>
 
         <div class="flex flex-col gap-2">
-          <a data-cy="prdSpecSection" routerLink="productSpecs" routerLinkActive #prodSpecRla="routerLinkActive" id="prod-spec-button"
+          <a data-cy="prdSpecSection" routerLink="productSpecs" routerLinkActive #prodSpecRla="routerLinkActive"
+            id="prod-spec-button"
             [ngClass]="prodSpecRla.isActive ? 'bg-secondary-50 dark:bg-secondary-300' : 'hover:bg-secondary-50/50 dark:hover:bg-secondary-300'"
             class="flex items-center justify-between w-full p-4 rounded-2xl text-base font-medium text-gray-900 dark:text-white transition-colors focus:outline-none cursor-pointer">
             <span>{{ 'OFFERINGS._products' | translate }}</span>
-            <span class="inline-flex items-center justify-center min-w-[36px] h-7 px-2 rounded-full text-xs font-semibold"
-              [ngClass]="prodSpecRla.isActive ? 'bg-primary-50 dark:bg-primary-100 text-secondary-100 dark:text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{ productSpecsCount }}</span>
+            <span
+              class="inline-flex items-center justify-center min-w-[36px] h-7 px-2 rounded-full text-xs font-semibold"
+              [ngClass]="prodSpecRla.isActive ? 'bg-primary-50 dark:bg-primary-100 text-secondary-100 dark:text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{
+              productSpecsCount }}</span>
           </a>
-          <a data-cy="servSpecSection" routerLink="serviceSpecs" routerLinkActive #servSpecRla="routerLinkActive" id="sev-spec-button"
+          <a data-cy="servSpecSection" routerLink="serviceSpecs" routerLinkActive #servSpecRla="routerLinkActive"
+            id="sev-spec-button"
             [ngClass]="servSpecRla.isActive ? 'bg-secondary-50 dark:bg-secondary-300' : 'hover:bg-secondary-50/50 dark:hover:bg-secondary-300'"
             class="flex items-center justify-between w-full p-4 rounded-2xl text-base font-medium text-gray-900 dark:text-white transition-colors focus:outline-none cursor-pointer">
             <span>{{ 'OFFERINGS._services' | translate }}</span>
-            <span class="inline-flex items-center justify-center min-w-[36px] h-7 px-2 rounded-full text-xs font-semibold"
-              [ngClass]="servSpecRla.isActive ? 'bg-primary-50 dark:bg-primary-100 text-secondary-100 dark:text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{ serviceSpecsCount }}</span>
+            <span
+              class="inline-flex items-center justify-center min-w-[36px] h-7 px-2 rounded-full text-xs font-semibold"
+              [ngClass]="servSpecRla.isActive ? 'bg-primary-50 dark:bg-primary-100 text-secondary-100 dark:text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{
+              serviceSpecsCount }}</span>
           </a>
-          <a data-cy="resSpecSection" routerLink="resourceSpecs" routerLinkActive #resSpecRla="routerLinkActive" id="res-spec-button"
+          <a data-cy="resSpecSection" routerLink="resourceSpecs" routerLinkActive #resSpecRla="routerLinkActive"
+            id="res-spec-button"
             [ngClass]="resSpecRla.isActive ? 'bg-secondary-50 dark:bg-secondary-300' : 'hover:bg-secondary-50/50 dark:hover:bg-secondary-300'"
             class="flex items-center justify-between w-full p-4 rounded-2xl text-base font-medium text-gray-900 dark:text-white transition-colors focus:outline-none cursor-pointer">
             <span>{{ 'OFFERINGS._resources' | translate }}</span>
-            <span class="inline-flex items-center justify-center min-w-[36px] h-7 px-2 rounded-full text-xs font-semibold"
-              [ngClass]="resSpecRla.isActive ? 'bg-primary-50 dark:bg-primary-100 text-secondary-100 dark:text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{ resourceSpecsCount }}</span>
+            <span
+              class="inline-flex items-center justify-center min-w-[36px] h-7 px-2 rounded-full text-xs font-semibold"
+              [ngClass]="resSpecRla.isActive ? 'bg-primary-50 dark:bg-primary-100 text-secondary-100 dark:text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{
+              resourceSpecsCount }}</span>
           </a>
         </div>
 
         @if (workspaceHelpAction; as helpAction) {
         <div data-cy="sellerWorkspaceHelp" class="mt-auto pt-8 pb-2 px-2 lg:sticky lg:bottom-2">
-          <div class="p-5 bg-white dark:bg-secondary-200 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+          <div
+            class="p-5 bg-white dark:bg-secondary-200 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
             <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1.5">{{ helpAction.title | translate }}</h3>
             <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">{{ helpAction.description | translate }}</p>
             <button type="button" (click)="goToResources()"
