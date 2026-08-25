@@ -32,3 +32,10 @@ body.theme-dome {
   --theme-header-v2-solid-bg: #2D58A7;
   --theme-header-v2-solid-hover-bg: rgba(47, 111, 214, 0.9);
 }
+
+body.theme-dome .kf-watermark {
+  border-radius: 0;
+  background-color: rgb(var(--theme-secondary-50) / 0.7);
+  -webkit-mask: url('/assets/logos/DOME_Icon.svg') no-repeat center / contain;
+  mask: url('/assets/logos/DOME_Icon.svg') no-repeat center / contain;
+}
