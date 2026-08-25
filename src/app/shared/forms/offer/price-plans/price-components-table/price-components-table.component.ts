@@ -38,13 +38,13 @@ export class PriceComponentsTableComponent {
     }
   }
 
-  getPriceTypeLabel(priceType: string): string {
-    const labels: { [key: string]: string } = {
-      'one time': 'One time',
-      'recurring': 'Recurring',
-      'recurring-prepaid': 'Recurring Prepaid',
-      'usage': 'Usage'
+  getPriceTypeLabelKey(priceType: string): string {
+    const keys: { [key: string]: string } = {
+      'one time': 'FORMS.PRICE_PLAN_COMPONENT._one_time',
+      'recurring': 'FORMS.PRICE_PLAN_COMPONENT._recurring',
+      'recurring-prepaid': 'FORMS.PRICE_PLAN_COMPONENT._recurring_prepaid',
+      'usage': 'FORMS.PRICE_PLAN_COMPONENT._usage'
     };
-    return labels[priceType] || 'Unknown';
+    return keys[priceType] || priceType;
   }
 }

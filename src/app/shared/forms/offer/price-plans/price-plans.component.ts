@@ -10,6 +10,7 @@ import {
 import {PricePlansTableComponent} from "./price-plans-table/price-plans-table.component";
 import {TranslateModule} from "@ngx-translate/core";
 import {PricePlanDrawerComponent} from "./price-plan-drawer/price-plan-drawer.component";
+import {PlanSubtypeModalComponent} from "./plan-subtype-modal/plan-subtype-modal.component";
 import { v4 as uuidv4 } from 'uuid';
 import {pricePlanValidator, uniqueNameValidatorFactory} from "../../../../validators/validators";
 import { ReactiveFormsModule } from '@angular/forms';
@@ -37,6 +38,7 @@ interface PricePlan {
   lifecycleStatus: string;
   paymentOnline: boolean;
   priceType: string;
+  planSubType: 'standard' | 'flex' | null;
   currency: string;
   unitOfMeasure: string | null;
   validFor: any | null;
@@ -77,7 +79,9 @@ interface PricePlanChange {
     PricePlansTableComponent,
     TranslateModule,
     PricePlanDrawerComponent,
-    ReactiveFormsModule
+    PlanSubtypeModalComponent,
+    ReactiveFormsModule,
+    NgClass
   ],
   providers: [
     {
@@ -106,6 +110,7 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
   originalValue: any;
   formSubscription: Subscription | null = null;
   priceType:string='free';
+  showSubtypeModal = false;
 
   private originalPricePlans: PricePlan[] = [];
   private originalPriceComponents: { [key: string]: any[] } = {};
@@ -154,6 +159,7 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
       lifecycleStatus: plan['lifecycleStatus'],
       paymentOnline: plan['paymentOnline'],
       priceType: plan['priceType'],
+      planSubType: plan['planSubType'] ?? null,
       currency: plan['currency'],
       unitOfMeasure: plan['unitOfMeasure'],
       validFor: plan['validFor'],
@@ -177,6 +183,7 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
       lifecycleStatus: plan['lifecycleStatus'],
       paymentOnline: plan['paymentOnline'],
       priceType: plan['priceType'],
+      planSubType: plan['planSubType'] ?? null,
       currency: plan['currency'],
       unitOfMeasure: plan['unitOfMeasure'],
       validFor: plan['validFor'],
@@ -271,6 +278,7 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
         lifecycleStatus: plan['lifecycleStatus'],
         paymentOnline: plan['paymentOnline'],
         priceType: plan['priceType'],
+        planSubType: plan['planSubType'] ?? null,
         currency: plan['currency'],
         unitOfMeasure: plan['unitOfMeasure'],
         validFor: plan['validFor'],
@@ -412,25 +420,19 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
     );
   }
 
-  onPaymentOnlineChange(event: any) {
-    // Solo permitir cambios si no hay price plans
-    /*if (this.pricePlans.length === 0) {
-      this.paymentOnline = event.target.checked;
-      this.paymentOnlineControl.setValue(this.paymentOnline);
-      this.cdr.detectChanges();
-    }*/
-    if(event.target.value == 'paid'){
-      this.paymentOnline=true;
-      this.priceType='paid';
-    } else if(event.target.value == 'free'){
-      this.priceType='free';
-      this.paymentOnline=false;
-    } else {
-      this.priceType='tailored';
-      this.paymentOnline=false;
-    }
-    //this.paymentOnlineControl.setValue(this.paymentOnline);
+  selectPriceTier(tier: 'free' | 'tailored' | 'paid') {
+    if (this.pricePlans.length > 0) return; // Locked once a plan exists
+    this.priceType = tier;
+    this.paymentOnline = tier === 'paid';
     this.cdr.detectChanges();
+  }
+
+  /** Frontend-only field: the backend doesn't persist it, so it must be re-derived for plans loaded from an existing offer. */
+  private inferPlanSubType(plan: any): 'standard' | 'flex' | null {
+    if (!plan?.paymentOnline) return null;
+    if (plan?.planSubType === 'standard' || plan?.planSubType === 'flex') return plan.planSubType;
+    const hasProfile = (plan?.prodSpecCharValueUse?.length > 0) || (plan?.productProfile?.selectedValues?.length > 0);
+    return hasProfile ? 'standard' : 'flex';
   }
 
   private createPricePlanForm(plan: any = null): FormGroup {
@@ -451,6 +453,7 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
         lifecycleStatus: [plan?.lifecycleStatus || 'Active'],
         paymentOnline: [plan?.paymentOnline ?? this.paymentOnline],  // Use global state
         priceType: [plan?.priceType || 'custom'],
+        planSubType: [plan?.planSubType ?? this.inferPlanSubType(plan)],
         prodSpecCharValueUse: [plan?.prodSpecCharValueUse || null],
         currency: [plan?.price?.unit || 'EUR'],
         unitOfMeasure: [plan?.unitOfMeasure || null],
@@ -564,6 +567,10 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
       }
 
       this.action = 'edit';
+      this.showDrawer = true;
+    } else if (this.priceType === 'paid') {
+      // Paid plans require picking Standard/Flex first; the drawer opens once that's confirmed.
+      this.showSubtypeModal = true;
     } else {
       console.log('➕ Creating a new price plan');
       this.action = 'create';
@@ -576,9 +583,27 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
       .filter(name => !!name);
       this.form.updateValueAndValidity();
       this.pricePlansForm.push(this.selectedPricePlan);
+      this.showDrawer = true;
     }
+  }
 
+  onSubtypeSelected(subType: 'standard' | 'flex') {
+    this.showSubtypeModal = false;
+    this.action = 'create';
+    this.selectedPricePlan = this.createPricePlanForm({
+      paymentOnline: true,
+      planSubType: subType
+    });
+    this.existingPlanNames = this.pricePlans
+      .map(p => p.name)
+      .filter(name => !!name);
+    this.form.updateValueAndValidity();
+    this.pricePlansForm.push(this.selectedPricePlan);
     this.showDrawer = true;
+  }
+
+  closeSubtypeModal() {
+    this.showSubtypeModal = false;
   }
 
   closeDrawer() {

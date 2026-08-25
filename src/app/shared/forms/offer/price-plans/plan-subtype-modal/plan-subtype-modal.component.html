@@ -1,0 +1,48 @@
+<div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4">
+  <div class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-6 md:p-8 w-full max-w-2xl">
+    <div class="flex justify-between items-start mb-1">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+        {{ 'CREATE_OFFER._add_new_price_plan' | translate }}
+      </h2>
+      <button type="button" (click)="cancel()" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white">
+        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
+      {{ 'CREATE_OFFER._select_plan_type' | translate }}
+    </p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <button type="button" (click)="pick('standard')" data-cy="planSubtypeStandard"
+        [ngClass]="selectedType === 'standard'
+          ? 'bg-cyan-50 dark:bg-cyan-950/30 border-cyan-500 dark:border-cyan-400 shadow-[0_4px_24px_rgba(0,84,98,0.2)]'
+          : 'bg-white dark:bg-secondary-200 border-gray-200 dark:border-gray-800 hover:border-primary-100 dark:hover:border-primary-50'"
+        class="flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._standard_plan' | translate }}</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._standard_plan_desc' | translate }}</p>
+      </button>
+
+      <button type="button" (click)="pick('flex')" data-cy="planSubtypeFlex"
+        [ngClass]="selectedType === 'flex'
+          ? 'bg-cyan-50 dark:bg-cyan-950/30 border-cyan-500 dark:border-cyan-400 shadow-[0_4px_24px_rgba(0,84,98,0.2)]'
+          : 'bg-white dark:bg-secondary-200 border-gray-200 dark:border-gray-800 hover:border-primary-100 dark:hover:border-primary-50'"
+        class="flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._flex_plan' | translate }}</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._flex_plan_desc' | translate }}</p>
+      </button>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-6">
+      <button type="button" (click)="cancel()" class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-secondary-300">
+        {{ 'CREATE_OFFER._cancel' | translate }}
+      </button>
+      <button type="button" data-cy="planSubtypeContinue" (click)="confirm()" [disabled]="!selectedType"
+        [ngClass]="selectedType ? 'bg-primary-100 hover:bg-primary-50' : 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed'"
+        class="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors">
+        {{ 'CREATE_OFFER._continue' | translate }}
+      </button>
+    </div>
+  </div>
+</div>

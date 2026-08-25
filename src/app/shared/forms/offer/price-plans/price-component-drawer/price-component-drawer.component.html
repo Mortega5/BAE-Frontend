@@ -5,73 +5,43 @@
   <!-- Backdrop that covers entire viewport -->
   <div class="fixed inset-0 bg-black bg-opacity-40 z-[52]"></div>
 
-  <div class="w-full md:w-2/3 lg:w-1/2 bg-[#F7F9FD] h-screen transform transition-transform duration-500 flex flex-col relative z-[53]"
+  <div class="w-full md:w-2/3 lg:w-1/2 bg-[#F7F9FD] dark:bg-secondary-200 h-screen transform transition-transform duration-500 flex flex-col relative z-[53]"
        [ngClass]="{'translate-x-0': isOpen, 'translate-x-full': !isOpen, '-translate-x-full': !initialized}">
 
     <div class="p-6 flex-1 overflow-y-auto">
       <!-- Título -->
-      <h2 class="text-2xl font-extrabold text-gray-900">
-        {{ component ? 'Update Price Component' : 'New Price Component' }}
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+        {{ component ? ('FORMS.PRICE_PLAN_COMPONENT._update_price_component' | translate) : ('FORMS.PRICE_PLAN_COMPONENT._new_price_component' | translate) }}
       </h2>
 
-      <form [formGroup]="priceComponentForm" (ngSubmit)="submitForm()" class="mt-4 space-y-4 bg-white rounded-2xl border border-[#EBECEE] shadow-sm p-8">
+      <form [formGroup]="priceComponentForm" (ngSubmit)="submitForm()" class="mt-4 space-y-5 bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-4 md:p-8">
 
       <!-- Nombre -->
       <div>
-        <label class="block text-sm font-semibold text-gray-900 mb-2">{{ 'FORMS.PRICE_PLAN_COMPONENT._name' | translate }}</label>
+        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+          {{ (profileData ? 'CREATE_OFFER._pc_name_configuration' : 'CREATE_OFFER._pp_col_name') | translate }}<span class="text-red-600 ml-0.5">*</span>
+        </label>
         <input data-cy="priceComponentName" formControlName="name" type="text"
-               class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100">
+               placeholder="{{ (profileData ? 'CREATE_OFFER._pc_name_configuration_placeholder' : 'CREATE_OFFER._pc_name_placeholder') | translate }}"
+               class="bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100">
       </div>
 
       <!-- Descripción -->
       <div data-cy="priceComponentDescription">
-        <label class="block text-sm font-semibold text-gray-900 mb-2">{{ 'FORMS.PRICE_PLAN_COMPONENT._description' | translate }}</label>
-        <app-markdown-textarea formControlName="description"></app-markdown-textarea>
+        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+          {{ (profileData ? 'CREATE_OFFER._pc_description_configuration' : 'FORMS.PRICE_PLAN_COMPONENT._description') | translate }}
+        </label>
+        <app-markdown-textarea formControlName="description" [placeholder]="'CREATE_OFFER._pc_description_placeholder' | translate"></app-markdown-textarea>
       </div>
 
-      <div>
-        <label class="block text-sm font-semibold text-gray-900 mb-2">{{ 'FORMS.PRICE_PLAN_COMPONENT._base_price' | translate }}</label>
-
-        <input
-          data-cy="price"
-          formControlName="price"
-          type="number"
-          step="0.1"
-          (blur)="priceComponentForm.get('price')?.markAsTouched()"
-          [ngClass]="(priceComponentForm.get('price')?.invalid == true && priceComponentForm.value.price!='') || (priceComponentForm.get('price')?.touched && priceComponentForm.value.price=='') ? 'border-red-500' : 'border-gray-300'"
-          class="mb-2 bg-white border text-sm rounded-lg block w-full p-3
-            text-gray-900 focus:ring-primary-100 focus:border-primary-100"
-        />
-      
-        <!-- Validation Messages -->
-         @if(priceComponentForm.get('price')?.invalid && (priceComponentForm.get('price')?.touched || priceComponentForm.get('price')?.dirty)){
-          <div class="mt-1 text-xs text-red-600">
-            @if(priceComponentForm.get('price')?.errors?.['required']){
-              <div>
-                {{ 'FORMS.PRICE_PLAN_COMPONENT._price_required' | translate }}
-              </div>
-            }@else if(priceComponentForm.get('price')?.errors?.['max']){
-              <div>
-                {{ 'FORMS.PRICE_PLAN_COMPONENT._price_limit' | translate }}
-              </div>
-            }@else if(priceComponentForm.get('price')?.errors?.['min'] && (priceComponentForm.get('price')?.touched || priceComponentForm.get('price')?.dirty)){
-              <div class="mt-1 text-xs text-red-600">
-                {{ 'FORMS.PRICE_PLAN_COMPONENT._price_positive' | translate }}
-              </div>
-            }
-          </div>
-         }
-      </div>
-      
-      
       @if(profileData){
       <div class="relative w-full">
         <div class="flex items-center space-x-2">
           <!-- Label -->
-          <label class="font-semibold text-[20px] leading-none text-[#324153]">
+          <label class="font-semibold text-base leading-none text-gray-900 dark:text-white">
             {{ 'FORMS.PRICE_PLAN_COMPONENT._apply_to_char' | translate }}
           </label>
-      
+
           <!-- Info Icon + Popover -->
           <div class="relative"
               (mouseenter)="showPopover = true"
@@ -89,15 +59,15 @@
               <line x1="12" y1="16" x2="12" y2="12"/>
               <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
-      
+
             <!-- Popover -->
             @if(showPopover) {
               <div
-                class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 w-64 p-3 text-sm bg-white border border-gray-300 rounded-lg shadow-sm">
-                <div class="font-semibold mb-1 text-gray-900">
+                class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 w-64 p-3 text-sm bg-white dark:bg-secondary-100 border border-gray-300 dark:border-gray-800 rounded-lg shadow-sm">
+                <div class="font-semibold mb-1 text-gray-900 dark:text-white">
                   {{ 'FORMS.PRICE_PLAN_COMPONENT._product_char' | translate }}
                 </div>
-                <p>
+                <p class="text-gray-700 dark:text-gray-300">
                   {{ 'FORMS.PRICE_PLAN_COMPONENT._prod_char_info' | translate }}
                 </p>
               </div>
@@ -107,9 +77,9 @@
       </div>
       <div class="flex flex-row">
         <select data-cy="selectPriceSpecChar" id="type" (change)="changePriceComponentChar($event)"
-          class="mb-2 mr-2 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3">
+          class="mb-2 mr-2 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3">
             @if(!selectedCharacteristic){
-              <option value="">Select a characteristic</option>
+              <option value="">{{ 'CREATE_OFFER._select' | translate }}</option>
               @for(char of filteredChars; track char){
                 <option  value="{{char.id}}">{{char.name}}</option>
               }
@@ -124,7 +94,7 @@
         </select>
         @if(showValueSelect){
             <select data-cy="selectPriceSpecCharValue" id="type" (change)="changePriceComponentCharValue($event)"
-            class="mb-2 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3">
+            class="mb-2 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3">
                 @for(val of selectedCharacteristic.productSpecCharacteristicValue; track val){
                     @if(hasKey(val, 'unitOfMeasure')){
                         <option value="{{val.value}}">{{val.value}} ({{val.unitOfMeasure}})</option>
@@ -139,24 +109,24 @@
       @if(selectedCharacteristic && selectedCharacteristic.productSpecCharacteristicValue?.[0] &&
           hasKey(selectedCharacteristic.productSpecCharacteristicValue[0], 'valueFrom') &&
           hasKey(selectedCharacteristic.productSpecCharacteristicValue[0], 'valueTo')){
-        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 mb-4">
-          <label class="block text-xs font-medium text-gray-700 mb-2">
+        <div class="bg-blue-50 dark:bg-secondary-300 p-4 rounded-lg border border-blue-200 dark:border-gray-800 mb-4">
+          <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
             Selected Range: [{{ selectedCharacteristic.productSpecCharacteristicValue[0].valueFrom }},{{ selectedCharacteristic.productSpecCharacteristicValue[0].valueTo }}].
             Not modifiable, in case you want Tiering range prices go to price plan modal and click on Tier Pricing button
           </label>
-          <div class="relative w-full h-12 bg-gray-200 rounded-lg px-4">
+          <div class="relative w-full h-12 bg-gray-200 dark:bg-secondary-100 rounded-lg px-4">
             <div class="absolute top-1/2 left-4 right-4 h-2 bg-blue-500 rounded transform -translate-y-1/2"></div>
 
             <div class="absolute top-1/2 left-4 transform -translate-y-1/2 -translate-x-1/2">
               <div class="w-3 h-3 bg-blue-600 rounded-full border-2 border-white"></div>
-              <span class="absolute top-5 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-blue-700 whitespace-nowrap">
+              <span class="absolute top-5 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-blue-700 dark:text-blue-400 whitespace-nowrap">
                 {{ selectedCharacteristic.productSpecCharacteristicValue[0].valueFrom }}
               </span>
             </div>
 
             <div class="absolute top-1/2 right-4 transform -translate-y-1/2 translate-x-1/2">
               <div class="w-3 h-3 bg-blue-600 rounded-full border-2 border-white"></div>
-              <span class="absolute top-5 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-blue-700 whitespace-nowrap">
+              <span class="absolute top-5 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-blue-700 dark:text-blue-400 whitespace-nowrap">
                 {{ selectedCharacteristic.productSpecCharacteristicValue[0].valueTo }}
               </span>
             </div>
@@ -165,169 +135,247 @@
       }
       }
 
-      <!-- Tipo de Precio -->
-      <div>
-        <label class="block text-sm font-semibold text-gray-900 mb-2">{{ 'FORMS.PRICE_PLAN_COMPONENT._type_of_price' | translate }}</label>
-        <select data-cy="priceType" formControlName="priceType" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100">
-          <option value="one time">{{ 'FORMS.PRICE_PLAN_COMPONENT._one_time' | translate }}</option>
-          <option value="recurring">{{ 'FORMS.PRICE_PLAN_COMPONENT._recurring' | translate }}</option>
-          <option value="recurring-prepaid">{{ 'FORMS.PRICE_PLAN_COMPONENT._recurring_prepaid' | translate }}</option>
-          <option value="usage">{{ 'FORMS.PRICE_PLAN_COMPONENT._usage' | translate }}</option>
-        </select>
-      </div>
+      <!-- Price Configuration -->
+      <div class="rounded-2xl p-4 flex flex-col gap-5 bg-gray-50 dark:bg-secondary-300 border border-gray-200 dark:border-gray-800">
+        <h4 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._pc_price_configuration' | translate }}</h4>
 
-      <!-- Opciones dinámicas según el tipo de precio -->
-      @if (priceComponentForm.get('priceType')?.value === 'recurring' || priceComponentForm.get('priceType')?.value === 'recurring-prepaid') {
-        <div>
-          <label class="block text-sm font-semibold text-gray-900 mb-2">{{ 'FORMS.PRICE_PLAN_COMPONENT.recurring_period' | translate }}</label>
-          <select data-cy="recurringType" formControlName="recurringPeriod" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100">
-            <option value="day">{{ 'FORMS.PRICE_PLAN_COMPONENT._daily' | translate }}</option>
-            <option value="week">{{ 'FORMS.PRICE_PLAN_COMPONENT._weekly' | translate }}</option>
-            <option value="month">{{ 'FORMS.PRICE_PLAN_COMPONENT._monthly' | translate }}</option>
-            <option value="year">{{ 'FORMS.PRICE_PLAN_COMPONENT._yearly' | translate }}</option>
-          </select>
-        </div>
-      } @else if (priceComponentForm.get('priceType')?.value === 'usage') {
-      <div class="flex flex-row">
-        <select id="type" data-cy="usageInput" (change)="changePriceComponentUsageSpec($event)"
-          class="mb-2 mr-2 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3">
-            @if(!selectedUsageSpec){
-              <option value="">Select a usage specification</option>
-              @for(usage of usageSpecs; track usage){
-                <option  value="{{usage.id}}">{{usage.name}}</option>
-              }
-            } @else {
-              <option  value="{{selectedUsageSpec.id}}">{{selectedUsageSpec.name}}</option>
-              @for(usage of usageSpecs; track usage){
-                @if(usage.name != selectedUsageSpec.name){
-                  <option  value="{{usage.id}}">{{usage.name}}</option>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ 'CREATE_OFFER._pc_base_price' | translate }}<span class="text-red-600 ml-0.5">*</span></label>
+            <input
+              data-cy="price"
+              formControlName="price"
+              type="number"
+              step="0.1"
+              placeholder="{{ 'CREATE_OFFER._pc_base_price_placeholder' | translate }}"
+              (blur)="priceComponentForm.get('price')?.markAsTouched()"
+              [ngClass]="(priceComponentForm.get('price')?.invalid == true && priceComponentForm.value.price!='') || (priceComponentForm.get('price')?.touched && priceComponentForm.value.price=='') ? 'border-red-500' : 'border-gray-300 dark:border-secondary-200'"
+              class="bg-white dark:bg-secondary-100 border text-sm rounded-lg block w-full p-3
+                text-gray-900 dark:text-white focus:ring-primary-100 focus:border-primary-100"
+            />
+
+            <!-- Validation Messages -->
+             @if(priceComponentForm.get('price')?.invalid && (priceComponentForm.get('price')?.touched || priceComponentForm.get('price')?.dirty)){
+              <div class="mt-1 text-xs text-red-600">
+                @if(priceComponentForm.get('price')?.errors?.['required']){
+                  <div>
+                    {{ 'FORMS.PRICE_PLAN_COMPONENT._price_required' | translate }}
+                  </div>
+                }@else if(priceComponentForm.get('price')?.errors?.['max']){
+                  <div>
+                    {{ 'FORMS.PRICE_PLAN_COMPONENT._price_limit' | translate }}
+                  </div>
+                }@else if(priceComponentForm.get('price')?.errors?.['min'] && (priceComponentForm.get('price')?.touched || priceComponentForm.get('price')?.dirty)){
+                  <div class="mt-1 text-xs text-red-600">
+                    {{ 'FORMS.PRICE_PLAN_COMPONENT._price_positive' | translate }}
+                  </div>
                 }
+              </div>
+             }
+          </div>
+
+          <div>
+            <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ 'CREATE_OFFER._pc_price_type' | translate }}<span class="text-red-600 ml-0.5">*</span></label>
+            <div class="relative">
+              <button data-cy="priceType" type="button" (click)="showPriceTypeDropdown = !showPriceTypeDropdown"
+                class="flex items-center justify-between w-full p-3 bg-white dark:bg-secondary-100 border border-gray-300 dark:border-secondary-200 rounded-lg text-sm text-left focus:ring-primary-100 focus:border-primary-100"
+                [ngClass]="priceComponentForm.get('priceType')?.value ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'">
+                <span class="truncate">{{ priceComponentForm.get('priceType')?.value ? (priceTypeLabelKey(priceComponentForm.get('priceType')?.value) | translate) : ('CREATE_OFFER._select' | translate) }}</span>
+                <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 shrink-0 transition-transform" [class.rotate-180]="showPriceTypeDropdown"
+                  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                </svg>
+              </button>
+
+              @if(showPriceTypeDropdown){
+                <div class="fixed inset-0 z-10" (click)="showPriceTypeDropdown = false"></div>
+                <ul class="absolute left-0 right-0 top-full mt-1 z-20 bg-white dark:bg-secondary-100 rounded-lg py-1 overflow-hidden border border-gray-200 dark:border-gray-800 shadow-lg">
+                  @for(opt of priceTypeOptions; track opt.id){
+                    <li>
+                      <button type="button" [attr.data-cy]="'priceType-' + opt.id.replace(' ', '-')" (click)="selectPriceType(opt.id)"
+                        class="flex items-center w-full text-left px-4 h-12 text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-secondary-300 transition-colors"
+                        [ngClass]="priceComponentForm.get('priceType')?.value === opt.id ? 'bg-cyan-50 dark:bg-cyan-950/30' : ''">
+                        {{ opt.labelKey | translate }}
+                      </button>
+                    </li>
+                  }
+                </ul>
               }
-            }
-          </select>
-          @if(showMetricSelect){
-              <select data-cy="usageMetric" id="type" (change)="changePriceComponentMetric($event)"
-              class="mb-2 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3">
-                  @if(!selectedMetric){
-                    @for(metric of selectedUsageSpec.specCharacteristic; track metric){
-                      <option value="{{metric.name}}">{{metric.name}}</option>
+            </div>
+          </div>
+        </div>
+
+        <!-- Opciones dinámicas según el tipo de precio -->
+        @if (priceComponentForm.get('priceType')?.value === 'recurring' || priceComponentForm.get('priceType')?.value === 'recurring-prepaid') {
+          <div>
+            <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-3">{{ 'CREATE_OFFER._pc_recurring_period' | translate }}</label>
+            <div class="flex flex-wrap items-center gap-x-8 gap-y-3">
+              @for(opt of recurringPeriodOptions; track opt.id){
+                <label class="inline-flex items-center gap-2 cursor-pointer">
+                  <input type="radio" formControlName="recurringPeriod" [value]="opt.id" [attr.data-cy]="'recurringType-' + opt.id"
+                    class="w-4 h-4 accent-primary-100 cursor-pointer"/>
+                  <span class="text-sm text-gray-700 dark:text-gray-300">{{ opt.labelKey | translate }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        } @else if (priceComponentForm.get('priceType')?.value === 'usage') {
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ 'CREATE_OFFER._pc_usage_spec' | translate }}</label>
+              <select id="type" data-cy="usageInput" (change)="changePriceComponentUsageSpec($event)"
+                class="bg-white dark:bg-secondary-100 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3">
+                  @if(!selectedUsageSpec){
+                    <option value="">{{ 'CREATE_OFFER._select' | translate }}</option>
+                    @for(usage of usageSpecs; track usage){
+                      <option  value="{{usage.id}}">{{usage.name}}</option>
                     }
                   } @else {
-                    <option value="selectedMetric">{{selectedMetric}}</option>
-                    @for(metric of selectedUsageSpec.specCharacteristic; track metric){
-                      @if(metric.name != selectedMetric){
-                        <option value="{{metric.name}}">{{metric.name}}</option>
-                      }                      
+                    <option  value="{{selectedUsageSpec.id}}">{{selectedUsageSpec.name}}</option>
+                    @for(usage of usageSpecs; track usage){
+                      @if(usage.name != selectedUsageSpec.name){
+                        <option  value="{{usage.id}}">{{usage.name}}</option>
+                      }
                     }
                   }
-              </select>
+                </select>
+            </div>
+            @if(showMetricSelect){
+              <div>
+                <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ 'CREATE_OFFER._pc_metric' | translate }}</label>
+                <select data-cy="usageMetric" id="type" (change)="changePriceComponentMetric($event)"
+                class="bg-white dark:bg-secondary-100 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3">
+                    @if(!selectedMetric){
+                      @for(metric of selectedUsageSpec.specCharacteristic; track metric){
+                        <option value="{{metric.name}}">{{metric.name}}</option>
+                      }
+                    } @else {
+                      <option value="selectedMetric">{{selectedMetric}}</option>
+                      @for(metric of selectedUsageSpec.specCharacteristic; track metric){
+                        @if(metric.name != selectedMetric){
+                          <option value="{{metric.name}}">{{metric.name}}</option>
+                        }
+                      }
+                    }
+                </select>
+              </div>
+            }
+          </div>
+          @if(usageSpecs.length === 0){
+            <div data-cy="pcNoUsageSpecs" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900">
+              <svg class="w-5 h-5 shrink-0 text-red-600 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm9.75-4.5a.75.75 0 0 0-.75.75v3.75a.75.75 0 0 0 1.5 0V8.25a.75.75 0 0 0-.75-.75Zm0 8.25a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z" clip-rule="evenodd"/>
+              </svg>
+              <p class="text-sm text-red-700 dark:text-red-300">{{ 'CREATE_OFFER._pc_no_usage_specs' | translate }}</p>
+            </div>
           }
-      </div>
-      
+        }
 
-      
-      }
-
-      <!-- Descuento -->
-      <div class="flex items-center mb-4">
-        <input data-cy="offerPriceComponentDiscount"
-          type="checkbox"
-          [(ngModel)]="showDiscount"
-          [ngModelOptions]="{ standalone: true }"
-          class="w-4 h-4 text-primary-100 bg-white border-gray-300 rounded cursor-pointer focus:ring-primary-100"
-        />
-        <label for="showDiscount" class="ml-2 font-medium text-base text-gray-900">
-          {{ 'FORMS.PRICE_PLAN_COMPONENT._includes_discount' | translate }}
+        <!-- Descuento -->
+        <label class="inline-flex items-center gap-3 cursor-pointer">
+          <input data-cy="offerPriceComponentDiscount"
+            type="checkbox"
+            [(ngModel)]="showDiscount"
+            [ngModelOptions]="{ standalone: true }"
+            class="sr-only peer"
+          />
+          <span class="relative w-11 h-6 bg-gray-300 dark:bg-gray-700 rounded-full transition-colors peer-checked:bg-primary-100 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:w-5 after:h-5 after:bg-white after:rounded-full after:shadow after:transition-transform peer-checked:after:translate-x-5"></span>
+          <span class="text-sm font-medium text-gray-900 dark:text-white">
+            {{ 'CREATE_OFFER._pc_include_discount' | translate }}
+          </span>
         </label>
-      </div>
-      
-      @if(showDiscount){
-        <div>
-          <label class="block text-sm font-semibold text-gray-900 mb-2">
-            {{ 'FORMS.PRICE_PLAN_COMPONENT._add_discount' | translate }}
-          </label>
-          <div class="flex space-x-2">
-            <input
-              data-cy="offerDiscountAmount"
-              formControlName="discountValue"
-              type="number"
-              placeholder="Amount"
-              class="w-1/2 bg-white border text-gray-900 text-sm rounded-lg p-3 focus:ring-primary-100 focus:border-primary-100"
-              [ngClass]="(priceComponentForm.get('discountValue')?.invalid == true && priceComponentForm.value.discountValue!='') || (priceComponentForm.get('discountValue')?.touched && priceComponentForm.value.discountValue=='') ? 'border-red-500' : 'border-gray-300'"
-            >
-            <select
-              data-cy="offerDiscountUnit"
-              formControlName="discountUnit"
-              class="w-1/2 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-3 focus:ring-primary-100 focus:border-primary-100"
-            >
-              <option value="percentage">{{ 'FORMS.PRICE_PLAN_COMPONENT._percentage' | translate }}</option>
-              <option value="fixed">{{ 'FORMS.PRICE_PLAN_COMPONENT._fixed' | translate }}</option>
-            </select>
-          </div>
-        
-          <!-- Validation Error -->
-           @if(priceComponentForm.get('discountValue')?.invalid && priceComponentForm.get('discountValue')?.touched){
-            <div  class="mt-1 text-xs text-red-600">
-              @if(priceComponentForm.get('discountValue')?.errors?.['min']){
-                <div>
-                  {{ 'FORMS.PRICE_PLAN_COMPONENT._discount_positive' | translate }}
-                </div>
-              }@else if(priceComponentForm.get('discountValue')?.errors?.['max']){
-                <div>
-                  {{ 'FORMS.PRICE_PLAN_COMPONENT._discount_limit' | translate }}
-                </div>
-              }
-            </div>
-           }
 
-        </div>
-        
-  
-        <!-- Duración del Descuento -->
-        <div>
-          <label class="block text-sm font-semibold text-gray-900 mb-2">
-            {{ 'FORMS.PRICE_PLAN_COMPONENT._discount_duration' | translate }}
-          </label>
-          <div class="flex space-x-2">
-            <input
-              data-cy="offerDiscountDuration"
-              formControlName="discountDuration"
-              type="number"
-              placeholder="Duration"
-              class="w-1/2 bg-white border text-gray-900 text-sm rounded-lg p-3 focus:ring-primary-100 focus:border-primary-100"
-              [ngClass]="(priceComponentForm.get('discountDuration')?.invalid == true && priceComponentForm.value.discountDuration!='') || (priceComponentForm.get('discountDuration')?.touched && priceComponentForm.value.discountDuration=='') ? 'border-red-500' : 'border-gray-300'"
-            >
-            <select
-              data-cy="offerDiscountDurationUnit"
-              formControlName="discountDurationUnit"
-              class="w-1/2 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg p-3 focus:ring-primary-100 focus:border-primary-100"
-            >
-              <option value="days">{{ 'FORMS.PRICE_PLAN_COMPONENT._days' | translate }}</option>
-              <option value="weeks">{{ 'FORMS.PRICE_PLAN_COMPONENT._weeks' | translate }}</option>
-              <option value="months">{{ 'FORMS.PRICE_PLAN_COMPONENT._months' | translate }}</option>
-              <option value="years">{{ 'FORMS.PRICE_PLAN_COMPONENT._years' | translate }}</option>
-            </select>
-          </div>
-        
-          <!-- Validation Error -->
-          @if(priceComponentForm.get('discountDuration')?.invalid && priceComponentForm.get('discountDuration')?.touched){
-            <div class="mt-1 text-xs text-red-600">
-              @if(priceComponentForm.get('discountDuration')?.errors?.['min']){
-                <div>
-                  {{ 'FORMS.PRICE_PLAN_COMPONENT._duration_positive' | translate }}
+        @if(showDiscount){
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                {{ 'CREATE_OFFER._pc_amount' | translate }}
+              </label>
+              <input
+                data-cy="offerDiscountAmount"
+                formControlName="discountValue"
+                type="number"
+                placeholder="{{ 'CREATE_OFFER._pc_amount_placeholder' | translate }}"
+                class="w-full bg-white dark:bg-secondary-100 border text-gray-900 dark:text-white text-sm rounded-lg p-3 focus:ring-primary-100 focus:border-primary-100"
+                [ngClass]="(priceComponentForm.get('discountValue')?.invalid == true && priceComponentForm.value.discountValue!='') || (priceComponentForm.get('discountValue')?.touched && priceComponentForm.value.discountValue=='') ? 'border-red-500' : 'border-gray-300 dark:border-secondary-200'"
+              >
+              <!-- Validation Error -->
+               @if(priceComponentForm.get('discountValue')?.invalid && priceComponentForm.get('discountValue')?.touched){
+                <div  class="mt-1 text-xs text-red-600">
+                  @if(priceComponentForm.get('discountValue')?.errors?.['min']){
+                    <div>
+                      {{ 'FORMS.PRICE_PLAN_COMPONENT._discount_positive' | translate }}
+                    </div>
+                  }@else if(priceComponentForm.get('discountValue')?.errors?.['max']){
+                    <div>
+                      {{ 'FORMS.PRICE_PLAN_COMPONENT._discount_limit' | translate }}
+                    </div>
+                  }
+                </div>
+               }
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                {{ 'CREATE_OFFER._pc_amount_unit' | translate }}
+              </label>
+              <select
+                data-cy="offerDiscountUnit"
+                formControlName="discountUnit"
+                class="w-full bg-white dark:bg-secondary-100 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg p-3 focus:ring-primary-100 focus:border-primary-100"
+              >
+                <option value="percentage">{{ 'CREATE_OFFER._pc_discount_percentage' | translate }}</option>
+                <option value="fixed">{{ 'CREATE_OFFER._pc_discount_fixed' | translate }}</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                {{ 'CREATE_OFFER._pc_duration' | translate }}
+              </label>
+              <input
+                data-cy="offerDiscountDuration"
+                formControlName="discountDuration"
+                type="number"
+                placeholder="{{ 'CREATE_OFFER._pc_duration_placeholder' | translate }}"
+                class="w-full bg-white dark:bg-secondary-100 border text-gray-900 dark:text-white text-sm rounded-lg p-3 focus:ring-primary-100 focus:border-primary-100"
+                [ngClass]="(priceComponentForm.get('discountDuration')?.invalid == true && priceComponentForm.value.discountDuration!='') || (priceComponentForm.get('discountDuration')?.touched && priceComponentForm.value.discountDuration=='') ? 'border-red-500' : 'border-gray-300 dark:border-secondary-200'"
+              >
+              <!-- Validation Error -->
+              @if(priceComponentForm.get('discountDuration')?.invalid && priceComponentForm.get('discountDuration')?.touched){
+                <div class="mt-1 text-xs text-red-600">
+                  @if(priceComponentForm.get('discountDuration')?.errors?.['min']){
+                    <div>
+                      {{ 'FORMS.PRICE_PLAN_COMPONENT._duration_positive' | translate }}
+                    </div>
+                  }
                 </div>
               }
             </div>
-          }
-        </div>
-        
-      }
+            <div>
+              <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                {{ 'CREATE_OFFER._pc_duration_unit' | translate }}
+              </label>
+              <select
+                data-cy="offerDiscountDurationUnit"
+                formControlName="discountDurationUnit"
+                class="w-full bg-white dark:bg-secondary-100 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg p-3 focus:ring-primary-100 focus:border-primary-100"
+              >
+                <option value="days">{{ 'CREATE_OFFER._pc_duration_days' | translate }}</option>
+                <option value="weeks">{{ 'CREATE_OFFER._pc_duration_weeks' | translate }}</option>
+                <option value="months">{{ 'CREATE_OFFER._pc_duration_months' | translate }}</option>
+                <option value="years">{{ 'CREATE_OFFER._pc_duration_years' | translate }}</option>
+              </select>
+            </div>
+          </div>
+        }
+      </div>
+
       <!-- Botones -->
       <div class="flex justify-end space-x-3 mt-6">
-        <button data-cy="cancelPriceComponent" type="button" (click)="closeDrawer()" class="px-4 py-2 text-sm font-semibold text-gray-700 rounded-lg hover:bg-gray-50">{{ 'FORMS.PRICE_PLAN_COMPONENT._cancel' | translate }}</button>
-        <button data-cy="savePriceComponent" type="submit" [disabled]="priceComponentForm.invalid" [ngClass]="priceComponentForm.invalid ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg bg-primary-100 hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed">{{ 'FORMS.PRICE_PLAN_COMPONENT._save' | translate }}</button>
+        <button data-cy="cancelPriceComponent" type="button" (click)="closeDrawer()" class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-secondary-300">{{ 'FORMS.PRICE_PLAN_COMPONENT._cancel' | translate }}</button>
+        <button data-cy="savePriceComponent" type="submit" [disabled]="priceComponentForm.invalid" [ngClass]="priceComponentForm.invalid ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg bg-primary-100 hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed">{{ 'CREATE_OFFER._pc_save_component' | translate }}</button>
       </div>
       </form>
     </div>
 
   </div>
+</div>

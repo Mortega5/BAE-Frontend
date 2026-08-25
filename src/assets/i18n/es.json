@@ -2903,6 +2903,7 @@
     "_browse_files": "Browse files",
     "_accepted_formats": "Accepted formats: PDF, docX (max size: 5MB).",
     "_product_specifications": "Product Specifications",
+    "_product_spec_subtitle": "Select or link the product specification that this offer is based on.",
     "_market_sector": "Market sector",
     "_step1_title": "General Info",
     "_step_general_info": "General info",
@@ -3030,6 +3031,8 @@
     "_step5_subtitle": "Choose how customers can procure this offer.",
     "_terms_conditions": "Terms & Conditions",
     "_procurement_mode": "Procurement Mode",
+    "_summary_title": "Summary",
+    "_summary_subtitle": "Review all the details of your offer before saving.",
     "_tags": "Tags",
     "_tags_placeholder": "Type a tag and press Enter",
     "_tags_hint": "tags added (max 5)",
@@ -3521,6 +3524,7 @@
       "_currency": "Set the currency that must be used in all the price components of this price plan",
       "_profile_desc": "If you want this price plan to apply exclusively to a specific product configuration, select that configuration here.",
       "_price_comp_with_chars": "If you want this price plan to apply exclusively to a specific product configuration, remove the selected characteristics from the created price components.",
+      "_profile_required_for_standard": "A standard plan needs a configuration profile before it can be saved.",
       "_add_profile": "Set a configuration profile",
       "_edit_profile": "Edit the current profile",
       "_char_name": "Characteristic",
@@ -3534,6 +3538,8 @@
       "_unique": "Name must be unique."
     },
     "PRICE_PLAN_COMPONENT": {
+      "_new_price_component": "New Price Component",
+      "_update_price_component": "Update Price Component",
       "_name": "Name",
       "_description": "Description",
       "_type_of_price": "Type of price",

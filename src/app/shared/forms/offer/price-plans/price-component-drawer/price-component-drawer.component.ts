@@ -34,6 +34,19 @@ export class PriceComponentDrawerComponent implements OnInit {
   initialized = false;
 
   priceComponentForm!: FormGroup;
+  showPriceTypeDropdown = false;
+  readonly priceTypeOptions: { id: string, labelKey: string }[] = [
+    { id: 'one time', labelKey: 'CREATE_OFFER._pc_price_type_one_time' },
+    { id: 'recurring', labelKey: 'CREATE_OFFER._pc_price_type_recurring' },
+    { id: 'recurring-prepaid', labelKey: 'CREATE_OFFER._pc_price_type_recurring_prepaid' },
+    { id: 'usage', labelKey: 'CREATE_OFFER._pc_price_type_usage' }
+  ];
+  readonly recurringPeriodOptions: { id: string, labelKey: string }[] = [
+    { id: 'day', labelKey: 'CREATE_OFFER._pc_recurring_daily' },
+    { id: 'week', labelKey: 'CREATE_OFFER._pc_recurring_weekly' },
+    { id: 'month', labelKey: 'CREATE_OFFER._pc_recurring_monthly' },
+    { id: 'year', labelKey: 'CREATE_OFFER._pc_recurring_yearly' }
+  ];
   showValueSelect:boolean=false;
   selectedCharacteristic:any=undefined;
   touchedCharCheck:boolean=false;
@@ -268,5 +281,16 @@ export class PriceComponentDrawerComponent implements OnInit {
 
   hasKey(obj: any, key: string): boolean {
     return key in obj;
+  }
+
+  selectPriceType(id: string): void {
+    const control = this.priceComponentForm.get('priceType');
+    control?.setValue(id);
+    control?.markAsTouched();
+    this.showPriceTypeDropdown = false;
+  }
+
+  priceTypeLabelKey(id: string): string {
+    return this.priceTypeOptions.find(o => o.id === id)?.labelKey || '';
   }
 }

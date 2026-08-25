@@ -1,52 +1,61 @@
 <div class="flex flex-col gap-5">
   <div>
-    <h2 class="font-semibold text-[20px] leading-none text-[#324153]">{{ 'FORMS.PRICE_PLANS._price_plans' | translate }}
-    </h2>
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._price_plans' | translate }}</h2>
+    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._step4_subtitle' | translate }}</p>
   </div>
 
-  <!-- Payment Online Checkbox -->
+  <!-- Price tier picker -->
   <div class="flex flex-col">
-    <!--<input type="checkbox"
-           data-cy="onlinePayment"
-           [formControl]="paymentOnlineControl"
-           (change)="onPaymentOnlineChange($event)"
-           class="w-8 h-8 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600 disabled:opacity-50 disabled:cursor-not-allowed">
-    <label class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
-      {{ 'FORMS.PRICE_PLANS._online_payment_desc' | translate }}
-      @if (pricePlans.length > 0) {
-        <span class="text-xs text-gray-500 dark:text-gray-400 ml-2">({{ 'FORMS.PRICE_PLANS._locked_after_first_plan' | translate }})</span>
-      }
-    </label>-->
     @if (pricePlans.length == 0) {
-    <label class="block text-sm font-semibold text-gray-900 mb-2">
-      Select the price type that best suits for you:
-    </label>
-    <select id="pricePlanType" data-cy="pricePlanType" [value]="priceType" (change)="onPaymentOnlineChange($event)"
-      class="block w-full md:w-1/2 p-3 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100">
-      <option value="free">Free</option>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <button type="button" data-cy="pricePlanTypeFree" (click)="selectPriceTier('free')"
+        [ngClass]="priceType === 'free'
+          ? 'bg-cyan-50 dark:bg-cyan-950/30 border-cyan-500 dark:border-cyan-400 shadow-[0_4px_24px_rgba(0,84,98,0.2)]'
+          : 'bg-white dark:bg-secondary-200 border-gray-200 dark:border-gray-800 hover:border-primary-100 dark:hover:border-primary-50'"
+        class="flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._price_tier_free' | translate }}</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._price_tier_free_desc' | translate }}</p>
+      </button>
       @if(!custom){
-      <option value="tailored">Tailored price</option>
+      <button type="button" data-cy="pricePlanTypeTailored" (click)="selectPriceTier('tailored')"
+        [ngClass]="priceType === 'tailored'
+          ? 'bg-cyan-50 dark:bg-cyan-950/30 border-cyan-500 dark:border-cyan-400 shadow-[0_4px_24px_rgba(0,84,98,0.2)]'
+          : 'bg-white dark:bg-secondary-200 border-gray-200 dark:border-gray-800 hover:border-primary-100 dark:hover:border-primary-50'"
+        class="flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._price_tier_tailored' | translate }}</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._price_tier_tailored_desc' | translate }}</p>
+      </button>
       }
-      <option value="paid">Online paid price</option>
-    </select>
+      <button type="button" data-cy="pricePlanTypePaid" (click)="selectPriceTier('paid')"
+        [ngClass]="priceType === 'paid'
+          ? 'bg-cyan-50 dark:bg-cyan-950/30 border-cyan-500 dark:border-cyan-400 shadow-[0_4px_24px_rgba(0,84,98,0.2)]'
+          : 'bg-white dark:bg-secondary-200 border-gray-200 dark:border-gray-800 hover:border-primary-100 dark:hover:border-primary-50'"
+        class="flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
+        <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._price_tier_online' | translate }}</h3>
+        <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._price_tier_online_desc' | translate }}</p>
+      </button>
+    </div>
     } @else {
-    <label class="text-base text-[#4C5A6B]">
-      You've selected a {{
-      priceType === 'free' ? 'free' :
-      priceType === 'tailored' ? 'tailored' :
-      'online paid'
-      }} price type. If you want to change it you need to delete all your price plans before.
+    <label class="text-sm text-gray-600 dark:text-gray-400">
+      <span class="font-semibold text-gray-900 dark:text-white">
+        {{
+        priceType === 'free' ? ('CREATE_OFFER._price_tier_free' | translate) :
+        priceType === 'tailored' ? ('CREATE_OFFER._price_tier_tailored' | translate) :
+        ('CREATE_OFFER._price_tier_online' | translate)
+        }}
+      </span>
+      &mdash; {{ 'FORMS.PRICE_PLANS._locked_after_first_plan' | translate }}
     </label>
     }
 
   </div>
 
+  @if(priceType!='free'){
   <!-- Price Plans Table -->
   <app-price-plans-table [pricePlans]="pricePlans" (edit)="editPricePlan($event)" (delete)="removePricePlan($event)">
   </app-price-plans-table>
 
   <!-- Add Price Plan Button -->
-  @if(priceType!='free'){
   <button data-cy="newPricePlan" type="button" (click)="openPricePlanDrawer()"
     class="w-fit inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-primary-100 rounded-lg border border-primary-100 hover:bg-primary-50/10">
     <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
@@ -58,6 +67,12 @@
   }
 
 </div>
+
+<!-- Standard/Flex Choice Modal -->
+@if (showSubtypeModal) {
+<app-plan-subtype-modal (select)="onSubtypeSelected($event)" (closed)="closeSubtypeModal()">
+</app-plan-subtype-modal>
+}
 
 <!-- Price Plan Drawer -->
 @if (showDrawer) {

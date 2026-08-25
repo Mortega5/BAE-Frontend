@@ -438,10 +438,15 @@ const step5 = (description: string) => {
 
 const step6 = (online: boolean=false, pricePlan:any = null, priceComponent:PriceComponent = null) => {
     if(online){
-        cy.getBySel('pricePlanType').select('paid')
+        cy.getBySel('pricePlanTypePaid').click()
     }
     if(pricePlan){
         cy.getBySel('newPricePlan').click()
+        if(online){
+            // Paid plans require choosing Standard/Flex first; Flex needs no configuration profile to save.
+            cy.getBySel('planSubtypeFlex').click()
+            cy.getBySel('planSubtypeContinue').click()
+        }
         cy.getBySel('pricePlanName').type(pricePlan.name)
         cy.getBySel('textArea').type(pricePlan.description)
         cy.getBySel('savePricePlan').should('have.attr', 'disabled')
@@ -450,9 +455,10 @@ const step6 = (online: boolean=false, pricePlan:any = null, priceComponent:Price
             cy.getBySel('priceComponentName').type(priceComponent.name)
             cy.getBySel('priceComponentDescription').find('[data-cy="textArea"]').type(priceComponent.description)
             cy.getBySel('price').type(String(priceComponent.price))
-            cy.getBySel('priceType').select(priceComponent.type)
+            cy.getBySel('priceType').click()
+            cy.getBySel('priceType-' + priceComponent.type.replace(' ', '-')).click()
             if (priceComponent.recurringType){
-                cy.getBySel('recurringType').select(priceComponent.recurringType)
+                cy.getBySel('recurringType-' + priceComponent.recurringType).click()
             }
             else if (priceComponent.usageInput){
                 cy.wait('@usageGET')

@@ -51,6 +51,11 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   protected readonly  currencies=[currencies[2]];
   private destroy$ = new Subject<void>();
   rangeValidationError: string | null = null;
+  profileRequiredError: string | null = null;
+
+  get planSubType(): 'standard' | 'flex' | null {
+    return this.formGroup?.get('planSubType')?.value ?? null;
+  }
 
   constructor(private fb: FormBuilder) {}
 
@@ -102,6 +107,12 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
 
   savePricePlan() {
     if (this.formGroup.invalid) return;
+
+    this.profileRequiredError = null;
+    if (this.planSubType === 'standard' && this.checkProfileData()) {
+      this.profileRequiredError = 'FORMS.PRICE_PLANS._profile_required_for_standard';
+      return;
+    }
 
     // Validate range characteristics coverage
     if (!this.validateRangeCharacteristicsCoverage()) {

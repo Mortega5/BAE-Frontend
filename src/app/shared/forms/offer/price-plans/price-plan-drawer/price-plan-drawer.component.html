@@ -7,16 +7,16 @@
        class="fixed inset-0 bg-black bg-opacity-30 pointer-events-none z-[51]"></div>
 
   <!-- Drawer Content -->
-  <div class="w-full md:w-5/6 bg-[#F7F9FD] h-full p-6 overflow-y-auto transform transition-transform duration-1000 relative z-50"
+  <div class="w-full md:w-5/6 bg-[#F7F9FD] dark:bg-secondary-200 h-full p-6 overflow-y-auto transform transition-transform duration-1000 relative z-50"
        [ngClass]="{'translate-x-0': isOpen, 'translate-x-full': !isOpen, '-translate-x-full': !initialized}">
 
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl font-extrabold text-gray-900">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
         {{ pricePlanTranslationKey | translate }}
       </h2>
       <button type="button" (click)="closeDrawer()"
-              class="text-gray-500 hover:text-gray-700">
+              class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white">
         <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
         </svg>
@@ -24,16 +24,16 @@
     </div>
 
     <!-- Price Plan Form -->
-    <div [formGroup]="formGroup" class="bg-white rounded-2xl border border-[#EBECEE] shadow-sm p-8">
+    <div [formGroup]="formGroup" class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-4 md:p-8">
 
         <!-- Nombre -->
         <div class="mb-4">
-          <label class="block text-sm font-semibold text-gray-900 mb-2">
+          <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
             {{ 'FORMS.PRICE_PLANS._name' | translate }}
           </label>
           <input data-cy="pricePlanName" formControlName="name" type="text"
-          [ngClass]="(formGroup.get('name')?.invalid == true && formGroup.value.name!='') || (formGroup.get('name')?.touched && formGroup.value.name=='') || (formGroup.hasError('nonUniqueName') && formGroup.get('name')?.touched) ? 'border-red-500' : 'border-gray-300'"
-                 class="bg-white border text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100">
+          [ngClass]="(formGroup.get('name')?.invalid == true && formGroup.value.name!='') || (formGroup.get('name')?.touched && formGroup.value.name=='') || (formGroup.hasError('nonUniqueName') && formGroup.get('name')?.touched) ? 'border-red-500' : 'border-gray-300 dark:border-secondary-200'"
+                 class="bg-white dark:bg-secondary-300 border text-gray-900 dark:text-white text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100">
           @if(formGroup.hasError('nonUniqueName') && formGroup.get('name')?.touched){
             <p class="mt-1 text-xs text-red-600"><span class="font-medium">{{ 'FORMS.PRICE_PLANS._unique' | translate }}</span></p>
           }
@@ -44,46 +44,35 @@
 
         <!-- Descripción -->
         <div class="mb-4">
-          <label class="block text-sm font-semibold text-gray-900 mb-2">
+          <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
             {{ 'FORMS.PRICE_PLANS._description' | translate }}
           </label>
           <app-markdown-textarea formControlName="description"></app-markdown-textarea>
         </div>
 
-        <!-- Checkbox: Permitir pago online
-        <div class="mb-4">
-          <label class="inline-flex items-center cursor-pointer">
-            <input type="checkbox"
-                   formControlName="paymentOnline"
-                   class="sr-only peer">
-            <div class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-            <span class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300">{{ 'FORMS.PRICE_PLANS._online_payment' | translate }}</span>
-          </label>
-        </div>-->
-
         <!-- Only when online payment is enabled -->
 
         @if (formGroup.get('paymentOnline')?.value) {
 
-          <!-- Selección del perfil del producto -->
+          <!-- Selección del perfil del producto (solo para planes Standard) -->
           <div class="mb-4">
-            <h3 class="font-semibold text-[20px] leading-none text-[#324153] mb-3">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
               {{ 'FORMS.PRICE_PLANS._config_profile' | translate }}
             </h3>
-          @if(!checkPriceCompChars()){
+          @if(planSubType === 'standard'){
           @if (getProcessedProfileData().length > 0){
-            <div class="rounded-2xl overflow-hidden" style="border: 1px solid #D8DADE;">
+            <div class="rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800">
               <table class="w-full text-left border-collapse">
                 <thead>
-                <tr style="background: #EBF0F7;">
-                  <th class="px-4 py-4 text-base font-semibold text-[#324153]">{{ 'FORMS.PRICE_PLANS._char_name' | translate }}</th>
-                  <th class="px-4 py-4 text-base font-semibold text-[#324153]">{{ 'FORMS.PRICE_PLANS._char_value' | translate }}</th>
+                <tr class="bg-gray-50 dark:bg-secondary-300">
+                  <th class="px-4 py-4 text-base font-semibold text-gray-900 dark:text-white">{{ 'FORMS.PRICE_PLANS._char_name' | translate }}</th>
+                  <th class="px-4 py-4 text-base font-semibold text-gray-900 dark:text-white">{{ 'FORMS.PRICE_PLANS._char_value' | translate }}</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr *ngFor="let char of paginatedProfileData" style="border-top: 1px solid #EBECEE;">
-                  <td class="px-4 py-3 text-base text-[#324153]">{{ char.name }}</td>
-                  <td class="px-4 py-3 text-base text-[#324153]">
+                <tr *ngFor="let char of paginatedProfileData" class="border-t border-gray-200 dark:border-gray-800">
+                  <td class="px-4 py-3 text-base text-gray-900 dark:text-white">{{ char.name }}</td>
+                  <td class="px-4 py-3 text-base text-gray-900 dark:text-white">
                     @if (char.selectedValue !== null && char.selectedValue !== undefined) {
                       @if(char.selectedValue?.value !== undefined){
                         {{ char.selectedValue.value }}
@@ -118,17 +107,17 @@
               </button>
               <div class="flex justify-end items-center gap-2">
                 <button (click)="prevPage()" [disabled]="currentPage === 0"
-                        class="inline-flex items-center gap-1 px-3 py-2 text-sm font-semibold text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50">
+                        class="inline-flex items-center gap-1 px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-secondary-300 disabled:opacity-50">
                   <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5"/>
                   </svg>
                   {{ 'FORMS.PRICE_PLANS._prev' | translate }}
                 </button>
-                <span class="text-sm text-gray-700">
+                <span class="text-sm text-gray-700 dark:text-gray-300">
                   {{ currentPage + 1 }} / {{ totalPages }}
                 </span>
                 <button (click)="nextPage()" [disabled]="currentPage >= totalPages - 1"
-                        class="inline-flex items-center gap-1 px-3 py-2 text-sm font-semibold text-gray-700 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50">
+                        class="inline-flex items-center gap-1 px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-secondary-300 disabled:opacity-50">
                   {{ 'FORMS.PRICE_PLANS._next' | translate }}
                   <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5"/>
@@ -137,7 +126,7 @@
               </div>
             </div>
           } @else {
-            <div class="p-4 my-2 text-sm text-center text-primary-100 rounded-lg bg-blue-50" role="alert">
+            <div class="p-4 my-2 text-sm text-center text-primary-100 dark:text-primary-50 rounded-lg bg-blue-50 dark:bg-secondary-300" role="alert">
               <span class="font-medium">{{ 'FORMS.PRICE_PLANS._profile_desc' | translate }}</span>
             </div>
             <div>
@@ -158,7 +147,7 @@
             </div>
           }
         } @else {
-          <div class="p-4 my-2 text-sm text-center text-primary-100 rounded-lg bg-blue-50" role="alert">
+          <div class="p-4 my-2 text-sm text-center text-primary-100 dark:text-primary-50 rounded-lg bg-blue-50 dark:bg-secondary-300" role="alert">
             <span class="font-medium">{{ 'FORMS.PRICE_PLANS._price_comp_with_chars' | translate }}</span>
           </div>
         }
@@ -172,14 +161,14 @@
           </div>
           <!-- Tabla de Price Components -->
           <div class="mb-4">
-            <h3 class="font-semibold text-[20px] leading-none text-[#324153] mb-3">
+            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
               {{ 'FORMS.PRICE_PLANS._price_components' | translate }}
             </h3>
             <div class="mb-4">
-              <label class="block text-sm font-semibold text-gray-900 mb-2">
+              <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
                 {{ 'FORMS.PRICE_PLANS._currency' | translate }}
               </label>
-              <select formControlName="currency" class="block w-full p-3 bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100">
+              <select formControlName="currency" class="block w-full p-3 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100">
                 @for(curr of currencies; track curr.code){
                   <option value="{{curr.code}}" [selected]="curr.code === this.formGroup.get('currency')?.value">({{curr.code}}) {{curr.name}}</option>
                 }
@@ -204,10 +193,10 @@
                   data-cy="newTierPricing"
                   type="button"
                   (click)="openTierPricingDrawer()"
-                  [disabled]="!hasRangeCharacteristics() || hasProfilePricePlan()"
-                  [ngClass]="hasRangeCharacteristics() && !hasProfilePricePlan() ? 'text-primary-100 border-primary-100 hover:bg-primary-50/10 cursor-pointer' : 'text-gray-400 border-gray-200 cursor-not-allowed opacity-50'"
+                  [disabled]="!hasRangeCharacteristics() || planSubType !== 'flex'"
+                  [ngClass]="hasRangeCharacteristics() && planSubType === 'flex' ? 'text-primary-100 border-primary-100 hover:bg-primary-50/10 cursor-pointer' : 'text-gray-400 dark:text-gray-600 border-gray-200 dark:border-gray-700 cursor-not-allowed opacity-50'"
                   class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border"
-                  [title]="hasProfilePricePlan() ? 'Tier pricing is not available when a configuration profile is set' : (!hasRangeCharacteristics() ? 'No range characteristics available in product specification' : 'Create tier pricing based on range characteristics')"
+                  [title]="planSubType !== 'flex' ? 'Tier pricing is only available for Flex plans' : (!hasRangeCharacteristics() ? 'No range characteristics available in product specification' : 'Create tier pricing based on range characteristics')"
                 >
                   <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor">
                     <path d="M448 160l-128 0 0-32 128 0 0 32zM48 64C21.5 64 0 85.5 0 112l0 64c0 26.5 21.5 48 48 48l416 0c26.5 0 48-21.5 48-48l0-64c0-26.5-21.5-48-48-48L48 64zM448 352l-256 0 0-32 256 0 0 32zM48 256c-26.5 0-48 21.5-48 48l0 64c0 26.5 21.5 48 48 48l416 0c26.5 0 48-21.5 48-48l0-64c0-26.5-21.5-48-48-48L48 256z"/>
@@ -221,14 +210,21 @@
 
         <!-- Range Validation Error Message -->
         @if(rangeValidationError) {
-          <div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50" role="alert">
+          <div class="mb-4 p-4 text-sm text-red-800 dark:text-red-300 rounded-lg bg-red-50 dark:bg-red-950/40" role="alert">
             <span class="font-medium">{{ rangeValidationError }}</span>
+          </div>
+        }
+
+        <!-- Configuration Profile Required Error Message -->
+        @if(profileRequiredError) {
+          <div class="mb-4 p-4 text-sm text-red-800 dark:text-red-300 rounded-lg bg-red-50 dark:bg-red-950/40" role="alert">
+            <span class="font-medium">{{ profileRequiredError | translate }}</span>
           </div>
         }
 
         <!-- Action Buttons -->
         <div class="flex justify-end gap-3 mt-2">
-          <button data-cy="cancelPricePlan" type="button" (click)="closeDrawer()" class="px-4 py-2 text-sm font-semibold text-gray-700 rounded-lg hover:bg-gray-50">
+          <button data-cy="cancelPricePlan" type="button" (click)="closeDrawer()" class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-secondary-300">
             {{ 'FORMS.PRICE_PLANS._cancel' | translate }}
           </button>
           <button type="submit"
@@ -248,7 +244,7 @@
     <app-price-component-drawer *ngIf="showPriceComponentDrawer"
                                 [component]="editingComponent"
                                 [prodChars]="prodSpec?.productSpecCharacteristic"
-                                [profileData]="checkProfileData()"
+                                [profileData]="planSubType !== 'standard' && checkProfileData()"
                                 (save)="closePriceComponentDrawer($event)"
                                 (close)="closePriceComponentDrawer($event)">
     </app-price-component-drawer>
