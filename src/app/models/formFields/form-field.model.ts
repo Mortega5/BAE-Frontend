@@ -30,6 +30,7 @@ export interface NumberFormField extends BaseFormField {
   min?: number;
   max?: number;
   step?: number;
+  placeholder?: string;
 }
 
 export interface SelectOption {
@@ -45,6 +46,13 @@ export interface SelectableFormField extends BaseFormField {
 
 export interface BooleanFormField extends BaseFormField {
   type: 'boolean';
+}
+
+/** Pill/bubble-style single-choice selector — same shape as `SelectableFormField` but rendered
+ * as a row of clickable bubbles instead of a `<select>`. */
+export interface BubbleSelectFormField extends BaseFormField {
+  type: 'bubbleSelect';
+  options: SelectOption[];
 }
 
 export interface MarkdownTextareaFormField extends TextBaseFormField {
@@ -149,4 +157,4 @@ export interface CodeFormField extends BaseFormField {
   theme?: CodeTheme;
 }
 
-export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | PaginatedTableFormField | CodeFormField;
+export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | PaginatedTableFormField | CodeFormField;

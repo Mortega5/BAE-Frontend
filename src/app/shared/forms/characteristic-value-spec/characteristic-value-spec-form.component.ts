@@ -24,18 +24,18 @@ export class CharacteristicValueSpecFormComponent {
     switch (this.valueType) {
       case 'string':
         return [
-          { type: 'string', name: 'value', label: 'CHAR_SPEC._value', required: true, readonly: ro, dataCy: 'charStringValue' }
+          { type: 'string', name: 'value', label: 'CHAR_SPEC._value', required: true, readonly: ro, dataCy: 'charStringValue', placeholder: 'CHAR_SPEC._value_placeholder' }
         ];
       case 'number':
         return [
-          { type: 'number', name: 'value', label: 'CHAR_SPEC._value', required: true, readonly: ro, colSpan: 2, dataCy: 'charNumberValue' },
-          { type: 'string', name: 'unitOfMeasure', label: 'CHAR_SPEC._unit', readonly: ro, colSpan: 1, dataCy: 'charNumberUnit' }
+          { type: 'number', name: 'value', label: 'CHAR_SPEC._value', required: true, readonly: ro, colSpan: 2, dataCy: 'charNumberValue', placeholder: 'CHAR_SPEC._value_placeholder' },
+          { type: 'string', name: 'unitOfMeasure', label: 'CHAR_SPEC._unit', readonly: ro, colSpan: 1, dataCy: 'charNumberUnit', placeholder: 'CHAR_SPEC._unit_placeholder' }
         ];
       case 'range':
         return [
-          { type: 'number', name: 'valueFrom', label: 'CHAR_SPEC._value_from', required: true, readonly: ro, colSpan: 1, dataCy: 'charRangeFrom' },
-          { type: 'number', name: 'valueTo', label: 'CHAR_SPEC._value_to', required: true, readonly: ro, colSpan: 1, dataCy: 'charRangeTo' },
-          { type: 'string', name: 'unitOfMeasure', label: 'CHAR_SPEC._unit', required: true, readonly: ro, colSpan: 1, dataCy: 'charRangeUnit' }
+          { type: 'number', name: 'valueFrom', label: 'CHAR_SPEC._value_from', required: true, readonly: ro, colSpan: 1, dataCy: 'charRangeFrom', placeholder: 'CHAR_SPEC._value_from_placeholder' },
+          { type: 'number', name: 'valueTo', label: 'CHAR_SPEC._value_to', required: true, readonly: ro, colSpan: 1, dataCy: 'charRangeTo', placeholder: 'CHAR_SPEC._value_to_placeholder' },
+          { type: 'string', name: 'unitOfMeasure', label: 'CHAR_SPEC._unit', required: true, readonly: ro, colSpan: 1, dataCy: 'charRangeUnit', placeholder: 'CHAR_SPEC._unit_placeholder' }
         ];
       default:
         if (JSON_VALUE_TYPES.includes(this.valueType)) {

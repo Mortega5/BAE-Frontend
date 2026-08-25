@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { CodeFormField, FormField, MultiValueStringFormField, PaginatedTableFormField, RangeValueFormField, SelectableFormField, StatusPickerFormField, TableFormField, UnitValueFormField } from 'src/app/models/formFields/form-field.model';
+import { BubbleSelectFormField, CodeFormField, FormField, MultiValueStringFormField, PaginatedTableFormField, RangeValueFormField, SelectableFormField, StatusPickerFormField, TableFormField, UnitValueFormField } from 'src/app/models/formFields/form-field.model';
 import { MarkdownTextareaComponent } from '../markdown-textarea/markdown-textarea.component';
 import { MultiValueInputComponent } from '../multi-value-input/multi-value-input.component';
 import { RangeValueInputComponent } from '../range-value-input/range-value-input.component';
@@ -36,6 +36,10 @@ export class DynamicFormComponent {
 
   asSelectable(field: FormField): SelectableFormField {
     return field as SelectableFormField;
+  }
+
+  asBubbleSelect(field: FormField): BubbleSelectFormField {
+    return field as BubbleSelectFormField;
   }
 
   asStatusPicker(field: FormField): StatusPickerFormField {

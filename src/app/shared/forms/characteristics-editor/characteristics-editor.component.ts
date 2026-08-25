@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { faCircleInfo, faPlus, faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { faPlus, faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { TableColumn } from 'src/app/models/table-column.model';
 import { TruncateValuePipe } from '../../pipes/truncate-value.pipe';
@@ -25,7 +25,6 @@ export class CharacteristicsEditorComponent {
   @Input() readonly: boolean = false;
   @Output() characteristicsChange = new EventEmitter<CharacteristicItem[]>();
 
-  protected readonly faCircleInfo = faCircleInfo;
   protected readonly faPlus = faPlus;
 
   showForm = false;
@@ -35,6 +34,11 @@ export class CharacteristicsEditorComponent {
   showError = false;
 
   private readonly truncateValuePipe = new TruncateValuePipe();
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.showForm) this.cancel();
+  }
 
   get canSave(): boolean {
     return !!this.currentChar?.name?.trim() && (this.currentChar?.values?.length ?? 0) > 0;
