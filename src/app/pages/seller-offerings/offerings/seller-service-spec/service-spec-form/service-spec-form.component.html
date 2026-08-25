@@ -19,7 +19,6 @@
   @if (notFound) {
   <app-not-found-state message="This service specification could not be found." (back)="goBack()" />
   } @else {
-  <div class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-6 w-full flex-1 flex flex-col">
     <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance"
       [submitLabel]="isUpdate ? 'UPDATE_SERV_SPEC._update_serv' : 'CREATE_SERV_SPEC._create_serv'"
       [submitDisabled]="!generalForm.valid || loading" [submitAlwaysVisible]="isUpdate"
@@ -128,7 +127,6 @@
       </ng-template>
 
     </app-stepper>
-  </div>
   }
 </div>
 

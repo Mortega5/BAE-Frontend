@@ -14,7 +14,6 @@
 
   <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'CREATE_PROD_SPEC._new' | translate }}</h1>
 
-  <div class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-6 w-full flex-1 flex flex-col">
     <app-stepper [canAdvance]="canAdvance" submitLabel="CREATE_PROD_SPEC._create_prod" [submitDisabled]="loading"
       (stepChanged)="onStepChanged($event)" (submitted)="createProduct()">
 
@@ -1282,7 +1281,6 @@
         </div>
       </ng-template>
     </app-stepper>
-  </div>
 
 </div>
 

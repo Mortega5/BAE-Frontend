@@ -14,7 +14,6 @@
 
   <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'CREATE_SOFTWARE._new' | translate }}</h1>
 
-  <div class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-6 w-full flex-1 flex flex-col">
     <app-stepper [canAdvance]="canAdvance" submitLabel="CREATE_SOFTWARE._create"
       [submitDisabled]="!generalForm.valid || loading" (stepChanged)="onStepChanged($event)"
       (submitted)="createSoftware()">
@@ -94,7 +93,6 @@
       </ng-template>
 
     </app-stepper>
-  </div>
 </div>
 
 @if (showError) {

@@ -2,13 +2,12 @@
   {{ 'CREATE_OFFER._create' | translate }}
 </h1>
 
-<div class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-4 md:p-6 w-full">
-  @if(notFound){
-      <app-not-found-state message="This offer could not be found." (back)="goBack()" />
-  } @else if(loadingData){
-      <app-loading-spinner />
-  } @else {
-    <form [formGroup]="productOfferForm">
+@if(notFound){
+    <app-not-found-state message="This offer could not be found." (back)="goBack()" />
+} @else if(loadingData){
+    <app-loading-spinner />
+} @else {
+  <form [formGroup]="productOfferForm">
       <app-stepper [canAdvance]="canAdvance" [loading]="loading" submitLabel="CREATE_OFFER._create"
         [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="createOffer()">
 
@@ -85,8 +84,7 @@
       </app-stepper>
     </form>
   }
-  </div>
-  
+
   @if(showError){
     <div class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
       <div id="alert-additional-content-2" class="p-4 mb-4 text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-red-900 dark:border-red-900 dark:text-white" role="alert">

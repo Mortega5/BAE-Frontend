@@ -1,4 +1,4 @@
-<div class="w-full flex flex-col lg:flex-row lg:gap-10">
+<div class="w-full flex-1 flex flex-col lg:flex-row lg:gap-10 lg:items-start">
   <div class="hidden lg:flex lg:flex-col lg:w-64 lg:shrink-0 pt-2">
     @for (step of stepTemplates; track i; let i = $index; let last = $last) {
     <div (click)="handleStepClick(i)"
@@ -32,20 +32,22 @@
     }
   </div>
 
-  <div class="flex-1 min-w-0">
+  <div class="flex-1 min-w-0 flex flex-col gap-4">
     <h3 class="block lg:hidden mt-2 text-center text-2xl text-primary-100 dark:text-white pb-4">
       {{ (stepTemplates.get(currentStep)?.stepperStep ?? '') | translate }}
     </h3>
 
-    <div [class.animate-stepIn]="animateContent">
-      @if (loading) {
-        <app-loading-spinner />
-      } @else {
-        <ng-container *ngTemplateOutlet="currentTemplate"></ng-container>
-      }
+    <div class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-4 md:p-6">
+      <div [class.animate-stepIn]="animateContent">
+        @if (loading) {
+          <app-loading-spinner />
+        } @else {
+          <ng-container *ngTemplateOutlet="currentTemplate"></ng-container>
+        }
+      </div>
     </div>
 
-    <div class="flex justify-end mt-6 space-x-4">
+    <div class="flex justify-end space-x-4">
       <button (click)="goBack()" [disabled]="currentStep === 0"
         [ngClass]="{
           'text-gray-500 dark:text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white': currentStep !== 0,

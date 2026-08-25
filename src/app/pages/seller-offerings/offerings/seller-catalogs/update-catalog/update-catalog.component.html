@@ -17,7 +17,6 @@
   @if (notFound) {
   <app-not-found-state message="This catalog could not be found." (back)="goBack()" />
   } @else {
-  <div class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-6 w-full flex-1 flex flex-col">
     <app-stepper [allUnlocked]="true" [canAdvance]="canAdvance" submitLabel="UPDATE_CATALOG._update"
       [submitDisabled]="!generalForm.valid || loading" [submitAlwaysVisible]="true"
       (stepChanged)="onStepChanged($event)" (submitted)="updateCatalog()">
@@ -79,7 +78,6 @@
       </ng-template>
 
     </app-stepper>
-  </div>
   }
 </div>
 
