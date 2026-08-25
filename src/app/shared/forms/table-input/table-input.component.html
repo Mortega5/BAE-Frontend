@@ -1,13 +1,14 @@
-<div class="overflow-x-auto rounded-lg border table-input-container" [class.opacity-80]="isReadonly"
+<div class="overflow-x-auto rounded-2xl border table-input-container" [class.opacity-80]="isReadonly"
   [class.cursor-not-allowed]="isReadonly">
   <table class="w-full table-fixed text-sm text-left table-input-text">
-    <thead class="text-xs uppercase table-input-header">
+    <thead class="text-base font-semibold table-input-header">
       <tr>
         @if (selectable) {
-        <th scope="col" class="px-4 py-3 w-12"></th>
+        <th scope="col" class="px-4 py-3 w-12 rounded-tl-2xl"></th>
         }
-        @for (col of columns; track $index) {
-        <th scope="col" class="px-6 py-3" [ngClass]="[col.width ?? '', col.hideOnMobile ? 'hidden sm:table-cell' : '']">
+        @for (col of columns; track $index; let colFirst = $first; let colLast = $last) {
+        <th scope="col" class="px-6 py-3" [ngClass]="[col.width ?? '', col.hideOnMobile ? 'hidden sm:table-cell' : '']"
+          [class.rounded-tl-2xl]="colFirst && !selectable" [class.rounded-tr-2xl]="colLast">
           @if (col.sortKey) {
           <button type="button" class="table-input-sort-btn group inline-flex items-center gap-1.5 px-2 py-1 rounded"
             [class.font-bold]="col.sortKey === sort?.key" (click)="onSortClick(col)">
@@ -24,7 +25,7 @@
       </tr>
     </thead>
     <tbody>
-      @for (item of items; track $index) {
+      @for (item of items; track $index; let last = $last) {
       <tr class="border-b table-input-row"
         [class.cursor-pointer]="!isReadonly && isRowSelectable(item) && (selectable || clickable)"
         [class.opacity-50]="!isRowSelectable(item)" [class.cursor-not-allowed]="!isRowSelectable(item)" [ngClass]="{
@@ -32,7 +33,7 @@
           'table-input-row-selected': isSelected(item)
         }" (click)="onRowClick(item, $event)">
         @if (selectable) {
-        <td class="px-4 py-3 w-12">
+        <td class="px-4 py-3 w-12" [class.rounded-bl-2xl]="last">
           @if (multiple) {
           <input type="checkbox" class="w-4 h-4 rounded focus:ring-4 table-input-selection-control"
             [class.cursor-not-allowed]="isReadonly || !isRowSelectable(item)" [checked]="isSelected(item)"
@@ -44,8 +45,9 @@
           }
         </td>
         }
-        @for (col of columns; track $index) {
+        @for (col of columns; track $index; let colFirst = $first; let colLast = $last) {
         <td class="px-6 py-4"
+          [class.rounded-bl-2xl]="last && colFirst && !selectable" [class.rounded-br-2xl]="last && colLast"
           [ngClass]="[col.type !== 'badge' && col.type !== 'icon-button' && col.type !== 'actions' && col.type !== 'image' ? getCellClass(col, item) : '', col.hideOnMobile ? 'hidden sm:table-cell' : '']">
           @if (col.type === 'badge') {
           <span [ngClass]="getCellClass(col, item)">{{ getCellValue(col, item) | translate }}</span>

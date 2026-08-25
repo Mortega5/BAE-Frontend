@@ -26,12 +26,22 @@
 
       <!-- Step 1: General Info -->
       <ng-template stepperStep="General Info" stepId="general">
-        <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" />
+        <div class="flex flex-col gap-5">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._general_info' | translate }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ i18nPrefix + '._general_info_desc' | translate }}</p>
+          </div>
+          <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" />
+        </div>
       </ng-template>
 
       <!-- Step 2: Characteristics -->
       <ng-template stepperStep="Characteristics" stepId="characteristics">
-        <div class="m-4">
+        <div class="flex flex-col gap-5">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CHAR_SPEC._step_title' | translate }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CHAR_SPEC._step_subtitle' | translate }}</p>
+          </div>
           <app-characteristics-editor [characteristics]="characteristicItems" [supportedTypes]="allowedChars"
             (characteristicsChange)="onCharacteristicsChange($event)" />
         </div>
@@ -39,7 +49,12 @@
 
       <!-- Step 3: Configuration -->
       <ng-template stepperStep="Configuration" stepId="configuration">
-        <div class="flex justify-center w-full m-4">
+        <div class="flex flex-col gap-5">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._template_config_title' | translate }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ i18nPrefix + '._template_config_subtitle' | translate }}</p>
+          </div>
+        <div class="flex justify-center w-full">
           @if (templateConfigFields.length === 0) {
           <div
             class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
@@ -56,11 +71,17 @@
             [columns]="templateConfigColumnCount" [columns]="3" />
           }
         </div>
+        </div>
       </ng-template>
 
       <!-- Step 4: Summary -->
       <ng-template stepperStep="Summary" stepId="summary">
-        <div class="m-8">
+        <div class="flex flex-col gap-5">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._ready_title' | translate }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ i18nPrefix + '._ready_desc' | translate }}</p>
+          </div>
+        <div>
           @if (loading) {
           <app-loading-spinner />
           } @else if (resourceData) {
@@ -145,6 +166,7 @@
           </div>
           }
           }
+        </div>
         </div>
       </ng-template>
 
