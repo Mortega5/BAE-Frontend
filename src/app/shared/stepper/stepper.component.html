@@ -1,30 +1,27 @@
 <div class="w-full flex-1 flex flex-col lg:flex-row lg:gap-10 lg:items-start">
   <div class="hidden lg:flex lg:flex-col lg:w-64 lg:shrink-0 pt-2">
     @for (step of stepTemplates; track i; let i = $index; let last = $last) {
-    <div (click)="handleStepClick(i)"
-      [class.cursor-not-allowed]="!canNavigate(i)"
-      [class.opacity-50]="!canNavigate(i)"
+    <div (click)="handleStepClick(i)" [class.cursor-not-allowed]="!canNavigate(i)" [class.opacity-50]="!canNavigate(i)"
       class="flex items-start gap-3 cursor-pointer">
       <div class="flex flex-col items-center">
         <span
           class="flex items-center justify-center w-8 h-8 border-2 border-primary-100 dark:border-primary-50 shrink-0 rounded-full text-sm font-semibold transition-colors duration-300"
           [class.bg-primary-100]="currentStep === i || i < highestStep"
           [class.text-white]="currentStep === i || i < highestStep">
-          @if (i < highestStep && currentStep !== i) {
-          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
+          @if (i < highestStep && currentStep !==i) { <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-          </svg>
-          } @else {
-          {{ i + 1 }}
-          }
+            </svg>
+            } @else {
+            {{ i + 1 }}
+            }
         </span>
         @if (!last) {
         <span class="w-px flex-1 min-h-8 bg-gray-300 dark:bg-gray-700 my-1"></span>
         }
       </div>
       <span class="mt-1 text-base font-medium transition-colors duration-300"
-        [class.text-primary-100]="currentStep === i"
-        [class.text-gray-500]="currentStep !== i"
+        [class.text-primary-100]="currentStep === i" [class.text-gray-500]="currentStep !== i"
         class="dark:text-gray-400">
         {{ step.stepperStep | translate }}
       </span>
@@ -37,23 +34,23 @@
       {{ (stepTemplates.get(currentStep)?.stepperStep ?? '') | translate }}
     </h3>
 
-    <div class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-4 md:p-6">
+    <div
+      class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-4 md:p-6">
       <div [class.animate-stepIn]="animateContent">
         @if (loading) {
-          <app-loading-spinner />
+        <app-loading-spinner />
         } @else {
-          <ng-container *ngTemplateOutlet="currentTemplate"></ng-container>
+        <ng-container *ngTemplateOutlet="currentTemplate"></ng-container>
         }
       </div>
     </div>
 
     <div class="flex justify-end space-x-4">
-      <button (click)="goBack()" [disabled]="currentStep === 0"
-        [ngClass]="{
-          'text-gray-500 dark:text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white': currentStep !== 0,
+      <button (click)="goBack()" [disabled]="currentStep === 0" [ngClass]="{
+          'text-primary-100 dark:text-primary-100 hover:bg-secondary-50 hover:text-primary-50 dark:hover:bg-gray-700 dark:hover:text-white': currentStep !== 0,
           'text-gray-300 dark:text-gray-600 cursor-not-allowed': currentStep === 0
         }"
-        class="px-4 py-2 flex items-center justify-center text-base font-medium rounded-lg bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 transition-colors duration-150">
+        class="rounded-lg px-4 py-2 flex items-center justify-center text-base font-medium transition-colors duration-150">
         <svg class="min-w-4 w-4 h-4 mr-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
           <path fill="currentColor"
             d="M9.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l192 192c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L77.3 256 246.6 86.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-192 192z" />
@@ -61,18 +58,19 @@
         {{ previousLabel | translate }}
       </button>
 
-      <button data-cy="stepperNext" (click)="goNext()" [disabled]="isLastStep || !canAdvance"
-        [ngClass]="{
-          'hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white': !isLastStep && canAdvance,
+      @if(!isLastStep) {
+      <button data-cy="stepperNext" (click)="goNext()" [disabled]="isLastStep || !canAdvance" [ngClass]="{
+          'dark:hover:bg-gray-700 dark:hover:text-white hover:bg-primary-50': !isLastStep && canAdvance,
           'cursor-not-allowed opacity-50': isLastStep || !canAdvance
         }"
-        class="px-4 py-2 flex items-center justify-center text-base font-medium rounded-lg text-gray-500 bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 transition-colors duration-150">
+        class="px-4 py-2 flex items-center justify-center text-base font-medium rounded-lg text-secondary-50 bg-primary-100 border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 transition-colors duration-150">
         {{ nextLabel | translate }}
         <svg class="min-w-4 w-4 h-4 ml-2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
           <path fill="currentColor"
             d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z" />
         </svg>
       </button>
+      }
 
       @if (isLastStep || submitAlwaysVisible) {
       <button data-cy="stepperSubmit" (click)="submitted.emit()" [disabled]="submitDisabled"
