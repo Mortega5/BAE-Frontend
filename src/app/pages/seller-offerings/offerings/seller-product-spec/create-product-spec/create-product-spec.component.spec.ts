@@ -183,9 +183,8 @@ describe('CreateProductSpecComponent', () => {
     expect(component.partyId).toBe('kept-party');
   });
 
-  it('goBack should emit seller product spec event and navigate to the product specs list', () => {
+  it('goBack should navigate to the product specs list', () => {
     component.goBack();
-    expect(eventMessageSpy.emitSellerProductSpec).toHaveBeenCalledWith(true);
     expect(routerSpy.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.productSpecs.list()]);
   });
 
@@ -605,7 +604,8 @@ describe('CreateProductSpecComponent', () => {
     expect(component.isJsonCharacteristicType('string')).toBeFalse();
     expect(component.isJsonCharacteristicType(undefined)).toBeFalse();
 
-    expect(component.isDataSpaceCharacteristicType('endpointUrl')).toBeTrue();
+    expect(component.isDataSpaceCharacteristicType('authorizationPolicy')).toBeTrue();
+    expect(component.isDataSpaceCharacteristicType('endpointUrl')).toBeFalse();
     expect(component.isDataSpaceCharacteristicType('number')).toBeFalse();
     expect(component.isDataSpaceCharacteristicType(undefined)).toBeFalse();
   });
@@ -626,10 +626,10 @@ describe('CreateProductSpecComponent', () => {
     ] as any;
 
     component.currentStepId = 'characteristics';
-    expect(component.getFilteredCharacteristicsForCurrentStep().map(char => char.name)).toEqual(['Latency']);
+    expect(component.getFilteredCharacteristicsForCurrentStep().map(char => char.name)).toEqual(['Latency', 'DCP endpoint']);
 
     component.currentStepId = 'dataspace';
-    expect(component.getFilteredCharacteristicsForCurrentStep().map(char => char.name)).toEqual(['DCP endpoint', 'Policy']);
+    expect(component.getFilteredCharacteristicsForCurrentStep().map(char => char.name)).toEqual(['Policy']);
   });
 
   it('onCharacteristicsChange should map generic items emitted by app-characteristics-editor back into prodChars', () => {

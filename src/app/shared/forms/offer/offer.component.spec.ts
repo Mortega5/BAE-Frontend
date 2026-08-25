@@ -148,7 +148,7 @@ describe('OfferComponent', () => {
 
       component.onStepChanged({ stepId: 'license' } as any);
 
-      expect(component.showContractDefinitionStep).toBeFalse();
+      expect(component.showContractDefinitionStep).toBeFalsy();
     });
 
     it('should leave showContractDefinitionStep untouched when leaving a step other than productSpec', () => {
@@ -543,6 +543,8 @@ describe('OfferComponent', () => {
     });
 
     it('should load the license description when a License term is present', async () => {
+      (component.productOfferForm.get('license') as FormGroup).addControl('treatment', new FormControl(''));
+      (component.productOfferForm.get('license') as FormGroup).addControl('description', new FormControl(''));
       component.offer = { productOfferingTerm: [{ name: 'License', description: 'Terms text' }] };
 
       await component.loadOfferData();
@@ -551,6 +553,8 @@ describe('OfferComponent', () => {
     });
 
     it('should default to an empty license description when no License term is present', async () => {
+      (component.productOfferForm.get('license') as FormGroup).addControl('treatment', new FormControl(''));
+      (component.productOfferForm.get('license') as FormGroup).addControl('description', new FormControl(''));
       component.offer = { productOfferingTerm: [{ name: 'procurement', description: 'manual' }] };
 
       await component.loadOfferData();
@@ -559,6 +563,8 @@ describe('OfferComponent', () => {
     });
 
     it('should load the procurement mode when a procurement term is present', async () => {
+      (component.productOfferForm.get('procurementMode') as FormGroup).addControl('id', new FormControl(''));
+      (component.productOfferForm.get('procurementMode') as FormGroup).addControl('name', new FormControl(''));
       component.offer = { productOfferingTerm: [{ name: 'procurement', description: 'automatic' }] };
 
       await component.loadOfferData();
@@ -567,6 +573,8 @@ describe('OfferComponent', () => {
     });
 
     it('should default to manual procurement when no procurement term is present', async () => {
+      (component.productOfferForm.get('procurementMode') as FormGroup).addControl('id', new FormControl(''));
+      (component.productOfferForm.get('procurementMode') as FormGroup).addControl('name', new FormControl(''));
       component.offer = { productOfferingTerm: [{ name: 'License', description: '' }] };
 
       await component.loadOfferData();
@@ -604,9 +612,24 @@ describe('OfferComponent', () => {
   });
 
   describe('saveOfferInfo', () => {
+    function addMinimalFormControls() {
+      const generalInfo = component.productOfferForm.get('generalInfo') as FormGroup;
+      generalInfo.addControl('name', new FormControl(''));
+      generalInfo.addControl('description', new FormControl(''));
+      generalInfo.addControl('version', new FormControl(''));
+      generalInfo.addControl('status', new FormControl(''));
+      (component.productOfferForm.get('license') as FormGroup).addControl('description', new FormControl(''));
+      const procurementMode = component.productOfferForm.get('procurementMode') as FormGroup;
+      procurementMode.addControl('mode', new FormControl(''));
+      procurementMode.addControl('extBillingEnabled', new FormControl(false));
+      procurementMode.addControl('plaSpecId', new FormControl(''));
+    }
+
     function fillMinimalForm() {
+      addMinimalFormControls();
       component.productOfferForm.patchValue({
         generalInfo: { name: 'Offer name', version: '1.0.0' },
+        prodSpec: { id: 'spec-1', href: 'spec-1' },
         category: [{ id: 'cat-1' }],
         license: { description: 'Terms' },
         procurementMode: { mode: 'manual' },
@@ -628,6 +651,7 @@ describe('OfferComponent', () => {
     it('should create the offer against the resolved catalogue and go back on success', () => {
       fillMinimalForm();
       component.formType = 'create';
+      component.catalogManagementEnabled = false;
       component.autoCatalogue = { id: 'cat-1' };
       const postSpy = spyOn(api, 'postProductOffering').and.returnValue(of({ id: 'offer-1' }));
       const navigateSpy = spyOn(router, 'navigate');
@@ -651,8 +675,10 @@ describe('OfferComponent', () => {
     });
 
     it('should deduplicate repeated category ids', () => {
+      addMinimalFormControls();
       component.productOfferForm.patchValue({
         generalInfo: { name: 'Offer name', version: '1.0.0' },
+        prodSpec: { id: 'spec-1', href: 'spec-1' },
         category: [{ id: 'cat-1' }, { id: 'cat-1' }, { id: 'cat-2' }],
         license: { description: '' },
         procurementMode: { mode: 'manual' },
@@ -670,6 +696,7 @@ describe('OfferComponent', () => {
     it('should surface an error message when the request fails', () => {
       fillMinimalForm();
       component.formType = 'create';
+      component.catalogManagementEnabled = false;
       component.autoCatalogue = { id: 'cat-1' };
       spyOn(api, 'postProductOffering').and.returnValue(throwError(() => ({ error: { error: 'Bad request' } })));
 
@@ -697,7 +724,7 @@ describe('OfferComponent', () => {
         pricePlans: [{
           currency: 'EUR',
           name: 'Flex plan',
-          priceComponents: [{ name: 'Base price', priceType: 'one time', price: 10 }]
+          priceComponents: [{ name: 'Base price', description: 'Base price description', priceType: 'one time', price: 10 }]
         }]
       });
       spyOn(api, 'postOfferingPrice').and.returnValues(

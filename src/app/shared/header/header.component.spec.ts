@@ -28,7 +28,9 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render the usage specs link in the navigation', () => {
+  it('should render the usage specs link in the navigation for a logged-in seller', () => {
+    component.is_logged = true;
+    component.roles = [component.sellerRole];
     fixture.detectChanges();
 
     expect(fixture.nativeElement.querySelector('#usageSpecs')).not.toBeNull();

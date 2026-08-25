@@ -24,7 +24,7 @@ describe('SellerOfferingsComponent', () => {
   beforeEach(async () => {
     quoteServiceSpy = jasmine.createSpyObj<QuoteService>('QuoteService', ['getQuoteById']);
     localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject']);
-    routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
+    routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate'], { events: of(), url: '/my-offerings/offers' });
     localStorageSpy.getObject.and.returnValue({});
 
     await TestBed.configureTestingModule({
@@ -70,9 +70,9 @@ describe('SellerOfferingsComponent', () => {
 
     const loadPromise = (component as any).loadCounts();
 
-    httpMock.expectOne(req => req.url.includes('/productOffering') && req.params.get('relatedParty.id') === 'party-1')
+    httpMock.expectOne(req => req.url.includes('/productOffering') && req.urlWithParams.includes('relatedParty.id=party-1'))
       .flush([{ id: 'offer-1' }, { id: 'offer-2' }]);
-    httpMock.expectOne(req => req.url.includes('/catalog/catalog') && req.params.get('relatedParty.id') === 'party-1')
+    httpMock.expectOne(req => req.url.includes('/catalog/catalog') && req.urlWithParams.includes('relatedParty.id=party-1'))
       .flush([{ id: 'catalog-1' }]);
     httpMock.expectOne(req => req.url.includes('/productSpecification')).flush([]);
     httpMock.expectOne(req => req.url.includes('/serviceSpecification')).flush([{ id: 'serv-1' }]);
