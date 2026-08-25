@@ -3,8 +3,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, Subject, throwError } from 'rxjs';
 
-import { ComponentFixture } from '@angular/core/testing';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
+import { AttachmentServiceService } from 'src/app/services/attachment-service.service';
+import { EventMessageService } from 'src/app/services/event-message.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
@@ -99,7 +103,6 @@ describe('CreateProductSpecComponent', () => {
   });
 
   beforeEach(() => {
-    component.steps = [{ label: 'General Info', id: 'general' }] as any;
     originalFileReader = (window as any).FileReader;
     (window as any).FileReader = SyncFileReaderMock as any;
   });
@@ -186,11 +189,11 @@ describe('CreateProductSpecComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.productSpecs.list()]);
   });
 
-  it('onStepChanged should update currentStepId and refresh characteristics', () => {
-    const refreshSpy = spyOn(component, 'refreshChars');
+  it('onStepChanged should update currentStepId and rebuild the characteristic editor items', () => {
+    component.prodChars = [{ id: '1', name: 'Latency', valueType: 'string' } as any];
     component.onStepChanged({ step: 1, isLastStep: false, label: 'Characteristics', stepId: 'characteristics' });
     expect(component.currentStepId).toBe('characteristics');
-    expect(refreshSpy).toHaveBeenCalled();
+    expect(component.characteristicItems.map(c => c.name)).toEqual(['Latency']);
   });
 
   it('onStepChanged should schedule flowbite init for compliance and attachments steps', () => {
@@ -488,30 +491,6 @@ describe('CreateProductSpecComponent', () => {
     expect(component.selectedISO).toEqual({ name: 'ISO-A' });
   });
 
-  it('toggleCreateCharacteristicForm should reset draft state when opening', () => {
-    component.currentStepId = 'characteristics';
-    component.showCreateChar = false;
-    component.charTypeSelected = 'number';
-    component.toggleCreateCharacteristicForm();
-    expect(component.showCreateChar).toBeTrue();
-    expect(component.charTypeSelected).toBe('string');
-    expect(component.creatingChars).toEqual([]);
-    expect(component.isOptional).toBeFalse();
-  });
-
-  it('toggleCreateCharacteristicForm should default to boolean values when boolean type is initial for step', () => {
-    component.currentStepId = 'characteristics';
-    spyOn(component, 'getInitialCharacteristicTypeForCurrentStep').and.returnValue('boolean');
-    component.toggleCreateCharacteristicForm();
-    expect(component.creatingChars.length).toBe(2);
-  });
-
-  it('toggleCreateCharacteristicForm should close the form on second call', () => {
-    component.showCreateChar = true;
-    component.toggleCreateCharacteristicForm();
-    expect(component.showCreateChar).toBeFalse();
-  });
-
   it('fetchResourceSpecs should delegate to ResourceSpecServiceService', async () => {
     component.partyId = 'party-1';
     const params = { limit: 10, offset: 0 } as any;
@@ -621,64 +600,7 @@ describe('CreateProductSpecComponent', () => {
     expect(detectSpy).toHaveBeenCalled();
   });
 
-  it('refreshChars should restore default characteristic state', () => {
-    component.stringValue = 'x';
-    component.numberValue = '2';
-    component.rangeUnit = 'ms';
-    component.charTypeSelected = 'number';
-    component.creatingChars = [{ isDefault: true } as any];
-    component.refreshChars();
-    expect(component.stringValue).toBe('');
-    expect(component.numberValue).toBe('');
-    expect(component.rangeUnit).toBe('');
-    expect(component.charTypeSelected).toBe('string');
-    expect(component.booleanDefaultTrue).toBeTrue();
-    expect(component.creatingChars).toEqual([]);
-  });
-
-  it('refreshChars should use the dataspace default type on the dataspace step', () => {
-    component.currentStepId = 'dataspace';
-    component.charTypeSelected = 'number';
-    component.refreshChars();
-    expect(component.charTypeSelected).toBe('endpointUrl');
-  });
-
-  it('setBooleanDefaultValues and onBooleanDefaultChange should toggle default boolean value', () => {
-    component.charTypeSelected = 'boolean';
-    component.booleanDefaultTrue = true;
-    component.onBooleanDefaultChange();
-    expect(component.creatingChars[0].isDefault).toBeTrue();
-    expect(component.creatingChars[1].isDefault).toBeFalse();
-
-    component.booleanDefaultTrue = false;
-    component.onBooleanDefaultChange();
-    expect(component.creatingChars[0].isDefault).toBeFalse();
-    expect(component.creatingChars[1].isDefault).toBeTrue();
-  });
-
-  it('onBooleanDefaultChange should do nothing for non-boolean types', () => {
-    component.charTypeSelected = 'string';
-    component.creatingChars = [];
-    component.onBooleanDefaultChange();
-    expect(component.creatingChars).toEqual([]);
-  });
-
-  it('onTypeChange should switch characteristic type and clear draft values', () => {
-    component.creatingChars = [{ isDefault: true } as any];
-    component.isOptional = true;
-    component.optionalDftTrue = true;
-    component.onTypeChange({ target: { value: 'number' } });
-    expect(component.charTypeSelected).toBe('number');
-    expect(component.creatingChars).toEqual([]);
-    expect(component.isOptional).toBeFalse();
-
-    component.onTypeChange({ target: { value: 'boolean' } });
-    expect(component.charTypeSelected).toBe('boolean');
-    expect(component.booleanDefaultTrue).toBeTrue();
-    expect(component.creatingChars.length).toBe(2);
-  });
-
-  it('isJsonCharacteristicType, isDataSpaceCharacteristicType and isTextCharacteristicType should classify types correctly', () => {
+  it('isJsonCharacteristicType and isDataSpaceCharacteristicType should classify types correctly', () => {
     expect(component.isJsonCharacteristicType('credentialsConfiguration')).toBeTrue();
     expect(component.isJsonCharacteristicType('string')).toBeFalse();
     expect(component.isJsonCharacteristicType(undefined)).toBeFalse();
@@ -686,10 +608,6 @@ describe('CreateProductSpecComponent', () => {
     expect(component.isDataSpaceCharacteristicType('endpointUrl')).toBeTrue();
     expect(component.isDataSpaceCharacteristicType('number')).toBeFalse();
     expect(component.isDataSpaceCharacteristicType(undefined)).toBeFalse();
-
-    expect(component.isTextCharacteristicType('string')).toBeTrue();
-    expect(component.isTextCharacteristicType('endpointUrl')).toBeTrue();
-    expect(component.isTextCharacteristicType('number')).toBeFalse();
   });
 
   it('isDataspaceConfigurationStep should reflect currentStepId', () => {
@@ -712,195 +630,6 @@ describe('CreateProductSpecComponent', () => {
 
     component.currentStepId = 'dataspace';
     expect(component.getFilteredCharacteristicsForCurrentStep().map(char => char.name)).toEqual(['DCP endpoint', 'Policy']);
-  });
-
-  it('getInitialCharacteristicTypeForCurrentStep should return dataspace or string default', () => {
-    component.currentStepId = 'dataspace';
-    expect(component.getInitialCharacteristicTypeForCurrentStep()).toBe('endpointUrl');
-    component.currentStepId = 'characteristics';
-    expect(component.getInitialCharacteristicTypeForCurrentStep()).toBe('string');
-  });
-
-  it('addCharValue should add string values and assign default correctly', () => {
-    component.charTypeSelected = 'string';
-    component.stringValue = 'A';
-    component.addCharValue();
-    component.stringValue = 'B';
-    component.addCharValue();
-    expect(component.creatingChars.length).toBe(2);
-    expect(component.creatingChars[0].isDefault).toBeTrue();
-    expect(component.creatingChars[1].isDefault).toBeFalse();
-  });
-
-  it('addCharValue should treat endpointUrl as text type', () => {
-    component.charTypeSelected = 'endpointUrl';
-    component.stringValue = 'https://example.org/api';
-    component.addCharValue();
-    expect(component.creatingChars.length).toBe(1);
-    expect(component.creatingChars[0].value as any).toBe('https://example.org/api');
-    expect(component.stringValue).toBe('');
-  });
-
-  it('addCharValue should add number values with units', () => {
-    component.charTypeSelected = 'number';
-    component.numberValue = '100';
-    component.numberUnit = 'ms';
-    component.addCharValue();
-    expect(component.creatingChars[0].value as any).toBe('100');
-    expect(component.creatingChars[0].unitOfMeasure).toBe('ms');
-    expect(component.numberValue).toBe('');
-    expect(component.numberUnit).toBe('');
-  });
-
-  it('addCharValue should not mutate fixed boolean values', () => {
-    component.charTypeSelected = 'boolean';
-    component.creatingChars = [
-      { isDefault: true, value: true } as any,
-      { isDefault: false, value: false } as any
-    ];
-    component.addCharValue();
-    expect(component.creatingChars.length).toBe(2);
-  });
-
-  it('addCharValue should validate range and reject invalid intervals', () => {
-    component.charTypeSelected = 'range';
-    component.fromValue = '10';
-    component.toValue = '5';
-    component.addCharValue();
-    expect(component.showError).toBeTrue();
-    expect(component.errorMessage).toContain('Invalid range');
-    expect(component.creatingChars.length).toBe(0);
-  });
-
-  it('addCharValue should add valid range values', () => {
-    component.charTypeSelected = 'range';
-    component.fromValue = '5';
-    component.toValue = '10';
-    component.rangeUnit = 'GB';
-    component.addCharValue();
-    expect(component.creatingChars.length).toBe(1);
-    expect(component.creatingChars[0].valueFrom as any).toBe('5');
-    expect(component.creatingChars[0].valueTo as any).toBe('10');
-    expect(component.creatingChars[0].unitOfMeasure).toBe('GB');
-  });
-
-  it('addCharValue should parse and add JSON values for credentialsConfiguration', () => {
-    component.charTypeSelected = 'credentialsConfiguration';
-    component.jsonValue = '{"issuer":"did:example:123"}';
-    component.addCharValue();
-    expect(component.creatingChars.length).toBe(1);
-    expect(component.creatingChars[0].value as any).toEqual({ issuer: 'did:example:123' });
-    expect(component.jsonValue).toBe('');
-  });
-
-  it('addCharValue should allow only one JSON value for JSON-based characteristic types', () => {
-    component.charTypeSelected = 'credentialsConfiguration';
-    component.jsonValue = '{"issuer":"did:example:123"}';
-    component.addCharValue();
-    component.jsonValue = '{"issuer":"did:example:456"}';
-    component.addCharValue();
-    expect(component.creatingChars.length).toBe(1);
-    expect(component.showError).toBeTrue();
-    expect(component.errorMessage).toBe('Only one JSON value is allowed');
-  });
-
-  it('addCharValue should reject invalid JSON', () => {
-    component.charTypeSelected = 'authorizationPolicy';
-    component.jsonValue = '{"policy":';
-    component.addCharValue();
-    expect(component.showError).toBeTrue();
-    expect(component.errorMessage).toBe('Invalid JSON format');
-    expect(component.creatingChars).toEqual([]);
-  });
-
-  it('removeCharValue and selectDefaultChar should manage created char values', () => {
-    component.charTypeSelected = 'string';
-    component.creatingChars = [
-      { isDefault: true, value: 'A' } as any,
-      { isDefault: false, value: 'B' } as any
-    ];
-    component.selectDefaultChar(component.creatingChars[1], 1);
-    expect(component.creatingChars[0].isDefault).toBeFalse();
-    expect(component.creatingChars[1].isDefault).toBeTrue();
-    component.removeCharValue(component.creatingChars[0], 0);
-    expect(component.creatingChars.length).toBe(1);
-  });
-
-  it('removeCharValue should not remove values for boolean type', () => {
-    component.charTypeSelected = 'boolean';
-    component.creatingChars = [
-      { isDefault: true, value: true } as any,
-      { isDefault: false, value: false } as any
-    ];
-    component.removeCharValue(component.creatingChars[0], 0);
-    expect(component.creatingChars.length).toBe(2);
-  });
-
-  it('saveChar should reject duplicated names', () => {
-    component.charsForm.patchValue({ name: 'Latency', description: 'desc' });
-    component.prodChars = [{ id: '1', name: 'Latency', productSpecCharacteristicValue: [] } as any];
-    component.creatingChars = [{ isDefault: true, value: '100' } as any];
-    component.saveChar();
-    expect(component.showError).toBeTrue();
-    expect(component.errorMessage).toBe('Cannot save duplicated name in characteristics');
-  });
-
-  it('saveChar should save the main and optional enabled characteristic', () => {
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
-    component.charTypeSelected = 'string';
-    component.charsForm.patchValue({ name: 'Bandwidth', description: 'desc' });
-    component.creatingChars = [{ isDefault: true, value: '1Gbps' } as any];
-    component.isOptional = true;
-    component.optionalDftTrue = true;
-    component.saveChar();
-    expect(component.prodChars.length).toBe(2);
-    expect(component.prodChars[0].name).toBe('Bandwidth');
-    expect(component.prodChars[1].name).toBe('Bandwidth - enabled');
-    expect(component.showCreateChar).toBeFalse();
-    expect(detectSpy).toHaveBeenCalled();
-  });
-
-  it('saveChar should ignore the optional toggle for boolean characteristics', () => {
-    component.charTypeSelected = 'boolean';
-    component.charsForm.patchValue({ name: 'Enabled', description: 'desc' });
-    component.creatingChars = [
-      { isDefault: true, value: true } as any,
-      { isDefault: false, value: false } as any
-    ];
-    component.isOptional = true;
-    component.saveChar();
-    expect(component.prodChars.length).toBe(1);
-  });
-
-  it('saveChar should persist credentialsConfiguration valueType and schema location', () => {
-    component.charTypeSelected = 'credentialsConfiguration';
-    component.charsForm.patchValue({ name: 'Credential Config', description: 'desc' });
-    component.creatingChars = [{ isDefault: true, value: { issuer: 'did:example:issuer' } } as any];
-    component.saveChar();
-    expect((component.prodChars[0] as any).valueType).toBe('credentialsConfiguration');
-    expect((component.prodChars[0] as any)['@schemaLocation']).toContain('credentialConfigCharacteristic.json');
-  });
-
-  it('saveChar should persist authorizationPolicy valueType and schema location', () => {
-    component.charTypeSelected = 'authorizationPolicy';
-    component.charsForm.patchValue({ name: 'Authorization Policy', description: 'desc' });
-    component.creatingChars = [{ isDefault: true, value: { permission: [] } } as any];
-    component.saveChar();
-    expect((component.prodChars[0] as any).valueType).toBe('authorizationPolicy');
-    expect((component.prodChars[0] as any)['@schemaLocation']).toContain('policyCharacteristic.json');
-  });
-
-  it('deleteChar should remove a characteristic and its related enabled one', () => {
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
-    component.prodChars = [
-      { id: 'a', name: 'Bandwidth' } as any,
-      { id: 'b', name: 'Bandwidth - enabled' } as any,
-      { id: 'c', name: 'Other' } as any
-    ];
-    component.deleteChar({ id: 'a', name: 'Bandwidth' });
-    expect(component.prodChars.length).toBe(1);
-    expect(component.prodChars[0].name).toBe('Other');
-    expect(detectSpy).toHaveBeenCalled();
   });
 
   it('onCharacteristicsChange should map generic items emitted by app-characteristics-editor back into prodChars', () => {
