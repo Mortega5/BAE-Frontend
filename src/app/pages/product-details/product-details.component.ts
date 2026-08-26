@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faArrowProgress, faArrowRightArrowLeft, faAtom, faBook, faDownload, faGlobe, faObjectExclude, faScaleBalanced, faShieldHalved, faSwap } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
@@ -35,6 +35,14 @@ interface UsageMetricCard {
   styleUrl: './product-details.component.css'
 })
 export class ProductDetailsComponent implements OnInit, OnDestroy {
+
+  /** When set, the page renders this offer directly instead of fetching by route id —
+   * used to preview an in-progress offer from the seller wizard before it's saved. */
+  @Input() previewProductOff: Product | undefined;
+
+  get isPreviewMode(): boolean {
+    return !!this.previewProductOff;
+  }
 
   @ViewChild('relationshipsContent')
   relationshipsContent: ElementRef | undefined;
@@ -195,6 +203,12 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     initFlowbite();
+
+    if (this.previewProductOff) {
+      await this.applyPreviewOffer();
+      return;
+    }
+
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
     if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
       this.check_logged = true;
@@ -232,66 +246,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
     await this.loadUsageMetrics(prices);
 
-    if (this.prodSpec.productSpecCharacteristic != undefined) {
-      // Avoid displaying the compliance credential && Avoid showing "- enabled" chars
-      this.prodChars = this.prodSpec.productSpecCharacteristic.filter((char: any) => {
-        return !char.name.startsWith('Compliance:') && !char.name?.endsWith(' - enabled')
-      })
-
-      this.additionalCerts = this.prodSpec.productSpecCharacteristic.filter((char: any) => {
-        const cleanedName = char.name.replace('Compliance:', '').trim();
-
-        return (
-          char.name.startsWith('Compliance:') &&
-          !certifications.some(cert => cert.name === cleanedName) && char.name != 'Compliance:SelfAtt'
-        );
-      });
-      console.log('--- additional')
-      console.log(this.additionalCerts)
-
-      const normalizeName = (name?: string): string =>
-        name?.replace(/compliance:/i, '').trim() ?? '';
-
-      for (let i = 0; i < certifications.length; i++) {
-
-        // Buscar característica quitando el prefijo "Compliance:"
-        let compProf = this.prodSpec.productSpecCharacteristic.find(p => {
-          return normalizeName(p.name) === certifications[i].name;
-        });
-
-        if (compProf) {
-          let cert: any = certifications[i];
-          cert.href = compProf.productSpecCharacteristicValue?.at(0)?.value;
-          this.complianceProf.push(cert);
-        }
-
-        // Eliminar certificaciones del array de características
-        const index = this.prodChars.findIndex(item =>
-          normalizeName(item.name) === certifications[i].name
-        );
-
-        if (index !== -1) {
-          this.prodChars.splice(index, 1);
-        }
-      }
-
-      console.log(this.complianceProf)
-
-
-    }
-
-    if (this.prodSpec.serviceSpecification != undefined) {
-      for (let j = 0; j < this.prodSpec.serviceSpecification.length; j++) {
-        let serv = await this.api.getServiceSpec(this.prodSpec.serviceSpecification[j].id);
-        this.serviceSpecs.push(serv);
-      }
-    }
-    if (this.prodSpec.resourceSpecification != undefined) {
-      for (let j = 0; j < this.prodSpec.resourceSpecification.length; j++) {
-        let res = await this.api.getResourceSpec(this.prodSpec.resourceSpecification[j].id);
-        this.resourceSpecs.push(res);
-      }
-    }
+    this.deriveCharacteristicsAndCompliance();
+    await this.loadLinkedSpecs();
 
     this.productOff = {
       id: prod.id,
@@ -309,13 +265,124 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     console.log('-------- producto')
     console.log(this.productOff)
     this.cdr.detectChanges();
+    this.applyProductOffDerivedState();
+
+    if (this.check_logged) {
+      let cart = await this.cartService.getShoppingCart();
+      const exists = cart.some((item: any) => item.id === this.productOff?.id);
+      this.productAlreadyInCart = exists;
+      this.cdr.detectChanges();
+    }
+  }
+
+  /** Preview mode: render the offer being built in the seller wizard directly, with no
+   * route id and no persisted data to fetch — everything comes from previewProductOff. */
+  private async applyPreviewOffer(): Promise<void> {
+    const offer = this.previewProductOff!;
+    this.productOff = offer;
+    this.id = offer.id || 'preview';
+    this.prodSpec = (offer as any).productSpecification || {};
+
+    this.getOwner();
+    this.deriveCharacteristicsAndCompliance();
+    await this.loadLinkedSpecs();
+    await this.loadUsageMetrics(offer.productOfferingPrice);
+    this.applyProductOffDerivedState();
+
+    this.cdr.detectChanges();
+  }
+
+  /** Derives prodChars/additionalCerts/complianceProf/selfAtt from this.prodSpec.
+   * Shared by the real API-driven load and the preview path. */
+  private deriveCharacteristicsAndCompliance(): void {
+    this.prodChars = [];
+    this.additionalCerts = [];
+    this.complianceProf = [];
+    this.selfAtt = '';
+
+    if (this.prodSpec.productSpecCharacteristic == undefined) {
+      return;
+    }
+
+    // Avoid displaying the compliance credential && Avoid showing "- enabled" chars
+    this.prodChars = this.prodSpec.productSpecCharacteristic.filter((char: any) => {
+      return !char.name.startsWith('Compliance:') && !char.name?.endsWith(' - enabled')
+    })
+
+    this.additionalCerts = this.prodSpec.productSpecCharacteristic.filter((char: any) => {
+      const cleanedName = char.name.replace('Compliance:', '').trim();
+
+      return (
+        char.name.startsWith('Compliance:') &&
+        !certifications.some(cert => cert.name === cleanedName) && char.name != 'Compliance:SelfAtt'
+      );
+    });
+
+    const normalizeName = (name?: string): string =>
+      name?.replace(/compliance:/i, '').trim() ?? '';
+
+    for (let i = 0; i < certifications.length; i++) {
+
+      // Buscar característica quitando el prefijo "Compliance:"
+      let compProf = this.prodSpec.productSpecCharacteristic.find(p => {
+        return normalizeName(p.name) === certifications[i].name;
+      });
+
+      if (compProf) {
+        let cert: any = certifications[i];
+        cert.href = compProf.productSpecCharacteristicValue?.at(0)?.value;
+        this.complianceProf.push(cert);
+      }
+
+      // Eliminar certificaciones del array de características
+      const index = this.prodChars.findIndex(item =>
+        normalizeName(item.name) === certifications[i].name
+      );
+
+      if (index !== -1) {
+        this.prodChars.splice(index, 1);
+      }
+    }
+
+    // Find if there is a self attestation
+    let selfAttObj = this.prodSpec.productSpecCharacteristic.find((p => {
+      return p.name === `Compliance:SelfAtt`
+    }));
+
+    if (selfAttObj) {
+      this.selfAtt = selfAttObj.productSpecCharacteristicValue?.at(0)?.value
+    }
+  }
+
+  /** Fetches the full service/resource specs referenced (by id) from this.prodSpec.
+   * Shared by the real API-driven load and the preview path. */
+  private async loadLinkedSpecs(): Promise<void> {
+    this.serviceSpecs = [];
+    this.resourceSpecs = [];
+
+    if (this.prodSpec.serviceSpecification != undefined) {
+      for (let j = 0; j < this.prodSpec.serviceSpecification.length; j++) {
+        let serv = await this.api.getServiceSpec(this.prodSpec.serviceSpecification[j].id);
+        this.serviceSpecs.push(serv);
+      }
+    }
+    if (this.prodSpec.resourceSpecification != undefined) {
+      for (let j = 0; j < this.prodSpec.resourceSpecification.length; j++) {
+        let res = await this.api.getResourceSpec(this.prodSpec.resourceSpecification[j].id);
+        this.resourceSpecs.push(res);
+      }
+    }
+  }
+
+  /** Derives category/price/images/attachments/licenseTerm/compliance level from
+   * this.productOff + this.prodSpec (both already assigned). Shared by the real
+   * API-driven load and the preview path. */
+  private applyProductOffDerivedState(): void {
     this.category = this.productOff?.category?.at(0)?.name ?? 'none';
     this.categories = this.productOff?.category;
     this.price = this.productOff?.productOfferingPrice?.at(0)?.price?.value + ' ' + this.productOff?.productOfferingPrice?.at(0)?.price?.unit ?? 'n/a';
 
     let profile = this.productOff?.attachment?.filter(item => item.name === 'Profile Picture') ?? [];
-    console.log('profile...')
-    console.log(profile)
     if (profile.length == 0) {
       this.images = this.productOff?.attachment?.filter(item => item.attachmentType === 'Picture') ?? [];
       this.attatchments = this.productOff?.attachment?.filter(item => item.attachmentType != 'Picture') ?? [];
@@ -328,28 +395,9 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       element => element.name === 'License'
     );
 
-    if (this.prodSpec.productSpecCharacteristic != undefined) {
-
-      // Find if there is a self attestement
-      let selfAttObj = this.prodSpec.productSpecCharacteristic.find((p => {
-        return p.name === `Compliance:SelfAtt`
-      }));
-
-      if (selfAttObj) {
-        this.selfAtt = selfAttObj.productSpecCharacteristicValue?.at(0)?.value
-      }
-    }
-
     //Hardcoding compliance lever for the moment
     this.complianceLevel = this.api.getComplianceLevel(this.prodSpec);
     this.complianceDescription = this.getComplianceDescription();
-
-    if (this.check_logged) {
-      let cart = await this.cartService.getShoppingCart();
-      const exists = cart.some((item: any) => item.id === this.productOff?.id);
-      this.productAlreadyInCart = exists;
-      this.cdr.detectChanges();
-    }
   }
 
   async loadUsageMetrics(prices: any[] | undefined): Promise<void> {

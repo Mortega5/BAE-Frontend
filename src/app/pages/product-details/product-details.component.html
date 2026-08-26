@@ -1,6 +1,7 @@
-<div class="min-h-screen bg-white dark:bg-tertiary-50 font-[Blinker]">
+<div class="bg-white dark:bg-tertiary-50 font-[Blinker]" [class.min-h-screen]="!isPreviewMode">
   <div class="mx-auto max-w-[1200px] px-8">
 
+    @if (!isPreviewMode) {
     <nav class="flex items-center gap-2 pt-4 pb-6 text-[16px] text-[#526179] dark:text-gray-400">
       <a (click)="back()" class="cursor-pointer hover:text-primary-100 dark:hover:text-primary-50 transition-colors">All
         categories</a>
@@ -11,6 +12,7 @@
       <span class="font-medium text-primary-100 dark:text-primary-50">{{ 'PRODUCT_DETAILS._details' | translate
         }}</span>
     </nav>
+    }
 
     <div class="grid grid-cols-1 lg:grid-cols-[1fr_500px] gap-8 pb-8">
       <div class="flex flex-col">
@@ -84,7 +86,8 @@
       </div>
     </div>
 
-    <div id="tabs-container" class="sticky top-[88px] z-20 pt-2 shadow-[0_4px_8px_-4px_rgba(11,18,32,0.08)]">
+    <div id="tabs-container" class="sticky z-20 pt-2 shadow-[0_4px_8px_-4px_rgba(11,18,32,0.08)]"
+      [ngClass]="isPreviewMode ? 'top-0' : 'top-[88px]'">
       <div
         class="flex items-center justify-between rounded-[16px] bg-secondary-50 dark:bg-secondary-300 p-1 overflow-hidden">
         <div class="flex w-full gap-1">

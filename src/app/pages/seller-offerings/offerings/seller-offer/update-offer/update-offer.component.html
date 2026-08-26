@@ -15,8 +15,10 @@
   } @else if (loading) {
   <app-loading-spinner />
   } @else {
-  <app-offer-form [offer]="offer" [partyId]="partyId" [formType]="'update'"></app-offer-form>
+  <app-offer-form [offer]="offer" [partyId]="partyId" [formType]="'update'" (previewRequested)="onPreviewRequested($event)"></app-offer-form>
   }
+
+  <app-offer-preview-modal [previewProductOff]="previewProductOff" (closed)="previewProductOff = null" />
 
 @if(showError){
     <error-message class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50" [message]="errorMessage"></error-message>

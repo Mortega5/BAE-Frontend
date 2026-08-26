@@ -59,6 +59,7 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
   stepsCircles: string[] = ['general-circle', 'bundle-circle', 'prodspec-circle', 'catalog-circle', 'category-circle', 'license-circle', 'sla-circle', 'price-circle', 'procurement-circle', 'replication-circle', 'summary-circle'];
 
   showPreview: boolean = false;
+  previewProductOff: any = null;
   showEmoji: boolean = false;
   description: string = '';
   partyId: any = '';
@@ -393,6 +394,10 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
 
   goBack() {
     this.router.navigate([SellerOfferingsPaths.offers.list()]);
+  }
+
+  onPreviewRequested(productOff: any): void {
+    this.previewProductOff = productOff;
   }
 
   setOfferStatus(status: any) {

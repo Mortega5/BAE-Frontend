@@ -1,4 +1,4 @@
-import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -54,6 +54,7 @@ export class OfferComponent implements OnInit, OnDestroy {
   @Input() formType: 'create' | 'update' = 'create';
   @Input() offer: any = {};
   @Input() partyId: any;
+  @Output() previewRequested = new EventEmitter<any>();
 
   productOfferForm: FormGroup;
   currentStepId = 'general';
@@ -1289,5 +1290,67 @@ export class OfferComponent implements OnInit, OnDestroy {
 
     const prodSpec = this.productOfferForm.controls['prodSpec'].value
     return prodSpec && (prodSpec as any).externalId;
+  }
+
+  emitPreview(): void {
+    this.previewRequested.emit(this.buildPreviewProductOff());
+  }
+
+  /** Client-side only: maps the current form values into a fake ProductOffering-shaped
+   * object so the seller can preview it (details page + card) before actually saving. */
+  private buildPreviewProductOff(): any {
+    const formValue = this.productOfferForm.value;
+    const generalInfo = formValue.generalInfo || {};
+    const prodSpec = formValue.prodSpec || null;
+
+    const terms: any[] = [];
+    if (formValue.license?.description) {
+      terms.push({ name: 'License', description: formValue.license.description });
+    }
+    if (formValue.procurementMode?.mode) {
+      terms.push({ name: 'procurement', description: formValue.procurementMode.mode });
+    }
+    if (this.dspEnable && this.isdEdcCompatible() && formValue.edcContractDefinition?.dspCompatible) {
+      const contractDefinition = formValue.edcContractDefinition;
+      terms.push({
+        name: contractDefinition.name,
+        contractPolicy: contractDefinition.contractPolicy ? JSON.parse(contractDefinition.contractPolicy) : '',
+        accessPolicy: contractDefinition.accessPolicy ? JSON.parse(contractDefinition.accessPolicy) : '',
+        '@schemaLocation': environment.DSP_CONTRACT_DEFINITION_SCHEMA
+      });
+    }
+
+    // Flatten every plan's price components into top-level prices (no bundledPopRelationship
+    // refs to resolve) so the details page's usage-metrics lookup works on this data as-is.
+    const prices: any[] = [];
+    for (const plan of (formValue.pricePlans || [])) {
+      for (const component of (plan.priceComponents || [])) {
+        prices.push({
+          id: component.id,
+          href: component.id,
+          name: component.name || plan.name,
+          description: component.description || plan.description,
+          priceType: component.priceType,
+          price: component.price != null ? { value: component.price, unit: plan.currency || component.currency || 'EUR' } : undefined,
+          recurringChargePeriodType: component.recurringPeriod,
+          usageSpecId: component.usageSpecId,
+          unitOfMeasure: component.usageUnit
+        });
+      }
+    }
+
+    return {
+      id: this.formType === 'update' && this.offer?.id ? this.offer.id : 'preview',
+      name: generalInfo.name || '',
+      description: generalInfo.description || '',
+      version: generalInfo.version || '',
+      lifecycleStatus: this.formType === 'update' ? (generalInfo.status || 'Active') : 'Active',
+      category: Array.isArray(formValue.category) ? formValue.category : [],
+      productSpecification: prodSpec || undefined,
+      attachment: (prodSpec as any)?.attachment || [],
+      productOfferingTerm: terms,
+      productOfferingPrice: prices,
+      lastUpdate: new Date().toISOString()
+    };
   }
 }

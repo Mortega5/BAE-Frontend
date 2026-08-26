@@ -1,0 +1,52 @@
+@if (previewProductOff) {
+<div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4" (click)="close()">
+  <div class="bg-white dark:bg-secondary-100 rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] flex flex-col border border-[#EBECEE] dark:border-gray-800"
+    (click)="$event.stopPropagation()">
+    <div class="flex items-center justify-between px-6 pt-6">
+      <h2 class="text-xl font-extrabold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._preview' | translate }}</h2>
+      <button type="button" (click)="close()" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white">
+        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="px-6 mt-4 border-b border-[#EBECEE] dark:border-gray-800 flex items-stretch">
+      <button type="button" (click)="activeTab = 'details'"
+        class="px-6 py-3 text-base font-semibold border-b-[3px] -mb-px transition-colors"
+        [ngClass]="activeTab === 'details' ? 'text-gray-900 dark:text-white border-primary-100 dark:border-primary-50' : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200'">
+        {{ 'CREATE_OFFER._preview_product_details' | translate }}
+      </button>
+      <button type="button" (click)="activeTab = 'card'"
+        class="px-6 py-3 text-base font-semibold border-b-[3px] -mb-px transition-colors"
+        [ngClass]="activeTab === 'card' ? 'text-gray-900 dark:text-white border-primary-100 dark:border-primary-50' : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200'">
+        {{ 'CREATE_OFFER._preview_card' | translate }}
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto">
+      @if (activeTab === 'details') {
+      <app-product-details [previewProductOff]="previewProductOff" />
+      } @else {
+      <div class="p-6 bg-gray-50 dark:bg-secondary-300/30">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <bae-off-card [productOff]="previewProductOff" [cardId]="0" [viewMode]="'grid'" class="w-full h-full" />
+          @for (sk of [1, 2]; track sk) {
+          <div class="flex flex-col w-full h-[430px] bg-white dark:bg-secondary-100 rounded-2xl border border-[#D8DADE] dark:border-gray-800">
+            <div class="px-2 pt-2">
+              <div class="h-[170px] w-full rounded-xl bg-gray-200 dark:bg-secondary-300 animate-pulse"></div>
+            </div>
+            <div class="flex-1 flex flex-col px-4 pt-3 pb-4 gap-2">
+              <div class="h-5 w-3/4 bg-gray-200 dark:bg-secondary-300 animate-pulse rounded"></div>
+              <div class="h-4 w-full bg-gray-200 dark:bg-secondary-300 animate-pulse rounded"></div>
+              <div class="h-4 w-5/6 bg-gray-200 dark:bg-secondary-300 animate-pulse rounded"></div>
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      }
+    </div>
+  </div>
+</div>
+}

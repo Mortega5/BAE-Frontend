@@ -39,6 +39,7 @@ import { BillingAddressComponent } from "./pages/checkout/billing-address/billin
 import { CheckoutComponent } from "./pages/checkout/checkout.component";
 import { OrganizationDetailsComponent } from './pages/organization-details/organization-details.component';
 import { ProductDetailsComponent } from "./pages/product-details/product-details.component";
+import { OfferPreviewModalComponent } from './shared/forms/offer/offer-preview-modal/offer-preview-modal.component';
 import { InventoryProductsComponent } from './pages/product-inventory/inventory-items/inventory-products/inventory-products.component';
 import { ProductInvDetailComponent } from './pages/product-inventory/inventory-items/product-inv-detail/product-inv-detail.component';
 import { InventoryResourcesComponent } from './pages/product-inventory/inventory-resources/inventory-resources.component';
@@ -136,6 +137,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     BillingAddressComponent,
     CheckoutComponent,
     ProductDetailsComponent,
+    OfferPreviewModalComponent,
     SearchCatalogComponent,
     CatalogsComponent,
     ShoppingCartComponent,
