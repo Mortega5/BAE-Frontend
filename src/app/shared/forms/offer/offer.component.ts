@@ -979,7 +979,7 @@ export class OfferComponent implements OnInit, OnDestroy {
       ]
     };
 
-    if (this.dspEnable && this.isdEdcCompatible()) {
+    if (this.dspEnable && this.isdEdcCompatible() && formValue.edcContractDefinition?.dspCompatible) {
       const contractDefinition = formValue.edcContractDefinition;
       offer.productOfferingTerm.push({
         name: contractDefinition.name,

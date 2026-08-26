@@ -706,6 +706,60 @@ describe('OfferComponent', () => {
       expect(component.errorMessage).toBe('Error: Bad request');
       expect(component.loading).toBeFalse();
     });
+
+    it('should not add an edc:contractDefinition term when the product spec is DSP-compatible but the user did not opt in', () => {
+      fillMinimalForm();
+      environment.DSP_ENABLED = true;
+      environment.DATA_SPACE_ENABLED = true;
+      component.formType = 'create';
+      component.catalogManagementEnabled = false;
+      component.autoCatalogue = { id: 'cat-1' };
+      component.productOfferForm.patchValue({ prodSpec: { id: 'spec-1', href: 'spec-1', externalId: 'edc-1' } });
+      const edcGroup = component.productOfferForm.get('edcContractDefinition') as FormGroup;
+      edcGroup.addControl('dspCompatible', new FormControl(false));
+      edcGroup.addControl('name', new FormControl('edc:contractDefinition'));
+      edcGroup.addControl('contractPolicy', new FormControl(''));
+      edcGroup.addControl('accessPolicy', new FormControl(''));
+      const postSpy = spyOn(api, 'postProductOffering').and.returnValue(of({ id: 'offer-1' }));
+
+      component.saveOfferInfo();
+
+      const payload = postSpy.calls.mostRecent().args[0];
+      expect(payload.productOfferingTerm.some((term: any) => term.name === 'edc:contractDefinition')).toBeFalse();
+      expect(payload.externalId).toBeUndefined();
+
+      environment.DSP_ENABLED = false;
+      environment.DATA_SPACE_ENABLED = false;
+    });
+
+    it('should add the edc:contractDefinition term when the user opts in via dspCompatible', () => {
+      fillMinimalForm();
+      environment.DSP_ENABLED = true;
+      environment.DATA_SPACE_ENABLED = true;
+      component.formType = 'create';
+      component.catalogManagementEnabled = false;
+      component.autoCatalogue = { id: 'cat-1' };
+      component.productOfferForm.patchValue({ prodSpec: { id: 'spec-1', href: 'spec-1', externalId: 'edc-1' } });
+      const edcGroup = component.productOfferForm.get('edcContractDefinition') as FormGroup;
+      edcGroup.addControl('dspCompatible', new FormControl(true));
+      edcGroup.addControl('name', new FormControl('edc:contractDefinition'));
+      edcGroup.addControl('contractPolicy', new FormControl('{"policy":"contract"}'));
+      edcGroup.addControl('accessPolicy', new FormControl('{"policy":"access"}'));
+      const postSpy = spyOn(api, 'postProductOffering').and.returnValue(of({ id: 'offer-1' }));
+
+      component.saveOfferInfo();
+
+      const payload = postSpy.calls.mostRecent().args[0];
+      const edcTerm = payload.productOfferingTerm.find((term: any) => term.name === 'edc:contractDefinition');
+      expect(edcTerm).toEqual(jasmine.objectContaining({
+        contractPolicy: { policy: 'contract' },
+        accessPolicy: { policy: 'access' }
+      }));
+      expect(payload.externalId).toBeDefined();
+
+      environment.DSP_ENABLED = false;
+      environment.DATA_SPACE_ENABLED = false;
+    });
   });
 
   describe('createOffer', () => {
