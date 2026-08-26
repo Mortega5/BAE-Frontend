@@ -32,9 +32,14 @@
 }
 
 .table-input-selection-control {
+  accent-color: var(--table-selection-accent);
   color: var(--table-selection-accent);
   background-color: var(--table-selection-bg);
   border-color: var(--table-selection-border);
+
+  &:checked {
+    background-color: var(--table-selection-accent);
+  }
 }
 
 .table-input-selection-control:focus {

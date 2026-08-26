@@ -64,14 +64,12 @@ body {
   --table-action-hover-bg: rgb(var(--theme-primary-50));
   --table-action-text: var(--theme-primary-text);
   --table-action-focus-ring: rgb(var(--theme-primary-50) / 50%);
-  --table-selection-accent: rgb(37 99 235);
-  /* blue-600 */
+  --table-selection-accent: rgb(var(--theme-primary-100));
   --table-selection-bg: rgb(243 244 246);
   /* gray-100 */
   --table-selection-border: rgb(209 213 219);
   /* gray-300 */
-  --table-selection-ring: rgb(59 130 246);
-  /* blue-500 */
+  --table-selection-ring: rgb(var(--theme-primary-50) / 50%);
 }
 
 .dark body {
