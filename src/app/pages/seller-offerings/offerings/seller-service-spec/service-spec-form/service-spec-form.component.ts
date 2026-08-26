@@ -24,17 +24,17 @@ type CharacteristicValueSpecification = components['schemas']['CharacteristicVal
 type ServiceSpecificationCharacteristic = components['schemas']['CharacteristicSpecification'];
 
 const GENERAL_FORM_FIELDS_CREATE: FormField[] = [
-  { type: 'string', name: 'name', label: 'CREATE_SERV_SPEC._name', required: true, maxLength: 100, dataCy: 'servSpecName' },
-  { type: 'markdownTextarea', name: 'description', label: 'CREATE_SERV_SPEC._description' },
+  { type: 'string', name: 'name', label: 'CREATE_SERV_SPEC._name', required: true, maxLength: 100, dataCy: 'servSpecName', placeholder: 'CREATE_SERV_SPEC._name_placeholder' },
+  { type: 'markdownTextarea', name: 'description', label: 'CREATE_SERV_SPEC._description', placeholder: 'CREATE_SERV_SPEC._description_placeholder' },
 ];
 
 const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
-  { type: 'string', name: 'name', label: 'UPDATE_SERV_SPEC._name', required: true, maxLength: 100, dataCy: 'servSpecName' },
+  { type: 'string', name: 'name', label: 'UPDATE_SERV_SPEC._name', required: true, maxLength: 100, dataCy: 'servSpecName', placeholder: 'CREATE_SERV_SPEC._name_placeholder' },
   {
     type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_SERV_SPEC._status',
     options: buildLifecycleStatusOptions('serviceSpecStatus'),
   },
-  { type: 'markdownTextarea', name: 'description', label: 'UPDATE_SERV_SPEC._description' },
+  { type: 'markdownTextarea', name: 'description', label: 'UPDATE_SERV_SPEC._description', placeholder: 'CREATE_SERV_SPEC._description_placeholder' },
 ];
 
 @Component({

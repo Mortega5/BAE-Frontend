@@ -92,8 +92,8 @@ export class EdcContractDefinitionComponent implements OnInit, OnDestroy {
 
   get policyFormFields(): FormField[] {
     return [
-      { type: 'code', name: 'accessPolicy', label: 'Access Policy', language: 'json', required: this.dspCompatible, lineNumbers: false, placeholder: '{"example": "Enter your JSON here"}' },
-      { type: 'code', name: 'contractPolicy', label: 'Contract Policy', language: 'json', required: this.dspCompatible, lineNumbers: false, placeholder: '{"example": "Enter your JSON here"}' },
+      { type: 'code', name: 'accessPolicy', label: 'CREATE_OFFER._dsp_access_policy', language: 'json', required: this.dspCompatible, lineNumbers: false, placeholder: '{"example": "Enter your JSON here"}' },
+      { type: 'code', name: 'contractPolicy', label: 'CREATE_OFFER._dsp_contract_policy', language: 'json', required: this.dspCompatible, lineNumbers: false, placeholder: '{"example": "Enter your JSON here"}' },
     ];
   }
 

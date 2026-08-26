@@ -233,22 +233,22 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   }
 
   generalFormFields: FormField[] = [
-    { type: 'string', name: 'name', label: 'CREATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1, dataCy: 'inputName' },
+    { type: 'string', name: 'name', label: 'CREATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1, dataCy: 'inputName', placeholder: 'CREATE_PROD_SPEC._name_placeholder' },
     { type: 'string', name: 'brand', label: 'CREATE_PROD_SPEC._product_brand', required: true, colSpan: 1, dataCy: 'inputBrand' },
     { type: 'string', name: 'version', label: 'CREATE_PROD_SPEC._product_version', required: true, colSpan: 1, dataCy: 'inputVersion' },
     { type: 'string', name: 'number', label: 'CREATE_PROD_SPEC._id_number', colSpan: 1, dataCy: 'inputIdNumber' },
     { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS, colSpan: 1 },
-    { type: 'markdownTextarea', name: 'description', label: 'CREATE_PROD_SPEC._product_description' },
+    { type: 'markdownTextarea', name: 'description', label: 'CREATE_PROD_SPEC._product_description', placeholder: 'CREATE_PROD_SPEC._product_description_placeholder' },
   ];
 
   dspFormFields: FormField[] = [
-    { type: 'string', name: 'upstreamAddress', label: 'Upstream Address', required: true, colSpan: 1 },
-    { type: 'string', name: 'transferPath', label: 'Transfer path', required: false, colSpan: 1 },
-    { type: 'select', name: 'transferType', label: 'Transfer Type', options: this.transferTypes, colSpan: 1 },
-    { type: 'code', name: 'targetSpecification', label: 'Target Specification', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
-    { type: 'code', name: 'serviceConfiguration', label: 'Service Configuration', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
-    { type: 'code', name: 'credentialsConfig', label: 'Credentials Configuration', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
-    { type: 'code', name: 'policyConfig', label: 'Policy Configuration', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' }
+    { type: 'string', name: 'upstreamAddress', label: 'CREATE_PROD_SPEC._dsp_upstream_address', required: true, colSpan: 1 },
+    { type: 'string', name: 'transferPath', label: 'CREATE_PROD_SPEC._dsp_transfer_path', required: false, colSpan: 1 },
+    { type: 'select', name: 'transferType', label: 'CREATE_PROD_SPEC._dsp_transfer_type', options: this.transferTypes, colSpan: 1 },
+    { type: 'code', name: 'targetSpecification', label: 'CREATE_PROD_SPEC._dsp_targetSpecification', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
+    { type: 'code', name: 'serviceConfiguration', label: 'CREATE_PROD_SPEC._dsp_serviceConfiguration', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
+    { type: 'code', name: 'credentialsConfig', label: 'CREATE_PROD_SPEC._dsp_credentialsConfig', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
+    { type: 'code', name: 'policyConfig', label: 'CREATE_PROD_SPEC._dsp_policyConfig', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' }
 
   ]
   get canAdvance(): boolean {

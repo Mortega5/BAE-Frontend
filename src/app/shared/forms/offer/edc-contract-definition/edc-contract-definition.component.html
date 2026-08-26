@@ -4,15 +4,16 @@
          class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"/>
 }-->
 
-<div class="col-span-2 flex items-center h-fit">
-  <label for="dsp-compatible" class="font-bold text-lg dark:text-white">DSP Compatible</label>
-  <label class="inline-flex items-center me-5 cursor-pointer ml-4">
-    <input type="checkbox" id="dsp-compatible" [formControl]="dspCompatibleControl" class="sr-only peer">
-    <div
-      class="relative w-11 h-6 bg-gray-400 dark:bg-gray-700 rounded-full peer peer-focus:ring-4 peer-focus:ring-primary-100 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-100">
-    </div>
+<div class="col-span-2 flex flex-col gap-5">
+  <label class="flex items-start gap-3 p-4 rounded-lg border border-gray-200 dark:border-secondary-200 cursor-pointer">
+    <input type="checkbox" id="dsp-compatible" [formControl]="dspCompatibleControl"
+      class="mt-1 w-4 h-4 text-primary-100 focus:ring-primary-100 rounded"/>
+    <span class="flex flex-col">
+      <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._dsp_contract_enabled' | translate }}</span>
+      <span class="text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_OFFER._dsp_contract_enabled_desc' | translate }}</span>
+    </span>
   </label>
+  @if(dspCompatible) {
+  <app-dynamic-form class="block" [fields]="policyFormFields" [formGroup]="formGroup" [columns]="1" />
+  }
 </div>
-@if(dspCompatible) {
-<app-dynamic-form class="block col-span-2" [fields]="policyFormFields" [formGroup]="formGroup" [columns]="1" />
-}

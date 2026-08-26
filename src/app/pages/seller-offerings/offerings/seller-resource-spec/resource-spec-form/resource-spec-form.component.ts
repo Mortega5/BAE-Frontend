@@ -33,19 +33,19 @@ const BASE_TEMPLATE_OPTIONS = [
 ];
 
 const GENERAL_FORM_FIELDS_CREATE: FormField[] = [
-  { type: 'string', name: 'name', label: 'CREATE_RES_SPEC._name', required: true, maxLength: 100, dataCy: 'resSpecName' },
+  { type: 'string', name: 'name', label: 'CREATE_RES_SPEC._name', required: true, maxLength: 100, dataCy: 'resSpecName', placeholder: 'CREATE_RES_SPEC._name_placeholder' },
   { type: 'select', name: 'baseTemplate', label: 'CREATE_RES_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS },
-  { type: 'markdownTextarea', name: 'description', label: 'CREATE_RES_SPEC._description' },
+  { type: 'markdownTextarea', name: 'description', label: 'CREATE_RES_SPEC._description', placeholder: 'CREATE_RES_SPEC._description_placeholder' },
 ];
 
 const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
-  { type: 'string', name: 'name', label: 'UPDATE_RES_SPEC._name', required: true, maxLength: 100, dataCy: 'resSpecName' },
+  { type: 'string', name: 'name', label: 'UPDATE_RES_SPEC._name', required: true, maxLength: 100, dataCy: 'resSpecName', placeholder: 'CREATE_RES_SPEC._name_placeholder' },
   { type: 'select', name: 'baseTemplate', label: 'CREATE_RES_SPEC._base_template', readonly: true, options: BASE_TEMPLATE_OPTIONS },
   {
     type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_RES_SPEC._status',
     options: buildLifecycleStatusOptions('resourceSpecStatus'),
   },
-  { type: 'markdownTextarea', name: 'description', label: 'UPDATE_RES_SPEC._description' },
+  { type: 'markdownTextarea', name: 'description', label: 'UPDATE_RES_SPEC._description', placeholder: 'CREATE_RES_SPEC._description_placeholder' },
 ];
 
 @Component({

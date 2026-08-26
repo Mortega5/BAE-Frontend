@@ -126,7 +126,7 @@
 
     }@else{
     <textarea [id]="editorId" data-cy="textArea"
-      class="px-4 py-2 block w-full h-fit px-0 text-sm text-gray-800 bg-white border-0" placeholder="{{placeholder}}"
+      class="px-4 py-2 block w-full h-fit px-0 text-sm text-gray-800 bg-white border-0" [placeholder]="placeholder | translate"
       [value]="value" [rows]="rows" [attr.maxLength]="maxLength" (input)="updateValue($event)"></textarea>
     }
     @if(showEmoji){
