@@ -22,16 +22,18 @@
       (stepChanged)="onStepChanged($event)" (submitted)="updateCatalog()">
 
       <ng-template stepperStep="General Info">
-        <div class="mb-5">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'UPDATE_CATALOG._general' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'UPDATE_CATALOG._general_desc' | translate }}</p>
+        <div class="flex flex-col gap-5">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'UPDATE_CATALOG._general' | translate }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'UPDATE_CATALOG._general_desc' | translate }}</p>
+          </div>
+          <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" />
         </div>
-        <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" />
       </ng-template>
 
       <ng-template stepperStep="Summary">
-        <div class="m-8">
-          <div class="mb-5">
+        <div class="m-8 flex flex-col gap-5">
+          <div>
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'UPDATE_CATALOG._summary' | translate }}</h2>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'UPDATE_CATALOG._summary_desc' | translate }}</p>
           </div>

@@ -22,16 +22,19 @@
       [submitAlwaysVisible]="true">
 
       <ng-template stepperStep="General Info" stepId="general">
-        <div class="mb-5">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._general_info' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._general_info_desc' | translate }}</p>
+        <div class="flex flex-col gap-5">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._general_info' | translate }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._general_info_desc' | translate }}</p>
+          </div>
+          <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" [columns]="2" />
         </div>
-        <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" [columns]="2" />
       </ng-template>
 
       @if (BUNDLE_ENABLED) {
       <ng-template stepperStep="Bundle" stepId="bundle">
-        <div class="mb-5">
+        <div class="flex flex-col gap-5">
+        <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._bundle_step_title' | translate }}</h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._bundle_step_subtitle' | translate }}</p>
         </div>
@@ -145,10 +148,12 @@
                             </svg>
                         </button>
                     </div>-->
+        </div>
       </ng-template>
       }
       <ng-template stepperStep="Compliance profile" stepId="compliance">
-        <div class="mb-5">
+        <div class="flex flex-col gap-5">
+        <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._compliance_step' | translate }}</h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._compliance_desc' | translate }}</p>
         </div>
@@ -505,7 +510,7 @@
           </div>
         </div>
         }
-
+        </div>
       </ng-template>
       <ng-template stepperStep="Characteristics" stepId="characteristics">
         <div class="flex flex-col gap-5">
@@ -520,11 +525,11 @@
       </ng-template>
       @if (DATA_SPACE_ENABLED && !prod?.externalId) {
       <ng-template stepperStep="Dataspace Configuration" stepId="dataspace">
-        <div class="mb-5">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._dataspace_configuration' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._dataspace_configuration_desc' | translate }}</p>
-        </div>
-        <div class="m-4">
+        <div class="flex flex-col gap-5">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._dataspace_configuration' | translate }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._dataspace_configuration_desc' | translate }}</p>
+          </div>
           <app-characteristics-editor [characteristics]="characteristicItems"
             [supportedTypes]="['credentialsConfiguration', 'authorizationPolicy']"
             (characteristicsChange)="onCharacteristicsChange($event)" />
@@ -532,34 +537,38 @@
       </ng-template>
       }
       <ng-template stepperStep="Resource specifications" stepId="resource">
-        <div class="mb-5">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._resource_specs_step' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._resource_specs_desc' | translate }}</p>
-        </div>
-        <div class="w-full m-4">
-          <app-paginated-table [columns]="resColumns" [fetchPage]="fetchResourceSpecs" [multiple]="true"
-            [selectable]="true" [selected]="selectedResourceSpecs" (selectedChange)="selectedResourceSpecs = $event"
-            [defaultSort]="defaultResSort">
-          </app-paginated-table>
+        <div class="flex flex-col gap-5">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._resource_specs_step' | translate }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._resource_specs_desc' | translate }}</p>
+          </div>
+          <div class="w-full">
+            <app-paginated-table [columns]="resColumns" [fetchPage]="fetchResourceSpecs" [multiple]="true"
+              [selectable]="true" [selected]="selectedResourceSpecs" (selectedChange)="selectedResourceSpecs = $event"
+              [defaultSort]="defaultResSort">
+            </app-paginated-table>
+          </div>
         </div>
       </ng-template>
       <ng-template stepperStep="Service specifications" stepId="service">
-        <div class="mb-5">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._service_specs_step' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._service_specs_desc' | translate }}</p>
-        </div>
-        <div class="w-full m-4">
-          <app-paginated-table [columns]="servColumns" [fetchPage]="fetchServiceSpecs" [multiple]="true"
-            [selectable]="true" [selected]="selectedServiceSpecs" (selectedChange)="selectedServiceSpecs = $event"
-            [defaultSort]="defaultServSort">
-          </app-paginated-table>
+        <div class="flex flex-col gap-5">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._service_specs_step' | translate }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._service_specs_desc' | translate }}</p>
+          </div>
+          <div class="w-full">
+            <app-paginated-table [columns]="servColumns" [fetchPage]="fetchServiceSpecs" [multiple]="true"
+              [selectable]="true" [selected]="selectedServiceSpecs" (selectedChange)="selectedServiceSpecs = $event"
+              [defaultSort]="defaultServSort">
+            </app-paginated-table>
+          </div>
         </div>
       </ng-template>
 
       @if (showDspConfigStep) {
       <ng-template stepperStep="DSP Config" stepId="dsp_config">
-        <div class="m-4">
-          <div class="mb-5">
+        <div class="m-4 flex flex-col gap-5">
+          <div>
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_configuration' | translate }}</h2>
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._dsp_configuration_desc' | translate }}</p>
           </div>
@@ -650,7 +659,8 @@
       }
 
       <ng-template stepperStep="Attachments" stepId="attachments">
-        <div class="mb-5">
+        <div class="flex flex-col gap-5">
+        <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._attachments_step_title' | translate }}</h2>
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._attachments_step_subtitle' | translate }}</p>
         </div>
@@ -888,15 +898,16 @@
                             </svg>
                         </button>
                     </div>  -->
+        </div>
       </ng-template>
       @if(!templateName) {
 
       <ng-template stepperStep="Relationships" stepId="relationships">
-        <div class="mb-5">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._relationships_step_title' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._relationships_step_subtitle' | translate }}</p>
-        </div>
-        <div class="m-4">
+        <div class="m-4 flex flex-col gap-5">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._relationships_step_title' | translate }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._relationships_step_subtitle' | translate }}</p>
+          </div>
           @if (prodRelationships.length === 0){
           <div class="flex justify-center w-full mb-4">
             <div
@@ -1011,20 +1022,22 @@
       }
       @if (templateName) {
       <ng-template stepperStep="{{ 'BLUEPRINT_PROD._orchestration_plan' | translate}}" stepId="orchestrationPlan">
-        <div class="mb-5">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'BLUEPRINT_PROD._orchestration_plan' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'BLUEPRINT_PROD._orchestration_plan_subtitle' | translate }}</p>
+        <div class="flex flex-col gap-5">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'BLUEPRINT_PROD._orchestration_plan' | translate }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'BLUEPRINT_PROD._orchestration_plan_subtitle' | translate }}</p>
+          </div>
+          <app-blueprint-product-form (formChange)="onBlueprintConfigChange($event)" [blueprintConfig]="blueprintConfig"
+            [blueprintId]="prod.id" />
         </div>
-        <app-blueprint-product-form (formChange)="onBlueprintConfigChange($event)" [blueprintConfig]="blueprintConfig"
-          [blueprintId]="prod.id" />
       </ng-template>
       }
       <ng-template stepperStep="Summary" stepId="summary">
-        <div class="mb-5">
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._ready_title' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._ready_desc' | translate }}</p>
-        </div>
-        <div class="m-8">
+        <div class="m-8 flex flex-col gap-5">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._ready_title' | translate }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._ready_desc' | translate }}</p>
+          </div>
           @if(loading){
           <app-loading-spinner />
           } @else {
