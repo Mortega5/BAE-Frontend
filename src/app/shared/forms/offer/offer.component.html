@@ -34,13 +34,15 @@
           <app-general-info-form [data]="offer" [formType]="formType" [form]="productOfferForm.controls['generalInfo']">
             @if (catalogSelectionRequired()) {
               <div>
-                <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                  {{ 'CREATE_OFFER._catalog' | translate }}<span class="text-red-600 ml-0.5">*</span>
-                </label>
+                <div class="flex items-center gap-2 mb-2">
+                  <label class="block text-sm font-semibold text-gray-900 dark:text-white">
+                    {{ 'CREATE_OFFER._catalog' | translate }}<span class="text-red-600 ml-0.5">*</span>
+                  </label>
+                  @if (!productOfferForm.get('catalogue')?.value?.id) {
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_OFFER._mandatory_field' | translate }}</p>
+                  }
+                </div>
                 <app-catalogue data-cy="offerCatalogSelect" [partyId]="partyId" formControlName="catalogue" />
-                @if (!productOfferForm.get('catalogue')?.value?.id) {
-                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_OFFER._mandatory_field' | translate }}</p>
-                }
               </div>
             }
           </app-general-info-form>
