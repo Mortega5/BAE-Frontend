@@ -1,10 +1,15 @@
 <div class="overflow-x-auto rounded-2xl border table-input-container" [class.opacity-80]="isReadonly"
   [class.cursor-not-allowed]="isReadonly">
   <table class="w-full table-fixed text-sm text-left table-input-text">
-    <thead class="text-base font-semibold table-input-header">
+    <thead class="text-sm font-semibold table-input-header">
       <tr>
         @if (selectable) {
-        <th scope="col" class="px-4 py-3 w-12 rounded-tl-2xl"></th>
+        <th scope="col" class="px-4 py-3 w-20 rounded-tl-2xl text-center normal-case"
+          [attr.title]="selectedCount > 0 ? selectedCountLabel : null">
+          @if (selectedCount > 0) {
+          [ {{ selectedCount }} ]
+          }
+        </th>
         }
         @for (col of columns; track $index; let colFirst = $first; let colLast = $last) {
         <th scope="col" class="px-6 py-3" [ngClass]="[col.width ?? '', col.hideOnMobile ? 'hidden sm:table-cell' : '']"
@@ -33,7 +38,7 @@
           'table-input-row-selected': isSelected(item)
         }" (click)="onRowClick(item, $event)">
         @if (selectable) {
-        <td class="px-4 py-3 w-12" [class.rounded-bl-2xl]="last">
+        <td class="px-4 py-3 w-20" [class.rounded-bl-2xl]="last">
           @if (multiple) {
           <input type="checkbox" class="w-4 h-4 rounded focus:ring-4 table-input-selection-control"
             [class.cursor-not-allowed]="isReadonly || !isRowSelectable(item)" [checked]="isSelected(item)"

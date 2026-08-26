@@ -33,6 +33,10 @@ export class TableInputComponent implements ControlValueAccessor {
   /** When provided, rows for which this returns false are disabled (no toggle, no row click). */
   @Input() isSelectable?: (item: any) => boolean;
   @Input() sort?: TableSort;
+  /** Shown inside the selection column's header cell, e.g. by app-paginated-table to
+   * surface how many rows are selected across pages. Hidden entirely when falsy/0. */
+  @Input() selectedCount = 0;
+  @Input() selectedCountLabel?: string;
   @Output() rowClick = new EventEmitter<any>();
   @Output() sortChange = new EventEmitter<string>();
 
