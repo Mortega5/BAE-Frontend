@@ -18,6 +18,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { environment } from '../../../../environments/environment';
 import { FormChangeState, LoginInfo, PricePlanChangeState } from "../../../models/interfaces";
 import { ApiServiceService } from "../../../services/product-service.service";
+import { CatalogueComponent } from "./catalogue/catalogue.component";
 import { EdcContractDefinitionComponent } from "./edc-contract-definition/edc-contract-definition.component";
 import { GeneralInfoComponent } from "./general-info/general-info.component";
 import { LicenseComponent } from "./license/license.component";
@@ -34,6 +35,7 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
   standalone: true,
   imports: [
     GeneralInfoComponent,
+    CatalogueComponent,
     TranslateModule,
     ProdSpecComponent,
     ReactiveFormsModule,
@@ -75,9 +77,6 @@ export class OfferComponent implements OnInit, OnDestroy {
 
   // Manual catalogue selection: only shown when the org has catalog management enabled.
   catalogManagementEnabled: boolean = environment.CATALOG_MANAGEMENT_ENABLED;
-  availableCatalogs: any[] = [];
-  loadingCatalogs: boolean = false;
-  selectedCatalogId: string = '';
 
   // Category: single root + subcategory pick (replaces the old multi-select tree).
   availableRootCategories: any[] = [];
@@ -225,9 +224,7 @@ export class OfferComponent implements OnInit, OnDestroy {
       this.loadingData = false;
     } else {
       this.loadCategories();
-      if (this.catalogManagementEnabled) {
-        this.loadAvailableCatalogs();
-      } else {
+      if (!this.catalogManagementEnabled) {
         this.ensureCatalogue();
       }
     }
@@ -235,37 +232,6 @@ export class OfferComponent implements OnInit, OnDestroy {
 
   catalogSelectionRequired(): boolean {
     return this.catalogManagementEnabled && this.formType === 'create';
-  }
-
-  /** Loads every catalogue the seller can publish to, for the manual catalogue selector. */
-  async loadAvailableCatalogs(): Promise<void> {
-    if (!this.partyId) return;
-    this.loadingCatalogs = true;
-    try {
-      const limit = environment.CATALOG_LIMIT;
-      const all: any[] = [];
-      let offset = 0;
-      while (offset < 10000) {
-        const page = await this.api.getCatalogsByUser(offset, undefined, ['Active', 'Launched'], this.partyId);
-        const items = Array.isArray(page) ? page : [];
-        all.push(...items);
-        if (items.length < limit) break;
-        offset += limit;
-      }
-      this.availableCatalogs = all;
-    } catch (err) {
-      console.error('Failed to load catalogs for selector', err);
-      this.availableCatalogs = [];
-    } finally {
-      this.loadingCatalogs = false;
-    }
-  }
-
-  onCatalogChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
-    this.selectedCatalogId = value;
-    const summary = value ? this.availableCatalogs.find(c => c.id === value) || null : null;
-    this.productOfferForm.patchValue({ catalogue: summary });
   }
 
   /** Auto-assigns the seller's catalogue: reuses an existing one, or creates a default one. */

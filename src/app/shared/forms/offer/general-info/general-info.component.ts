@@ -29,6 +29,7 @@ export class GeneralInfoComponent implements OnInit, OnDestroy {
   @Input() data: any;
 
   fields: FormField[] = [];
+  descriptionFields: FormField[] = [];
 
   private originalValue!: GeneralInfo;
   private isEditMode = false;
@@ -107,10 +108,12 @@ export class GeneralInfoComponent implements OnInit, OnDestroy {
     const statusOptions = buildLifecycleStatusOptions('offerStatus', this.disabledStatuses);
 
     this.fields = [
-      { type: 'string', name: 'name', label: 'CREATE_OFFER._name', required: true, maxLength: 100, colSpan: 1, dataCy: 'offerName' },
+      { type: 'string', name: 'name', label: 'CREATE_OFFER._name', required: true, maxLength: 100, colSpan: 1, dataCy: 'offerName', placeholder: 'CREATE_OFFER._name_placeholder' },
       { type: 'string', name: 'version', label: 'CREATE_OFFER._version', required: true, colSpan: 1, dataCy: 'offerVersion' },
       ...(this.isEditMode ? [{ type: 'statusPicker' as const, name: 'status', label: 'CREATE_OFFER._status', options: statusOptions }] : []),
-      { type: 'markdownTextarea', name: 'description', label: 'CREATE_OFFER._description' },
+    ];
+    this.descriptionFields = [
+      { type: 'markdownTextarea', name: 'description', label: 'CREATE_OFFER._description', placeholder: 'CREATE_OFFER._overview_placeholder' },
     ];
   }
 

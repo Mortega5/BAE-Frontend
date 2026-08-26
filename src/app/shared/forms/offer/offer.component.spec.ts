@@ -277,17 +277,15 @@ describe('OfferComponent', () => {
       expect(component.loadingData).toBeFalse();
     });
 
-    it('should load categories and open the manual catalog selector when catalog management is enabled', async () => {
+    it('should load categories and leave manual catalog selection to app-catalogue when catalog management is enabled', async () => {
       component.formType = 'create';
       component.catalogManagementEnabled = true;
       const loadCategoriesSpy = spyOn(component, 'loadCategories').and.returnValue(Promise.resolve());
-      const loadAvailableCatalogsSpy = spyOn(component, 'loadAvailableCatalogs').and.returnValue(Promise.resolve());
       const ensureCatalogueSpy = spyOn(component, 'ensureCatalogue');
 
       await component.ngOnInit();
 
       expect(loadCategoriesSpy).toHaveBeenCalled();
-      expect(loadAvailableCatalogsSpy).toHaveBeenCalled();
       expect(ensureCatalogueSpy).not.toHaveBeenCalled();
     });
 
@@ -295,13 +293,11 @@ describe('OfferComponent', () => {
       component.formType = 'create';
       component.catalogManagementEnabled = false;
       spyOn(component, 'loadCategories').and.returnValue(Promise.resolve());
-      const loadAvailableCatalogsSpy = spyOn(component, 'loadAvailableCatalogs');
       const ensureCatalogueSpy = spyOn(component, 'ensureCatalogue');
 
       await component.ngOnInit();
 
       expect(ensureCatalogueSpy).toHaveBeenCalled();
-      expect(loadAvailableCatalogsSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -317,75 +313,6 @@ describe('OfferComponent', () => {
       component.formType = 'create';
       component.catalogManagementEnabled = false;
       expect(component.catalogSelectionRequired()).toBeFalse();
-    });
-  });
-
-  describe('loadAvailableCatalogs', () => {
-    it('should do nothing without a resolved partyId', async () => {
-      component.partyId = undefined;
-      const spy = spyOn(api, 'getCatalogsByUser');
-
-      await component.loadAvailableCatalogs();
-
-      expect(spy).not.toHaveBeenCalled();
-      expect(component.availableCatalogs).toEqual([]);
-    });
-
-    it('should load a single short page without paging further', async () => {
-      component.partyId = 'party-1';
-      const spy = spyOn(api, 'getCatalogsByUser').and.returnValue(Promise.resolve([{ id: 'cat-1' }]));
-
-      await component.loadAvailableCatalogs();
-
-      expect(spy).toHaveBeenCalledTimes(1);
-      expect(spy).toHaveBeenCalledWith(0, undefined, ['Active', 'Launched'], 'party-1');
-      expect(component.availableCatalogs).toEqual([{ id: 'cat-1' }]);
-      expect(component.loadingCatalogs).toBeFalse();
-    });
-
-    it('should keep paging while a full page keeps coming back', async () => {
-      component.partyId = 'party-1';
-      const fullPage = Array.from({ length: environment.CATALOG_LIMIT }, (_, i) => ({ id: `cat-${i}` }));
-      const spy = spyOn(api, 'getCatalogsByUser').and.callFake((offset: any) =>
-        offset === 0 ? Promise.resolve(fullPage) : Promise.resolve([{ id: 'cat-last' }])
-      );
-
-      await component.loadAvailableCatalogs();
-
-      expect(spy).toHaveBeenCalledTimes(2);
-      expect(component.availableCatalogs.length).toBe(fullPage.length + 1);
-    });
-
-    it('should reset availableCatalogs and surface the error when the request fails', async () => {
-      component.partyId = 'party-1';
-      spyOn(api, 'getCatalogsByUser').and.returnValue(Promise.reject(new Error('boom')));
-      spyOn(console, 'error');
-
-      await component.loadAvailableCatalogs();
-
-      expect(component.availableCatalogs).toEqual([]);
-      expect(component.loadingCatalogs).toBeFalse();
-    });
-  });
-
-  describe('onCatalogChange', () => {
-    it('should select the matching catalogue and patch the form', () => {
-      component.availableCatalogs = [{ id: 'cat-1', name: 'Catalog 1' }, { id: 'cat-2', name: 'Catalog 2' }];
-
-      component.onCatalogChange({ target: { value: 'cat-2' } } as unknown as Event);
-
-      expect(component.selectedCatalogId).toBe('cat-2');
-      expect(component.productOfferForm.get('catalogue')?.value).toEqual({ id: 'cat-2', name: 'Catalog 2' });
-    });
-
-    it('should clear the catalogue when the empty option is selected', () => {
-      component.availableCatalogs = [{ id: 'cat-1', name: 'Catalog 1' }];
-      component.productOfferForm.patchValue({ catalogue: { id: 'cat-1' } });
-
-      component.onCatalogChange({ target: { value: '' } } as unknown as Event);
-
-      expect(component.selectedCatalogId).toBe('');
-      expect(component.productOfferForm.get('catalogue')?.value).toBeNull();
     });
   });
 
