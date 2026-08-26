@@ -2,7 +2,7 @@
 <div [formGroup]="formGroup" class="grid gap-4" [ngClass]="gridColsClass()">
   @for (field of fields; track field.name) {
   <div [ngClass]="colSpanClass(field)">
-    <label [for]="field.name" class="font-bold text-lg dark:text-white flex items-center gap-2 pb-2">
+    <label [for]="field.name" class="font-bold text-sm dark:text-white flex items-center gap-2 pb-2">
       @if (field.icon) { <fa-icon [icon]="field.icon" class="text-primary-100"></fa-icon> }
       <span>
         {{ field.label | translate }}
