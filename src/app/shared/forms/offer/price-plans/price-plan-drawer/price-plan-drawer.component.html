@@ -29,9 +29,10 @@
         <!-- Nombre -->
         <div class="mb-4">
           <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-            {{ 'FORMS.PRICE_PLANS._name' | translate }}
+            {{ 'FORMS.PRICE_PLANS._name' | translate }}<span class="text-red-600 ml-0.5">*</span>
           </label>
           <input data-cy="pricePlanName" formControlName="name" type="text"
+          placeholder="{{ 'CREATE_OFFER._pp_form_name_placeholder' | translate }}"
           [ngClass]="(formGroup.get('name')?.invalid == true && formGroup.value.name!='') || (formGroup.get('name')?.touched && formGroup.value.name=='') || (formGroup.hasError('nonUniqueName') && formGroup.get('name')?.touched) ? 'border-red-500' : 'border-gray-300 dark:border-secondary-200'"
                  class="bg-white dark:bg-secondary-300 border text-gray-900 dark:text-white text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100">
           @if(formGroup.hasError('nonUniqueName') && formGroup.get('name')?.touched){
@@ -45,21 +46,25 @@
         <!-- Descripción -->
         <div class="mb-4">
           <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-            {{ 'FORMS.PRICE_PLANS._description' | translate }}
+            {{ 'FORMS.PRICE_PLANS._description' | translate }}<span class="text-red-600 ml-0.5">*</span>
           </label>
-          <app-markdown-textarea formControlName="description"></app-markdown-textarea>
+          <app-markdown-textarea formControlName="description" [placeholder]="'CREATE_OFFER._pp_form_description_placeholder' | translate"></app-markdown-textarea>
+          @if(formGroup.get('description')?.invalid && formGroup.get('description')?.errors?.['required'] && (formGroup.get('description')?.touched && formGroup.value.description=='')){
+            <p class="mt-1 text-xs text-red-600"><span class="font-medium">{{ 'FORMS.PRICE_PLANS._mandatory' | translate }}</span></p>
+          }
         </div>
 
         <!-- Only when online payment is enabled -->
 
         @if (formGroup.get('paymentOnline')?.value) {
 
-          <!-- Selección del perfil del producto (solo para planes Standard) -->
+          <!-- Selección del perfil del producto: solo para planes Standard. Flex configura
+               el perfil por price-component ("Apply to Characteristic" en price-component-drawer). -->
+          @if (planSubType === 'standard') {
           <div class="mb-4">
             <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
               {{ 'FORMS.PRICE_PLANS._config_profile' | translate }}
             </h3>
-          @if(planSubType === 'standard'){
           @if (getProcessedProfileData().length > 0){
             <div class="rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800">
               <table class="w-full text-left border-collapse">
@@ -146,19 +151,14 @@
               </button>
             </div>
           }
-        } @else {
-          <div class="p-4 my-2 text-sm text-center text-primary-100 dark:text-primary-50 rounded-lg bg-blue-50 dark:bg-secondary-300" role="alert">
-            <span class="font-medium">{{ 'FORMS.PRICE_PLANS._price_comp_with_chars' | translate }}</span>
-          </div>
-        }
             <!-- Configuration Profile Drawer -->
             <app-configuration-profile-drawer *ngIf="showConfigurationDrawer"
                                               [profileData]="getProfileData()"
                                               (save)="updateConfigurationProfile($event)"
                                               (close)="showConfigurationDrawer = false">
             </app-configuration-profile-drawer>
-
           </div>
+          }
           <!-- Tabla de Price Components -->
           <div class="mb-4">
             <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">

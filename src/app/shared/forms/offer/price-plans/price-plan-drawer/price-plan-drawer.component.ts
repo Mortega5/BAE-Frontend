@@ -46,9 +46,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   showConfigurationDrawer = false;
   showTierPricingDrawer = false;
   editingComponent: any = null;
-  //protected readonly currencies = currencies;
-  //Only allowing EUR for the moment
-  protected readonly  currencies=[currencies[2]];
+  protected readonly currencies = currencies;
   private destroy$ = new Subject<void>();
   rangeValidationError: string | null = null;
   profileRequiredError: string | null = null;
