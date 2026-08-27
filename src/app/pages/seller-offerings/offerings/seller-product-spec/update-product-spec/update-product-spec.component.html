@@ -1,6 +1,6 @@
 <div class="w-full flex-1 flex flex-col">
   <!-- Breadcrumb -->
-  <div class="pb-4">
+  <div class="p-4">
     <button (click)="goBack()"
       class="inline-flex items-center text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-primary-100 dark:hover:text-primary-50">
       <svg class="w-3 h-3 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 12 10">
@@ -12,31 +12,288 @@
   </div>
   <!-- End Breadcrumb -->
 
-  <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'UPDATE_PROD_SPEC._update_prod' | translate }}</h1>
+  <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'UPDATE_PROD_SPEC._update_prod' | translate
+    }}</h1>
 
   @if (notFound) {
   <app-not-found-state message="This product specification could not be found." (back)="goBack()" />
   } @else {
-    <app-stepper [canAdvance]="canAdvance" [allUnlocked]="true" submitLabel="UPDATE_PROD_SPEC._update_prod"
-      [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="updateProduct()"
-      [submitAlwaysVisible]="true">
+  <app-stepper [canAdvance]="canAdvance" [allUnlocked]="true" submitLabel="UPDATE_PROD_SPEC._update_prod"
+    [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="updateProduct()"
+    [submitAlwaysVisible]="true">
 
-      <ng-template stepperStep="General Info" stepId="general">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._general_info' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._general_info_desc' | translate }}</p>
-          </div>
-          <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" [columns]="2" />
-        </div>
-      </ng-template>
-
-      @if (BUNDLE_ENABLED) {
-      <ng-template stepperStep="Bundle" stepId="bundle">
-        <div class="flex flex-col gap-5">
+    <ng-template stepperStep="General Info" stepId="general">
+      <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._bundle_step_title' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._bundle_step_subtitle' | translate }}</p>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._general_info' | translate
+            }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._general_info_desc' | translate
+            }}</p>
+        </div>
+        <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" [columns]="2" />
+      </div>
+    </ng-template>
+
+    <ng-template stepperStep="Product Details" stepId="productDetails">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._product_details' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._product_details_desc' |
+            translate }}</p>
+        </div>
+
+        <div>
+          <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{
+            'CREATE_PROD_SPEC._how_it_works' | translate }}</label>
+          <app-markdown-textarea data-cy="prodSpecHowItWorks" [(ngModel)]="howItWorks"
+            [ngModelOptions]="{standalone: true}" [rows]="5" [maxLength]="2000"
+            [placeholder]="'CREATE_PROD_SPEC._how_it_works_placeholder' | translate"></app-markdown-textarea>
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._key_features' |
+              translate }}</span>
+            <button type="button" (click)="openItemModal('feature')" data-cy="addKeyFeature"
+              class="flex items-center gap-2 h-9 px-3 border border-primary-100 text-primary-100 dark:text-primary-50 rounded-lg text-sm font-semibold hover:bg-secondary-50/50 dark:hover:bg-secondary-300/50">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              {{ 'CREATE_PROD_SPEC._add_key_feature' | translate }}
+            </button>
+          </div>
+          @if(keyFeatures.length === 0){
+          <div
+            class="rounded-2xl border border-dashed border-gray-300 dark:border-secondary-200 flex flex-col items-center justify-center px-6 py-10">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2" style="background-color: #DDE6F6;">
+              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24">
+                <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
+              </svg>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'CREATE_PROD_SPEC._no_key_features' | translate }}
+            </p>
+          </div>
+          } @else {
+          <div class="border border-gray-200 dark:border-secondary-200 rounded-2xl overflow-visible">
+            <table class="w-full text-sm text-left text-gray-700 dark:text-gray-300">
+              <thead class="text-xs text-gray-500 dark:text-gray-400 uppercase bg-[#EBECEE] dark:bg-secondary-300">
+                <tr>
+                  <th class="px-6 py-3 font-semibold w-20 rounded-tl-2xl">{{ 'CREATE_PROD_SPEC._icon' | translate }}
+                  </th>
+                  <th class="px-6 py-3 font-semibold">{{ 'CREATE_PROD_SPEC._item_name' | translate }}</th>
+                  <th class="px-6 py-3 font-semibold">{{ 'CREATE_PROD_SPEC._description' | translate }}</th>
+                  <th class="px-6 py-3 font-semibold text-right w-20 rounded-tr-2xl">{{ 'CREATE_PROD_SPEC._actions' |
+                    translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(feat of keyFeatures; track feat; let idx = $index; let last = $last) {
+                <tr class="group border-t border-gray-100 dark:border-secondary-200">
+                  <td
+                    class="px-6 py-3 text-primary-100 dark:text-primary-50 group-hover:bg-gray-50 dark:group-hover:bg-secondary-200"
+                    [ngClass]="{'rounded-bl-2xl': last}">
+                    @if(resolveIcon(feat.icon)){ <fa-icon [icon]="resolveIcon(feat.icon)!"></fa-icon> }
+                  </td>
+                  <td
+                    class="px-6 py-3 text-gray-900 dark:text-white group-hover:bg-gray-50 dark:group-hover:bg-secondary-200">
+                    {{ feat.name }}</td>
+                  <td
+                    class="px-6 py-3 text-gray-600 dark:text-gray-300 group-hover:bg-gray-50 dark:group-hover:bg-secondary-200">
+                    {{ feat.description || '-' }}</td>
+                  <td class="px-6 py-3 text-right relative group-hover:bg-gray-50 dark:group-hover:bg-secondary-200"
+                    [ngClass]="{'rounded-br-2xl': last}">
+                    <button type="button" (click)="toggleItemMenu('feature', idx, $event)"
+                      class="p-1 hover:bg-gray-100 dark:hover:bg-secondary-300 rounded text-gray-500 dark:text-gray-400">
+                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="5" r="2" />
+                        <circle cx="12" cy="12" r="2" />
+                        <circle cx="12" cy="19" r="2" />
+                      </svg>
+                    </button>
+                    @if(isItemMenuOpen('feature', idx)){
+                    <div
+                      class="absolute right-6 top-12 z-20 bg-white dark:bg-secondary-100 rounded-xl shadow-lg border border-gray-100 dark:border-secondary-200 py-2 w-36 text-left"
+                      (click)="$event.stopPropagation()">
+                      <button type="button" (click)="openItemModal('feature', idx); openItemMenuIdx=null"
+                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
+                        'CREATE_PROD_SPEC._edit' | translate }}</button>
+                      <button type="button" (click)="removeItem('feature', idx)"
+                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
+                        'CREATE_PROD_SPEC._delete' | translate }}</button>
+                    </div>
+                    }
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          }
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._business_benefits' |
+              translate }}</span>
+            <button type="button" (click)="openItemModal('benefit')" data-cy="addBusinessBenefit"
+              class="flex items-center gap-2 h-9 px-3 border border-primary-100 text-primary-100 dark:text-primary-50 rounded-lg text-sm font-semibold hover:bg-secondary-50/50 dark:hover:bg-secondary-300/50">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              {{ 'CREATE_PROD_SPEC._add_business_benefit' | translate }}
+            </button>
+          </div>
+          @if(businessBenefits.length === 0){
+          <div
+            class="rounded-2xl border border-dashed border-gray-300 dark:border-secondary-200 flex flex-col items-center justify-center px-6 py-10">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2" style="background-color: #DDE6F6;">
+              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24">
+                <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
+              </svg>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'CREATE_PROD_SPEC._no_business_benefits' | translate
+              }}</p>
+          </div>
+          } @else {
+          <div class="border border-gray-200 dark:border-secondary-200 rounded-2xl overflow-visible">
+            <table class="w-full text-sm text-left text-gray-700 dark:text-gray-300">
+              <thead class="text-xs text-gray-500 dark:text-gray-400 uppercase bg-[#EBECEE] dark:bg-secondary-300">
+                <tr>
+                  <th class="px-6 py-3 font-semibold rounded-tl-2xl">{{ 'CREATE_PROD_SPEC._item_name' | translate }}
+                  </th>
+                  <th class="px-6 py-3 font-semibold">{{ 'CREATE_PROD_SPEC._description' | translate }}</th>
+                  <th class="px-6 py-3 font-semibold text-right w-20 rounded-tr-2xl">{{ 'CREATE_PROD_SPEC._actions' |
+                    translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(b of businessBenefits; track b; let idx = $index; let last = $last) {
+                <tr class="group border-t border-gray-100 dark:border-secondary-200">
+                  <td
+                    class="px-6 py-3 text-gray-900 dark:text-white group-hover:bg-gray-50 dark:group-hover:bg-secondary-200"
+                    [ngClass]="{'rounded-bl-2xl': last}">{{ b.name }}</td>
+                  <td
+                    class="px-6 py-3 text-gray-600 dark:text-gray-300 group-hover:bg-gray-50 dark:group-hover:bg-secondary-200">
+                    {{ b.description || '-' }}</td>
+                  <td class="px-6 py-3 text-right relative group-hover:bg-gray-50 dark:group-hover:bg-secondary-200"
+                    [ngClass]="{'rounded-br-2xl': last}">
+                    <button type="button" (click)="toggleItemMenu('benefit', idx, $event)"
+                      class="p-1 hover:bg-gray-100 dark:hover:bg-secondary-300 rounded text-gray-500 dark:text-gray-400">
+                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="5" r="2" />
+                        <circle cx="12" cy="12" r="2" />
+                        <circle cx="12" cy="19" r="2" />
+                      </svg>
+                    </button>
+                    @if(isItemMenuOpen('benefit', idx)){
+                    <div
+                      class="absolute right-6 top-12 z-20 bg-white dark:bg-secondary-100 rounded-xl shadow-lg border border-gray-100 dark:border-secondary-200 py-2 w-36 text-left"
+                      (click)="$event.stopPropagation()">
+                      <button type="button" (click)="openItemModal('benefit', idx); openItemMenuIdx=null"
+                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
+                        'CREATE_PROD_SPEC._edit' | translate }}</button>
+                      <button type="button" (click)="removeItem('benefit', idx)"
+                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
+                        'CREATE_PROD_SPEC._delete' | translate }}</button>
+                    </div>
+                    }
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          }
+        </div>
+
+        <div>
+          <div class="flex justify-between items-center mb-3">
+            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._use_cases' |
+              translate }}</span>
+            <button type="button" (click)="openItemModal('usecase')" data-cy="addUseCase"
+              class="flex items-center gap-2 h-9 px-3 border border-primary-100 text-primary-100 dark:text-primary-50 rounded-lg text-sm font-semibold hover:bg-secondary-50/50 dark:hover:bg-secondary-300/50">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              {{ 'CREATE_PROD_SPEC._add_use_case' | translate }}
+            </button>
+          </div>
+          @if(useCases.length === 0){
+          <div
+            class="rounded-2xl border border-dashed border-gray-300 dark:border-secondary-200 flex flex-col items-center justify-center px-6 py-10">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2" style="background-color: #DDE6F6;">
+              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24">
+                <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
+              </svg>
+            </div>
+            <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'CREATE_PROD_SPEC._no_use_cases' | translate }}</p>
+          </div>
+          } @else {
+          <div class="border border-gray-200 dark:border-secondary-200 rounded-2xl overflow-visible">
+            <table class="w-full text-sm text-left text-gray-700 dark:text-gray-300">
+              <thead class="text-xs text-gray-500 dark:text-gray-400 uppercase bg-[#EBECEE] dark:bg-secondary-300">
+                <tr>
+                  <th class="px-6 py-3 font-semibold rounded-tl-2xl">{{ 'CREATE_PROD_SPEC._item_name' | translate }}
+                  </th>
+                  <th class="px-6 py-3 font-semibold">{{ 'CREATE_PROD_SPEC._description' | translate }}</th>
+                  <th class="px-6 py-3 font-semibold text-right w-20 rounded-tr-2xl">{{ 'CREATE_PROD_SPEC._actions' |
+                    translate }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for(uc of useCases; track uc; let idx = $index; let last = $last) {
+                <tr class="group border-t border-gray-100 dark:border-secondary-200">
+                  <td
+                    class="px-6 py-3 text-gray-900 dark:text-white group-hover:bg-gray-50 dark:group-hover:bg-secondary-200"
+                    [ngClass]="{'rounded-bl-2xl': last}">{{ uc.name }}</td>
+                  <td
+                    class="px-6 py-3 text-gray-600 dark:text-gray-300 group-hover:bg-gray-50 dark:group-hover:bg-secondary-200">
+                    {{ uc.description || '-' }}</td>
+                  <td class="px-6 py-3 text-right relative group-hover:bg-gray-50 dark:group-hover:bg-secondary-200"
+                    [ngClass]="{'rounded-br-2xl': last}">
+                    <button type="button" (click)="toggleItemMenu('usecase', idx, $event)"
+                      class="p-1 hover:bg-gray-100 dark:hover:bg-secondary-300 rounded text-gray-500 dark:text-gray-400">
+                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="5" r="2" />
+                        <circle cx="12" cy="12" r="2" />
+                        <circle cx="12" cy="19" r="2" />
+                      </svg>
+                    </button>
+                    @if(isItemMenuOpen('usecase', idx)){
+                    <div
+                      class="absolute right-6 top-12 z-20 bg-white dark:bg-secondary-100 rounded-xl shadow-lg border border-gray-100 dark:border-secondary-200 py-2 w-36 text-left"
+                      (click)="$event.stopPropagation()">
+                      <button type="button" (click)="openItemModal('usecase', idx); openItemMenuIdx=null"
+                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
+                        'CREATE_PROD_SPEC._edit' | translate }}</button>
+                      <button type="button" (click)="removeItem('usecase', idx)"
+                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
+                        'CREATE_PROD_SPEC._delete' | translate }}</button>
+                    </div>
+                    }
+                  </td>
+                </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+          }
+        </div>
+      </div>
+    </ng-template>
+
+    @if (BUNDLE_ENABLED) {
+    <ng-template stepperStep="Bundle" stepId="bundle">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._bundle_step_title' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._bundle_step_subtitle' |
+            translate }}</p>
         </div>
         <div class="col-span-2 flex align-items-middle h-fit m-4">
           <label for="prod-brand" class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._is_bundled' |
@@ -148,14 +405,16 @@
                             </svg>
                         </button>
                     </div>-->
-        </div>
-      </ng-template>
-      }
-      <ng-template stepperStep="Compliance profile" stepId="compliance">
-        <div class="flex flex-col gap-5">
+      </div>
+    </ng-template>
+    }
+    <ng-template stepperStep="Compliance profile" stepId="compliance">
+      <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._compliance_step' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._compliance_desc' | translate }}</p>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._compliance_step' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._compliance_desc' | translate }}
+          </p>
         </div>
         <div class="flex w-full items-center px-4 mb-3">
           <div class="flex items-center">
@@ -510,159 +769,169 @@
           </div>
         </div>
         }
-        </div>
-      </ng-template>
-      <ng-template stepperStep="Characteristics" stepId="characteristics">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CHAR_SPEC._step_title' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CHAR_SPEC._step_subtitle' | translate }}</p>
-          </div>
-          <app-characteristics-editor [characteristics]="characteristicItems"
-            [supportedTypes]="['string', 'number', 'range', 'boolean', 'object']"
-            (characteristicsChange)="onCharacteristicsChange($event)" />
-        </div>
-      </ng-template>
-      @if (DATA_SPACE_ENABLED && !prod?.externalId) {
-      <ng-template stepperStep="Dataspace Configuration" stepId="dataspace">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._dataspace_configuration' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._dataspace_configuration_desc' | translate }}</p>
-          </div>
-          <app-characteristics-editor [characteristics]="characteristicItems"
-            [supportedTypes]="['credentialsConfiguration', 'authorizationPolicy']"
-            (characteristicsChange)="onCharacteristicsChange($event)" />
-        </div>
-      </ng-template>
-      }
-      <ng-template stepperStep="Resource specifications" stepId="resource">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._resource_specs_step' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._resource_specs_desc' | translate }}</p>
-          </div>
-          <div class="w-full">
-            <app-paginated-table [columns]="resColumns" [fetchPage]="fetchResourceSpecs" [multiple]="true"
-              [selectable]="true" [selected]="selectedResourceSpecs" (selectedChange)="selectedResourceSpecs = $event"
-              [defaultSort]="defaultResSort">
-            </app-paginated-table>
-          </div>
-        </div>
-      </ng-template>
-      <ng-template stepperStep="Service specifications" stepId="service">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._service_specs_step' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._service_specs_desc' | translate }}</p>
-          </div>
-          <div class="w-full">
-            <app-paginated-table [columns]="servColumns" [fetchPage]="fetchServiceSpecs" [multiple]="true"
-              [selectable]="true" [selected]="selectedServiceSpecs" (selectedChange)="selectedServiceSpecs = $event"
-              [defaultSort]="defaultServSort">
-            </app-paginated-table>
-          </div>
-        </div>
-      </ng-template>
-
-      @if (showDspConfigStep) {
-      <ng-template stepperStep="DSP Config" stepId="dsp_config">
-        <div class="m-4 flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_configuration' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._dsp_configuration_desc' | translate }}</p>
-          </div>
-
-          @if (endpointUrls.length > 0) {
-          <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300 mb-4">
-            <table class="table-fixed w-full text-sm text-left text-gray-500 dark:text-gray-200">
-              <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                <tr>
-                  <th scope="col" class="w-96 px-6 py-3">Endpoint URL</th>
-                  <th scope="col" class="px-6 py-3">Description</th>
-                  <th scope="col" class="w-48 px-2 py-3 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (entry of endpointUrls; track entry; let idx = $index) {
-                <tr
-                  class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                  <td class="px-6 py-4 break-all">{{ entry.url }}</td>
-                  <td class="px-6 py-4 break-words">{{ entry.description }}</td>
-                  <td class="px-2 py-4 text-center">
-                    <button (click)="removeEndpointUrl(idx)" type="button"
-                      class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center">
-                      <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                        height="24" fill="none" viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M6 18 17.94 6M18 18 6.06 6" />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          }
-
-          <div class="flex flex-col gap-2">
-            <div class="flex gap-4">
-              <div class="flex flex-col w-1/2">
-                <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_endpoint_name' | translate
-                  }}</label>
-                <input [value]="newEndpointName" (input)="newEndpointName = $any($event.target).value" type="text"
-                  [placeholder]="'CREATE_PROD_SPEC._dsp_endpoint_name_placeholder' | translate"
-                  class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-              </div>
-              <div class="flex flex-col w-1/2">
-                <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_endpoint_url' | translate
-                  }}</label>
-                <input [value]="newEndpointUrl" (input)="newEndpointUrl = $any($event.target).value" type="url"
-                  [placeholder]="'CREATE_PROD_SPEC._dsp_endpoint_url_placeholder' | translate"
-                  class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-              </div>
-            </div>
-            <div>
-              <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_endpoint_description' |
-                translate }}</label>
-              <textarea [value]="newEndpointDescription" (input)="newEndpointDescription = $any($event.target).value"
-                rows="3" [placeholder]="'CREATE_PROD_SPEC._dsp_endpoint_description_placeholder' | translate"
-                maxlength="100000"
-                class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
-            </div>
-            <div class="flex justify-center">
-              <button type="button" (click)="addEndpointUrl()"
-                [disabled]="!newEndpointUrl.trim() || !newEndpointDescription.trim()"
-                [class.opacity-50]="!newEndpointUrl.trim() || !newEndpointDescription.trim()"
-                [class.cursor-not-allowed]="!newEndpointUrl.trim() || !newEndpointDescription.trim()"
-                class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
-                {{ 'CREATE_PROD_SPEC._dsp_add_endpoint' | translate }}
-                <svg class="w-4 h-4 ml-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                  height="24" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M5 12h14m-7 7V5" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          @if (endpointUrls.length === 0) {
-          <p class="mt-2 text-sm text-red-500">At least one endpoint URL is required.</p>
-          }
-
-          <hr class="my-6 border-gray-200 dark:border-gray-700" />
-
-          <app-dynamic-form class="block" [fields]="dspFormFields" [formGroup]="dspConfigForm" [columns]="3" />
-        </div>
-      </ng-template>
-      }
-
-      <ng-template stepperStep="Attachments" stepId="attachments">
-        <div class="flex flex-col gap-5">
+      </div>
+    </ng-template>
+    <ng-template stepperStep="Characteristics" stepId="characteristics">
+      <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._attachments_step_title' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._attachments_step_subtitle' | translate }}</p>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CHAR_SPEC._step_title' | translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CHAR_SPEC._step_subtitle' | translate }}</p>
+        </div>
+        <app-characteristics-editor [characteristics]="characteristicItems"
+          [supportedTypes]="['string', 'number', 'range', 'boolean', 'object']"
+          (characteristicsChange)="onCharacteristicsChange($event)" />
+      </div>
+    </ng-template>
+    @if (DATA_SPACE_ENABLED && !prod?.externalId) {
+    <ng-template stepperStep="Dataspace Configuration" stepId="dataspace">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._dataspace_configuration' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._dataspace_configuration_desc' |
+            translate }}</p>
+        </div>
+        <app-characteristics-editor [characteristics]="characteristicItems"
+          [supportedTypes]="['credentialsConfiguration', 'authorizationPolicy']"
+          (characteristicsChange)="onCharacteristicsChange($event)" />
+      </div>
+    </ng-template>
+    }
+    <ng-template stepperStep="Resource specifications" stepId="resource">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._resource_specs_step' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._resource_specs_desc' |
+            translate }}</p>
+        </div>
+        <div class="w-full">
+          <app-paginated-table [columns]="resColumns" [fetchPage]="fetchResourceSpecs" [multiple]="true"
+            [selectable]="true" [selected]="selectedResourceSpecs" (selectedChange)="selectedResourceSpecs = $event"
+            [defaultSort]="defaultResSort">
+          </app-paginated-table>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template stepperStep="Service specifications" stepId="service">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._service_specs_step' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._service_specs_desc' | translate
+            }}</p>
+        </div>
+        <div class="w-full">
+          <app-paginated-table [columns]="servColumns" [fetchPage]="fetchServiceSpecs" [multiple]="true"
+            [selectable]="true" [selected]="selectedServiceSpecs" (selectedChange)="selectedServiceSpecs = $event"
+            [defaultSort]="defaultServSort">
+          </app-paginated-table>
+        </div>
+      </div>
+    </ng-template>
+
+    @if (showDspConfigStep) {
+    <ng-template stepperStep="DSP Config" stepId="dsp_config">
+      <div class="m-4 flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_configuration' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._dsp_configuration_desc' |
+            translate }}</p>
+        </div>
+
+        @if (endpointUrls.length > 0) {
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300 mb-4">
+          <table class="table-fixed w-full text-sm text-left text-gray-500 dark:text-gray-200">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+              <tr>
+                <th scope="col" class="w-96 px-6 py-3">Endpoint URL</th>
+                <th scope="col" class="px-6 py-3">Description</th>
+                <th scope="col" class="w-48 px-2 py-3 text-center">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (entry of endpointUrls; track entry; let idx = $index) {
+              <tr
+                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
+                <td class="px-6 py-4 break-all">{{ entry.url }}</td>
+                <td class="px-6 py-4 break-words">{{ entry.description }}</td>
+                <td class="px-2 py-4 text-center">
+                  <button (click)="removeEndpointUrl(idx)" type="button"
+                    class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center">
+                    <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                      height="24" fill="none" viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M6 18 17.94 6M18 18 6.06 6" />
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
+
+        <div class="flex flex-col gap-2">
+          <div class="flex gap-4">
+            <div class="flex flex-col w-1/2">
+              <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_endpoint_name' | translate
+                }}</label>
+              <input [value]="newEndpointName" (input)="newEndpointName = $any($event.target).value" type="text"
+                [placeholder]="'CREATE_PROD_SPEC._dsp_endpoint_name_placeholder' | translate"
+                class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+            </div>
+            <div class="flex flex-col w-1/2">
+              <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_endpoint_url' | translate
+                }}</label>
+              <input [value]="newEndpointUrl" (input)="newEndpointUrl = $any($event.target).value" type="url"
+                [placeholder]="'CREATE_PROD_SPEC._dsp_endpoint_url_placeholder' | translate"
+                class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+            </div>
+          </div>
+          <div>
+            <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_endpoint_description' |
+              translate }}</label>
+            <textarea [value]="newEndpointDescription" (input)="newEndpointDescription = $any($event.target).value"
+              rows="3" [placeholder]="'CREATE_PROD_SPEC._dsp_endpoint_description_placeholder' | translate"
+              maxlength="100000"
+              class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
+          </div>
+          <div class="flex justify-center">
+            <button type="button" (click)="addEndpointUrl()"
+              [disabled]="!newEndpointUrl.trim() || !newEndpointDescription.trim()"
+              [class.opacity-50]="!newEndpointUrl.trim() || !newEndpointDescription.trim()"
+              [class.cursor-not-allowed]="!newEndpointUrl.trim() || !newEndpointDescription.trim()"
+              class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+              {{ 'CREATE_PROD_SPEC._dsp_add_endpoint' | translate }}
+              <svg class="w-4 h-4 ml-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
+                height="24" fill="none" viewBox="0 0 24 24">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M5 12h14m-7 7V5" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        @if (endpointUrls.length === 0) {
+        <p class="mt-2 text-sm text-red-500">At least one endpoint URL is required.</p>
+        }
+
+        <hr class="my-6 border-gray-200 dark:border-gray-700" />
+
+        <app-dynamic-form class="block" [fields]="dspFormFields" [formGroup]="dspConfigForm" [columns]="3" />
+      </div>
+    </ng-template>
+    }
+
+    <ng-template stepperStep="Attachments" stepId="attachments">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._attachments_step_title' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._attachments_step_subtitle' |
+            translate }}</p>
         </div>
         <div class="inline-flex">
           <h4 class="text-lg font-bold ml-4 dark:text-white">{{ 'UPDATE_PROD_SPEC._add_prod_img' | translate }}</h4>
@@ -898,467 +1167,584 @@
                             </svg>
                         </button>
                     </div>  -->
-        </div>
-      </ng-template>
-      @if(!templateName) {
+      </div>
+    </ng-template>
+    @if(!templateName) {
 
-      <ng-template stepperStep="Relationships" stepId="relationships">
-        <div class="m-4 flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._relationships_step_title' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._relationships_step_subtitle' | translate }}</p>
-          </div>
-          @if (prodRelationships.length === 0){
-          <div class="flex justify-center w-full mb-4">
-            <div
-              class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
-              role="alert">
-              <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-              </svg>
-              <span class="sr-only">Info</span>
-              <div>
-                {{ 'UPDATE_PROD_SPEC._no_relatioships' | translate }}
-              </div>
+    <ng-template stepperStep="Relationships" stepId="relationships">
+      <div class="m-4 flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._relationships_step_title' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._relationships_step_subtitle' |
+            translate }}</p>
+        </div>
+        @if (prodRelationships.length === 0){
+        <div class="flex justify-center w-full mb-4">
+          <div
+            class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
+            role="alert">
+            <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+              fill="currentColor" viewBox="0 0 20 20">
+              <path
+                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+            </svg>
+            <span class="sr-only">Info</span>
+            <div>
+              {{ 'UPDATE_PROD_SPEC._no_relatioships' | translate }}
             </div>
           </div>
-          } @else {
-          <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white m-4">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-              <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                <tr>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._relationship_type' | translate }}
-                  </th>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
-                  </th>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._actions' | translate }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (rel of prodRelationships; track rel) {
-                <tr
-                  class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                  <td class="px-6 py-4">
-                    {{rel.relationshipType}}
-                  </td>
-                  <td [ngClass]="{
+        </div>
+        } @else {
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white m-4">
+          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+              <tr>
+                <th scope="col" class="px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._relationship_type' | translate }}
+                </th>
+                <th scope="col" class="px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
+                </th>
+                <th scope="col" class="px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._actions' | translate }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (rel of prodRelationships; track rel) {
+              <tr
+                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
+                <td class="px-6 py-4">
+                  {{rel.relationshipType}}
+                </td>
+                <td [ngClass]="{
                                                     'break-all': hasLongWord(rel.name, 20),
                                                     'break-words': !hasLongWord(rel.name, 20)
                                                     }" class="px-6 py-4 text-wrap break-words">
-                    {{rel.name}}
-                  </td>
-                  <td class="px-6 py-4">
-                    <button (click)="deleteRel(rel)" class="font-bold text-white bg-red-500 rounded-3xl">
-                      <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M6 18 17.94 6M18 18 6.06 6" />
-                      </svg>
-                    </button>
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
+                  {{rel.name}}
+                </td>
+                <td class="px-6 py-4">
+                  <button (click)="deleteRel(rel)" class="font-bold text-white bg-red-500 rounded-3xl">
+                    <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                      viewBox="0 0 24 24">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M6 18 17.94 6M18 18 6.06 6" />
+                    </svg>
+                  </button>
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
+        @if(!showCreateRel){
+        <div class="flex w-full justify-items-center justify-center">
+          <button type="button" (click)="showCreateRel=!showCreateRel"
+            class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+            {{ 'UPDATE_PROD_SPEC._add_relationship' | translate }}
+            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+              fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 12h14m-7 7V5" />
+            </svg>
+          </button>
+        </div>
+        } @else {
+        @if(loadingprodSpecRel){
+        <app-loading-spinner containerClass="w-full h-fit flex justify-center align-middle" />
+        } @else {
+        <app-dynamic-form [fields]="relFormFields" [formGroup]="relForm" />
+        @if (!loadingprodSpecRel_more) {
+        @if (prodSpecRelPageCheck) {
+        <div class="flex pt-6 pb-2 justify-center align-middle">
+          <button (click)="nextProdSpecsRel()"
+            class="flex cursor-pointer shadow-lg items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 dark:text-white bg-white dark:bg-primary-100 dark:hover:bg-secondary-100 border border-gray-300 dark:border-secondary-200 rounded-lg hover:bg-gray-200">
+            {{ 'UPDATE_PROD_SPEC._load_more' | translate }}
+            <svg class="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M5 12h14m-7 7V5" />
+            </svg>
+          </button>
+        </div>
+        }
+        } @else {
+        <app-loading-spinner containerClass="w-full h-full flex justify-center align-middle mt-2" />
+        }
+        }
+        <div class="flex w-full justify-items-center justify-center mt-4">
+          <button type="button" (click)="saveRel()" [disabled]="!relForm.value.prodSpec"
+            [ngClass]="!relForm.value.prodSpec ? 'opacity-50' : 'hover:bg-primary-50'"
+            class="flex text-white justify-center bg-primary-100 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+            {{ 'UPDATE_PROD_SPEC._save_relationship' | translate }}
+            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+              fill="none" viewBox="0 0 24 24">
+              <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
+                d="M11 16h2m6.707-9.293-2.414-2.414A1 1 0 0 0 16.586 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V7.414a1 1 0 0 0-.293-.707ZM16 20v-6a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v6h8ZM9 4h6v3a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4Z" />
+            </svg>
+          </button>
+        </div>
+        }
+      </div>
+
+    </ng-template>
+    }
+    @if (templateName) {
+    <ng-template stepperStep="{{ 'BLUEPRINT_PROD._orchestration_plan' | translate}}" stepId="orchestrationPlan">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'BLUEPRINT_PROD._orchestration_plan' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'BLUEPRINT_PROD._orchestration_plan_subtitle' |
+            translate }}</p>
+        </div>
+        <app-blueprint-product-form (formChange)="onBlueprintConfigChange($event)" [blueprintConfig]="blueprintConfig"
+          [blueprintId]="prod.id" />
+      </div>
+    </ng-template>
+    }
+
+    <ng-template stepperStep="FAQs" stepId="faqs">
+      <div class="flex flex-col gap-5">
+        <div class="flex justify-between items-start gap-4">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._faqs_step' | translate }}
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 max-w-3xl">{{ 'CREATE_PROD_SPEC._faqs_intro' |
+              translate }}</p>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 max-w-3xl">{{ 'CREATE_PROD_SPEC._faqs_intro2' |
+              translate }}</p>
           </div>
-          }
-          @if(!showCreateRel){
-          <div class="flex w-full justify-items-center justify-center">
-            <button type="button" (click)="showCreateRel=!showCreateRel"
-              class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
-              {{ 'UPDATE_PROD_SPEC._add_relationship' | translate }}
-              <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M5 12h14m-7 7V5" />
-              </svg>
-            </button>
-          </div>
-          } @else {
-          @if(loadingprodSpecRel){
-          <app-loading-spinner containerClass="w-full h-fit flex justify-center align-middle" />
-          } @else {
-          <app-dynamic-form [fields]="relFormFields" [formGroup]="relForm" />
-          @if (!loadingprodSpecRel_more) {
-          @if (prodSpecRelPageCheck) {
-          <div class="flex pt-6 pb-2 justify-center align-middle">
-            <button (click)="nextProdSpecsRel()"
-              class="flex cursor-pointer shadow-lg items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 dark:text-white bg-white dark:bg-primary-100 dark:hover:bg-secondary-100 border border-gray-300 dark:border-secondary-200 rounded-lg hover:bg-gray-200">
-              {{ 'UPDATE_PROD_SPEC._load_more' | translate }}
-              <svg class="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M5 12h14m-7 7V5" />
-              </svg>
-            </button>
-          </div>
-          }
-          } @else {
-          <app-loading-spinner containerClass="w-full h-full flex justify-center align-middle mt-2" />
-          }
-          }
-          <div class="flex w-full justify-items-center justify-center mt-4">
-            <button type="button" (click)="saveRel()" [disabled]="!relForm.value.prodSpec"
-              [ngClass]="!relForm.value.prodSpec ? 'opacity-50' : 'hover:bg-primary-50'"
-              class="flex text-white justify-center bg-primary-100 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
-              {{ 'UPDATE_PROD_SPEC._save_relationship' | translate }}
-              <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
-                  d="M11 16h2m6.707-9.293-2.414-2.414A1 1 0 0 0 16.586 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V7.414a1 1 0 0 0-.293-.707ZM16 20v-6a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v6h8ZM9 4h6v3a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4Z" />
-              </svg>
-            </button>
-          </div>
-          }
+          <button type="button" (click)="addFaq()" data-cy="addFaq"
+            class="flex items-center gap-2 h-10 px-4 border border-primary-100 text-primary-100 dark:text-primary-50 rounded-lg text-sm font-semibold hover:bg-secondary-50/50 dark:hover:bg-secondary-300/50 shrink-0">
+            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            </svg>
+            {{ 'CREATE_PROD_SPEC._add_faq' | translate }}
+          </button>
         </div>
 
-      </ng-template>
-      }
-      @if (templateName) {
-      <ng-template stepperStep="{{ 'BLUEPRINT_PROD._orchestration_plan' | translate}}" stepId="orchestrationPlan">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'BLUEPRINT_PROD._orchestration_plan' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'BLUEPRINT_PROD._orchestration_plan_subtitle' | translate }}</p>
+        @if(faqs.length === 0){
+        <div class="rounded-2xl border border-dashed border-gray-300 dark:border-secondary-200">
+          <div class="flex flex-col items-center justify-center px-6 py-12 text-center">
+            <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 p-4"
+              style="background-color: #DDE6F6;">
+              <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#2D58A7">
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v.75c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875v-.75C22.5 3.839 21.66 3 20.625 3H3.375z" />
+                <path fill-rule="evenodd" clip-rule="evenodd"
+                  d="M3.087 9l.54 9.176A3 3 0 006.62 21h10.757a3 3 0 002.995-2.824L20.913 9H3.087zm6.133 2.845a.75.75 0 011.06 0l1.72 1.72 1.72-1.72a.75.75 0 111.06 1.06l-1.72 1.72 1.72 1.72a.75.75 0 11-1.06 1.06L12 15.685l-1.72 1.72a.75.75 0 11-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06z" />
+              </svg>
+            </div>
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">{{ 'CREATE_PROD_SPEC._no_faqs' |
+              translate }}</h3>
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">{{ 'CREATE_PROD_SPEC._add_new_to_collect' |
+              translate }}</p>
+            <button type="button" (click)="addFaq()"
+              class="flex items-center gap-2 h-10 px-4 border border-primary-100 text-primary-100 dark:text-primary-50 rounded-lg text-sm font-semibold hover:bg-secondary-50/50 dark:hover:bg-secondary-300/50">
+              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+              </svg>
+              {{ 'CREATE_PROD_SPEC._add_faq' | translate }}
+            </button>
           </div>
-          <app-blueprint-product-form (formChange)="onBlueprintConfigChange($event)" [blueprintConfig]="blueprintConfig"
-            [blueprintId]="prod.id" />
         </div>
-      </ng-template>
-      }
-      <ng-template stepperStep="Summary" stepId="summary">
-        <div class="m-8 flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._ready_title' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._ready_desc' | translate }}</p>
+        } @else {
+        <div class="flex flex-col gap-3">
+          @for(faq of faqs; track faq; let idx = $index){
+          <div class="border border-gray-200 dark:border-secondary-200 rounded-xl bg-white dark:bg-secondary-300"
+            [class.opacity-50]="draggingFaqIdx === idx" (dragover)="onFaqDragOver($event)"
+            (drop)="onFaqDrop($event, idx)">
+            <div class="flex items-center gap-3 px-4 py-3" draggable="true" (dragstart)="onFaqDragStart($event, idx)"
+              (dragend)="onFaqDragEnd()">
+              <span class="text-gray-400 dark:text-gray-500 cursor-move select-none"
+                title="{{ 'CREATE_PROD_SPEC._drag_to_reorder' | translate }}">
+                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="9" cy="6" r="1.5" />
+                  <circle cx="15" cy="6" r="1.5" />
+                  <circle cx="9" cy="12" r="1.5" />
+                  <circle cx="15" cy="12" r="1.5" />
+                  <circle cx="9" cy="18" r="1.5" />
+                  <circle cx="15" cy="18" r="1.5" />
+                </svg>
+              </span>
+              <span class="flex-1 text-sm text-gray-900 dark:text-white truncate" [class.text-gray-400]="!faq.question"
+                [class.dark:text-gray-500]="!faq.question">
+                {{ faq.question || ('CREATE_PROD_SPEC._untitled_question' | translate) }}
+              </span>
+              <button type="button" (click)="toggleFaq(idx)"
+                class="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                <svg class="w-4 h-4 transition-transform" [class.rotate-180]="!faq.expanded"
+                  xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5" />
+                </svg>
+              </button>
+              <button type="button" (click)="removeFaq(idx)"
+                class="p-1 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400">
+                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  stroke-width="1.8" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
+                </svg>
+              </button>
+            </div>
+
+            @if(faq.expanded){
+            <div
+              class="border-t border-gray-200 dark:border-secondary-200 px-4 py-4 grid grid-cols-[120px_1fr] gap-x-4 gap-y-4 items-start">
+              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase pt-2.5">{{
+                'CREATE_PROD_SPEC._question' | translate }}</span>
+              <input type="text" [(ngModel)]="faq.question" [ngModelOptions]="{standalone: true}" maxLength="200"
+                placeholder="{{ 'CREATE_PROD_SPEC._enter_question' | translate }}"
+                class="bg-white dark:bg-secondary-100 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+
+              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase pt-2.5">{{
+                'CREATE_PROD_SPEC._answer' | translate }}</span>
+              <textarea [(ngModel)]="faq.answer" [ngModelOptions]="{standalone: true}" rows="5" maxLength="2000"
+                placeholder="{{ 'CREATE_PROD_SPEC._write_answer' | translate }}"
+                class="bg-white dark:bg-secondary-100 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 resize-none"></textarea>
+            </div>
+            }
           </div>
-          @if(loading){
-          <app-loading-spinner />
-          } @else {
-          <div class="mb-4 md:grid md:grid-cols-2 gap-4">
-            <div>
-              <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._product_name' | translate
-                }}</label>
-              <label [ngClass]="{
+          }
+        </div>
+        }
+      </div>
+    </ng-template>
+
+    <ng-template stepperStep="Summary" stepId="summary">
+      <div class="m-8 flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._ready_title' | translate }}
+          </h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._ready_desc' | translate }}</p>
+        </div>
+        @if(loading){
+        <app-loading-spinner />
+        } @else {
+        <div class="mb-4 md:grid md:grid-cols-2 gap-4">
+          <div>
+            <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._product_name' | translate
+              }}</label>
+            <label [ngClass]="{
                                     'break-all': hasLongWord(productSpecToUpdate?.name, 20),
                                     'break-words': !hasLongWord(productSpecToUpdate?.name, 20)
                                     }"
-                class="mb-2 bg-gray-50 text-wrap break-words border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                {{productSpecToUpdate?.name}}
-              </label>
-              <label for="prod-version" class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._product_version'
-                | translate }}</label>
-              <label
-                class="mb-2 bg-gray-50 text-wrap break-all border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                {{productSpecToUpdate?.version}}
-              </label>
-            </div>
-            <div>
-              <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._product_brand' | translate
-                }}</label>
-              <label [ngClass]="{
+              class="mb-2 bg-gray-50 text-wrap break-words border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+              {{productSpecToUpdate?.name}}
+            </label>
+            <label for="prod-version" class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._product_version'
+              | translate }}</label>
+            <label
+              class="mb-2 bg-gray-50 text-wrap break-all border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+              {{productSpecToUpdate?.version}}
+            </label>
+          </div>
+          <div>
+            <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._product_brand' | translate
+              }}</label>
+            <label [ngClass]="{
                                     'break-all': hasLongWord(productSpecToUpdate?.brand, 20),
                                     'break-words': !hasLongWord(productSpecToUpdate?.brand, 20)
                                     }"
-                class="mb-2 bg-gray-50 text-wrap break-words border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                {{productSpecToUpdate?.brand}}
-              </label>
-              @if(productSpecToUpdate?.productNumber!=''){
-              <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._id_number' | translate }}</label>
-              <label
-                class="mb-2 bg-gray-50 text-wrap break-all border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                {{productSpecToUpdate?.productNumber}}
-              </label>
-              }
-            </div>
-          </div>
-
-          <div class="mb-4">
-            <label class="font-bold text-lg mr-4 dark:text-white">{{ 'UPDATE_PROD_SPEC._status' | translate }}</label>
-            @if(productSpecToUpdate?.lifecycleStatus == 'Active'){
-            <span
-              class="bg-blue-100 dark:bg-secondary-300 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{productSpecToUpdate?.lifecycleStatus}}</span>
-            } @else if(productSpecToUpdate?.lifecycleStatus == 'Launched') {
-            <span
-              class="bg-blue-100 dark:bg-secondary-300 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">{{productSpecToUpdate?.lifecycleStatus}}</span>
-            } @else if(productSpecToUpdate?.lifecycleStatus == 'Retired') {
-            <span
-              class="bg-blue-100 dark:bg-secondary-300 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{productSpecToUpdate?.lifecycleStatus}}</span>
-            } @else if(productSpecToUpdate?.lifecycleStatus == 'Obsolete') {
-            <span
-              class="bg-blue-100 dark:bg-secondary-300 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{productSpecToUpdate?.lifecycleStatus}}</span>
+              class="mb-2 bg-gray-50 text-wrap break-words border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+              {{productSpecToUpdate?.brand}}
+            </label>
+            @if(productSpecToUpdate?.productNumber!=''){
+            <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._id_number' | translate }}</label>
+            <label
+              class="mb-2 bg-gray-50 text-wrap break-all border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+              {{productSpecToUpdate?.productNumber}}
+            </label>
             }
           </div>
+        </div>
 
-          @if(productSpecToUpdate?.description !=''){
-          <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._product_description' | translate
-            }}</label>
-          <div class="px-4 py-2 bg-white dark:bg-secondary-300 border dark:border-secondary-200 rounded-lg p-4 mb-4">
-            <markdown [ngClass]="{
+        <div class="mb-4">
+          <label class="font-bold text-lg mr-4 dark:text-white">{{ 'UPDATE_PROD_SPEC._status' | translate }}</label>
+          @if(productSpecToUpdate?.lifecycleStatus == 'Active'){
+          <span
+            class="bg-blue-100 dark:bg-secondary-300 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{productSpecToUpdate?.lifecycleStatus}}</span>
+          } @else if(productSpecToUpdate?.lifecycleStatus == 'Launched') {
+          <span
+            class="bg-blue-100 dark:bg-secondary-300 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">{{productSpecToUpdate?.lifecycleStatus}}</span>
+          } @else if(productSpecToUpdate?.lifecycleStatus == 'Retired') {
+          <span
+            class="bg-blue-100 dark:bg-secondary-300 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{productSpecToUpdate?.lifecycleStatus}}</span>
+          } @else if(productSpecToUpdate?.lifecycleStatus == 'Obsolete') {
+          <span
+            class="bg-blue-100 dark:bg-secondary-300 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{productSpecToUpdate?.lifecycleStatus}}</span>
+          }
+        </div>
+
+        @if(productSpecToUpdate?.description !=''){
+        <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._product_description' | translate
+          }}</label>
+        <div class="px-4 py-2 bg-white dark:bg-secondary-300 border dark:border-secondary-200 rounded-lg p-4 mb-4">
+          <markdown [ngClass]="{
                                     'break-all': hasLongWord(productSpecToUpdate?.description, 20),
                                     'break-words': !hasLongWord(productSpecToUpdate?.description, 20)
                                     }"
-              class="bg-gray-50 text-wrap break-words dark:bg-secondary-300 dark:text-white text-gray-900"
-              [data]="productSpecToUpdate?.description"></markdown>
-          </div>
-          }
+            class="bg-gray-50 text-wrap break-words dark:bg-secondary-300 dark:text-white text-gray-900"
+            [data]="productSpecToUpdate?.description"></markdown>
+        </div>
+        }
 
-          @if(imgPreview!=''){
-          <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._profile_pic' | translate }}</label>
-          <div
-            class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl px-8 pb-8 pt-40 max-w-sm mx-auto m-4 shadow-lg">
-            <img src="{{imgPreview}}" class="absolute inset-0 h-full w-full object-cover">
-          </div>
-          }
+        @if(imgPreview!=''){
+        <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._profile_pic' | translate }}</label>
+        <div
+          class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl px-8 pb-8 pt-40 max-w-sm mx-auto m-4 shadow-lg">
+          <img src="{{imgPreview}}" class="absolute inset-0 h-full w-full object-cover">
+        </div>
+        }
 
-          @if(prodSpecsBundle.length>0){
-          <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._bundle' | translate }}</label>
-          <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-              <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                <tr>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
-                  </th>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._status' | translate }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (bun of prodSpecsBundle; track bun) {
-                <tr
-                  class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                  <td [ngClass]="{
+        @if(prodSpecsBundle.length>0){
+        <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._bundle' | translate }}</label>
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
+          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+              <tr>
+                <th scope="col" class="px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
+                </th>
+                <th scope="col" class="px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._status' | translate }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (bun of prodSpecsBundle; track bun) {
+              <tr
+                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
+                <td [ngClass]="{
                                                     'break-all': hasLongWord(bun.name, 20),
                                                     'break-words': !hasLongWord(bun.name, 20)
                                                     }" class="px-6 py-4 text-wrap break-words">
-                    {{bun.name}}
-                  </td>
-                  <td class="px-6 py-4">
-                    @if(bun.lifecycleStatus == 'Active'){
-                    <span
-                      class="bg-blue-100 dark:bg-secondary-300 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{bun.lifecycleStatus}}</span>
-                    } @else if(bun.lifecycleStatus == 'Launched') {
-                    <span
-                      class="bg-blue-100 dark:bg-secondary-300 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">{{bun.lifecycleStatus}}</span>
-                    } @else if(bun.lifecycleStatus == 'Retired') {
-                    <span
-                      class="bg-blue-100 dark:bg-secondary-300 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{bun.lifecycleStatus}}</span>
-                    } @else if(bun.lifecycleStatus == 'Obsolete') {
-                    <span
-                      class="bg-blue-100 dark:bg-secondary-300 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{bun.lifecycleStatus}}</span>
-                    }
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          }
+                  {{bun.name}}
+                </td>
+                <td class="px-6 py-4">
+                  @if(bun.lifecycleStatus == 'Active'){
+                  <span
+                    class="bg-blue-100 dark:bg-secondary-300 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{bun.lifecycleStatus}}</span>
+                  } @else if(bun.lifecycleStatus == 'Launched') {
+                  <span
+                    class="bg-blue-100 dark:bg-secondary-300 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">{{bun.lifecycleStatus}}</span>
+                  } @else if(bun.lifecycleStatus == 'Retired') {
+                  <span
+                    class="bg-blue-100 dark:bg-secondary-300 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{bun.lifecycleStatus}}</span>
+                  } @else if(bun.lifecycleStatus == 'Obsolete') {
+                  <span
+                    class="bg-blue-100 dark:bg-secondary-300 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{bun.lifecycleStatus}}</span>
+                  }
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
 
-          @if(prodChars.length>0){
-          <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._chars' | translate }}</label>
-          <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-              <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                <tr>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
-                  </th>
-                  <th scope="col" class="hidden lg:table-cell px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._product_description' | translate }}
-                  </th>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._values' | translate }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (prod of productSpecToUpdate?.productSpecCharacteristic; track prod;) {
-                <tr
-                  class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                  <td [ngClass]="{
+        @if(prodChars.length>0){
+        <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._chars' | translate }}</label>
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
+          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+              <tr>
+                <th scope="col" class="px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
+                </th>
+                <th scope="col" class="hidden lg:table-cell px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._product_description' | translate }}
+                </th>
+                <th scope="col" class="px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._values' | translate }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (prod of productSpecToUpdate?.productSpecCharacteristic; track prod;) {
+              <tr
+                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
+                <td [ngClass]="{
                                                     'break-all': hasLongWord(prod.name, 20),
                                                     'break-words': !hasLongWord(prod.name, 20)
                                                     }" class="px-6 py-4 max-w-1/6 text-wrap break-words">
-                    {{prod.name}}
-                  </td>
-                  <td [ngClass]="{
+                  {{prod.name}}
+                </td>
+                <td [ngClass]="{
                                                     'break-all': hasLongWord(prod.description, 20),
                                                     'break-words': !hasLongWord(prod.description, 20)
                                                     }" class="hidden lg:table-cell px-6 py-4 text-wrap break-words">
-                    {{prod.description}}
-                  </td>
-                  <td class="px-6 py-4 text-wrap break-all">
-                    @for (char of prod.productSpecCharacteristicValue; track char; let last = $last) {
-                    @if(char.value || char.value == 0){
-                    @if(isJsonCharacteristicType(prod.valueType)){
-                    @if(!last){
-                    {{getValuePreview(char.value)}},
-                    } @else {
-                    {{getValuePreview(char.value)}}
-                    }
-                    } @else if(char.unitOfMeasure){
-                    @if(!last){
-                    {{char.value}} (<i>{{char?.unitOfMeasure}}</i>),
-                    } @else {
-                    {{char.value}} (<i>{{char?.unitOfMeasure}}</i>)
-                    }
-                    } @else {
-                    @if(!last){
-                    {{char.value}},
-                    } @else {
-                    {{char.value}}
-                    }
-                    }
-                    } @else {
-                    @if(!last){
-                    {{char.valueFrom}} - {{char.valueTo}} (<i>{{char?.unitOfMeasure}}</i>),
-                    } @else {
-                    {{char.valueFrom}} - {{char.valueTo}} (<i>{{char?.unitOfMeasure}}</i>)
-                    }
-                    }
-                    }
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          }
+                  {{prod.description}}
+                </td>
+                <td class="px-6 py-4 text-wrap break-all">
+                  @for (char of prod.productSpecCharacteristicValue; track char; let last = $last) {
+                  @if(char.value || char.value == 0){
+                  @if(isJsonCharacteristicType(prod.valueType)){
+                  @if(!last){
+                  {{getValuePreview(char.value)}},
+                  } @else {
+                  {{getValuePreview(char.value)}}
+                  }
+                  } @else if(char.unitOfMeasure){
+                  @if(!last){
+                  {{char.value}} (<i>{{char?.unitOfMeasure}}</i>),
+                  } @else {
+                  {{char.value}} (<i>{{char?.unitOfMeasure}}</i>)
+                  }
+                  } @else {
+                  @if(!last){
+                  {{char.value}},
+                  } @else {
+                  {{char.value}}
+                  }
+                  }
+                  } @else {
+                  @if(!last){
+                  {{char.valueFrom}} - {{char.valueTo}} (<i>{{char?.unitOfMeasure}}</i>),
+                  } @else {
+                  {{char.valueFrom}} - {{char.valueTo}} (<i>{{char?.unitOfMeasure}}</i>)
+                  }
+                  }
+                  }
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
 
-          @if(selectedResourceSpecs.length>0){
-          <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._resource' | translate }}</label>
-          <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-              <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                <tr>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (res of selectedResourceSpecs; track res) {
-                <tr
-                  class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                  <td [ngClass]="{
+        @if(selectedResourceSpecs.length>0){
+        <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._resource' | translate }}</label>
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
+          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+              <tr>
+                <th scope="col" class="px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (res of selectedResourceSpecs; track res) {
+              <tr
+                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
+                <td [ngClass]="{
                                                     'break-all': hasLongWord(res.name, 20),
                                                     'break-words': !hasLongWord(res.name, 20)
                                                     }" class="px-6 py-4 text-wrap break-words">
-                    {{res.name}}
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          }
+                  {{res.name}}
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
 
-          @if(selectedServiceSpecs.length>0){
-          <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._service' | translate }}</label>
-          <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-              <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                <tr>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (serv of selectedServiceSpecs; track serv) {
-                <tr
-                  class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                  <td [ngClass]="{
+        @if(selectedServiceSpecs.length>0){
+        <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._service' | translate }}</label>
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
+          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+              <tr>
+                <th scope="col" class="px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (serv of selectedServiceSpecs; track serv) {
+              <tr
+                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
+                <td [ngClass]="{
                                                     'break-all': hasLongWord(serv.name, 20),
                                                     'break-words': !hasLongWord(serv.name, 20)
                                                     }" class="px-6 py-4 text-wrap break-words">
-                    {{serv.name}}
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          }
+                  {{serv.name}}
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
 
-          @if(prodAttachments.length>0){
-          <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._attachments' | translate }}</label>
-          <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-              <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                <tr>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
-                  </th>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._value' | translate }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (att of productSpecToUpdate?.attachment; track att) {
-                <tr
-                  class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                  <td [ngClass]="{
+        @if(prodAttachments.length>0){
+        <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._attachments' | translate }}</label>
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
+          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+              <tr>
+                <th scope="col" class="px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
+                </th>
+                <th scope="col" class="px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._value' | translate }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (att of productSpecToUpdate?.attachment; track att) {
+              <tr
+                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
+                <td [ngClass]="{
                                                     'break-all': hasLongWord(att.name, 20),
                                                     'break-words': !hasLongWord(att.name, 20)
                                                     }" class="px-6 py-4 max-w-1/6 text-wrap break-words">
-                    {{att.name}}
-                  </td>
-                  <td class="px-6 py-4 text-wrap break-all">
-                    {{att.url}}
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          }
+                  {{att.name}}
+                </td>
+                <td class="px-6 py-4 text-wrap break-all">
+                  {{att.url}}
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
 
-          @if(prodRelationships.length>0){
-          <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._relationships' | translate }}</label>
-          <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-              <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                <tr>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._relationship_type' | translate }}
-                  </th>
-                  <th scope="col" class="px-6 py-3">
-                    {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (rel of prodRelationships; track rel) {
-                <tr
-                  class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                  <td class="px-6 py-4">
-                    {{rel.relationshipType}}
-                  </td>
-                  <td [ngClass]="{
+        @if(prodRelationships.length>0){
+        <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_PROD_SPEC._relationships' | translate }}</label>
+        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white mb-4">
+          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
+            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+              <tr>
+                <th scope="col" class="px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._relationship_type' | translate }}
+                </th>
+                <th scope="col" class="px-6 py-3">
+                  {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (rel of prodRelationships; track rel) {
+              <tr
+                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
+                <td class="px-6 py-4">
+                  {{rel.relationshipType}}
+                </td>
+                <td [ngClass]="{
                                                     'break-all': hasLongWord(rel.name, 20),
                                                     'break-words': !hasLongWord(rel.name, 20)
                                                     }" class="px-6 py-4 text-wrap break-words">
-                    {{rel.name}}
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-          }
-          }
-          <!--<div class="flex w-full justify-items-end justify-end ml-4">
+                  {{rel.name}}
+                </td>
+              </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        }
+        }
+        <!--<div class="flex w-full justify-items-end justify-end ml-4">
                             <button data-cy="productSpecUpdate" type="button" (click)="updateProduct();" [disabled]="isProdValid()||loading" [ngClass]="(isProdValid() || loading) ? 'opacity-50' : 'hover:bg-primary-50'"  class="flex text-white justify-end bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
                                 {{ 'UPDATE_PROD_SPEC._update_prod' | translate }}
                                 <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
@@ -1366,9 +1752,9 @@
                                 </svg>
                             </button>
                         </div>-->
-        </div>
-      </ng-template>
-    </app-stepper>
+      </div>
+    </ng-template>
+  </app-stepper>
   }
 </div>
 
@@ -1425,6 +1811,108 @@
 </div>
 
 }
+
+@if(itemModal.type){
+<div (click)="closeItemModal()" class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background-color: rgba(11, 21, 40, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+  <div (click)="$event.stopPropagation()" class="bg-white dark:bg-secondary-100 rounded-2xl shadow-xl w-full max-w-[680px] max-h-[90vh] overflow-y-auto">
+    <div class="p-8">
+      <div class="flex justify-between items-start mb-1">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+          @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._modal_title_feature' | translate }} }
+          @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._modal_title_benefit' | translate }} }
+          @else { {{ 'CREATE_PROD_SPEC._modal_title_usecase' | translate }} }
+        </h2>
+        <button type="button" (click)="closeItemModal()" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
+          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+        @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._modal_desc_feature' | translate }} }
+        @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._modal_desc_benefit' | translate }} }
+        @else { {{ 'CREATE_PROD_SPEC._modal_desc_usecase' | translate }} }
+      </p>
+
+      <div class="mb-4">
+        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ 'CREATE_PROD_SPEC._item_name' | translate }}</label>
+        <input type="text" [(ngModel)]="itemModal.name" [ngModelOptions]="{standalone: true}" maxLength="100"
+          placeholder="{{ (itemModal.type === 'feature' ? 'CREATE_PROD_SPEC._feature_name_placeholder' : itemModal.type === 'benefit' ? 'CREATE_PROD_SPEC._benefit_name_placeholder' : 'CREATE_PROD_SPEC._usecase_name_placeholder') | translate }}"
+          class="bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5"/>
+      </div>
+
+      <div class="mb-4">
+        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ 'CREATE_PROD_SPEC._description' | translate }}</label>
+        <textarea [(ngModel)]="itemModal.description" [ngModelOptions]="{standalone: true}" rows="3"
+          [maxLength]="itemDescriptionLimit(itemModal.type)"
+          placeholder="{{ (itemModal.type === 'feature' ? 'CREATE_PROD_SPEC._feature_desc_placeholder' : itemModal.type === 'benefit' ? 'CREATE_PROD_SPEC._benefit_desc_placeholder' : 'CREATE_PROD_SPEC._usecase_desc_placeholder') | translate }}"
+          class="bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 resize-none"></textarea>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ itemModal.description.length || 0 }}/{{ itemDescriptionLimit(itemModal.type) }}</p>
+      </div>
+
+      @if(itemModal.type === 'feature'){
+      <div class="mb-6">
+        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-1">{{ 'CREATE_PROD_SPEC._icon' | translate }}</label>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{ 'CREATE_PROD_SPEC._icon_hint' | translate }}</p>
+        <div class="rounded-2xl p-5 flex flex-col gap-5" style="background-color: #F7F9FD; border: 1px solid #DDE6F6;">
+          @for(cat of iconCategories; track cat.labelKey){
+          <div>
+            <p class="text-sm font-semibold text-gray-900 mb-2">{{ cat.labelKey | translate }}</p>
+            <div class="flex flex-wrap gap-2">
+              @for(opt of cat.icons; track opt.name){
+              <button type="button" (click)="selectModalIcon(opt.name)" [title]="opt.name"
+                [ngClass]="itemModal.icon === opt.name ? 'border-primary-100 bg-secondary-50' : 'border-gray-200 bg-white hover:border-gray-400'"
+                class="flex items-center justify-center w-10 h-10 rounded-lg border text-gray-800">
+                <fa-icon [icon]="opt.icon"></fa-icon>
+              </button>
+              }
+            </div>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      <div class="flex justify-end items-center gap-3">
+        <button type="button" (click)="closeItemModal()" class="px-4 h-10 text-sm font-semibold text-primary-100 dark:text-primary-50 hover:underline">
+          {{ 'CREATE_PROD_SPEC._cancel' | translate }}
+        </button>
+        <button type="button" (click)="saveItemModal()" [disabled]="!itemModal.name.trim()"
+          [ngClass]="!itemModal.name.trim() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-50'"
+          class="h-10 px-5 bg-primary-100 text-white rounded-lg text-sm font-semibold">
+          @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._save_feature' | translate }} }
+          @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._save_benefit' | translate }} }
+          @else { {{ 'CREATE_PROD_SPEC._save_usecase' | translate }} }
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+}
+
+@if(faqDeleteIdx !== null){
+<div (click)="cancelDeleteFaq()" class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background-color: rgba(11, 21, 40, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+  <div (click)="$event.stopPropagation()" class="bg-white dark:bg-secondary-100 rounded-2xl shadow-xl w-full max-w-[480px]">
+    <div class="p-8">
+      <div class="flex justify-end">
+        <button type="button" (click)="cancelDeleteFaq()" class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
+          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+      <div class="flex flex-col items-center text-center pb-2">
+        <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4" style="background-color: #DDE6F6;">
+          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 5a1.25 1.25 0 11-1.25 1.25A1.25 1.25 0 0112 7zm1.5 11h-3a.75.75 0 010-1.5h.75v-4h-.75a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75V16.5h.75a.75.75 0 010 1.5z"/></svg>
+        </div>
+        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">{{ 'CREATE_PROD_SPEC._delete_question_title' | translate }}</h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ 'CREATE_PROD_SPEC._delete_question_desc' | translate }}</p>
+        <div class="grid grid-cols-2 gap-3 w-full">
+          <button type="button" (click)="cancelDeleteFaq()" class="h-11 px-5 border border-primary-100 text-primary-100 dark:text-primary-50 rounded-lg text-sm font-semibold hover:bg-secondary-50/50 dark:hover:bg-secondary-300/50">{{ 'CREATE_PROD_SPEC._close' | translate }}</button>
+          <button type="button" (click)="confirmDeleteFaq()" class="h-11 px-5 bg-primary-100 text-white rounded-lg text-sm font-semibold hover:bg-primary-50">{{ 'CREATE_PROD_SPEC._confirm' | translate }}</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}
+
 @if(showError){
 <error-message
   class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"

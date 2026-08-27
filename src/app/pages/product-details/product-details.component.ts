@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { faArrowProgress, faArrowRightArrowLeft, faAtom, faBook, faDownload, faGlobe, faObjectExclude, faScaleBalanced, faShieldHalved, faSwap } from "@fortawesome/pro-solid-svg-icons";
+import { faArrowProgress, faArrowRightArrowLeft, faAtom, faBook, faDownload, faGlobe, faMinus, faObjectExclude, faPlus, faScaleBalanced, faShieldHalved, faSwap } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
-import { PriceServiceService } from 'src/app/services/price-service.service';
+import { findIconByName } from 'src/app/config/popular-icons';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { components } from "../../models/product-catalog";
 type Product = components["schemas"]["ProductOffering"];
@@ -21,6 +21,7 @@ import { UsageServiceService } from 'src/app/services/usage-service.service';
 import { environment } from 'src/environments/environment';
 import { LoginInfo, cartProduct, productSpecCharacteristicValueCart } from '../../models/interfaces';
 import { EventMessageService } from "../../services/event-message.service";
+import { ThemeService } from '../../services/theme.service';
 
 interface UsageMetricCard {
   id: string;
@@ -96,6 +97,21 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   usageMetrics: UsageMetricCard[] = [];
   selfAtt: any = '';
 
+  // Structured product description, parsed out of a hidden <!--dome:details:start-->...<--end-->
+  // fragment appended to prodSpec.description by the create/update-product-spec wizard.
+  resolveIcon = findIconByName;
+  specOverview: string = '';
+  howItWorks: string = '';
+  keyFeatures: { name: string, description: string, icon: string | null }[] = [];
+  businessBenefits: { name: string, description: string }[] = [];
+  useCases: { name: string, description: string, icon: string | null }[] = [];
+  faqs: { question: string, answer: string }[] = [];
+  openFaqIdx: number | null = null;
+  descMoreOpen: boolean = false;
+  howItWorksMoreOpen: boolean = false;
+  private readonly DETAILS_START = '<!--dome:details:start-->';
+  private readonly DETAILS_END = '<!--dome:details:end-->';
+
   errorMessage: any = '';
   showError: boolean = false;
   showTermsMore: boolean = false;
@@ -120,6 +136,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   protected readonly faShieldHalved = faShieldHalved;
   protected readonly faAtom = faAtom;
   protected readonly faDownload = faDownload;
+  protected readonly faPlus = faPlus;
+  protected readonly faMinus = faMinus;
 
   stepsElements: string[] = ['step-chars', 'step-price', 'step-terms', 'step-checkout'];
   stepsText: string[] = ['text-chars', 'text-price', 'text-terms', 'text-checkout'];
@@ -130,19 +148,21 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   private scrollTimeout: any;
   private destroy$ = new Subject<void>();
 
+  get isDomeTheme(): boolean {
+    return this.themeService.getCurrentThemeConfig()?.name === 'DOME'
+  }
   constructor(
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
     private api: ApiServiceService,
-    private priceService: PriceServiceService,
     private router: Router,
-    private elementRef: ElementRef,
     private localStorage: LocalStorageService,
     private cartService: ShoppingCartServiceService,
     private eventMessage: EventMessageService,
     private accService: AccountServiceService,
     private usageService: UsageServiceService,
-    private location: Location
+    private location: Location,
+    private themeService: ThemeService
   ) {
     this.showTermsMore = false;
     this.eventMessage.messages$
@@ -233,6 +253,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     let prod = await this.api.getProductById(this.id);
     let spec = await this.api.getProductSpecification(prod.productSpecification.id);
     this.prodSpec = spec;
+    this.parseProductDetails(this.prodSpec.description);
     this.getOwner();
     let prodPrices: any[] | undefined = prod.productOfferingPrice;
     let prices: any[] = [];
@@ -282,6 +303,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     this.productOff = offer;
     this.id = offer.id || 'preview';
     this.prodSpec = (offer as any).productSpecification || {};
+    this.parseProductDetails(this.prodSpec.description);
 
     this.getOwner();
     this.deriveCharacteristicsAndCompliance();
@@ -352,6 +374,67 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     if (selfAttObj) {
       this.selfAtt = selfAttObj.productSpecCharacteristicValue?.at(0)?.value
     }
+  }
+
+  /** Parses the hidden <!--dome:details:start-->...<!--dome:details:end--> fragment the
+   * create/update-product-spec wizard appends to the description field, populating
+   * specOverview (the plain-text part before the fragment) plus the 5 structured sections. */
+  private parseProductDetails(raw: string | undefined): void {
+    this.howItWorks = '';
+    this.keyFeatures = [];
+    this.businessBenefits = [];
+    this.useCases = [];
+    this.faqs = [];
+    this.openFaqIdx = null;
+    const text = (raw ?? '').toString();
+    const startIdx = text.indexOf(this.DETAILS_START);
+    if (startIdx === -1) {
+      this.specOverview = text;
+      return;
+    }
+    this.specOverview = text.slice(0, startIdx).replace(/\n+$/, '');
+    const endIdx = text.indexOf(this.DETAILS_END);
+    const inner = text.slice(startIdx + this.DETAILS_START.length, endIdx > -1 ? endIdx : undefined);
+    try {
+      const doc = new DOMParser().parseFromString(`<div>${inner}</div>`, 'text/html');
+      const how = doc.querySelector('[data-dome-section="how-it-works"]');
+      if (how) this.howItWorks = how.getAttribute('data-text') || how.querySelector('p')?.textContent || '';
+      this.keyFeatures = this.parseDetailItems(doc, 'key-features', true);
+      this.businessBenefits = this.parseDetailItems(doc, 'business-benefits', false);
+      this.useCases = this.parseDetailItems(doc, 'use-cases', true);
+      this.faqs = this.parseFaqs(doc);
+    } catch { }
+  }
+
+  private parseDetailItems(doc: Document, key: string, withIcon: boolean): any[] {
+    const section = doc.querySelector(`[data-dome-section="${key}"]`);
+    if (!section) return [];
+    return Array.from(section.querySelectorAll('li')).map((li: any) => {
+      const name = li.getAttribute('data-name') || li.querySelector('strong')?.textContent || '';
+      const description = li.getAttribute('data-desc') || '';
+      return withIcon ? { name, description, icon: li.getAttribute('data-icon') || null } : { name, description };
+    });
+  }
+
+  private parseFaqs(doc: Document): { question: string, answer: string }[] {
+    const section = doc.querySelector('[data-dome-section="faqs"]');
+    if (!section) return [];
+    return Array.from(section.querySelectorAll('li')).map((li: any) => ({
+      question: li.getAttribute('data-q') || li.querySelector('strong')?.textContent || '',
+      answer: li.getAttribute('data-a') || li.querySelector('p')?.textContent || ''
+    })).filter(f => f.question || f.answer);
+  }
+
+  toggleFaq(idx: number): void {
+    this.openFaqIdx = this.openFaqIdx === idx ? null : idx;
+  }
+
+  isFaqOpen(idx: number): boolean {
+    return this.openFaqIdx === idx;
+  }
+
+  isLongText(str: string | undefined): boolean {
+    return (str ?? '').toString().length > 280;
   }
 
   /** Fetches the full service/resource specs referenced (by id) from this.prodSpec.

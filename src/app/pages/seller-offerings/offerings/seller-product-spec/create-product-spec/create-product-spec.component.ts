@@ -1,13 +1,15 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, DoCheck, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { TranslateService } from '@ngx-translate/core';
 import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { IconCategory, POPULAR_ICON_CATEGORIES, findIconByName } from 'src/app/config/popular-icons';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
@@ -37,8 +39,8 @@ type ProductSpecification_Create = components["schemas"]["ProductSpecification_C
 type BundledProductSpecification = components["schemas"]["BundledProductSpecification"];
 type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecificationCharacteristic"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
-type ProductSpecFormStep = 'general' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' |
-  'relationships' | 'summary' | 'orchestrationPlan' | 'dsp_config';
+type ProductSpecFormStep = 'general' | 'productDetails' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' |
+  'relationships' | 'faqs' | 'summary' | 'orchestrationPlan' | 'dsp_config';
 
 const BASE_TEMPLATE_OPTIONS = [
   { value: '', label: 'None' },
@@ -52,7 +54,7 @@ const BASE_TEMPLATE_IDX = 4
   styleUrl: './create-product-spec.component.css',
   providers: [DatePipe],
 })
-export class CreateProductSpecComponent implements OnInit, OnDestroy {
+export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
 
   //PAGE SIZES:
@@ -75,6 +77,30 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     description: new FormControl('', Validators.maxLength(100000)),
     dspCompatible: new FormControl(false),
   });
+
+  //PRODUCT DETAILS INFO (structured description, serialized into a hidden
+  // <!--dome:details:start-->...<!--dome:details:end--> fragment appended to description):
+  private readonly DETAILS_START = '<!--dome:details:start-->';
+  private readonly DETAILS_END = '<!--dome:details:end-->';
+  howItWorks: string = '';
+  keyFeatures: { name: string, description: string, icon: string | null }[] = [];
+  businessBenefits: { name: string, description: string }[] = [];
+  useCases: { name: string, description: string, icon: string | null }[] = [];
+  iconCategories: IconCategory[] = POPULAR_ICON_CATEGORIES;
+  resolveIcon = findIconByName;
+  itemModal: {
+    type: 'feature' | 'benefit' | 'usecase' | null,
+    name: string,
+    description: string,
+    icon: string | null,
+    editIdx: number | null
+  } = { type: null, name: '', description: '', icon: null, editIdx: null };
+  openItemMenuIdx: { type: string, idx: number } | null = null;
+
+  //FAQS INFO:
+  faqs: { question: string, answer: string, expanded: boolean }[] = [];
+  draggingFaqIdx: number | null = null;
+  faqDeleteIdx: number | null = null;
 
   //DSP CONFIG INFO:
   newEndpointFormFields: FormField[] = [
@@ -287,6 +313,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     private paginationService: PaginationService,
     private datePipe: DatePipe,
     private router: Router,
+    private translate: TranslateService,
   ) {
     for (let i = 0; i < certifications.length; i++) {
       this.availableISOS.push(certifications[i])
@@ -335,6 +362,177 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    document.body.style.overflow = '';
+  }
+
+  ngDoCheck(): void {
+    const open = !!(this.itemModal.type || this.faqDeleteIdx !== null);
+    document.body.style.overflow = open ? 'hidden' : '';
+  }
+
+  /** Serializes howItWorks/keyFeatures/businessBenefits/useCases/faqs into a hidden HTML
+   * fragment appended to the plain-text description, so it round-trips through the
+   * ProductSpecification.description string field without needing a schema change. */
+  private composeDescription(): string {
+    const overview = (this.generalForm.value.description ?? '').toString();
+    const sections = this.serializeProductDetails();
+    if (!sections) return overview;
+    return `${overview}\n${this.DETAILS_START}\n${sections}\n${this.DETAILS_END}`;
+  }
+
+  private serializeProductDetails(): string {
+    const parts: string[] = [];
+    if (this.howItWorks?.trim()) {
+      parts.push(`<section data-dome-section="how-it-works" data-text="${this.attr(this.howItWorks)}"><h3>${this.esc(this.translate.instant('CREATE_PROD_SPEC._how_it_works'))}</h3><p>${this.esc(this.howItWorks)}</p></section>`);
+    }
+    parts.push(this.serializeItemSection('key-features', this.translate.instant('CREATE_PROD_SPEC._key_features'), this.keyFeatures, true));
+    parts.push(this.serializeItemSection('business-benefits', this.translate.instant('CREATE_PROD_SPEC._business_benefits'), this.businessBenefits, false));
+    parts.push(this.serializeItemSection('use-cases', this.translate.instant('CREATE_PROD_SPEC._use_cases'), this.useCases, true));
+    parts.push(this.serializeFaqs());
+    return parts.filter(Boolean).join('\n');
+  }
+
+  private serializeItemSection(key: string, title: string, items: any[], withIcon: boolean): string {
+    if (!items || items.length === 0) return '';
+    const lis = items.map(it => {
+      const icon = withIcon && it.icon ? ` data-icon="${this.attr(it.icon)}"` : '';
+      const desc = it.description ? `: ${this.esc(it.description)}` : '';
+      return `<li data-name="${this.attr(it.name)}" data-desc="${this.attr(it.description || '')}"${icon}><strong>${this.esc(it.name)}</strong>${desc}</li>`;
+    }).join('');
+    return `<section data-dome-section="${key}"><h3>${this.esc(title)}</h3><ul>${lis}</ul></section>`;
+  }
+
+  private serializeFaqs(): string {
+    if (!this.faqs || this.faqs.length === 0) return '';
+    const lis = this.faqs.map(f =>
+      `<li data-q="${this.attr(f.question)}" data-a="${this.attr(f.answer)}"><strong>${this.esc(f.question)}</strong><p>${this.esc(f.answer)}</p></li>`
+    ).join('');
+    return `<section data-dome-section="faqs"><h3>${this.esc(this.translate.instant('CREATE_PROD_SPEC._faqs'))}</h3><ul>${lis}</ul></section>`;
+  }
+
+  private esc(s: string): string {
+    return (s ?? '').toString().replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
+  private attr(s: string): string {
+    return this.esc(s).replace(/"/g, '&quot;');
+  }
+
+  itemListFor(type: 'feature' | 'benefit' | 'usecase') {
+    return type === 'feature' ? this.keyFeatures : type === 'benefit' ? this.businessBenefits : this.useCases;
+  }
+
+  itemDescriptionLimit(type: 'feature' | 'benefit' | 'usecase' | null): number {
+    return type === 'usecase' ? 400 : 200;
+  }
+
+  openItemModal(type: 'feature' | 'benefit' | 'usecase', editIdx: number | null = null): void {
+    if (editIdx !== null) {
+      const existing: any = this.itemListFor(type)[editIdx];
+      this.itemModal = { type, name: existing?.name || '', description: existing?.description || '', icon: existing?.icon ?? null, editIdx };
+    } else {
+      this.itemModal = { type, name: '', description: '', icon: null, editIdx: null };
+    }
+  }
+
+  closeItemModal(): void {
+    this.itemModal = { type: null, name: '', description: '', icon: null, editIdx: null };
+  }
+
+  selectModalIcon(name: string): void {
+    this.itemModal.icon = this.itemModal.icon === name ? null : name;
+  }
+
+  saveItemModal(): void {
+    const name = (this.itemModal.name || '').trim();
+    if (!name || !this.itemModal.type) return;
+    const description = (this.itemModal.description || '').trim();
+    if (this.itemModal.type === 'benefit') {
+      const entry = { name, description };
+      if (this.itemModal.editIdx !== null) {
+        this.businessBenefits[this.itemModal.editIdx] = entry;
+      } else {
+        this.businessBenefits.push(entry);
+      }
+    } else {
+      const list = this.itemModal.type === 'feature' ? this.keyFeatures : this.useCases;
+      const entry = { name, description, icon: this.itemModal.icon };
+      if (this.itemModal.editIdx !== null) {
+        list[this.itemModal.editIdx] = entry;
+      } else {
+        list.push(entry);
+      }
+    }
+    this.closeItemModal();
+  }
+
+  removeItem(type: 'feature' | 'benefit' | 'usecase', idx: number): void {
+    this.itemListFor(type).splice(idx, 1);
+    this.openItemMenuIdx = null;
+  }
+
+  toggleItemMenu(type: string, idx: number, event: Event): void {
+    event.stopPropagation();
+    if (this.openItemMenuIdx && this.openItemMenuIdx.type === type && this.openItemMenuIdx.idx === idx) {
+      this.openItemMenuIdx = null;
+    } else {
+      this.openItemMenuIdx = { type, idx };
+    }
+  }
+
+  isItemMenuOpen(type: string, idx: number): boolean {
+    return this.openItemMenuIdx?.type === type && this.openItemMenuIdx.idx === idx;
+  }
+
+  addFaq(): void {
+    this.faqs.forEach(f => f.expanded = false);
+    this.faqs.push({ question: '', answer: '', expanded: true });
+  }
+
+  removeFaq(idx: number): void {
+    this.faqDeleteIdx = idx;
+  }
+
+  cancelDeleteFaq(): void {
+    this.faqDeleteIdx = null;
+  }
+
+  confirmDeleteFaq(): void {
+    if (this.faqDeleteIdx !== null) {
+      this.faqs.splice(this.faqDeleteIdx, 1);
+    }
+    this.faqDeleteIdx = null;
+  }
+
+  toggleFaq(idx: number): void {
+    const wasExpanded = this.faqs[idx]?.expanded;
+    this.faqs.forEach((f, i) => f.expanded = (i === idx ? !wasExpanded : false));
+  }
+
+  onFaqDragStart(event: DragEvent, idx: number): void {
+    this.draggingFaqIdx = idx;
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', String(idx));
+    }
+  }
+
+  onFaqDragOver(event: DragEvent): void {
+    event.preventDefault();
+    if (event.dataTransfer) { event.dataTransfer.dropEffect = 'move'; }
+  }
+
+  onFaqDrop(event: DragEvent, targetIdx: number): void {
+    event.preventDefault();
+    const sourceIdx = this.draggingFaqIdx;
+    this.draggingFaqIdx = null;
+    if (sourceIdx === null || sourceIdx === targetIdx) return;
+    const item = this.faqs.splice(sourceIdx, 1)[0];
+    this.faqs.splice(targetIdx, 0, item);
+  }
+
+  onFaqDragEnd(): void {
+    this.draggingFaqIdx = null;
   }
 
   onStepChanged(event: StepChangedEvent): void {
@@ -1022,7 +1220,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy {
     if (this.generalForm.value.name != null && this.generalForm.value.version != null && this.generalForm.value.brand != null) {
       this.productSpecToCreate = {
         name: this.generalForm.value.name,
-        description: this.generalForm.value.description != null ? this.generalForm.value.description : '',
+        description: this.composeDescription(),
         version: this.generalForm.value.version,
         brand: this.generalForm.value.brand,
         productNumber: this.generalForm.value.number != null ? this.generalForm.value.number : '',
