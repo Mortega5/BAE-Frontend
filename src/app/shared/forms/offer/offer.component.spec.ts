@@ -656,6 +656,34 @@ describe('OfferComponent', () => {
       expect(updateSpy).toHaveBeenCalledWith(jasmine.any(Object), 'offer-1');
     });
 
+    it('should add a terms-file term when a T&C document was uploaded', () => {
+      fillMinimalForm();
+      component.formType = 'create';
+      component.catalogManagementEnabled = false;
+      component.autoCatalogue = { id: 'cat-1' };
+      (component.productOfferForm.get('license') as FormGroup).addControl('termsFile', new FormControl({ name: 'terms.pdf', url: 'https://uploaded.file/terms.pdf', attachmentType: 'application/pdf' }));
+      spyOn(api, 'postProductOffering').and.returnValue(of({ id: 'offer-1' }));
+
+      component.saveOfferInfo();
+
+      expect(component.offerToCreate?.productOfferingTerm).toEqual(jasmine.arrayContaining([
+        { name: 'terms-file', description: 'https://uploaded.file/terms.pdf' }
+      ]));
+    });
+
+    it('should not add a terms-file term when no document was uploaded', () => {
+      fillMinimalForm();
+      component.formType = 'create';
+      component.catalogManagementEnabled = false;
+      component.autoCatalogue = { id: 'cat-1' };
+      spyOn(api, 'postProductOffering').and.returnValue(of({ id: 'offer-1' }));
+
+      component.saveOfferInfo();
+
+      const names = component.offerToCreate?.productOfferingTerm?.map((t: any) => t.name);
+      expect(names).not.toContain('terms-file');
+    });
+
     it('should deduplicate repeated category ids', () => {
       addMinimalFormControls();
       component.productOfferForm.patchValue({
@@ -889,6 +917,42 @@ describe('OfferComponent', () => {
 
       const payload = updateSpy.calls.mostRecent().args[0];
       expect(payload.productOfferingTerm[0]).toEqual({ name: 'License', description: 'New terms' });
+    });
+
+    it('should add a terms-file term when a new T&C document is uploaded', async () => {
+      component.offer = baseOffer();
+      eventMessage.emitSubformChange({
+        subformType: 'license', isDirty: true, dirtyFields: ['termsFile'],
+        originalValue: { description: 'Old terms', termsFile: null },
+        currentValue: { description: 'Old terms', termsFile: { name: 'terms.pdf', url: 'https://uploaded.file/terms.pdf' } }
+      });
+      const updateSpy = spyOn(api, 'updateProductOffering').and.returnValue(of({}));
+
+      await component.updateOffer();
+
+      const payload = updateSpy.calls.mostRecent().args[0];
+      expect(payload.productOfferingTerm).toContain(jasmine.objectContaining({ name: 'terms-file', description: 'https://uploaded.file/terms.pdf' }));
+    });
+
+    it('should remove the terms-file term when the document is removed', async () => {
+      component.offer = {
+        ...baseOffer(),
+        productOfferingTerm: [
+          { name: 'License', description: 'Old terms' },
+          { name: 'terms-file', description: 'https://uploaded.file/old.pdf' }
+        ]
+      };
+      eventMessage.emitSubformChange({
+        subformType: 'license', isDirty: true, dirtyFields: ['termsFile'],
+        originalValue: { description: 'Old terms', termsFile: { url: 'https://uploaded.file/old.pdf' } },
+        currentValue: { description: 'Old terms', termsFile: null }
+      });
+      const updateSpy = spyOn(api, 'updateProductOffering').and.returnValue(of({}));
+
+      await component.updateOffer();
+
+      const payload = updateSpy.calls.mostRecent().args[0];
+      expect(payload.productOfferingTerm.map((t: any) => t.name)).not.toContain('terms-file');
     });
 
     it('should apply a procurement mode change and add pricing algorithm when external billing is enabled', async () => {

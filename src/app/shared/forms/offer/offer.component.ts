@@ -970,6 +970,10 @@ export class OfferComponent implements OnInit, OnDestroy {
           name: 'License',
           description: formValue.license.description || ''
         },
+        ...(formValue.license.termsFile?.url ? [{
+          name: 'terms-file',
+          description: formValue.license.termsFile.url
+        }] : []),
         {
           name: 'procurement',
           description: formValue.procurementMode.mode
@@ -1123,6 +1127,18 @@ export class OfferComponent implements OnInit, OnDestroy {
             basePayload.productOfferingTerm.unshift({
               name: 'License',
               description: change.currentValue.description
+            });
+          }
+
+          // Actualizar el fichero de términos y condiciones (una entrada 'terms-file' aparte,
+          // ya que ProductOfferingTerm no tiene un campo propio para adjuntos).
+          basePayload.productOfferingTerm = basePayload.productOfferingTerm.filter(
+            (term: any) => term.name !== 'terms-file'
+          );
+          if (change.currentValue.termsFile?.url) {
+            basePayload.productOfferingTerm.push({
+              name: 'terms-file',
+              description: change.currentValue.termsFile.url
             });
           }
           break;
@@ -1303,6 +1319,9 @@ export class OfferComponent implements OnInit, OnDestroy {
     const terms: any[] = [];
     if (formValue.license?.description) {
       terms.push({ name: 'License', description: formValue.license.description });
+    }
+    if (formValue.license?.termsFile?.url) {
+      terms.push({ name: 'terms-file', description: formValue.license.termsFile.url });
     }
     if (formValue.procurementMode?.mode) {
       terms.push({ name: 'procurement', description: formValue.procurementMode.mode });

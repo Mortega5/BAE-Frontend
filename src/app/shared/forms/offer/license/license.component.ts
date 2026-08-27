@@ -12,7 +12,10 @@ import { AttachmentUploadComponent } from '../../attachment-upload/attachment-up
 interface License {
   treatment: string;
   description: string;
+  termsFile: any;
 }
+
+const TERMS_FILE_TERM_NAME = 'terms-file';
 
 @Component({
   selector: 'app-license-form',
@@ -42,7 +45,8 @@ export class LicenseComponent implements OnInit, OnDestroy {
         if (this.isEditMode && this.hasBeenModified && this.originalValue) {
           const currentValue = {
             treatment: 'License',
-            description: this.descControl?.value || ''
+            description: this.descControl?.value || '',
+            termsFile: this.termsFileControl?.value || null
           };
           
           const dirtyFields = this.getDirtyFields(currentValue);
@@ -93,28 +97,25 @@ export class LicenseComponent implements OnInit, OnDestroy {
     if (this.isEditMode && this.data) {
       console.log('📝 Data received:', this.data);
       //LICENSE
-      if (this.data.productOfferingTerm && Array.isArray(this.data.productOfferingTerm)) {
-        let license = this.data.productOfferingTerm?.find((element: { name: any; }) => element.name == 'License')
-        if(license){
-          this.formGroup.addControl('treatment', new FormControl<string>('License'));
-          this.formGroup.addControl('description', new FormControl<string>(license.description));
-          this.formGroup.addControl('termsFile', new FormControl<any>(null));
+      const terms = Array.isArray(this.data.productOfferingTerm) ? this.data.productOfferingTerm : [];
+      const license = terms.find((element: { name: any; }) => element.name == 'License');
+      const termsFileTerm = terms.find((element: { name: any; }) => element.name === TERMS_FILE_TERM_NAME);
+      const termsFileValue = termsFileTerm?.description
+        ? { name: this.filenameFromTermsFileUrl(termsFileTerm.description), url: termsFileTerm.description, attachmentType: '' }
+        : null;
 
-          // Store original value only in edit mode
-          this.originalValue = {
-            treatment: license.name,
-            description: license.description
-          };
-          console.log('📝 Original value stored:', this.originalValue);
-        } else {
-          this.formGroup.addControl('treatment', new FormControl<string>('License'));
-          this.formGroup.addControl('description', new FormControl<string>(''));
-          this.formGroup.addControl('termsFile', new FormControl<any>(null));
-        }
-      } else {
-        this.formGroup.addControl('treatment', new FormControl<string>('License'));
-        this.formGroup.addControl('description', new FormControl<string>(''));
-        this.formGroup.addControl('termsFile', new FormControl<any>(null));
+      this.formGroup.addControl('treatment', new FormControl<string>('License'));
+      this.formGroup.addControl('description', new FormControl<string>(license?.description ?? ''));
+      this.formGroup.addControl('termsFile', new FormControl<any>(termsFileValue));
+
+      if (license) {
+        // Store original value only in edit mode
+        this.originalValue = {
+          treatment: license.name,
+          description: license.description,
+          termsFile: termsFileValue
+        };
+        console.log('📝 Original value stored:', this.originalValue);
       }
     } else {
       this.formGroup.addControl('treatment', new FormControl<string>('License'));
@@ -139,11 +140,12 @@ export class LicenseComponent implements OnInit, OnDestroy {
     if (this.isEditMode && this.hasBeenModified && this.originalValue) {
       const currentValue = {
         treatment: 'License',
-        description: this.descControl?.value || ''
+        description: this.descControl?.value || '',
+        termsFile: this.termsFileControl?.value || null
       };
-      
+
       const dirtyFields = this.getDirtyFields(currentValue);
-      
+
       if (dirtyFields.length > 0) {
         const changeState: FormChangeState = {
           subformType: 'license',
@@ -177,7 +179,20 @@ export class LicenseComponent implements OnInit, OnDestroy {
     if (currentValue.description !== this.originalValue.description) {
       dirtyFields.push('description');
     }
-    
+
+    if ((currentValue.termsFile?.url || null) !== (this.originalValue.termsFile?.url || null)) {
+      dirtyFields.push('termsFile');
+    }
+
     return dirtyFields;
+  }
+
+  /** Recovers a display name from an uploaded terms-file URL (the URL's UUID prefix is stripped). */
+  private filenameFromTermsFileUrl(url: string): string {
+    const last = url.split('/').pop() || url;
+    let decoded = last;
+    try { decoded = decodeURIComponent(last); } catch { }
+    const underscore = decoded.indexOf('_');
+    return underscore > -1 ? decoded.slice(underscore + 1) : decoded;
   }
 }
