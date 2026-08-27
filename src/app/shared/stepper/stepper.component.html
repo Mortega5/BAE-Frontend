@@ -2,7 +2,7 @@
   <div class="hidden lg:flex lg:flex-col lg:w-64 lg:shrink-0 pt-2">
     @for (step of stepTemplates; track i; let i = $index; let last = $last) {
     <div (click)="handleStepClick(i)" [class.cursor-not-allowed]="!canNavigate(i)" [class.opacity-50]="!canNavigate(i)"
-      class="flex items-start gap-3 cursor-pointer">
+      class="flex items-start gap-3 cursor-pointer animate-stepIn">
       <div class="flex flex-col items-center">
         <span
           class="flex items-center justify-center w-8 h-8 dark:border-primary-50 shrink-0 rounded-full text-sm font-semibold transition-colors duration-300"

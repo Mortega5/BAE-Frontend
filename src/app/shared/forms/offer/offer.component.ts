@@ -145,6 +145,14 @@ export class OfferComponent implements OnInit, OnDestroy {
         Promise.resolve().then(() => { this.isFormValid = valid; });
       });
 
+    // Recompute contract definition step visibility as soon as the product spec changes,
+    // instead of waiting for the next step navigation.
+    this.productOfferForm.get('prodSpec')?.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        this.showContractDefinitionStep = this.isdEdcCompatible() && this.dspEnable;
+      });
+
     // Subscribe to subform changes
     this.formSubscription = this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -182,10 +190,6 @@ export class OfferComponent implements OnInit, OnDestroy {
   }
 
   onStepChanged(event: StepChangedEvent): void {
-    // VERIFY EDC compatible and show/hide the contract definition step accordingly
-    if (this.currentStepId === 'productSpec') {
-      this.showContractDefinitionStep = this.isdEdcCompatible() && this.dspEnable;
-    }
     this.currentStepId = event.stepId!;
   }
 
