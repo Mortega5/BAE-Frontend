@@ -1,7 +1,10 @@
 <div
   class="bg-secondary-50 dark:bg-secondary-100 dark:border-gray-800 border-secondary-50 border mt-8 px-8 py-12 rounded-lg shadow-lg">
   <div class="mb-24 flex w-full flex-cols items-center justify-between">
-    <h2 class="text-2xl font-bold dark:text-white">{{ 'OFFERINGS._prod_offer' | translate }}</h2>
+    <div>
+      <h2 class="text-2xl font-bold dark:text-white">{{ 'OFFERINGS._prod_offer' | translate }}</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ 'OFFERINGS._manage_offers_subtitle' | translate }}</p>
+    </div>
 
     <button data-cy="newOffering" type="button" (click)="goToCreate()"
       class="text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center align-middle me-2">
