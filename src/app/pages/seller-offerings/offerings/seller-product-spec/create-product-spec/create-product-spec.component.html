@@ -26,6 +26,27 @@
             }}</p>
         </div>
         <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" [columns]="2" />
+
+        @if (dspEnable) {
+        <label
+          class="flex items-start gap-3 p-4 rounded-lg border border-gray-200 dark:border-secondary-200 cursor-pointer">
+          <input data-cy="prodSpecDspCompatible" type="checkbox" [formControl]="generalForm.controls.dspCompatible"
+            class="mt-1 w-4 h-4 text-primary-100 focus:ring-primary-100 rounded" />
+          <span class="flex flex-col">
+            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_compatible' |
+              translate }}</span>
+            <span class="text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_PROD_SPEC._dsp_compatible_desc' |
+              translate }}</span>
+          </span>
+        </label>
+        }
+
+        <div>
+          <label class="font-bold text-sm dark:text-white block mb-2">{{ 'CREATE_PROD_SPEC._attachments' | translate
+            }}</label>
+          <app-attachment-upload [(ngModel)]="prodAttachments" [ngModelOptions]="{standalone: true}"
+            data-cy="prodSpecAttachments" accept="image/*,.pdf,.doc,.docx" [multiple]="true" />
+        </div>
       </div>
     </ng-template>
 
@@ -841,252 +862,6 @@
       </div>
     </ng-template>
 
-    <ng-template stepperStep="Attachments" stepId="attachments">
-      <div class="flex flex-col gap-5">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._attachments_step_title' |
-            translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._attachments_step_subtitle' |
-            translate }}</p>
-        </div>
-        <div class="inline-flex">
-          <h4 class="text-lg font-bold ml-4 dark:text-white">{{ 'CREATE_PROD_SPEC._add_prod_img' | translate }}</h4>
-          <div class="ml-4 flex">
-            <svg data-popover-target="popover-default" class="flex self-center w-6 h-6 text-primary-100"
-              clip-rule="evenodd" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-              fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-            </svg>
-          </div>
-          <div data-popover id="popover-default" role="tooltip"
-            class="absolute z-10 invisible inline-block w-64 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:border-gray-600 dark:bg-gray-800">
-            <div
-              class="px-3 py-2 bg-gray-100 border-b border-gray-200 rounded-t-lg dark:border-gray-600 dark:bg-gray-700">
-              <h3 class="font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._file_res' | translate }}
-              </h3>
-            </div>
-            <div class="px-3 py-2 inline-block">
-              <p class="inline-block">{{ 'CREATE_PROD_SPEC._restrictions' | translate }}
-              </p>
-            </div>
-            <div data-popper-arrow></div>
-          </div>
-        </div>
-        @if(showImgPreview){
-        <div
-          class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl px-8 pb-8 pt-40 max-w-sm mx-auto m-4 shadow-lg">
-          <img src="{{imgPreview}}" class="absolute inset-0 h-full w-full object-cover">
-          <button (click)="removeImg()"
-            class="z-10 absolute top-2 right-2 p-1 font-bold text-white bg-red-500 rounded-3xl">
-            <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M6 18 17.94 6M18 18 6.06 6" />
-            </svg>
-          </button>
-        </div>
-        } @else {
-        <div class="flex w-full justify-center justify-items-center">
-          <ngx-file-drop class="m-4 p-4 w-full" dropZoneLabel="Drop files here" (onFileDrop)="dropped($event,'img')"
-            (onFileOver)="fileOver($event)" (onFileLeave)="fileLeave($event)">
-            <ng-template class="w-full" ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
-              <div class="w-full flex flex-col justify-items-center justify-center">
-                <svg class="w-12 h-12 text-primary-100 mx-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                  width="24" height="24" fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2" />
-                </svg>
-                <div class="flex w-full justify-center">
-                  <p class="text-gray-500 mr-2 w-fit">{{ 'CREATE_PROD_SPEC._drop_files' | translate }}
-                    <button data-cy="productSpecAttachSelectFile" (click)="openFileSelector()"
-                      class="font-medium text-primary-100 dark:text-primary-50 hover:underline">{{
-                      'CREATE_PROD_SPEC._select_files' | translate }}</button>
-                  </p>
-                </div>
-              </div>
-            </ng-template>
-          </ngx-file-drop>
-        </div>
-        <label class="font-bold ml-6 dark:text-white">{{ 'CREATE_PROD_SPEC._add_prod_img_url' | translate }}</label>
-        <div class="relative w-full ml-6 mt-2 mb-2">
-          <!-- Tooltip (Above the Input, Positioned Up) -->
-          <div *ngIf="attImageName.invalid && attImageName.touched"
-            class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max bg-gray-900 text-white text-xs rounded-lg p-2 shadow-lg z-50">
-            {{ 'CREATE_PROD_SPEC._file_name' | translate }}
-            <!-- Tooltip Arrow -->
-            <div class="absolute left-1/2 transform -translate-x-1/2 translate-y-1 w-2 h-2 bg-gray-900 rotate-45"></div>
-          </div>
-
-          <div class="flex items-center h-fit w-full justify-between">
-            <!-- Input Field -->
-            <input #imgURL type="text" id="att-name" [formControl]="attImageName" (blur)="attImageName.markAsTouched()"
-              class="w-full bg-gray-50 border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
-              [ngClass]="attImageName.invalid && attImageName.touched ? 'border-red-500' : 'dark:border-secondary-200'" />
-
-            <!-- Submit Button -->
-            <button (click)="saveImgFromURL()" [disabled]="!attImageName.valid"
-              [ngClass]="!attImageName.valid ? 'opacity-50' : 'hover:bg-primary-50'"
-              class="text-white bg-primary-100 rounded-3xl p-1 ml-2 h-fit">
-              <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M5 11.917 9.724 16.5 19 7.5" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-
-        }
-        <h4 class="text-lg font-bold ml-4 dark:text-white">{{ 'CREATE_PROD_SPEC._add_att' | translate }}</h4>
-        @if(prodAttachments.length == 0){
-        <div class="flex justify-center w-full ml-6 mt-2 mb-2 mr-4">
-          <div
-            class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
-            role="alert">
-            <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-              fill="currentColor" viewBox="0 0 20 20">
-              <path
-                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-            </svg>
-            <span class="sr-only">Info</span>
-            <div>
-              {{ 'CREATE_PROD_SPEC._no_att' | translate }}
-            </div>
-          </div>
-        </div>
-        } @else {
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white m-4">
-          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-              <tr>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'CREATE_PROD_SPEC._product_name' | translate }}
-                </th>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'CREATE_PROD_SPEC._value' | translate }}
-                </th>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'CREATE_PROD_SPEC._actions' | translate }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (att of prodAttachments; track att) {
-              <tr
-                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                <td [ngClass]="{
-                                                'break-all': hasLongWord(att.name, 20),
-                                                'break-words': !hasLongWord(att.name, 20)
-                                                }" class="px-6 py-4 text-wrap break-words">
-                  {{att.name}}
-                </td>
-                <td class="px-6 py-4 text-wrap break-all">
-                  {{att.url}}
-                </td>
-                <td class="px-6 py-4">
-                  <button (click)="removeAtt(att)" class="font-bold text-white bg-red-500 rounded-3xl">
-                    <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                      viewBox="0 0 24 24">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M6 18 17.94 6M18 18 6.06 6" />
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-        }
-        @if(showNewAtt==false){
-        <div class="flex w-full justify-items-center justify-center">
-          <button data-cy="productSpecAddNewAttachment" type="button" (click)="showNewAtt=!showNewAtt"
-            class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
-            {{ 'CREATE_PROD_SPEC._new_att' | translate }}
-            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-              fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M5 12h14m-7 7V5" />
-            </svg>
-          </button>
-        </div>
-        } @else {
-        <div class="m-4 w-full">
-          <div
-            class="lg:flex lg:grid lg:grid-cols-2 w-full gap-4 align-items-middle align-middle border border-gray-200 dark:border-secondary-200 rounded-lg p-4">
-            <div class="h-fit">
-              <label for="att-name" class="font-bold text-lg dark:text-white">{{ 'PROFILE._name' | translate }}</label>
-              <input #attachName type="text" id="att-name" [formControl]="attFileName"
-                [ngClass]="attFileName.invalid == true ? 'border-red-600' : 'border-gray-300'"
-                class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-            </div>
-            @if(attachToCreate.url==''){
-            <ngx-file-drop class="p-4 w-full" dropZoneLabel="Drop files here" (onFileDrop)="dropped($event,'attach')"
-              (onFileOver)="fileOver($event)" (onFileLeave)="fileLeave($event)">
-              <ng-template class="w-full" ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
-                <div class="w-full flex flex-col justify-items-center justify-center">
-                  <svg class="w-12 h-12 text-primary-100 mx-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                    width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2" />
-                  </svg>
-                  <div class="flex w-full justify-center">
-                    <p class="text-gray-500 mr-2 w-fit">{{ 'CREATE_PROD_SPEC._drop_files' | translate }}
-                      <button (click)="openFileSelector()"
-                        class="font-medium text-primary-100 dark:text-primary-50 hover:underline">{{
-                        'CREATE_PROD_SPEC._select_files' | translate }}</button>
-                    </p>
-                  </div>
-                </div>
-              </ng-template>
-            </ngx-file-drop>
-            } @else {
-            <div
-              class="relative w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
-              role="alert">
-              <span class="sr-only">Info</span>
-              <label class="text-wrap break-all">
-                {{attachToCreate.url}}
-              </label>
-              <button (click)="clearAtt()"
-                class="z-10 absolute top-2 right-2 p-1 font-bold text-white bg-red-500 rounded-3xl">
-                <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                  viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M6 18 17.94 6M18 18 6.06 6" />
-                </svg>
-              </button>
-            </div>
-            }
-
-          </div>
-          <div class="flex w-full justify-items-center justify-center mt-4">
-            <button type="button" (click)="saveAtt()" [disabled]="!attFileName.valid || attachToCreate.url == ''"
-              [ngClass]="!attFileName.valid || attachToCreate.url == '' ? 'opacity-50' : 'hover:bg-primary-50'"
-              class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
-              {{ 'CREATE_PROD_SPEC._save_att' | translate }}
-              <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
-                  d="M11 16h2m6.707-9.293-2.414-2.414A1 1 0 0 0 16.586 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V7.414a1 1 0 0 0-.293-.707ZM16 20v-6a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v6h8ZM9 4h6v3a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4Z" />
-              </svg>
-            </button>
-          </div>
-        </div>
-        }
-        <!--<div class="flex w-full justify-items-end justify-end ml-4 mt-4">
-                        <button data-cy="btnNext" type="button" (click)="goToStep(currentStep + 1)" class="flex text-white justify-end bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
-                            {{ 'CREATE_PROD_SPEC._next' | translate }}
-                            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                            </svg>
-                        </button>
-                    </div> -->
-      </div>
-    </ng-template>
-
     @if(!templateName) {
     <ng-template stepperStep="Relationships" stepId="relationships">
       <div class="m-4 flex flex-col gap-5">
@@ -1250,7 +1025,7 @@
 
     <ng-template stepperStep="FAQs" stepId="faqs">
       <div class="flex flex-col gap-5">
-        <div class="flex justify-between items-start gap-4">
+        <div class="flex justify-between items-center gap-4">
           <div>
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._faqs_step' | translate }}
             </h2>
@@ -1437,14 +1212,6 @@
                                     }"
             class="bg-gray-50 text-wrap break-words dark:bg-secondary-300 dark:text-white text-gray-900"
             [data]="productSpecToCreate?.description"></markdown>
-        </div>
-        }
-
-        @if(imgPreview!=''){
-        <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._profile_pic' | translate }}</label>
-        <div
-          class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl px-8 pb-8 pt-40 max-w-sm mx-auto m-4 shadow-lg">
-          <img src="{{imgPreview}}" class="absolute inset-0 h-full w-full object-cover">
         </div>
         }
 

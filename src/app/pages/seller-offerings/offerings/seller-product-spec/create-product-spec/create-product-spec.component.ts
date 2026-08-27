@@ -39,15 +39,13 @@ type ProductSpecification_Create = components["schemas"]["ProductSpecification_C
 type BundledProductSpecification = components["schemas"]["BundledProductSpecification"];
 type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecificationCharacteristic"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
-type ProductSpecFormStep = 'general' | 'productDetails' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'attachments' |
+type ProductSpecFormStep = 'general' | 'productDetails' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' |
   'relationships' | 'faqs' | 'summary' | 'orchestrationPlan' | 'dsp_config';
 
 const BASE_TEMPLATE_OPTIONS = [
   { value: '', label: 'None' },
   { value: 'BlueprintProductSpecification', label: 'Blueprint Product Specification' },
 ];
-
-const BASE_TEMPLATE_IDX = 4
 @Component({
   selector: 'create-product-spec',
   templateUrl: './create-product-spec.component.html',
@@ -70,7 +68,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   //PRODUCT GENERAL INFO:
   generalForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
-    brand: new FormControl('', [Validators.required, noWhitespaceValidator]),
+    brand: new FormControl(''),
     version: new FormControl('0.1', [Validators.required, Validators.pattern('^-?[0-9]\\d*(\\.\\d*(\\.\\d*)?)?$'), noWhitespaceValidator]),
     number: new FormControl(''),
     baseTemplate: new FormControl(''),
@@ -224,14 +222,8 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   relForm = buildFormGroup(this.relFormFields);
 
   //ATTACHMENT INFO
-  showImgPreview: boolean = false;
-  showNewAtt: boolean = false;
-  imgPreview: any = '';
   prodAttachments: AttachmentRefOrValue[] = [];
-  attachToCreate: AttachmentRefOrValue = { url: '', attachmentType: '' };
-  attFileName = new FormControl('', [Validators.required, Validators.pattern('[a-zA-Z0-9 _.-]*')]);
   certFileName = new FormControl('', [Validators.required, Validators.pattern('[a-zA-Z0-9 _.-]*')]);
-  attImageName = new FormControl('', [Validators.required, Validators.pattern('^https?:\\/\\/.*\\.(?:png|jpg|jpeg|gif|bmp|webp)$')])
 
   //FINAL PRODUCT USING API CALL STRUCTURE
   productSpecToCreate: ProductSpecification_Create | undefined;
@@ -260,7 +252,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
   generalFormFields: FormField[] = [
     { type: 'string', name: 'name', label: 'CREATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1, dataCy: 'inputName', placeholder: 'CREATE_PROD_SPEC._name_placeholder' },
-    { type: 'string', name: 'brand', label: 'CREATE_PROD_SPEC._product_brand', required: true, colSpan: 1, dataCy: 'inputBrand' },
+    { type: 'string', name: 'brand', label: 'CREATE_PROD_SPEC._product_brand', colSpan: 1, dataCy: 'inputBrand' },
     { type: 'string', name: 'version', label: 'CREATE_PROD_SPEC._product_version', required: true, colSpan: 1, dataCy: 'inputVersion' },
     { type: 'string', name: 'number', label: 'CREATE_PROD_SPEC._id_number', colSpan: 1, dataCy: 'inputIdNumber' },
     { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS, colSpan: 1 },
@@ -335,22 +327,10 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     }
   }
 
-  @ViewChild('attachName') attachName!: ElementRef;
-  @ViewChild('imgURL') imgURL!: ElementRef;
   @ViewChild('certificationName') certificationName!: ElementRef;
 
 
   ngOnInit() {
-    if (this.dspEnable) {
-      this.generalFormFields.splice(BASE_TEMPLATE_IDX, 0, {
-        type: 'boolean',
-        label: 'DSP Compatible',
-        name: 'dspCompatible',
-        required: false,
-        defaultValue: true,
-        colSpan: 1
-      })
-    }
     this.initPartyInfo();
     this.generalForm.get('dspCompatible')!.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -543,7 +523,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
         this.characteristicItems = this.buildCharacteristicItems();
         break;
       case 'compliance':
-      case 'attachments':
         setTimeout(() => { initFlowbite(); }, 100);
         break;
       case 'relationships':
@@ -829,52 +808,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
                   }
                 });
               }
-              if (this.currentStepId === 'attachments') {
-                console.log(file)
-                this.attachmentService.uploadFile(fileBody).subscribe({
-                  next: data => {
-                    console.log(data)
-                    if (sel == 'img') {
-                      if (file.type.startsWith("image")) {
-                        this.showImgPreview = true;
-                        this.imgPreview = data.content;
-                        this.prodAttachments.push({
-                          name: 'Profile Picture',
-                          url: this.imgPreview,
-                          attachmentType: file.type
-                        })
-                      } else {
-                        this.errorMessage = 'File must have a valid image format!';
-                        this.showError = true;
-                        setTimeout(() => {
-                          this.showError = false;
-                        }, 3000);
-                      }
-                    } else {
-                      this.attachToCreate = { url: data.content, attachmentType: file.type };
-                    }
-
-                    this.cdr.detectChanges();
-                    console.log('uploaded')
-                  },
-                  error: error => {
-                    console.error('There was an error while uploading!', error);
-                    if (error.error.error) {
-                      console.log(error)
-                      this.errorMessage = 'Error: ' + error.error.error;
-                    } else {
-                      this.errorMessage = 'There was an error while uploading the file!';
-                    }
-                    if (error.status === 413) {
-                      this.errorMessage = 'File size too large! Must be under 3MB.';
-                    }
-                    this.showError = true;
-                    setTimeout(() => {
-                      this.showError = false;
-                    }, 3000);
-                  }
-                });
-              }
             };
             reader.readAsDataURL(file);
           }
@@ -923,60 +856,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     return this.servSpecService.getServiceSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId);
   }
 
-
-  removeImg() {
-    this.showImgPreview = false;
-    const index = this.prodAttachments.findIndex(item => item.url === this.imgPreview);
-    if (index !== -1) {
-      console.log('eliminar')
-      this.prodAttachments.splice(index, 1);
-    }
-    this.imgPreview = '';
-    this.cdr.detectChanges();
-  }
-
-  saveImgFromURL() {
-    this.showImgPreview = true;
-    this.imgPreview = this.imgURL.nativeElement.value;
-    this.prodAttachments.push({
-      name: 'Profile Picture',
-      url: this.imgPreview,
-      attachmentType: 'Picture'
-    })
-    this.attImageName.reset();
-    this.cdr.detectChanges();
-  }
-
-  removeAtt(att: any) {
-    const index = this.prodAttachments.findIndex(item => item.url === att.url);
-    if (index !== -1) {
-      console.log('eliminar')
-      if (this.prodAttachments[index].name == 'Profile Picture') {
-        this.showImgPreview = false;
-        this.imgPreview = '';
-        this.cdr.detectChanges();
-      }
-      this.prodAttachments.splice(index, 1);
-    }
-    this.cdr.detectChanges();
-  }
-
-  saveAtt() {
-    console.log('saving')
-    this.prodAttachments.push({
-      name: this.attachName.nativeElement.value,
-      url: this.attachToCreate.url,
-      attachmentType: this.attachToCreate.attachmentType
-    })
-    this.attachName.nativeElement.value = '';
-    this.attachToCreate = { url: '', attachmentType: '' };
-    this.showNewAtt = false;
-    this.attFileName.reset();
-  }
-
-  clearAtt() {
-    this.attachToCreate = { url: '', attachmentType: '' };
-  }
 
   saveAdditionalCert() {
     console.log('saving')
@@ -1332,7 +1211,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     }
     console.log('PRODUCTO A CREAR:')
     console.log(this.productSpecToCreate)
-    console.log(this.imgPreview)
   }
 
   createProduct() {

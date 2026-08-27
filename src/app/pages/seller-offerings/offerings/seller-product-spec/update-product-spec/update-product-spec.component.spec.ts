@@ -135,8 +135,6 @@ describe('UpdateProductSpecComponent', () => {
 
     fixture = TestBed.createComponent(UpdateProductSpecComponent);
     component = fixture.componentInstance;
-    component.attachName = { nativeElement: { value: '' } } as any;
-    component.imgURL = { nativeElement: { value: '' } } as any;
     component.certificationName = { nativeElement: { value: '' } } as any;
   });
 
@@ -399,8 +397,23 @@ describe('UpdateProductSpecComponent', () => {
 
       expect(component.selectedResourceSpecs).toEqual([{ id: 'res-1' }] as any);
       expect(component.selectedServiceSpecs).toEqual([{ id: 'serv-1' }] as any);
-      expect(component.showImgPreview).toBeTrue();
-      expect(component.imgPreview).toBe('https://img');
+      expect(component.prodAttachments).toEqual([{ name: 'Profile Picture', url: 'https://img', attachmentType: 'image/png' }] as any);
+    });
+
+    it('should mark dspCompatible based on whether the loaded product has an externalId', () => {
+      component.prod = { ...baseProd, externalId: 'urn:ngsi-ld:product:1' };
+
+      component.populateProductInfo();
+
+      expect(component.generalForm.value.dspCompatible).toBeTrue();
+    });
+
+    it('should leave dspCompatible false when the loaded product has no externalId', () => {
+      component.prod = { ...baseProd };
+
+      component.populateProductInfo();
+
+      expect(component.generalForm.value.dspCompatible).toBeFalse();
     });
 
     it('should build orchestration plan config when prod has an orchestrationPlan', () => {
@@ -591,21 +604,12 @@ describe('UpdateProductSpecComponent', () => {
     });
 
     it('dropped should reject an invalid filename before uploading', () => {
-      component.currentStepId = 'attachments';
+      component.currentStepId = 'general';
       const badFile = { name: 'bad name.txt', type: 'text/plain', size: 10 };
       component.dropped([mockDroppedFile(badFile)], 'attachment');
       expect(component.showError).toBeTrue();
       expect(component.errorMessage).toContain('File names can only include alphabetical characters');
       expect(attachmentServiceSpy.uploadFile).not.toHaveBeenCalled();
-    });
-
-    it('dropped should upload an image attachment and set the preview', () => {
-      component.currentStepId = 'attachments';
-      const file = { name: 'picture.png', type: 'image/png', size: 200 };
-      component.dropped([mockDroppedFile(file)], 'img');
-      expect(component.showImgPreview).toBeTrue();
-      expect(component.imgPreview).toBe('https://uploaded.file');
-      expect(component.prodAttachments.length).toBe(1);
     });
 
     it('dropped should ignore directory entries', () => {
@@ -615,49 +619,10 @@ describe('UpdateProductSpecComponent', () => {
       expect(attachmentServiceSpy.uploadFile).not.toHaveBeenCalled();
     });
 
-    it('removeImg should remove the profile image attachment and clear the preview', () => {
-      component.showImgPreview = true;
-      component.imgPreview = 'https://img';
-      component.prodAttachments = [{ name: 'Profile Picture', url: 'https://img', attachmentType: 'Picture' } as any];
-      component.removeImg();
-      expect(component.showImgPreview).toBeFalse();
-      expect(component.imgPreview).toBe('');
-      expect(component.prodAttachments.length).toBe(0);
-    });
-
-    it('saveImgFromURL should create a profile picture attachment from the URL field', () => {
-      component.imgURL = { nativeElement: { value: 'https://site/image.png' } } as any;
-      component.saveImgFromURL();
-      expect(component.showImgPreview).toBeTrue();
-      expect(component.imgPreview).toBe('https://site/image.png');
-      expect(component.prodAttachments[0].name).toBe('Profile Picture');
-    });
-
-    it('removeAtt should remove an attachment and clear the image preview when needed', () => {
-      component.showImgPreview = true;
-      component.imgPreview = 'https://img';
-      component.prodAttachments = [
-        { name: 'Profile Picture', url: 'https://img', attachmentType: 'Picture' } as any,
-        { name: 'Manual', url: 'https://manual', attachmentType: 'application/pdf' } as any
-      ];
-      component.removeAtt({ url: 'https://img' });
-      expect(component.showImgPreview).toBeFalse();
-      expect(component.prodAttachments.length).toBe(1);
-    });
-
-    it('saveAtt and clearAtt should manage the attachment draft lifecycle', () => {
-      component.attachName = { nativeElement: { value: 'Manual' } } as any;
-      component.attachToCreate = { url: 'https://manual.pdf', attachmentType: 'application/pdf' };
-      component.showNewAtt = true;
-      component.saveAtt();
+    it('prodAttachments should be settable directly, backing the general-info attachment field', () => {
+      component.prodAttachments = [{ name: 'Manual', url: 'https://manual', attachmentType: 'application/pdf' } as any];
       expect(component.prodAttachments.length).toBe(1);
       expect(component.prodAttachments[0].name).toBe('Manual');
-      expect(component.attachToCreate.url).toBe('');
-      expect(component.showNewAtt).toBeFalse();
-
-      component.attachToCreate = { url: 'x', attachmentType: 'y' };
-      component.clearAtt();
-      expect(component.attachToCreate).toEqual({ url: '', attachmentType: '' });
     });
   });
 
