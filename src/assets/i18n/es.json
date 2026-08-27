@@ -2601,6 +2601,15 @@
       "_last": "Última página",
       "_error_loading": "Error al cargar los datos",
       "_selected_count": "{{count}} seleccionados"
+    },
+    "ATTACHMENT": {
+      "_drop_label": "Suelta un archivo para adjuntarlo o",
+      "_select_label": "selecciona un archivo.",
+      "_uploading": "Subiendo...",
+      "_invalid_type": "Este tipo de archivo no está permitido.",
+      "_too_large": "El archivo debe pesar menos de 3MB.",
+      "_invalid_name": "El nombre del archivo solo puede incluir letras, números, guiones bajos, guiones y puntos.",
+      "_upload_error": "Se produjo un error al subir el archivo."
     }
   },
   "USAGE_SPECS": {

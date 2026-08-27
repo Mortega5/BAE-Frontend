@@ -145,6 +145,16 @@
       [lineNumbers]="asCode(field).lineNumbers ?? true" [theme]="asCode(field).theme ?? 'auto'"
       [placeholder]="asCode(field).placeholder ?? ''" />
     }
+
+    @if (field.type === 'attachment') {
+    <app-attachment-upload [accept]="asAttachment(field).accept ?? '*/*'"
+      [multiple]="asAttachment(field).multiple ?? false" [readonly]="field.readonly ?? false"
+      [maxFileSize]="attachmentMaxFileSize(field)"
+      [dropLabel]="asAttachment(field).dropLabel ?? 'FORMS.ATTACHMENT._drop_label'"
+      [selectLabel]="asAttachment(field).selectLabel ?? 'FORMS.ATTACHMENT._select_label'"
+      [dataCy]="field.dataCy ?? field.name" [files]="formGroup.get(field.name)?.value"
+      (filesChange)="formGroup.get(field.name)?.setValue($event)" />
+    }
   </div>
   }
 </div>

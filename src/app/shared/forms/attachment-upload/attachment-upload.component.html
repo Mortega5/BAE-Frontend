@@ -1,0 +1,55 @@
+<div class="w-full" [attr.data-cy]="dataCy">
+  @if (canAddMore && !isReadonly) {
+  <div class="flex w-full justify-center justify-items-center">
+    <ngx-file-drop class="m-4 p-4 w-full" [dropZoneClassName]="'rounded-2xl border border-dashed border-gray-300 dark:border-secondary-200'"
+      dropZoneLabel="Drop files here" [accept]="accept" [multiple]="multiple" [disabled]="uploading"
+      (onFileDrop)="dropped($event)">
+      <ng-template class="w-full" ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
+        <div class="w-full flex flex-col justify-items-center justify-center py-2">
+          <svg class="w-12 h-12 text-primary-100 dark:text-primary-50 mx-auto" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2" />
+          </svg>
+          <div class="flex w-full justify-center">
+            <p class="text-gray-500 dark:text-gray-400 mr-2 w-fit">{{ dropLabel | translate }}
+              <button type="button" [attr.data-cy]="dataCy ? dataCy + 'SelectFile' : null" (click)="openFileSelector()"
+                class="font-medium text-primary-100 dark:text-primary-50 hover:underline">{{ selectLabel | translate }}</button>
+            </p>
+          </div>
+        </div>
+      </ng-template>
+    </ngx-file-drop>
+  </div>
+  }
+
+  @if (uploading) {
+  <p class="text-sm text-primary-100 dark:text-primary-50 mt-1">{{ 'FORMS.ATTACHMENT._uploading' | translate }}</p>
+  }
+
+  @if (errorMessage) {
+  <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ errorMessage | translate }}</p>
+  }
+
+  @if (attachments.length > 0) {
+  <div class="flex flex-col gap-2 mt-2">
+    @for (att of attachments; track att.url) {
+    <div class="relative w-full items-center p-4 text-sm text-primary-100 dark:text-primary-50 rounded-lg bg-blue-50 dark:bg-secondary-200"
+      role="alert">
+      <span class="sr-only">Info</span>
+      <label class="text-wrap break-all pr-8">{{ att.name }}</label>
+      @if (!isReadonly) {
+      <button type="button" (click)="remove(att)"
+        class="z-10 absolute top-2 right-2 p-1 font-bold text-white bg-red-500 rounded-3xl">
+        <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M6 18 17.94 6M18 18 6.06 6" />
+        </svg>
+      </button>
+      }
+    </div>
+    }
+  </div>
+  }
+</div>

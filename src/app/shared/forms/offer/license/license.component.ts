@@ -7,6 +7,7 @@ import {TranslateModule} from "@ngx-translate/core";
 import {FormChangeState} from "../../../../models/interfaces";
 import {Subject} from "rxjs";
 import { takeUntil } from 'rxjs/operators';
+import { AttachmentUploadComponent } from '../../attachment-upload/attachment-upload.component';
 
 interface License {
   treatment: string;
@@ -18,6 +19,7 @@ interface License {
   standalone: true,
     imports: [
         MarkdownTextareaComponent,
+        AttachmentUploadComponent,
         ReactiveFormsModule,
         TranslateModule
     ],
@@ -78,6 +80,11 @@ export class LicenseComponent implements OnInit, OnDestroy {
     return control instanceof FormControl ? control : null;
   }
 
+  get termsFileControl(): FormControl | null {
+    const control = this.formGroup.get('termsFile');
+    return control instanceof FormControl ? control : null;
+  }
+
   ngOnInit() {
     console.log('🔄 Initializing LicenseComponent');
     console.log('📝 Initializing form in', this.formType, 'mode');
@@ -91,7 +98,8 @@ export class LicenseComponent implements OnInit, OnDestroy {
         if(license){
           this.formGroup.addControl('treatment', new FormControl<string>('License'));
           this.formGroup.addControl('description', new FormControl<string>(license.description));
-          
+          this.formGroup.addControl('termsFile', new FormControl<any>(null));
+
           // Store original value only in edit mode
           this.originalValue = {
             treatment: license.name,
@@ -101,14 +109,17 @@ export class LicenseComponent implements OnInit, OnDestroy {
         } else {
           this.formGroup.addControl('treatment', new FormControl<string>('License'));
           this.formGroup.addControl('description', new FormControl<string>(''));
+          this.formGroup.addControl('termsFile', new FormControl<any>(null));
         }
       } else {
         this.formGroup.addControl('treatment', new FormControl<string>('License'));
         this.formGroup.addControl('description', new FormControl<string>(''));
+        this.formGroup.addControl('termsFile', new FormControl<any>(null));
       }
     } else {
       this.formGroup.addControl('treatment', new FormControl<string>('License'));
       this.formGroup.addControl('description', new FormControl<string>(''));
+      this.formGroup.addControl('termsFile', new FormControl<any>(null));
     }
 
     // Subscribe to form changes only in edit mode

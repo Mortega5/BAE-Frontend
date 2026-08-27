@@ -3,7 +3,9 @@ import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { BubbleSelectFormField, CodeFormField, FormField, MultiValueStringFormField, PaginatedTableFormField, RangeValueFormField, SelectableFormField, StatusPickerFormField, TableFormField, UnitValueFormField } from 'src/app/models/formFields/form-field.model';
+import { AttachmentFormField, BubbleSelectFormField, CodeFormField, FormField, MultiValueStringFormField, PaginatedTableFormField, RangeValueFormField, SelectableFormField, StatusPickerFormField, TableFormField, UnitValueFormField } from 'src/app/models/formFields/form-field.model';
+import { environment } from 'src/environments/environment';
+import { AttachmentUploadComponent } from '../attachment-upload/attachment-upload.component';
 import { MarkdownTextareaComponent } from '../markdown-textarea/markdown-textarea.component';
 import { MultiValueInputComponent } from '../multi-value-input/multi-value-input.component';
 import { RangeValueInputComponent } from '../range-value-input/range-value-input.component';
@@ -19,7 +21,7 @@ import { SearchSelectComponent } from 'src/app/shared/search-select/search-selec
   selector: 'app-dynamic-form',
   templateUrl: './dynamic-form.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent, MultiValueInputComponent, UnitValueInputComponent, RangeValueInputComponent, TableInputComponent, PaginatedTableComponent, CodeEditorComponent, MultipleSelectComponent, SearchSelectComponent, FaIconComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent, MultiValueInputComponent, UnitValueInputComponent, RangeValueInputComponent, TableInputComponent, PaginatedTableComponent, CodeEditorComponent, MultipleSelectComponent, SearchSelectComponent, AttachmentUploadComponent, FaIconComponent],
 })
 export class DynamicFormComponent {
   @Input() fields: FormField[] = [];
@@ -69,5 +71,13 @@ export class DynamicFormComponent {
 
   asCode(field: FormField): CodeFormField {
     return field as CodeFormField;
+  }
+
+  asAttachment(field: FormField): AttachmentFormField {
+    return field as AttachmentFormField;
+  }
+
+  attachmentMaxFileSize(field: FormField): number {
+    return this.asAttachment(field).maxFileSize ?? environment.MAX_FILE_SIZE;
   }
 }

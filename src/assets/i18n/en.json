@@ -2601,6 +2601,15 @@
       "_last": "Last page",
       "_error_loading": "Error loading data",
       "_selected_count": "{{count}} selected"
+    },
+    "ATTACHMENT": {
+      "_drop_label": "Drop one file to attach or",
+      "_select_label": "select a file.",
+      "_uploading": "Uploading...",
+      "_invalid_type": "This file type isn't allowed.",
+      "_too_large": "File size must be under 3MB.",
+      "_invalid_name": "File names can only include letters, numbers, underscores, hyphens and periods.",
+      "_upload_error": "There was an error while uploading the file."
     }
   },
   "USAGE_SPECS": {

@@ -8,3 +8,8 @@
   <label class="font-bold text-lg col-span-2 dark:text-white">{{ 'CREATE_OFFER._terms_conditions' | translate }}</label>
   <app-markdown-textarea [formControl]="descControl" [placeholder]="'CREATE_OFFER._tc_placeholder' | translate"></app-markdown-textarea>
 }
+
+@if (termsFileControl) {
+  <label class="font-bold text-lg col-span-2 dark:text-white mt-2">{{ 'CREATE_OFFER._or_upload_documents' | translate }}</label>
+  <app-attachment-upload [formControl]="termsFileControl" accept=".pdf,.doc,.docx" data-cy="termsFile" />
+}

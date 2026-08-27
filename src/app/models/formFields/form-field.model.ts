@@ -166,4 +166,14 @@ export interface CodeFormField extends BaseFormField {
   theme?: CodeTheme;
 }
 
-export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | PaginatedTableFormField | CodeFormField;
+export interface AttachmentFormField extends BaseFormField {
+  type: 'attachment';
+  /** File type filter, e.g. "image/*" or ".pdf,.docx". Defaults to any file. */
+  accept?: string;
+  multiple?: boolean;
+  maxFileSize?: number;
+  dropLabel?: string;
+  selectLabel?: string;
+}
+
+export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | PaginatedTableFormField | CodeFormField | AttachmentFormField;
