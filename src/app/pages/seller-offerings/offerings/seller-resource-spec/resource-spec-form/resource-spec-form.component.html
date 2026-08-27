@@ -1,6 +1,6 @@
 <div class="w-full flex-1 flex flex-col">
   <!-- Breadcrumb -->
-  <div class="pb-4">
+  <div class="p-4">
     <button (click)="goBack()"
       class="inline-flex items-center text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-primary-100 dark:hover:text-primary-50">
       <svg class="w-3 h-3 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 12 10">
@@ -19,41 +19,45 @@
   @if (notFound) {
   <app-not-found-state message="This resource specification could not be found." (back)="goBack()" />
   } @else {
-    <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance"
-      [submitLabel]="isUpdate ? 'UPDATE_RES_SPEC._update_res' : 'CREATE_RES_SPEC._create_res'"
-      [submitAlwaysVisible]="isUpdate" [submitDisabled]="!generalForm.valid || loading"
-      (stepChanged)="onStepChanged($event)" (submitted)="save()">
+  <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance"
+    [submitLabel]="isUpdate ? 'UPDATE_RES_SPEC._update_res' : 'CREATE_RES_SPEC._create_res'"
+    [submitAlwaysVisible]="isUpdate" [submitDisabled]="!generalForm.valid || loading"
+    (stepChanged)="onStepChanged($event)" (submitted)="save()">
 
-      <!-- Step 1: General Info -->
-      <ng-template stepperStep="General Info" stepId="general">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._general_info' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ i18nPrefix + '._general_info_desc' | translate }}</p>
-          </div>
-          <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" />
+    <!-- Step 1: General Info -->
+    <ng-template stepperStep="General Info" stepId="general">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._general_info' | translate }}
+          </h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ i18nPrefix + '._general_info_desc' | translate }}
+          </p>
         </div>
-      </ng-template>
+        <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" />
+      </div>
+    </ng-template>
 
-      <!-- Step 2: Characteristics -->
-      <ng-template stepperStep="Characteristics" stepId="characteristics">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CHAR_SPEC._step_title' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CHAR_SPEC._step_subtitle' | translate }}</p>
-          </div>
-          <app-characteristics-editor [characteristics]="characteristicItems" [supportedTypes]="allowedChars"
-            (characteristicsChange)="onCharacteristicsChange($event)" />
+    <!-- Step 2: Characteristics -->
+    <ng-template stepperStep="Characteristics" stepId="characteristics">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CHAR_SPEC._step_title' | translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CHAR_SPEC._step_subtitle' | translate }}</p>
         </div>
-      </ng-template>
+        <app-characteristics-editor [characteristics]="characteristicItems" [supportedTypes]="allowedChars"
+          (characteristicsChange)="onCharacteristicsChange($event)" />
+      </div>
+    </ng-template>
 
-      <!-- Step 3: Configuration -->
-      <ng-template stepperStep="Configuration" stepId="configuration">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._template_config_title' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ i18nPrefix + '._template_config_subtitle' | translate }}</p>
-          </div>
+    <!-- Step 3: Configuration -->
+    <ng-template stepperStep="Configuration" stepId="configuration">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._template_config_title' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ i18nPrefix + '._template_config_subtitle' |
+            translate }}</p>
+        </div>
         <div class="flex justify-center w-full">
           @if (templateConfigFields.length === 0) {
           <div
@@ -71,16 +75,17 @@
             [columns]="templateConfigColumnCount" [columns]="3" />
           }
         </div>
-        </div>
-      </ng-template>
+      </div>
+    </ng-template>
 
-      <!-- Step 4: Summary -->
-      <ng-template stepperStep="Summary" stepId="summary">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._ready_title' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ i18nPrefix + '._ready_desc' | translate }}</p>
-          </div>
+    <!-- Step 4: Summary -->
+    <ng-template stepperStep="Summary" stepId="summary">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._ready_title' | translate }}
+          </h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ i18nPrefix + '._ready_desc' | translate }}</p>
+        </div>
         <div>
           @if (loading) {
           <app-loading-spinner />
@@ -167,10 +172,10 @@
           }
           }
         </div>
-        </div>
-      </ng-template>
+      </div>
+    </ng-template>
 
-    </app-stepper>
+  </app-stepper>
   }
 </div>
 

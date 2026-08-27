@@ -5,9 +5,10 @@
       class="flex items-start gap-3 cursor-pointer">
       <div class="flex flex-col items-center">
         <span
-          class="flex items-center justify-center w-8 h-8 border-2 border-primary-100 dark:border-primary-50 shrink-0 rounded-full text-sm font-semibold transition-colors duration-300"
-          [class.bg-primary-100]="currentStep === i || i < highestStep"
-          [class.text-white]="currentStep === i || i < highestStep">
+          class="flex items-center justify-center w-8 h-8 dark:border-primary-50 shrink-0 rounded-full text-sm font-semibold transition-colors duration-300"
+          [ngClass]="currentStep === i
+            ? 'bg-primary-100 text-white'
+            : (i < highestStep ? 'bg-primary-50 dark:bg-primary-100/30 text-white dark:text-primary-50' : 'border-2 border-primary-50')">
           @if (i < highestStep && currentStep !==i) { <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg"
             fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
