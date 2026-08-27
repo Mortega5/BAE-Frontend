@@ -36,12 +36,21 @@ export interface NumberFormField extends BaseFormField {
 export interface SelectOption {
   value: any;
   label: string;
+  /** Rendered under the label in a muted, smaller style — only honored by `app-search-select`. */
+  subtitle?: string;
 }
 
 export interface SelectableFormField extends BaseFormField {
   type: 'select';
   options: SelectOption[];
   multiple?: boolean;
+  /** Renders as a filter-as-you-type search-select instead of a native `<select>`/`multiple-select`. */
+  searchable?: boolean;
+  placeholder?: string;
+  /** Only honored when `searchable` — shows a "Create '<query>'" option when nothing matches. */
+  allowCreate?: boolean;
+  /** Resolves to the option to select on success; rejecting re-shows the create prompt. */
+  onCreate?: (query: string) => Promise<SelectOption>;
 }
 
 export interface BooleanFormField extends BaseFormField {

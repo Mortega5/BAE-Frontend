@@ -42,7 +42,8 @@
                     <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_OFFER._mandatory_field' | translate }}</p>
                   }
                 </div>
-                <app-catalogue data-cy="offerCatalogSelect" [partyId]="partyId" formControlName="catalogue" />
+                <app-search-select data-cy="offerCatalogSelect" [options]="availableCatalogs" [multiple]="false"
+                  [placeholder]="'CREATE_OFFER._select'" formControlName="catalogue" />
               </div>
             }
           </app-general-info-form>
@@ -59,38 +60,33 @@
           @if (loadingCategories) {
             <div class="text-sm text-gray-500 dark:text-gray-400 p-3">{{ 'COMMON._loading' | translate }}</div>
           } @else {
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="flex flex-col gap-4">
               <div>
-                <label for="rootCategorySelect" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                  {{ 'CREATE_OFFER._category' | translate }}<span class="text-red-600 ml-0.5">*</span>
-                </label>
-                <select id="rootCategorySelect"
-                  [value]="selectedRootCategoryId"
-                  (change)="onRootCategoryChange($event)"
-                  class="bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3">
-                  <option value="" [selected]="!selectedRootCategoryId">{{ 'CREATE_OFFER._select' | translate }}</option>
-                  @for (c of availableRootCategories; track c.id) {
-                    <option [value]="c.id" [selected]="c.id === selectedRootCategoryId">{{ c.name }}</option>
+                <div class="flex items-center gap-2 mb-2">
+                  <label class="block text-sm font-semibold text-gray-900 dark:text-white">
+                    {{ 'CREATE_OFFER._category' | translate }}<span class="text-red-600 ml-0.5">*</span>
+                  </label>
+                  @if (!selectedRootCategory?.id) {
+                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_OFFER._mandatory_field' | translate }}</p>
                   }
-                </select>
-                @if (!selectedRootCategoryId) {
-                  <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_OFFER._mandatory_field' | translate }}</p>
-                }
+                </div>
+                <app-search-select data-cy="offerRootCategorySelect" [options]="rootCategoryOptions" [multiple]="false"
+                  [placeholder]="'CREATE_OFFER._select'" [selected]="selectedRootCategory"
+                  (selectionChange)="onRootCategoryChange($event)" />
               </div>
               <div>
-                <label for="subcategorySelect" class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+                <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
                   {{ 'CREATE_OFFER._subcategory' | translate }}
                 </label>
-                <select id="subcategorySelect"
-                  [value]="selectedSubcategoryId"
-                  [disabled]="!selectedRootCategoryId || !availableSubcategories.length"
-                  (change)="onSubcategoryChange($event)"
-                  class="bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3 disabled:bg-gray-100 dark:disabled:bg-secondary-200 disabled:cursor-not-allowed">
-                  <option value="" [selected]="!selectedSubcategoryId">{{ 'CREATE_OFFER._select' | translate }}</option>
-                  @for (c of availableSubcategories; track c.id) {
-                    <option [value]="c.id" [selected]="c.id === selectedSubcategoryId">{{ c.name }}</option>
-                  }
-                </select>
+                @if (selectedRootCategory?.id) {
+                  <app-search-select data-cy="offerSubcategorySelect" [options]="subcategoryOptions" [multiple]="false"
+                    [placeholder]="'CREATE_OFFER._select'" [selected]="selectedSubcategory"
+                    (selectionChange)="onSubcategoryChange($event)" />
+                } @else {
+                  <p class="text-sm text-gray-500 dark:text-gray-400 p-3 border border-dashed border-gray-300 dark:border-secondary-200 rounded-lg">
+                    {{ 'CREATE_OFFER._select_category_first' | translate }}
+                  </p>
+                }
               </div>
             </div>
           }

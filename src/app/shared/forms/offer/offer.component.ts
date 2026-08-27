@@ -7,18 +7,20 @@ import { lastValueFrom, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { components } from "src/app/models/product-catalog";
 import { searchCategoriesConfig } from 'src/app/data/availableFilters';
+import { fetchAllPages } from 'src/app/models/pagination.model';
+import { SelectOption } from 'src/app/models/formFields/form-field.model';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { SearchSelectComponent } from 'src/app/shared/search-select/search-select.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
 import { StepChangedEvent, StepperComponent } from 'src/app/shared/stepper/stepper.component';
 import { v4 as uuidv4 } from 'uuid';
 import { environment } from '../../../../environments/environment';
 import { FormChangeState, LoginInfo, PricePlanChangeState } from "../../../models/interfaces";
 import { ApiServiceService } from "../../../services/product-service.service";
-import { CatalogueComponent } from "./catalogue/catalogue.component";
 import { EdcContractDefinitionComponent } from "./edc-contract-definition/edc-contract-definition.component";
 import { GeneralInfoComponent } from "./general-info/general-info.component";
 import { LicenseComponent } from "./license/license.component";
@@ -35,7 +37,6 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
   standalone: true,
   imports: [
     GeneralInfoComponent,
-    CatalogueComponent,
     TranslateModule,
     ProdSpecComponent,
     ReactiveFormsModule,
@@ -45,6 +46,7 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
     OfferSummaryComponent,
     EdcContractDefinitionComponent,
     LoadingSpinnerComponent,
+    SearchSelectComponent,
     StepperComponent,
     StepperStepDirective,
   ],
@@ -76,15 +78,26 @@ export class OfferComponent implements OnInit, OnDestroy {
   autoCatalogue: any = null;
 
   // Manual catalogue selection: only shown when the org has catalog management enabled.
+  // Loaded in full (fetchAllPages) so it can be filtered client-side via app-search-select.
   catalogManagementEnabled: boolean = environment.CATALOG_MANAGEMENT_ENABLED;
+  availableCatalogs: SelectOption[] = [];
+  loadingCatalogs: boolean = false;
 
-  // Category: single root + subcategory pick (replaces the old multi-select tree).
+  // Category: single root + subcategory pick, each rendered as a search-select.
   availableRootCategories: any[] = [];
   availableSubcategories: any[] = [];
   loadingCategories: boolean = false;
-  selectedRootCategoryId: string = '';
-  selectedSubcategoryId: string = '';
+  selectedRootCategory: any = null;
+  selectedSubcategory: any = null;
   private originalCategoryValue: any[] = [];
+
+  get rootCategoryOptions(): SelectOption[] {
+    return this.availableRootCategories.map(c => ({ value: c, label: c.name, subtitle: c.description || '-' }));
+  }
+
+  get subcategoryOptions(): SelectOption[] {
+    return this.availableSubcategories.map(c => ({ value: c, label: c.name, subtitle: c.description || '-' }));
+  }
 
   get isUpdate() {
     return this.formType === 'update';
@@ -184,7 +197,7 @@ export class OfferComponent implements OnInit, OnDestroy {
       case 'productSpec':
         return !!this.productOfferForm.get('prodSpec')?.value;
       case 'category':
-        return !!this.selectedRootCategoryId;
+        return !!this.selectedRootCategory?.id;
       case 'license':
         return this.productOfferForm.get('license')?.valid || false;
       case 'contractDefinition':
@@ -224,7 +237,9 @@ export class OfferComponent implements OnInit, OnDestroy {
       this.loadingData = false;
     } else {
       this.loadCategories();
-      if (!this.catalogManagementEnabled) {
+      if (this.catalogManagementEnabled) {
+        this.loadAvailableCatalogs();
+      } else {
         this.ensureCatalogue();
       }
     }
@@ -346,6 +361,22 @@ export class OfferComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Loads every catalogue the seller can publish to, for the search-select catalogue picker. */
+  async loadAvailableCatalogs(): Promise<void> {
+    if (!this.partyId) { this.availableCatalogs = []; return; }
+    this.loadingCatalogs = true;
+    try {
+      const catalogs = await fetchAllPages(params =>
+        this.api.getCatalogsByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId));
+      this.availableCatalogs = catalogs.map(c => ({ value: c, label: c.name, subtitle: c.description || '-' }));
+    } catch (err) {
+      console.error('Failed to load catalogs for selector', err);
+      this.availableCatalogs = [];
+    } finally {
+      this.loadingCatalogs = false;
+    }
+  }
+
   /** Update mode: once the offer's category array is loaded, figure out which root/subcategory it matches. */
   private async initSelectedCategoriesFromOffer(): Promise<void> {
     const offerCategories = this.offer?.category || [];
@@ -353,7 +384,7 @@ export class OfferComponent implements OnInit, OnDestroy {
     const existingRoot = offerCategories.find((c: any) => rootIds.has(c?.id));
     if (!existingRoot) return;
 
-    this.selectedRootCategoryId = existingRoot.id;
+    this.selectedRootCategory = this.availableRootCategories.find((c: any) => c.id === existingRoot.id) ?? existingRoot;
     try {
       const children = await this.api.getCategoriesByParentId(existingRoot.id);
       this.availableSubcategories = Array.isArray(children) ? children : [];
@@ -363,13 +394,12 @@ export class OfferComponent implements OnInit, OnDestroy {
     }
     const subIds = new Set(this.availableSubcategories.map((c: any) => c.id));
     const existingSub = offerCategories.find((c: any) => subIds.has(c?.id));
-    if (existingSub) this.selectedSubcategoryId = existingSub.id;
+    if (existingSub) this.selectedSubcategory = this.availableSubcategories.find((c: any) => c.id === existingSub.id) ?? existingSub;
   }
 
-  async onRootCategoryChange(event: Event): Promise<void> {
-    const value = (event.target as HTMLSelectElement).value;
-    this.selectedRootCategoryId = value;
-    this.selectedSubcategoryId = '';
+  async onRootCategoryChange(category: any): Promise<void> {
+    this.selectedRootCategory = category;
+    this.selectedSubcategory = null;
     this.availableSubcategories = [];
 
     const rootIds = new Set(this.availableRootCategories.map(c => c.id));
@@ -380,14 +410,13 @@ export class OfferComponent implements OnInit, OnDestroy {
       if (c?.parentId && rootIds.has(c.parentId)) return false;
       return true;
     });
-    const chosenRoot = this.availableRootCategories.find(c => c.id === value);
-    const next = chosenRoot ? [...preserved, chosenRoot] : preserved;
+    const next = category ? [...preserved, category] : preserved;
     this.patchCategoryValue(next);
 
-    if (value) {
+    if (category?.id) {
       try {
-        const children = await this.api.getCategoriesByParentId(value);
-        if (this.selectedRootCategoryId === value) {
+        const children = await this.api.getCategoriesByParentId(category.id);
+        if (this.selectedRootCategory?.id === category.id) {
           this.availableSubcategories = Array.isArray(children) ? children : [];
         }
       } catch (err) {
@@ -397,14 +426,12 @@ export class OfferComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSubcategoryChange(event: Event): void {
-    const value = (event.target as HTMLSelectElement).value;
-    this.selectedSubcategoryId = value;
+  onSubcategoryChange(category: any): void {
+    this.selectedSubcategory = category;
     const subIds = new Set(this.availableSubcategories.map(c => c.id));
     const current = this.productOfferForm.get('category')?.value || [];
     const withoutPriorSub = (Array.isArray(current) ? current : []).filter((c: any) => !subIds.has(c?.id));
-    const chosen = this.availableSubcategories.find(c => c.id === value);
-    const next = chosen ? [...withoutPriorSub, chosen] : withoutPriorSub;
+    const next = category ? [...withoutPriorSub, category] : withoutPriorSub;
     this.patchCategoryValue(next);
   }
 

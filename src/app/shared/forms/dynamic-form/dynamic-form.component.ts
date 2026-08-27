@@ -13,12 +13,13 @@ import { TableInputComponent } from '../table-input/table-input.component';
 import { PaginatedTableComponent } from '../paginated-table/paginated-table.component';
 import { CodeEditorComponent } from '../code-editor/code-editor.component';
 import { MultipleSelectComponent } from 'src/app/shared/multiple-select/multiple-select.component';
+import { SearchSelectComponent } from 'src/app/shared/search-select/search-select.component';
 
 @Component({
   selector: 'app-dynamic-form',
   templateUrl: './dynamic-form.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent, MultiValueInputComponent, UnitValueInputComponent, RangeValueInputComponent, TableInputComponent, PaginatedTableComponent, CodeEditorComponent, MultipleSelectComponent, FaIconComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent, MultiValueInputComponent, UnitValueInputComponent, RangeValueInputComponent, TableInputComponent, PaginatedTableComponent, CodeEditorComponent, MultipleSelectComponent, SearchSelectComponent, FaIconComponent],
 })
 export class DynamicFormComponent {
   @Input() fields: FormField[] = [];

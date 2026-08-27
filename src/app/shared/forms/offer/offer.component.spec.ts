@@ -193,7 +193,7 @@ describe('OfferComponent', () => {
       component.currentStepId = 'category';
       expect(component.validateCurrentStep()).toBeFalse();
 
-      component.selectedRootCategoryId = 'root-1';
+      component.selectedRootCategory = { id: 'root-1' };
       expect(component.validateCurrentStep()).toBeTrue();
     });
 
@@ -277,15 +277,17 @@ describe('OfferComponent', () => {
       expect(component.loadingData).toBeFalse();
     });
 
-    it('should load categories and leave manual catalog selection to app-catalogue when catalog management is enabled', async () => {
+    it('should load categories and available catalogs when catalog management is enabled', async () => {
       component.formType = 'create';
       component.catalogManagementEnabled = true;
       const loadCategoriesSpy = spyOn(component, 'loadCategories').and.returnValue(Promise.resolve());
+      const loadAvailableCatalogsSpy = spyOn(component, 'loadAvailableCatalogs').and.returnValue(Promise.resolve());
       const ensureCatalogueSpy = spyOn(component, 'ensureCatalogue');
 
       await component.ngOnInit();
 
       expect(loadCategoriesSpy).toHaveBeenCalled();
+      expect(loadAvailableCatalogsSpy).toHaveBeenCalled();
       expect(ensureCatalogueSpy).not.toHaveBeenCalled();
     });
 
@@ -293,11 +295,13 @@ describe('OfferComponent', () => {
       component.formType = 'create';
       component.catalogManagementEnabled = false;
       spyOn(component, 'loadCategories').and.returnValue(Promise.resolve());
+      const loadAvailableCatalogsSpy = spyOn(component, 'loadAvailableCatalogs');
       const ensureCatalogueSpy = spyOn(component, 'ensureCatalogue');
 
       await component.ngOnInit();
 
       expect(ensureCatalogueSpy).toHaveBeenCalled();
+      expect(loadAvailableCatalogsSpy).not.toHaveBeenCalled();
     });
   });
 
@@ -409,6 +413,57 @@ describe('OfferComponent', () => {
     });
   });
 
+  describe('loadAvailableCatalogs', () => {
+    it('should do nothing without a resolved partyId', async () => {
+      component.partyId = undefined;
+      const spy = spyOn(api, 'getCatalogsByUserPaged');
+
+      await component.loadAvailableCatalogs();
+
+      expect(spy).not.toHaveBeenCalled();
+      expect(component.availableCatalogs).toEqual([]);
+    });
+
+    it('should load every catalog page and map each into a SelectOption', async () => {
+      component.partyId = 'party-1';
+      const catalog = { id: 'cat-1', name: 'Catalog 1' };
+      spyOn(api, 'getCatalogsByUserPaged').and.returnValue(Promise.resolve({ items: [catalog], total: 1 }));
+
+      await component.loadAvailableCatalogs();
+
+      expect(api.getCatalogsByUserPaged).toHaveBeenCalledWith(
+        jasmine.objectContaining({ offset: 0 }), undefined, ['Active', 'Launched'], 'party-1'
+      );
+      expect(component.availableCatalogs).toEqual([{ value: catalog, label: 'Catalog 1', subtitle: '-' }]);
+      expect(component.loadingCatalogs).toBeFalse();
+    });
+
+    it('should keep paging while more items remain', async () => {
+      component.partyId = 'party-1';
+      const page1 = Array.from({ length: 200 }, (_, i) => ({ id: `cat-${i}`, name: `Catalog ${i}` }));
+      const page2 = [{ id: 'cat-last', name: 'Catalog Last' }];
+      const spy = spyOn(api, 'getCatalogsByUserPaged').and.callFake((params: any) =>
+        Promise.resolve(params.offset === 0 ? { items: page1, total: 201 } : { items: page2, total: 201 })
+      );
+
+      await component.loadAvailableCatalogs();
+
+      expect(spy).toHaveBeenCalledTimes(2);
+      expect(component.availableCatalogs.length).toBe(201);
+    });
+
+    it('should reset availableCatalogs and surface the error when the request fails', async () => {
+      component.partyId = 'party-1';
+      spyOn(api, 'getCatalogsByUserPaged').and.returnValue(Promise.reject(new Error('boom')));
+      spyOn(console, 'error');
+
+      await component.loadAvailableCatalogs();
+
+      expect(component.availableCatalogs).toEqual([]);
+      expect(component.loadingCatalogs).toBeFalse();
+    });
+  });
+
   describe('onRootCategoryChange / onSubcategoryChange', () => {
     beforeEach(() => {
       component.availableRootCategories = [{ id: 'root-1', name: 'Root 1' }, { id: 'root-2', name: 'Root 2' }];
@@ -417,9 +472,9 @@ describe('OfferComponent', () => {
     it('should patch the selected root category and load its subcategories', async () => {
       spyOn(api, 'getCategoriesByParentId').and.returnValue(Promise.resolve([{ id: 'sub-1', name: 'Sub 1' }]));
 
-      await component.onRootCategoryChange({ target: { value: 'root-1' } } as unknown as Event);
+      await component.onRootCategoryChange({ id: 'root-1', name: 'Root 1' });
 
-      expect(component.selectedRootCategoryId).toBe('root-1');
+      expect(component.selectedRootCategory).toEqual({ id: 'root-1', name: 'Root 1' });
       expect(component.availableSubcategories).toEqual([{ id: 'sub-1', name: 'Sub 1' }]);
       expect(component.productOfferForm.get('category')?.value).toEqual([{ id: 'root-1', name: 'Root 1' }]);
     });
@@ -428,7 +483,7 @@ describe('OfferComponent', () => {
       component.formType = 'update';
       spyOn(api, 'getCategoriesByParentId').and.returnValue(Promise.resolve([]));
 
-      await component.onRootCategoryChange({ target: { value: 'root-1' } } as unknown as Event);
+      await component.onRootCategoryChange({ id: 'root-1', name: 'Root 1' });
 
       expect(component.hasChanges).toBeTrue();
     });
@@ -437,9 +492,9 @@ describe('OfferComponent', () => {
       component.availableSubcategories = [{ id: 'sub-1', name: 'Sub 1' }, { id: 'sub-2', name: 'Sub 2' }];
       component.productOfferForm.patchValue({ category: [{ id: 'root-1', name: 'Root 1' }, { id: 'sub-1', name: 'Sub 1' }] });
 
-      component.onSubcategoryChange({ target: { value: 'sub-2' } } as unknown as Event);
+      component.onSubcategoryChange({ id: 'sub-2', name: 'Sub 2' });
 
-      expect(component.selectedSubcategoryId).toBe('sub-2');
+      expect(component.selectedSubcategory).toEqual({ id: 'sub-2', name: 'Sub 2' });
       expect(component.productOfferForm.get('category')?.value).toEqual([
         { id: 'root-1', name: 'Root 1' },
         { id: 'sub-2', name: 'Sub 2' }

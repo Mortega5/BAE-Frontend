@@ -6,7 +6,9 @@
     "_loading": "Loading...",
     "_save": "Save",
     "_close": "Close",
-    "_error": "Error"
+    "_error": "Error",
+    "_no_results": "No results found",
+    "_create_option": "Create \"{{value}}\""
   },
   "ERRORS": {
     "_error_prefix": "Error: {{message}}"
@@ -1941,6 +1943,7 @@
     "_draft_missing_required": "Add an offer name and product specification before saving a draft.",
     "_price_create_error": "Error creating offer price!",
     "_no_catalogue_available": "No catalogue available for this user. Please create one first.",
+    "_select_category_first": "Select a category first",
     "_create_success": "Product offer successfully created",
     "_save_error": "An error occurred while saving the offer!",
     "_edit_tier": "Edit tier",

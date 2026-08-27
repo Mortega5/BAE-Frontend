@@ -6,7 +6,9 @@
     "_loading": "Cargando...",
     "_save": "Guardar",
     "_close": "Cerrar",
-    "_error": "Error"
+    "_error": "Error",
+    "_no_results": "No se encontraron resultados",
+    "_create_option": "Crear \"{{value}}\""
   },
   "ERRORS": {
     "_error_prefix": "Error: {{message}}"
@@ -1941,6 +1943,7 @@
     "_draft_missing_required": "Añade un nombre de oferta y una especificación de producto antes de guardar un borrador.",
     "_price_create_error": "¡Error al crear el precio de la oferta!",
     "_no_catalogue_available": "No hay ningún catálogo disponible para este usuario. Crea uno primero.",
+    "_select_category_first": "Selecciona primero una categoría",
     "_create_success": "Oferta de producto creada correctamente",
     "_save_error": "¡Se ha producido un error al guardar la oferta!",
     "_edit_tier": "Editar nivel",
