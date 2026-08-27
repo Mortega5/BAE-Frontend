@@ -168,11 +168,7 @@
               <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
                 {{ 'FORMS.PRICE_PLANS._currency' | translate }}
               </label>
-              <select formControlName="currency" class="block w-full p-3 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100">
-                @for(curr of currencies; track curr.code){
-                  <option value="{{curr.code}}" [selected]="curr.code === this.formGroup.get('currency')?.value">({{curr.code}}) {{curr.name}}</option>
-                }
-              </select>
+              <app-search-select formControlName="currency" [options]="currencyOptions" data-cy="pricePlanCurrency" />
             </div>
             <div>
               <app-price-components-table [priceComponents]="formGroup.get('priceComponents')?.value"

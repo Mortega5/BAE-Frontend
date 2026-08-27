@@ -12,6 +12,8 @@ import {
 import {TierPricingDrawerComponent} from "../tier-pricing-drawer/tier-pricing-drawer.component";
 import {Subject} from "rxjs";
 import { takeUntil } from 'rxjs/operators';
+import { SelectOption } from 'src/app/models/formFields/form-field.model';
+import { SearchSelectComponent } from 'src/app/shared/search-select/search-select.component';
 
 
 @Component({
@@ -28,7 +30,8 @@ import { takeUntil } from 'rxjs/operators';
     PriceComponentsTableComponent,
     ConfigurationProfileDrawerComponent,
     TierPricingDrawerComponent,
-    NgForOf
+    NgForOf,
+    SearchSelectComponent
   ],
   styleUrl: './price-plan-drawer.component.css'
 })
@@ -47,6 +50,10 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   showTierPricingDrawer = false;
   editingComponent: any = null;
   protected readonly currencies = currencies;
+  protected readonly currencyOptions: SelectOption[] = currencies.map((curr: any) => ({
+    value: curr.code,
+    label: `(${curr.code}) ${curr.name}`
+  }));
   private destroy$ = new Subject<void>();
   rangeValidationError: string | null = null;
   profileRequiredError: string | null = null;
