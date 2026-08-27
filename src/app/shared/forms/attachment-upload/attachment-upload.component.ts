@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpEventType } from '@angular/common/http';
 import { Component, EventEmitter, Input, Output, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -49,6 +50,7 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
 
   attachments: UploadedAttachment[] = [];
   uploading: boolean = false;
+  uploadProgress: number | null = null;
   errorMessage: string | null = null;
 
   private isDisabled: boolean = false;
@@ -66,6 +68,15 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
   /** Hide the drop zone once a single-file field already has its one attachment. */
   get canAddMore(): boolean {
     return this.multiple || this.attachments.length === 0;
+  }
+
+  isImage(attachment: UploadedAttachment): boolean {
+    return !!attachment.attachmentType?.startsWith('image/');
+  }
+
+  fileExtension(attachment: UploadedAttachment): string {
+    const match = /\.([a-zA-Z0-9]+)$/.exec(attachment.name ?? '');
+    return match ? match[1].toUpperCase() : '';
   }
 
   dropped(files: NgxFileDropEntry[]): void {
@@ -101,15 +112,23 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
         isPublic: true,
       };
       this.uploading = true;
-      this.attachmentService.uploadFile(fileBody).subscribe({
-        next: (data: any) => {
-          this.uploading = false;
-          const uploaded: UploadedAttachment = { name: file.name, url: data.content, attachmentType: file.type };
-          this.attachments = this.multiple ? [...this.attachments, uploaded] : [uploaded];
-          this.emitChange();
+      this.uploadProgress = 0;
+      this.attachmentService.uploadFileWithProgress(fileBody).subscribe({
+        next: (event) => {
+          if (event.type === HttpEventType.UploadProgress && event.total) {
+            this.uploadProgress = Math.round((100 * event.loaded) / event.total);
+          } else if (event.type === HttpEventType.Response) {
+            this.uploading = false;
+            this.uploadProgress = null;
+            const data = event.body;
+            const uploaded: UploadedAttachment = { name: file.name, url: data.content, attachmentType: file.type };
+            this.attachments = this.multiple ? [...this.attachments, uploaded] : [uploaded];
+            this.emitChange();
+          }
         },
         error: (error: any) => {
           this.uploading = false;
+          this.uploadProgress = null;
           this.showError(error?.status === 413 ? 'FORMS.ATTACHMENT._too_large' : 'FORMS.ATTACHMENT._upload_error');
         },
       });

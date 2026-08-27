@@ -1,6 +1,6 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpEvent, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { lastValueFrom, map } from 'rxjs';
+import { lastValueFrom, map, Observable } from 'rxjs';
 import { Category, LoginInfo } from '../models/interfaces';
 import { environment } from 'src/environments/environment';
 import {components} from "../models/product-catalog";
@@ -20,5 +20,11 @@ export class AttachmentServiceService {
     //POST - El file va en el body de la petición
     let url = `${AttachmentServiceService.BASE_URL}/charging/api/assetManagement/assets/uploadJob`;
     return this.http.post<any>(url, file);
+  }
+
+  /** Same upload, but as a stream of HttpEvents (reportProgress) so callers can render upload progress. */
+  uploadFileWithProgress(file: any): Observable<HttpEvent<any>> {
+    const url = `${AttachmentServiceService.BASE_URL}/charging/api/assetManagement/assets/uploadJob`;
+    return this.http.post<any>(url, file, { reportProgress: true, observe: 'events' as const });
   }
 }

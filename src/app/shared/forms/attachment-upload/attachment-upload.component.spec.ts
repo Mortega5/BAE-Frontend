@@ -3,7 +3,8 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { of, throwError } from 'rxjs';
+import { HttpEventType, HttpResponse } from '@angular/common/http';
+import { Subject, of, throwError } from 'rxjs';
 
 import { AttachmentUploadComponent } from './attachment-upload.component';
 import { AttachmentServiceService } from 'src/app/services/attachment-service.service';
@@ -35,7 +36,7 @@ describe('AttachmentUploadComponent', () => {
   });
 
   it('should reject a file exceeding maxFileSize without uploading', () => {
-    const spy = spyOn(attachmentService, 'uploadFile');
+    const spy = spyOn(attachmentService, 'uploadFileWithProgress');
     component.maxFileSize = 10;
     (component as any).handleFile(makeFile('big.pdf', 'application/pdf', 20));
 
@@ -44,7 +45,7 @@ describe('AttachmentUploadComponent', () => {
   });
 
   it('should reject a file whose type is not in accept', () => {
-    const spy = spyOn(attachmentService, 'uploadFile');
+    const spy = spyOn(attachmentService, 'uploadFileWithProgress');
     component.accept = 'image/*';
     (component as any).handleFile(makeFile('doc.pdf', 'application/pdf', 5));
 
@@ -53,7 +54,7 @@ describe('AttachmentUploadComponent', () => {
   });
 
   it('should accept a matching extension pattern', (done) => {
-    spyOn(attachmentService, 'uploadFile').and.returnValue(of({ content: 'https://uploaded.file' }));
+    spyOn(attachmentService, 'uploadFileWithProgress').and.returnValue(of(new HttpResponse({ body: { content: 'https://uploaded.file' } })));
     component.accept = '.pdf,.doc';
 
     (component as any).handleFile(makeFile('doc.pdf', 'application/pdf', 5));
@@ -65,10 +66,27 @@ describe('AttachmentUploadComponent', () => {
     }, 50);
   });
 
+  it('should report upload progress while the request is in flight, then clear it on completion', (done) => {
+    const upload$ = new Subject<any>();
+    spyOn(attachmentService, 'uploadFileWithProgress').and.returnValue(upload$.asObservable());
+
+    (component as any).handleFile(makeFile('doc.pdf', 'application/pdf', 5));
+
+    setTimeout(() => {
+      upload$.next({ type: HttpEventType.UploadProgress, loaded: 50, total: 200 });
+      expect(component.uploadProgress).toBe(25);
+
+      upload$.next(new HttpResponse({ body: { content: 'https://uploaded.file' } }));
+      expect(component.uploadProgress).toBeNull();
+      expect(component.uploading).toBeFalse();
+      done();
+    }, 50);
+  });
+
   it('should upload a valid file and select it as the single attachment', (done) => {
     const onChange = jasmine.createSpy('onChange');
     component.registerOnChange(onChange);
-    spyOn(attachmentService, 'uploadFile').and.returnValue(of({ content: 'https://uploaded.file' }));
+    spyOn(attachmentService, 'uploadFileWithProgress').and.returnValue(of(new HttpResponse({ body: { content: 'https://uploaded.file' } })));
 
     (component as any).handleFile(makeFile('terms.pdf', 'application/pdf', 5));
 
@@ -82,9 +100,9 @@ describe('AttachmentUploadComponent', () => {
 
   it('should accumulate multiple attachments when multiple is true', (done) => {
     component.multiple = true;
-    spyOn(attachmentService, 'uploadFile').and.returnValues(
-      of({ content: 'https://uploaded.file/1' }),
-      of({ content: 'https://uploaded.file/2' })
+    spyOn(attachmentService, 'uploadFileWithProgress').and.returnValues(
+      of(new HttpResponse({ body: { content: 'https://uploaded.file/1' } })),
+      of(new HttpResponse({ body: { content: 'https://uploaded.file/2' } }))
     );
 
     (component as any).handleFile(makeFile('a.pdf', 'application/pdf', 5));
@@ -99,13 +117,14 @@ describe('AttachmentUploadComponent', () => {
   });
 
   it('should surface a 413 upload error as the too-large message', (done) => {
-    spyOn(attachmentService, 'uploadFile').and.returnValue(throwError(() => ({ status: 413 })));
+    spyOn(attachmentService, 'uploadFileWithProgress').and.returnValue(throwError(() => ({ status: 413 })));
 
     (component as any).handleFile(makeFile('a.pdf', 'application/pdf', 5));
 
     setTimeout(() => {
       expect(component.errorMessage).toBe('FORMS.ATTACHMENT._too_large');
       expect(component.uploading).toBeFalse();
+      expect(component.uploadProgress).toBeNull();
       done();
     }, 50);
   });
