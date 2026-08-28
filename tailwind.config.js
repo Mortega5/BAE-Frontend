@@ -29,6 +29,9 @@ module.exports = {
           50: 'rgb(var(--theme-tertiary-50) / <alpha-value>)', //BG color for dark theme
           100: 'rgb(var(--theme-tertiary-100) / <alpha-value>)' //BG color for dark theme
         },
+        // General page background — a single class that already resolves light/dark
+        // via the --theme-page-bg variable (see src/styles.css), instead of hardcoded hex + dark: pairs.
+        'page-bg': 'var(--theme-page-bg)',
         // Puedes añadir más colores temáticos aquí si es necesario
         // Ejemplo:
         // 'accent': 'var(--theme-accent-color)',

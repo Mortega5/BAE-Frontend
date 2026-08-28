@@ -49,6 +49,9 @@ ngx-file-drop .ngx-file-drop__drop-zone {
    override, since it's closer to the consuming elements than anything in a
    global stylesheet could be. */
 body {
+  /* General page background, replacing the old bg-[#F7F9FD] dark:bg-secondary-300 pattern. */
+  --theme-page-bg: #F7F9FD;
+  background-color: var(--theme-page-bg);
   --table-bg: #fff;
   --table-text: rgb(107 114 128);
   /* gray-500 */
@@ -73,6 +76,7 @@ body {
 }
 
 .dark body {
+  --theme-page-bg: #1e1e1e;
   --table-bg: rgb(var(--theme-secondary-300));
   --table-text: rgb(229 231 235);
   /* gray-200 */
