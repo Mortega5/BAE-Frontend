@@ -1,0 +1,20 @@
+/* --md-toolbar-* variables are defined globally in styles.css (body / .dark body) so
+   any theme can override them directly. Everything below only consumes them. */
+
+.md-toolbar-surface {
+  background-color: var(--md-toolbar-bg);
+  border-color: var(--md-toolbar-border);
+}
+
+.md-toolbar-divider {
+  border-color: var(--md-toolbar-border);
+}
+
+.md-toolbar-icon-btn {
+  color: var(--md-toolbar-icon);
+}
+
+.md-toolbar-icon-btn:hover:not(:disabled) {
+  background-color: var(--md-toolbar-icon-hover-bg);
+  color: var(--md-toolbar-icon-hover);
+}

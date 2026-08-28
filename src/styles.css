@@ -76,11 +76,31 @@ body {
   --table-selection-border: rgb(209 213 219);
   /* gray-300 */
   --table-selection-ring: rgb(var(--theme-primary-50) / 50%);
+
+  /* app-markdown-textarea toolbar tokens — light-mode values match the toolbar's
+     previous hardcoded appearance exactly; dark mode gets real values instead of
+     inheriting nothing. */
+  --md-toolbar-bg: #f9fafb;
+  /* gray-50 */
+  --md-toolbar-border: #e5e7eb;
+  /* gray-200 */
+  --md-toolbar-icon: rgb(107 114 128);
+  /* gray-500 */
+  --md-toolbar-icon-hover-bg: #f3f4f6;
+  /* gray-100 */
+  --md-toolbar-icon-hover: #111827;
+  /* gray-900 */
 }
 
 .dark body {
   --theme-page-bg: #1e1e1e;
   --theme-stepper-text: rgb(255 255 255);
+  --md-toolbar-bg: rgb(var(--theme-secondary-300));
+  --md-toolbar-border: rgb(var(--theme-secondary-200));
+  --md-toolbar-icon: rgb(209 213 219);
+  /* gray-300 */
+  --md-toolbar-icon-hover-bg: rgb(var(--theme-secondary-200));
+  --md-toolbar-icon-hover: #ffffff;
   --table-bg: rgb(var(--theme-secondary-300));
   --table-text: rgb(229 231 235);
   /* gray-200 */
