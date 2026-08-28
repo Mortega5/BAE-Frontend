@@ -1,0 +1,6 @@
+/* --theme-stepper-text is defined globally in styles.css (body / .dark body) so
+   any theme can override it directly. Everything below only consumes it. */
+
+.stepper-pending-text {
+  color: var(--theme-stepper-text);
+}

@@ -21,6 +21,7 @@ export interface StepChangedEvent {
 @Component({
   selector: 'app-stepper',
   templateUrl: './stepper.component.html',
+  styleUrl: './stepper.component.css',
   standalone: true,
   imports: [NgClass, NgTemplateOutlet, TranslateModule, LoadingSpinnerComponent],
 })
