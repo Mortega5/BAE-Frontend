@@ -1,14 +1,14 @@
 <div class="flex flex-col gap-5">
   <div class="w-full md:w-1/2">
-    <label for="procurement" class="block text-sm font-semibold text-gray-900 mb-2">
+    <label for="procurement" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
       {{ 'FORMS.PROCUREMENT_MODE._title' | translate }}
     </label>
     <div class="relative">
       <button data-cy="procurement" id="procurement" type="button"
         (click)="showProcurementDropdown = !showProcurementDropdown"
-        class="flex items-center justify-between w-full p-3 bg-white border border-gray-300 rounded-lg text-sm text-left text-gray-900 focus:ring-primary-100 focus:border-primary-100">
+        class="flex items-center justify-between w-full p-3 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 rounded-lg text-sm text-left text-gray-900 dark:text-white focus:ring-primary-100 focus:border-primary-100">
         <span class="truncate">{{ selectedProcurementNameKey | translate }}</span>
-        <svg class="w-5 h-5 text-gray-500 shrink-0 transition-transform" [class.rotate-180]="showProcurementDropdown"
+        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 shrink-0 transition-transform" [class.rotate-180]="showProcurementDropdown"
           xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
         </svg>
@@ -16,16 +16,15 @@
 
       @if(showProcurementDropdown){
         <div class="fixed inset-0 z-10" (click)="showProcurementDropdown = false"></div>
-        <ul class="absolute left-0 right-0 top-full mt-1 z-20 bg-white rounded-lg py-1 overflow-hidden"
-          style="border: 1px solid #EBECEE; box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.15);">
+        <ul class="absolute left-0 right-0 top-full mt-1 z-20 bg-white dark:bg-secondary-300 border border-[#EBECEE] dark:border-secondary-200 rounded-lg py-1 overflow-hidden shadow-lg">
           @for(mode of procurementModes; track mode.id){
             <li>
               <button type="button" [attr.data-cy]="'procurement-' + mode.id" (click)="selectProcurementMode(mode.id)"
                 [attr.aria-disabled]="isModeUnavailable(mode.id)"
-                class="flex items-center w-full text-left px-4 h-14 text-base text-[#131B25] hover:bg-[#DDE6F6] transition-colors"
+                class="flex items-center w-full text-left px-4 h-14 text-base text-gray-900 dark:text-white transition-colors"
                 [class.opacity-50]="isModeUnavailable(mode.id)"
                 [class.cursor-not-allowed]="isModeUnavailable(mode.id)"
-                [style.background-color]="procurementMode === mode.id ? '#DDE6F6' : null">
+                [ngClass]="procurementMode === mode.id ? 'bg-secondary-50 dark:bg-secondary-200' : 'hover:bg-secondary-50 dark:hover:bg-secondary-200'">
                 {{ mode.labelKey | translate }}
               </button>
             </li>
@@ -38,17 +37,18 @@
   @if (extBillingEnabledControl) {
     <div class="flex items-center gap-3">
       <input data-cy="extBillingToggle" id="extBilling" type="checkbox" [formControl]="extBillingEnabledControl"
-        class="w-4 h-4 text-primary-100 bg-white border-gray-300 rounded focus:ring-primary-100"/>
-      <label for="extBilling" class="text-sm font-semibold text-gray-900">{{ 'CREATE_OFFER._ext_billing' | translate }}</label>
+        class="w-4 h-4 text-primary-100 bg-gray-50 dark:bg-secondary-300 border-gray-300 dark:border-secondary-200 rounded focus:ring-primary-100"/>
+      <label for="extBilling" class="text-sm font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._ext_billing' | translate }}</label>
     </div>
   }
 
   @if (extBillingEnabledControl?.value && plaSpecIdControl) {
     <div>
-      <label for="plaSpecId" class="block text-sm font-semibold text-gray-900 mb-2">{{ 'CREATE_OFFER._pla_spec_id' | translate }}</label>
+      <label for="plaSpecId" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">{{ 'CREATE_OFFER._pla_spec_id' | translate }}</label>
       <input data-cy="plaSpecId" id="plaSpecId" type="url" [formControl]="plaSpecIdControl"
-        class="bg-white border text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100"
+        class="bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100"
         [class.border-gray-300]="!(plaSpecIdControl.invalid && plaSpecIdControl.touched)"
+        [class.dark:border-secondary-200]="!(plaSpecIdControl.invalid && plaSpecIdControl.touched)"
         [class.border-red-500]="plaSpecIdControl.invalid && plaSpecIdControl.touched"
         placeholder="https://external-billing-engine.example.com"/>
       @if (plaSpecIdControl.invalid && plaSpecIdControl.touched) {

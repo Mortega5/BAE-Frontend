@@ -97,7 +97,7 @@
             <!-- Pagination Controls -->
             <div class="flex justify-between items-center mt-3">
               <button type="button" (click)="openConfigurationProfileDrawer()"
-                      class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-primary-100 rounded-lg border border-primary-100 hover:bg-primary-50/10">
+                      class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white rounded-lg border border-primary-100 dark:border-secondary-200 hover:bg-primary-50/10 dark:bg-secondary-300 dark:hover:bg-secondary-200">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor">
                   <path d="M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0
                         32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7
@@ -136,7 +136,7 @@
             </div>
             <div>
               <button data-cy="configProfile" type="button" (click)="openConfigurationProfileDrawer()"
-                      class="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-primary-100 rounded-lg border border-primary-100 hover:bg-primary-50/10">
+                      class="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white rounded-lg border border-primary-100 dark:border-secondary-200 hover:bg-primary-50/10 dark:bg-secondary-300 dark:hover:bg-secondary-200">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor">
                   <path d="M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0
                         32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7
@@ -178,7 +178,7 @@
 
               <div class="flex flex-wrap gap-2 mt-3">
                 <button data-cy="newPriceComponent" type="button" (click)="openPriceComponentDrawer()"
-                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-primary-100 rounded-lg border border-primary-100 hover:bg-primary-50/10">
+                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white rounded-lg border border-primary-100 dark:border-secondary-200 hover:bg-primary-50/10 dark:bg-secondary-300 dark:hover:bg-secondary-200">
                   <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
                   </svg>
@@ -190,7 +190,7 @@
                   type="button"
                   (click)="openTierPricingDrawer()"
                   [disabled]="!hasRangeCharacteristics() || planSubType !== 'flex'"
-                  [ngClass]="hasRangeCharacteristics() && planSubType === 'flex' ? 'text-primary-100 border-primary-100 hover:bg-primary-50/10 cursor-pointer' : 'text-gray-400 dark:text-gray-600 border-gray-200 dark:border-gray-700 cursor-not-allowed opacity-50'"
+                  [ngClass]="hasRangeCharacteristics() && planSubType === 'flex' ? 'text-gray-900 dark:text-white border-primary-100 dark:border-secondary-200 hover:bg-primary-50/10 dark:bg-secondary-300 dark:hover:bg-secondary-200 cursor-pointer' : 'text-gray-900 dark:text-white border-gray-200 dark:border-gray-700 cursor-not-allowed opacity-50'"
                   class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border"
                   [title]="planSubType !== 'flex' ? 'Tier pricing is only available for Flex plans' : (!hasRangeCharacteristics() ? 'No range characteristics available in product specification' : 'Create tier pricing based on range characteristics')"
                 >

@@ -1,3 +1,4 @@
+import { NgClass } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, forwardRef, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractControl, ControlValueAccessor, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule, Validators } from "@angular/forms";
@@ -21,7 +22,8 @@ interface ProcurementMode {
   standalone: true,
   imports: [
     TranslateModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    NgClass
   ],
   providers: [
     {
