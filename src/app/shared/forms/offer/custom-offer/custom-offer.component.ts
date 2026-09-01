@@ -8,7 +8,6 @@ import {ApiServiceService} from "../../../../services/product-service.service";
 import {PricePlansComponent} from "../price-plans/price-plans.component";
 import {ProcurementModeComponent} from "../procurement-mode/procurement-mode.component"
 import {RelatedPartyIdComponent} from "../related-party-id/related-party-id.component"
-import {OfferSummaryComponent} from "../offer-summary/offer-summary.component"
 import { lastValueFrom, firstValueFrom } from 'rxjs';
 import {components} from "src/app/models/product-catalog";
 import {EventMessageService} from "src/app/services/event-message.service";
@@ -34,7 +33,6 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
     ReactiveFormsModule,
     PricePlansComponent,
     ProcurementModeComponent,
-    OfferSummaryComponent,
     RelatedPartyIdComponent,
     LoadingSpinnerComponent,
     NotFoundStateComponent,

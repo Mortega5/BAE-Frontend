@@ -24,7 +24,6 @@ import { ApiServiceService } from "../../../services/product-service.service";
 import { EdcContractDefinitionComponent } from "./edc-contract-definition/edc-contract-definition.component";
 import { GeneralInfoComponent } from "./general-info/general-info.component";
 import { LicenseComponent } from "./license/license.component";
-import { OfferSummaryComponent } from "./offer-summary/offer-summary.component";
 import { PricePlansComponent } from "./price-plans/price-plans.component";
 import { ProcurementModeComponent } from "./procurement-mode/procurement-mode.component";
 import { ProdSpecComponent } from "./prod-spec/prod-spec.component";
@@ -43,7 +42,6 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
     LicenseComponent,
     PricePlansComponent,
     ProcurementModeComponent,
-    OfferSummaryComponent,
     EdcContractDefinitionComponent,
     LoadingSpinnerComponent,
     SearchSelectComponent,

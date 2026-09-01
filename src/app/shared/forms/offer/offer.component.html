@@ -149,16 +149,6 @@
         </div>
       </ng-template>
 
-      <ng-template stepperStep="Summary" stepId="summary">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._summary_title' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._summary_subtitle' | translate }}</p>
-          </div>
-          <app-offer-summary [productOfferForm]="productOfferForm"></app-offer-summary>
-        </div>
-      </ng-template>
-
     </app-stepper>
 
 </form>
