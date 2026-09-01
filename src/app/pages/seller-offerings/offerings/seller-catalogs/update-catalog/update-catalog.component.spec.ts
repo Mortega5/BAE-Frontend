@@ -53,4 +53,10 @@ describe('UpdateCatalogComponent', () => {
 
     expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.catalogues.list()]);
   });
+
+  it('hasLongWord should detect long words and handle undefined', () => {
+    expect(component.hasLongWord('short text', 20)).toBeFalse();
+    expect(component.hasLongWord('averyveryverylongword', 10)).toBeTrue();
+    expect(component.hasLongWord(undefined, 10)).toBeFalse();
+  });
 });

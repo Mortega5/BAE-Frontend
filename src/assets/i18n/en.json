@@ -1122,6 +1122,8 @@
     "_name": "Name",
     "_description": "Description",
     "_next": "Next",
+    "_summary": "Catalogue's summary",
+    "_summary_desc": "Review the catalogue information before creating it.",
     "_finish": "Finish",
     "_create_error": "There was an error while creating the catalog!"
   },
@@ -1173,6 +1175,8 @@
     "_name": "Name",
     "_description": "Description",
     "_next": "Next",
+    "_summary": "Catalogue's summary",
+    "_summary_desc": "Review the catalogue information before saving changes.",
     "_finish": "Finish",
     "_active": "Active",
     "_launched": "Launched",
