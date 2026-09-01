@@ -1523,7 +1523,9 @@
     "_self_attestation": "Autodeclaración:",
     "_close_modal": "Cerrar modal",
     "_cancel": "Cancelar",
-    "_upload": "Subir"
+    "_upload": "Subir",
+    "_request_validation_disabled": "Solicitar validación está desactivado porque el perfil de cumplimiento tiene cambios sin guardar. Actualiza primero el producto.",
+    "_existing_certifications": "Certificaciones existentes"
   },
   "CREATE_RES_SPEC": {
     "_back": "Atrás",

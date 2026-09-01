@@ -5,7 +5,6 @@ import { of, Subject, throwError } from 'rxjs';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
-import { AttachmentServiceService } from 'src/app/services/attachment-service.service';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { PaginationService } from 'src/app/services/pagination.service';
@@ -13,16 +12,6 @@ import { ProductSpecServiceService } from 'src/app/services/product-spec-service
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { CreateProductSpecComponent } from './create-product-spec.component';
-
-class SyncFileReaderMock {
-  onload: ((event: any) => void) | null = null;
-
-  readAsDataURL(_file: File): void {
-    if (this.onload) {
-      this.onload({ target: { result: 'data:text/plain;base64,Zm9v' } });
-    }
-  }
-}
 
 describe('CreateProductSpecComponent', () => {
   let component: CreateProductSpecComponent;
@@ -33,11 +22,9 @@ describe('CreateProductSpecComponent', () => {
   let prodSpecServiceSpy: jasmine.SpyObj<ProductSpecServiceService>;
   let localStorageSpy: jasmine.SpyObj<LocalStorageService>;
   let eventMessageSpy: jasmine.SpyObj<EventMessageService>;
-  let attachmentServiceSpy: jasmine.SpyObj<AttachmentServiceService>;
   let servSpecServiceSpy: jasmine.SpyObj<ServiceSpecServiceService>;
   let resSpecServiceSpy: jasmine.SpyObj<ResourceSpecServiceService>;
   let paginationServiceSpy: jasmine.SpyObj<PaginationService>;
-  let originalFileReader: any;
 
   const defaultPaginationData = {
     page_check: true,
@@ -46,29 +33,17 @@ describe('CreateProductSpecComponent', () => {
     page: 10
   };
 
-  const mockDroppedFile = (file: any): any => {
-    return {
-      relativePath: file.name,
-      fileEntry: {
-        isFile: true,
-        file: (cb: (f: any) => void) => cb(file)
-      }
-    };
-  };
-
   beforeEach(async () => {
     messagesSubject = new Subject<any>();
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
     prodSpecServiceSpy = jasmine.createSpyObj<ProductSpecServiceService>('ProductSpecServiceService', ['getProdSpecByUser', 'postProdSpec']);
     localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject']);
     eventMessageSpy = jasmine.createSpyObj<EventMessageService>('EventMessageService', ['emitSellerProductSpec'], { messages$: messagesSubject.asObservable() });
-    attachmentServiceSpy = jasmine.createSpyObj<AttachmentServiceService>('AttachmentServiceService', ['uploadFile']);
     servSpecServiceSpy = jasmine.createSpyObj<ServiceSpecServiceService>('ServiceSpecServiceService', ['getServiceSpecByUserPaged']);
     resSpecServiceSpy = jasmine.createSpyObj<ResourceSpecServiceService>('ResourceSpecServiceService', ['getResourceSpecByUserPaged']);
     paginationServiceSpy = jasmine.createSpyObj<PaginationService>('PaginationService', ['getItemsPaginated']);
 
     localStorageSpy.getObject.and.returnValue({});
-    attachmentServiceSpy.uploadFile.and.returnValue(of({ content: 'https://uploaded.file' }));
     prodSpecServiceSpy.postProdSpec.and.returnValue(of({ id: 'created' }));
     paginationServiceSpy.getItemsPaginated.and.resolveTo(defaultPaginationData);
     servSpecServiceSpy.getServiceSpecByUserPaged.and.resolveTo({ items: [], total: 0 } as any);
@@ -84,7 +59,6 @@ describe('CreateProductSpecComponent', () => {
         { provide: ProductSpecServiceService, useValue: prodSpecServiceSpy },
         { provide: LocalStorageService, useValue: localStorageSpy },
         { provide: EventMessageService, useValue: eventMessageSpy },
-        { provide: AttachmentServiceService, useValue: attachmentServiceSpy },
         { provide: ServiceSpecServiceService, useValue: servSpecServiceSpy },
         { provide: ResourceSpecServiceService, useValue: resSpecServiceSpy },
         { provide: PaginationService, useValue: paginationServiceSpy }
@@ -97,24 +71,13 @@ describe('CreateProductSpecComponent', () => {
 
     fixture = TestBed.createComponent(CreateProductSpecComponent);
     component = fixture.componentInstance;
-    component.certificationName = { nativeElement: { value: '' } } as any;
-  });
-
-  beforeEach(() => {
-    originalFileReader = (window as any).FileReader;
-    (window as any).FileReader = SyncFileReaderMock as any;
-  });
-
-  afterEach(() => {
-    (window as any).FileReader = originalFileReader;
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load available ISOs in constructor and react to ChangedSession event', () => {
-    expect(component.availableISOS.length).toBeGreaterThan(0);
+  it('should react to ChangedSession event', () => {
     const initSpy = spyOn(component, 'initPartyInfo');
     messagesSubject.next({ type: 'ChangedSession' });
     expect(initSpy).toHaveBeenCalled();
@@ -127,21 +90,6 @@ describe('CreateProductSpecComponent', () => {
     component.ngOnDestroy();
     messagesSubject.next({ type: 'ChangedSession' });
     expect(initSpy).toHaveBeenCalledTimes(1);
-  });
-
-  it('onClick should hide upload panel and trigger detectChanges when open', () => {
-    component.showUploadFile = true;
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
-    component.onClick();
-    expect(component.showUploadFile).toBeFalse();
-    expect(detectSpy).toHaveBeenCalled();
-  });
-
-  it('onClick should do nothing when upload panel is already closed', () => {
-    component.showUploadFile = false;
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
-    component.onClick();
-    expect(detectSpy).not.toHaveBeenCalled();
   });
 
   it('ngOnInit should call initPartyInfo', () => {
@@ -193,12 +141,6 @@ describe('CreateProductSpecComponent', () => {
     expect(component.characteristicItems.map(c => c.name)).toEqual(['Latency']);
   });
 
-  it('onStepChanged should schedule flowbite init for the compliance step', () => {
-    const timeoutSpy = spyOn(window, 'setTimeout');
-    component.onStepChanged({ step: 2, isLastStep: false, label: 'Compliance', stepId: 'compliance' });
-    expect(timeoutSpy).toHaveBeenCalled();
-  });
-
   it('onStepChanged should load related product specs on relationships step', () => {
     const relSpy = spyOn(component, 'getProdSpecsRel');
     component.onStepChanged({ step: 7, isLastStep: false, label: 'Relationships', stepId: 'relationships' });
@@ -236,11 +178,8 @@ describe('CreateProductSpecComponent', () => {
       expect(component.canAdvance).toBeTrue();
     });
 
-    it('should require valid ISOs on the compliance step', () => {
+    it('should default to true on the compliance step', () => {
       component.currentStepId = 'compliance';
-      component.selectedISOS = [{ name: 'Compliance:ISO-A', url: '' }];
-      expect(component.canAdvance).toBeFalse();
-      component.selectedISOS = [{ name: 'Compliance:ISO-A', url: 'https://doc' }];
       expect(component.canAdvance).toBeTrue();
     });
 
@@ -324,140 +263,46 @@ describe('CreateProductSpecComponent', () => {
     expect(detectSpy).toHaveBeenCalledTimes(2);
   });
 
-  it('addISO should move item from available to selected and toggle dropdown', () => {
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
-    component.buttonISOClicked = false;
-    component.availableISOS = [{ name: 'ISO123', mandatory: true, domesupported: false }];
-    component.selectedISOS = [];
-    component.addISO({ name: 'ISO123', mandatory: true, domesupported: false });
-    expect(component.availableISOS.length).toBe(0);
-    expect(component.selectedISOS[0].name).toBe('Compliance:ISO123');
-    expect(component.buttonISOClicked).toBeTrue();
-    expect(detectSpy).toHaveBeenCalled();
-  });
-
-  it('removeISO should move item back to available list', () => {
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
-    component.selectedISOS = [{ name: 'Compliance:ISO123', mandatory: false, domesupported: true }];
-    component.availableISOS = [];
-    component.removeISO(component.selectedISOS[0]);
-    expect(component.selectedISOS.length).toBe(0);
-    expect(component.availableISOS[0].name).toBe('ISO123');
-    expect(detectSpy).toHaveBeenCalled();
-  });
-
-  it('removeCert should delete an additional certification', () => {
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
-    component.additionalISOS = [{ name: 'Compliance:extra', url: 'u' }];
-    component.removeCert({ name: 'Compliance:extra' });
-    expect(component.additionalISOS.length).toBe(0);
-    expect(detectSpy).toHaveBeenCalled();
-  });
-
-  it('removeSelfAtt should remove self attestation from finishChars', () => {
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
-    component.selfAtt = { name: 'Compliance:SelfAtt' };
-    component.finishChars = [{ name: 'Compliance:SelfAtt' } as any, { name: 'Other' } as any];
-    component.removeSelfAtt();
-    expect(component.selfAtt).toBe('');
-    expect(component.finishChars.length).toBe(1);
-    expect(component.finishChars[0].name).toBe('Other');
-    expect(detectSpy).toHaveBeenCalled();
-  });
-
-  it('checkValidISOS should detect missing URLs', () => {
-    component.selectedISOS = [{ name: 'Compliance:ISO-A', url: '' }];
-    expect(component.checkValidISOS()).toBeTrue();
-    component.selectedISOS = [{ name: 'Compliance:ISO-A', url: 'https://doc' }];
-    expect(component.checkValidISOS()).toBeFalse();
-  });
-
-  it('dropped should reject invalid filenames', () => {
-    const badFile = { name: 'bad name.txt', type: 'text/plain', size: 1000 };
-    component.currentStepId = 'compliance';
-    component.showUploadAtt = false;
-    component.selectedISOS = [{ name: 'Compliance:ISO-A', url: '' }];
-    component.dropped([mockDroppedFile(badFile)], component.selectedISOS[0]);
-    expect(component.showError).toBeTrue();
-    expect(component.errorMessage).toContain('File names can only include alphabetical characters');
-    expect(attachmentServiceSpy.uploadFile).not.toHaveBeenCalled();
-  });
-
-  it('dropped should reject files that exceed max size', () => {
-    const bigFile = { name: 'big.txt', type: 'text/plain', size: component.MAX_FILE_SIZE + 1 };
-    component.currentStepId = 'compliance';
-    component.showUploadAtt = false;
-    component.selectedISOS = [{ name: 'Compliance:ISO-A', url: '' }];
-    component.dropped([mockDroppedFile(bigFile)], component.selectedISOS[0]);
-    expect(component.showError).toBeTrue();
-    expect(component.errorMessage).toBe('File size must be under 3MB.');
-    expect(attachmentServiceSpy.uploadFile).not.toHaveBeenCalled();
-  });
-
-  it('dropped should upload compliance ISO file and set its URL', () => {
-    component.currentStepId = 'compliance';
-    component.showUploadAtt = false;
-    component.showUploadFile = true;
-    component.selectedISOS = [{ name: 'Compliance:ISO-A', url: '' }];
-    const file = { name: 'iso.pdf', type: 'application/pdf', size: 200 };
-    component.dropped([mockDroppedFile(file)], component.selectedISOS[0]);
-    expect(attachmentServiceSpy.uploadFile).toHaveBeenCalled();
-    expect(component.selectedISOS[0].url).toBe('https://uploaded.file');
-    expect(component.showUploadFile).toBeFalse();
-  });
-
-  it('dropped should upload self-attestation when uploadAtt is enabled', () => {
-    component.currentStepId = 'compliance';
-    component.showUploadAtt = true;
-    component.selfAtt = { name: 'Compliance:SelfAtt' };
-    component.finishChars = [];
-    const file = { name: 'selfatt.pdf', type: 'application/pdf', size: 200 };
-    component.dropped([mockDroppedFile(file)], 'ignored');
-    expect(component.selfAtt.name).toBe('Compliance:SelfAtt');
-    expect(component.finishChars.length).toBe(1);
-    expect(component.showUploadAtt).toBeFalse();
-    expect(component.showUploadFile).toBeFalse();
-  });
-
-  it('dropped should handle upload errors and show a 413-specific message', () => {
-    attachmentServiceSpy.uploadFile.and.returnValue(throwError(() => ({ status: 413, error: { error: 'too large' } })));
-    component.currentStepId = 'compliance';
-    component.showUploadAtt = false;
-    component.selectedISOS = [{ name: 'Compliance:ISO-A', url: '' }];
-    const file = { name: 'iso.pdf', type: 'application/pdf', size: 200 };
-    component.dropped([mockDroppedFile(file)], component.selectedISOS[0]);
-    expect(component.showError).toBeTrue();
-    expect(component.errorMessage).toBe('File size too large! Must be under 3MB.');
-  });
-
-  it('dropped should ignore directory entries', () => {
-    spyOn(console, 'log');
-    const directoryEntry = {
-      relativePath: 'folder',
-      fileEntry: { isFile: false }
+  it('selfAttFile should derive the display file from selfAtt, stripping the uuid prefix', () => {
+    expect(component.selfAttFile).toBeNull();
+    component.selfAtt = {
+      id: 'self-att-1',
+      name: 'Compliance:SelfAtt',
+      productSpecCharacteristicValue: [{ isDefault: true, value: 'https://host/11111111-1111-1111-1111-111111111111_doc.pdf' }]
     };
-    expect(() => component.dropped([directoryEntry as any], 'ignored')).not.toThrow();
+    expect(component.selfAttFile).toEqual({ name: 'doc.pdf', url: 'https://host/11111111-1111-1111-1111-111111111111_doc.pdf', attachmentType: '' });
   });
 
-  it('isValidFilename should validate filename against the configured regex', () => {
-    expect(component.isValidFilename('valid-file_1.0.txt')).toBeTrue();
-    expect(component.isValidFilename('invalid name.txt')).toBeFalse();
+  it('onSelfAttestationChange should set and clear selfAtt', () => {
+    component.onSelfAttestationChange({ url: 'https://uploaded.file', name: 'doc.pdf' });
+    expect(component.selfAtt.name).toBe('Compliance:SelfAtt');
+    expect(component.selfAtt.productSpecCharacteristicValue[0].value).toBe('https://uploaded.file');
+
+    component.onSelfAttestationChange(null);
+    expect(component.selfAtt).toBeNull();
   });
 
-  it('fileOver, fileLeave and uploadFile should execute without side effects', () => {
-    spyOn(console, 'log');
-    component.fileOver({ type: 'over' });
-    component.fileLeave({ type: 'leave' });
-    component.uploadFile();
-    expect(console.log).toHaveBeenCalled();
+  it('additionalAttestationFiles should derive display files from additionalISOS', () => {
+    component.additionalISOS = [{ name: 'Compliance:extra.pdf', url: 'https://doc' }];
+    expect(component.additionalAttestationFiles).toEqual([{ name: 'extra.pdf', url: 'https://doc', attachmentType: '' }]);
   });
 
-  it('toggleUploadSelfAtt and toggleUploadFile should set flags and selectedISO', () => {
-    component.toggleUploadSelfAtt();
-    expect(component.showUploadFile).toBeTrue();
-    expect(component.showUploadAtt).toBeTrue();
-    component.toggleUploadFile({ name: 'ISO-A' });
-    expect(component.selectedISO).toEqual({ name: 'ISO-A' });
+  it('onComplianceAttachmentsChange should rebuild additionalISOS from uploaded files', () => {
+    component.onComplianceAttachmentsChange([{ name: 'a.pdf', url: 'https://a' }, { name: 'b.pdf', url: 'https://b' }]);
+    expect(component.additionalISOS).toEqual([{ name: 'Compliance:a.pdf', url: 'https://a' }, { name: 'Compliance:b.pdf', url: 'https://b' }]);
+    component.onComplianceAttachmentsChange([]);
+    expect(component.additionalISOS).toEqual([]);
+  });
+
+  it('downloadSelfAttestationTemplate should trigger a download link click', () => {
+    const clickSpy = jasmine.createSpy('click');
+    const anchor = { click: clickSpy } as any;
+    spyOn(document, 'createElement').and.returnValue(anchor);
+    spyOn(document.body, 'appendChild').and.callFake((n: any) => n);
+    spyOn(document.body, 'removeChild').and.callFake((n: any) => n);
+    component.downloadSelfAttestationTemplate();
+    expect(anchor.href).toContain('self-attestation-template.docx');
+    expect(clickSpy).toHaveBeenCalled();
   });
 
   it('fetchResourceSpecs should delegate to ResourceSpecServiceService', async () => {
@@ -478,28 +323,6 @@ describe('CreateProductSpecComponent', () => {
     component.prodAttachments = [{ name: 'Manual', url: 'https://manual', attachmentType: 'application/pdf' } as any];
     expect(component.prodAttachments.length).toBe(1);
     expect(component.prodAttachments[0].name).toBe('Manual');
-  });
-
-  it('saveAdditionalCert and clearAdditionalCert should manage the additional cert draft', () => {
-    component.certificationName = { nativeElement: { value: 'CustomISO' } } as any;
-    component.isoToCreate = 'https://cert.url';
-    component.showCert = true;
-    component.saveAdditionalCert();
-    expect(component.additionalISOS.length).toBe(1);
-    expect(component.additionalISOS[0].name).toBe('Compliance:CustomISO');
-    expect(component.isoToCreate).toBe('');
-    expect(component.showCert).toBeFalse();
-
-    component.certificationName = { nativeElement: { value: 'keep' } } as any;
-    component.isoToCreate = 'x';
-    component.clearAdditionalCert(true);
-    expect(component.certificationName.nativeElement.value).toBe('keep');
-    expect(component.isoToCreate).toBe('');
-
-    component.certificationName = { nativeElement: { value: 'reset' } } as any;
-    component.isoToCreate = 'y';
-    component.clearAdditionalCert(false);
-    expect(component.certificationName.nativeElement.value).toBe('');
   });
 
   it('getProdSpecsRel and nextProdSpecsRel should update relationship pagination state', async () => {
@@ -593,7 +416,6 @@ describe('CreateProductSpecComponent', () => {
     });
     component.prodSpecsBundle = [{ id: 'bundle-1' } as any];
     component.prodChars = [{ id: 'char-1', name: 'Feature', productSpecCharacteristicValue: [{ value: 'x' }] } as any];
-    component.selectedISOS = [{ name: 'Compliance:ISO-1', url: 'https://iso' }];
     component.additionalISOS = [{ name: 'Compliance:Custom', url: 'https://custom' }];
     component.prodRelationships = [{ id: 'rel-1', href: 'href-1', name: 'RelName', relationshipType: 'migration' }];
     component.prodAttachments = [{ name: 'Manual', url: 'https://doc', attachmentType: 'application/pdf' } as any];

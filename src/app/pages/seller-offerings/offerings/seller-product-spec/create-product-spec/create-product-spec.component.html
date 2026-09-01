@@ -443,318 +443,6 @@
     </ng-template>
     }
 
-    <ng-template stepperStep="Compliance profile" stepId="compliance">
-      <div class="flex flex-col gap-5">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._compliance_step' |
-            translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._compliance_desc' | translate }}
-          </p>
-        </div>
-        <h3 class="font-bold text-primary-100 dark:text-primary-50 text-left ml-4">
-          {{ 'CREATE_PROD_SPEC._self_attestation' | translate }}
-        </h3>
-        <div
-          class="flex items-center justify-between ml-4 border border-1 p-2 rounded-lg shadow bg-white dark:bg-secondary-200 shadow-md">
-
-          <p class="mb-2 text-gray-800 dark:text-gray-200">
-            {{ selfAtt ? selfAtt.productSpecCharacteristicValue[0].value : 'Upload your self attestation document' }}
-          </p>
-
-          <div class="flex items-center justify-between">
-            <button data-cy="productSpecUploadFirst" (click)="toggleUploadSelfAtt();$event.stopPropagation();"
-              type="button"
-              class="text-white file-select-button mr-4 bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center">
-              <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                height="24" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M12 5v9m-5 0H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2M8 9l4-5 4 5m1 8h.01" />
-              </svg>
-            </button>
-            @if(selfAtt){
-            <button (click)="removeSelfAtt()" type="button"
-              class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center">
-              <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                height="24" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M6 18 17.94 6M18 18 6.06 6" />
-              </svg>
-            </button>
-            }
-          </div>
-
-        </div>
-        @if(availableISOS.length>0){
-        <button id="dropdownButtonISO" (click)="buttonISOClicked=!buttonISOClicked" data-dropdown-toggle="dropdownISO"
-          class="text-white w-full m-4 bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center justify-between"
-          type="button">
-          {{ 'CREATE_PROD_SPEC._add_comp' | translate }}
-          <svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-            viewBox="0 0 10 6">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="m1 1 4 4 4-4" />
-          </svg>
-        </button>
-        @if(buttonISOClicked){
-        <!-- Dropdown menu -->
-        <div id="dropdownISO"
-          class="z-10 w-full ml-4 mr-4 bg-secondary-50 dark:bg-secondary-300 divide-y divide-gray-100 rounded-lg shadow">
-          <ul class="p-3 space-y-3 text-sm text-gray-700" aria-labelledby="dropdownButtonISO">
-            @for (iso of availableISOS; track iso;) {
-            <li>
-              <div class="flex items-center justify-between">
-                <label for="checkbox-item-1" class="ms-2 text-sm"
-                  [ngClass]="iso.domesupported == true ? 'text-primary-100 font-bold' : 'text-gray-900 dark:text-white font-medium'">
-                  {{iso.name}}
-                </label>
-                <button data-cy="productSpecCharAddISO" (click)="addISO(iso)" type="button"
-                  class="text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center">
-                  <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="18"
-                    height="18" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M5 12h14m-7 7V5" />
-                  </svg>
-                </button>
-              </div>
-            </li>
-            }
-          </ul>
-        </div>
-        }
-        }
-
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300 m-4">
-          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-              <tr>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'CREATE_PROD_SPEC._product_name' | translate }}
-                </th>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'CREATE_PROD_SPEC._value' | translate }}
-                </th>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'CREATE_PROD_SPEC._actions' | translate }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (sel of selectedISOS; track sel.name; let idx = $index) {
-              <tr
-                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                <td [ngClass]="{
-                                            'break-all': hasLongWord(sel.name, 20),
-                                            'break-words': !hasLongWord(sel.name, 20)
-                                            }" class="px-6 py-4 text-wrap break-words">
-                  {{normalizeName(sel.name)}}
-                </td>
-                <td class="px-6 py-4 text-wrap break-all">
-                  {{sel.url}}
-                  <!--<input readonly type="text" [(ngModel)]="selectedISOS[idx].url" value="{{sel.url}}" [id]="'iso-'+sel.name"
-                                            class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-2 border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" /> -->
-                </td>
-                <td class="px-6 py-4 inline-flex">
-                  <button data-cy="productSpecUploadSecond" (click)="toggleUploadFile(sel);$event.stopPropagation();"
-                    type="button"
-                    class="text-white file-select-button mr-4 bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center">
-                    <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                      height="24" fill="none" viewBox="0 0 24 24">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 5v9m-5 0H5a1 1 0 0 0-1 1v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4a1 1 0 0 0-1-1h-2M8 9l4-5 4 5m1 8h.01" />
-                    </svg>
-                  </button>
-                  <button data-cy="productSpecDeleteCompliance" (click)="removeISO(sel)" type="button"
-                    class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center">
-                    <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                      height="24" fill="none" viewBox="0 0 24 24">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M6 18 17.94 6M18 18 6.06 6" />
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-              } @empty {
-              <div class="flex justify-center w-full m-4 dark:bg-secondary-300">
-                <div
-                  class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
-                  role="alert">
-                  <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                    fill="currentColor" viewBox="0 0 20 20">
-                    <path
-                      d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-                  </svg>
-                  <span class="sr-only">Info</span>
-                  <div>
-                    {{ 'CREATE_PROD_SPEC._no_comp_profile' | translate }}
-                  </div>
-                </div>
-              </div>
-              }
-            </tbody>
-          </table>
-        </div>
-        <!-- Wrapper for button & tooltip -->
-        <div class="relative flex w-full justify-end ml-4">
-          <!-- Group container to enable hover effects -->
-          <div class="relative inline-block group">
-            <!-- Tooltip (Only exists if checkValidISOS() is true and only appears on hover) -->
-            <div *ngIf="checkValidISOS()" class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2
-                                    bg-gray-900 text-white text-xs rounded-lg p-2 shadow-lg z-50
-                                    transition-opacity duration-200 w-max max-w-xs whitespace-normal break-words
-                                    opacity-0 invisible group-hover:opacity-100 group-hover:visible">
-              {{ 'CREATE_PROD_SPEC._file_check' | translate }}
-              <!-- Tooltip Arrow -->
-              <div class="absolute left-1/2 transform -translate-x-1/2 translate-y-1 w-2 h-2 bg-gray-900 rotate-45">
-              </div>
-            </div>
-
-            <!-- Button -->
-            <!--<button data-cy="btnNext" type="button" (click)="goToStep(currentStep + 1)"
-                                    [disabled]="checkValidISOS()"
-                                    [ngClass]="checkValidISOS() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-50'"
-                                    class="flex text-white bg-primary-100 focus:ring-4 focus:outline-none
-                                        focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5
-                                        text-center inline-flex items-center">
-                                {{ 'CREATE_PROD_SPEC._next' | translate }}
-                                <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-                                </svg>
-                            </button>-->
-          </div>
-        </div>
-        @if(additionalISOS.length>0){
-        <h3 class="font-bold text-primary-100 dark:text-primary-50 text-left ml-4">
-          You added the following additional certifications:
-        </h3>
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300 m-4">
-          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-              <tr>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
-                </th>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'UPDATE_PROD_SPEC._value' | translate }}
-                </th>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'UPDATE_PROD_SPEC._actions' | translate }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (cert of additionalISOS; track cert.name; let idx = $index) {
-              <tr
-                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                <td [ngClass]="{
-                                            'break-all': hasLongWord(cert.name, 20),
-                                            'break-words': !hasLongWord(cert.name, 20)
-                                            }" class="px-6 py-4 text-wrap break-words">
-                  {{normalizeName(cert.name)}}
-                </td>
-                <td class="px-6 py-4 text-wrap break-all">
-                  {{cert.url}}
-                </td>
-                <td class="px-6 py-4 inline-flex">
-                  <button (click)="removeCert(cert)" type="button"
-                    class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center">
-                    <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                      height="24" fill="none" viewBox="0 0 24 24">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M6 18 17.94 6M18 18 6.06 6" />
-                    </svg>
-                  </button>
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
-        </div>
-        }
-        @if(showCert==false){
-        <div class="flex w-full justify-items-center justify-center">
-          <button type="button" (click)="showCert=!showCert"
-            class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
-            Add an additional certification
-            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-              fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M5 12h14m-7 7V5" />
-            </svg>
-          </button>
-        </div>
-        } @else {
-        <div class="m-4 w-full">
-          <h3 class="font-bold text-primary-100 dark:text-primary-50 text-left ml-4">
-            Add an additional certification:
-          </h3>
-          <div
-            class="lg:flex lg:grid lg:grid-cols-2 w-full gap-4 align-items-middle align-middle border border-gray-200 rounded-lg p-4">
-            <div class="h-fit">
-              <label for="cert-name" class="font-bold text-lg dark:text-white">{{ 'PROFILE._name' | translate }}</label>
-              <input #certificationName type="text" id="cert-name" [formControl]="certFileName"
-                [ngClass]="certFileName.invalid == true ? 'border-red-600' : 'border-gray-300'"
-                class="mb-2 bg-gray-50 border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-            </div>
-            @if(isoToCreate==''){
-            <ngx-file-drop class="p-4 w-full" dropZoneLabel="Drop files here" (onFileDrop)="dropped($event,'attach')"
-              (onFileOver)="fileOver($event)" (onFileLeave)="fileLeave($event)">
-              <ng-template class="w-full" ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
-                <div class="w-full flex flex-col justify-items-center justify-center">
-                  <svg class="w-12 h-12 text-primary-100 mx-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                    width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                      d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2" />
-                  </svg>
-                  <div class="flex w-full justify-center">
-                    <p class="text-gray-500 mr-2 w-fit">{{ 'UPDATE_PROD_SPEC._drop_files' | translate }}
-                      <button (click)="openFileSelector()"
-                        class="font-medium text-primary-100 dark:text-primary-50 hover:underline">{{
-                        'UPDATE_PROD_SPEC._select_files' | translate }}</button>
-                    </p>
-                  </div>
-                </div>
-              </ng-template>
-            </ngx-file-drop>
-            } @else {
-            <div
-              class="relative w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
-              role="alert">
-              <span class="sr-only">Info</span>
-              <label class="text-wrap break-all">
-                {{isoToCreate}}
-              </label>
-              <button (click)="clearAdditionalCert(true)"
-                class="z-10 absolute top-2 right-2 p-1 font-bold text-white bg-red-500 rounded-3xl">
-                <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                  viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M6 18 17.94 6M18 18 6.06 6" />
-                </svg>
-              </button>
-            </div>
-            }
-          </div>
-          <div class="flex w-full justify-items-center justify-center mt-4">
-            <button type="button" (click)="saveAdditionalCert()" [disabled]="!certFileName.valid || isoToCreate == ''"
-              [ngClass]="!certFileName.valid || isoToCreate == '' ? 'opacity-50' : 'hover:bg-primary-50'"
-              class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
-              Save
-              <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
-                  d="M11 16h2m6.707-9.293-2.414-2.414A1 1 0 0 0 16.586 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V7.414a1 1 0 0 0-.293-.707ZM16 20v-6a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v6h8ZM9 4h6v3a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4Z" />
-              </svg>
-            </button>
-            <button type="button" (click)="clearAdditionalCert(false);showCert=false;"
-              class="flex ml-4 text-gray-900 justify-end bg-gray-400 hover:bg-primary-50 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
-              Discard
-            </button>
-          </div>
-        </div>
-        }
-      </div>
-    </ng-template>
-
     <!-- Characteristics -->
     <ng-template stepperStep="Characteristics" stepId="characteristics">
       <div class="flex flex-col gap-5">
@@ -1134,6 +822,55 @@
       </div>
     </ng-template>
 
+    <ng-template stepperStep="Compliance profile" stepId="compliance">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._compliance_step' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._compliance_desc' | translate }}
+          </p>
+        </div>
+
+        <button type="button" (click)="downloadSelfAttestationTemplate()" data-cy="downloadSelfAttestationTemplate"
+          class="flex items-center justify-between gap-2 w-full max-w-[420px] px-4 py-3 border border-gray-200 dark:border-secondary-200 rounded-2xl hover:bg-gray-50 dark:hover:bg-secondary-300/50 transition-colors">
+          <span class="flex items-center gap-3">
+            <svg class="w-8 h-8 text-primary-100 dark:text-primary-50 shrink-0" aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8"
+              stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._self_attestation_title' | translate }}</span>
+          </span>
+          <svg class="w-5 h-5 text-primary-100 dark:text-primary-50 shrink-0" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+          </svg>
+        </button>
+
+        <div
+          class="rounded-2xl border border-gray-200 dark:border-secondary-200 bg-gray-50 dark:bg-secondary-200 p-4 sm:p-6 flex flex-col gap-6">
+          <p class="text-sm text-gray-600 dark:text-gray-300">{{ 'CREATE_PROD_SPEC._compliance_panel_desc' | translate
+            }}</p>
+
+          <div>
+            <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">{{
+              'CREATE_PROD_SPEC._upload_self_attestation' | translate }}</label>
+            <app-attachment-upload data-cy="productSpecSelfAttestation" accept=".pdf,.doc,.docx" [multiple]="false"
+              [files]="selfAttFile" (filesChange)="onSelfAttestationChange($event)" />
+          </div>
+
+          <div>
+            <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">{{
+              'CREATE_PROD_SPEC._additional_attachments' | translate }}</label>
+            <app-attachment-upload data-cy="productSpecComplianceAttachments" accept=".pdf,.doc,.docx"
+              [multiple]="true" [files]="additionalAttestationFiles" (filesChange)="onComplianceAttachmentsChange($event)" />
+          </div>
+        </div>
+      </div>
+    </ng-template>
+
     <ng-template stepperStep="Summary" stepId="summary">
       <div class="m-8 flex flex-col gap-5">
         <div>
@@ -1494,56 +1231,6 @@
   </app-stepper>
 
 </div>
-
-<!-- BILL ADDRESS DELETE modal -->
-@if (showUploadFile){
-<div id="upload-file-modal" [ngClass]="showUploadFile ? 'backdrop-blur-sm': ''" tabindex="-1" aria-hidden="true"
-  class="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-40 justify-center items-center w-full md:inset-0 h-modal md:h-full shadow-2xl">
-  <div class="relative p-4 w-full max-w-md h-full md:h-auto" (click)="$event.stopPropagation();">
-    <!-- Modal content -->
-    <div class="relative p-4 text-center bg-secondary-50 rounded-lg shadow sm:p-5">
-      <button type="button" (click)="showUploadFile=false;$event.stopPropagation();"
-        class="text-gray-400 absolute top-2.5 right-2.5 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center">
-        <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
-          xmlns="http://www.w3.org/2000/svg">
-          <path fill-rule="evenodd"
-            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-            clip-rule="evenodd"></path>
-        </svg>
-        <span class="sr-only">{{ 'CREATE_PROD_SPEC._close_modal' | translate }}</span>
-      </button>
-      <ngx-file-drop class="m-4 p-4" dropZoneLabel="Drop files here" (onFileDrop)="dropped($event,selectedISO)"
-        (onFileOver)="fileOver($event)" (onFileLeave)="fileLeave($event)">
-        <ng-template ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
-          <svg class="w-12 h-12 text-primary-100 mx-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-            width="24" height="24" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2" />
-          </svg>
-          <p class="text-gray-500 mr-4">{{ 'CREATE_PROD_SPEC._drop_files' | translate }}
-            <button data-cy="productSpecSelectFile" (click)="openFileSelector()"
-              class="font-medium text-primary-100 dark:text-primary-50 hover:underline">{{
-              'CREATE_PROD_SPEC._select_files' | translate }}</button>
-          </p>
-        </ng-template>
-      </ngx-file-drop>
-
-
-      <div class="flex justify-center items-center space-x-4">
-        <button data-cy="productSpecCancelUpload" (click)="showUploadFile=false;$event.stopPropagation();" type="button"
-          class="py-2 px-3 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10">
-          {{ 'CREATE_PROD_SPEC._cancel' | translate }}
-        </button>
-        <button data-cy="productSpecConfirmUpload" (click)="uploadFile()" type="submit"
-          class="py-2 px-3 text-sm font-medium text-center text-white bg-primary-100 hover:bg-primary-50 rounded-lg focus:ring-4 focus:outline-none focus:ring-primary-50">
-          {{ 'CREATE_PROD_SPEC._upload' | translate }}
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
-
-}
 
 @if(itemModal.type){
 <div (click)="closeItemModal()" class="fixed inset-0 z-50 flex items-center justify-center px-4"

@@ -1523,7 +1523,9 @@
     "_self_attestation": "Self Attestation:",
     "_close_modal": "Close modal",
     "_cancel": "Cancel",
-    "_upload": "Upload"
+    "_upload": "Upload",
+    "_request_validation_disabled": "Request Validation is disabled because the compliance profile has unsaved changes. Update the product first.",
+    "_existing_certifications": "Existing certifications"
   },
   "CREATE_RES_SPEC": {
     "_back": "Back",

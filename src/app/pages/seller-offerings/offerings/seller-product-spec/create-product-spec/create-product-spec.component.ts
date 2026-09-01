@@ -1,23 +1,19 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, DoCheck, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateService } from '@ngx-translate/core';
-import { initFlowbite } from 'flowbite';
 import moment from 'moment';
-import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IconCategory, POPULAR_ICON_CATEGORIES, findIconByName } from 'src/app/config/popular-icons';
-import { certifications } from 'src/app/models/certification-standards.const';
 import { FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
-import { AttachmentServiceService } from "src/app/services/attachment-service.service";
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { PaginationService } from 'src/app/services/pagination.service';
@@ -151,16 +147,8 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   prodSpecsBundle: BundledProductSpecification[] = [];
 
   //COMPLIANCE PROFILE INFO:
-  buttonISOClicked: boolean = false;
-  availableISOS: any[] = [];
-  selectedISOS: any[] = [];
   additionalISOS: any[] = [];
-  selectedISO: any;
-  showUploadFile: boolean = false;
   selfAtt: any;
-  showUploadAtt: boolean = false;
-  isoToCreate: string = '';
-  showCert: boolean = false;
 
   //SERVICE INFO:
   defaultServSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
@@ -223,7 +211,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
   //ATTACHMENT INFO
   prodAttachments: AttachmentRefOrValue[] = [];
-  certFileName = new FormControl('', [Validators.required, Validators.pattern('[a-zA-Z0-9 _.-]*')]);
 
   //FINAL PRODUCT USING API CALL STRUCTURE
   productSpecToCreate: ProductSpecification_Create | undefined;
@@ -243,7 +230,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     'authorizationPolicy'
   ];
 
-  filenameRegex = /^[A-Za-z0-9_.-]+$/;
   private destroy$ = new Subject<void>();
 
   get dspEnable(): boolean {
@@ -274,9 +260,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     if (this.currentStepId === 'bundle') {
       return !(this.bundleChecked && this.prodSpecsBundle.length < 2);
     }
-    if (this.currentStepId === 'compliance') {
-      return !this.checkValidISOS();
-    }
     if (this.currentStepId === 'relationships' && this.templateName === 'BlueprintProductSpecification') {
       return this.prodRelationships.length > 0;
     }
@@ -299,7 +282,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
-    private attachmentService: AttachmentServiceService,
     private servSpecService: ServiceSpecServiceService,
     private resSpecService: ResourceSpecServiceService,
     private paginationService: PaginationService,
@@ -307,9 +289,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     private router: Router,
     private translate: TranslateService,
   ) {
-    for (let i = 0; i < certifications.length; i++) {
-      this.availableISOS.push(certifications[i])
-    }
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
       .subscribe(ev => {
@@ -318,17 +297,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
         }
       })
   }
-
-  @HostListener('document:click')
-  onClick() {
-    if (this.showUploadFile == true) {
-      this.showUploadFile = false;
-      this.cdr.detectChanges();
-    }
-  }
-
-  @ViewChild('certificationName') certificationName!: ElementRef;
-
 
   ngOnInit() {
     this.initPartyInfo();
@@ -522,9 +490,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
       case 'dataspace':
         this.characteristicItems = this.buildCharacteristicItems();
         break;
-      case 'compliance':
-        setTimeout(() => { initFlowbite(); }, 100);
-        break;
       case 'relationships':
         this.getProdSpecsRel(false);
         break;
@@ -614,73 +579,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     }
   }
 
-  addISO(iso: any) {
-    const index = this.availableISOS.findIndex(item => item.name === iso.name);
-    if (index !== -1) {
-      console.log('seleccionar')
-      this.availableISOS.splice(index, 1);
-      this.selectedISOS.push({ name: 'Compliance:' + iso.name, url: '', mandatory: iso.mandatory, domesupported: iso.domesupported });
-    }
-    this.buttonISOClicked = !this.buttonISOClicked;
-    this.cdr.detectChanges();
-    console.log(this.availableISOS)
-    console.log(this.selectedISOS)
-  }
-
-  removeISO(iso: any) {
-    const cleanedName = iso.name
-      .replace('Compliance:', '')
-      .trim();
-    const index = this.selectedISOS.findIndex(item => item.name === iso.name);
-    if (index !== -1) {
-      console.log('seleccionar')
-      this.selectedISOS.splice(index, 1);
-      this.availableISOS.push({ name: cleanedName, mandatory: iso.mandatory, domesupported: iso.domesupported });
-
-      //if (iso.name in this.verifiedISO) {
-      //  delete this.verifiedISO[iso.name]
-      //}
-    }
-    this.cdr.detectChanges();
-    console.log(this.prodSpecsBundle)
-  }
-
-  removeCert(iso: any) {
-    const index = this.additionalISOS.findIndex(item => item.name === iso.name);
-    if (index !== -1) {
-      console.log('eliminar additional cert')
-      this.additionalISOS.splice(index, 1);
-      console.log(this.additionalISOS)
-    }
-    this.cdr.detectChanges();
-  }
-
-  removeSelfAtt() {
-    console.log('remove self att')
-    console.log(this.selfAtt)
-    const index = this.finishChars.findIndex(item => item.name === this.selfAtt.name);
-    console.log(index)
-    if (index !== -1) {
-      console.log('seleccionar')
-      this.finishChars.splice(index, 1);
-    }
-    this.selfAtt = '';
-    this.cdr.detectChanges();
-    console.log(this.finishChars)
-  }
-
-  checkValidISOS(): boolean {
-    let invalid = this.selectedISOS.find((p => {
-      return p.url === ''
-    }));
-    if (invalid) {
-      return true;
-    } else {
-      return false;
-    }
-
-  }
-
   private hasSelfAttestation(): boolean {
     const selfAttestationValue = this.selfAtt?.productSpecCharacteristicValue?.[0]?.value;
     if (typeof selfAttestationValue === 'string') {
@@ -689,163 +587,42 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     return !!selfAttestationValue;
   }
 
-  public dropped(files: NgxFileDropEntry[], sel: any) {
-    for (const droppedFile of files) {
-
-      // Is it a file?
-      if (droppedFile.fileEntry.isFile) {
-        const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
-        fileEntry.file((file: File) => {
-          console.log('dropped')
-
-          if (file) {
-            const reader = new FileReader();
-            reader.onload = (e: any) => {
-              const base64String: string = e.target.result.split(',')[1];
-              console.log('BASE 64....')
-              console.log(base64String); // You can use this base64 string as needed
-              let fileBody = {
-                content: {
-                  name: uuidv4() + '_' + file.name,
-                  data: base64String
-                },
-                contentType: file.type,
-                isPublic: true
-              }
-              if (!this.isValidFilename(fileBody.content.name)) {
-                this.errorMessage = 'File names can only include alphabetical characters (A-Z, a-z) and a limited set of symbols, such as underscores (_), hyphens (-), and periods (.)';
-                console.error('There was an error while uploading file!');
-                this.showError = true;
-                setTimeout(() => {
-                  this.showError = false;
-                }, 3000);
-                return;
-              }
-              //IF FILES ARE HIGHER THAN 3MB THROW AN ERROR
-              if (file.size > this.MAX_FILE_SIZE) {
-                this.errorMessage = 'File size must be under 3MB.';
-                console.error('There was an error while uploading file!');
-                this.showError = true;
-                setTimeout(() => {
-                  this.showError = false;
-                }, 3000);
-                return;
-              }
-              if (this.currentStepId === 'compliance' && !this.showUploadAtt) {
-                const index = this.selectedISOS.findIndex(item => item.name === sel.name);
-                this.attachmentService.uploadFile(fileBody).subscribe({
-                  next: data => {
-                    if (index !== -1) {
-                      this.selectedISOS[index].url = data.content;
-                      //this.selectedISOS[index].attachmentType=file.type;
-                      this.showUploadFile = false;
-                      this.cdr.detectChanges();
-                      console.log('uploaded')
-                    } else {
-                      this.isoToCreate = data.content;
-                    }
-                  },
-                  error: error => {
-                    console.error('There was an error while uploading the file!', error);
-                    if (error.error.error) {
-                      console.log(error)
-                      this.errorMessage = 'Error: ' + error.error.error;
-                    } else {
-                      this.errorMessage = 'There was an error while uploading the file!';
-                    }
-                    if (error.status === 413) {
-                      this.errorMessage = 'File size too large! Must be under 3MB.';
-                    }
-                    this.showError = true;
-                    setTimeout(() => {
-                      this.showError = false;
-                    }, 3000);
-                  }
-                });
-              }
-              if (this.currentStepId === 'compliance' && this.showUploadAtt) {
-                const index = this.finishChars.findIndex(item => item.name === this.selfAtt.name);
-                this.attachmentService.uploadFile(fileBody).subscribe({
-                  next: data => {
-                    console.log(data)
-                    if (index !== -1) {
-                      this.selfAtt.productSpecCharacteristicValue = [{
-                        isDefault: true,
-                        value: data.content
-                      }];
-                      this.finishChars[index] = this.selfAtt;
-                    } else {
-                      this.selfAtt = {
-                        id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
-                        name: 'Compliance:SelfAtt',
-                        productSpecCharacteristicValue: [{
-                          isDefault: true,
-                          value: data.content
-                        }]
-                      }
-                      this.finishChars.push(this.selfAtt)
-                    }
-                    this.showUploadFile = false;
-                    this.showUploadAtt = false;
-                    this.cdr.detectChanges();
-                    console.log('uploaded')
-                  },
-                  error: error => {
-                    console.error('There was an error while uploading the file!', error);
-                    if (error.error.error) {
-                      console.log(error)
-                      this.errorMessage = 'Error: ' + error.error.error;
-                    } else {
-                      this.errorMessage = 'There was an error while uploading the file!';
-                    }
-                    if (error.status === 413) {
-                      this.errorMessage = 'File size too large! Must be under 3MB.';
-                    }
-                    this.showError = true;
-                    setTimeout(() => {
-                      this.showError = false;
-                    }, 3000);
-                  }
-                });
-              }
-            };
-            reader.readAsDataURL(file);
-          }
-
-        });
-      } else {
-        // It was a directory (empty directories are added, otherwise only files)
-        const fileEntry = droppedFile.fileEntry as FileSystemDirectoryEntry;
-        console.log(droppedFile.relativePath, fileEntry);
-      }
-    }
+  /** Backing value for the self-attestation app-attachment-upload field. */
+  get selfAttFile(): any {
+    const url = this.selfAtt?.productSpecCharacteristicValue?.[0]?.value;
+    return url ? { name: this.filenameFromComplianceUrl(url), url, attachmentType: '' } : null;
   }
 
-  isValidFilename(filename: string): boolean {
-    return this.filenameRegex.test(filename);
+  onSelfAttestationChange(file: any): void {
+    this.selfAtt = file ? {
+      id: this.selfAtt?.id || ('urn:ngsi-ld:characteristic:' + uuidv4()),
+      name: 'Compliance:SelfAtt',
+      productSpecCharacteristicValue: [{ isDefault: true, value: file.url }]
+    } : null;
   }
 
-  public fileOver(event: any) {
-    console.log(event);
+  /** Backing value for the additional-attachments app-attachment-upload field. */
+  get additionalAttestationFiles(): any[] {
+    return this.additionalISOS.map(c => ({ name: this.normalizeName(c.name), url: c.url, attachmentType: '' }));
   }
 
-  public fileLeave(event: any) {
-    console.log('leave')
-    console.log(event);
+  onComplianceAttachmentsChange(files: any[]): void {
+    this.additionalISOS = (files || []).map(f => ({ name: 'Compliance:' + f.name, url: f.url }));
   }
 
-  toggleUploadSelfAtt() {
-    this.showUploadFile = true;
-    this.showUploadAtt = true;
+  downloadSelfAttestationTemplate(): void {
+    const link = document.createElement('a');
+    link.href = 'assets/documents/self-attestation-template.docx';
+    link.download = 'self-attestation-template.docx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 
-  toggleUploadFile(sel: any) {
-    this.showUploadFile = true;
-    this.selectedISO = sel;
-  }
-
-  uploadFile() {
-    console.log('uploading...')
+  private filenameFromComplianceUrl(url: string): string {
+    const last = url.split('/').pop() || url;
+    const match = last.match(/^[0-9a-f-]{36}_(.+)$/i);
+    return match ? match[1] : last;
   }
 
   fetchResourceSpecs = (params: PageRequest): Promise<PageResult<any>> => {
@@ -854,27 +631,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
   fetchServiceSpecs = (params: PageRequest): Promise<PageResult<any>> => {
     return this.servSpecService.getServiceSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId);
-  }
-
-
-  saveAdditionalCert() {
-    console.log('saving')
-    this.additionalISOS.push({
-      name: 'Compliance:' + this.certificationName.nativeElement.value,
-      url: this.isoToCreate
-    })
-    this.certificationName.nativeElement.value = '';
-    this.isoToCreate = '';
-    this.certFileName.reset();
-    this.showCert = false;
-  }
-
-  clearAdditionalCert(urlonly: boolean) {
-    if (!urlonly) {
-      this.certificationName.nativeElement.value = '';
-      this.certFileName.reset();
-    }
-    this.isoToCreate = '';
   }
 
   async getProdSpecsRel(next: boolean) {
@@ -995,47 +751,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     for (let i = 0; i < this.prodChars.length; i++) {
       const index = this.finishChars.findIndex(item => item.name === this.prodChars[i].name);
       if (index == -1) {
-        const cleanedName = this.prodChars[i]?.name
-          ?.replace('Compliance:', '')
-          .trim();
-
-        const checkIso = this.availableISOS.findIndex(
-          item => item.name === cleanedName
-        );
-        if (checkIso == -1) {
-          if (this.prodChars[i].name != 'Compliance:SelfAtt') {
-            console.log('--- check if deleted additional cert')
-            console.log(this.prodChars[i].name)
-            const checkAdditional = this.additionalISOS.findIndex(
-              item => item.name === cleanedName
-            );
-            if (checkAdditional != -1) {
-              this.finishChars.push(this.prodChars[i])
-            }
-            if (!this.prodChars[i].name?.startsWith('Compliance:')) {
-              this.finishChars.push(this.prodChars[i])
-            }
-          } else {
-            this.finishChars.push(this.prodChars[i])
-          }
-        } else {
-          this.finishChars.push(this.prodChars[i])
-        }
-
-      }
-    }
-    // Load compliance profile
-    for (let i = 0; i < this.selectedISOS.length; i++) {
-      const index = this.finishChars.findIndex(item => item.name === this.selectedISOS[i].name);
-      if (index == -1) {
-        this.finishChars.push({
-          id: 'urn:ngsi-ld:characteristic:' + uuidv4(),
-          name: this.selectedISOS[i].name,
-          productSpecCharacteristicValue: [{
-            isDefault: true,
-            value: this.selectedISOS[i].url
-          }]
-        })
+        this.finishChars.push(this.prodChars[i])
       }
     }
 
