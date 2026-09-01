@@ -43,18 +43,20 @@ ngx-file-drop .ngx-file-drop__drop-zone {
   /* your theme color */
 }
 
-/* app-table-input theme tokens. Defined here (not on the component's own :host)
-   so any theme can override them directly by redeclaring these on body/.dark body
-   — a component-scoped :host declaration would always win over an outside
-   override, since it's closer to the consuming elements than anything in a
-   global stylesheet could be. */
+/* app-table-input / app-button theme tokens. Defined here (not on the component's
+   own :host) so any theme can override them directly by redeclaring these on
+   body/.dark body — a component-scoped :host declaration would always win over
+   an outside override, since it's closer to the consuming elements than anything
+   in a global stylesheet could be. */
 body {
   /* General page background, replacing the old bg-[#F7F9FD] dark:bg-secondary-300 pattern. */
   --theme-page-bg: #F7F9FD;
   background-color: var(--theme-page-bg);
   /* Text color for elements that only rely on inherited/default color (e.g. the
-     stepper's not-yet-reached step number), so they stay legible in dark mode. */
-  --theme-stepper-text: rgb(0 0 0);
+     stepper's not-yet-reached step number, or a table's empty-state message),
+     so they stay legible in dark mode. Unlike --theme-primary-text, this is not
+     meant to sit on top of a primary-colored surface. */
+  --theme-default-text: rgb(0 0 0);
   --table-bg: #fff;
   --table-text: rgb(107 114 128);
   /* gray-500 */
@@ -65,7 +67,7 @@ body {
   --table-row-border-color: rgb(var(--theme-primary-50) / 40%);
   --table-row-hover-bg: rgb(var(--theme-secondary-50));
   --table-row-selected-bg: rgb(var(--theme-secondary-50));
-  --table-empty-text: var(--theme-primary-text);
+  --table-empty-text: var(--theme-default-text);
   --table-action-bg: rgb(var(--theme-primary-100));
   --table-action-hover-bg: rgb(var(--theme-primary-50));
   --table-action-text: var(--theme-primary-text);
@@ -90,11 +92,43 @@ body {
   /* gray-100 */
   --md-toolbar-icon-hover: #111827;
   /* gray-900 */
+
+  /* app-button theme tokens */
+  --button-primary-bg: rgb(var(--theme-primary-100));
+  --button-primary-bg-hover: rgb(var(--theme-primary-50));
+  --button-primary-text: var(--theme-primary-text);
+  --button-primary-ring: rgb(var(--theme-primary-50) / 30%);
+  --button-secondary-bg: #fff;
+  --button-secondary-bg-hover: #f9fafb;
+  /* gray-50 */
+  --button-secondary-text: rgb(55 65 81);
+  /* gray-700 */
+  --button-secondary-border: rgb(209 213 219);
+  /* gray-300 */
+  --button-secondary-ring: rgb(209 213 219 / 50%);
+  --button-danger-bg: rgb(220 38 38);
+  /* red-600 */
+  --button-danger-bg-hover: rgb(185 28 28);
+  /* red-700 */
+  --button-danger-text: #fff;
+  --button-danger-ring: rgb(252 165 165 / 50%);
+  /* red-300 */
+  --button-link-text: rgb(var(--theme-primary-100));
+  --button-link-text-hover: rgb(var(--theme-primary-50));
+}
+
+/* bae's --theme-primary-50 was deliberately darkened (see "update stepper theme
+   and back padding") so white text stays readable on the stepper's completed-step
+   circle. The button's hover state wants task/dev-merge's original, brighter
+   green instead, so it gets its own override here rather than touching the
+   shared theme token. */
+body.theme-bae {
+  --button-primary-bg-hover: rgb(0 196 140);
 }
 
 .dark body {
   --theme-page-bg: #1e1e1e;
-  --theme-stepper-text: rgb(255 255 255);
+  --theme-default-text: rgb(255 255 255);
   --md-toolbar-bg: rgb(var(--theme-secondary-300));
   --md-toolbar-border: rgb(var(--theme-secondary-200));
   --md-toolbar-icon: rgb(209 213 219);
@@ -110,7 +144,17 @@ body {
   --table-row-border-color: rgb(var(--theme-secondary-200));
   --table-row-hover-bg: rgb(var(--theme-secondary-400));
   --table-row-selected-bg: rgb(var(--theme-primary-100) / 20%);
-  --table-empty-text: var(--theme-primary-text);
+  --table-empty-text: var(--theme-default-text);
+
+  --button-secondary-bg: rgb(var(--theme-secondary-300));
+  --button-secondary-bg-hover: rgb(var(--theme-secondary-200));
+  --button-secondary-text: rgb(209 213 219);
+  /* gray-300 */
+  --button-secondary-border: rgb(55 65 81);
+  /* gray-700 */
+  --button-secondary-ring: rgb(var(--theme-secondary-100) / 50%);
+  --button-link-text: rgb(var(--theme-primary-50));
+  --button-link-text-hover: rgb(var(--theme-primary-100));
 }
 
 /* Default styles for Markdown elements */

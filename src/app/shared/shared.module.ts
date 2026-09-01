@@ -7,6 +7,7 @@ import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { RouterLink } from "@angular/router";
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ButtonComponent } from './button/button.component';
 import { CartDrawerComponent } from "./cart-drawer/cart-drawer.component";
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
 import { CategoriesPanelComponent } from "./categories-panel/categories-panel.component";
@@ -39,7 +40,8 @@ const SHARED_MODULES = [
 const STANDALONE_IMPORTS = [
   CategoriesPanelComponent,
   RouterLink,
-  LoadingSpinnerComponent
+  LoadingSpinnerComponent,
+  ButtonComponent
 ];
 
 

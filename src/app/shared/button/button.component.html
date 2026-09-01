@@ -1,0 +1,10 @@
+<button class="app-button" [type]="type" [disabled]="disabled" [attr.data-cy]="dataCy || null"
+  [attr.data-variant]="variant" [attr.data-size]="size">
+  @if (icon && iconPosition === 'prefix') {
+  <fa-icon [icon]="icon" />
+  }
+  <ng-content></ng-content>
+  @if (icon && iconPosition === 'suffix') {
+  <fa-icon [icon]="icon" />
+  }
+</button>

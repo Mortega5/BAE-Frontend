@@ -1,0 +1,64 @@
+/* --button-* variables are defined globally in styles.css (body / .dark body) so
+   any theme can override them directly. Everything below only consumes them. */
+
+.app-button {
+  @apply inline-flex items-center justify-center gap-2 font-semibold rounded-lg border transition-colors focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed;
+  border-color: transparent;
+
+  &[data-size="sm"] {
+    @apply h-9 px-3 text-sm;
+  }
+
+  &[data-size="md"] {
+    @apply px-5 py-2.5 text-sm;
+  }
+
+  &[data-variant="primary"] {
+    color: var(--button-primary-text);
+    background-color: var(--button-primary-bg);
+
+    &:hover:not(:disabled) {
+      background-color: var(--button-primary-bg-hover);
+    }
+
+    &:focus {
+      --tw-ring-color: var(--button-primary-ring);
+    }
+  }
+
+  &[data-variant="secondary"] {
+    color: var(--button-secondary-text);
+    background-color: var(--button-secondary-bg);
+    border-color: var(--button-secondary-border);
+
+    &:hover:not(:disabled) {
+      background-color: var(--button-secondary-bg-hover);
+    }
+
+    &:focus {
+      --tw-ring-color: var(--button-secondary-ring);
+    }
+  }
+
+  &[data-variant="danger"] {
+    color: var(--button-danger-text);
+    background-color: var(--button-danger-bg);
+
+    &:hover:not(:disabled) {
+      background-color: var(--button-danger-bg-hover);
+    }
+
+    &:focus {
+      --tw-ring-color: var(--button-danger-ring);
+    }
+  }
+
+  &[data-variant="link"] {
+    color: var(--button-link-text);
+    background-color: transparent;
+
+    &:hover:not(:disabled) {
+      color: var(--button-link-text-hover);
+    }
+  }
+}
