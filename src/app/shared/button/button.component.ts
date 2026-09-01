@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'link';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'link' | 'ghost';
 export type ButtonSize = 'sm' | 'md';
 export type ButtonIconPosition = 'prefix' | 'suffix';
 

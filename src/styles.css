@@ -115,6 +115,13 @@ body {
   /* red-300 */
   --button-link-text: rgb(var(--theme-primary-100));
   --button-link-text-hover: rgb(var(--theme-primary-50));
+  --button-ghost-text: rgb(156 163 175);
+  /* gray-400 */
+  --button-ghost-text-hover: rgb(17 24 39);
+  /* gray-900 */
+  --button-ghost-bg-hover: rgb(229 231 235);
+  /* gray-200 */
+  --button-ghost-ring: rgb(156 163 175 / 50%);
 }
 
 /* bae's --theme-primary-50 was deliberately darkened (see "update stepper theme
@@ -155,6 +162,10 @@ body.theme-bae {
   --button-secondary-ring: rgb(var(--theme-secondary-100) / 50%);
   --button-link-text: rgb(var(--theme-primary-50));
   --button-link-text-hover: rgb(var(--theme-primary-100));
+  --button-ghost-text-hover: #fff;
+  --button-ghost-bg-hover: rgb(75 85 99);
+  /* gray-600 */
+  --button-ghost-ring: rgb(var(--theme-secondary-100) / 50%);
 }
 
 /* Default styles for Markdown elements */

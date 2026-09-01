@@ -61,4 +61,18 @@
       color: var(--button-link-text-hover);
     }
   }
+
+  &[data-variant="ghost"] {
+    color: var(--button-ghost-text);
+    background-color: transparent;
+
+    &:hover:not(:disabled) {
+      color: var(--button-ghost-text-hover);
+      background-color: var(--button-ghost-bg-hover);
+    }
+
+    &:focus {
+      --tw-ring-color: var(--button-ghost-ring);
+    }
+  }
 }

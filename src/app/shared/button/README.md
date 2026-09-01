@@ -12,6 +12,8 @@ Adopt it incrementally when touching a file for another reason; it's not meant t
 <app-button variant="danger" size="sm" [disabled]="loading" (click)="remove()">
   {{ 'NS._delete' | translate }}
 </app-button>
+
+<app-button variant="ghost" size="sm" [icon]="faXmark" dataCy="closeModal" (click)="close()" />
 ```
 
 ## Theming
@@ -37,6 +39,12 @@ Each variable has a default on `body` (light) and, where it differs, an override
 | `--button-danger-ring` | `danger` focus ring color | `rgb(252 165 165 / 50%)` (red-300) | *(inherits)* |
 | `--button-link-text` | `link` text color | `rgb(var(--theme-primary-100))` | `rgb(var(--theme-primary-50))` |
 | `--button-link-text-hover` | `link` hover text color | `rgb(var(--theme-primary-50))` | `rgb(var(--theme-primary-100))` |
+| `--button-ghost-text` | `ghost` text/icon color | `rgb(156 163 175)` (gray-400) | *(inherits)* |
+| `--button-ghost-text-hover` | `ghost` hover text/icon color | `rgb(17 24 39)` (gray-900) | `#fff` |
+| `--button-ghost-bg-hover` | `ghost` hover background | `rgb(229 231 235)` (gray-200) | `rgb(75 85 99)` (gray-600) |
+| `--button-ghost-ring` | `ghost` focus ring color | `rgb(156 163 175 / 50%)` | `rgb(var(--theme-secondary-100) / 50%)` |
+
+`link` vs `ghost` — they're easy to confuse: `link` never gets a background, even on hover, only its text color changes, and it's meant for text CTAs ("Back", "See more"). `ghost` is transparent at rest but gets a background on hover (a Material-Design-style "state layer"), and it's meant for icon-only buttons (a modal's "×" close button, a bare row action) where a hover-only background is what signals "this is clickable" — a `link`-styled icon button wouldn't look interactive at all.
 
 `danger` is intentionally not wired to any theme token — no button in the app (before or after this component) ever varied its red by theme, so it stays a plain fixed color. Everything else builds on `--theme-primary-*`/`--theme-secondary-*`/`--theme-primary-text` (defined per theme in `src/app/themes/*.theme.scss`), so switching the app theme (bae/dome) updates it automatically.
 
@@ -46,7 +54,7 @@ Each variable has a default on `body` (light) and, where it differs, an override
 
 | Name | Type | Default | Description |
 |---|---|---|---|
-| `variant` | `'primary' \| 'secondary' \| 'danger' \| 'link'` | `'primary'` | Visual style — see the table above for each variant's tokens |
+| `variant` | `'primary' \| 'secondary' \| 'danger' \| 'link' \| 'ghost'` | `'primary'` | Visual style — see the table above for each variant's tokens |
 | `size` | `'sm' \| 'md'` | `'md'` | Padding/height |
 | `type` | `'button' \| 'submit'` | `'button'` | Native `<button>` type |
 | `disabled` | `boolean` | `false` | Native disabled state |
