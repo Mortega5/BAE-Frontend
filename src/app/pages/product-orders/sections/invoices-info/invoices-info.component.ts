@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChil
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faDownload, faEdit, faSave } from "@fortawesome/pro-solid-svg-icons";
+import { faDownload, faEdit, faSave, faXmark } from "@fortawesome/pro-solid-svg-icons";
 import { TranslateModule } from '@ngx-translate/core';
 import { initFlowbite } from 'flowbite';
 import moment from 'moment';
@@ -18,13 +18,14 @@ import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
 import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/paginated-table.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-invoices-info',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule, FormsModule,
-    PaginatedTableComponent, LoadingSpinnerComponent
+    PaginatedTableComponent, LoadingSpinnerComponent, ButtonComponent
   ],
   providers: [DatePipe],
   templateUrl: './invoices-info.component.html',
@@ -32,6 +33,7 @@ import { environment } from 'src/environments/environment';
 })
 export class InvoicesInfoComponent implements OnInit, OnDestroy {
   readonly productInventoryPaths = ProductInventoryPaths;
+  protected readonly faXmark = faXmark;
 
   partyId: any = '';
   showInvoiceDetails: boolean = false;

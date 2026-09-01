@@ -15,7 +15,7 @@ import { initFlowbite } from 'flowbite';
 import {EventMessageService} from "src/app/services/event-message.service";
 import moment from 'moment';
 import { environment } from 'src/environments/environment';
-import {faIdCard, faSort, faSwatchbook} from "@fortawesome/pro-solid-svg-icons";
+import {faIdCard, faSort, faSwatchbook, faXmark} from "@fortawesome/pro-solid-svg-icons";
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -26,6 +26,8 @@ import { takeUntil } from 'rxjs/operators';
 })
 
 export class OrderInfoComponent implements OnInit, OnDestroy {
+  protected readonly faXmark = faXmark;
+
   loading: boolean = false;
   orders:any[]=[];
   nextOrders:any[]=[];

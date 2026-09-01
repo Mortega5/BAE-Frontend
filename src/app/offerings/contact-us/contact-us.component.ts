@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import {faAtom} from "@fortawesome/pro-regular-svg-icons";
+import { faXmark } from "@fortawesome/pro-solid-svg-icons";
 import { Router } from '@angular/router';
 
 @Component({
@@ -9,6 +10,7 @@ import { Router } from '@angular/router';
 })
 export class ContactUsComponent {
   protected readonly faAtom = faAtom;
+  protected readonly faXmark = faXmark;
 
   constructor(
     private router: Router,

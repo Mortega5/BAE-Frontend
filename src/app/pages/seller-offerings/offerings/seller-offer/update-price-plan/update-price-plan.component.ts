@@ -1,5 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, HostListener, ElementRef, ViewChild, Input, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import {components} from "src/app/models/product-catalog";
 import { environment } from 'src/environments/environment';
 import { ApiServiceService } from 'src/app/services/product-service.service';
@@ -27,6 +28,8 @@ import { takeUntil } from 'rxjs/operators';
   styleUrl: './update-price-plan.component.css'
 })
 export class UpdatePricePlanComponent implements OnInit, OnDestroy {
+
+  protected readonly faXmark = faXmark;
 
   //currencies=currencies;
   //Only allowing EUR for the moment

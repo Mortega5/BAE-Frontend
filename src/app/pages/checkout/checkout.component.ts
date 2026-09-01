@@ -9,7 +9,7 @@ import {ApiServiceService} from "../../services/product-service.service";
 import {ActivatedRoute, Router} from "@angular/router";
 import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.paths';
 import {billingAccountCart, cartProduct, LoginInfo} from "../../models/interfaces";
-import {faCartShopping} from "@fortawesome/sharp-solid-svg-icons";
+import {faCartShopping, faXmark} from "@fortawesome/sharp-solid-svg-icons";
 import {environment} from "../../../environments/environment";
 import {TYPES} from "../../models/types.const";
 import {AccountServiceService} from "../../services/account-service.service";
@@ -32,6 +32,7 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class CheckoutComponent implements OnInit, OnDestroy {
   protected readonly faCartShopping = faCartShopping;
+  protected readonly faXmark = faXmark;
   public static BASE_URL: String = environment.BASE_URL;
   PURCHASE_ENABLED: boolean = environment.PURCHASE_ENABLED;
   TAX_RATE: number = environment.TAX_RATE;

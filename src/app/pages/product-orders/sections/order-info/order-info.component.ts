@@ -39,6 +39,8 @@ type ProductOffering = components["schemas"]["ProductOffering"];
   styleUrl: './order-info.component.css'
 })
 export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
+  protected readonly faXmark = faXmark;
+
   profile: any;
   partyId: any = '';
   showOrderDetails: boolean = false;

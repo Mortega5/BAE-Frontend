@@ -19,6 +19,8 @@ type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
 import { FormsModule } from '@angular/forms';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
+import { ButtonComponent } from "../button/button.component";
+import { faXmark } from "@fortawesome/pro-solid-svg-icons";
 
 
 @Component({
@@ -31,12 +33,15 @@ import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.comp
     CurrencyPipe,
     ReactiveFormsModule,
     FormsModule,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    ButtonComponent
 ],
   templateUrl: './price-plan-drawer.component.html',
   styleUrl: './price-plan-drawer.component.css'
 })
 export class PricePlanDrawerComponent implements OnInit, OnDestroy {
+  protected readonly faXmark = faXmark;
+
   @Input() drawerId: string = 'drawer-default'; // ID
   @Input() productOff: Product | undefined;
   @Input() prodSpec:ProductSpecification = {};

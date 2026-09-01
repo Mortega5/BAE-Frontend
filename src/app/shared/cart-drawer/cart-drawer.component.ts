@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef, HostListener, OnDestroy } from '@angular/core';
 import {
-  faCartShopping
+  faCartShopping,
+  faXmark
 } from "@fortawesome/sharp-solid-svg-icons";
 import {components} from "../../models/product-catalog";
 import {LocalStorageService} from "../../services/local-storage.service";
@@ -24,6 +25,7 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class CartDrawerComponent implements OnInit, OnDestroy {
   protected readonly faCartShopping = faCartShopping;
+  protected readonly faXmark = faXmark;
   items: any[] = [];
   totalPrice:any;
   showBackDrop:boolean=true;
