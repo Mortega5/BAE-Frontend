@@ -36,7 +36,7 @@ type BundledProductSpecification = components["schemas"]["BundledProductSpecific
 type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecificationCharacteristic"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
 type ProductSpecFormStep = 'general' | 'productDetails' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' |
-  'relationships' | 'faqs' | 'summary' | 'orchestrationPlan' | 'dsp_config';
+  'relationships' | 'faqs' | 'orchestrationPlan' | 'dsp_config';
 
 const BASE_TEMPLATE_OPTIONS = [
   { value: '', label: 'None' },
