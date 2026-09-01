@@ -6,15 +6,9 @@
       <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ 'OFFERINGS._manage_offerings_subtitle' | translate }}</p>
     </div>
 
-    <button data-cy="createResSpec" (click)="goToCreate()" type="button"
-      class="text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center align-middle me-2">
-      <p class="pl-2 pr-2">{{ 'OFFERINGS._add_new_res' | translate }}</p>
-      <svg class="w-[18px] h-[18px] text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-        height="24" fill="none" viewBox="0 0 24 24">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M5 12h14m-7 7V5" />
-      </svg>
-    </button>
+    <app-button dataCy="createResSpec" (click)="goToCreate()" [icon]="faPlus">
+      {{ 'OFFERINGS._add_new_res' | translate }}
+    </app-button>
   </div>
   <app-filtered-paginated-table data-cy="resSpecTable" [columns]="resSpecColumns" [fetchPage]="fetchResSpecs"
     [filters]="resSpecFilters" [filterColumns]="1" [clickable]="true" (rowClick)="goToUpdate($event.id)"
