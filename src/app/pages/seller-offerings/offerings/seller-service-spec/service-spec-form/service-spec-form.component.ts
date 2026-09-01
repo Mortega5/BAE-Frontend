@@ -206,8 +206,4 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
     setTimeout(() => this.showError = false, 3000);
   }
 
-  hasLongWord(str: string | undefined, threshold = 20): boolean {
-    return str ? str.split(/\s+/).some(word => word.length > threshold) : false;
-  }
-
 }

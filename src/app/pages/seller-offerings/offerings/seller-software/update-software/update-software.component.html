@@ -34,62 +34,6 @@
         [(characteristics)]="resourceCharacteristics" />
     </ng-template>
 
-    <ng-template stepperStep="Summary" stepId="summary">
-      <div class="m-8">
-        @if (loading) {
-        <app-loading-spinner />
-        } @else {
-        <div>
-          <label class="font-bold text-lg dark:text-white">{{ 'CREATE_SOFTWARE._name' | translate }}</label>
-          <label [ngClass]="{
-                'break-all': hasLongWord(softwareToUpdate?.name, 20),
-                'break-words': !hasLongWord(softwareToUpdate?.name, 20)
-              }"
-            class="mb-2 bg-gray-50 text-wrap break-words dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-            {{ softwareToUpdate?.name }}
-          </label>
-        </div>
-
-        <div class="mb-4">
-          <label class="font-bold text-lg mr-4 dark:text-white">{{ 'CREATE_SOFTWARE._status' | translate }}</label>
-          @if (softwareToUpdate?.resourceStatus == 'standby') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-300 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">
-            {{ softwareToUpdate?.resourceStatus | titlecase }}
-          </span>
-          } @else if (softwareToUpdate?.resourceStatus == 'available') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-300 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">
-            {{ softwareToUpdate?.resourceStatus | titlecase }}
-          </span>
-          } @else if (softwareToUpdate?.resourceStatus == 'suspended') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-300 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">
-            {{ softwareToUpdate?.resourceStatus | titlecase }}
-          </span>
-          } @else if (softwareToUpdate?.resourceStatus == 'unknown') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-300 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">
-            {{ softwareToUpdate?.resourceStatus | titlecase }}
-          </span>
-          }
-        </div>
-
-        @if (softwareToUpdate?.description != '') {
-        <label class="font-bold text-lg dark:text-white">{{ 'CREATE_SOFTWARE._description' | translate }}</label>
-        <div
-          class="px-4 py-2 bg-white rounded-lg p-4 mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900">
-          <markdown [ngClass]="{
-                'break-all': hasLongWord(softwareToUpdate?.description, 20),
-                'break-words': !hasLongWord(softwareToUpdate?.description, 20)
-              }" class="bg-gray-50 text-wrap break-words dark:bg-secondary-300 dark:text-white text-gray-900"
-            [data]="softwareToUpdate?.description"></markdown>
-        </div>
-        }
-        }
-      </div>
-    </ng-template>
-
   </app-stepper>
   }
 </div>

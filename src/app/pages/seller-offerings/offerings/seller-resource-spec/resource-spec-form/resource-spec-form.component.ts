@@ -268,10 +268,6 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     setTimeout(() => this.showError = false, 3000);
   }
 
-  hasLongWord(str: string | undefined, threshold = 20): boolean {
-    return str ? str.split(/\s+/).some(word => word.length > threshold) : false;
-  }
-
   get canAdvance(): boolean {
     if (this.currentStep === 0) return this.generalForm?.valid ?? false;
     if (this.currentStep === 2) return this.templateConfigFields.length === 0 || this.templateConfigForm.valid;

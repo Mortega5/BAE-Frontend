@@ -1122,15 +1122,12 @@
     "_name": "Nombre",
     "_description": "Descripción",
     "_next": "Siguiente",
-    "_summary": "Resumen del catálogo",
-    "_summary_desc": "Revisa la información del catálogo antes de crearlo.",
     "_finish": "Finalizar",
     "_create_error": "¡Se produjo un error al crear el catálogo!"
   },
   "CREATE_SOFTWARE": {
     "_back": "Atrás",
     "_create": "Crear Software",
-    "_status": "Estado",
     "_new": "Nuevo Software",
     "_steps": "Pasos",
     "_general": "General",
@@ -1140,9 +1137,7 @@
     "_preview": "Vista previa",
     "_show_preview": "Mostrar preview",
     "_name": "Nombre",
-    "_description": "Descripcion",
     "_next": "Siguiente",
-    "_summary": "Resumen",
     "_finish": "Terminar",
     "_no_chars": "No se han añadido características",
     "_new_char": "Crear nueva características",
@@ -1178,8 +1173,6 @@
     "_name": "Nombre",
     "_description": "Descripción",
     "_next": "Siguiente",
-    "_summary": "Resumen del catálogo",
-    "_summary_desc": "Revisa la información del catálogo antes de guardar los cambios.",
     "_finish": "Finalizar",
     "_active": "Activo",
     "_launched": "Publicado",
@@ -1574,8 +1567,6 @@
     "_action": "Acción",
     "_edit": "Editar",
     "_delete": "Eliminar",
-    "_ready_title": "Tu especificación de recurso está lista",
-    "_ready_desc": "Puedes validar esta especificación de recurso para publicarla de inmediato o guardar tu progreso para finalizarla más tarde.",
     "_save_draft": "Guardar como borrador",
     "_validate_res": "Validar especificación de recurso",
     "_update_title": "Actualizar especificación de recurso",
@@ -1627,9 +1618,7 @@
     "_update_res": "Actualizar recurso",
     "_no_config": "No se requiere configuración para la plantilla seleccionada.",
     "_template_config_title": "Configuración",
-    "_template_config_subtitle": "Completa los valores de configuración definidos por la plantilla seleccionada.",
-    "_ready_title": "Tu especificación de recurso está lista",
-    "_ready_desc": "Puedes validar esta especificación de recurso para publicarla de inmediato o guardar tu progreso para terminarla más tarde."
+    "_template_config_subtitle": "Completa los valores de configuración definidos por la plantilla seleccionada."
   },
   "BLUEPRINT_PROD": {
     "_items": "Componentes",
@@ -1711,8 +1700,6 @@
     "_action": "Acción",
     "_edit": "Editar",
     "_delete": "Eliminar",
-    "_ready_title": "Tu especificación de servicio está lista",
-    "_ready_desc": "Puedes validar esta especificación de servicio para publicarla de inmediato o guardar tu progreso para terminarla más tarde.",
     "_save_draft": "Guardar como borrador",
     "_validate_serv": "Validar especificación de servicio",
     "_update_title": "Actualizar especificación de servicio",
@@ -1759,9 +1746,7 @@
     "_description": "Descripción",
     "_next": "Siguiente",
     "_finish": "Finalizar",
-    "_update_serv": "Actualizar servicio",
-    "_ready_title": "Tu especificación de servicio está lista",
-    "_ready_desc": "Puedes validar esta especificación de servicio para publicarla de inmediato o guardar tu progreso para terminarla más tarde."
+    "_update_serv": "Actualizar servicio"
   },
   "CREATE_OFFER": {
     "_back": "Atrás",

@@ -185,8 +185,4 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
       },
     });
   }
-
-  hasLongWord(str: string | undefined, threshold = 20) {
-    return str ? str.split(/\s+/).some(word => word.length > threshold) : false;
-  }
 }

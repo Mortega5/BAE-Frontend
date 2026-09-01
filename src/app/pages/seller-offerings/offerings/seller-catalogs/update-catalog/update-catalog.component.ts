@@ -159,8 +159,4 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
       },
     });
   }
-
-  hasLongWord(str: string | undefined | null, threshold = 20) {
-    return str ? str.split(/\s+/).some(word => word.length > threshold) : false;
-  }
 }

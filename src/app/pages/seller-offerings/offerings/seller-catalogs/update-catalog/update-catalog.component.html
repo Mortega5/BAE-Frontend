@@ -31,62 +31,6 @@
       </div>
     </ng-template>
 
-    <ng-template stepperStep="Summary">
-      <div class="m-8 flex flex-col gap-5">
-        <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'UPDATE_CATALOG._summary' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'UPDATE_CATALOG._summary_desc' | translate }}</p>
-        </div>
-        @if (loading) {
-        <app-loading-spinner />
-        } @else {
-        <div>
-          <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_CATALOG._name' | translate }}</label>
-          <label [ngClass]="{
-                  'break-all': hasLongWord(generalForm.value.name, 20),
-                  'break-words': !hasLongWord(generalForm.value.name, 20)
-                }"
-            class="mb-2 bg-gray-50 text-wrap break-words dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-            {{ generalForm.value.name }}
-          </label>
-        </div>
-
-        <div class="mb-4">
-          <label class="font-bold text-lg mr-4 dark:text-white">{{ 'UPDATE_CATALOG._status' | translate }}</label>
-          @if (generalForm.value.lifecycleStatus === 'Active') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{
-            generalForm.value.lifecycleStatus }}</span>
-          } @else if (generalForm.value.lifecycleStatus === 'Launched') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">{{
-            generalForm.value.lifecycleStatus }}</span>
-          } @else if (generalForm.value.lifecycleStatus === 'Retired') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{
-            generalForm.value.lifecycleStatus }}</span>
-          } @else if (generalForm.value.lifecycleStatus === 'Obsolete') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{
-            generalForm.value.lifecycleStatus }}</span>
-          }
-        </div>
-
-        @if (generalForm.value.description !== '') {
-        <label class="font-bold text-lg dark:text-white">{{ 'UPDATE_CATALOG._description' | translate }}</label>
-        <div
-          class="px-4 py-2 bg-white rounded-lg mb-4 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900">
-          <markdown [ngClass]="{
-                    'break-all': hasLongWord(generalForm.value.description, 20),
-                    'break-words': !hasLongWord(generalForm.value.description, 20)
-                  }" class="bg-gray-50 text-wrap break-words dark:bg-secondary-300 dark:text-white text-gray-900"
-            [data]="generalForm.value.description"></markdown>
-        </div>
-        }
-        }
-      </div>
-    </ng-template>
-
   </app-stepper>
   }
 </div>
