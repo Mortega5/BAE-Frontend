@@ -53,7 +53,7 @@
           <h1 class="text-[24px] leading-[29px] md:text-[30px] font-bold md:leading-[36px] text-secondary-100">{{ orgInfo?.tradingName }}</h1>
           <p #descPara class="line-clamp-4 text-[16px] font-normal leading-[24px] text-gray-500">{{ description || ('ORGANIZATION._no_desc' | translate) }}</p>
           @if (descTruncated) {
-            <button (click)="openDescModal($event)" class="self-start text-[16px] font-semibold leading-[24px] tracking-[0.5px] text-primary-100 hover:underline">{{ 'ORGANIZATION._read_all' | translate }}</button>
+            <app-button type="button" (click)="openDescModal($event)" variant="link" class="self-start">{{ 'ORGANIZATION._read_all' | translate }}</app-button>
           }
         </div>
         <div class="flex flex-col gap-[16px] md:flex-row md:items-center md:justify-between md:gap-[24px]">
