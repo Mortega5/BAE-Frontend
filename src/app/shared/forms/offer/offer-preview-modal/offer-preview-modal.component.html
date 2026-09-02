@@ -4,11 +4,7 @@
     (click)="$event.stopPropagation()">
     <div class="flex items-center justify-between px-6 pt-6">
       <h2 class="text-xl font-extrabold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._preview' | translate }}</h2>
-      <button type="button" (click)="close()" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white">
-        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+      <app-button type="button" (click)="close()" variant="ghost" size="sm" [icon]="faXmark" />
     </div>
 
     <div class="px-6 mt-4 border-b border-[#EBECEE] dark:border-gray-800 flex items-stretch">

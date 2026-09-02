@@ -8,6 +8,7 @@ import { TruncateValuePipe } from '../../pipes/truncate-value.pipe';
 import { CharValueType } from '../characteristic-value-spec/characteristic-value-spec-form.component';
 import { CharacteristicFormValue, SpecificationCharacteristicFormComponent } from '../specification-characteristic/specification-characteristic-form.component';
 import { TableInputComponent } from '../table-input/table-input.component';
+import { ButtonComponent } from '../../button/button.component';
 
 export interface CharacteristicItem extends CharacteristicFormValue {
   id?: string;
@@ -16,7 +17,7 @@ export interface CharacteristicItem extends CharacteristicFormValue {
 @Component({
   selector: 'app-characteristics-editor',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FaIconComponent, TableInputComponent, SpecificationCharacteristicFormComponent],
+  imports: [CommonModule, TranslateModule, FaIconComponent, TableInputComponent, SpecificationCharacteristicFormComponent, ButtonComponent],
   templateUrl: './characteristics-editor.component.html',
 })
 export class CharacteristicsEditorComponent {
@@ -26,6 +27,7 @@ export class CharacteristicsEditorComponent {
   @Output() characteristicsChange = new EventEmitter<CharacteristicItem[]>();
 
   protected readonly faPlus = faPlus;
+  protected readonly faXmark = faXmark;
 
   showForm = false;
   editingChar: CharacteristicItem | null = null;

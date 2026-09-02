@@ -4,11 +4,7 @@
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
         {{ 'CREATE_OFFER._add_new_price_plan' | translate }}
       </h2>
-      <button type="button" (click)="cancel()" class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-white">
-        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
+      <app-button type="button" (click)="cancel()" variant="ghost" size="sm" [icon]="faXmark" />
     </div>
     <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">
       {{ 'CREATE_OFFER._select_plan_type' | translate }}

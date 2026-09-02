@@ -50,6 +50,7 @@ const BASE_TEMPLATE_OPTIONS = [
 })
 export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
+  protected readonly faXmark = faXmark;
 
   //PAGE SIZES:
   PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;

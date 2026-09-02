@@ -1,14 +1,18 @@
 import { Component, EventEmitter, Output } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 
 @Component({
   selector: 'app-plan-subtype-modal',
   standalone: true,
   templateUrl: './plan-subtype-modal.component.html',
-  imports: [NgClass, TranslateModule]
+  imports: [NgClass, TranslateModule, ButtonComponent]
 })
 export class PlanSubtypeModalComponent {
+  protected readonly faXmark = faXmark;
+
   @Output() select = new EventEmitter<'standard' | 'flex'>();
   @Output() closed = new EventEmitter<void>();
 

@@ -887,13 +887,7 @@
           @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._modal_title_benefit' | translate }} }
           @else { {{ 'CREATE_PROD_SPEC._modal_title_usecase' | translate }} }
         </h2>
-        <button type="button" (click)="closeItemModal()"
-          class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
-          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <app-button type="button" (click)="closeItemModal()" variant="ghost" size="sm" [icon]="faXmark" />
       </div>
       <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
         @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._modal_desc_feature' | translate }} }
@@ -969,13 +963,7 @@
     class="bg-white dark:bg-secondary-100 rounded-2xl shadow-xl w-full max-w-[480px]">
     <div class="p-8">
       <div class="flex justify-end">
-        <button type="button" (click)="cancelDeleteFaq()"
-          class="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300">
-          <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <app-button type="button" (click)="cancelDeleteFaq()" variant="ghost" size="sm" [icon]="faXmark" />
       </div>
       <div class="flex flex-col items-center text-center pb-2">
         <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4" style="background-color: #DDE6F6;">

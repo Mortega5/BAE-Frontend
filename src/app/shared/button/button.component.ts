@@ -15,7 +15,7 @@ export type ButtonIconPosition = 'prefix' | 'suffix';
   standalone: true,
   imports: [FaIconComponent],
   templateUrl: './button.component.html',
-  styleUrl: './button.component.css',
+  styleUrl: './button.component.scss',
 })
 export class ButtonComponent {
   @Input() variant: ButtonVariant = 'primary';

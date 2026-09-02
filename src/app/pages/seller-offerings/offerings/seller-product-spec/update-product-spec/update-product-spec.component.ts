@@ -1,5 +1,6 @@
 import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
+import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -57,6 +58,8 @@ const BASE_TEMPLATE_OPTIONS = [
   providers: [DatePipe],
 })
 export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
+  protected readonly faXmark = faXmark;
+
   prod: any;
 
   //PAGE SIZES:

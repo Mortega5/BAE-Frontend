@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { faArrowProgress, faArrowRightArrowLeft, faAtom, faBook, faDownload, faGlobe, faMinus, faObjectExclude, faPlus, faScaleBalanced, faShieldHalved, faSwap } from "@fortawesome/pro-solid-svg-icons";
+import { faArrowProgress, faArrowRightArrowLeft, faAtom, faBook, faDownload, faGlobe, faMinus, faObjectExclude, faPlus, faScaleBalanced, faShieldHalved, faSwap, faXmark } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { findIconByName } from 'src/app/config/popular-icons';
 import { ApiServiceService } from 'src/app/services/product-service.service';
@@ -132,6 +132,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   protected readonly faObjectExclude = faObjectExclude;
   protected readonly faSwap = faSwap;
   protected readonly faGlobe = faGlobe;
+  protected readonly faXmark = faXmark;
   protected readonly faBook = faBook;
   protected readonly faShieldHalved = faShieldHalved;
   protected readonly faAtom = faAtom;
