@@ -64,11 +64,9 @@
         <input [(ngModel)]="editableInvoiceName" type="text" id="invoicename" [disabled]="!isEditingBillNo"
           class="border-gray-300 dark:border-secondary-200 bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 w-64 disabled:opacity-60 disabled:cursor-not-allowed" />
         @if (isEditingBillNo) {
-        <button data-cy="saveInvoice" (click)="saveInvoice()" type="button"
-          class="text-white bg-green-500 hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 font-medium rounded-lg text-sm px-4 py-2.5 inline-flex items-center gap-2">
-          <fa-icon [icon]="faSave" class="text-[14px]"></fa-icon>
+        <app-button data-cy="saveInvoice" (click)="saveInvoice()" type="button" prefixIcon="floppy-disk">
           {{ 'INVOICES._save' | translate }}
-        </button>
+        </app-button>
         <app-button data-cy="cancelEditInvoice" (click)="cancelEditBillNo()" type="button" variant="ghost" size="sm">
           {{ 'INVOICES._cancel' | translate }}
         </app-button>

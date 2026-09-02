@@ -629,10 +629,9 @@
           <app-button (click)="renewModal=false;$event.stopPropagation();" type="button" variant="ghost" size="sm">
             {{ 'PRODUCT_INVENTORY._cancel' | translate }}
           </app-button>
-          <button (click)="renewProduct(prodToRenew.id)" type="submit"
-            class="py-2 px-3 text-sm font-medium text-center text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-500 dark:hover:bg-blue-600 dark:focus:ring-blue-900">
+          <app-button (click)="renewProduct(prodToRenew.id)" type="submit" size="sm">
             {{ 'PRODUCT_INVENTORY._yes_sure' | translate }}
-          </button>
+          </app-button>
         </div>
       </div>
     </div>
@@ -670,11 +669,9 @@
           <app-button type="button" (click)="showBillingSelector = false" variant="ghost" size="sm">
             {{ 'PRODUCT_INVENTORY._cancel' | translate }}
           </app-button>
-          <button type="button" [disabled]="!selectedBillingAddress" [class.opacity-50]="!selectedBillingAddress"
-            [class.cursor-not-allowed]="!selectedBillingAddress" (click)="confirmModify()"
-            class="py-2 px-4 text-sm font-medium text-white bg-green-500 rounded-lg hover:bg-green-600 focus:ring-4 focus:outline-none focus:ring-green-300">
+          <app-button type="button" [disabled]="!selectedBillingAddress" (click)="confirmModify()" size="sm">
             {{ 'PRODUCT_INVENTORY._confirm_modify' | translate }}
-          </button>
+          </app-button>
         </div>
       </div>
     </div>

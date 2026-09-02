@@ -244,15 +244,8 @@
     } @else {
     <p class="text-sm text-white dark:text-gray-400">Please, select a price plan to get its price</p>
     }
-    <button data-cy="addToCart" type="button" [disabled]="!isFormValid()" [class.opacity-50]="!isFormValid()"
-      [class.cursor-not-allowed]="!isFormValid()" (click)="createOrder()"
-      class="flex items-center justify-center gap-x-2 px-4 py-2 text-sm font-medium text-center text-white bg-green-400 hover:bg-green-500 rounded-lg focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
+    <app-button data-cy="addToCart" type="button" [disabled]="!isFormValid()" (click)="createOrder()" suffixIcon="arrow-right">
       {{ mode === 'modify' ? 'Modify Characteristics' : 'Add to cart' }}
-      <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2 mr-2 ml-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-        fill="none" viewBox="0 0 14 10">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M1 5h12m0 0L9 1m4 4L9 9" />
-      </svg>
-    </button>
+    </app-button>
   </div>
 </div>
