@@ -8,11 +8,12 @@ import { LoginInfo } from 'src/app/models/interfaces';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { ConfirmDialogComponent } from "src/app/shared/confirm-dialog/confirm-dialog.component";
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 @Component({
   selector: 'app-dome-blog',
   standalone: true,
-  imports: [CommonModule, ConfirmDialogComponent],
+  imports: [CommonModule, ConfirmDialogComponent, ButtonComponent],
   templateUrl: './dome-blog.component.html',
   styleUrl: './dome-blog.component.css'
 })

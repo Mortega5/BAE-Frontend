@@ -12,12 +12,13 @@ import { ConfirmDialogComponent } from "src/app/shared/confirm-dialog/confirm-di
 import { environment } from "src/environments/environment";
 import { DomeBlogContentType } from "src/app/services/dome-blog-service.service";
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 @Component({
   selector: 'app-entry-form',
   standalone: true,
   imports: [MarkdownTextareaComponent, ReactiveFormsModule, ConfirmDialogComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent, ButtonComponent
   ],
   templateUrl: './entry-form.component.html',
   styleUrl: './entry-form.component.css'

@@ -9,11 +9,12 @@ import moment from 'moment';
 import { ConfirmDialogComponent } from "src/app/shared/confirm-dialog/confirm-dialog.component";
 import { Meta, Title } from "@angular/platform-browser";
 import { DomeBlogContentType } from "src/app/services/dome-blog-service.service";
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 @Component({
   selector: 'app-blog-entry-detail',
   standalone: true,
-  imports: [CommonModule, MarkdownComponent, ConfirmDialogComponent],
+  imports: [CommonModule, MarkdownComponent, ConfirmDialogComponent, ButtonComponent],
   templateUrl: './blog-entry-detail.component.html',
   styleUrl: './blog-entry-detail.component.css'
 })

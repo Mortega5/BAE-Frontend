@@ -105,12 +105,8 @@
                           <div class="relative mb-3 mt-2 w-full">
                             <img [src]="getFeaturedImageUrl()" alt="Featured image preview"
                                  class="h-56 w-full rounded-lg border border-gray-300 object-cover dark:border-gray-700">
-                            <button type="button" (click)="removeFeaturedImage()"
-                                    class="absolute right-2 top-2 rounded-full bg-red-700 p-1 text-white hover:bg-red-800">
-                              <svg class="h-4 w-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
-                              </svg>
-                            </button>
+                            <app-button type="button" (click)="removeFeaturedImage()" variant="danger" size="sm" icon="xmark"
+                                    class="absolute right-2 top-2" />
                           </div>
                         }
                         <div class="mb-3 mt-2">
@@ -130,10 +126,9 @@
                 <!-- Navigation Buttons -->
                  @if(blogId){
                     <div class="flex justify-end mt-6 space-x-4">
-                        <button data-cy="blogEntryDelete" (click)="openDeleteDialog()" [disabled]="loading"
-                        class="px-4 py-2 text-base font-medium text-white rounded-lg bg-red-700 hover:bg-red-800 disabled:opacity-60">
+                        <app-button data-cy="blogEntryDelete" (click)="openDeleteDialog()" [disabled]="loading" variant="danger">
                           Delete entry
-                        </button>
+                        </app-button>
                         <button data-cy="blogEntryCreate" (click)="update()" [disabled]="!canSubmit()"
                         class="px-4 py-2 text-base font-medium text-white rounded-lg bg-primary-100 disabled:opacity-50">
                           Update entry

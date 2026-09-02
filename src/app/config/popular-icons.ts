@@ -42,7 +42,7 @@ import {
   faUsers,
   faUserShield,
 } from '@fortawesome/free-solid-svg-icons';
-import { faPlus, faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { faEdit, faPlus, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons';
 
 export interface PopularIcon {
   name: string;
@@ -137,6 +137,8 @@ export function findIconByName(name: string | undefined | null): IconDefinition 
 const BUTTON_ICONS: Partial<Record<IconName, IconDefinition>> = {
   [faXmark.iconName]: faXmark,
   [faPlus.iconName]: faPlus,
+  [faTrash.iconName]: faTrash,
+  [faEdit.iconName]: faEdit,
   ...Object.fromEntries(POPULAR_ICONS.map(({ icon }) => [icon.iconName, icon])),
 };
 

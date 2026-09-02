@@ -7,6 +7,7 @@ import { FileSystemFileEntry, NgxFileDropEntry, NgxFileDropModule } from 'ngx-fi
 import { v4 as uuidv4 } from 'uuid';
 import { AttachmentServiceService } from 'src/app/services/attachment-service.service';
 import { environment } from 'src/environments/environment';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 export interface UploadedAttachment {
   name: string;
@@ -20,7 +21,7 @@ export interface UploadedAttachment {
 @Component({
   selector: 'app-attachment-upload',
   standalone: true,
-  imports: [CommonModule, TranslateModule, NgxFileDropModule],
+  imports: [CommonModule, TranslateModule, NgxFileDropModule, ButtonComponent],
   templateUrl: './attachment-upload.component.html',
   styleUrl: './attachment-upload.component.css',
   providers: [
