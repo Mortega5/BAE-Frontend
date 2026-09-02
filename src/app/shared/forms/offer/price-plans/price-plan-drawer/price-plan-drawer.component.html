@@ -91,20 +91,9 @@
 
             <!-- Pagination Controls -->
             <div class="flex justify-between items-center mt-3">
-              <button type="button" (click)="openConfigurationProfileDrawer()"
-                      class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white rounded-lg border border-primary-100 dark:border-secondary-200 hover:bg-primary-50/10 dark:bg-secondary-300 dark:hover:bg-secondary-200">
-                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor">
-                  <path d="M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0
-                        32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7
-                        0-32 14.3-32 32zm128 0a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM320 256a32 32 0 1 1 64 0 32 32 0 1
-                        1 -64 0zm32-80c-32.8 0-61 19.7-73.3 48L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3
-                        28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7
-                        0c-12.3-28.3-40.5-48-73.3-48zM192 128a32 32 0 1 1 0-64 32 32 0 1 1 0 64zm73.3-64C253 35.7
-                        224.8 16 192 16s-61 19.7-73.3 48L32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5
-                        48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64z"/>
-                </svg>
+              <app-button type="button" (click)="openConfigurationProfileDrawer()" variant="secondary" icon="sliders">
                 {{ configurationProfileButtonText | translate }}
-              </button>
+              </app-button>
               <div class="flex justify-end items-center gap-2">
                 <button (click)="prevPage()" [disabled]="currentPage === 0"
                         class="inline-flex items-center gap-1 px-3 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-secondary-300 disabled:opacity-50">
@@ -130,20 +119,9 @@
               <span class="font-medium">{{ 'FORMS.PRICE_PLANS._profile_desc' | translate }}</span>
             </div>
             <div>
-              <button data-cy="configProfile" type="button" (click)="openConfigurationProfileDrawer()"
-                      class="mt-2 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white rounded-lg border border-primary-100 dark:border-secondary-200 hover:bg-primary-50/10 dark:bg-secondary-300 dark:hover:bg-secondary-200">
-                <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor">
-                  <path d="M0 416c0 17.7 14.3 32 32 32l54.7 0c12.3 28.3 40.5 48 73.3 48s61-19.7 73.3-48L480 448c17.7 0
-                        32-14.3 32-32s-14.3-32-32-32l-246.7 0c-12.3-28.3-40.5-48-73.3-48s-61 19.7-73.3 48L32 384c-17.7
-                        0-32 14.3-32 32zm128 0a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM320 256a32 32 0 1 1 64 0 32 32 0 1
-                        1 -64 0zm32-80c-32.8 0-61 19.7-73.3 48L32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l246.7 0c12.3
-                        28.3 40.5 48 73.3 48s61-19.7 73.3-48l54.7 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-54.7
-                        0c-12.3-28.3-40.5-48-73.3-48zM192 128a32 32 0 1 1 0-64 32 32 0 1 1 0 64zm73.3-64C253 35.7
-                        224.8 16 192 16s-61 19.7-73.3 48L32 64C14.3 64 0 78.3 0 96s14.3 32 32 32l86.7 0c12.3 28.3 40.5
-                        48 73.3 48s61-19.7 73.3-48L480 128c17.7 0 32-14.3 32-32s-14.3-32-32-32L265.3 64z"/>
-                </svg>
+              <app-button data-cy="configProfile" type="button" (click)="openConfigurationProfileDrawer()" variant="secondary" icon="sliders" class="mt-2">
                 {{ configurationProfileButtonText | translate }}
-              </button>
+              </app-button>
             </div>
           }
             <!-- Configuration Profile Drawer -->
@@ -172,28 +150,21 @@
               </app-price-components-table>
 
               <div class="flex flex-wrap gap-2 mt-3">
-                <button data-cy="newPriceComponent" type="button" (click)="openPriceComponentDrawer()"
-                        class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white rounded-lg border border-primary-100 dark:border-secondary-200 hover:bg-primary-50/10 dark:bg-secondary-300 dark:hover:bg-secondary-200">
-                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-                  </svg>
+                <app-button data-cy="newPriceComponent" type="button" (click)="openPriceComponentDrawer()" variant="secondary" icon="plus">
                   {{ 'FORMS.PRICE_PLANS._add_price_component' | translate }}
-                </button>
+                </app-button>
 
-                <button
+                <app-button
                   data-cy="newTierPricing"
                   type="button"
                   (click)="openTierPricingDrawer()"
                   [disabled]="!hasRangeCharacteristics() || planSubType !== 'flex'"
-                  [ngClass]="hasRangeCharacteristics() && planSubType === 'flex' ? 'text-gray-900 dark:text-white border-primary-100 dark:border-secondary-200 hover:bg-primary-50/10 dark:bg-secondary-300 dark:hover:bg-secondary-200 cursor-pointer' : 'text-gray-900 dark:text-white border-gray-200 dark:border-gray-700 cursor-not-allowed opacity-50'"
-                  class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg border"
+                  variant="secondary"
+                  icon="layer-group"
                   [title]="planSubType !== 'flex' ? 'Tier pricing is only available for Flex plans' : (!hasRangeCharacteristics() ? 'No range characteristics available in product specification' : 'Create tier pricing based on range characteristics')"
                 >
-                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="currentColor">
-                    <path d="M448 160l-128 0 0-32 128 0 0 32zM48 64C21.5 64 0 85.5 0 112l0 64c0 26.5 21.5 48 48 48l416 0c26.5 0 48-21.5 48-48l0-64c0-26.5-21.5-48-48-48L48 64zM448 352l-256 0 0-32 256 0 0 32zM48 256c-26.5 0-48 21.5-48 48l0 64c0 26.5 21.5 48 48 48l416 0c26.5 0 48-21.5 48-48l0-64c0-26.5-21.5-48-48-48L48 256z"/>
-                  </svg>
                   {{ 'FORMS.PRICE_PLANS._add_tier_pricing' | translate }}
-                </button>
+                </app-button>
               </div>
             </div>
           </div>

@@ -239,13 +239,12 @@
 
       <div class="flex items-center justify-between gap-[12px] lg:hidden">
         @if (activeCategoryName) {
-          <button (click)="openCategoriesOverlay($event)" class="flex h-[40px] items-center gap-[8px] rounded-[8px] border-2 border-primary-100 px-[16px] text-[14px] font-semibold leading-[16px] tracking-[0.5px] text-primary-100">
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 1 1-3 0m3 0a1.5 1.5 0 1 0-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 0 1-3 0m3 0a1.5 1.5 0 0 0-3 0m-9.75 0h9.75"/></svg>
+          <app-button (click)="openCategoriesOverlay($event)" variant="secondary" icon="sliders">
             {{ 'ORGANIZATION._categories' | translate }}
             @if (selectedCategoryCount) {
               <span class="inline-flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-primary-100 px-1.5 text-[12px] font-semibold text-white">{{ selectedCategoryCount }}</span>
             }
-          </button>
+          </app-button>
         }
         <button (click)="clearServiceFilters()" class="ml-auto flex items-center gap-[8px] rounded-[8px] px-[16px] py-[8px] text-[14px] font-semibold leading-[16px] tracking-[0.5px] text-primary-100 hover:text-primary-50">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12c0-1.232-.046-2.453-.138-3.662a4.006 4.006 0 0 0-3.7-3.7 48.678 48.678 0 0 0-7.324 0 4.006 4.006 0 0 0-3.7 3.7c-.017.22-.032.441-.046.662M19.5 12l3-3m-3 3-3-3m-12 3c0 1.232.046 2.453.138 3.662a4.006 4.006 0 0 0 3.7 3.7 48.656 48.656 0 0 0 7.324 0 4.006 4.006 0 0 0 3.7-3.7c.017-.22.032-.441.046-.662M4.5 12l3 3m-3-3-3 3"/></svg>
@@ -301,12 +300,9 @@
           @if (!loading_more) {
             @if (page_check) {
               <div class="flex justify-center pt-[32px]">
-                <button (click)="next()" class="flex h-[40px] cursor-pointer items-center justify-center gap-[8px] rounded-[8px] border border-primary-100 bg-white px-[16px] text-[14px] font-semibold leading-[16px] tracking-[0.5px] text-primary-100 hover:bg-secondary-50">
+                <app-button (click)="next()" variant="secondary" icon="arrow-down" iconPosition="suffix">
                   Load more
-                  <svg class="h-4 w-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
-                  </svg>
-                </button>
+                </app-button>
               </div>
             }
           } @else {
@@ -343,7 +339,7 @@
         }
       </div>
       <div class="flex flex-col gap-[12px] border-t border-gray-200 px-[24px] py-[16px]">
-        <button (click)="cancelCategoriesOverlay()" class="flex h-[48px] items-center justify-center rounded-[8px] border border-primary-100 text-[16px] font-semibold leading-[24px] tracking-[0.5px] text-primary-100">{{ 'ORGANIZATION._cancel' | translate }}</button>
+        <app-button (click)="cancelCategoriesOverlay()" variant="secondary" class="h-[48px]">{{ 'ORGANIZATION._cancel' | translate }}</app-button>
         <button (click)="applyCategoriesOverlay()" class="flex h-[48px] items-center justify-center rounded-[8px] bg-primary-100 text-[16px] font-semibold leading-[24px] tracking-[0.5px] text-white hover:bg-primary-50">{{ 'ORGANIZATION._apply' | translate }}</button>
       </div>
     </div>

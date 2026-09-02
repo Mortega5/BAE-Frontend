@@ -10,11 +10,9 @@
     </div>
     <p class="text-base font-semibold text-gray-900 dark:text-white mb-1">{{ 'CHAR_SPEC._no_chars' | translate }}</p>
     @if (!readonly) {
-    <button type="button" (click)="showForm = true"
-      class="mt-4 inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white rounded-lg border border-primary-100 dark:border-secondary-200 hover:bg-primary-50/10 dark:bg-secondary-300 dark:hover:bg-secondary-200">
+    <app-button type="button" (click)="showForm = true" variant="secondary" icon="plus" iconPosition="suffix" class="mt-4">
       {{ 'CHAR_SPEC._new_char' | translate }}
-      <fa-icon [icon]="faPlus" aria-hidden="true"></fa-icon>
-    </button>
+    </app-button>
     }
   </div>
   } @else {

@@ -58,7 +58,7 @@
     <h2 class="text-xl font-extrabold text-gray-900 dark:text-white mb-2">{{ 'FORMS.PRICE_PLANS._sure_delete' | translate }}</h2>
     <p class="text-sm text-gray-600 dark:text-gray-400 mb-6">{{ 'FORMS.PRICE_PLANS._cant_be_undone' | translate }}</p>
     <div class="flex justify-end gap-3">
-      <button (click)="showDeleteModal = false" class="px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white rounded-lg border border-primary-100 dark:border-secondary-200 hover:bg-primary-50/10 dark:bg-secondary-300 dark:hover:bg-secondary-200">{{ 'FORMS.PRICE_PLANS._cancel' | translate }}</button>
+      <app-button (click)="showDeleteModal = false" variant="secondary">{{ 'FORMS.PRICE_PLANS._cancel' | translate }}</app-button>
       <app-button (click)="deletePricePlan()" variant="danger">{{ 'FORMS.PRICE_PLANS._delete' | translate }}</app-button>
     </div>
   </div>

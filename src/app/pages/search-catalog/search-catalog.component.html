@@ -54,15 +54,9 @@
     }
     <div class="flex flex-col w-full md:w-4/5 lg:w-3/4">
       <section class="md:pl-5 content pb-5 px-4 flex items-center">
-        <button (click)="showDrawer=!showDrawer;$event.stopPropagation();" type="button"
-          class="md:hidden px-2 w-fit h-fit py-2 text-sm font-medium text-center inline-flex items-center dark:text-white bg-white text-primary-100 border border-primary-100 rounded-lg dark:bg-primary-100 dark:border-secondary-200">
-          <svg class="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-            viewBox="0 0 17 14">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M1 1h15M1 7h15M1 13h15" />
-          </svg>
+        <app-button (click)="showDrawer=!showDrawer;$event.stopPropagation();" type="button" variant="secondary" icon="bars" class="md:hidden">
           {{ 'DASHBOARD._categories_single' | translate }}
-        </button>
+        </app-button>
         <!--@if(searchEnabled){
           <form class="mx-5 w-full">
             <div class="flex">

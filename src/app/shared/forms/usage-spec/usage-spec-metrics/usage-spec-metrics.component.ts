@@ -6,11 +6,12 @@ import { noWhitespaceValidator } from 'src/app/validators/validators';
 import {EventMessageService} from "src/app/services/event-message.service";
 import { FormChangeState } from 'src/app/models/interfaces';
 import { v4 as uuidv4 } from 'uuid';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 @Component({
   selector: 'usage-spec-metrics',
   standalone: true,
-  imports: [TranslateModule, ReactiveFormsModule, NgClass],
+  imports: [TranslateModule, ReactiveFormsModule, NgClass, ButtonComponent],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

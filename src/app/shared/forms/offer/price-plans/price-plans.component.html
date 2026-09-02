@@ -56,14 +56,9 @@
   </app-price-plans-table>
 
   <!-- Add Price Plan Button -->
-  <button data-cy="newPricePlan" type="button" (click)="openPricePlanDrawer()"
-    class="w-fit inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-gray-900 dark:text-white rounded-lg border border-primary-100 dark:border-secondary-200 hover:bg-primary-50/10 dark:bg-secondary-300 dark:hover:bg-secondary-200">
-    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-      stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-    </svg>
+  <app-button data-cy="newPricePlan" type="button" (click)="openPricePlanDrawer()" variant="secondary" icon="plus">
     {{ 'FORMS.PRICE_PLANS._add' | translate }}
-  </button>
+  </app-button>
   }
 
 </div>

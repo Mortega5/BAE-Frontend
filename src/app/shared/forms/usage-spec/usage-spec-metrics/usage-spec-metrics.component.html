@@ -4,12 +4,9 @@
     <p class="text-sm text-gray-500 max-w-2xl">{{ 'USAGE_SPECS._metrics_desc' | translate }}</p>
   </div>
   @if(metrics.length > 0 && showCreateMetric == false){
-    <button data-cy="btnNewMetric" type="button" (click)="showCreateMetric=!showCreateMetric" class="flex items-center gap-2 h-10 px-4 border border-primary-100 text-primary-100 rounded-lg text-sm font-semibold hover:bg-secondary-50/50 shrink-0">
-      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-      </svg>
+    <app-button data-cy="btnNewMetric" type="button" (click)="showCreateMetric=!showCreateMetric" variant="secondary" icon="plus" class="shrink-0">
       {{ 'USAGE_SPECS._create_metric' | translate }}
-    </button>
+    </app-button>
   }
 </div>
 
@@ -58,12 +55,9 @@
         </div>
         <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ 'USAGE_SPECS._no_metrics' | translate }}</h3>
         <p class="text-sm text-gray-500 mb-5">{{ 'USAGE_SPECS._add_metric_desc' | translate }}</p>
-        <button data-cy="btnNewMetric" type="button" (click)="showCreateMetric=!showCreateMetric" class="flex items-center gap-2 h-10 px-4 border border-primary-100 text-primary-100 rounded-lg text-sm font-semibold hover:bg-secondary-50/50">
-          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-          </svg>
+        <app-button data-cy="btnNewMetric" type="button" (click)="showCreateMetric=!showCreateMetric" variant="secondary" icon="plus">
           {{ 'USAGE_SPECS._create_metric' | translate }}
-        </button>
+        </app-button>
       </div>
     </div>
   }

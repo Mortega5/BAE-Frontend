@@ -1016,7 +1016,7 @@
         <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">{{ 'CREATE_PROD_SPEC._delete_question_title' | translate }}</h2>
         <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ 'CREATE_PROD_SPEC._delete_question_desc' | translate }}</p>
         <div class="grid grid-cols-2 gap-3 w-full">
-          <button type="button" (click)="cancelDeleteFaq()" class="h-11 px-5 border border-primary-100 dark:border-secondary-200 text-gray-900 dark:text-white rounded-lg text-sm font-semibold hover:bg-primary-50/10 dark:bg-secondary-300 dark:hover:bg-secondary-200">{{ 'CREATE_PROD_SPEC._close' | translate }}</button>
+          <app-button type="button" (click)="cancelDeleteFaq()" variant="secondary" class="h-11">{{ 'CREATE_PROD_SPEC._close' | translate }}</app-button>
           <button type="button" (click)="confirmDeleteFaq()" class="h-11 px-5 bg-primary-100 text-white rounded-lg text-sm font-semibold hover:bg-primary-50">{{ 'CREATE_PROD_SPEC._confirm' | translate }}</button>
         </div>
       </div>

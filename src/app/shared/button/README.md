@@ -28,11 +28,11 @@ Each variable has a default on `body` (light) and, where it differs, an override
 | `--button-primary-bg-hover` | `primary` hover background | `rgb(var(--theme-primary-50))` | *(inherits — see note below)* |
 | `--button-primary-text` | `primary` text/icon color | `var(--theme-primary-text)` | *(inherits)* |
 | `--button-primary-ring` | `primary` focus ring color | `rgb(var(--theme-primary-50) / 30%)` | *(inherits)* |
-| `--button-secondary-bg` | `secondary` background | `#fff` | `rgb(var(--theme-secondary-300))` |
-| `--button-secondary-bg-hover` | `secondary` hover background | `#f9fafb` (gray-50) | `rgb(var(--theme-secondary-200))` |
-| `--button-secondary-text` | `secondary` text color | `rgb(55 65 81)` (gray-700) | `rgb(209 213 219)` (gray-300) |
-| `--button-secondary-border` | `secondary` border color | `rgb(209 213 219)` (gray-300) | `rgb(55 65 81)` (gray-700) |
-| `--button-secondary-ring` | `secondary` focus ring color | `rgb(209 213 219 / 50%)` | `rgb(var(--theme-secondary-100) / 50%)` |
+| `--button-secondary-bg` | `secondary` background | `transparent` | `rgb(var(--theme-secondary-300))` |
+| `--button-secondary-bg-hover` | `secondary` hover background | `rgb(var(--theme-primary-50) / 10%)` | `rgb(var(--theme-secondary-200))` |
+| `--button-secondary-text` | `secondary` text color | `rgb(17 24 39)` (gray-900) | `#fff` |
+| `--button-secondary-border` | `secondary` border color | `rgb(var(--theme-primary-100))` | `rgb(var(--theme-secondary-200))` |
+| `--button-secondary-ring` | `secondary` focus ring color | `rgb(var(--theme-primary-50) / 30%)` | `rgb(var(--theme-secondary-100) / 50%)` |
 | `--button-danger-bg` | `danger` background | `rgb(220 38 38)` (red-600) | *(inherits)* |
 | `--button-danger-bg-hover` | `danger` hover background | `rgb(185 28 28)` (red-700) | *(inherits)* |
 | `--button-danger-text` | `danger` text color | `#fff` | *(inherits)* |
@@ -45,6 +45,8 @@ Each variable has a default on `body` (light) and, where it differs, an override
 | `--button-ghost-ring` | `ghost` focus ring color | `rgb(156 163 175 / 50%)` | `rgb(var(--theme-secondary-100) / 50%)` |
 
 `link` vs `ghost` — they're easy to confuse: `link` never gets a background, even on hover, only its text color changes, and it's meant for text CTAs ("Back", "See more"). `ghost` is transparent at rest but gets a background on hover (a Material-Design-style "state layer"), and it's meant for icon-only buttons (a modal's "×" close button, a bare row action) where a hover-only background is what signals "this is clickable" — a `link`-styled icon button wouldn't look interactive at all.
+
+`secondary` was unused anywhere in the app until this pattern was unified, so its tokens were redefined from a speculative gray style to the primary-tinted outline (transparent bg, `primary-100` border, dark text, subtle `primary-50` hover tint) that ~10 hand-rolled "secondary action" buttons (Cancel, Add price component, configure profile, close FAQ) already converged on independently, rather than inventing a third look.
 
 `danger` is intentionally not wired to any theme token — no button in the app (before or after this component) ever varied its red by theme, so it stays a plain fixed color. Everything else builds on `--theme-primary-*`/`--theme-secondary-*`/`--theme-primary-text` (defined per theme in `src/app/themes/*.theme.scss`), so switching the app theme (bae/dome) updates it automatically.
 

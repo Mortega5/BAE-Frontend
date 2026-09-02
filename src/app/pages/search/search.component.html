@@ -211,14 +211,9 @@
 
       <div class="min-w-0 flex-1">
 
-        <button (click)="showDrawer=!showDrawer; $event.stopPropagation();" type="button"
-          class="mb-4 md:hidden flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary-100 dark:text-primary-50 border border-primary-100 dark:border-primary-50 rounded-lg">
-          <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M1 1h15M1 7h15M1 13h15" />
-          </svg>
+        <app-button (click)="showDrawer=!showDrawer; $event.stopPropagation();" type="button" variant="secondary" icon="bars" class="mb-4 md:hidden">
           Categories
-        </button>
+        </app-button>
 
         <div class="mb-5 flex items-center justify-between">
           <div class="flex items-center gap-4">
@@ -423,15 +418,9 @@
         @if (!loading_more) {
         @if (page_check) {
         <div class="flex pb-12 justify-center mt-6">
-          <button data-cy="loadMore" (click)="next()"
-            class="flex cursor-pointer items-center justify-center px-4 h-9 text-sm font-medium text-primary-100 dark:text-primary-50 bg-white dark:bg-secondary-300 border border-primary-100 dark:border-primary-50 rounded-lg hover:bg-[#eef2fb] dark:hover:bg-secondary-200 transition-colors">
+          <app-button data-cy="loadMore" (click)="next()" variant="secondary" icon="arrow-down" iconPosition="suffix">
             Load more
-            <svg class="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M5 12h14m-7 7V5" />
-            </svg>
-          </button>
+          </app-button>
         </div>
         }
         } @else {

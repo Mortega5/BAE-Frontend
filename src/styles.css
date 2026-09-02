@@ -98,14 +98,12 @@ body {
   --button-primary-bg-hover: rgb(var(--theme-primary-50));
   --button-primary-text: var(--theme-primary-text);
   --button-primary-ring: rgb(var(--theme-primary-50) / 30%);
-  --button-secondary-bg: #fff;
-  --button-secondary-bg-hover: #f9fafb;
-  /* gray-50 */
-  --button-secondary-text: rgb(55 65 81);
-  /* gray-700 */
-  --button-secondary-border: rgb(209 213 219);
-  /* gray-300 */
-  --button-secondary-ring: rgb(209 213 219 / 50%);
+  --button-secondary-bg: transparent;
+  --button-secondary-bg-hover: rgb(var(--theme-primary-50) / 10%);
+  --button-secondary-text: rgb(17 24 39);
+  /* gray-900 */
+  --button-secondary-border: rgb(var(--theme-primary-100));
+  --button-secondary-ring: rgb(var(--theme-primary-50) / 30%);
   --button-danger-bg: rgb(220 38 38);
   /* red-600 */
   --button-danger-bg-hover: rgb(185 28 28);
@@ -155,10 +153,8 @@ body.theme-bae {
 
   --button-secondary-bg: rgb(var(--theme-secondary-300));
   --button-secondary-bg-hover: rgb(var(--theme-secondary-200));
-  --button-secondary-text: rgb(209 213 219);
-  /* gray-300 */
-  --button-secondary-border: rgb(55 65 81);
-  /* gray-700 */
+  --button-secondary-text: #fff;
+  --button-secondary-border: rgb(var(--theme-secondary-200));
   --button-secondary-ring: rgb(var(--theme-secondary-100) / 50%);
   --button-link-text: rgb(var(--theme-primary-50));
   --button-link-text-hover: rgb(var(--theme-primary-100));

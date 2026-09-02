@@ -16,10 +16,9 @@
       <textarea id="search-filters-provided-json" data-cy="adminSearchFiltersJson" [(ngModel)]="providedJson" [ngModelOptions]="{ standalone: true }" rows="8"
         class="mt-2 mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 font-mono"></textarea>
       <div class="flex gap-2 justify-end">
-        <button data-cy="adminLoadSearchFiltersJson" type="button" (click)="loadProvidedJsonIntoForm()"
-          class="text-primary-100 border border-primary-100 hover:bg-primary-50 rounded-lg text-sm px-4 py-2">
+        <app-button data-cy="adminLoadSearchFiltersJson" type="button" (click)="loadProvidedJsonIntoForm()" variant="secondary">
           Load JSON
-        </button>
+        </app-button>
         <button data-cy="adminSaveSearchFiltersJson" type="button" (click)="saveProvidedJson()" [disabled]="saving"
           [ngClass]="saving ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-50'"
           class="text-white bg-primary-100 rounded-lg text-sm px-4 py-2">

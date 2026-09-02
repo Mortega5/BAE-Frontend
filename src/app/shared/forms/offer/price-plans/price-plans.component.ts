@@ -19,6 +19,7 @@ import { EventMessageService } from "src/app/services/event-message.service";
 import { FormChangeState, PricePlanChangeState } from "src/app/models/interfaces";
 import { Subscription, debounceTime, distinctUntilChanged, filter, Subject } from "rxjs";
 import { takeUntil } from 'rxjs/operators';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 interface PriceComponent {
   id: string;
@@ -81,7 +82,8 @@ interface PricePlanChange {
     PricePlanDrawerComponent,
     PlanSubtypeModalComponent,
     ReactiveFormsModule,
-    NgClass
+    NgClass,
+    ButtonComponent
   ],
   providers: [
     {
