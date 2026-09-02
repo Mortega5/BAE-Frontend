@@ -104,10 +104,9 @@
                           class="bg-gray-50 dark:bg-secondary-200 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg block w-full p-2.5" />
                         <input formControlName="label" type="text" placeholder="Option label"
                           class="bg-gray-50 dark:bg-secondary-200 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg block w-full p-2.5" />
-                        <button type="button" (click)="removeOption(i, j)"
-                          class="text-red-700 border border-red-300 hover:bg-red-50 rounded-lg text-xs px-3 py-2">
+                        <app-button type="button" (click)="removeOption(i, j)" variant="danger" [outline]="true" size="sm">
                           Remove
-                        </button>
+                        </app-button>
                       </div>
                     }
                   </div>
@@ -115,10 +114,9 @@
               }
 
               <div class="flex justify-end mt-4">
-                <button type="button" (click)="removeFilter(i)"
-                  class="text-red-700 border border-red-300 hover:bg-red-50 rounded-lg text-sm px-4 py-2">
+                <app-button type="button" (click)="removeFilter(i)" variant="danger" [outline]="true">
                   Remove filter
-                </button>
+                </app-button>
               </div>
             </div>
           }
