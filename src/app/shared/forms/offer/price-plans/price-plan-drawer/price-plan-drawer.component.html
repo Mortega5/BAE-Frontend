@@ -15,7 +15,7 @@
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
         {{ pricePlanTranslationKey | translate }}
       </h2>
-      <app-button type="button" (click)="closeDrawer()" variant="ghost" size="sm" icon="xmark" />
+      <app-button type="button" (click)="closeDrawer()" variant="ghost" size="sm" prefixIcon="xmark" />
     </div>
 
     <!-- Price Plan Form -->
@@ -91,7 +91,7 @@
 
             <!-- Pagination Controls -->
             <div class="flex justify-between items-center mt-3">
-              <app-button type="button" (click)="openConfigurationProfileDrawer()" variant="secondary" icon="sliders">
+              <app-button type="button" (click)="openConfigurationProfileDrawer()" variant="secondary" prefixIcon="sliders">
                 {{ configurationProfileButtonText | translate }}
               </app-button>
               <div class="flex justify-end items-center gap-2">
@@ -119,7 +119,7 @@
               <span class="font-medium">{{ 'FORMS.PRICE_PLANS._profile_desc' | translate }}</span>
             </div>
             <div>
-              <app-button data-cy="configProfile" type="button" (click)="openConfigurationProfileDrawer()" variant="secondary" icon="sliders" class="mt-2">
+              <app-button data-cy="configProfile" type="button" (click)="openConfigurationProfileDrawer()" variant="secondary" prefixIcon="sliders" class="mt-2">
                 {{ configurationProfileButtonText | translate }}
               </app-button>
             </div>
@@ -150,7 +150,7 @@
               </app-price-components-table>
 
               <div class="flex flex-wrap gap-2 mt-3">
-                <app-button data-cy="newPriceComponent" type="button" (click)="openPriceComponentDrawer()" variant="secondary" icon="plus">
+                <app-button data-cy="newPriceComponent" type="button" (click)="openPriceComponentDrawer()" variant="secondary" prefixIcon="plus">
                   {{ 'FORMS.PRICE_PLANS._add_price_component' | translate }}
                 </app-button>
 
@@ -160,7 +160,7 @@
                   (click)="openTierPricingDrawer()"
                   [disabled]="!hasRangeCharacteristics() || planSubType !== 'flex'"
                   variant="secondary"
-                  icon="layer-group"
+                  prefixIcon="layer-group"
                   [title]="planSubType !== 'flex' ? 'Tier pricing is only available for Flex plans' : (!hasRangeCharacteristics() ? 'No range characteristics available in product specification' : 'Create tier pricing based on range characteristics')"
                 >
                   {{ 'FORMS.PRICE_PLANS._add_tier_pricing' | translate }}

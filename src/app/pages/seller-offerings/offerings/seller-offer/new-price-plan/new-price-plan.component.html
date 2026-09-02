@@ -1,6 +1,6 @@
 @if(showProfile){
     <div (click)="$event.stopPropagation();" [ngClass]="showProfile ? 'backdrop-blur-sm': ''" tabindex="-1"  class="fixed h-screen w-full md:w-2/3 top-0 right-0 z-50 p-4 overflow-y-auto bg-white dark:bg-gray-800" tabindex="-1" aria-labelledby="drawer-label">
-        <app-button type="button" (click)="showProfile=!showProfile" variant="ghost" size="sm" icon="xmark"
+        <app-button type="button" (click)="showProfile=!showProfile" variant="ghost" size="sm" prefixIcon="xmark"
           class="absolute top-2.5 end-2.5">
            <span class="sr-only">Close menu</span>
         </app-button>
@@ -57,7 +57,7 @@
 }
 @if(showPriceComponents){
     <div (click)="$event.stopPropagation();" [ngClass]="showPriceComponents ? 'backdrop-blur-sm': ''" tabindex="-1"  class="fixed h-screen w-full md:w-2/3 top-0 right-0 z-50 p-4 overflow-y-auto bg-white dark:bg-gray-800" tabindex="-1" aria-labelledby="drawer-label">
-        <app-button type="button" (click)="showPriceComponents=!showPriceComponents" variant="ghost" size="sm" icon="xmark"
+        <app-button type="button" (click)="showPriceComponents=!showPriceComponents" variant="ghost" size="sm" prefixIcon="xmark"
           class="absolute top-2.5 end-2.5">
            <span class="sr-only">Close menu</span>
         </app-button>
@@ -445,7 +445,7 @@
                                         </svg>
                                     </div>
                                 </div>
-                                <app-button type="button" (click)="showDrawerProfile();$event.stopPropagation();" shape="pill" icon="plus" />
+                                <app-button type="button" (click)="showDrawerProfile();$event.stopPropagation();" shape="pill" prefixIcon="plus" />
                             </div>
         
                         } @else {
@@ -458,7 +458,7 @@
                                         </svg>
                                     </div>
                                 </div>
-                                <app-button type="button" (click)="showDrawerProfile();$event.stopPropagation();" shape="pill" icon="pen-to-square" />
+                                <app-button type="button" (click)="showDrawerProfile();$event.stopPropagation();" shape="pill" prefixIcon="pen-to-square" />
                             </div>
                         }
     
@@ -484,7 +484,7 @@
                             </svg>
                         </div>
                     </div>
-                    <app-button type="button" (click)="showDrawerPriceComp();$event.stopPropagation();" shape="pill" icon="plus" />
+                    <app-button type="button" (click)="showDrawerPriceComp();$event.stopPropagation();" shape="pill" prefixIcon="plus" />
                 </div>
 
                 @if (createdPriceComponents.length === 0){
@@ -546,7 +546,7 @@
                                             {{price.priceType}} 
                                         </td>
                                         <td class="px-6 py-4">
-                                            <app-button (click)="deletePriceComp(price)" variant="danger" size="sm" icon="xmark" class="mr-2" />
+                                            <app-button (click)="deletePriceComp(price)" variant="danger" size="sm" prefixIcon="xmark" class="mr-2" />
                                             <!--<button (click)="editPriceComp(price);$event.stopPropagation();" class="font-bold text-white bg-primary-100 rounded-3xl">
                                                 <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
                                                     <path fill-rule="evenodd" d="M14 4.182A4.136 4.136 0 0 1 16.9 3c1.087 0 2.13.425 2.899 1.182A4.01 4.01 0 0 1 21 7.037c0 1.068-.43 2.092-1.194 2.849L18.5 11.214l-5.8-5.71 1.287-1.31.012-.012Zm-2.717 2.763L6.186 12.13l2.175 2.141 5.063-5.218-2.141-2.108Zm-6.25 6.886-1.98 5.849a.992.992 0 0 0 .245 1.026 1.03 1.03 0 0 0 1.043.242L10.282 19l-5.25-5.168Zm6.954 4.01 5.096-5.186-2.218-2.183-5.063 5.218 2.185 2.15Z" clip-rule="evenodd"/>
@@ -577,7 +577,7 @@
     </form>
     
     <div class="flex w-full justify-items-center justify-center ml-4">
-        <app-button type="button" [disabled]="this.priceForm.invalid" (click)="savePrice()" icon="floppy-disk" iconPosition="suffix">
+        <app-button type="button" [disabled]="this.priceForm.invalid" (click)="savePrice()" suffixIcon="floppy-disk">
             {{ 'CREATE_OFFER._save_price' | translate }}
         </app-button>
     </div>

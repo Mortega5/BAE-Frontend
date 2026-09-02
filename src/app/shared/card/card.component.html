@@ -146,7 +146,7 @@
     <!-- Modal content -->
     <div
       class="relative sm:m-8 bg-white rounded-lg shadow dark:border-gray-600 dark:bg-tertiary-100 bg-cover bg-right-bottom rounded-lg overflow-y-auto max-h-[calc(100vh-10rem)]">
-      <app-button (click)="hideModal();" type="button" variant="ghost" size="sm" icon="xmark"
+      <app-button (click)="hideModal();" type="button" variant="ghost" size="sm" prefixIcon="xmark"
         class="absolute top-4 right-4 z-50">
         <span class="sr-only">{{ 'CARD._close' | translate }}</span>
       </app-button>
@@ -290,17 +290,17 @@
         @if(check_logged){
         @if(!isCustom()) {
         <app-button data-cy="addToCart" (click)="openDrawer()" [disabled]="!PURCHASE_ENABLED || productAlreadyInCart" type="button"
-          icon="cart-shopping" class="m-4 w-fit me-2">
+          prefixIcon="cart-shopping" class="m-4 w-fit me-2">
           {{ 'CARD._add_cart' | translate }}
         </app-button>
         } @else if(quotesEnabled){
-        <app-button type="button" (click)="toggleQuoteModal();$event.stopPropagation();" icon="arrow-right" iconPosition="suffix" class="m-4 w-fit me-2">
+        <app-button type="button" (click)="toggleQuoteModal();$event.stopPropagation();" suffixIcon="arrow-right" class="m-4 w-fit me-2">
           {{ 'CARD._quote' | translate }}
         </app-button>
         }
         }
 
-        <app-button type="button" (click)="goToProductDetails(productOff)" icon="arrow-right" iconPosition="suffix" class="m-4 w-fit me-2">
+        <app-button type="button" (click)="goToProductDetails(productOff)" suffixIcon="arrow-right" class="m-4 w-fit me-2">
           {{ 'CARD._details' | translate }}
         </app-button>
       </div>

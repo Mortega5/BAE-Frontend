@@ -47,7 +47,7 @@
           {{ 'BLUEPRINT_PROD._cancel' | translate }}
         </app-button>
         <app-button type="button" (click)="addOrUpdateStep()" [disabled]="stepForm.invalid"
-          [icon]="editingIndex === null ? 'plus' : undefined">
+          [prefixIcon]="editingIndex === null ? 'plus' : undefined">
           @if (editingIndex !== null) {
           {{ 'BLUEPRINT_PROD._update_step' | translate }}
           } @else {
@@ -58,7 +58,7 @@
     </div>
     } @else {
     <div class="flex w-full justify-center mt-4">
-      <app-button type="button" (click)="showStepForm = true" icon="plus">
+      <app-button type="button" (click)="showStepForm = true" prefixIcon="plus">
         {{ 'BLUEPRINT_PROD._add_step' | translate }}
       </app-button>
     </div>

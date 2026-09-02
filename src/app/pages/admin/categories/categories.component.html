@@ -7,7 +7,7 @@
       </div>
 
       <div class="flex flex-row w-full justify-end">
-        <app-button data-cy="adminAddNewCategory" type="button" (click)="createCategory()" icon="plus" iconPosition="suffix" class="ml-2 mr-8 mb-4">
+        <app-button data-cy="adminAddNewCategory" type="button" (click)="createCategory()" suffixIcon="plus" class="ml-2 mr-8 mb-4">
           {{ 'CATEGORIES._add_new_cat' | translate }}
         </app-button>
       </div>
@@ -126,7 +126,7 @@
               {{cat.lastUpdate | date:'EEEE, dd/MM/yy, HH:mm'}}
             </td>
             <td class="flex px-6 py-4 w-fit justify-end">
-              <app-button data-cy="adminEditCategory" type="button" (click)="goToUpdate(cat.id)" shape="pill" icon="pen-to-square" class="me-2">
+              <app-button data-cy="adminEditCategory" type="button" (click)="goToUpdate(cat.id)" shape="pill" prefixIcon="pen-to-square" class="me-2">
                 <span class="sr-only">Edit category</span>
               </app-button>
               <!--<button type="button" class="text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center me-2">

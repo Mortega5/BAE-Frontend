@@ -52,7 +52,7 @@
     <div class="flex items-center justify-between p-2 rounded-t dark:border-gray-600 shadow-lg">
       <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{
         'INVOICES._invoice_details' | translate }}</h2>
-      <app-button (click)="showInvoiceDetails=false;" type="button" variant="ghost" size="sm" icon="xmark" class="ms-auto">
+      <app-button (click)="showInvoiceDetails=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark" class="ms-auto">
         <span class="sr-only">{{ 'CARD._close' | translate }}</span>
       </app-button>
     </div>
@@ -73,7 +73,7 @@
           {{ 'INVOICES._cancel' | translate }}
         </app-button>
         } @else if (role === sellerRole) {
-        <app-button data-cy="editInvoice" (click)="editInvoice()" type="button" variant="link" icon="pen-to-square">
+        <app-button data-cy="editInvoice" (click)="editInvoice()" type="button" variant="link" prefixIcon="pen-to-square">
           {{ 'INVOICES._edit' | translate }}
         </app-button>
         }

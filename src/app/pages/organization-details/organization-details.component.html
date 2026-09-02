@@ -239,7 +239,7 @@
 
       <div class="flex items-center justify-between gap-[12px] lg:hidden">
         @if (activeCategoryName) {
-          <app-button (click)="openCategoriesOverlay($event)" variant="secondary" icon="sliders">
+          <app-button (click)="openCategoriesOverlay($event)" variant="secondary" prefixIcon="sliders">
             {{ 'ORGANIZATION._categories' | translate }}
             @if (selectedCategoryCount) {
               <span class="inline-flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-primary-100 px-1.5 text-[12px] font-semibold text-white">{{ selectedCategoryCount }}</span>
@@ -300,7 +300,7 @@
           @if (!loading_more) {
             @if (page_check) {
               <div class="flex justify-center pt-[32px]">
-                <app-button (click)="next()" variant="secondary" icon="arrow-down" iconPosition="suffix">
+                <app-button (click)="next()" variant="secondary" suffixIcon="arrow-down">
                   Load more
                 </app-button>
               </div>
@@ -350,7 +350,7 @@
       <div (click)="$event.stopPropagation()" class="flex max-h-[80vh] w-full max-w-[720px] flex-col gap-[16px] rounded-[16px] bg-white p-[32px] shadow-xl">
         <div class="flex items-start justify-between gap-[16px]">
           <h2 class="text-[24px] font-bold leading-[28px] text-secondary-100">{{ orgInfo?.tradingName }}</h2>
-          <app-button (click)="closeDescModal()" variant="ghost" size="sm" icon="xmark">
+          <app-button (click)="closeDescModal()" variant="ghost" size="sm" prefixIcon="xmark">
             <span class="sr-only">{{ 'ORGANIZATION._close' | translate }}</span>
           </app-button>
         </div>

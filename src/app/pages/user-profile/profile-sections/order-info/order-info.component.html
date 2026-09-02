@@ -189,7 +189,7 @@
             @if (!loading_more) {
                 @if (page_check) {
                 <div class="flex pb-6 justify-center align-middle">
-                    <app-button (click)="next()" variant="secondary" icon="arrow-down" iconPosition="suffix" size="sm" class="shadow-lg">
+                    <app-button (click)="next()" variant="secondary" suffixIcon="arrow-down" size="sm" class="shadow-lg">
                     Load more
                     </app-button>
                 </div>
@@ -208,7 +208,7 @@
             <!-- Modal header -->
             <div class="flex items-center justify-between p-2 rounded-t dark:border-gray-600 shadow-lg">
                 <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._order_details' | translate }}</h2>                
-                <app-button (click)="showOrderDetails=false;" type="button" variant="ghost" size="sm" icon="xmark" class="ms-auto">
+                <app-button (click)="showOrderDetails=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark" class="ms-auto">
                     <span class="sr-only">{{ 'CARD._close' | translate }}</span>
                 </app-button>
             </div>

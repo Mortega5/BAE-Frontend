@@ -2,7 +2,7 @@
     <div class="relative w-full max-w-7xl max-h-full rounded-t-lg" (click)="$event.stopPropagation();">
         <!-- Modal content -->
         <div class="relative sm:m-8 bg-white rounded-lg shadow dark:border-gray-600 dark:bg-secondary-100 bg-cover bg-right-bottom rounded-lg overflow-y-auto max-h-[calc(100vh-10rem)]">
-          <app-button type="button" (click)="hide();$event.stopPropagation();" variant="ghost" size="sm" icon="xmark"
+          <app-button type="button" (click)="hide();$event.stopPropagation();" variant="ghost" size="sm" prefixIcon="xmark"
             class="absolute top-4 right-4 z-50">
             <span class="sr-only">{{ 'CARD._close' | translate }}</span>
           </app-button>
@@ -70,7 +70,7 @@
                 }
                 @if(rating){
                     <div class="flex">
-                        <app-button type="button" (click)="next()" icon="arrow-right" class="mt-4 w-fit me-2">
+                        <app-button type="button" (click)="next()" prefixIcon="arrow-right" class="mt-4 w-fit me-2">
                         {{ 'FEEDBACK._send' | translate }}
                         </app-button>
                     </div>
@@ -100,7 +100,7 @@
                         </label>
                     </div>
                     <div class="flex">
-                        <app-button type="button" (click)="updateFeedback()" [disabled]="wantsFeedback==null" icon="arrow-right" class="mt-4 w-fit me-2">
+                        <app-button type="button" (click)="updateFeedback()" [disabled]="wantsFeedback==null" prefixIcon="arrow-right" class="mt-4 w-fit me-2">
                         Confirm
                         </app-button>
                     </div>

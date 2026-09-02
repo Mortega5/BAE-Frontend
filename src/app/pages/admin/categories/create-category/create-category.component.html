@@ -158,7 +158,7 @@
         <div class="flex w-full justify-items-end justify-end">
           <app-button data-cy="adminCategoryNext" type="button" (click)="showFinish();generalDone=true;"
             [disabled]="!generalForm.valid || (parentSelectionCheck == true && selectedCategory==undefined)"
-            icon="arrow-right" iconPosition="suffix">
+            suffixIcon="arrow-right">
             {{ 'CREATE_CATEGORIES._next' | translate }}
           </app-button>
         </div>
@@ -211,7 +211,7 @@
 
 
           <div class="flex w-full justify-items-end justify-end ml-4">
-            <app-button data-cy="adminCreateCategory" type="button" (click)="createCategory();" icon="arrow-right" iconPosition="suffix">
+            <app-button data-cy="adminCreateCategory" type="button" (click)="createCategory();" suffixIcon="arrow-right">
               {{ 'CREATE_CATEGORIES._create' | translate }}
             </app-button>
           </div>

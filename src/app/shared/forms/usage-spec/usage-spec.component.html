@@ -59,13 +59,13 @@
       <!-- Navigation Buttons -->
       <div class="flex justify-end mt-6 space-x-4">
         <app-button data-cy="usageSpecPrevious" (click)="goToStep(currentStep - 1)"
-                [disabled]="currentStep === 0" variant="ghost" size="sm" icon="chevron-left">
+                [disabled]="currentStep === 0" variant="ghost" size="sm" prefixIcon="chevron-left">
           {{ 'USAGE_SPECS._previous' | translate }}
         </app-button>
 
         <app-button data-cy="stepperNext" (click)="goToStep(currentStep + 1)"
                 [disabled]="currentStep === steps.length - 1 || (formType === 'create' && !validateCurrentStep()) || !canNavigate(currentStep)"
-                variant="ghost" size="sm" icon="chevron-right" iconPosition="suffix">
+                variant="ghost" size="sm" suffixIcon="chevron-right">
           {{ 'USAGE_SPECS._next' | translate }}
         </app-button>
         @if(formType === 'create' && currentStep === 2 || formType === 'update'){

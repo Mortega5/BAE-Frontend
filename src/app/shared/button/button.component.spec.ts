@@ -57,8 +57,8 @@ describe('ButtonComponent', () => {
     expect(button.getAttribute('data-cy')).toBe('submitBtn');
   });
 
-  it('should render an icon before the content by default when an icon is set', () => {
-    component.icon = 'xmark';
+  it('should render a prefix icon before the content', () => {
+    component.prefixIcon = 'xmark';
     fixture.detectChanges();
 
     const button = buttonEl();
@@ -67,9 +67,8 @@ describe('ButtonComponent', () => {
     expect(button.firstElementChild?.tagName.toLowerCase()).toBe('fa-icon');
   });
 
-  it('should render the icon after the content when iconPosition is suffix', () => {
-    component.icon = 'xmark';
-    component.iconPosition = 'suffix';
+  it('should render a suffix icon after the content', () => {
+    component.suffixIcon = 'xmark';
     fixture.detectChanges();
 
     const button = buttonEl();
@@ -79,5 +78,23 @@ describe('ButtonComponent', () => {
   it('should render no icon when none is provided', () => {
     fixture.detectChanges();
     expect(buttonEl().querySelector('fa-icon')).toBeNull();
+  });
+
+  it('should render both a prefix and a suffix icon and mark the button as spread', () => {
+    component.prefixIcon = 'plus';
+    component.suffixIcon = 'xmark';
+    fixture.detectChanges();
+
+    const button = buttonEl();
+    const icons = button.querySelectorAll('fa-icon');
+    expect(icons.length).toBe(2);
+    expect(button.hasAttribute('data-spread')).toBeTrue();
+  });
+
+  it('should not mark the button as spread when only one icon is set', () => {
+    component.prefixIcon = 'xmark';
+    fixture.detectChanges();
+
+    expect(buttonEl().hasAttribute('data-spread')).toBeFalse();
   });
 });

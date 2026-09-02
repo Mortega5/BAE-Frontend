@@ -3,10 +3,9 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
 import { findButtonIcon } from 'src/app/config/popular-icons';
 
-export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'link' | 'ghost';
+export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'link' | 'ghost' | 'neutral';
 export type ButtonSize = 'sm' | 'md';
 export type ButtonShape = 'default' | 'pill';
-export type ButtonIconPosition = 'prefix' | 'suffix';
 
 /** Shared button used to consolidate the many near-duplicate Tailwind button styles
  * scattered across the app. Adopt incrementally when touching a file, not as a
@@ -26,11 +25,15 @@ export class ButtonComponent {
   @Input() outline = false;
   @Input() type: 'button' | 'submit' = 'button';
   @Input() disabled = false;
-  @Input() icon?: IconName;
-  @Input() iconPosition: ButtonIconPosition = 'prefix';
+  @Input() prefixIcon?: IconName;
+  @Input() suffixIcon?: IconName;
   @Input() dataCy?: string;
 
-  protected get resolvedIcon() {
-    return this.icon ? findButtonIcon(this.icon) : undefined;
+  protected get resolvedPrefixIcon() {
+    return this.prefixIcon ? findButtonIcon(this.prefixIcon) : undefined;
+  }
+
+  protected get resolvedSuffixIcon() {
+    return this.suffixIcon ? findButtonIcon(this.suffixIcon) : undefined;
   }
 }

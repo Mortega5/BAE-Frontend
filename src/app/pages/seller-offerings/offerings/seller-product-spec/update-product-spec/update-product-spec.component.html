@@ -75,7 +75,7 @@
           <div class="flex justify-between items-center mb-3">
             <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._key_features' |
               translate }}</span>
-            <app-button type="button" (click)="openItemModal('feature')" data-cy="addKeyFeature" size="sm" icon="plus">
+            <app-button type="button" (click)="openItemModal('feature')" data-cy="addKeyFeature" size="sm" prefixIcon="plus">
               {{ 'CREATE_PROD_SPEC._add_key_feature' | translate }}
             </app-button>
           </div>
@@ -152,7 +152,7 @@
           <div class="flex justify-between items-center mb-3">
             <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._business_benefits' |
               translate }}</span>
-            <app-button type="button" (click)="openItemModal('benefit')" data-cy="addBusinessBenefit" size="sm" icon="plus">
+            <app-button type="button" (click)="openItemModal('benefit')" data-cy="addBusinessBenefit" size="sm" prefixIcon="plus">
               {{ 'CREATE_PROD_SPEC._add_business_benefit' | translate }}
             </app-button>
           </div>
@@ -223,7 +223,7 @@
           <div class="flex justify-between items-center mb-3">
             <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._use_cases' |
               translate }}</span>
-            <app-button type="button" (click)="openItemModal('usecase')" data-cy="addUseCase" size="sm" icon="plus">
+            <app-button type="button" (click)="openItemModal('usecase')" data-cy="addUseCase" size="sm" prefixIcon="plus">
               {{ 'CREATE_PROD_SPEC._add_use_case' | translate }}
             </app-button>
           </div>
@@ -387,7 +387,7 @@
         @if (!loadingBundle_more) {
         @if (bundlePageCheck) {
         <div class="flex pt-6 pb-2 justify-center align-middle">
-          <app-button (click)="nextBundle()" variant="secondary" icon="arrow-down" iconPosition="suffix" size="sm" class="shadow-lg">
+          <app-button (click)="nextBundle()" variant="secondary" suffixIcon="arrow-down" size="sm" class="shadow-lg">
             {{ 'UPDATE_PROD_SPEC._load_more' | translate }}
           </app-button>
         </div>
@@ -493,7 +493,7 @@
                 <td class="px-6 py-4 break-all">{{ entry.url }}</td>
                 <td class="px-6 py-4 break-words">{{ entry.description }}</td>
                 <td class="px-2 py-4 text-center">
-                  <app-button (click)="removeEndpointUrl(idx)" type="button" variant="danger" size="sm" icon="xmark" />
+                  <app-button (click)="removeEndpointUrl(idx)" type="button" variant="danger" size="sm" prefixIcon="xmark" />
                 </td>
               </tr>
               }
@@ -530,7 +530,7 @@
           <div class="flex justify-center">
             <app-button type="button" (click)="addEndpointUrl()"
               [disabled]="!newEndpointUrl.trim() || !newEndpointDescription.trim()"
-              icon="plus" iconPosition="suffix">
+              suffixIcon="plus">
               {{ 'CREATE_PROD_SPEC._dsp_add_endpoint' | translate }}
             </app-button>
           </div>
@@ -603,7 +603,7 @@
                   {{rel.name}}
                 </td>
                 <td class="px-6 py-4">
-                  <app-button (click)="deleteRel(rel)" variant="danger" size="sm" icon="xmark" />
+                  <app-button (click)="deleteRel(rel)" variant="danger" size="sm" prefixIcon="xmark" />
                 </td>
               </tr>
               }
@@ -613,7 +613,7 @@
         }
         @if(!showCreateRel){
         <div class="flex w-full justify-items-center justify-center">
-          <app-button type="button" (click)="showCreateRel=!showCreateRel" icon="arrow-right" iconPosition="suffix">
+          <app-button type="button" (click)="showCreateRel=!showCreateRel" suffixIcon="arrow-right">
             {{ 'UPDATE_PROD_SPEC._add_relationship' | translate }}
           </app-button>
         </div>
@@ -625,7 +625,7 @@
         @if (!loadingprodSpecRel_more) {
         @if (prodSpecRelPageCheck) {
         <div class="flex pt-6 pb-2 justify-center align-middle">
-          <app-button (click)="nextProdSpecsRel()" variant="secondary" icon="arrow-down" iconPosition="suffix" size="sm" class="shadow-lg">
+          <app-button (click)="nextProdSpecsRel()" variant="secondary" suffixIcon="arrow-down" size="sm" class="shadow-lg">
             {{ 'UPDATE_PROD_SPEC._load_more' | translate }}
           </app-button>
         </div>
@@ -635,7 +635,7 @@
         }
         }
         <div class="flex w-full justify-items-center justify-center mt-4">
-          <app-button type="button" (click)="saveRel()" [disabled]="!relForm.value.prodSpec" icon="floppy-disk" iconPosition="suffix">
+          <app-button type="button" (click)="saveRel()" [disabled]="!relForm.value.prodSpec" suffixIcon="floppy-disk">
             {{ 'UPDATE_PROD_SPEC._save_relationship' | translate }}
           </app-button>
         </div>
@@ -670,7 +670,7 @@
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 max-w-3xl">{{ 'CREATE_PROD_SPEC._faqs_intro2' |
               translate }}</p>
           </div>
-          <app-button type="button" (click)="addFaq()" data-cy="addFaq" icon="plus" class="shrink-0">
+          <app-button type="button" (click)="addFaq()" data-cy="addFaq" prefixIcon="plus" class="shrink-0">
             {{ 'CREATE_PROD_SPEC._add_faq' | translate }}
           </app-button>
         </div>
@@ -691,7 +691,7 @@
               translate }}</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">{{ 'CREATE_PROD_SPEC._add_new_to_collect' |
               translate }}</p>
-            <app-button type="button" (click)="addFaq()" icon="plus">
+            <app-button type="button" (click)="addFaq()" prefixIcon="plus">
               {{ 'CREATE_PROD_SPEC._add_faq' | translate }}
             </app-button>
           </div>
@@ -806,7 +806,7 @@
             </div>
             <app-button type="button" (click)="openRequestValidationModal(); $event.stopPropagation();"
               [disabled]="!hasSelfAttestation() || hasUnsavedComplianceProfileChanges()"
-              icon="check" iconPosition="suffix" class="shrink-0">
+              suffixIcon="check" class="shrink-0">
               {{ 'CREATE_PROD_SPEC._request_validation' | translate }}
             </app-button>
           </div>
@@ -876,7 +876,7 @@
           @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._modal_title_benefit' | translate }} }
           @else { {{ 'CREATE_PROD_SPEC._modal_title_usecase' | translate }} }
         </h2>
-        <app-button type="button" (click)="closeItemModal()" variant="ghost" size="sm" icon="xmark" />
+        <app-button type="button" (click)="closeItemModal()" variant="ghost" size="sm" prefixIcon="xmark" />
       </div>
       <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
         @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._modal_desc_feature' | translate }} }
@@ -943,7 +943,7 @@
   <div (click)="$event.stopPropagation()" class="bg-white dark:bg-secondary-100 rounded-2xl shadow-xl w-full max-w-[480px]">
     <div class="p-8">
       <div class="flex justify-end">
-        <app-button type="button" (click)="cancelDeleteFaq()" variant="ghost" size="sm" icon="xmark" />
+        <app-button type="button" (click)="cancelDeleteFaq()" variant="ghost" size="sm" prefixIcon="xmark" />
       </div>
       <div class="flex flex-col items-center text-center pb-2">
         <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4" style="background-color: #DDE6F6;">

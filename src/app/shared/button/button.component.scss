@@ -26,6 +26,14 @@
     }
   }
 
+  &[data-spread] {
+    @apply w-full justify-between;
+  }
+
+  .app-button-group {
+    @apply inline-flex items-center gap-2;
+  }
+
   &[data-variant="primary"] {
     color: var(--button-primary-text);
     background-color: var(--button-primary-bg);
@@ -108,6 +116,20 @@
 
     &:focus {
       --tw-ring-color: var(--button-ghost-ring);
+    }
+  }
+
+  &[data-variant="neutral"] {
+    color: var(--button-neutral-text);
+    background-color: transparent;
+    border-color: var(--button-neutral-border);
+
+    &:hover {
+      background-color: var(--button-neutral-bg-hover);
+    }
+
+    &:focus {
+      --tw-ring-color: var(--button-neutral-ring);
     }
   }
 }

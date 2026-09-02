@@ -11,7 +11,7 @@
                     </h1>
                 </div>
                 @if(checkAdmin){
-                    <app-button type="button" data-cy="newBlogEntry" (click)="goToCreate()" icon="plus" iconPosition="suffix">
+                    <app-button type="button" data-cy="newBlogEntry" (click)="goToCreate()" suffixIcon="plus">
                         {{ createButtonLabel }}
                     </app-button>
                 }
@@ -27,11 +27,11 @@
                     <h2 class="font-bold mb-4 dark:text-white break-words" [ngClass]="getCardTitleClass()">{{ entry.title }}</h2>
                     @if(canManageEntry(entry)){
                         <div class="flex items-center gap-2">
-                            <app-button type="button" (click)="goToUpdate(entry._id)" shape="pill" icon="pen-to-square" title="Edit entry">
+                            <app-button type="button" (click)="goToUpdate(entry._id)" shape="pill" prefixIcon="pen-to-square" title="Edit entry">
                               <span class="sr-only">Edit entry</span>
                             </app-button>
                             <app-button type="button" (click)="openDeleteDialog(entry)" [disabled]="isDeletingEntry(entry)"
-                                    variant="danger" icon="trash" title="Delete entry">
+                                    variant="danger" prefixIcon="trash" title="Delete entry">
                               <span class="sr-only">Delete entry</span>
                             </app-button>
                         </div>

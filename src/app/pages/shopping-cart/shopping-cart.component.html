@@ -108,7 +108,7 @@
         <h5 class="md:text-lg lg:text-xl font-semibold tracking-tight text-primary-100 dark:text-primary-100 m-2">{{
           'SHOPPING_CART._cart' | translate }}:</h5>
         @for (item of items; track item.id; let idx = $index) {
-        <app-button id="'dropButton'+idx" (click)="clickDropdown(item.id)" icon="chevron-down" iconPosition="suffix"
+        <app-button id="'dropButton'+idx" (click)="clickDropdown(item.id)" suffixIcon="chevron-down"
           type="button" class="w-full mt-2">
           {{item.name}}
         </app-button>
@@ -198,7 +198,7 @@
       </div>
     </form>
     <div class="flex w-full justify-end">
-      <app-button type="button" (click)="orderProduct()" icon="arrow-right" iconPosition="suffix" class="m-2">
+      <app-button type="button" (click)="orderProduct()" suffixIcon="arrow-right" class="m-2">
         {{ 'SHOPPING_CART._buy' | translate }}
       </app-button>
     </div>

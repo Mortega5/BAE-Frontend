@@ -5,7 +5,7 @@
 Adopt it incrementally when touching a file for another reason; it's not meant to be swept across the whole app in one pass.
 
 ```html
-<app-button icon="plus" iconPosition="suffix" dataCy="addItem" (click)="add()">
+<app-button suffixIcon="plus" dataCy="addItem" (click)="add()">
   {{ 'NS._add' | translate }}
 </app-button>
 
@@ -13,7 +13,11 @@ Adopt it incrementally when touching a file for another reason; it's not meant t
   {{ 'NS._delete' | translate }}
 </app-button>
 
-<app-button variant="ghost" size="sm" icon="xmark" dataCy="closeModal" (click)="close()" />
+<app-button variant="ghost" size="sm" prefixIcon="xmark" dataCy="closeModal" (click)="close()" />
+
+<app-button variant="neutral" prefixIcon="file-lines" suffixIcon="download" (click)="download()">
+  {{ 'NS._download_template' | translate }}
+</app-button>
 ```
 
 ## Theming
@@ -43,6 +47,12 @@ Each variable has a default on `body` (light) and, where it differs, an override
 | `--button-ghost-text-hover` | `ghost` hover text/icon color | `rgb(17 24 39)` (gray-900) | `#fff` |
 | `--button-ghost-bg-hover` | `ghost` hover background | `rgb(229 231 235)` (gray-200) | `rgb(75 85 99)` (gray-600) |
 | `--button-ghost-ring` | `ghost` focus ring color | `rgb(156 163 175 / 50%)` | `rgb(var(--theme-secondary-100) / 50%)` |
+| `--button-neutral-text` | `neutral` text/icon color | `rgb(55 65 81)` (gray-700) | `rgb(209 213 219)` (gray-300) |
+| `--button-neutral-border` | `neutral` border color | `rgb(209 213 219)` (gray-300) | `rgb(var(--theme-secondary-200))` |
+| `--button-neutral-bg-hover` | `neutral` hover background | `rgb(249 250 251)` (gray-50) | `rgb(var(--theme-secondary-300) / 50%)` |
+| `--button-neutral-ring` | `neutral` focus ring color | `rgb(209 213 219 / 50%)` | `rgb(var(--theme-secondary-100) / 50%)` |
+
+`neutral` vs `ghost` — both are gray and transparent at rest, but `neutral` always shows a border (a self-contained "card" look for a row-style clickable item, e.g. a download link with a leading and trailing icon), while `ghost` has no border and is meant for bare icon-only actions (a modal's "×", a row action) where the hover-only background is what signals interactivity. `neutral` has no color of its own to give via `outline` — it's already an outline.
 
 `link` vs `ghost` — they're easy to confuse: `link` never gets a background, even on hover, only its text color changes, and it's meant for text CTAs ("Back", "See more"). `ghost` is transparent at rest but gets a background on hover (a Material-Design-style "state layer"), and it's meant for icon-only buttons (a modal's "×" close button, a bare row action) where a hover-only background is what signals "this is clickable" — a `link`-styled icon button wouldn't look interactive at all.
 
@@ -56,14 +66,24 @@ Each variable has a default on `body` (light) and, where it differs, an override
 
 | Name | Type | Default | Description |
 |---|---|---|---|
-| `variant` | `'primary' \| 'secondary' \| 'danger' \| 'link' \| 'ghost'` | `'primary'` | Visual style — see the table above for each variant's tokens |
+| `variant` | `'primary' \| 'secondary' \| 'danger' \| 'link' \| 'ghost' \| 'neutral'` | `'primary'` | Visual style — see the table above for each variant's tokens |
 | `size` | `'sm' \| 'md'` | `'md'` | Padding/height |
 | `shape` | `'default' \| 'pill'` | `'default'` | `'pill'` is a fixed square with fully rounded corners (`border-radius: 9999px`) — for icon-only circular buttons. It overrides the size's normal padding, since a single icon with text-oriented padding renders as an oval, not a circle. Orthogonal to `variant`/`outline`; not meant for a pill button with visible text |
 | `outline` | `boolean` | `false` | Transparent background with a colored border/text (using the variant's own bg color) that fills solid on hover. Only has a visible effect on `primary` and `danger` — `link`/`ghost` have no fill to outline, and `secondary` already reads as an outline style |
 | `type` | `'button' \| 'submit'` | `'button'` | Native `<button>` type |
 | `disabled` | `boolean` | `false` | Native disabled state |
-| `icon` | `IconName` (FontAwesome) | `undefined` | Optional icon, by name — resolved via `findButtonIcon` in [popular-icons.ts](../../config/popular-icons.ts). Only names already in that registry render; add new ones there when a button needs an icon that isn't preloaded yet |
-| `iconPosition` | `'prefix' \| 'suffix'` | `'prefix'` | Where the icon renders relative to the projected content |
+| `prefixIcon` | `IconName` (FontAwesome) | `undefined` | Icon before the content, by name — resolved via `findButtonIcon` in [popular-icons.ts](../../config/popular-icons.ts). Only names already in that registry render; add new ones there when a button needs an icon that isn't preloaded yet |
+| `suffixIcon` | `IconName` | `undefined` | Icon after the content. Set alongside `prefixIcon` when a button needs an icon on both sides (e.g. a file icon before the label and a download icon after) — when both resolve, the button automatically switches to `justify-between` (full width, prefix+content hugging the left, the suffix icon pinned to the right), that's the `[data-spread]` attribute in `button.component.css` |
 | `dataCy` | `string` | `undefined` | Forwarded to the native `<button>` as `data-cy`, for e2e tests |
 
 There's no `click` output — bind `(click)` directly on `<app-button>` and it's picked up via native DOM event bubbling from the inner `<button>`, same as any other component host.
+
+**`class` doesn't reach the inner `<button>`.** Angular applies a static/bound `class` on `<app-button>` to the *host* element (the `<app-button>` tag itself), which is a separate DOM node wrapping the real `<button class="app-button">` rendered by this component's own template — the two never merge. Spacing/sizing utilities that only need a box the same size as the button (`mt-2`, `me-2`, `shrink-0`) happen to look right because the host has no border/padding of its own and tightly wraps its one child, but anything that needs to affect the *button's own* box — a width constraint like `max-w-[420px]`, or a border/background you want the button itself to carry — has no effect on `<app-button>` and needs a wrapping element in the caller's template instead:
+```html
+<div class="max-w-[420px]">
+  <app-button variant="neutral" prefixIcon="file-lines" suffixIcon="download">
+    {{ 'NS._download_template' | translate }}
+  </app-button>
+</div>
+```
+Anything that's about the button's own *appearance* (color, border, radius, padding) should be a proper `@Input` (`variant`/`size`/`shape`/`outline`) instead of a passed-in class, precisely because those can't reach the real button anyway.

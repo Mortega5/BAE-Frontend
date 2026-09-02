@@ -37,7 +37,7 @@
     }
 
     <div class="flex w-full justify-end mr-4">
-      <app-button data-cy="adminSaveDefaultCatalog" type="button" (click)="saveDefaultCatalog()" [disabled]="defaultCatalogForm.invalid || loading" icon="arrow-right" iconPosition="suffix">
+      <app-button data-cy="adminSaveDefaultCatalog" type="button" (click)="saveDefaultCatalog()" [disabled]="defaultCatalogForm.invalid || loading" suffixIcon="arrow-right">
         {{ 'ADMIN._saveDefaultCatalog' | translate }}
       </app-button>
     </div>

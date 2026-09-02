@@ -53,7 +53,7 @@
     <div class="flex items-center justify-between p-2 rounded-t dark:border-gray-600 shadow-lg">
       <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{
         'PRODUCT_ORDERS._order_details' | translate }}</h2>
-      <app-button (click)="showOrderDetails=false;" type="button" variant="ghost" size="sm" icon="xmark" class="ms-auto">
+      <app-button (click)="showOrderDetails=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark" class="ms-auto">
         <span class="sr-only">{{ 'CARD._close' | translate }}</span>
       </app-button>
     </div>
@@ -168,7 +168,7 @@
         <h3 class="text-xl font-semibold text-secondary-50 dark:text-white">
           Confirm Action
         </h3>
-        <app-button type="button" variant="ghost" size="sm" icon="xmark" (click)="closeModal()" class="ml-auto" />
+        <app-button type="button" variant="ghost" size="sm" prefixIcon="xmark" (click)="closeModal()" class="ml-auto" />
       </div>
       <!-- Cuerpo del modal -->
       <div class="p-6 text-center">
@@ -212,7 +212,7 @@
       Order Notes
     </h5>
 
-    <app-button type="button" (click)="closeDrawer()" variant="ghost" size="sm" icon="xmark" />
+    <app-button type="button" (click)="closeDrawer()" variant="ghost" size="sm" prefixIcon="xmark" />
   </div>
 
 

@@ -42,7 +42,7 @@
     <div (click)="$event.stopPropagation();" [ngClass]="showDrawer ? 'backdrop-blur-sm': ''"
       class="fixed h-screen w-3/4 top-0 left-0 z-50 p-4 overflow-y-auto bg-white dark:bg-gray-800" tabindex="-1"
       aria-labelledby="drawer-label">
-      <app-button type="button" (click)="showDrawer=!showDrawer" variant="ghost" size="sm" icon="xmark"
+      <app-button type="button" (click)="showDrawer=!showDrawer" variant="ghost" size="sm" prefixIcon="xmark"
         class="absolute top-2.5 end-2.5">
         <span class="sr-only">{{ 'DASHBOARD._close_menu' | translate }}</span>
       </app-button>
@@ -54,7 +54,7 @@
     }
     <div class="flex flex-col w-full md:w-4/5 lg:w-3/4">
       <section class="md:pl-5 content pb-5 px-4 flex items-center">
-        <app-button (click)="showDrawer=!showDrawer;$event.stopPropagation();" type="button" variant="secondary" icon="bars" class="md:hidden">
+        <app-button (click)="showDrawer=!showDrawer;$event.stopPropagation();" type="button" variant="secondary" prefixIcon="bars" class="md:hidden">
           {{ 'DASHBOARD._categories_single' | translate }}
         </app-button>
         <!--@if(searchEnabled){
@@ -117,7 +117,7 @@
       @if (!loading_more) {
       @if (page_check) {
       <div class="flex pb-12 justify-center align-middle">
-        <app-button (click)="next()" variant="ghost" icon="arrow-down" iconPosition="suffix" size="sm">
+        <app-button (click)="next()" variant="ghost" suffixIcon="arrow-down" size="sm">
           Load more
         </app-button>
       </div>

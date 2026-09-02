@@ -123,7 +123,7 @@
             <div class="flex gap-1">
               <app-button data-cy="modifyInvProduct" type="button" [attr.data-tooltip-target]="'modify-default-' + idx"
                 (click)="openModifyFromCard(inv);$event.stopPropagation();" variant="primary" shape="pill" size="sm"
-                icon="pen-to-square">
+                prefixIcon="pen-to-square">
                 <span class="sr-only">{{ 'PRODUCT_INVENTORY._modify_chars' | translate }}</span>
               </app-button>
               <div [attr.id]="'modify-default-' + idx" role="tooltip"
@@ -134,7 +134,7 @@
               <app-button data-cy="terminateInvProduct" type="button"
                 [attr.data-tooltip-target]="'unsubscribe-default-' + idx"
                 (click)="showUnsubscribeModal(inv);$event.stopPropagation();" variant="danger" shape="pill" size="sm"
-                icon="xmark">
+                prefixIcon="xmark">
                 <span class="sr-only">Unsubscribe</span>
               </app-button>
               <div [attr.id]="'unsubscribe-default-' + idx" role="tooltip"
@@ -211,7 +211,7 @@
   @if (!loading_more) {
   @if (page_check) {
   <div class="flex pt-6 pb-6 justify-center align-middle">
-    <app-button data-cy="loadMore" (click)="next()" variant="ghost" icon="arrow-down" iconPosition="suffix" size="sm">
+    <app-button data-cy="loadMore" (click)="next()" variant="ghost" suffixIcon="arrow-down" size="sm">
       Load more
     </app-button>
   </div>
@@ -586,7 +586,7 @@
       <!-- Modal content -->
       <div class="relative p-4 text-center bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
         <app-button type="button" (click)="unsubscribeModal=false;$event.stopPropagation();" variant="ghost" size="sm"
-          icon="xmark" class="absolute top-2.5 right-2.5">
+          prefixIcon="xmark" class="absolute top-2.5 right-2.5">
           <span class="sr-only">{{ 'PRODUCT_INVENTORY._close_modal' | translate }}</span>
         </app-button>
 
@@ -620,7 +620,7 @@
       <!-- Modal content -->
       <div class="relative p-4 text-center bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
         <app-button type="button" (click)="renewModal=false;$event.stopPropagation();" variant="ghost" size="sm"
-          icon="xmark" class="absolute top-2.5 right-2.5">
+          prefixIcon="xmark" class="absolute top-2.5 right-2.5">
           <span class="sr-only">{{ 'PRODUCT_INVENTORY._close_modal' | translate }}</span>
         </app-button>
         <svg class="text-gray-400 dark:text-gray-500 w-12 h-12 mb-3.5 mx-auto" aria-hidden="true" fill="currentColor"
@@ -660,7 +660,7 @@
   <div class="backdrop-blur-sm fixed inset-0 z-50 flex justify-center items-center">
     <div class="relative p-4 w-full max-w-2xl max-h-[80vh] overflow-y-auto" (click)="$event.stopPropagation();">
       <div class="relative bg-white rounded-lg shadow dark:bg-gray-800 p-6">
-        <app-button type="button" (click)="showBillingSelector = false" variant="ghost" size="sm" icon="xmark"
+        <app-button type="button" (click)="showBillingSelector = false" variant="ghost" size="sm" prefixIcon="xmark"
           class="absolute top-2.5 right-2.5" />
         <h3 class="text-xl font-semibold text-primary-100 dark:text-white mb-4">{{ 'PRODUCT_INVENTORY._select_billing' |
           translate }}</h3>

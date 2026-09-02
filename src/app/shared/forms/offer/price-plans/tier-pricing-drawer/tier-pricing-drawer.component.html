@@ -54,7 +54,7 @@
             <app-button
               type="button"
               (click)="addMarker()"
-              icon="plus"
+              prefixIcon="plus"
             >
               Add Marker
             </app-button>
@@ -173,7 +173,7 @@
                     (click)="openPriceForm(i)"
                     size="sm"
                     [variant]="subRange.priceComponent ? 'primary' : 'secondary'"
-                    [icon]="subRange.priceComponent ? 'pen-to-square' : 'plus'"
+                    [prefixIcon]="subRange.priceComponent ? 'pen-to-square' : 'plus'"
                   >
                     {{ subRange.priceComponent ? 'Edit' : 'Configure' }}
                   </app-button>

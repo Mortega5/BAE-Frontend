@@ -38,22 +38,22 @@
     </div>
 
     <div class="flex items-center gap-1">
-      <app-button type="button" variant="ghost" size="sm" icon="angles-left"
+      <app-button type="button" variant="ghost" size="sm" prefixIcon="angles-left"
         [disabled]="currentPage === 1" (click)="goToPage(1)">
         <span class="sr-only">{{ 'FORMS.PAGINATED_TABLE._first' | translate }}</span>
       </app-button>
 
-      <app-button type="button" variant="ghost" size="sm" icon="chevron-left"
+      <app-button type="button" variant="ghost" size="sm" prefixIcon="chevron-left"
         [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
         <span class="sr-only">{{ 'FORMS.PAGINATED_TABLE._previous' | translate }}</span>
       </app-button>
 
-      <app-button type="button" variant="ghost" size="sm" icon="chevron-right"
+      <app-button type="button" variant="ghost" size="sm" prefixIcon="chevron-right"
         [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
         <span class="sr-only">{{ 'FORMS.PAGINATED_TABLE._next' | translate }}</span>
       </app-button>
 
-      <app-button type="button" variant="ghost" size="sm" icon="angles-right"
+      <app-button type="button" variant="ghost" size="sm" prefixIcon="angles-right"
         [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">
         <span class="sr-only">{{ 'FORMS.PAGINATED_TABLE._last' | translate }}</span>
       </app-button>

@@ -187,7 +187,7 @@
       @if (showDrawer) {
       <div (click)="$event.stopPropagation();"
         class="fixed h-screen w-3/4 top-0 left-0 z-50 p-4 overflow-y-auto bg-white dark:bg-secondary-300" tabindex="-1">
-        <app-button type="button" (click)="showDrawer=!showDrawer" variant="ghost" size="sm" icon="xmark"
+        <app-button type="button" (click)="showDrawer=!showDrawer" variant="ghost" size="sm" prefixIcon="xmark"
           class="absolute top-2.5 end-2.5">
           <span class="sr-only">{{ 'DASHBOARD._close_menu' | translate }}</span>
         </app-button>
@@ -211,7 +211,7 @@
 
       <div class="min-w-0 flex-1">
 
-        <app-button (click)="showDrawer=!showDrawer; $event.stopPropagation();" type="button" variant="secondary" icon="bars" class="mb-4 md:hidden">
+        <app-button (click)="showDrawer=!showDrawer; $event.stopPropagation();" type="button" variant="secondary" prefixIcon="bars" class="mb-4 md:hidden">
           Categories
         </app-button>
 
@@ -418,7 +418,7 @@
         @if (!loading_more) {
         @if (page_check) {
         <div class="flex pb-12 justify-center mt-6">
-          <app-button data-cy="loadMore" (click)="next()" variant="secondary" icon="arrow-down" iconPosition="suffix">
+          <app-button data-cy="loadMore" (click)="next()" variant="secondary" suffixIcon="arrow-down">
             Load more
           </app-button>
         </div>

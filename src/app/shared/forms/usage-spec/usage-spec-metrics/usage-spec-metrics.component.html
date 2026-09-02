@@ -4,7 +4,7 @@
     <p class="text-sm text-gray-500 max-w-2xl">{{ 'USAGE_SPECS._metrics_desc' | translate }}</p>
   </div>
   @if(metrics.length > 0 && showCreateMetric == false){
-    <app-button data-cy="btnNewMetric" type="button" (click)="showCreateMetric=!showCreateMetric" variant="secondary" icon="plus" class="shrink-0">
+    <app-button data-cy="btnNewMetric" type="button" (click)="showCreateMetric=!showCreateMetric" variant="secondary" prefixIcon="plus" class="shrink-0">
       {{ 'USAGE_SPECS._create_metric' | translate }}
     </app-button>
   }
@@ -55,7 +55,7 @@
         </div>
         <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ 'USAGE_SPECS._no_metrics' | translate }}</h3>
         <p class="text-sm text-gray-500 mb-5">{{ 'USAGE_SPECS._add_metric_desc' | translate }}</p>
-        <app-button data-cy="btnNewMetric" type="button" (click)="showCreateMetric=!showCreateMetric" variant="secondary" icon="plus">
+        <app-button data-cy="btnNewMetric" type="button" (click)="showCreateMetric=!showCreateMetric" variant="secondary" prefixIcon="plus">
           {{ 'USAGE_SPECS._create_metric' | translate }}
         </app-button>
       </div>

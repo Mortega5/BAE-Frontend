@@ -67,7 +67,7 @@
         }
         @if (!isReadonly) {
         <app-button type="button" (click)="remove(att)" [attr.data-cy]="dataCy ? dataCy + 'Remove' : null"
-          variant="danger" size="sm" icon="xmark" class="z-10 absolute top-1 right-1 shadow" />
+          variant="danger" size="sm" prefixIcon="xmark" class="z-10 absolute top-1 right-1 shadow" />
         }
       </div>
       <p class="mt-1 text-xs text-gray-700 dark:text-gray-300 text-center truncate" [title]="att.name">{{ att.name }}

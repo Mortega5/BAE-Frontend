@@ -1,11 +1,19 @@
 <button class="app-button" [type]="type" [disabled]="disabled" [attr.data-cy]="dataCy || null"
   [attr.data-variant]="variant" [attr.data-size]="size" [attr.data-shape]="shape"
-  [attr.data-outline]="outline ? '' : null">
-  @if (resolvedIcon && iconPosition === 'prefix') {
-  <fa-icon [icon]="resolvedIcon" />
+  [attr.data-outline]="outline ? '' : null" [attr.data-spread]="resolvedPrefixIcon && resolvedSuffixIcon ? '' : null">
+  @if (resolvedPrefixIcon && resolvedSuffixIcon) {
+  <span class="app-button-group">
+    <fa-icon [icon]="resolvedPrefixIcon" />
+    <ng-content></ng-content>
+  </span>
+  <fa-icon [icon]="resolvedSuffixIcon" />
+  } @else {
+  @if (resolvedPrefixIcon) {
+  <fa-icon [icon]="resolvedPrefixIcon" />
   }
   <ng-content></ng-content>
-  @if (resolvedIcon && iconPosition === 'suffix') {
-  <fa-icon [icon]="resolvedIcon" />
+  @if (resolvedSuffixIcon) {
+  <fa-icon [icon]="resolvedSuffixIcon" />
+  }
   }
 </button>

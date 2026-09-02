@@ -6,7 +6,7 @@
           FAQ
         </h1>
 
-        <app-button *ngIf="checkAdmin" type="button" data-cy="newFaqEntry" (click)="goToCreate()" icon="plus" iconPosition="suffix">
+        <app-button *ngIf="checkAdmin" type="button" data-cy="newFaqEntry" (click)="goToCreate()" suffixIcon="plus">
           Add FAQ
         </app-button>
       </div>
@@ -31,11 +31,11 @@
           </button>
 
           <div *ngIf="canManageEntry()" class="flex shrink-0 items-center gap-2 pt-1">
-            <app-button type="button" (click)="goToUpdate(faq)" shape="pill" icon="pen-to-square" title="Edit FAQ">
+            <app-button type="button" (click)="goToUpdate(faq)" shape="pill" prefixIcon="pen-to-square" title="Edit FAQ">
               <span class="sr-only">Edit FAQ</span>
             </app-button>
             <app-button type="button" (click)="openDeleteDialog(faq)" [disabled]="isDeletingEntry(faq)"
-                    variant="danger" icon="trash" title="Delete FAQ">
+                    variant="danger" prefixIcon="trash" title="Delete FAQ">
               <span class="sr-only">Delete FAQ</span>
             </app-button>
           </div>

@@ -32,11 +32,11 @@
                 <h1 class="text-3xl font-bold text-secondary-200 dark:text-white break-words">{{entry.title}}</h1>
                 @if(canManageEntry()){
                     <div class="flex items-center gap-2">
-                        <app-button type="button" (click)="goToUpdate()" shape="pill" icon="pen-to-square" title="Edit entry">
+                        <app-button type="button" (click)="goToUpdate()" shape="pill" prefixIcon="pen-to-square" title="Edit entry">
                           <span class="sr-only">Edit entry</span>
                         </app-button>
                         <app-button type="button" (click)="openDeleteDialog()" [disabled]="deleting"
-                                variant="danger" icon="trash" title="Delete entry">
+                                variant="danger" prefixIcon="trash" title="Delete entry">
                           <span class="sr-only">Delete entry</span>
                         </app-button>
                     </div>
