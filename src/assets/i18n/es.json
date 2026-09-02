@@ -905,6 +905,7 @@
   },
   "SHOPPING_CART": {
     "_buy": "Comprar",
+    "_remove_item": "Eliminar artículo",
     "_back": "Atrás",
     "_billingAddress": "Dirección de facturación",
     "_confirm": "Confirmar y pagar",

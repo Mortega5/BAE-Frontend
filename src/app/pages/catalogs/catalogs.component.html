@@ -115,10 +115,9 @@
     @if (!loading_more) {
       @if (page_check) {
         <div class="flex justify-center pt-[40px]">
-          <button data-cy="loadMore" (click)="next()" class="flex h-10 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-medium text-gray-500 hover:bg-secondary-50/70">
+          <app-button data-cy="loadMore" type="button" (click)="next()" variant="secondary" suffixIcon="arrow-down" size="sm">
             {{ 'CATALOGS._load_more' | translate }}
-            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5" /></svg>
-          </button>
+          </app-button>
         </div>
       }
     } @else {

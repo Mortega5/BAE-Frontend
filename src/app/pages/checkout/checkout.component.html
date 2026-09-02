@@ -145,12 +145,9 @@
                  </div>
                 </div>
                <div class="p-2 flex items-center">
-                  <button type="button" (click)="deleteProduct(item)"
-                  class="h-fit text-gray-700 dark:text-white hover:bg-gray-300 hover:text-white dark:hover:text-secondary-400 focus:ring-4 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center">
-                     <svg class="w-[12px] h-[12px] " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                      </svg>
-                  </button>
+                  <app-button type="button" (click)="deleteProduct(item)" variant="ghost" size="sm" prefixIcon="xmark">
+                    <span class="sr-only">{{ 'SHOPPING_CART._remove_item' | translate }}</span>
+                  </app-button>
                </div>
             </div>
           }

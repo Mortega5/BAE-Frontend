@@ -905,6 +905,7 @@
   },
   "SHOPPING_CART": {
     "_buy": "Buy",
+    "_remove_item": "Remove item",
     "_back": "Back",
     "_billingAddress": "Billing Address",
     "_confirm": "Confirm and pay",
