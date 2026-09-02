@@ -274,30 +274,17 @@
   <ng-template #headerActionsTemplate let-mobile="mobile">
     @if (!is_logged) {
     @if (providerThemeName === 'DOME') {
-    @if (mobile) {
-    <button type="button" class="mobile-action-btn mobile-action-btn--outline" (click)="goTo('/contact-us')">
+    <app-button type="button" (click)="goTo('/contact-us')" [dataCy]="mobile ? undefined : 'contactUs'"
+      variant="primary" [outline]="true" [class]="mobile ? 'w-full' : 'ml-1'"
+      style="--button-outline-text: white; --button-outline-border: white">
       {{ 'HEADER.contactUs' | translate }}
-    </button>
-    } @else {
-    <button data-cy="contactUs" id="contactUs" type="button"
-      class="ml-1 inline-flex h-[44px] items-center justify-center rounded-[10px] bg-transparent border-color-c px-6 text-[15px] font-semibold text-white transition"
-      (click)="goTo('/contact-us')">
-      {{ 'HEADER.contactUs' | translate}}
-    </button>
-    }
+    </app-button>
     }
 
-    @if (mobile) {
-    <button type="button" class="mobile-action-btn mobile-action-btn--solid" (click)="onLoginClick()">
+    <app-button type="button" (click)="onLoginClick()" [dataCy]="mobile ? undefined : 'login'"
+      [class]="mobile ? 'w-full' : 'ml-1'">
       Login
-    </button>
-    } @else {
-    <button data-cy="login" id="login" type="button"
-      class="ml-1 inline-flex h-[44px] items-center justify-center rounded-[10px] header-solid-btn px-6 text-[15px] font-semibold text-white transition"
-      (click)="onLoginClick()">
-      Login
-    </button>
-    }
+    </app-button>
     } @else {
     @if (!mobile) {
     <button data-cy="shoppingCart" id="shoppingCart" type="button" aria-label="Shopping cart"
