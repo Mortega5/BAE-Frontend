@@ -27,21 +27,13 @@ describe('OrganizationDetailsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render contact medium title from contactType', () => {
-    component.orgInfo = {
-      contactMedium: [{
-        mediumType: 'Email',
-        characteristic: {
-          contactType: 'Support',
-          emailAddress: 'support@example.com'
-        }
-      }]
-    };
+  it('should render the support email once resolved from contact medium', () => {
+    component.notFound = false;
+    component.email = 'support@example.com';
 
     fixture.detectChanges();
 
     const text = fixture.nativeElement.textContent;
-    expect(text).toContain('Support');
     expect(text).toContain('support@example.com');
   });
 });

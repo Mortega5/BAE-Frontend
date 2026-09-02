@@ -133,7 +133,7 @@ describe('DynamicFormComponent', () => {
     expect(select.options.length).toBe(2);
   });
 
-  it('should render a multiple select for select fields with multiple=true', () => {
+  it('should render a multiple-select component for select fields with multiple=true', () => {
     const fields: FormField[] = [{
       name: 'tags', label: 'Tags', type: 'select',
       options: [{ value: 'x', label: 'X' }, { value: 'y', label: 'Y' }],
@@ -142,9 +142,11 @@ describe('DynamicFormComponent', () => {
     component.fields = fields;
     component.formGroup = new FormGroup({ tags: new FormControl([]) });
     fixture.detectChanges();
-    const select = fixture.nativeElement.querySelector('select#tags');
-    expect(select).toBeTruthy();
-    expect(select.multiple).toBeTrue();
+    // multiple-select's own [id] binding lands on its inner <div>, not the host tag
+    // (same host/inner-element split as app-button) — so id="tags" is checked there.
+    expect(fixture.nativeElement.querySelector('multiple-select')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('multiple-select #tags')).toBeTruthy();
+    expect(fixture.nativeElement.querySelector('select#tags')).toBeNull();
   });
 
   it('should show the required asterisk when field.required is true', () => {

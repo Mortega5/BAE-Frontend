@@ -35,7 +35,7 @@ describe('SellerProductSpecComponent', () => {
 
     component.goToCreate();
 
-    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.softwares.new()]);
+    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.productSpecs.new()]);
   });
 
   it('goToUpdate should emit seller update product spec event', () => {
@@ -44,7 +44,7 @@ describe('SellerProductSpecComponent', () => {
 
     component.goToUpdate(prod.id);
 
-    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.softwares.edit(prod.id)]);
+    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.productSpecs.edit(prod.id)]);
   });
 
   it('onTypeChange should map bundle filters and reload product specs', () => {
