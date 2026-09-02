@@ -127,6 +127,9 @@ body {
   --button-neutral-bg-hover: rgb(249 250 251);
   /* gray-50 */
   --button-neutral-ring: rgb(209 213 219 / 50%);
+
+  --card-bg: #fff;
+  --card-border: #EBECEE;
 }
 
 /* bae's --theme-primary-50 was deliberately darkened (see "update stepper theme
@@ -174,6 +177,10 @@ body.theme-bae {
   --button-neutral-border: rgb(var(--theme-secondary-200));
   --button-neutral-bg-hover: rgb(var(--theme-secondary-300) / 50%);
   --button-neutral-ring: rgb(var(--theme-secondary-100) / 50%);
+
+  --card-bg: #2e2e2e;
+  --card-border: rgb(31 41 55);
+  /* gray-800 */
 }
 
 /* Default styles for Markdown elements */
