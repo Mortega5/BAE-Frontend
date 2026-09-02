@@ -2467,6 +2467,7 @@
     },
     "PRICE_PLANS": {
       "_price_plans": "Price Plans",
+      "_edit": "Edit price plan",
       "_add": "Add new Price Plans",
       "_name": "Name",
       "_description": "Description",
@@ -2507,6 +2508,7 @@
     "PRICE_PLAN_COMPONENT": {
       "_new_price_component": "New Price Component",
       "_update_price_component": "Update Price Component",
+      "_edit": "Edit price component",
       "_name": "Name",
       "_description": "Description",
       "_type_of_price": "Type of price",
@@ -2569,6 +2571,7 @@
   },
   "USAGE_SPECS": {
     "_back": "Back",
+    "_delete_metric": "Delete metric",
     "_usage_spec": "Pay per use metrics",
     "_create": "Create pay per use metric",
     "_update": "Update pay per use metric",
