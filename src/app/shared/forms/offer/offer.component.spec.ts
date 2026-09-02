@@ -348,6 +348,15 @@ describe('OfferComponent', () => {
       expect(component.productOfferForm.get('catalogue')?.value).toEqual({ id: 'existing-cat' });
     });
 
+    it('should only consider Launched catalogues, so it never auto-assigns a draft/retired one', async () => {
+      component.partyId = 'party-1';
+      const spy = spyOn(api, 'getCatalogsByUser').and.returnValue(Promise.resolve([{ id: 'existing-cat' }]));
+
+      await component.ensureCatalogue();
+
+      expect(spy).toHaveBeenCalledWith(0, undefined, ['Launched'], 'party-1');
+    });
+
     it('should create a default catalogue named after the logged-in user when none exist', async () => {
       component.partyId = 'party-1';
       spyOn(api, 'getCatalogsByUser').and.returnValue(Promise.resolve([]));

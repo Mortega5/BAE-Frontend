@@ -256,7 +256,7 @@ export class OfferComponent implements OnInit, OnDestroy {
     if (this.autoCatalogue) return this.autoCatalogue;
     if (!this.partyId) return null;
     try {
-      const existing = await this.api.getCatalogsByUser(0, undefined, [], this.partyId);
+      const existing = await this.api.getCatalogsByUser(0, undefined, ['Launched'], this.partyId);
       if (Array.isArray(existing) && existing.length > 0) {
         this.autoCatalogue = existing[0];
         this.productOfferForm.patchValue({ catalogue: this.autoCatalogue });

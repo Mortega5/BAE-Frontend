@@ -11,7 +11,7 @@
     <div class="p-6 flex-1 overflow-y-auto">
       <!-- Title -->
       <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white">
-        Create Tier Pricing
+        {{ 'CREATE_OFFER._tp_title' | translate }}
       </h2>
 
       <div class="mt-4 space-y-4">
@@ -19,13 +19,13 @@
         <!-- Characteristic Selector -->
         <div>
           <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-            Select Range Characteristic
+            {{ 'CREATE_OFFER._tp_select_characteristic' | translate }}
           </label>
           <select
             (change)="onCharacteristicChange($event)"
             class="mt-1 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100"
           >
-            <option value="">-- Select a characteristic --</option>
+            <option value="">{{ 'CREATE_OFFER._tp_select_characteristic_placeholder' | translate }}</option>
             <option *ngFor="let char of rangeCharacteristics" [value]="char.id">
               {{ char.name }}
               ({{ char.productSpecCharacteristicValue[0].valueFrom }} - {{ char.productSpecCharacteristicValue[0].valueTo }})
@@ -35,17 +35,17 @@
 
         <!-- Info message when no characteristic is selected -->
         <div *ngIf="!selectedCharacteristic" class="p-4 my-2 text-sm text-primary-100 dark:text-primary-50 rounded-lg bg-blue-50 dark:bg-secondary-200">
-          <span class="font-medium">Please select a range characteristic to start creating tier pricing.</span>
+          <span class="font-medium">{{ 'CREATE_OFFER._tp_select_characteristic_info' | translate }}</span>
         </div>
 
         <!-- Slider Section (only shown when characteristic is selected) -->
         <div *ngIf="selectedCharacteristic">
           <div class="mb-2">
             <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-              Divide Range: {{ rangeMin }} - {{ rangeMax }}
+              {{ 'CREATE_OFFER._tp_divide_range' | translate:{min: rangeMin, max: rangeMax} }}
             </label>
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Add markers to divide the range into subranges. Each subrange will become a separate price component.
+              {{ 'CREATE_OFFER._tp_divide_range_info' | translate }}
             </p>
           </div>
 
@@ -56,7 +56,7 @@
               (click)="addMarker()"
               prefixIcon="plus"
             >
-              Add Marker
+              {{ 'CREATE_OFFER._tp_add_marker' | translate }}
             </app-button>
           </div>
 
@@ -102,11 +102,11 @@
           <!-- Marker Inputs (for precise control) -->
           <div *ngIf="sliderMarkers.length > 0" class="mb-4">
             <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-              Adjust Markers ({{ sliderMarkers.length }})
+              {{ 'CREATE_OFFER._tp_adjust_markers' | translate:{count: sliderMarkers.length} }}
             </label>
             <div class="grid grid-cols-2 gap-2">
               <div *ngFor="let marker of sliderMarkers; let i = index; trackBy: trackByIndex" class="flex items-center space-x-2">
-                <span class="text-sm text-gray-600 dark:text-gray-400">Marker {{ i + 1 }}:</span>
+                <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._tp_marker' | translate:{n: i + 1} }}</span>
                 <input
                   type="number"
                   [value]="marker"
@@ -115,16 +115,9 @@
                   (input)="onMarkerChange(i, $event)"
                   class="w-20 p-1 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100"
                 />
-                <button
-                  type="button"
-                  (click)="removeMarker(i)"
-                  class="text-red-500 hover:text-red-700"
-                  title="Remove marker"
-                >
-                  <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                    <path fill="currentColor" d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"/>
-                  </svg>
-                </button>
+                <app-button type="button" (click)="removeMarker(i)" variant="danger" shape="pill" size="sm" prefixIcon="xmark">
+                  <span class="sr-only">{{ 'CREATE_OFFER._tp_remove_marker' | translate }}</span>
+                </app-button>
               </div>
             </div>
           </div>
@@ -132,7 +125,7 @@
           <!-- Subranges Configuration -->
           <div *ngIf="subRanges.length > 0" class="mb-4">
             <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-              Configure Pricing for Each Subrange ({{ subRanges.length }})
+              {{ 'CREATE_OFFER._tp_configure_subranges' | translate:{count: subRanges.length} }}
             </label>
             <div class="space-y-3">
               <div
@@ -153,16 +146,16 @@
                       </svg>
 
                       <span class="text-sm font-semibold text-gray-900 dark:text-white">
-                        Tier {{ i + 1 }}: {{ subRange.name }}
+                        {{ 'CREATE_OFFER._tp_tier_label' | translate:{n: i + 1, name: subRange.name} }}
                       </span>
                     </div>
                     <span class="text-xs text-gray-500 dark:text-gray-400 ml-7">
-                      Range: {{ subRange.valueFrom }} - {{ subRange.valueTo }}
+                      {{ 'CREATE_OFFER._tp_tier_range_values' | translate:{from: subRange.valueFrom, to: subRange.valueTo} }}
                     </span>
 
                     <!-- Show configured price info if available -->
                     <div *ngIf="subRange.priceComponent && !subRange.isEditing" class="text-xs text-green-600 ml-7 mt-1">
-                      Price: {{ subRange.priceComponent.price }} | Type: {{ subRange.priceComponent.priceType }}
+                      {{ 'CREATE_OFFER._tp_tier_summary' | translate:{price: subRange.priceComponent.price, type: subRange.priceComponent.priceType} }}
                     </div>
                   </div>
 
@@ -175,7 +168,7 @@
                     [variant]="subRange.priceComponent ? 'primary' : 'secondary'"
                     [prefixIcon]="subRange.priceComponent ? 'pen-to-square' : 'plus'"
                   >
-                    {{ subRange.priceComponent ? 'Edit' : 'Configure' }}
+                    {{ (subRange.priceComponent ? 'CREATE_OFFER._tp_edit' : 'CREATE_OFFER._tp_configure') | translate }}
                   </app-button>
                 </div>
 
@@ -184,7 +177,7 @@
                   <form [formGroup]="priceForm" class="space-y-3">
                     <!-- Name -->
                     <div>
-                      <label class="block text-xs font-semibold text-gray-900 dark:text-white">Name</label>
+                      <label class="block text-xs font-semibold text-gray-900 dark:text-white">{{ 'FORMS.PRICE_PLAN_COMPONENT._name' | translate }}</label>
                       <input
                         formControlName="name"
                         type="text"
@@ -194,7 +187,7 @@
 
                     <!-- Price -->
                     <div>
-                      <label class="block text-xs font-semibold text-gray-900 dark:text-white">Price</label>
+                      <label class="block text-xs font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._tp_price' | translate }}</label>
                       <input
                         formControlName="price"
                         type="number"
@@ -206,7 +199,7 @@
 
                     <!-- Description -->
                     <div>
-                      <label class="block text-xs font-semibold text-gray-900 dark:text-white">Description (optional)</label>
+                      <label class="block text-xs font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._tp_description_optional' | translate }}</label>
                       <textarea
                         formControlName="description"
                         rows="2"
@@ -216,41 +209,41 @@
 
                     <!-- Price Type -->
                     <div>
-                      <label class="block text-xs font-semibold text-gray-900 dark:text-white">Price Type</label>
+                      <label class="block text-xs font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._pc_price_type' | translate }}</label>
                       <select
                         formControlName="priceType"
                         class="mt-1 w-full p-2 text-sm bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white rounded-lg focus:ring-primary-100 focus:border-primary-100"
                       >
-                        <option value="one time">One Time</option>
-                        <option value="recurring">Recurring</option>
-                        <option value="recurring-prepaid">Recurring Prepaid</option>
-                        <option value="usage">Usage</option>
+                        <option value="one time">{{ 'CREATE_OFFER._pc_price_type_one_time' | translate }}</option>
+                        <option value="recurring">{{ 'CREATE_OFFER._pc_price_type_recurring' | translate }}</option>
+                        <option value="recurring-prepaid">{{ 'CREATE_OFFER._pc_price_type_recurring_prepaid' | translate }}</option>
+                        <option value="usage">{{ 'CREATE_OFFER._pc_price_type_usage' | translate }}</option>
                       </select>
                     </div>
 
                     <!-- Recurring Period (if recurring) -->
                     <div *ngIf="priceForm.get('priceType')?.value === 'recurring' || priceForm.get('priceType')?.value === 'recurring-prepaid'">
-                      <label class="block text-xs font-semibold text-gray-900 dark:text-white">Recurring Period</label>
+                      <label class="block text-xs font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._pc_recurring_period' | translate }}</label>
                       <select
                         formControlName="recurringPeriod"
                         class="mt-1 w-full p-2 text-sm bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white rounded-lg focus:ring-primary-100 focus:border-primary-100"
                       >
-                        <option value="day">Daily</option>
-                        <option value="week">Weekly</option>
-                        <option value="month">Monthly</option>
-                        <option value="year">Yearly</option>
+                        <option value="day">{{ 'CREATE_OFFER._pc_recurring_daily' | translate }}</option>
+                        <option value="week">{{ 'CREATE_OFFER._pc_recurring_weekly' | translate }}</option>
+                        <option value="month">{{ 'CREATE_OFFER._pc_recurring_monthly' | translate }}</option>
+                        <option value="year">{{ 'CREATE_OFFER._pc_recurring_yearly' | translate }}</option>
                       </select>
                     </div>
 
                     <!-- Usage Specification (if usage) -->
                     <div *ngIf="priceForm.get('priceType')?.value === 'usage'" class="space-y-2">
                       <div>
-                        <label class="block text-xs font-semibold text-gray-900 dark:text-white">Usage Specification</label>
+                        <label class="block text-xs font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._pc_usage_spec' | translate }}</label>
                         <select
                           (change)="changePriceComponentUsageSpec($event)"
                           class="mt-1 w-full p-2 text-sm bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white rounded-lg focus:ring-primary-100 focus:border-primary-100"
                         >
-                          <option value="">Select a usage specification</option>
+                          <option value="">{{ 'CREATE_OFFER._tp_select_usage_spec_placeholder' | translate }}</option>
                           <option *ngFor="let usage of usageSpecs" [value]="usage.id" [selected]="selectedUsageSpec?.id === usage.id">
                             {{ usage.name }}
                           </option>
@@ -258,7 +251,7 @@
                       </div>
 
                       <div *ngIf="showMetricSelect">
-                        <label class="block text-xs font-semibold text-gray-900 dark:text-white">Metric</label>
+                        <label class="block text-xs font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._pc_metric' | translate }}</label>
                         <select
                           (change)="changePriceComponentMetric($event)"
                           class="mt-1 w-full p-2 text-sm bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white rounded-lg focus:ring-primary-100 focus:border-primary-100"
@@ -279,7 +272,7 @@
                         class="w-4 h-4 text-primary-100 bg-white dark:bg-secondary-300 border-gray-300 dark:border-secondary-200 rounded focus:ring-primary-100 cursor-pointer"
                       />
                       <label class="ml-2 text-xs font-semibold text-gray-900 dark:text-white">
-                        Include Discount
+                        {{ 'CREATE_OFFER._pc_include_discount' | translate }}
                       </label>
                     </div>
 
@@ -287,7 +280,7 @@
                     <div *ngIf="showDiscount" class="space-y-2 pl-6 border-l-2 border-blue-300">
                       <div class="flex space-x-2">
                         <div class="flex-1">
-                          <label class="block text-xs font-semibold text-gray-900 dark:text-white">Discount Value</label>
+                          <label class="block text-xs font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._tp_discount_value' | translate }}</label>
                           <input
                             formControlName="discountValue"
                             type="number"
@@ -295,20 +288,20 @@
                           />
                         </div>
                         <div class="flex-1">
-                          <label class="block text-xs font-semibold text-gray-900 dark:text-white">Unit</label>
+                          <label class="block text-xs font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._tp_discount_unit' | translate }}</label>
                           <select
                             formControlName="discountUnit"
                             class="mt-1 w-full p-2 text-sm bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white rounded-lg focus:ring-primary-100 focus:border-primary-100"
                           >
-                            <option value="percentage">Percentage</option>
-                            <option value="fixed">Fixed</option>
+                            <option value="percentage">{{ 'CREATE_OFFER._pc_discount_percentage' | translate }}</option>
+                            <option value="fixed">{{ 'CREATE_OFFER._pc_discount_fixed' | translate }}</option>
                           </select>
                         </div>
                       </div>
 
                       <div class="flex space-x-2">
                         <div class="flex-1">
-                          <label class="block text-xs font-semibold text-gray-900 dark:text-white">Duration</label>
+                          <label class="block text-xs font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._pc_duration' | translate }}</label>
                           <input
                             formControlName="discountDuration"
                             type="number"
@@ -316,15 +309,15 @@
                           />
                         </div>
                         <div class="flex-1">
-                          <label class="block text-xs font-semibold text-gray-900 dark:text-white">Unit</label>
+                          <label class="block text-xs font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._pc_duration_unit' | translate }}</label>
                           <select
                             formControlName="discountDurationUnit"
                             class="mt-1 w-full p-2 text-sm bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white rounded-lg focus:ring-primary-100 focus:border-primary-100"
                           >
-                            <option value="days">Days</option>
-                            <option value="weeks">Weeks</option>
-                            <option value="months">Months</option>
-                            <option value="years">Years</option>
+                            <option value="days">{{ 'CREATE_OFFER._pc_duration_days' | translate }}</option>
+                            <option value="weeks">{{ 'CREATE_OFFER._pc_duration_weeks' | translate }}</option>
+                            <option value="months">{{ 'CREATE_OFFER._pc_duration_months' | translate }}</option>
+                            <option value="years">{{ 'CREATE_OFFER._pc_duration_years' | translate }}</option>
                           </select>
                         </div>
                       </div>
@@ -338,7 +331,7 @@
                         variant="ghost"
                         size="sm"
                       >
-                        Cancel
+                        {{ 'FORMS.PRICE_PLAN_COMPONENT._cancel' | translate }}
                       </app-button>
                       <app-button
                         type="button"
@@ -346,7 +339,7 @@
                         [disabled]="priceForm.invalid"
                         size="sm"
                       >
-                        Save
+                        {{ 'FORMS.PRICE_PLAN_COMPONENT._save' | translate }}
                       </app-button>
                     </div>
                   </form>
@@ -358,7 +351,7 @@
           <!-- Validation Errors -->
           <div *ngIf="validationErrors.length > 0" class="mb-4">
             <div class="p-4 text-sm text-red-800 rounded-lg bg-red-50">
-              <span class="font-medium">Validation Errors:</span>
+              <span class="font-medium">{{ 'CREATE_OFFER._tp_validation_errors' | translate }}</span>
               <ul class="list-disc list-inside mt-2">
                 <li *ngFor="let error of validationErrors">{{ error }}</li>
               </ul>
@@ -373,14 +366,14 @@
             (click)="closeDrawer()"
             variant="ghost"
           >
-            Cancel
+            {{ 'FORMS.PRICE_PLAN_COMPONENT._cancel' | translate }}
           </app-button>
           <app-button
             type="button"
             (click)="confirmTierPricing()"
             [disabled]="!canConfirm"
           >
-            Save Tier Pricing
+            {{ 'CREATE_OFFER._tp_save' | translate }}
           </app-button>
         </div>
       </div>
