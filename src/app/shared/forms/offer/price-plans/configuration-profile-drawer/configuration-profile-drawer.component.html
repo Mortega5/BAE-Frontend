@@ -48,11 +48,9 @@
       <!-- Action Buttons -->
       <div class="flex justify-end gap-3 mt-4">
         <app-button data-cy="offerProfileCancel" type="button" (click)="closeDrawer()" variant="ghost">{{ 'FORMS.PRICE_PLANS._cancel' | translate }}</app-button>
-        <button data-cy="offerProfileSave" type="button" (click)="saveProfile()"
-                class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg transition"
-                [ngClass]="{'bg-primary-100 hover:bg-primary-50': form.valid, 'bg-gray-400 cursor-not-allowed': form.invalid}">
+        <app-button data-cy="offerProfileSave" type="button" (click)="saveProfile()" [disabled]="form.invalid">
           {{ 'FORMS.PRICE_PLANS._save' | translate }}
-        </button>
+        </app-button>
       </div>
     } @else {
       <div class="p-4 my-2 text-sm text-center text-primary-100 dark:text-primary-50 rounded-lg bg-blue-50 dark:bg-secondary-300" role="alert">

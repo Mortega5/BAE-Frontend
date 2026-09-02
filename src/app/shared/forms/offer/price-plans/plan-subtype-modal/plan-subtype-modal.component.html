@@ -34,11 +34,9 @@
       <app-button type="button" (click)="cancel()" variant="ghost">
         {{ 'CREATE_OFFER._cancel' | translate }}
       </app-button>
-      <button type="button" data-cy="planSubtypeContinue" (click)="confirm()" [disabled]="!selectedType"
-        [ngClass]="selectedType ? 'bg-primary-100 hover:bg-primary-50' : 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed'"
-        class="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors">
+      <app-button type="button" data-cy="planSubtypeContinue" (click)="confirm()" [disabled]="!selectedType">
         {{ 'CREATE_OFFER._continue' | translate }}
-      </button>
+      </app-button>
     </div>
   </div>
 </div>

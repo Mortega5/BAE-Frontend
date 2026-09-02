@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { StepperStepDirective } from './stepper-step.directive';
 
 export interface StepChangedEvent {
@@ -23,7 +24,7 @@ export interface StepChangedEvent {
   templateUrl: './stepper.component.html',
   styleUrl: './stepper.component.css',
   standalone: true,
-  imports: [NgClass, NgTemplateOutlet, TranslateModule, LoadingSpinnerComponent],
+  imports: [NgClass, NgTemplateOutlet, TranslateModule, LoadingSpinnerComponent, ButtonComponent],
 })
 export class StepperComponent {
   /** If true, all steps are accessible from the start (e.g. edit mode). */

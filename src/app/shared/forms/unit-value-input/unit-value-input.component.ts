@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, forwardRef, Input } from '@angular/core';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 export interface UnitValueEntry {
   value: number;
@@ -11,7 +12,7 @@ export interface UnitValueEntry {
 @Component({
   selector: 'app-unit-value-input',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [CommonModule, FormsModule, TranslateModule, ButtonComponent],
   templateUrl: './unit-value-input.component.html',
   providers: [
     {

@@ -88,13 +88,10 @@
           </svg>
         </button>
         @if(formType === 'create' && currentStep === 2 || formType === 'update'){
-          <button data-cy="stepperSubmit" (click)="submitForm()"
-          [disabled]="!usageSpecForm.controls['generalInfo'].valid"
-          [ngClass]="formType === 'update' && !usageSpecForm.controls['generalInfo'].valid ? 'opacity-50' : 'hover:bg-primary-50'"
-
-          class="px-4 py-2 text-base font-medium text-white rounded-lg bg-primary-100">
+          <app-button data-cy="stepperSubmit" (click)="submitForm()"
+          [disabled]="!usageSpecForm.controls['generalInfo'].valid">
             {{ formType === 'create' ? 'Create Usage Spec' : 'Update Usage Spec' }}
-          </button>
+          </app-button>
         }
       </div>
     </form>

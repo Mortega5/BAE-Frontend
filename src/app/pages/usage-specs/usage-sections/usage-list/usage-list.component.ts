@@ -11,12 +11,13 @@ import { UsageServiceService } from 'src/app/services/usage-service.service';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { environment } from 'src/environments/environment';
 import { UsageSpecsPaths } from '../../usage-specs.paths';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 @Component({
   selector: 'usage-list',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent, ButtonComponent
   ],
   templateUrl: './usage-list.component.html',
   styleUrl: './usage-list.component.css'

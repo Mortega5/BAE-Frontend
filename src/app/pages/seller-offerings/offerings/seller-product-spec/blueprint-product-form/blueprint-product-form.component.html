@@ -47,31 +47,21 @@
           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-secondary-300 dark:text-white dark:border-gray-600 dark:hover:bg-secondary-200">
           {{ 'BLUEPRINT_PROD._cancel' | translate }}
         </button>
-        <button type="button" (click)="addOrUpdateStep()" [disabled]="stepForm.invalid"
-          [ngClass]="stepForm.invalid ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-50'"
-          class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-100 rounded-lg focus:ring-4 focus:outline-none focus:ring-blue-300">
+        <app-button type="button" (click)="addOrUpdateStep()" [disabled]="stepForm.invalid"
+          [icon]="editingIndex === null ? 'plus' : undefined">
           @if (editingIndex !== null) {
           {{ 'BLUEPRINT_PROD._update_step' | translate }}
           } @else {
-          <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M5 12h14m-7 7V5" />
-          </svg>
           {{ 'BLUEPRINT_PROD._add_step' | translate }}
           }
-        </button>
+        </app-button>
       </div>
     </div>
     } @else {
     <div class="flex w-full justify-center mt-4">
-      <button type="button" (click)="showStepForm = true"
-        class="flex items-center gap-2 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
-        <svg class="w-3.5 h-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M5 12h14m-7 7V5" />
-        </svg>
+      <app-button type="button" (click)="showStepForm = true" icon="plus">
         {{ 'BLUEPRINT_PROD._add_step' | translate }}
-      </button>
+      </app-button>
     </div>
     }
 

@@ -8,13 +8,14 @@ import { ApiServiceService } from 'src/app/services/product-service.service';
 import { TranslateModule } from '@ngx-translate/core';
 import { MarkdownModule } from 'ngx-markdown';
 import { ThemeService } from 'src/app/services/theme.service';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 @Component({
   selector: 'bae-off-featured',
   templateUrl: './featured.component.html',
   styleUrl: './featured.component.css',
   standalone: true,
-  imports: [CommonModule, TranslateModule, MarkdownModule]
+  imports: [CommonModule, TranslateModule, MarkdownModule, ButtonComponent]
 })
 export class FeaturedComponent implements OnInit {
   categories:any[]=[];

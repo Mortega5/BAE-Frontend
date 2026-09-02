@@ -189,14 +189,12 @@
           <app-button data-cy="cancelPricePlan" type="button" (click)="closeDrawer()" variant="ghost">
             {{ 'FORMS.PRICE_PLANS._cancel' | translate }}
           </app-button>
-          <button type="submit"
+          <app-button type="submit"
                   data-cy="savePricePlan"
                   (click)="savePricePlan()"
-                  [disabled]="formGroup.invalid"
-                  class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg transition"
-                  [ngClass]="{'bg-primary-100 hover:bg-primary-50': formGroup.valid, 'bg-gray-400 cursor-not-allowed': formGroup.invalid}">
+                  [disabled]="formGroup.invalid">
             {{ 'FORMS.PRICE_PLANS._save' | translate }}
-          </button>
+          </app-button>
         </div>
 
     </div>

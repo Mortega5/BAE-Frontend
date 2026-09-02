@@ -191,17 +191,13 @@
   </div>
   <div class="flex w-full justify-end col-span-2">
     @if(is_create){
-    <button data-cy="addBilling" type="button" (click)="createBilling()" [disabled]="!billingForm.valid"
-      [ngClass]="!billingForm.valid ? 'opacity-50' : 'hover:bg-primary-50 dark:hover:bg-primary-200'"
-      class="m-2 flex w-fit justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-primary-100 focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900">
+    <app-button data-cy="addBilling" type="button" (click)="createBilling()" [disabled]="!billingForm.valid" class="m-2">
       {{ 'BILLING._add' | translate }}
-    </button>
+    </app-button>
     } @else {
-    <button (click)="updateBilling()" [disabled]="!billingForm.valid"
-      [ngClass]="!billingForm.valid ? 'opacity-50' : 'hover:bg-primary-50 dark:hover:bg-primary-200'"
-      class="m-2 flex w-fit justify-center items-center py-3 px-5 text-base font-medium text-center text-white rounded-lg bg-primary-100  focus:ring-4 focus:ring-primary-300 dark:focus:ring-primary-900">
+    <app-button (click)="updateBilling()" [disabled]="!billingForm.valid" class="m-2">
       {{ 'BILLING._update' | translate }}
-    </button>
+    </app-button>
     }
   </div>
 </form>

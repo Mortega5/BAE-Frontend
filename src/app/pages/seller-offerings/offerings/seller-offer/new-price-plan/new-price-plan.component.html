@@ -41,16 +41,16 @@
         </div>
         <div class="p-4">
             <div class="flex w-full justify-items-end justify-end ml-4 mt-4">
-                <button type="button" (click)="cancelPriceProfile()" class="flex mr-4 text-gray-900 justify-end bg-gray-400 hover:bg-primary-50 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+                <app-button type="button" (click)="cancelPriceProfile()" variant="ghost" class="mr-4">
                     Cancel
-                </button>                
-                <button type="button" (click)="createPriceProfile()" class="flex text-white justify-end bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+                </app-button>
+                <app-button type="button" (click)="createPriceProfile()">
                     @if(editProfile){
                         Save
                     }@else {
                         Create
                     }
-                </button>
+                </app-button>
             </div>
         </div>
     </div>
@@ -290,12 +290,12 @@
                 }
                 </form>                  
                 <div class="flex w-full justify-items-end justify-end ml-4 mt-4">
-                    <button type="button" (click)="cancelPriceComponent()" class="flex mr-4 text-gray-900 justify-end bg-gray-400 hover:bg-primary-50 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+                    <app-button type="button" (click)="cancelPriceComponent()" variant="ghost" class="mr-4">
                         Cancel
-                    </button>
-                    <button type="button" (click)="createPriceComponent()" class="flex text-white justify-end bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+                    </app-button>
+                    <app-button type="button" (click)="createPriceComponent()">
                         Create
-                    </button>
+                    </app-button>
                 </div>
             </div>
       </div>
@@ -445,11 +445,7 @@
                                         </svg>
                                     </div>
                                 </div>
-                                <button type="button" (click)="showDrawerProfile();$event.stopPropagation();" class="text-white w-fit h-full bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center">
-                                    <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
-                                    </svg>                                                                              
-                                </button>
+                                <app-button type="button" (click)="showDrawerProfile();$event.stopPropagation();" shape="pill" icon="plus" />
                             </div>
         
                         } @else {
@@ -462,11 +458,7 @@
                                         </svg>
                                     </div>
                                 </div>
-                                <button type="button" (click)="showDrawerProfile();$event.stopPropagation();" class="text-white w-fit h-full bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center">
-                                    <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.779 17.779 4.36 19.918 6.5 13.5m4.279 4.279 8.364-8.643a3.027 3.027 0 0 0-2.14-5.165 3.03 3.03 0 0 0-2.14.886L6.5 13.5m4.279 4.279L6.499 13.5m2.14 2.14 6.213-6.504M12.75 7.04 17 11.28"/>
-                                        </svg>                                                                                                                              
-                                </button>
+                                <app-button type="button" (click)="showDrawerProfile();$event.stopPropagation();" shape="pill" icon="pen-to-square" />
                             </div>
                         }
     
@@ -492,11 +484,7 @@
                             </svg>
                         </div>
                     </div>
-                    <button type="button" (click)="showDrawerPriceComp();$event.stopPropagation();" class="text-white w-fit h-full bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-1 text-center inline-flex items-center">
-                        <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
-                        </svg>                                                                      
-                    </button> 
+                    <app-button type="button" (click)="showDrawerPriceComp();$event.stopPropagation();" shape="pill" icon="plus" />
                 </div>
 
                 @if (createdPriceComponents.length === 0){
@@ -589,10 +577,7 @@
     </form>
     
     <div class="flex w-full justify-items-center justify-center ml-4">
-        <button type="button" [disabled]="this.priceForm.invalid" [ngClass]="this.priceForm.invalid ? 'opacity-50' : 'hover:bg-primary-50'" (click)="savePrice()" class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+        <app-button type="button" [disabled]="this.priceForm.invalid" (click)="savePrice()" icon="floppy-disk" iconPosition="suffix">
             {{ 'CREATE_OFFER._save_price' | translate }}
-            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M11 16h2m6.707-9.293-2.414-2.414A1 1 0 0 0 16.586 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V7.414a1 1 0 0 0-.293-.707ZM16 20v-6a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v6h8ZM9 4h6v3a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4Z"/>
-            </svg>                         
-        </button> 
+        </app-button>
     </div>

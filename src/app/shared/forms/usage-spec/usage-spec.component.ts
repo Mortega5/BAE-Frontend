@@ -22,6 +22,7 @@ import { environment } from 'src/environments/environment';
 import {Subject} from "rxjs";
 import { takeUntil } from 'rxjs/operators';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 @Component({
   selector: 'usage-spec-form',
@@ -33,7 +34,8 @@ import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-
     TranslateModule,
     ReactiveFormsModule,
     NgClass,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent,
+    ButtonComponent
   ],
   templateUrl: './usage-spec.component.html',
   styleUrl: './usage-spec.component.css'

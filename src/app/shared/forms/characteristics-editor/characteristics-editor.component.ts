@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { faPlus, faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { TableColumn } from 'src/app/models/table-column.model';
 import { TruncateValuePipe } from '../../pipes/truncate-value.pipe';
@@ -25,8 +25,6 @@ export class CharacteristicsEditorComponent {
   @Input() supportedTypes: CharValueType[] = [];
   @Input() readonly: boolean = false;
   @Output() characteristicsChange = new EventEmitter<CharacteristicItem[]>();
-
-  protected readonly faPlus = faPlus;
 
   showForm = false;
   editingChar: CharacteristicItem | null = null;

@@ -10,10 +10,9 @@
     <input type="text" [(ngModel)]="inputUnit" [placeholder]="unitPlaceholder | translate"
       (keyup.enter)="set()"
       class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 w-28" />
-    <button type="button" (click)="set()" [disabled]="!canSet"
-      class="px-4 py-2 text-sm font-medium text-white bg-primary-100 rounded-lg hover:bg-primary-50 disabled:opacity-50 whitespace-nowrap">
+    <app-button type="button" (click)="set()" [disabled]="!canSet" class="whitespace-nowrap">
       {{ setLabel | translate }}
-    </button>
+    </app-button>
   </div>
   }
   @if (current) {

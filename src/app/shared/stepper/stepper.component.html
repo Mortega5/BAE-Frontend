@@ -47,30 +47,20 @@
     </div>
 
     <div class="flex justify-end space-x-4">
-      <button (click)="goBack()" [disabled]="currentStep === 0" [ngClass]="{
-          'hover:bg-gray-100 dark:hover:bg-secondary-300': currentStep !== 0,
-          'opacity-50 cursor-not-allowed': currentStep === 0
-        }"
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-gray-700 dark:text-gray-300 transition-colors duration-150">
+      <app-button (click)="goBack()" [disabled]="currentStep === 0" variant="ghost">
         {{ previousLabel | translate }}
-      </button>
+      </app-button>
 
       @if(!isLastStep) {
-      <button data-cy="stepperNext" (click)="goNext()" [disabled]="isLastStep || !canAdvance" [ngClass]="{
-          'hover:bg-primary-50': !isLastStep && canAdvance,
-          'opacity-50 cursor-not-allowed': isLastStep || !canAdvance
-        }"
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-primary-100 transition-colors duration-150">
+      <app-button data-cy="stepperNext" (click)="goNext()" [disabled]="isLastStep || !canAdvance">
         {{ nextLabel | translate }}
-      </button>
+      </app-button>
       }
 
       @if (isLastStep || submitAlwaysVisible) {
-      <button data-cy="stepperSubmit" (click)="submitted.emit()" [disabled]="submitDisabled"
-        [ngClass]="submitDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-50'"
-        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white bg-primary-100 transition-colors duration-150">
+      <app-button data-cy="stepperSubmit" (click)="submitted.emit()" [disabled]="submitDisabled">
         {{ submitLabel | translate }}
-      </button>
+      </app-button>
       }
     </div>
   </div>

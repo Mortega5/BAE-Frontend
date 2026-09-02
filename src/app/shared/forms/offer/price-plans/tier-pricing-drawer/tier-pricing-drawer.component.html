@@ -51,16 +51,13 @@
 
           <!-- Add/Remove Marker Buttons -->
           <div class="flex space-x-2 mb-4">
-            <button
+            <app-button
               type="button"
               (click)="addMarker()"
-              class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg bg-primary-100 hover:bg-primary-50"
+              icon="plus"
             >
-              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/>
-              </svg>
               Add Marker
-            </button>
+            </app-button>
           </div>
 
           <!-- Slider Visual Representation -->
@@ -343,15 +340,14 @@
                       >
                         Cancel
                       </app-button>
-                      <button
+                      <app-button
                         type="button"
                         (click)="savePriceForm()"
                         [disabled]="priceForm.invalid"
-                        class="inline-flex items-center gap-2 px-3 py-1 text-sm font-semibold text-white rounded-lg bg-primary-100 hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                        [ngClass]="priceForm.invalid ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'"
+                        size="sm"
                       >
                         Save
-                      </button>
+                      </app-button>
                     </div>
                   </form>
                 </div>
@@ -379,15 +375,13 @@
           >
             Cancel
           </app-button>
-          <button
+          <app-button
             type="button"
             (click)="confirmTierPricing()"
             [disabled]="!canConfirm"
-            [ngClass]="canConfirm ? 'bg-primary-100 hover:bg-primary-50 text-white cursor-pointer' : 'bg-gray-300 dark:bg-secondary-400 text-gray-500 dark:text-gray-400 cursor-not-allowed'"
-            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg"
           >
             Save Tier Pricing
-          </button>
+          </app-button>
         </div>
       </div>
     </div>

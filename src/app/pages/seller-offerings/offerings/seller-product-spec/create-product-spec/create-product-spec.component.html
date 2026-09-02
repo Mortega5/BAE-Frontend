@@ -71,14 +71,9 @@
           <div class="flex justify-between items-center mb-3">
             <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._key_features' |
               translate }}</span>
-            <button type="button" (click)="openItemModal('feature')" data-cy="addKeyFeature"
-              class="flex items-center gap-2 h-9 px-3 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm">
-              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
+            <app-button type="button" (click)="openItemModal('feature')" data-cy="addKeyFeature" size="sm" icon="plus">
               {{ 'CREATE_PROD_SPEC._add_key_feature' | translate }}
-            </button>
+            </app-button>
           </div>
           @if(keyFeatures.length === 0){
           <div
@@ -153,14 +148,9 @@
           <div class="flex justify-between items-center mb-3">
             <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._business_benefits' |
               translate }}</span>
-            <button type="button" (click)="openItemModal('benefit')" data-cy="addBusinessBenefit"
-              class="flex items-center gap-2 h-9 px-3 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm">
-              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
+            <app-button type="button" (click)="openItemModal('benefit')" data-cy="addBusinessBenefit" size="sm" icon="plus">
               {{ 'CREATE_PROD_SPEC._add_business_benefit' | translate }}
-            </button>
+            </app-button>
           </div>
           @if(businessBenefits.length === 0){
           <div
@@ -229,14 +219,9 @@
           <div class="flex justify-between items-center mb-3">
             <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._use_cases' |
               translate }}</span>
-            <button type="button" (click)="openItemModal('usecase')" data-cy="addUseCase"
-              class="flex items-center gap-2 h-9 px-3 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm">
-              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
+            <app-button type="button" (click)="openItemModal('usecase')" data-cy="addUseCase" size="sm" icon="plus">
               {{ 'CREATE_PROD_SPEC._add_use_case' | translate }}
-            </button>
+            </app-button>
           </div>
           @if(useCases.length === 0){
           <div
@@ -416,15 +401,9 @@
         @if (!loadingBundle_more) {
         @if (bundlePageCheck) {
         <div class="flex pt-6 pb-2 justify-center align-middle">
-          <button (click)="nextBundle()"
-            class="flex cursor-pointer shadow-lg items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 dark:text-white bg-white dark:bg-primary-100 dark:hover:bg-secondary-100 border border-gray-300 dark:border-secondary-200 rounded-lg hover:bg-gray-200">
+          <app-button (click)="nextBundle()" variant="secondary" icon="arrow-down" iconPosition="suffix" size="sm" class="shadow-lg">
             {{ 'CREATE_PROD_SPEC._load_more' | translate }}
-            <svg class="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M5 12h14m-7 7V5" />
-            </svg>
-          </button>
+          </app-button>
         </div>
         }
         } @else {
@@ -491,17 +470,10 @@
         <div class="flex flex-col gap-2">
           <app-dynamic-form [fields]="newEndpointFormFields" [formGroup]="newEndpointForm" [columns]="2" />
           <div class="flex justify-center">
-            <button data-cy="dspAddEndpoint" type="button" (click)="addEndpointUrl()"
-              [disabled]="!newEndpointForm.valid" [class.opacity-50]="!newEndpointForm.valid"
-              [class.cursor-not-allowed]="!newEndpointForm.valid"
-              class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+            <app-button data-cy="dspAddEndpoint" type="button" (click)="addEndpointUrl()"
+              [disabled]="!newEndpointForm.valid" icon="plus" iconPosition="suffix">
               {{ 'CREATE_PROD_SPEC._dsp_add_endpoint' | translate }}
-              <svg class="w-4 h-4 ml-2 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24"
-                height="24" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M5 12h14m-7 7V5" />
-              </svg>
-            </button>
+            </app-button>
           </div>
         </div>
 
@@ -640,15 +612,9 @@
         }
         @if(!showCreateRel){
         <div class="flex w-full justify-items-center justify-center">
-          <button data-cy="productSpecAddRelationship" type="button" (click)="showCreateRel=!showCreateRel"
-            class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+          <app-button data-cy="productSpecAddRelationship" type="button" (click)="showCreateRel=!showCreateRel" icon="arrow-right" iconPosition="suffix">
             {{ 'CREATE_PROD_SPEC._add_relationship' | translate }}
-            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-              fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M5 12h14m-7 7V5" />
-            </svg>
-          </button>
+          </app-button>
         </div>
         } @else {
         @if(loadingprodSpecRel){
@@ -658,15 +624,9 @@
         @if (!loadingprodSpecRel_more) {
         @if (prodSpecRelPageCheck) {
         <div class="flex pt-6 pb-2 justify-center align-middle">
-          <button (click)="nextProdSpecsRel()"
-            class="flex cursor-pointer shadow-lg items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 dark:text-white bg-white dark:bg-primary-100 dark:hover:bg-secondary-100 border border-gray-300 dark:border-secondary-200 rounded-lg hover:bg-gray-200">
+          <app-button (click)="nextProdSpecsRel()" variant="secondary" icon="arrow-down" iconPosition="suffix" size="sm" class="shadow-lg">
             {{ 'CREATE_PROD_SPEC._load_more' | translate }}
-            <svg class="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M5 12h14m-7 7V5" />
-            </svg>
-          </button>
+          </app-button>
         </div>
         }
         } @else {
@@ -674,17 +634,10 @@
         }
         }
         <div class="flex w-full justify-items-center justify-center mt-4">
-          <button data-cy="productSpecSaveRelationship" type="button" (click)="saveRel()"
-            [disabled]="!relForm.value.prodSpec"
-            [ngClass]="!relForm.value.prodSpec ? 'opacity-50' : 'hover:bg-primary-50'"
-            class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+          <app-button data-cy="productSpecSaveRelationship" type="button" (click)="saveRel()"
+            [disabled]="!relForm.value.prodSpec" icon="floppy-disk" iconPosition="suffix">
             {{ 'CREATE_PROD_SPEC._save_relationship' | translate }}
-            <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-              fill="none" viewBox="0 0 24 24">
-              <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
-                d="M11 16h2m6.707-9.293-2.414-2.414A1 1 0 0 0 16.586 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V7.414a1 1 0 0 0-.293-.707ZM16 20v-6a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v6h8ZM9 4h6v3a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4Z" />
-            </svg>
-          </button>
+          </app-button>
         </div>
         }
       </div>
@@ -716,14 +669,9 @@
             <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 max-w-3xl">{{ 'CREATE_PROD_SPEC._faqs_intro2' |
               translate }}</p>
           </div>
-          <button type="button" (click)="addFaq()" data-cy="addFaq"
-            class="flex items-center gap-2 h-10 px-4 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm shrink-0">
-            <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-            </svg>
+          <app-button type="button" (click)="addFaq()" data-cy="addFaq" icon="plus" class="shrink-0">
             {{ 'CREATE_PROD_SPEC._add_faq' | translate }}
-          </button>
+          </app-button>
         </div>
 
         @if(faqs.length === 0){
@@ -742,14 +690,9 @@
               translate }}</h3>
             <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">{{ 'CREATE_PROD_SPEC._add_new_to_collect' |
               translate }}</p>
-            <button type="button" (click)="addFaq()"
-              class="flex items-center gap-2 h-10 px-4 text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm">
-              <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
+            <app-button type="button" (click)="addFaq()" icon="plus">
               {{ 'CREATE_PROD_SPEC._add_faq' | translate }}
-            </button>
+            </app-button>
           </div>
         </div>
         } @else {
@@ -933,17 +876,14 @@
       }
 
       <div class="flex justify-end items-center gap-3">
-        <button type="button" (click)="closeItemModal()"
-          class="px-4 h-10 text-sm font-semibold text-primary-100 dark:text-primary-50 hover:underline">
+        <app-button type="button" (click)="closeItemModal()" variant="link">
           {{ 'CREATE_PROD_SPEC._cancel' | translate }}
-        </button>
-        <button type="button" (click)="saveItemModal()" [disabled]="!itemModal.name.trim()"
-          [ngClass]="!itemModal.name.trim() ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-50'"
-          class="h-10 px-5 bg-primary-100 text-white rounded-lg text-sm font-semibold">
+        </app-button>
+        <app-button type="button" (click)="saveItemModal()" [disabled]="!itemModal.name.trim()">
           @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._save_feature' | translate }} }
           @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._save_benefit' | translate }} }
           @else { {{ 'CREATE_PROD_SPEC._save_usecase' | translate }} }
-        </button>
+        </app-button>
       </div>
     </div>
   </div>
@@ -973,9 +913,8 @@
         <div class="grid grid-cols-2 gap-3 w-full">
           <app-button type="button" (click)="cancelDeleteFaq()" variant="secondary" class="h-11">{{
             'CREATE_PROD_SPEC._close' | translate }}</app-button>
-          <button type="button" (click)="confirmDeleteFaq()"
-            class="h-11 px-5 bg-primary-100 text-white rounded-lg text-sm font-semibold hover:bg-primary-50">{{
-            'CREATE_PROD_SPEC._confirm' | translate }}</button>
+          <app-button type="button" (click)="confirmDeleteFaq()" class="h-11">{{
+            'CREATE_PROD_SPEC._confirm' | translate }}</app-button>
         </div>
       </div>
     </div>

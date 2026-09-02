@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { faPlus, faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -12,6 +12,7 @@ import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validat
 import { CharacteristicValueSpecFormComponent, CharValueType, JSON_VALUE_TYPES } from '../characteristic-value-spec/characteristic-value-spec-form.component';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
 import { TableInputComponent } from '../table-input/table-input.component';
+import { ButtonComponent } from '../../button/button.component';
 import { TruncateValuePipe } from '../../pipes/truncate-value.pipe';
 
 type CharacteristicValueSpecification = components['schemas']['CharacteristicValueSpecification'];
@@ -53,10 +54,9 @@ const SCHEMA_LOCATIONS: Partial<Record<CharValueType, string>> = {
   selector: 'app-specification-characteristic-form',
   templateUrl: './specification-characteristic-form.component.html',
   standalone: true,
-  imports: [FormsModule, ReactiveFormsModule, TranslateModule, FaIconComponent, DynamicFormComponent, CharacteristicValueSpecFormComponent, TableInputComponent],
+  imports: [FormsModule, ReactiveFormsModule, TranslateModule, FaIconComponent, DynamicFormComponent, CharacteristicValueSpecFormComponent, TableInputComponent, ButtonComponent],
 })
 export class SpecificationCharacteristicFormComponent implements OnInit, OnChanges, OnDestroy {
-  protected readonly faPlus = faPlus;
 
   @Input() editingKey: any = null;
   @Input() initialName: string = '';

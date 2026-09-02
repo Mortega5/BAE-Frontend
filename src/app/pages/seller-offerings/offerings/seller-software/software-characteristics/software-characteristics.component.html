@@ -22,15 +22,9 @@
 
   @if (!showAddForm) {
   <div class="flex w-full justify-center">
-    <button type="button" (click)="showAddForm = true"
-      class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center items-center">
+    <app-button type="button" (click)="showAddForm = true" icon="plus" iconPosition="suffix">
       {{ 'CREATE_SOFTWARE._new_char' | translate }}
-      <svg class="w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-        viewBox="0 0 24 24">
-        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M5 12h14m-7 7V5" />
-      </svg>
-    </button>
+    </app-button>
   </div>
   } @else {
 
@@ -52,10 +46,9 @@
         class="px-4 py-2 text-sm text-gray-700 dark:text-gray-200 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50">
         {{ 'CANCEL' | translate }}
       </button>
-      <button type="button" (click)="saveChar()" [disabled]="!canSave"
-        class="px-5 py-2 text-sm font-medium text-white bg-primary-100 rounded-lg hover:bg-primary-50 disabled:opacity-50">
+      <app-button type="button" (click)="saveChar()" [disabled]="!canSave">
         {{ 'CREATE_SOFTWARE._save_char' | translate }}
-      </button>
+      </app-button>
     </div>
     }
   </div>

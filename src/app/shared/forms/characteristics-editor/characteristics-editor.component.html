@@ -18,11 +18,9 @@
   } @else {
   @if (!readonly) {
   <div class="flex w-full justify-end">
-    <button type="button" (click)="showForm = true"
-      class="flex text-white justify-center bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+    <app-button type="button" (click)="showForm = true" icon="plus" iconPosition="suffix">
       {{ 'CHAR_SPEC._new_char' | translate }}
-      <fa-icon [icon]="faPlus" class="ms-2" aria-hidden="true"></fa-icon>
-    </button>
+    </app-button>
   </div>
   }
   <app-table-input [columns]="columns" [items]="characteristics" [selectable]="false" [clickable]="!readonly"
@@ -57,11 +55,9 @@
           class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-secondary-300 dark:text-white dark:border-gray-600 dark:hover:bg-secondary-200">
           {{ 'CHAR_SPEC._cancel' | translate }}
         </button>
-        <button type="button" (click)="save()" [disabled]="!canSave" [class.opacity-50]="!canSave"
-          [class.cursor-not-allowed]="!canSave"
-          class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-100 rounded-lg hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300">
+        <app-button type="button" (click)="save()" [disabled]="!canSave">
           {{ 'CHAR_SPEC._save_char' | translate }}
-        </button>
+        </app-button>
       </div>
     </div>
   </div>

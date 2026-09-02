@@ -116,13 +116,11 @@
                     class="py-2 px-3 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10">
                     Cancel
                 </button>
-                <button (click)="submitRequestValidation()"
+                <app-button (click)="submitRequestValidation()"
                     [disabled]="hasMissingOrganizationInfo() || requestValidationLoading || !productSpec"
-                    type="button"
-                    [ngClass]="(hasMissingOrganizationInfo() || requestValidationLoading || !productSpec) ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-50'"
-                    class="py-2 px-3 text-sm font-medium text-center text-white bg-primary-100 rounded-lg focus:ring-4 focus:outline-none focus:ring-primary-50">
+                    type="button">
                     Request Validation
-                </button>
+                </app-button>
             </div>
         </div>
     </div>

@@ -19,11 +19,9 @@
         <app-button data-cy="adminLoadSearchFiltersJson" type="button" (click)="loadProvidedJsonIntoForm()" variant="secondary">
           Load JSON
         </app-button>
-        <button data-cy="adminSaveSearchFiltersJson" type="button" (click)="saveProvidedJson()" [disabled]="saving"
-          [ngClass]="saving ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-50'"
-          class="text-white bg-primary-100 rounded-lg text-sm px-4 py-2">
+        <app-button data-cy="adminSaveSearchFiltersJson" type="button" (click)="saveProvidedJson()" [disabled]="saving">
           Save JSON
-        </button>
+        </app-button>
       </div>
     </div>
 
@@ -46,10 +44,9 @@
 
         <div class="mt-6 flex items-center justify-between">
           <h3 class="font-bold text-lg dark:text-white">Filters</h3>
-          <button type="button" (click)="addFilter()"
-            class="text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2">
+          <app-button type="button" (click)="addFilter()">
             Add filter
-          </button>
+          </app-button>
         </div>
 
         <div formArrayName="filters" class="space-y-4 mt-3">
@@ -96,10 +93,9 @@
                 <div class="mt-4">
                   <div class="flex items-center justify-between">
                     <h4 class="font-semibold text-sm dark:text-white">Options</h4>
-                    <button type="button" (click)="addOption(i)"
-                      class="text-white bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-1.5">
+                    <app-button type="button" (click)="addOption(i)" size="sm">
                       Add option
-                    </button>
+                    </app-button>
                   </div>
                   <div formArrayName="options" class="space-y-2 mt-2">
                     @for(optionControl of getOptionsArray(i).controls; track j; let j = $index){
@@ -137,14 +133,9 @@
     }
 
     <div class="flex w-full justify-end mr-4">
-      <button data-cy="adminSaveSearchFiltersConfig" type="button" (click)="saveConfig()" [disabled]="saving"
-        [ngClass]="saving ? 'opacity-50 cursor-not-allowed' : 'hover:bg-primary-50'"
-        class="flex text-white justify-end bg-primary-100 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+      <app-button data-cy="adminSaveSearchFiltersConfig" type="button" (click)="saveConfig()" [disabled]="saving" icon="arrow-right" iconPosition="suffix">
         Save
-        <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
-        </svg>
-      </button>
+      </app-button>
     </div>
   }
 </div>

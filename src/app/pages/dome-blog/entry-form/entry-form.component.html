@@ -129,18 +129,16 @@
                         <app-button data-cy="blogEntryDelete" (click)="openDeleteDialog()" [disabled]="loading" variant="danger">
                           Delete entry
                         </app-button>
-                        <button data-cy="blogEntryCreate" (click)="update()" [disabled]="!canSubmit()"
-                        class="px-4 py-2 text-base font-medium text-white rounded-lg bg-primary-100 disabled:opacity-50">
+                        <app-button data-cy="blogEntryCreate" (click)="update()" [disabled]="!canSubmit()">
                           Update entry
-                        </button>
+                        </app-button>
                     </div>
                  } @else  {
                     <div class="flex justify-end mt-6 space-x-4">
           
-                        <button data-cy="blogEntryCreate" (click)="create()" [disabled]="!canSubmit()"
-                        class="px-4 py-2 text-base font-medium text-white rounded-lg bg-primary-100 disabled:opacity-50">
+                        <app-button data-cy="blogEntryCreate" (click)="create()" [disabled]="!canSubmit()">
                           Create entry
-                        </button>
+                        </app-button>
                     </div>
                  }
               </form>

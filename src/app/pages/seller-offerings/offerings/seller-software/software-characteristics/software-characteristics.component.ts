@@ -13,6 +13,7 @@ import { TableInputComponent } from 'src/app/shared/forms/table-input/table-inpu
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { PackageDeploymentComponent } from '../../../../../shared/forms/package-deployment/package-deployment';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 type Characteristic = components['schemas']['Characteristic'];
 type CharType = 'string' | 'number' | 'range' | 'deployment';
@@ -29,7 +30,7 @@ const CHAR_TYPE_OPTIONS: { value: CharType; label: string }[] = [
   templateUrl: './software-characteristics.component.html',
   styleUrl: './software-characteristics.component.css',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, PackageDeploymentComponent, DynamicFormComponent, TableInputComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, PackageDeploymentComponent, DynamicFormComponent, TableInputComponent, ButtonComponent],
 })
 export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
   @Input() characteristics: Characteristic[] = [];
