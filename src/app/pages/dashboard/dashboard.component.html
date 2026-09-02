@@ -30,15 +30,11 @@
             'DASHBOARD._header' | translate }}</h1>
           <p class="text-left mb-8 text-lg font-normal lg:text-xl text-secondary-50">{{ 'DASHBOARD._subheader' |
             translate }}</p>
-          <button data-cy="browseServicesDashboard" id="browseServices" (click)="goToSearch()"
-            class="inline-flex justify-left items-center border border-1 border-white py-3 px-5 text-base font-medium text-center text-white rounded-lg hover:bg-primary-50 ">
-            <svg class=" mr-2 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-              <path fill-rule="evenodd"
-                d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"
-                clip-rule="evenodd"></path>
-            </svg>
+          <app-button data-cy="browseServicesDashboard" id="browseServices" type="button" (click)="goToSearch()"
+            variant="primary" [outline]="true" suffixIcon="arrow-right"
+            style="--button-outline-text: white; --button-outline-border: white">
             {{ 'DASHBOARD._browse_serv' | translate }}
-          </button>
+          </app-button>
         </div>
         <div class="mt-4 md:mt-0 bg-secondary-300 bg-opacity-50 rounded-lg w-full md:w-1/4 h-[300px]">
           <div class="w-full p-8 rounded-lg shadow-lg h-[300px] flex flex-col justify-between">

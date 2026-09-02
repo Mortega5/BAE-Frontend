@@ -87,3 +87,11 @@ There's no `click` output — bind `(click)` directly on `<app-button>` and it's
 </div>
 ```
 Anything that's about the button's own *appearance* (color, border, radius, padding) should be a proper `@Input` (`variant`/`size`/`shape`/`outline`) instead of a passed-in class, precisely because those can't reach the real button anyway.
+
+**One-off color overrides: use a CSS custom property, not `class`/`style` on the button's own properties.** Unlike `class`, an inline `style` *does* reach the inner `<button>` for CSS custom properties specifically — custom properties inherit through the component boundary regardless of which element declares them, while `class` never crosses it at all. Every variant's colors are already tokens (`--button-<variant>-text`, `-bg`, `-border`, etc.) consumed by `button.component.scss`, and the `outline` modifier's resting color additionally goes through an overridable `--button-outline-text`/`--button-outline-border` pair (falling back to the variant's own bg token) precisely so a single instance can override it without touching the shared variant. For example, an outline CTA sitting on a dark background image needs a white border/text instead of the variant's usual tinted one:
+```html
+<app-button variant="primary" [outline]="true" style="--button-outline-text: white; --button-outline-border: white">
+  {{ 'NS._browse' | translate }}
+</app-button>
+```
+This only affects that one instance — every other `outline` button keeps using the variant's own color.

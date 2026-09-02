@@ -67,13 +67,9 @@
             </button>
           }
 
-          <button
-            (click)="onShowAll()"
-            class="flex h-[72px] items-center gap-2 px-4 text-[15px] font-semibold text-[#526179] transition hover:text-[#1f4fbf] sm:text-[16px]"
-          >
-            <span>{{ 'BROWSE.showAll' | translate }}</span>
-            <fa-icon [icon]="faArrowRight"></fa-icon>
-          </button>
+          <app-button type="button" (click)="onShowAll()" variant="link" suffixIcon="arrow-right" class="h-[72px]">
+            {{ 'BROWSE.showAll' | translate }}
+          </app-button>
         </div>
       }
     </div>
@@ -125,14 +121,10 @@
                       <div class="flex flex-1 flex-col gap-3 px-4 pt-6 pb-6">
                         <h3 class="text-[20px] font-bold leading-[1.3] text-[#0b1220] line-clamp-2">{{ offer.name }}</h3>
                         <p class="text-[15px] leading-[1.5] text-[#526179] line-clamp-3">{{ getShortDescription(offer.description) }}</p>
-                        <button
-                          type="button"
-                          (click)="goToOffer(offer)"
-                          class="mt-auto inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg border border-[#2058a7] px-6 py-3 text-[14px] font-semibold text-[#2058a7] transition-colors hover:bg-[#f2f5fb]"
-                        >
-                          <span>{{ 'BROWSE.viewService' | translate }}</span>
-                          <fa-icon [icon]="faArrowRight"></fa-icon>
-                        </button>
+                        <app-button type="button" (click)="goToOffer(offer)" variant="primary" [outline]="true"
+                          suffixIcon="arrow-right" class="mt-auto w-full">
+                          {{ 'BROWSE.viewService' | translate }}
+                        </app-button>
                       </div>
                     </div>
                   }

@@ -11,6 +11,7 @@ import { Category } from 'src/app/models/interfaces';
 import { iconForCategory } from 'src/app/data/categoryIcons';
 import { searchCategoriesConfig } from 'src/app/data/availableFilters';
 import { getShortOfferDescription } from 'src/app/shared/card/offer-card-text.util';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 interface PopularOffer {
   id: string;
@@ -22,7 +23,7 @@ interface PopularOffer {
 @Component({
   selector: 'app-browse',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, FontAwesomeModule],
+  imports: [CommonModule, FormsModule, TranslateModule, FontAwesomeModule, ButtonComponent],
   templateUrl: './browse.component.html',
   styleUrl: './browse.component.css',
 })

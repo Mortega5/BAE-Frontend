@@ -55,8 +55,8 @@
 
     &[data-outline] {
       background-color: transparent;
-      color: var(--button-primary-bg);
-      border-color: var(--button-primary-bg);
+      color: var(--button-outline-text, var(--button-primary-bg));
+      border-color: var(--button-outline-border, var(--button-primary-bg));
 
       &:hover {
         background-color: var(--button-primary-bg);
