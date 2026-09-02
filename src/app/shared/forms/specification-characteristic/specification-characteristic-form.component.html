@@ -17,7 +17,7 @@
     <div class="flex justify-end">
       <app-button type="button"
         [attr.data-cy]="valueType === 'string' ? 'btnAddStringValue' : valueType === 'number' ? 'btnAddNumberValue' : valueType === 'range' ? 'btnAddRangeValue' : 'btnAddValue'"
-        (click)="addValue()" [disabled]="!canAdd" icon="plus" iconPosition="suffix">
+        (click)="addValue()" [disabled]="!canAdd" size="sm" icon="plus" iconPosition="suffix">
         {{ 'CHAR_SPEC._add_value' | translate }}
       </app-button>
     </div>

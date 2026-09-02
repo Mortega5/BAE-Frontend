@@ -43,10 +43,9 @@
       </div>
       }
       <div class="flex gap-3 mt-4 justify-end">
-        <button type="button" (click)="cancelEdit()"
-          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-secondary-300 dark:text-white dark:border-gray-600 dark:hover:bg-secondary-200">
+        <app-button type="button" (click)="cancelEdit()" variant="ghost" size="sm">
           {{ 'BLUEPRINT_PROD._cancel' | translate }}
-        </button>
+        </app-button>
         <app-button type="button" (click)="addOrUpdateStep()" [disabled]="stepForm.invalid"
           [icon]="editingIndex === null ? 'plus' : undefined">
           @if (editingIndex !== null) {

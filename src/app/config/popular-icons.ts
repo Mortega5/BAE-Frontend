@@ -42,7 +42,7 @@ import {
   faUsers,
   faUserShield,
 } from '@fortawesome/free-solid-svg-icons';
-import { faArrowDown, faArrowRight, faBars, faCartShopping, faCheck, faChevronDown, faEdit, faLayerGroup, faPlus, faSave, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { faAnglesLeft, faAnglesRight, faArrowDown, faArrowRight, faBars, faCartShopping, faCheck, faChevronDown, faChevronLeft, faChevronRight, faEdit, faLayerGroup, faPlus, faSave, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons';
 
 export interface PopularIcon {
   name: string;
@@ -147,6 +147,10 @@ const BUTTON_ICONS: Partial<Record<IconName, IconDefinition>> = {
   [faCartShopping.iconName]: faCartShopping,
   [faCheck.iconName]: faCheck,
   [faChevronDown.iconName]: faChevronDown,
+  [faChevronLeft.iconName]: faChevronLeft,
+  [faChevronRight.iconName]: faChevronRight,
+  [faAnglesLeft.iconName]: faAnglesLeft,
+  [faAnglesRight.iconName]: faAnglesRight,
   ...Object.fromEntries(POPULAR_ICONS.map(({ icon }) => [icon.iconName, icon])),
 };
 

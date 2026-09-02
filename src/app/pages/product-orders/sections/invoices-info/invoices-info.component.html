@@ -69,16 +69,13 @@
           <fa-icon [icon]="faSave" class="text-[14px]"></fa-icon>
           {{ 'INVOICES._save' | translate }}
         </button>
-        <button data-cy="cancelEditInvoice" (click)="cancelEditBillNo()" type="button"
-          class="text-gray-700 dark:text-gray-200 bg-gray-100 dark:bg-secondary-300 hover:bg-gray-200 dark:hover:bg-secondary-200 font-medium rounded-lg text-sm px-4 py-2.5 inline-flex items-center">
+        <app-button data-cy="cancelEditInvoice" (click)="cancelEditBillNo()" type="button" variant="ghost" size="sm">
           {{ 'INVOICES._cancel' | translate }}
-        </button>
+        </app-button>
         } @else if (role === sellerRole) {
-        <button data-cy="editInvoice" (click)="editInvoice()" type="button"
-          class="text-primary-100 dark:text-primary-50 hover:underline text-sm font-medium inline-flex items-center gap-1.5">
-          <fa-icon [icon]="faEdit" class="text-[13px]"></fa-icon>
+        <app-button data-cy="editInvoice" (click)="editInvoice()" type="button" variant="link" icon="pen-to-square">
           {{ 'INVOICES._edit' | translate }}
-        </button>
+        </app-button>
         }
       </div>
     </div>

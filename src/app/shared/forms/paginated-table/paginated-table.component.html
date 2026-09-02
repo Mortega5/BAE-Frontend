@@ -38,47 +38,25 @@
     </div>
 
     <div class="flex items-center gap-1">
-      <button type="button"
-        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 dark:border-secondary-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-secondary-200"
-        [disabled]="currentPage === 1" (click)="goToPage(1)"
-        [attr.aria-label]="'FORMS.PAGINATED_TABLE._first' | translate">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          stroke-linejoin="round" viewBox="0 0 24 24">
-          <path d="M18 17l-5-5 5-5" />
-          <path d="M11 17l-5-5 5-5" />
-        </svg>
-      </button>
+      <app-button type="button" variant="ghost" size="sm" icon="angles-left"
+        [disabled]="currentPage === 1" (click)="goToPage(1)">
+        <span class="sr-only">{{ 'FORMS.PAGINATED_TABLE._first' | translate }}</span>
+      </app-button>
 
-      <button type="button"
-        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 dark:border-secondary-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-secondary-200"
-        [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)"
-        [attr.aria-label]="'FORMS.PAGINATED_TABLE._previous' | translate">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          stroke-linejoin="round" viewBox="0 0 24 24">
-          <path d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
+      <app-button type="button" variant="ghost" size="sm" icon="chevron-left"
+        [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+        <span class="sr-only">{{ 'FORMS.PAGINATED_TABLE._previous' | translate }}</span>
+      </app-button>
 
-      <button type="button"
-        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 dark:border-secondary-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-secondary-200"
-        [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)"
-        [attr.aria-label]="'FORMS.PAGINATED_TABLE._next' | translate">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          stroke-linejoin="round" viewBox="0 0 24 24">
-          <path d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
+      <app-button type="button" variant="ghost" size="sm" icon="chevron-right"
+        [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+        <span class="sr-only">{{ 'FORMS.PAGINATED_TABLE._next' | translate }}</span>
+      </app-button>
 
-      <button type="button"
-        class="w-8 h-8 flex items-center justify-center rounded-lg border border-gray-300 dark:border-secondary-200 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-100 dark:hover:bg-secondary-200"
-        [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)"
-        [attr.aria-label]="'FORMS.PAGINATED_TABLE._last' | translate">
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          stroke-linejoin="round" viewBox="0 0 24 24">
-          <path d="M6 17l5-5-5-5" />
-          <path d="M13 17l5-5-5-5" />
-        </svg>
-      </button>
+      <app-button type="button" variant="ghost" size="sm" icon="angles-right"
+        [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">
+        <span class="sr-only">{{ 'FORMS.PAGINATED_TABLE._last' | translate }}</span>
+      </app-button>
     </div>
   </div>
 </div>

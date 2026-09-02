@@ -51,10 +51,9 @@
       }
 
       <div class="flex justify-end gap-3">
-        <button type="button" (click)="cancel()"
-          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-secondary-300 dark:text-white dark:border-gray-600 dark:hover:bg-secondary-200">
+        <app-button type="button" (click)="cancel()" variant="ghost" size="sm">
           {{ 'CHAR_SPEC._cancel' | translate }}
-        </button>
+        </app-button>
         <app-button type="button" (click)="save()" [disabled]="!canSave">
           {{ 'CHAR_SPEC._save_char' | translate }}
         </app-button>

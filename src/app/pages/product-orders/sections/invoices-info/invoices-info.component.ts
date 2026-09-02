@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChil
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faDownload, faEdit, faSave } from "@fortawesome/pro-solid-svg-icons";
+import { faDownload, faSave } from "@fortawesome/pro-solid-svg-icons";
 import { TranslateModule } from '@ngx-translate/core';
 import { initFlowbite } from 'flowbite';
 import moment from 'moment';
@@ -51,7 +51,6 @@ export class InvoicesInfoComponent implements OnInit, OnDestroy {
 
   @ViewChild(PaginatedTableComponent) paginatedTable?: PaginatedTableComponent<any>;
 
-  protected readonly faEdit = faEdit;
   protected readonly faSave = faSave;
   private destroy$ = new Subject<void>();
 

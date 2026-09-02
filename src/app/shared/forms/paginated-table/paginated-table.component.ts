@@ -6,11 +6,12 @@ import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 @Component({
   selector: 'app-paginated-table',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, TableInputComponent, LoadingSpinnerComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, TableInputComponent, LoadingSpinnerComponent, ButtonComponent],
   templateUrl: './paginated-table.component.html',
 })
 export class PaginatedTableComponent<T = any> implements OnInit, OnChanges {

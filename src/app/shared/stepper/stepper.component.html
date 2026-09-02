@@ -47,18 +47,18 @@
     </div>
 
     <div class="flex justify-end space-x-4">
-      <app-button (click)="goBack()" [disabled]="currentStep === 0" variant="ghost">
+      <app-button (click)="goBack()" [disabled]="currentStep === 0" variant="ghost" size="sm">
         {{ previousLabel | translate }}
       </app-button>
 
       @if(!isLastStep) {
-      <app-button data-cy="stepperNext" (click)="goNext()" [disabled]="isLastStep || !canAdvance">
+      <app-button data-cy="stepperNext" (click)="goNext()" [disabled]="isLastStep || !canAdvance" size="sm">
         {{ nextLabel | translate }}
       </app-button>
       }
 
       @if (isLastStep || submitAlwaysVisible) {
-      <app-button data-cy="stepperSubmit" (click)="submitted.emit()" [disabled]="submitDisabled">
+      <app-button data-cy="stepperSubmit" (click)="submitted.emit()" [disabled]="submitDisabled" size="sm">
         {{ submitLabel | translate }}
       </app-button>
       }
