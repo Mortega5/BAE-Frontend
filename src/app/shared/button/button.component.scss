@@ -2,8 +2,16 @@
    any theme can override them directly. Everything below only consumes them. */
 
 .app-button {
-  @apply inline-flex items-center justify-center gap-2 font-semibold rounded-lg border transition-colors focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none;
+  @apply inline-flex items-center justify-center gap-2 font-semibold rounded-lg border transition-colors focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed;
   border-color: transparent;
+
+  /* Deliberately no disabled:pointer-events-none here: that would exclude this element from
+     hit-testing entirely, which (a) hides the not-allowed cursor above and (b) makes a real
+     mouse click's hit-test fall through to the <app-button> host — which has its own independent
+     native (click) listener that has no idea this button is disabled, silently bypassing the
+     disabled guard. A native disabled <button> already refuses to dispatch click on its own;
+     the :not(:disabled) guards on every &:hover rule below exist only to stop hover color
+     changes, which :hover matches on a disabled control regardless of pointer-events. */
 
   &[data-size="sm"] {
     @apply h-9 px-3 text-sm;
@@ -45,7 +53,7 @@
     color: var(--button-primary-text);
     background-color: var(--button-primary-bg);
 
-    &:hover {
+    &:hover:not(:disabled) {
       background-color: var(--button-primary-bg-hover);
     }
 
@@ -58,7 +66,7 @@
       color: var(--button-outline-text, var(--button-primary-bg));
       border-color: var(--button-outline-border, var(--button-primary-bg));
 
-      &:hover {
+      &:hover:not(:disabled) {
         background-color: var(--button-primary-bg);
         color: var(--button-primary-text);
       }
@@ -70,7 +78,7 @@
     background-color: var(--button-secondary-bg);
     border-color: var(--button-secondary-border);
 
-    &:hover {
+    &:hover:not(:disabled) {
       background-color: var(--button-secondary-bg-hover);
     }
 
@@ -83,7 +91,7 @@
     color: var(--button-danger-text);
     background-color: var(--button-danger-bg);
 
-    &:hover {
+    &:hover:not(:disabled) {
       background-color: var(--button-danger-bg-hover);
     }
 
@@ -96,7 +104,7 @@
       color: var(--button-danger-bg);
       border-color: var(--button-danger-bg);
 
-      &:hover {
+      &:hover:not(:disabled) {
         background-color: var(--button-danger-bg);
         color: var(--button-danger-text);
       }
@@ -107,7 +115,7 @@
     color: var(--button-link-text);
     background-color: transparent;
 
-    &:hover {
+    &:hover:not(:disabled) {
       color: var(--button-link-text-hover);
     }
   }
@@ -116,7 +124,7 @@
     color: var(--button-ghost-text);
     background-color: transparent;
 
-    &:hover {
+    &:hover:not(:disabled) {
       color: var(--button-ghost-text-hover);
       background-color: var(--button-ghost-bg-hover);
     }
@@ -131,7 +139,7 @@
     background-color: transparent;
     border-color: var(--button-neutral-border);
 
-    &:hover {
+    &:hover:not(:disabled) {
       background-color: var(--button-neutral-bg-hover);
     }
 

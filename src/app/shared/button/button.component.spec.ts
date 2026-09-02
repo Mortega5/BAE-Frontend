@@ -17,6 +17,17 @@ class HostComponent {}
 })
 class SpreadHostComponent {}
 
+@Component({
+  standalone: true,
+  imports: [ButtonComponent],
+  template: `<app-button [disabled]="disabled" (click)="onClick()">Click me</app-button>`,
+})
+class ClickHostComponent {
+  disabled = false;
+  clicks = 0;
+  onClick() { this.clicks++; }
+}
+
 describe('ButtonComponent', () => {
   let component: ButtonComponent;
   let fixture: ComponentFixture<ButtonComponent>;
@@ -128,5 +139,39 @@ describe('ButtonComponent', () => {
     fixture.detectChanges();
 
     expect(buttonEl().hasAttribute('data-spread')).toBeFalse();
+  });
+
+  it('should fire a native (click) bound on the host when enabled', () => {
+    const hostFixture = TestBed.createComponent(ClickHostComponent);
+    hostFixture.detectChanges();
+    const host = hostFixture.componentInstance;
+
+    hostFixture.nativeElement.querySelector('button').click();
+
+    expect(host.clicks).toBe(1);
+  });
+
+  it('should NOT fire a native (click) bound on the host when disabled', () => {
+    const hostFixture = TestBed.createComponent(ClickHostComponent);
+    hostFixture.componentInstance.disabled = true;
+    hostFixture.detectChanges();
+    const host = hostFixture.componentInstance;
+
+    hostFixture.nativeElement.querySelector('button').click();
+
+    expect(host.clicks).toBe(0);
+  });
+
+  it('should show the not-allowed cursor on the real button when disabled', () => {
+    // Deliberately no pointer-events:none anywhere in button.component.scss — that would
+    // exclude the button from hit-testing, hiding this cursor and making a real mouse click's
+    // hit-test fall through to the <app-button> host (which has its own independent native
+    // (click) listener with no idea the button is disabled). Blocking relies purely on the
+    // native <button disabled> semantics instead (verified by the two tests above), which
+    // keeps hit-testing normal — hence this cursor is safe to assert directly here.
+    component.disabled = true;
+    fixture.detectChanges();
+
+    expect(getComputedStyle(buttonEl()).cursor).toBe('not-allowed');
   });
 });
