@@ -371,7 +371,7 @@
 
       <!-- Botones -->
       <div class="flex justify-end space-x-3 mt-6">
-        <button data-cy="cancelPriceComponent" type="button" (click)="closeDrawer()" class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-secondary-300">{{ 'FORMS.PRICE_PLAN_COMPONENT._cancel' | translate }}</button>
+        <app-button data-cy="cancelPriceComponent" type="button" (click)="closeDrawer()" variant="ghost">{{ 'FORMS.PRICE_PLAN_COMPONENT._cancel' | translate }}</app-button>
         <button data-cy="savePriceComponent" type="submit" [disabled]="priceComponentForm.invalid" [ngClass]="priceComponentForm.invalid ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg bg-primary-100 hover:bg-primary-50 disabled:opacity-50 disabled:cursor-not-allowed">{{ 'CREATE_OFFER._pc_save_component' | translate }}</button>
       </div>
       </form>

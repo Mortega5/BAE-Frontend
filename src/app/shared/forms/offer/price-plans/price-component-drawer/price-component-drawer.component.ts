@@ -9,6 +9,7 @@ import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 @Component({
   selector: 'app-price-component-drawer',
@@ -19,7 +20,8 @@ import { LoginInfo } from 'src/app/models/interfaces';
     ReactiveFormsModule,
     MarkdownTextareaComponent,
     TranslateModule,
-    NgClass
+    NgClass,
+    ButtonComponent
   ],
   styleUrl: './price-component-drawer.component.css'
 })

@@ -6,6 +6,7 @@ import { UsageServiceService } from 'src/app/services/usage-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { LoginInfo } from 'src/app/models/interfaces';
 import moment from 'moment';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 interface SubRange {
   id: string;
@@ -26,7 +27,8 @@ interface SubRange {
     TranslateModule,
     NgClass,
     NgIf,
-    NgForOf
+    NgForOf,
+    ButtonComponent
   ],
   styleUrl: './tier-pricing-drawer.component.css'
 })

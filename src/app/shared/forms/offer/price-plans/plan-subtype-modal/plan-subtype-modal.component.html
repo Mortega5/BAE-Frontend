@@ -31,9 +31,9 @@
     </div>
 
     <div class="flex justify-end gap-3 mt-6">
-      <button type="button" (click)="cancel()" class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-secondary-300">
+      <app-button type="button" (click)="cancel()" variant="ghost">
         {{ 'CREATE_OFFER._cancel' | translate }}
-      </button>
+      </app-button>
       <button type="button" data-cy="planSubtypeContinue" (click)="confirm()" [disabled]="!selectedType"
         [ngClass]="selectedType ? 'bg-primary-100 hover:bg-primary-50' : 'bg-gray-400 dark:bg-gray-700 cursor-not-allowed'"
         class="px-4 py-2 text-sm font-semibold text-white rounded-lg transition-colors">

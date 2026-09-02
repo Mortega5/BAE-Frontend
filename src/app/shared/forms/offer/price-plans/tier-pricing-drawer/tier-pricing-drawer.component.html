@@ -338,13 +338,14 @@
 
                     <!-- Form Buttons -->
                     <div class="flex justify-end space-x-2 mt-4">
-                      <button
+                      <app-button
                         type="button"
                         (click)="cancelPriceForm()"
-                        class="px-3 py-1 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-secondary-300"
+                        variant="ghost"
+                        size="sm"
                       >
                         Cancel
-                      </button>
+                      </app-button>
                       <button
                         type="button"
                         (click)="savePriceForm()"
@@ -374,13 +375,13 @@
 
         <!-- Buttons -->
         <div class="flex justify-end space-x-3 mt-6">
-          <button
+          <app-button
             type="button"
             (click)="closeDrawer()"
-            class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-secondary-300"
+            variant="ghost"
           >
             Cancel
-          </button>
+          </app-button>
           <button
             type="button"
             (click)="confirmTierPricing()"

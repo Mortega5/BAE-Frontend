@@ -47,7 +47,7 @@
       </div>
       <!-- Action Buttons -->
       <div class="flex justify-end gap-3 mt-4">
-        <button data-cy="offerProfileCancel" type="button" (click)="closeDrawer()" class="px-4 py-2 text-sm font-semibold text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-secondary-300">{{ 'FORMS.PRICE_PLANS._cancel' | translate }}</button>
+        <app-button data-cy="offerProfileCancel" type="button" (click)="closeDrawer()" variant="ghost">{{ 'FORMS.PRICE_PLANS._cancel' | translate }}</app-button>
         <button data-cy="offerProfileSave" type="button" (click)="saveProfile()"
                 class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white rounded-lg transition"
                 [ngClass]="{'bg-primary-100 hover:bg-primary-50': form.valid, 'bg-gray-400 cursor-not-allowed': form.invalid}">
