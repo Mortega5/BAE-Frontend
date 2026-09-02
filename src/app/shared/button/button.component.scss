@@ -2,7 +2,7 @@
    any theme can override them directly. Everything below only consumes them. */
 
 .app-button {
-  @apply inline-flex items-center justify-center gap-2 font-semibold rounded-lg border transition-colors focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed;
+  @apply inline-flex items-center justify-center gap-2 font-semibold rounded-lg border transition-colors focus:outline-none focus:ring-4 disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none;
   border-color: transparent;
 
   &[data-size="sm"] {
@@ -17,7 +17,7 @@
     color: var(--button-primary-text);
     background-color: var(--button-primary-bg);
 
-    &:hover:not(:disabled) {
+    &:hover {
       background-color: var(--button-primary-bg-hover);
     }
 
@@ -31,7 +31,7 @@
     background-color: var(--button-secondary-bg);
     border-color: var(--button-secondary-border);
 
-    &:hover:not(:disabled) {
+    &:hover {
       background-color: var(--button-secondary-bg-hover);
     }
 
@@ -44,7 +44,7 @@
     color: var(--button-danger-text);
     background-color: var(--button-danger-bg);
 
-    &:hover:not(:disabled) {
+    &:hover {
       background-color: var(--button-danger-bg-hover);
     }
 
@@ -57,7 +57,7 @@
     color: var(--button-link-text);
     background-color: transparent;
 
-    &:hover:not(:disabled) {
+    &:hover {
       color: var(--button-link-text-hover);
     }
   }
@@ -66,7 +66,7 @@
     color: var(--button-ghost-text);
     background-color: transparent;
 
-    &:hover:not(:disabled) {
+    &:hover {
       color: var(--button-ghost-text-hover);
       background-color: var(--button-ghost-bg-hover);
     }
