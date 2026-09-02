@@ -114,39 +114,29 @@
             <bae-badge class="ml-2" [category]=cat></bae-badge>
             }
           </div>
-          <div class="flex flex-row justify-between">
+          <div class="flex flex-row items-center justify-between">
             <a (click)="goToProductDetails(inv.product)" class="flex cursor-pointer">
               <h5 class="text-xl font-semibold tracking-tight text-primary-100 dark:text-white">{{inv.product?.name}}
               </h5>
             </a>
             @if(inv.status == 'active'){
             <div class="flex gap-1">
-              <button data-cy="modifyInvProduct" type="button" [attr.data-tooltip-target]="'modify-default-' + idx"
-                (click)="openModifyFromCard(inv);$event.stopPropagation();"
-                class="flex h-fit text-primary-100 border border-primary-100 hover:bg-primary-100 hover:text-white focus:ring-4 focus:outline-none focus:ring-blue-400 font-medium rounded-full text-sm p-2 text-center inline-flex items-center">
-                <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                  viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z" />
-                </svg>
+              <app-button data-cy="modifyInvProduct" type="button" [attr.data-tooltip-target]="'modify-default-' + idx"
+                (click)="openModifyFromCard(inv);$event.stopPropagation();" variant="primary" shape="pill" size="sm"
+                icon="pen-to-square">
                 <span class="sr-only">{{ 'PRODUCT_INVENTORY._modify_chars' | translate }}</span>
-              </button>
+              </app-button>
               <div [attr.id]="'modify-default-' + idx" role="tooltip"
                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 rounded-lg shadow-sm opacity-0 tooltip bg-primary-100">
                 {{ 'PRODUCT_INVENTORY._modify_chars' | translate }}
                 <div class="tooltip-arrow" data-popper-arrow></div>
               </div>
-              <button data-cy="terminateInvProduct" type="button"
+              <app-button data-cy="terminateInvProduct" type="button"
                 [attr.data-tooltip-target]="'unsubscribe-default-' + idx"
-                (click)="showUnsubscribeModal(inv);$event.stopPropagation();"
-                class="flex h-fit text-red-600 border border-red-600 hover:bg-red-600 hover:text-white focus:ring-4 focus:outline-none focus:ring-red-400 font-medium rounded-full text-sm p-2 text-center inline-flex items-center">
-                <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                  fill="none" viewBox="0 0 24 24">
-                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M6 18 17.94 6M18 18 6.06 6" />
-                </svg>
+                (click)="showUnsubscribeModal(inv);$event.stopPropagation();" variant="danger" shape="pill" size="sm"
+                icon="xmark">
                 <span class="sr-only">Unsubscribe</span>
-              </button>
+              </app-button>
               <div [attr.id]="'unsubscribe-default-' + idx" role="tooltip"
                 class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 rounded-lg shadow-sm opacity-0 tooltip bg-primary-100">
                 {{ 'PRODUCT_INVENTORY._unsubscribe' | translate }}
@@ -601,8 +591,8 @@
     <div class="relative p-4 w-full max-w-md h-full md:h-auto" (click)="$event.stopPropagation();">
       <!-- Modal content -->
       <div class="relative p-4 text-center bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
-        <app-button type="button" (click)="unsubscribeModal=false;$event.stopPropagation();" variant="ghost" size="sm" icon="xmark"
-          class="absolute top-2.5 right-2.5">
+        <app-button type="button" (click)="unsubscribeModal=false;$event.stopPropagation();" variant="ghost" size="sm"
+          icon="xmark" class="absolute top-2.5 right-2.5">
           <span class="sr-only">{{ 'PRODUCT_INVENTORY._close_modal' | translate }}</span>
         </app-button>
 
@@ -620,10 +610,9 @@
             class="py-2 px-3 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
             {{ 'PRODUCT_INVENTORY._cancel' | translate }}
           </button>
-          <button (click)="unsubscribeProduct()" type="submit"
-            class="py-2 px-3 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900">
+          <app-button (click)="unsubscribeProduct()" type="submit" variant="danger">
             {{ 'PRODUCT_INVENTORY._yes_sure' | translate }}
-          </button>
+          </app-button>
         </div>
       </div>
     </div>
@@ -637,8 +626,8 @@
     <div class="relative p-4 w-full max-w-md h-full md:h-auto" (click)="$event.stopPropagation();">
       <!-- Modal content -->
       <div class="relative p-4 text-center bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
-        <app-button type="button" (click)="renewModal=false;$event.stopPropagation();" variant="ghost" size="sm" icon="xmark"
-          class="absolute top-2.5 right-2.5">
+        <app-button type="button" (click)="renewModal=false;$event.stopPropagation();" variant="ghost" size="sm"
+          icon="xmark" class="absolute top-2.5 right-2.5">
           <span class="sr-only">{{ 'PRODUCT_INVENTORY._close_modal' | translate }}</span>
         </app-button>
         <svg class="text-gray-400 dark:text-gray-500 w-12 h-12 mb-3.5 mx-auto" aria-hidden="true" fill="currentColor"
