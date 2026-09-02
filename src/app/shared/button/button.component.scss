@@ -26,12 +26,19 @@
     }
   }
 
-  &[data-spread] {
-    @apply w-full justify-between;
+  .app-button-group {
+    /* Invisible by default so a single icon (or none) lays out exactly like before —
+       becomes a real flex group only when [data-spread] needs to pin content+prefix
+       icon to the left, away from the suffix icon on the right. */
+    display: contents;
   }
 
-  .app-button-group {
-    @apply inline-flex items-center gap-2;
+  &[data-spread] {
+    @apply w-full justify-between;
+
+    .app-button-group {
+      @apply inline-flex items-center gap-2;
+    }
   }
 
   &[data-variant="primary"] {

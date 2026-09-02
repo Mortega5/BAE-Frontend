@@ -1,19 +1,13 @@
 <button class="app-button" [type]="type" [disabled]="disabled" [attr.data-cy]="dataCy || null"
   [attr.data-variant]="variant" [attr.data-size]="size" [attr.data-shape]="shape"
   [attr.data-outline]="outline ? '' : null" [attr.data-spread]="resolvedPrefixIcon && resolvedSuffixIcon ? '' : null">
-  @if (resolvedPrefixIcon && resolvedSuffixIcon) {
   <span class="app-button-group">
+    @if (resolvedPrefixIcon) {
     <fa-icon [icon]="resolvedPrefixIcon" />
+    }
     <ng-content></ng-content>
   </span>
-  <fa-icon [icon]="resolvedSuffixIcon" />
-  } @else {
-  @if (resolvedPrefixIcon) {
-  <fa-icon [icon]="resolvedPrefixIcon" />
-  }
-  <ng-content></ng-content>
   @if (resolvedSuffixIcon) {
   <fa-icon [icon]="resolvedSuffixIcon" />
-  }
   }
 </button>

@@ -1,6 +1,21 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ButtonComponent } from './button.component';
+
+@Component({
+  standalone: true,
+  imports: [ButtonComponent],
+  template: `<app-button prefixIcon="xmark">Label text</app-button>`,
+})
+class HostComponent {}
+
+@Component({
+  standalone: true,
+  imports: [ButtonComponent],
+  template: `<app-button prefixIcon="plus" suffixIcon="xmark">Spread label</app-button>`,
+})
+class SpreadHostComponent {}
 
 describe('ButtonComponent', () => {
   let component: ButtonComponent;
@@ -62,9 +77,17 @@ describe('ButtonComponent', () => {
     fixture.detectChanges();
 
     const button = buttonEl();
-    const icon = button.querySelector('fa-icon');
-    expect(icon).toBeTruthy();
-    expect(button.firstElementChild?.tagName.toLowerCase()).toBe('fa-icon');
+    const group = button.querySelector('.app-button-group');
+    expect(group?.firstElementChild?.tagName.toLowerCase()).toBe('fa-icon');
+  });
+
+  it('should still project the content text alongside a prefix icon', async () => {
+    const hostFixture = TestBed.createComponent(HostComponent);
+    hostFixture.detectChanges();
+
+    const button: HTMLButtonElement = hostFixture.nativeElement.querySelector('button');
+    expect(button.textContent?.trim()).toContain('Label text');
+    expect(button.querySelector('fa-icon')).toBeTruthy();
   });
 
   it('should render a suffix icon after the content', () => {
@@ -89,6 +112,15 @@ describe('ButtonComponent', () => {
     const icons = button.querySelectorAll('fa-icon');
     expect(icons.length).toBe(2);
     expect(button.hasAttribute('data-spread')).toBeTrue();
+  });
+
+  it('should still project the content text when both a prefix and a suffix icon are set', () => {
+    const hostFixture = TestBed.createComponent(SpreadHostComponent);
+    hostFixture.detectChanges();
+
+    const button: HTMLButtonElement = hostFixture.nativeElement.querySelector('button');
+    expect(button.textContent?.trim()).toContain('Spread label');
+    expect(button.querySelectorAll('fa-icon').length).toBe(2);
   });
 
   it('should not mark the button as spread when only one icon is set', () => {
