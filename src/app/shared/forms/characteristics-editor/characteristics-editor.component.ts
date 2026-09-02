@@ -27,7 +27,6 @@ export class CharacteristicsEditorComponent {
   @Output() characteristicsChange = new EventEmitter<CharacteristicItem[]>();
 
   protected readonly faPlus = faPlus;
-  protected readonly faXmark = faXmark;
 
   showForm = false;
   editingChar: CharacteristicItem | null = null;

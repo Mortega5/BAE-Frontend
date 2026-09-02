@@ -1,7 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef, HostListener, OnDestroy } from '@angular/core';
 import {
-  faCartShopping,
-  faXmark
+  faCartShopping
 } from "@fortawesome/sharp-solid-svg-icons";
 import {components} from "../../models/product-catalog";
 import {LocalStorageService} from "../../services/local-storage.service";

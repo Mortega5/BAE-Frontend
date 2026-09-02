@@ -58,7 +58,7 @@ Each variable has a default on `body` (light) and, where it differs, an override
 | `size` | `'sm' \| 'md'` | `'md'` | Padding/height |
 | `type` | `'button' \| 'submit'` | `'button'` | Native `<button>` type |
 | `disabled` | `boolean` | `false` | Native disabled state |
-| `icon` | `IconName` (FontAwesome) | `undefined` | Optional icon, by name — resolved via `findPreloadedIcon` in [popular-icons.ts](../../config/popular-icons.ts). Only names already in that registry render; add new ones there when a button needs an icon that isn't preloaded yet |
+| `icon` | `IconName` (FontAwesome) | `undefined` | Optional icon, by name — resolved via `findButtonIcon` in [popular-icons.ts](../../config/popular-icons.ts). Only names already in that registry render; add new ones there when a button needs an icon that isn't preloaded yet |
 | `iconPosition` | `'prefix' \| 'suffix'` | `'prefix'` | Where the icon renders relative to the projected content |
 | `dataCy` | `string` | `undefined` | Forwarded to the native `<button>` as `data-cy`, for e2e tests |
 
