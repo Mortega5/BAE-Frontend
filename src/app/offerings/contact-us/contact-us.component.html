@@ -15,9 +15,9 @@
 
     <div class="flex items-end justify-between">
 
-        <button type="button" (click)="contact()" class="h-fit text-blue-600 dark:text-blue-500 hover:text-white border border-primary-100 dark:border-primary-50 hover:bg-primary-100 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center me-2 dark:text-primary-50 dark:hover:text-white dark:hover:bg-primary-50 dark:focus:ring-blue-800">
+        <app-button type="button" (click)="contact()" variant="primary" [outline]="true" class="me-2">
             {{ 'HOWITWORKS.CUSTOMERS._contact' | translate }}
-        </button>
+        </app-button>
 
     </div>
 
