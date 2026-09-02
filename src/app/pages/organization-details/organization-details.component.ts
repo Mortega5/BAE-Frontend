@@ -11,7 +11,7 @@ import { environment } from 'src/environments/environment';
 import { Location } from '@angular/common';
 import { availableFilters, searchCategoriesConfig } from 'src/app/data/availableFilters';
 import { Category } from 'src/app/models/interfaces';
-import { faEarthAmericas } from '@fortawesome/free-solid-svg-icons';
+import { faEarthAmericas, faXmark } from '@fortawesome/free-solid-svg-icons';
 import { iconForCategory } from 'src/app/data/categoryIcons';
 import { PaginationService } from 'src/app/services/pagination.service';
 
@@ -52,6 +52,7 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
   address:string='';
   servicesCount:number=0;
   protected readonly faEarthAmericas = faEarthAmericas;
+  protected readonly faXmark = faXmark;
   protected readonly iconForCategory = iconForCategory;
 
   serviceSearch = new FormControl();
