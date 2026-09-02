@@ -10,6 +10,7 @@ import { UsageServiceService } from 'src/app/services/usage-service.service';
 import { UsageSpecComponent } from 'src/app/shared/forms/usage-spec/usage-spec.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { NotFoundStateComponent } from 'src/app/shared/not-found-state/not-found-state.component';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 @Component({
   selector: 'update-usage-spec',
@@ -20,6 +21,7 @@ import { NotFoundStateComponent } from 'src/app/shared/not-found-state/not-found
     ReactiveFormsModule,
     LoadingSpinnerComponent,
     NotFoundStateComponent,
+    ButtonComponent,
   ],
   templateUrl: './update-usage-spec.component.html',
   styleUrl: './update-usage-spec.component.css'

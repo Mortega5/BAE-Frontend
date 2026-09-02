@@ -3,8 +3,7 @@
 
     @if (!isPreviewMode) {
     <nav class="flex items-center gap-2 pt-4 pb-6 text-[16px] text-[#526179] dark:text-gray-400">
-      <a (click)="back()" class="cursor-pointer hover:text-primary-100 dark:hover:text-primary-50 transition-colors">All
-        categories</a>
+      <app-button (click)="back()" variant="link">All categories</app-button>
       <svg class="h-4 w-4 text-[#526179] dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
         viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />

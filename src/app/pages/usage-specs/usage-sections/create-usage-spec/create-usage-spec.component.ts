@@ -7,6 +7,7 @@ import { LoginInfo } from 'src/app/models/interfaces';
 import { UsageSpecsPaths } from 'src/app/pages/usage-specs/usage-specs.paths';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { UsageSpecComponent } from 'src/app/shared/forms/usage-spec/usage-spec.component';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 @Component({
   selector: 'create-usage-spec',
@@ -14,7 +15,8 @@ import { UsageSpecComponent } from 'src/app/shared/forms/usage-spec/usage-spec.c
   imports: [
     UsageSpecComponent,
     TranslateModule,
-    ReactiveFormsModule],
+    ReactiveFormsModule,
+    ButtonComponent],
   templateUrl: './create-usage-spec.component.html',
   styleUrl: './create-usage-spec.component.css'
 })
