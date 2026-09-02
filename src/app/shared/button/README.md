@@ -56,6 +56,8 @@ Each variable has a default on `body` (light) and, where it differs, an override
 |---|---|---|---|
 | `variant` | `'primary' \| 'secondary' \| 'danger' \| 'link' \| 'ghost'` | `'primary'` | Visual style — see the table above for each variant's tokens |
 | `size` | `'sm' \| 'md'` | `'md'` | Padding/height |
+| `shape` | `'default' \| 'pill'` | `'default'` | `'pill'` is a fixed square with fully rounded corners (`border-radius: 9999px`) — for icon-only circular buttons. It overrides the size's normal padding, since a single icon with text-oriented padding renders as an oval, not a circle. Orthogonal to `variant`/`outline`; not meant for a pill button with visible text |
+| `outline` | `boolean` | `false` | Transparent background with a colored border/text (using the variant's own bg color) that fills solid on hover. Only has a visible effect on `primary` and `danger` — `link`/`ghost` have no fill to outline, and `secondary` already reads as an outline style |
 | `type` | `'button' \| 'submit'` | `'button'` | Native `<button>` type |
 | `disabled` | `boolean` | `false` | Native disabled state |
 | `icon` | `IconName` (FontAwesome) | `undefined` | Optional icon, by name — resolved via `findButtonIcon` in [popular-icons.ts](../../config/popular-icons.ts). Only names already in that registry render; add new ones there when a button needs an icon that isn't preloaded yet |

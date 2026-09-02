@@ -22,21 +22,27 @@ describe('ButtonComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should default to the primary variant and medium size', () => {
+  it('should default to the primary variant, medium size, default shape and no outline', () => {
     fixture.detectChanges();
     const button = buttonEl();
     expect(button.getAttribute('data-variant')).toBe('primary');
     expect(button.getAttribute('data-size')).toBe('md');
+    expect(button.getAttribute('data-shape')).toBe('default');
+    expect(button.hasAttribute('data-outline')).toBeFalse();
   });
 
-  it('should reflect the variant and size inputs as attributes', () => {
+  it('should reflect the variant, size, shape and outline inputs as attributes', () => {
     component.variant = 'secondary';
     component.size = 'sm';
+    component.shape = 'pill';
+    component.outline = true;
     fixture.detectChanges();
 
     const button = buttonEl();
     expect(button.getAttribute('data-variant')).toBe('secondary');
     expect(button.getAttribute('data-size')).toBe('sm');
+    expect(button.getAttribute('data-shape')).toBe('pill');
+    expect(button.hasAttribute('data-outline')).toBeTrue();
   });
 
   it('should apply the type, disabled and data-cy attributes to the native button', () => {

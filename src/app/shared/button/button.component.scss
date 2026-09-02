@@ -13,6 +13,19 @@
     @apply px-5 py-2.5 text-sm;
   }
 
+  &[data-shape="pill"] {
+    border-radius: 9999px;
+
+    /* Fixed square, not the text-oriented padding above — otherwise a single icon renders as an oval, not a circle. */
+    &[data-size="sm"] {
+      @apply h-9 w-9 p-0;
+    }
+
+    &[data-size="md"] {
+      @apply h-11 w-11 p-0;
+    }
+  }
+
   &[data-variant="primary"] {
     color: var(--button-primary-text);
     background-color: var(--button-primary-bg);
@@ -23,6 +36,17 @@
 
     &:focus {
       --tw-ring-color: var(--button-primary-ring);
+    }
+
+    &[data-outline] {
+      background-color: transparent;
+      color: var(--button-primary-bg);
+      border-color: var(--button-primary-bg);
+
+      &:hover {
+        background-color: var(--button-primary-bg);
+        color: var(--button-primary-text);
+      }
     }
   }
 
@@ -50,6 +74,17 @@
 
     &:focus {
       --tw-ring-color: var(--button-danger-ring);
+    }
+
+    &[data-outline] {
+      background-color: transparent;
+      color: var(--button-danger-bg);
+      border-color: var(--button-danger-bg);
+
+      &:hover {
+        background-color: var(--button-danger-bg);
+        color: var(--button-danger-text);
+      }
     }
   }
 

@@ -5,6 +5,7 @@ import { findButtonIcon } from 'src/app/config/popular-icons';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'link' | 'ghost';
 export type ButtonSize = 'sm' | 'md';
+export type ButtonShape = 'default' | 'pill';
 export type ButtonIconPosition = 'prefix' | 'suffix';
 
 /** Shared button used to consolidate the many near-duplicate Tailwind button styles
@@ -21,6 +22,8 @@ export type ButtonIconPosition = 'prefix' | 'suffix';
 export class ButtonComponent {
   @Input() variant: ButtonVariant = 'primary';
   @Input() size: ButtonSize = 'md';
+  @Input() shape: ButtonShape = 'default';
+  @Input() outline = false;
   @Input() type: 'button' | 'submit' = 'button';
   @Input() disabled = false;
   @Input() icon?: IconName;
