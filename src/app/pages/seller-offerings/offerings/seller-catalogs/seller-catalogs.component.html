@@ -1,9 +1,9 @@
-<div
-  class="bg-secondary-50 dark:bg-secondary-100 dark:border-gray-800 border-secondary-50 border mt-8 px-8 py-12 rounded-lg shadow-lg">
-  <div class="mb-24 flex w-full flex-cols items-center justify-between">
+<app-card>
+  <div appCardHeader class="flex w-full flex-cols items-center justify-between">
     <div>
       <h2 class="text-2xl font-bold dark:text-white">{{ 'OFFERINGS._catalogs' | translate }}</h2>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ 'OFFERINGS._manage_catalogs_subtitle' | translate }}</p>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ 'OFFERINGS._manage_catalogs_subtitle' | translate }}
+      </p>
     </div>
     <app-button dataCy="newCatalog" (click)="goToCreate()" prefixIcon="plus">
       {{ 'OFFERINGS._add_new_catalog' | translate }}
@@ -14,4 +14,4 @@
     [filters]="catalogFilters" [filterColumns]="1" [clickable]="true" (rowClick)="goToUpdate($event.id!)"
     [defaultSort]="defaultSort">
   </app-filtered-paginated-table>
-</div>
+</app-card>
