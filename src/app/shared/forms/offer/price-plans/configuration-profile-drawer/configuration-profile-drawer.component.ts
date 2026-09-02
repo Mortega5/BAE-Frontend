@@ -3,6 +3,8 @@ import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import { certifications } from 'src/app/models/certification-standards.const';
 import { TranslateModule } from '@ngx-translate/core';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 
 @Component({
   selector: 'app-configuration-profile-drawer',
@@ -12,11 +14,14 @@ import { TranslateModule } from '@ngx-translate/core';
     NgClass,
     NgIf,
     NgForOf,
-    TranslateModule
+    TranslateModule,
+    ButtonComponent
   ],
   styleUrl: './configuration-profile-drawer.component.css'
 })
 export class ConfigurationProfileDrawerComponent implements OnInit {
+  protected readonly faXmark = faXmark;
+
   @Input() profileData: any[] = []; // Array of prodSpecCharValueUse
   @Output() save = new EventEmitter<any>();
   @Output() close = new EventEmitter<void>();
