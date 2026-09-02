@@ -601,7 +601,7 @@
     <div class="relative p-4 w-full max-w-md h-full md:h-auto" (click)="$event.stopPropagation();">
       <!-- Modal content -->
       <div class="relative p-4 text-center bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
-        <app-button type="button" (click)="unsubscribeModal=false;$event.stopPropagation();" variant="ghost" size="sm" [icon]="faXmark"
+        <app-button type="button" (click)="unsubscribeModal=false;$event.stopPropagation();" variant="ghost" size="sm" icon="xmark"
           class="absolute top-2.5 right-2.5">
           <span class="sr-only">{{ 'PRODUCT_INVENTORY._close_modal' | translate }}</span>
         </app-button>
@@ -637,7 +637,7 @@
     <div class="relative p-4 w-full max-w-md h-full md:h-auto" (click)="$event.stopPropagation();">
       <!-- Modal content -->
       <div class="relative p-4 text-center bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
-        <app-button type="button" (click)="renewModal=false;$event.stopPropagation();" variant="ghost" size="sm" [icon]="faXmark"
+        <app-button type="button" (click)="renewModal=false;$event.stopPropagation();" variant="ghost" size="sm" icon="xmark"
           class="absolute top-2.5 right-2.5">
           <span class="sr-only">{{ 'PRODUCT_INVENTORY._close_modal' | translate }}</span>
         </app-button>
@@ -679,7 +679,7 @@
   <div class="backdrop-blur-sm fixed inset-0 z-50 flex justify-center items-center">
     <div class="relative p-4 w-full max-w-2xl max-h-[80vh] overflow-y-auto" (click)="$event.stopPropagation();">
       <div class="relative bg-white rounded-lg shadow dark:bg-gray-800 p-6">
-        <app-button type="button" (click)="showBillingSelector = false" variant="ghost" size="sm" [icon]="faXmark"
+        <app-button type="button" (click)="showBillingSelector = false" variant="ghost" size="sm" icon="xmark"
           class="absolute top-2.5 right-2.5" />
         <h3 class="text-xl font-semibold text-primary-100 dark:text-white mb-4">{{ 'PRODUCT_INVENTORY._select_billing' |
           translate }}</h3>

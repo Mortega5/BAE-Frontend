@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import moment from 'moment';
@@ -40,7 +39,6 @@ type ToolbarFilter = {
   styleUrl: './search.component.css'
 })
 export class SearchComponent implements OnInit, OnDestroy {
-  protected readonly faXmark = faXmark;
 
   products: ProductOffering[] = [];
   nextProducts: ProductOffering[] = [];

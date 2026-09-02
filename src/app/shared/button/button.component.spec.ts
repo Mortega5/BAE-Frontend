@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
 import { ButtonComponent } from './button.component';
 
@@ -53,7 +52,7 @@ describe('ButtonComponent', () => {
   });
 
   it('should render an icon before the content by default when an icon is set', () => {
-    component.icon = faCheck;
+    component.icon = 'xmark';
     fixture.detectChanges();
 
     const button = buttonEl();
@@ -63,7 +62,7 @@ describe('ButtonComponent', () => {
   });
 
   it('should render the icon after the content when iconPosition is suffix', () => {
-    component.icon = faCheck;
+    component.icon = 'xmark';
     component.iconPosition = 'suffix';
     fixture.detectChanges();
 

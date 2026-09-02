@@ -17,7 +17,7 @@ type ProductOffering = components["schemas"]["ProductOffering"];
 import moment from 'moment';
 import { FormControl } from '@angular/forms';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
-import {faIdCard, faSort, faSwatchbook, faXmark} from "@fortawesome/pro-solid-svg-icons";
+import { faIdCard, faSort, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
@@ -34,7 +34,6 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
   protected readonly faIdCard = faIdCard;
   protected readonly faSort = faSort;
   protected readonly faSwatchbook = faSwatchbook;
-  protected readonly faXmark = faXmark;
 
   prodId: any = undefined;
 

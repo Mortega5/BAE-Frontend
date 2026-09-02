@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
-import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { Subject } from 'rxjs';
@@ -24,7 +23,6 @@ type ProductOffering = components["schemas"]["ProductOffering"];
   styleUrl: './search-catalog.component.css'
 })
 export class SearchCatalogComponent implements OnInit, OnDestroy {
-  protected readonly faXmark = faXmark;
 
   constructor(
     private route: ActivatedRoute,

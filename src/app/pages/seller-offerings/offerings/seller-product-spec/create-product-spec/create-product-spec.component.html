@@ -887,7 +887,7 @@
           @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._modal_title_benefit' | translate }} }
           @else { {{ 'CREATE_PROD_SPEC._modal_title_usecase' | translate }} }
         </h2>
-        <app-button type="button" (click)="closeItemModal()" variant="ghost" size="sm" [icon]="faXmark" />
+        <app-button type="button" (click)="closeItemModal()" variant="ghost" size="sm" icon="xmark" />
       </div>
       <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
         @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._modal_desc_feature' | translate }} }
@@ -963,7 +963,7 @@
     class="bg-white dark:bg-secondary-100 rounded-2xl shadow-xl w-full max-w-[480px]">
     <div class="p-8">
       <div class="flex justify-end">
-        <app-button type="button" (click)="cancelDeleteFaq()" variant="ghost" size="sm" [icon]="faXmark" />
+        <app-button type="button" (click)="cancelDeleteFaq()" variant="ghost" size="sm" icon="xmark" />
       </div>
       <div class="flex flex-col items-center text-center pb-2">
         <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4" style="background-color: #DDE6F6;">

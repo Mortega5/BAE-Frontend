@@ -1,5 +1,5 @@
 import { Component, HostListener, Input, OnInit } from '@angular/core';
-import {faMessagePen, faHandsHoldingHeart, faXmark} from "@fortawesome/pro-solid-svg-icons";
+import { faMessagePen, faHandsHoldingHeart } from "@fortawesome/pro-solid-svg-icons";
 import {EventMessageService} from "../../services/event-message.service";
 import { FeedbackServiceService } from "src/app/services/feedback-service.service"
 import {LocalStorageService} from "../../services/local-storage.service";
@@ -23,7 +23,6 @@ export class FeedbackModalComponent implements OnInit {
   @Input() type: string
   protected readonly faMessagePen = faMessagePen;
   protected readonly faHandsHoldingHeart = faHandsHoldingHeart;
-  protected readonly faXmark = faXmark;
   rating: number = 0; // Current rating
   addComment:boolean=false;
   showThanksMessage:boolean=false;

@@ -25,7 +25,6 @@ import { takeUntil } from 'rxjs/operators';
 })
 export class CartDrawerComponent implements OnInit, OnDestroy {
   protected readonly faCartShopping = faCartShopping;
-  protected readonly faXmark = faXmark;
   items: any[] = [];
   totalPrice:any;
   showBackDrop:boolean=true;

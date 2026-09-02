@@ -20,7 +20,6 @@ import { FormsModule } from '@angular/forms';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
 import { ButtonComponent } from "../button/button.component";
-import { faXmark } from "@fortawesome/pro-solid-svg-icons";
 
 
 @Component({
@@ -40,7 +39,6 @@ import { faXmark } from "@fortawesome/pro-solid-svg-icons";
   styleUrl: './price-plan-drawer.component.css'
 })
 export class PricePlanDrawerComponent implements OnInit, OnDestroy {
-  protected readonly faXmark = faXmark;
 
   @Input() drawerId: string = 'drawer-default'; // ID
   @Input() productOff: Product | undefined;

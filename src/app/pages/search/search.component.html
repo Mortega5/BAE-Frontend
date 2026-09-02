@@ -187,7 +187,7 @@
       @if (showDrawer) {
       <div (click)="$event.stopPropagation();"
         class="fixed h-screen w-3/4 top-0 left-0 z-50 p-4 overflow-y-auto bg-white dark:bg-secondary-300" tabindex="-1">
-        <app-button type="button" (click)="showDrawer=!showDrawer" variant="ghost" size="sm" [icon]="faXmark"
+        <app-button type="button" (click)="showDrawer=!showDrawer" variant="ghost" size="sm" icon="xmark"
           class="absolute top-2.5 end-2.5">
           <span class="sr-only">{{ 'DASHBOARD._close_menu' | translate }}</span>
         </app-button>

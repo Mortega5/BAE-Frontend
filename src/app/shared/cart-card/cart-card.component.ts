@@ -1,6 +1,5 @@
 import { Component, Input, OnInit, ElementRef, ViewChild,ChangeDetectorRef, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import {components} from "../../models/product-catalog";
 import { PriceServiceService } from 'src/app/services/price-service.service';
@@ -18,7 +17,6 @@ import {EventMessageService} from "../../services/event-message.service";
   styleUrl: './cart-card.component.css'
 })
 export class CartCardComponent implements OnInit {
-  protected readonly faXmark = faXmark;
 
   @Input() productOff: any;
   @Input() prodSpec: any;

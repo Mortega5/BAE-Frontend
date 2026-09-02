@@ -4,7 +4,6 @@ import {NgClass, NgForOf, NgIf} from "@angular/common";
 import { certifications } from 'src/app/models/certification-standards.const';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
-import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 
 @Component({
   selector: 'app-configuration-profile-drawer',
@@ -20,7 +19,6 @@ import { faXmark } from '@fortawesome/pro-solid-svg-icons';
   styleUrl: './configuration-profile-drawer.component.css'
 })
 export class ConfigurationProfileDrawerComponent implements OnInit {
-  protected readonly faXmark = faXmark;
 
   @Input() profileData: any[] = []; // Array of prodSpecCharValueUse
   @Output() save = new EventEmitter<any>();

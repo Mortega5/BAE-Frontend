@@ -15,7 +15,6 @@ import { takeUntil } from 'rxjs/operators';
 import { SelectOption } from 'src/app/models/formFields/form-field.model';
 import { SearchSelectComponent } from 'src/app/shared/search-select/search-select.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
-import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 
 
 @Component({
@@ -39,7 +38,6 @@ import { faXmark } from '@fortawesome/pro-solid-svg-icons';
   styleUrl: './price-plan-drawer.component.css'
 })
 export class PricePlanDrawerComponent implements OnInit, OnDestroy {
-  protected readonly faXmark = faXmark;
 
   @Input() formGroup!: FormGroup;  // Receive the parent form
   @Input() prodSpec: any | null = null;  // Access to prodSpec

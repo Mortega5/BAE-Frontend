@@ -5,7 +5,7 @@
 Adopt it incrementally when touching a file for another reason; it's not meant to be swept across the whole app in one pass.
 
 ```html
-<app-button [icon]="faPlus" iconPosition="suffix" dataCy="addItem" (click)="add()">
+<app-button icon="plus" iconPosition="suffix" dataCy="addItem" (click)="add()">
   {{ 'NS._add' | translate }}
 </app-button>
 
@@ -13,7 +13,7 @@ Adopt it incrementally when touching a file for another reason; it's not meant t
   {{ 'NS._delete' | translate }}
 </app-button>
 
-<app-button variant="ghost" size="sm" [icon]="faXmark" dataCy="closeModal" (click)="close()" />
+<app-button variant="ghost" size="sm" icon="xmark" dataCy="closeModal" (click)="close()" />
 ```
 
 ## Theming
@@ -58,7 +58,7 @@ Each variable has a default on `body` (light) and, where it differs, an override
 | `size` | `'sm' \| 'md'` | `'md'` | Padding/height |
 | `type` | `'button' \| 'submit'` | `'button'` | Native `<button>` type |
 | `disabled` | `boolean` | `false` | Native disabled state |
-| `icon` | `IconDefinition` (FontAwesome) | `undefined` | Optional icon, same type as `resolveIcon`/`findIconByName` return |
+| `icon` | `IconName` (FontAwesome) | `undefined` | Optional icon, by name — resolved via `findPreloadedIcon` in [popular-icons.ts](../../config/popular-icons.ts). Only names already in that registry render; add new ones there when a button needs an icon that isn't preloaded yet |
 | `iconPosition` | `'prefix' \| 'suffix'` | `'prefix'` | Where the icon renders relative to the projected content |
 | `dataCy` | `string` | `undefined` | Forwarded to the native `<button>` as `data-cy`, for e2e tests |
 

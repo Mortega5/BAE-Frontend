@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { IconName } from '@fortawesome/fontawesome-svg-core';
+import { findButtonIcon } from 'src/app/config/popular-icons';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'link' | 'ghost';
 export type ButtonSize = 'sm' | 'md';
@@ -22,7 +23,11 @@ export class ButtonComponent {
   @Input() size: ButtonSize = 'md';
   @Input() type: 'button' | 'submit' = 'button';
   @Input() disabled = false;
-  @Input() icon?: IconDefinition;
+  @Input() icon?: IconName;
   @Input() iconPosition: ButtonIconPosition = 'prefix';
   @Input() dataCy?: string;
+
+  protected get resolvedIcon() {
+    return this.icon ? findButtonIcon(this.icon) : undefined;
+  }
 }

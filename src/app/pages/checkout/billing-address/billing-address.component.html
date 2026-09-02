@@ -42,7 +42,7 @@
         <h2 class="text-xl md:text-2xl lg:text-3xl font-bold text-primary-100 dark:text-white">
           {{ 'BILLING._edit' | translate }}
         </h2>
-        <app-button (click)="editBill=false;" type="button" variant="ghost" size="sm" [icon]="faXmark">
+        <app-button (click)="editBill=false;" type="button" variant="ghost" size="sm" icon="xmark">
           <span class="sr-only">{{ 'CARD._close' | translate }}</span>
         </app-button>
       </div>
@@ -64,7 +64,7 @@
         <div class="relative p-4 w-full max-w-md h-full md:h-auto" (click)="$event.stopPropagation();">
             <!-- Modal content -->
             <div class="relative p-4 text-center bg-secondary-50 dark:bg-secondary-100 rounded-lg shadow sm:p-5">
-                <app-button type="button" (click)="deleteBill=false;$event.stopPropagation();" variant="ghost" size="sm" [icon]="faXmark"
+                <app-button type="button" (click)="deleteBill=false;$event.stopPropagation();" variant="ghost" size="sm" icon="xmark"
                   class="absolute top-2.5 right-2.5">
                     <span class="sr-only">{{ 'BILLING._close_modal' | translate }}</span>
                 </app-button>

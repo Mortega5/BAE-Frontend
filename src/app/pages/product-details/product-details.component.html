@@ -771,7 +771,7 @@
       <button type="button" (click)="deleteProduct(lastAddedProd)"
         class="px-3 py-2 text-xs font-medium text-center text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">{{
         'CARD._undo' | translate }}</button>
-      <app-button type="button" (click)="toastVisibility=false" variant="ghost" size="sm" [icon]="faXmark"
+      <app-button type="button" (click)="toastVisibility=false" variant="ghost" size="sm" icon="xmark"
         aria-label="Close" class="ms-auto">
         <span class="sr-only">{{ 'CARD._close_toast' | translate }}</span>
       </app-button>
@@ -811,7 +811,7 @@
     class="relative w-full max-w-2xl max-h-[80vh] bg-white dark:bg-secondary-300 rounded-2xl shadow-2xl flex flex-col">
     <div class="flex items-center justify-between px-6 py-4 border-b border-[#EBECEE] dark:border-secondary-200">
       <h3 class="text-[20px] font-bold text-secondary-100 dark:text-white break-words pr-8">{{productOff?.name}}</h3>
-      <app-button (click)="closeDescriptionModal()" variant="ghost" size="sm" [icon]="faXmark" />
+      <app-button (click)="closeDescriptionModal()" variant="ghost" size="sm" icon="xmark" />
     </div>
     <div class="px-6 py-4 overflow-y-auto">
       <markdown [ngClass]="{

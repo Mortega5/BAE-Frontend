@@ -1,47 +1,48 @@
-import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { IconDefinition, IconName } from '@fortawesome/fontawesome-svg-core';
 import {
-  faBuilding,
-  faUsers,
-  faBuildingUser,
-  faShareNodes,
-  faClipboardList,
-  faGears,
   faArrowsUpDownLeftRight,
-  faClock,
-  faGlobe,
-  faSliders,
-  faPlugCirclePlus,
+  faBolt,
   faBrain,
-  faChartLine,
-  faDatabase,
-  faChartPie,
-  faMagnifyingGlass,
-  faLightbulb,
-  faGaugeHigh,
-  faEye,
-  faShuffle,
-  faChartColumn,
-  faShield,
+  faBuilding,
   faBuildingShield,
-  faUserShield,
+  faBuildingUser,
   faCertificate,
-  faScaleBalanced,
-  faLock,
-  faServer,
+  faChartColumn,
+  faChartLine,
+  faChartPie,
+  faClipboardList,
+  faClock,
   faCloud,
   faCode,
-  faLaptopCode,
-  faHardDrive,
-  faMobileScreen,
-  faScrewdriverWrench,
-  faHeadset,
   faComments,
+  faDatabase,
+  faEye,
   faFileLines,
+  faGaugeHigh,
+  faGears,
+  faGlobe,
   faGraduationCap,
-  faBolt,
-  faStar,
   faHandshake,
+  faHardDrive,
+  faHeadset,
+  faLaptopCode,
+  faLightbulb,
+  faLock,
+  faMagnifyingGlass,
+  faMobileScreen,
+  faPlugCirclePlus,
+  faScaleBalanced,
+  faScrewdriverWrench,
+  faServer,
+  faShareNodes,
+  faShield,
+  faShuffle,
+  faSliders,
+  faStar,
+  faUsers,
+  faUserShield,
 } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faXmark } from '@fortawesome/pro-solid-svg-icons';
 
 export interface PopularIcon {
   name: string;
@@ -125,7 +126,20 @@ export const POPULAR_ICON_CATEGORIES: IconCategory[] = [
 export const POPULAR_ICONS: PopularIcon[] = POPULAR_ICON_CATEGORIES.flatMap(c => c.icons);
 
 export function findIconByName(name: string | undefined | null): IconDefinition | null {
-  if(!name) return null;
+  if (!name) return null;
   const found = POPULAR_ICONS.find(i => i.name === name);
   return found ? found.icon : null;
+}
+
+/** Icons already bundled somewhere in the app (business icons above plus a
+ * few UI/chrome icons), keyed by their real FontAwesome name so any consumer
+ * can reference them by IconName without importing the definition itself. */
+const BUTTON_ICONS: Partial<Record<IconName, IconDefinition>> = {
+  [faXmark.iconName]: faXmark,
+  [faPlus.iconName]: faPlus,
+  ...Object.fromEntries(POPULAR_ICONS.map(({ icon }) => [icon.iconName, icon])),
+};
+
+export function findButtonIcon(name: IconName | string): IconDefinition | undefined {
+  return name ? BUTTON_ICONS[name as IconName] : undefined;
 }

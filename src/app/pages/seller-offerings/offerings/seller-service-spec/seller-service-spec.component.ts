@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { faPlus, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
+import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -22,8 +22,6 @@ import { Router } from '@angular/router';
   styleUrl: './seller-service-spec.component.css'
 })
 export class SellerServiceSpecComponent implements OnInit, OnDestroy {
-
-  protected readonly faPlus = faPlus;
 
   @ViewChild(FilteredPaginatedTableComponent) paginatedTable?: FilteredPaginatedTableComponent<any>;
 

@@ -1,5 +1,4 @@
 import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
-import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { LoginInfo, billingAccountCart } from 'src/app/models/interfaces';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { AccountServiceService } from 'src/app/services/account-service.service';
@@ -23,7 +22,6 @@ import { takeUntil } from 'rxjs/operators';
   styleUrl: './billing-info.component.css'
 })
 export class BillingInfoComponent implements OnInit, OnDestroy {
-  protected readonly faXmark = faXmark;
 
   loading: boolean = false;
   orders:any[]=[];

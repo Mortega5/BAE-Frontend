@@ -1,5 +1,4 @@
 import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, OnChanges, OnDestroy } from '@angular/core';
-import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { AccountServiceService } from 'src/app/services/account-service.service';
@@ -27,7 +26,6 @@ type OrganizationUpdate = components["schemas"]["Organization_Update"];
   styleUrl: './org-info.component.css'
 })
 export class OrgInfoComponent implements OnInit, OnDestroy {
-  protected readonly faXmark = faXmark;
 
   readonly isDataspaceEnabled: boolean = environment.DATA_SPACE_ENABLED;
 
