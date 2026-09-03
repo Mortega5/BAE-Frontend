@@ -1,278 +1,328 @@
 @if (loading) {
-    <app-loading-spinner containerClass="w-3/4 md:w-4/5 h-full flex justify-center align-middle" />
+<app-loading-spinner containerClass="w-3/4 md:w-4/5 h-full flex justify-center align-middle" />
+} @else {
+<app-card>
+  <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._organization' |
+    translate }}</h2>
+  <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
+  <app-dynamic-form class="block m-4" [fields]="orgFields" [formGroup]="profileForm" [columns]="2" />
+
+  @if(!isReadOnly){
+  <div class="flex">
+    <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._add_logo' |
+      translate }}</h2>
+    <div class="flex inline-flex ml-2 align-middle">
+      <svg data-popover-target="popover-logo" class="flex self-center w-6 h-6 text-primary-100" clip-rule="evenodd"
+        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+      </svg>
+    </div>
+  </div>
+  <div data-popover id="popover-logo" role="tooltip"
+    class="absolute z-20 invisible inline-block w-64 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:border-gray-600 dark:bg-gray-800">
+    <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 rounded-t-lg dark:border-gray-600 dark:bg-gray-700">
+      <h3 class="font-semibold text-gray-900 dark:text-white">Logo requirements</h3>
+    </div>
+    <div class="px-3 py-2 inline-block">
+      <p class="inline-block">The supported formats are SVG and PNG. The logo size should follow an 1:1 aspect ratio
+        (e.g. 160x160px resolution) and transparent background.
+      </p>
+    </div>
+    <div data-popper-arrow></div>
+  </div>
+  <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
+  @if(showImgPreview){
+  <div
+    class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl px-8 pb-8 pt-40 max-w-sm mx-auto m-4 shadow-lg">
+    <img src="{{imgPreview}}" class="absolute inset-0 h-full w-full object-cover">
+    <app-button (click)="removeImg()" variant="danger" size="sm" prefixIcon="xmark"
+      class="z-10 absolute top-2 right-2" />
+  </div>
   } @else {
-    <app-card>
-        <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._organization' | translate }}</h2>
-        <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
-        <app-dynamic-form class="block m-4" [fields]="orgFields" [formGroup]="profileForm" [columns]="2" />
+  <div class="flex w-full justify-center justify-items-center">
+    <ngx-file-drop class="m-4 p-4 w-full" dropZoneLabel="Drop files here" (onFileDrop)="dropped($event,'img')"
+      (onFileOver)="fileOver($event)" (onFileLeave)="fileLeave($event)" accept="image/png,image/svg">
+      <ng-template class="w-full" ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
+        <div class="w-full flex flex-col justify-items-center justify-center">
+          <svg class="w-12 h-12 text-primary-100 mx-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+            width="24" height="24" fill="none" viewBox="0 0 24 24">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2" />
+          </svg>
+          <div class="flex w-full justify-center">
+            <p class="text-gray-500 mr-2 w-fit">{{ 'CREATE_PROD_SPEC._drop_files' | translate }}
+              <app-button (click)="openFileSelector()" variant="link">{{ 'CREATE_PROD_SPEC._select_files' | translate
+                }}</app-button>
+            </p>
+          </div>
+        </div>
+      </ng-template>
+    </ngx-file-drop>
+  </div>
+  <label class="font-bold ml-6 dark:text-white">{{ 'PROFILE._add_logo_url' | translate }}</label>
+  <div class="relative w-full ml-6 mt-2 mb-2">
+    <!-- Tooltip (Above the Input, Positioned Up) -->
+    <div *ngIf="attImageName.invalid && attImageName.touched"
+      class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max bg-gray-900 text-white text-xs rounded-lg p-2 shadow-lg z-50">
+      {{ 'UPDATE_PROD_SPEC._file_name' | translate }}
+      <!-- Tooltip Arrow -->
+      <div class="absolute left-1/2 transform -translate-x-1/2 translate-y-1 w-2 h-2 bg-gray-900 rotate-45"></div>
+    </div>
 
-        @if(!isReadOnly){
-        <div class="flex">
-            <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._add_logo' | translate }}</h2>
-            <div class="flex inline-flex ml-2 align-middle">
-                <svg data-popover-target="popover-logo" class="flex self-center w-6 h-6 text-primary-100" clip-rule="evenodd" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 11h2v5m-2 0h4m-2.592-8.5h.01M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/>
-                </svg>
-            </div>
-        </div>
-        <div data-popover id="popover-logo" role="tooltip" class="absolute z-20 invisible inline-block w-64 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:border-gray-600 dark:bg-gray-800">
-            <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 rounded-t-lg dark:border-gray-600 dark:bg-gray-700">
-                <h3 class="font-semibold text-gray-900 dark:text-white">Logo requirements</h3>
-            </div>
-            <div class="px-3 py-2 inline-block">
-                <p class="inline-block">The supported formats are SVG and PNG. The logo size should follow an 1:1 aspect ratio (e.g. 160x160px resolution) and transparent background.
-                </p>
-            </div>
-            <div data-popper-arrow></div>
-        </div>
-        <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
-        @if(showImgPreview){
-            <div class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl px-8 pb-8 pt-40 max-w-sm mx-auto m-4 shadow-lg">
-                <img src="{{imgPreview}}" class="absolute inset-0 h-full w-full object-cover">
-                <app-button (click)="removeImg()" variant="danger" size="sm" prefixIcon="xmark" class="z-10 absolute top-2 right-2" />
-            </div>
-        } @else {
-            <div class="flex w-full justify-center justify-items-center">
-                <ngx-file-drop class="m-4 p-4 w-full" dropZoneLabel="Drop files here" (onFileDrop)="dropped($event,'img')" (onFileOver)="fileOver($event)" (onFileLeave)="fileLeave($event)">
-                    <ng-template class="w-full" ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
-                        <div class="w-full flex flex-col justify-items-center justify-center">
-                            <svg class="w-12 h-12 text-primary-100 mx-auto" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2"/>
-                            </svg>
-                            <div class="flex w-full justify-center">
-                                <p class="text-gray-500 mr-2 w-fit">{{ 'CREATE_PROD_SPEC._drop_files' | translate }}
-                                    <app-button (click)="openFileSelector()" variant="link">{{ 'CREATE_PROD_SPEC._select_files' | translate }}</app-button>
-                                </p> 
-                            </div>
-                        </div>
-                    </ng-template>
-                </ngx-file-drop>
-            </div>
-            <label class="font-bold ml-6 dark:text-white">{{ 'PROFILE._add_logo_url' | translate }}</label>
-            <div class="relative w-full ml-6 mt-2 mb-2">
-                <!-- Tooltip (Above the Input, Positioned Up) -->
-                <div *ngIf="attImageName.invalid && attImageName.touched"
-                    class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max bg-gray-900 text-white text-xs rounded-lg p-2 shadow-lg z-50">
-                    {{ 'UPDATE_PROD_SPEC._file_name' | translate }}
-                    <!-- Tooltip Arrow -->
-                    <div class="absolute left-1/2 transform -translate-x-1/2 translate-y-1 w-2 h-2 bg-gray-900 rotate-45"></div>
-                </div>
-            
-                <div class="flex items-center h-fit w-full justify-between">
-                    <!-- Input Field -->
-                    <input #imgURL type="text" id="att-name"
-                        [formControl]="attImageName"
-                        (blur)="attImageName.markAsTouched()"
-                        class="w-full bg-gray-50 border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
-                        [ngClass]="attImageName.invalid && attImageName.touched ? 'border-red-500' : 'dark:border-secondary-200'"
-                    />
-                    
-                    <!-- Submit Button -->
-                    <app-button (click)="saveImgFromURL()" [disabled]="!attImageName.valid"
-                        shape="pill" size="sm" prefixIcon="check" class="ml-2" />
-                </div>
-            </div>
-        }
-        }
+    <div class="flex items-center h-fit w-full justify-between">
+      <!-- Input Field -->
+      <input #imgURL type="text" id="att-name" [formControl]="attImageName" (blur)="attImageName.markAsTouched()"
+        class="w-full bg-gray-50 border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
+        [ngClass]="attImageName.invalid && attImageName.touched ? 'border-red-500' : 'dark:border-secondary-200'" />
 
-        <div class="flex items-center justify-between">
-            <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._contact_info' | translate }}</h2>
-            @if (!isReadOnly && contactmediums.length > 0) {
-            <app-button type="button" (click)="openAddMedium()" suffixIcon="plus" class="mr-4">
-                {{ 'PROFILE._add_new_contact' | translate }}
-            </app-button>
-            }
-        </div>
-        <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
-        <div class="m-4">
-            @if (contactmediums.length === 0) {
-            <div class="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center px-6 py-12 text-center">
-                <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 bg-[#DDE6F6] dark:bg-secondary-300">
-                    <svg class="w-10 h-10 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v.75c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875v-.75C22.5 3.839 21.66 3 20.625 3H3.375z"/>
-                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3.087 9l.54 9.176A3 3 0 006.62 21h10.757a3 3 0 002.995-2.824L20.913 9H3.087zm6.133 2.845a.75.75 0 011.06 0l1.72 1.72 1.72-1.72a.75.75 0 111.06 1.06l-1.72 1.72 1.72 1.72a.75.75 0 11-1.06 1.06L12 15.685l-1.72 1.72a.75.75 0 11-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06z"/>
-                    </svg>
-                </div>
-                <p class="text-base font-semibold text-gray-900 dark:text-white mb-1">{{ 'PROFILE._no_mediums' | translate }}</p>
-                @if (!isReadOnly) {
-                <app-button type="button" (click)="openAddMedium()" variant="secondary" suffixIcon="plus" class="mt-4">
-                    {{ 'PROFILE._add_new_contact' | translate }}
-                </app-button>
-                }
-            </div>
-            } @else {
-            <app-table-input [columns]="contactMediumColumns" [items]="contactmediums" [selectable]="false" />
-            }
-        </div>
-        @if(!isReadOnly){
-        <div class="flex w-full justify-end">
-            <app-button data-cy="orgUpdate" type="button" [disabled]="!profileForm.valid" (click)="updateProfile()" class="m-2">
-                {{ 'PROFILE._update' | translate }}
-            </app-button>
-        </div>
-        }
-    </app-card>
+      <!-- Submit Button -->
+      <app-button (click)="saveImgFromURL()" [disabled]="!attImageName.valid" shape="pill" size="sm" prefixIcon="check"
+        class="ml-2" />
+    </div>
+  </div>
+  }
+  }
+
+  <div class="flex items-center justify-between">
+    <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._contact_info' |
+      translate }}</h2>
+    @if (!isReadOnly && contactmediums.length > 0) {
+    <app-button type="button" (click)="openAddMedium()" suffixIcon="plus" class="mr-4">
+      {{ 'PROFILE._add_new_contact' | translate }}
+    </app-button>
+    }
+  </div>
+  <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
+  <div class="m-4">
+    @if (contactmediums.length === 0) {
+    <div
+      class="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center px-6 py-12 text-center">
+      <div
+        class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 bg-[#DDE6F6] dark:bg-secondary-300">
+        <svg class="w-10 h-10 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24" fill="currentColor">
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v.75c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875v-.75C22.5 3.839 21.66 3 20.625 3H3.375z" />
+          <path fill-rule="evenodd" clip-rule="evenodd"
+            d="M3.087 9l.54 9.176A3 3 0 006.62 21h10.757a3 3 0 002.995-2.824L20.913 9H3.087zm6.133 2.845a.75.75 0 011.06 0l1.72 1.72 1.72-1.72a.75.75 0 111.06 1.06l-1.72 1.72 1.72 1.72a.75.75 0 11-1.06 1.06L12 15.685l-1.72 1.72a.75.75 0 11-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06z" />
+        </svg>
+      </div>
+      <p class="text-base font-semibold text-gray-900 dark:text-white mb-1">{{ 'PROFILE._no_mediums' | translate }}</p>
+      @if (!isReadOnly) {
+      <app-button type="button" (click)="openAddMedium()" variant="secondary" suffixIcon="plus" class="mt-4">
+        {{ 'PROFILE._add_new_contact' | translate }}
+      </app-button>
+      }
+    </div>
+    } @else {
+    <app-table-input [columns]="contactMediumColumns" [items]="contactmediums" [selectable]="false" />
+    }
+  </div>
+  @if(!isReadOnly){
+  <div class="flex w-full justify-end">
+    <app-button data-cy="orgUpdate" type="button" [disabled]="!profileForm.valid" (click)="updateProfile()" class="m-2">
+      {{ 'PROFILE._update' | translate }}
+    </app-button>
+  </div>
+  }
+</app-card>
 }
 @if(showError){
-    <error-message class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50" [message]="errorMessage"></error-message>
+<error-message
+  class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
+  [message]="errorMessage"></error-message>
 }
 @if (showMediumModal) {
-<div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4" (click)="cancelMedium()">
-    <app-card variant="modal" class="w-full max-w-2xl max-h-[90vh]" (click)="$event.stopPropagation()">
-        <div appCardHeader class="flex items-center justify-between">
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white">
-                {{ (selectedMedium ? 'PROFILE._edit' : 'PROFILE._add_new_contact') | translate }}
-            </h3>
-            <app-button type="button" (click)="cancelMedium()" variant="ghost" size="sm" prefixIcon="xmark" />
-        </div>
+<div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4"
+  (click)="cancelMedium()">
+  <app-card variant="modal" class="w-full max-w-2xl max-h-[90vh]" (click)="$event.stopPropagation()">
+    <div appCardHeader class="flex items-center justify-between">
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+        {{ (selectedMedium ? 'PROFILE._edit' : 'PROFILE._add_new_contact') | translate }}
+      </h3>
+      <app-button type="button" (click)="cancelMedium()" variant="ghost" size="sm" prefixIcon="xmark" />
+    </div>
 
-        <div class="flex flex-col gap-4">
-            @if (!selectedMedium) {
-            <select id="type" (change)="onTypeChange($event)"
-                class="bg-gray-50 border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full">
-                <option value="email">Email</option>
-                <option value="address">Postal Address</option>
-                <option value="phone">Phone Number</option>
-            </select>
-            }
+    <div class="flex flex-col gap-4">
+      @if (!selectedMedium) {
+      <select id="type" (change)="onTypeChange($event)"
+        class="bg-gray-50 border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full">
+        <option value="email">Email</option>
+        <option value="address">Postal Address</option>
+        <option value="phone">Phone Number</option>
+      </select>
+      }
 
-            <form class="grid grid-cols-2 gap-5" [formGroup]="mediumForm">
-                <div class="col-span-2">
-                    <label for="contactTitle" class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._contact_title' | translate }}</label>
-                    <input id="contactTitle" formControlName="contactTitle" name="contactTitle" type="text"
-                    class="mb-2 bg-gray-50 text-gray-900 dark:bg-secondary-300 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    [ngClass]="(mediumForm.get('contactTitle')?.invalid == true && mediumForm.value.contactTitle!='') || (mediumForm.get('contactTitle')?.touched == true && mediumForm.value.contactTitle=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'">
-                </div>
-                @if(emailSelected){
-                    <div class="col-span-2">
-                        <label class="font-bold text-lg dark:text-white">{{ 'PROFILE._email' | translate }}</label>
-                        <input formControlName="email" type="text" id="medium-email"
-                        class="mb-2 bg-gray-50 dark:bg-secondary-300 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        [ngClass]="(mediumForm.get('email')?.invalid == true && mediumForm.value.email!='') || (mediumForm.get('email')?.touched == true && mediumForm.value.email=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"/>
-                    </div>
-                } @else if(addressSelected){
-                    <div>
-                        <label for="address.country" class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._country' | translate }}</label>
-                        <input data-cy="mediumCountry" id="address.country" formControlName="country" name="address.country" type="text"
-                        class="mb-2 bg-gray-50 text-gray-900 dark:bg-secondary-300 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        [ngClass]="(mediumForm.get('country')?.invalid == true && mediumForm.value.country!='') || (mediumForm.get('country')?.touched && mediumForm.value.country=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'">
-                    </div>
-                    <div>
-                        <label for="address.city" class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._city' | translate }}</label>
-                        <input id="address.city" formControlName="city" name="address.city" type="text"
-                        class="mb-2 bg-gray-50 text-gray-900 dark:bg-secondary-300 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        [ngClass]="(mediumForm.get('city')?.invalid == true && mediumForm.value.city!='') || (mediumForm.get('city')?.touched && mediumForm.value.city=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'">
-                    </div>
-                    <div>
-                        <label for="address.state" class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._state' | translate }}</label>
-                        <input id="address.state" formControlName="stateOrProvince" name="address.state" type="text"
-                        class="mb-2 bg-gray-50 text-gray-900 dark:bg-secondary-300  dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        [ngClass]="(mediumForm.get('stateOrProvince')?.invalid == true && mediumForm.value.stateOrProvince!='') || (mediumForm.get('stateOrProvince')?.touched && mediumForm.value.stateOrProvince=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'">
-                    </div>
-                    <div>
-                        <label for="address.zip" class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._post_code' | translate }}</label>
-                        <input id="address.zip" formControlName="postCode" name="address.zip" type="text"
-                        class="mb-2 bg-gray-50 text-gray-900 dark:bg-secondary-300 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                        [ngClass]="(mediumForm.get('postCode')?.invalid == true && mediumForm.value.postCode!='') || (mediumForm.get('postCode')?.touched && mediumForm.value.postCode=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'">
-                    </div>
-                    <div class="col-span-2">
-                        <label for="address.street_address" class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._street' | translate }}</label>
-                        <textarea id="address.street_address" formControlName="street" name="address.street_address"
-                        class="mb-2 min-h-fit bg-gray-50 text-gray-900 dark:bg-secondary-300 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" rows="4"
-                        [ngClass]="(mediumForm.get('street')?.invalid == true && mediumForm.value.street!='') || (mediumForm.get('street')?.touched && mediumForm.value.street=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"></textarea>
-                    </div>
-                } @else {
-                    <div class="col-span-2">
-                        <label for="phoneNumber" class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._phone' | translate }}</label>
-                        <div class="w-full">
-                            <div class="relative flex items-center">
-                                <button (click)="prefixCheck=!prefixCheck"
-                                class="mb-2 flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white rounded-s-lg hover:bg-gray-200 dark:hover:bg-primary-200 focus:ring-4 focus:outline-none focus:ring-gray-100" type="button">
-                                    {{phonePrefix.flag}} {{phonePrefix.code}}
-                                    <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4"/></svg>
-                                </button>
-                                @if(prefixCheck==true){
-                                    <div class="absolute bottom-12 right-0 z-20 max-h-48 w-full bg-white divide-y divide-gray-100 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white rounded-lg shadow overflow-y-auto">
-                                        <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdown-phone-button">
-                                            <li>
-                                                @for(pref of prefixes;track pref.code){
-                                                    <button type="button" (click)="selectPrefix(pref)" class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-secondary-200" role="menuitem">
-                                                        <div class="inline-flex items-center">
-                                                            {{pref.text}}
-                                                        </div>
-                                                    </button>
-                                                }
-                                            </li>
-                                        </ul>
-                                    </div>
-                                }
-                                <input min="0" id="phoneNumber" formControlName="telephoneNumber" name="phoneNumber" type="number"
-                                [ngClass]="mediumForm.get('telephoneNumber')?.errors?.['invalidPhoneNumber'] == true ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
-                                class="mb-2 bg-gray-50 border text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-secondary-300 dark:text-white">
-                            </div>
-                        </div>
-                    </div>
-                }
-            </form>
+      <form class="grid grid-cols-2 gap-5" [formGroup]="mediumForm">
+        <div class="col-span-2">
+          <label for="contactTitle"
+            class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{
+            'PROFILE._contact_title' | translate }}</label>
+          <input id="contactTitle" formControlName="contactTitle" name="contactTitle" type="text"
+            class="mb-2 bg-gray-50 text-gray-900 dark:bg-secondary-300 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            [ngClass]="(mediumForm.get('contactTitle')?.invalid == true && mediumForm.value.contactTitle!='') || (mediumForm.get('contactTitle')?.touched == true && mediumForm.value.contactTitle=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'">
         </div>
+        @if(emailSelected){
+        <div class="col-span-2">
+          <label class="font-bold text-lg dark:text-white">{{ 'PROFILE._email' | translate }}</label>
+          <input formControlName="email" type="text" id="medium-email"
+            class="mb-2 bg-gray-50 dark:bg-secondary-300 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            [ngClass]="(mediumForm.get('email')?.invalid == true && mediumForm.value.email!='') || (mediumForm.get('email')?.touched == true && mediumForm.value.email=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'" />
+        </div>
+        } @else if(addressSelected){
+        <div>
+          <label for="address.country"
+            class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._country' |
+            translate }}</label>
+          <input data-cy="mediumCountry" id="address.country" formControlName="country" name="address.country"
+            type="text"
+            class="mb-2 bg-gray-50 text-gray-900 dark:bg-secondary-300 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            [ngClass]="(mediumForm.get('country')?.invalid == true && mediumForm.value.country!='') || (mediumForm.get('country')?.touched && mediumForm.value.country=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'">
+        </div>
+        <div>
+          <label for="address.city"
+            class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._city' |
+            translate }}</label>
+          <input id="address.city" formControlName="city" name="address.city" type="text"
+            class="mb-2 bg-gray-50 text-gray-900 dark:bg-secondary-300 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            [ngClass]="(mediumForm.get('city')?.invalid == true && mediumForm.value.city!='') || (mediumForm.get('city')?.touched && mediumForm.value.city=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'">
+        </div>
+        <div>
+          <label for="address.state"
+            class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._state' |
+            translate }}</label>
+          <input id="address.state" formControlName="stateOrProvince" name="address.state" type="text"
+            class="mb-2 bg-gray-50 text-gray-900 dark:bg-secondary-300  dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            [ngClass]="(mediumForm.get('stateOrProvince')?.invalid == true && mediumForm.value.stateOrProvince!='') || (mediumForm.get('stateOrProvince')?.touched && mediumForm.value.stateOrProvince=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'">
+        </div>
+        <div>
+          <label for="address.zip"
+            class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._post_code'
+            | translate }}</label>
+          <input id="address.zip" formControlName="postCode" name="address.zip" type="text"
+            class="mb-2 bg-gray-50 text-gray-900 dark:bg-secondary-300 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            [ngClass]="(mediumForm.get('postCode')?.invalid == true && mediumForm.value.postCode!='') || (mediumForm.get('postCode')?.touched && mediumForm.value.postCode=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'">
+        </div>
+        <div class="col-span-2">
+          <label for="address.street_address"
+            class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._street' |
+            translate }}</label>
+          <textarea id="address.street_address" formControlName="street" name="address.street_address"
+            class="mb-2 min-h-fit bg-gray-50 text-gray-900 dark:bg-secondary-300 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
+            rows="4"
+            [ngClass]="(mediumForm.get('street')?.invalid == true && mediumForm.value.street!='') || (mediumForm.get('street')?.touched && mediumForm.value.street=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"></textarea>
+        </div>
+        } @else {
+        <div class="col-span-2">
+          <label for="phoneNumber"
+            class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._phone' |
+            translate }}</label>
+          <div class="w-full">
+            <div class="relative flex items-center">
+              <button (click)="prefixCheck=!prefixCheck"
+                class="mb-2 flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white rounded-s-lg hover:bg-gray-200 dark:hover:bg-primary-200 focus:ring-4 focus:outline-none focus:ring-gray-100"
+                type="button">
+                {{phonePrefix.flag}} {{phonePrefix.code}}
+                <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                  viewBox="0 0 10 6">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="m1 1 4 4 4-4" />
+                </svg>
+              </button>
+              @if(prefixCheck==true){
+              <div
+                class="absolute bottom-12 right-0 z-20 max-h-48 w-full bg-white divide-y divide-gray-100 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white rounded-lg shadow overflow-y-auto">
+                <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdown-phone-button">
+                  <li>
+                    @for(pref of prefixes;track pref.code){
+                    <button type="button" (click)="selectPrefix(pref)"
+                      class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-secondary-200"
+                      role="menuitem">
+                      <div class="inline-flex items-center">
+                        {{pref.text}}
+                      </div>
+                    </button>
+                    }
+                  </li>
+                </ul>
+              </div>
+              }
+              <input min="0" id="phoneNumber" formControlName="telephoneNumber" name="phoneNumber" type="number"
+                [ngClass]="mediumForm.get('telephoneNumber')?.errors?.['invalidPhoneNumber'] == true ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
+                class="mb-2 bg-gray-50 border text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-secondary-300 dark:text-white">
+            </div>
+          </div>
+        </div>
+        }
+      </form>
+    </div>
 
-        <div appCardFooter>
-            <app-button type="button" (click)="cancelMedium()" variant="ghost" size="sm">
-                {{ 'PROFILE._cancel' | translate }}
-            </app-button>
-            <app-button type="button" (click)="saveMediumModal()"
-                [disabled]="selectedMedium ? !!mediumForm.get('contactTitle')?.invalid : !mediumForm.valid" suffixIcon="floppy-disk">
-                {{ 'PROFILE._save' | translate }}
-            </app-button>
-        </div>
-    </app-card>
+    <div appCardFooter>
+      <app-button type="button" (click)="cancelMedium()" variant="ghost" size="sm">
+        {{ 'PROFILE._cancel' | translate }}
+      </app-button>
+      <app-button type="button" (click)="saveMediumModal()"
+        [disabled]="selectedMedium ? !!mediumForm.get('contactTitle')?.invalid : !mediumForm.valid"
+        suffixIcon="floppy-disk">
+        {{ 'PROFILE._save' | translate }}
+      </app-button>
+    </div>
+  </app-card>
 </div>
 }
 
 <!-- INFO (CREATED/UPDATED/ERROR) TOAST -->
 @if (toastVisibility) {
-    <div id="toast-warning" class="flex m-2 items-center w-fit max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 fixed top-1/2 right-0 z-50 justify-center" role="alert">
-        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 bg-red-700 text-red-200 rounded-lg">
-            <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z"/>
-            </svg>
-        </div>
-        <div>
-            @if(mediumForm.get('telephoneNumber')?.errors?.['invalidPhoneNumber'] == true){
-                <div class="block ms-3 text-sm font-normal">{{ 'PROFILE._invalid_phone' | translate }}</div>
-            }
-            @if(this.mediumForm.get('email')?.invalid == true){
-                <div class="block ms-3 text-sm font-normal">{{ 'PROFILE._invalid_email' | translate }}</div>
-            }
-            @if(this.mediumForm.get('contactTitle')?.invalid == true){
-                <div class="block ms-3 text-sm font-normal">{{ 'PROFILE._invalid_contact_title' | translate }}</div>
-            }
-        </div>
-        <app-button type="button" (click)="toastVisibility=false" variant="ghost" size="sm" prefixIcon="xmark" class="ms-auto">
-            <span class="sr-only">Close</span>
-        </app-button>
-    </div>
+<div id="toast-warning"
+  class="flex m-2 items-center w-fit max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 fixed top-1/2 right-0 z-50 justify-center"
+  role="alert">
+  <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 bg-red-700 text-red-200 rounded-lg">
+    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+      <path
+        d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z" />
+    </svg>
+  </div>
+  <div>
+    @if(mediumForm.get('telephoneNumber')?.errors?.['invalidPhoneNumber'] == true){
+    <div class="block ms-3 text-sm font-normal">{{ 'PROFILE._invalid_phone' | translate }}</div>
+    }
+    @if(this.mediumForm.get('email')?.invalid == true){
+    <div class="block ms-3 text-sm font-normal">{{ 'PROFILE._invalid_email' | translate }}</div>
+    }
+    @if(this.mediumForm.get('contactTitle')?.invalid == true){
+    <div class="block ms-3 text-sm font-normal">{{ 'PROFILE._invalid_contact_title' | translate }}</div>
+    }
+  </div>
+  <app-button type="button" (click)="toastVisibility=false" variant="ghost" size="sm" prefixIcon="xmark"
+    class="ms-auto">
+    <span class="sr-only">Close</span>
+  </app-button>
+</div>
 }
 
 
 @if (successVisibility) {
-    <div class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50" >
-        <div id="alert-additional-content-2" class="p-4 mb-4 text-white rounded-lg bg-primary-100" role="alert">
-            <div class="flex items-center">
-              <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-              </svg>
-              <h3 class="text-lg font-medium">Update success</h3>
-            </div>
-            <div class="mt-2 mb-4 text-sm pr-8 pl-8">
-                {{ 'PROFILE._success' | translate }}.
-            </div>
-        </div>
+<div
+  class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+  <div id="alert-additional-content-2" class="p-4 mb-4 text-white rounded-lg bg-primary-100" role="alert">
+    <div class="flex items-center">
+      <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+        viewBox="0 0 20 20">
+        <path
+          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+      </svg>
+      <h3 class="text-lg font-medium">Update success</h3>
     </div>
+    <div class="mt-2 mb-4 text-sm pr-8 pl-8">
+      {{ 'PROFILE._success' | translate }}.
+    </div>
+  </div>
+</div>
 
 
-    <!--<div id="toast-success" class="flex grid grid-flow-row mr-2 items-center w-auto max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 fixed top-1/2 right-0 z-50 justify-center" role="alert">
-      <div class="flex items-center justify-center">         
+<!--<div id="toast-success" class="flex grid grid-flow-row mr-2 items-center w-auto max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 fixed top-1/2 right-0 z-50 justify-center" role="alert">
+      <div class="flex items-center justify-center">
         <div class="text-sm font-normal">
           {{ 'PROFILE._success' | translate }}.
         </div>

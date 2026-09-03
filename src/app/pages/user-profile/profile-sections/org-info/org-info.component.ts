@@ -1,26 +1,25 @@
-import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, OnChanges, OnDestroy } from '@angular/core';
-import { LoginInfo } from 'src/app/models/interfaces';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import { AccountServiceService } from 'src/app/services/account-service.service';
-import {LocalStorageService} from "src/app/services/local-storage.service";
-import { FormGroup, FormControl, Validators, AbstractControl } from '@angular/forms';
-import { phoneNumbers, countries } from 'src/app/models/country.const'
-import {EventMessageService} from "src/app/services/event-message.service";
+import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
+import { faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { initFlowbite } from 'flowbite';
+import { parsePhoneNumber } from 'libphonenumber-js/max';
 import moment from 'moment';
-import {components} from "../../../../models/party-catalog";
-import { v4 as uuidv4 } from 'uuid';
-import {getCountries, getCountryCallingCode, CountryCode} from 'libphonenumber-js'
-import {parsePhoneNumber} from 'libphonenumber-js/max'
-import {AttachmentServiceService} from "src/app/services/attachment-service.service";
-import { NgxFileDropEntry, FileSystemFileEntry, FileSystemDirectoryEntry } from 'ngx-file-drop';
-import { environment } from 'src/environments/environment';
+import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { countries, phoneNumbers } from 'src/app/models/country.const';
 import { FormField } from 'src/app/models/formFields/form-field.model';
-import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { LoginInfo } from 'src/app/models/interfaces';
 import { TableColumn } from 'src/app/models/table-column.model';
-import { faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
+import { AccountServiceService } from 'src/app/services/account-service.service';
+import { AttachmentServiceService } from "src/app/services/attachment-service.service";
+import { EventMessageService } from "src/app/services/event-message.service";
+import { LocalStorageService } from "src/app/services/local-storage.service";
+import { ApiServiceService } from 'src/app/services/product-service.service';
+import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { environment } from 'src/environments/environment';
+import { v4 as uuidv4 } from 'uuid';
+import { components } from "../../../../models/party-catalog";
 
 type OrganizationUpdate = components["schemas"]["Organization_Update"];
 
@@ -39,13 +38,13 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
   readonly isDataspaceEnabled: boolean = environment.DATA_SPACE_ENABLED;
 
   loading: boolean = false;
-  orders:any[]=[];
-  profile:any;
-  partyId:any='';
-  token:string='';
-  email:string='';
-  selectedDate:any;
-  isReadOnly:boolean=false;
+  orders: any[] = [];
+  profile: any;
+  partyId: any = '';
+  token: string = '';
+  email: string = '';
+  selectedDate: any;
+  isReadOnly: boolean = false;
 
   euCountries = [
     { code: 'AT', name: 'Austria' },
@@ -90,28 +89,28 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     telephoneNumber: new FormControl(''),
     telephoneType: new FormControl('Mobile')
   });
-  contactmediums:any[]=[];
+  contactmediums: any[] = [];
   contactMediumColumns: TableColumn[] = this.buildContactMediumColumns();
-  emailSelected:boolean=true;
-  addressSelected:boolean=false;
-  phoneSelected:boolean=false;
+  emailSelected: boolean = true;
+  addressSelected: boolean = false;
+  phoneSelected: boolean = false;
   prefixes: any[] = phoneNumbers;
   countries: any[] = countries;
   phonePrefix: any = phoneNumbers[0];
   prefixCheck: boolean = false;
   showMediumModal: boolean = false;
-  selectedMedium:any;
+  selectedMedium: any;
   toastVisibility: boolean = false;
   successVisibility: boolean = false;
 
-  errorMessage:any='';
-  showError:boolean=false;
-  showImgPreview:boolean=false;
-  imgPreview:any='';
+  errorMessage: any = '';
+  showError: boolean = false;
+  showImgPreview: boolean = false;
+  imgPreview: any = '';
   attFileName = new FormControl('', [Validators.required, Validators.pattern('[a-zA-Z0-9 _.-]*')]);
   attImageName = new FormControl('', [Validators.required, Validators.pattern('^https?:\\/\\/.*\\.(?:png|jpg|jpeg|gif|bmp|webp)$')])
   filenameRegex = /^[A-Za-z0-9_.-]+$/;
-  MAX_FILE_SIZE: number=environment.MAX_FILE_SIZE;
+  MAX_FILE_SIZE: number = environment.MAX_FILE_SIZE;
 
   selectedCountry: string = ''; // Stores the selected country code
 
@@ -129,18 +128,18 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     private attachmentService: AttachmentServiceService,
   ) {
     this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'ChangedSession') {
-        this.initPartyInfo();
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'ChangedSession') {
+          this.initPartyInfo();
+        }
+      })
   }
 
   ngOnInit() {
-    this.loading=true;
+    this.loading = true;
     let today = new Date();
-    today.setMonth(today.getMonth()-1);
+    today.setMonth(today.getMonth() - 1);
     this.selectedDate = today.toISOString();
     this.initPartyInfo();
     setTimeout(() => {
@@ -148,20 +147,20 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     }, 500);
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  initPartyInfo(){
+  initPartyInfo() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
+    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
       if (aux.logged_as !== aux.id) {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
         this.partyId = loggedOrg.partyId;
 
         // Check if user has orgAdmin role for edit permission
-        if(loggedOrg && loggedOrg.roles){
+        if (loggedOrg && loggedOrg.roles) {
           const orgRoles = loggedOrg.roles.map((role: any) => role.name);
           const hasOrgAdminRole = orgRoles.some((role: any) => role === environment.ORG_ADMIN_ROLE);
           this.isReadOnly = !hasOrgAdminRole;
@@ -173,8 +172,8 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
 
       this.orgFields = this.buildOrgFields();
       this.contactMediumColumns = this.buildContactMediumColumns();
-      this.token=aux.token;
-      this.email=aux.email;
+      this.token = aux.token;
+      this.email = aux.email;
       this.profileForm.reset();
       this.getProfile();
     }
@@ -192,8 +191,8 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
       },
       ...(this.isDataspaceEnabled ? [
         { type: 'string', name: 'contractManagementAddress', label: 'Contract Management Address', readonly: this.isReadOnly, colSpan: 2 },
-        { type: 'string', name: 'contractManagementClientId', label: 'Contract Management Client ID', readonly: this.isReadOnly },
-        { type: 'string', name: 'contractManagementScopes', label: 'Contract Management Scopes', readonly: this.isReadOnly, placeholder: 'external-marketplace, another-scope' },
+        { type: 'string', name: 'contractManagementClientId', label: 'Contract Management Client ID', readonly: this.isReadOnly, colSpan: 1 },
+        { type: 'string', name: 'contractManagementScopes', label: 'Contract Management Scopes', readonly: this.isReadOnly, placeholder: 'external-marketplace, another-scope', colSpan: 1 },
       ] as FormField[] : []),
       {
         type: 'markdownTextarea', name: 'description', label: 'UPDATE_OFFER._description', readonly: this.isReadOnly,
@@ -229,40 +228,40 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     return medium.characteristic.phoneNumber;
   }
 
-  getProfile(){
-    this.contactmediums=[];
-    this.accountService.getOrgInfo(this.partyId).then(data=> {
-      this.profile=data;
+  getProfile() {
+    this.contactmediums = [];
+    this.accountService.getOrgInfo(this.partyId).then(data => {
+      this.profile = data;
       this.loadProfileData(this.profile)
-      this.loading=false;
+      this.loading = false;
       this.cdr.detectChanges();
     })
     this.cdr.detectChanges();
     initFlowbite();
   }
 
-  updateProfile(){
+  updateProfile() {
     let mediums = [];
     let chars = [];
-    if(this.imgPreview!=''){
+    if (this.imgPreview != '') {
       chars.push({
         name: 'logo',
         value: this.imgPreview
       })
     }
-    if(this.profileForm.value.description!=''){
+    if (this.profileForm.value.description != '') {
       chars.push({
         name: 'description',
         value: this.profileForm.value.description
-      })      
+      })
     }
-    if(this.profileForm.value.website!=''){
+    if (this.profileForm.value.website != '') {
       chars.push({
         name: 'website',
         value: this.profileForm.value.website
-      })       
+      })
     }
-    if(this.profileForm.value.country != ''){
+    if (this.profileForm.value.country != '') {
       chars.push({
         name: 'country',
         value: this.profileForm.value.country
@@ -282,8 +281,8 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
         }
       })
     }
-    for(let i=0; i<this.contactmediums.length; i++){
-      if(this.contactmediums[i].mediumType == 'Email'){
+    for (let i = 0; i < this.contactmediums.length; i++) {
+      if (this.contactmediums[i].mediumType == 'Email') {
         mediums.push({
           mediumType: 'Email',
           preferred: this.contactmediums[i].preferred,
@@ -292,7 +291,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
             emailAddress: this.contactmediums[i].characteristic.emailAddress
           }
         })
-      } else if(this.contactmediums[i].mediumType == 'PostalAddress'){
+      } else if (this.contactmediums[i].mediumType == 'PostalAddress') {
         mediums.push({
           mediumType: this.contactmediums[i].mediumType,
           preferred: this.contactmediums[i].preferred,
@@ -313,45 +312,45 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
             contactType: this.getMediumContactType(this.contactmediums[i], 'Phone'),
             phoneNumber: this.contactmediums[i].characteristic.phoneNumber
           }
-        })          
+        })
       }
     }
-    
+
     let profile = {
       "tradingName": this.profileForm.value.name,
       "contactMedium": mediums,
       "partyCharacteristic": chars
     }
-    this.accountService.updateOrgInfo(this.partyId,profile).subscribe({
+    this.accountService.updateOrgInfo(this.partyId, profile).subscribe({
       next: data => {
         this.profileForm.reset();
         this.getProfile();
         this.successVisibility = true;
         setTimeout(() => {
           this.successVisibility = false;
-        }, 2000); 
-        this.mediumForm.reset();      
+        }, 2000);
+        this.mediumForm.reset();
       },
       error: error => {
-          console.error('There was an error while updating!', error);
-          if(error.error.error){
-            this.errorMessage='Error: '+error.error.error;
-          } else {
-            this.errorMessage='There was an error while updating profile!';
-          }
-          this.showError=true;
-          setTimeout(() => {
-            this.showError = false;
-          }, 3000);
+        console.error('There was an error while updating!', error);
+        if (error.error.error) {
+          this.errorMessage = 'Error: ' + error.error.error;
+        } else {
+          this.errorMessage = 'There was an error while updating profile!';
+        }
+        this.showError = true;
+        setTimeout(() => {
+          this.showError = false;
+        }, 3000);
       }
     });
   }
 
-  loadProfileData(profile:any){
+  loadProfileData(profile: any) {
     this.profileForm.controls['name'].setValue(profile.tradingName);
-    if(profile.contactMedium){
-      for(let i=0; i<this.profile.contactMedium.length; i++){
-        if(profile.contactMedium[i].mediumType == 'Email'){
+    if (profile.contactMedium) {
+      for (let i = 0; i < this.profile.contactMedium.length; i++) {
+        if (profile.contactMedium[i].mediumType == 'Email') {
           this.contactmediums.push({
             id: uuidv4(),
             mediumType: 'Email',
@@ -361,7 +360,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
               emailAddress: profile.contactMedium[i].characteristic.emailAddress
             }
           })
-        } else if(profile.contactMedium[i].mediumType == 'PostalAddress'){
+        } else if (profile.contactMedium[i].mediumType == 'PostalAddress') {
           this.contactmediums.push({
             id: uuidv4(),
             mediumType: profile.contactMedium[i].mediumType,
@@ -384,22 +383,22 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
               contactType: profile.contactMedium[i].characteristic.contactType,
               phoneNumber: profile.contactMedium[i].characteristic.phoneNumber
             }
-          })          
+          })
         }
       }
     }
-    if(profile.partyCharacteristic){
-      for(let i=0;i<profile.partyCharacteristic.length;i++){
-        if(profile.partyCharacteristic[i].name == 'logo'){
-          this.imgPreview=profile.partyCharacteristic[i].value
-          this.showImgPreview=true;
-        } else if(profile.partyCharacteristic[i].name=='description') {
+    if (profile.partyCharacteristic) {
+      for (let i = 0; i < profile.partyCharacteristic.length; i++) {
+        if (profile.partyCharacteristic[i].name == 'logo') {
+          this.imgPreview = profile.partyCharacteristic[i].value
+          this.showImgPreview = true;
+        } else if (profile.partyCharacteristic[i].name == 'description') {
           this.profileForm.controls['description'].setValue(profile.partyCharacteristic[i].value);
-        }else if(profile.partyCharacteristic[i].name=='website') {
+        } else if (profile.partyCharacteristic[i].name == 'website') {
           this.profileForm.controls['website'].setValue(profile.partyCharacteristic[i].value);
-        } else if(profile.partyCharacteristic[i].name=='country') {
+        } else if (profile.partyCharacteristic[i].name == 'country') {
           this.profileForm.controls['country'].setValue(profile.partyCharacteristic[i].value);
-        } else if(profile.partyCharacteristic[i].name=='contractManagement') {
+        } else if (profile.partyCharacteristic[i].name == 'contractManagement') {
           const contractManagement = profile.partyCharacteristic[i].value ?? {};
           this.profileForm.controls['contractManagementAddress'].setValue(contractManagement.address ?? '');
           this.profileForm.controls['contractManagementClientId'].setValue(contractManagement.clientId ?? '');
@@ -455,30 +454,30 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
   }
 
   saveMedium(): boolean {
-    if(this.phoneSelected){
-        try{
-            const phoneNumber = parsePhoneNumber(this.phonePrefix.code + this.mediumForm.value.telephoneNumber);
-            if (phoneNumber) {
-            if (!phoneNumber.isValid()) {
-                this.mediumForm.controls['telephoneNumber'].setErrors({'invalidPhoneNumber': true});
-                this.toastVisibility = true;
-                setTimeout(() => {
-                this.toastVisibility = false
-                }, 2000);
-                return false;
-            } else {
-                this.mediumForm.controls['telephoneNumber'].setErrors(null);
-                this.toastVisibility = false;
-            }
-            }
-        }catch (e : any){
-            this.mediumForm.controls['telephoneNumber'].setErrors({'invalidPhoneNumber': true});
+    if (this.phoneSelected) {
+      try {
+        const phoneNumber = parsePhoneNumber(this.phonePrefix.code + this.mediumForm.value.telephoneNumber);
+        if (phoneNumber) {
+          if (!phoneNumber.isValid()) {
+            this.mediumForm.controls['telephoneNumber'].setErrors({ 'invalidPhoneNumber': true });
             this.toastVisibility = true;
             setTimeout(() => {
-            this.toastVisibility = false
+              this.toastVisibility = false
             }, 2000);
             return false;
+          } else {
+            this.mediumForm.controls['telephoneNumber'].setErrors(null);
+            this.toastVisibility = false;
+          }
         }
+      } catch (e: any) {
+        this.mediumForm.controls['telephoneNumber'].setErrors({ 'invalidPhoneNumber': true });
+        this.toastVisibility = true;
+        setTimeout(() => {
+          this.toastVisibility = false
+        }, 2000);
+        return false;
+      }
     }
 
     if (this.mediumForm.invalid) {
@@ -488,7 +487,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
       }, 2000);
       return false;
     } else {
-      if(this.emailSelected){
+      if (this.emailSelected) {
         this.contactmediums.push({
           id: uuidv4(),
           mediumType: 'Email',
@@ -498,7 +497,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
             emailAddress: this.mediumForm.value.email
           }
         })
-      } else if(this.addressSelected){
+      } else if (this.addressSelected) {
         this.contactmediums.push({
           id: uuidv4(),
           mediumType: 'PostalAddress',
@@ -528,123 +527,123 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  removeMedium(medium:any){
+  removeMedium(medium: any) {
     const index = this.contactmediums.findIndex(item => item.id === medium.id);
     if (index !== -1) {
       this.contactmediums.splice(index, 1);
     }
   }
 
-  editMedium(){
+  editMedium() {
 
     const index = this.contactmediums.findIndex(item => item.id === this.selectedMedium.id);
-      if (index !== -1) {
-        if (this.mediumForm.get('contactTitle')?.invalid) {
+    if (index !== -1) {
+      if (this.mediumForm.get('contactTitle')?.invalid) {
+        this.toastVisibility = true;
+        setTimeout(() => {
+          this.toastVisibility = false
+        }, 2000);
+        return;
+      }
+      if (this.selectedMedium.mediumType == 'Email') {
+        if (this.mediumForm.get('email')?.invalid) {
           this.toastVisibility = true;
           setTimeout(() => {
             this.toastVisibility = false
           }, 2000);
           return;
         }
-        if(this.selectedMedium.mediumType=='Email'){
-          if (this.mediumForm.get('email')?.invalid) {
+        this.contactmediums[index] = {
+          id: this.contactmediums[index].id,
+          mediumType: 'Email',
+          preferred: this.contactmediums[index].preferred,
+          characteristic: {
+            contactType: this.getContactTitle('Email'),
+            emailAddress: this.mediumForm.value.email
+          }
+        }
+      } else if (this.selectedMedium.mediumType == 'PostalAddress') {
+        let fieldsToCheck = ['country', 'city', 'stateOrProvince', 'street'];
+
+        fieldsToCheck.forEach(fieldName => {
+          const control = this.mediumForm.get(fieldName);
+          if (control?.invalid) {
             this.toastVisibility = true;
             setTimeout(() => {
               this.toastVisibility = false
             }, 2000);
             return;
           }
-          this.contactmediums[index]={
-            id: this.contactmediums[index].id,
-            mediumType: 'Email',
-            preferred: this.contactmediums[index].preferred,
-            characteristic: {
-              contactType: this.getContactTitle('Email'),
-              emailAddress: this.mediumForm.value.email
-            }
+        });
+        this.contactmediums[index] = {
+          id: this.contactmediums[index].id,
+          mediumType: 'PostalAddress',
+          preferred: this.contactmediums[index].preferred,
+          characteristic: {
+            contactType: this.getContactTitle('PostalAddress'),
+            city: this.mediumForm.value.city,
+            country: this.mediumForm.value.country,
+            postCode: this.mediumForm.value.postCode,
+            stateOrProvince: this.mediumForm.value.stateOrProvince,
+            street1: this.mediumForm.value.street
           }
-        } else if(this.selectedMedium.mediumType=='PostalAddress'){
-          let fieldsToCheck = ['country', 'city', 'stateOrProvince', 'street'];
-
-          fieldsToCheck.forEach(fieldName => {
-            const control = this.mediumForm.get(fieldName);
-            if (control?.invalid) {
+        }
+      } else {
+        try {
+          const phoneNumber = parsePhoneNumber(this.phonePrefix.code + this.mediumForm.value.telephoneNumber);
+          if (phoneNumber) {
+            if (!phoneNumber.isValid()) {
+              this.mediumForm.controls['telephoneNumber'].setErrors({ 'invalidPhoneNumber': true });
               this.toastVisibility = true;
               setTimeout(() => {
                 this.toastVisibility = false
               }, 2000);
               return;
-            }
-          });
-          this.contactmediums[index]={
-            id: this.contactmediums[index].id,
-            mediumType: 'PostalAddress',
-            preferred: this.contactmediums[index].preferred,
-            characteristic: {
-              contactType: this.getContactTitle('PostalAddress'),
-              city: this.mediumForm.value.city,
-              country: this.mediumForm.value.country,
-              postCode: this.mediumForm.value.postCode,
-              stateOrProvince: this.mediumForm.value.stateOrProvince,
-              street1: this.mediumForm.value.street
-            }
-          }
-        } else {
-            try{
-                const phoneNumber = parsePhoneNumber(this.phonePrefix.code + this.mediumForm.value.telephoneNumber);
-                if (phoneNumber) {
-                  if (!phoneNumber.isValid()) {
-                    this.mediumForm.controls['telephoneNumber'].setErrors({'invalidPhoneNumber': true});
-                    this.toastVisibility = true;
-                    setTimeout(() => {
-                      this.toastVisibility = false
-                    }, 2000);
-                    return;
-                  } else {
-                    this.mediumForm.controls['telephoneNumber'].setErrors(null);
-                    this.toastVisibility = false;
-                  }
-                }
-            }
-            catch(error){
-                this.mediumForm.controls['telephoneNumber'].setErrors({'invalidPhoneNumber': true});
-                    this.toastVisibility = true;
-                    setTimeout(() => {
-                      this.toastVisibility = false
-                    }, 2000);
-                    return;
-            }
-          this.contactmediums[index]={
-            id: this.contactmediums[index].id,
-            mediumType: 'TelephoneNumber',
-            preferred: this.contactmediums[index].preferred,
-            characteristic: {
-              contactType: this.getContactTitle('Phone'),
-              phoneNumber: this.phonePrefix.code + this.mediumForm.value.telephoneNumber
+            } else {
+              this.mediumForm.controls['telephoneNumber'].setErrors(null);
+              this.toastVisibility = false;
             }
           }
         }
-        this.mediumForm.reset();
-        this.selectedMedium = null;
-        this.showMediumModal=false;
+        catch (error) {
+          this.mediumForm.controls['telephoneNumber'].setErrors({ 'invalidPhoneNumber': true });
+          this.toastVisibility = true;
+          setTimeout(() => {
+            this.toastVisibility = false
+          }, 2000);
+          return;
+        }
+        this.contactmediums[index] = {
+          id: this.contactmediums[index].id,
+          mediumType: 'TelephoneNumber',
+          preferred: this.contactmediums[index].preferred,
+          characteristic: {
+            contactType: this.getContactTitle('Phone'),
+            phoneNumber: this.phonePrefix.code + this.mediumForm.value.telephoneNumber
+          }
+        }
       }
+      this.mediumForm.reset();
+      this.selectedMedium = null;
+      this.showMediumModal = false;
+    }
   }
 
-  showEdit(medium:any){
-    this.selectedMedium=medium;
+  showEdit(medium: any) {
+    this.selectedMedium = medium;
     this.mediumForm.controls['contactTitle'].setValue(this.getMediumContactType(this.selectedMedium));
-    if(this.selectedMedium.mediumType=='Email'){
-      this.emailSelected=true; this.addressSelected=false; this.phoneSelected=false;
+    if (this.selectedMedium.mediumType == 'Email') {
+      this.emailSelected = true; this.addressSelected = false; this.phoneSelected = false;
       this.mediumForm.controls['email'].setValue(this.selectedMedium.characteristic.emailAddress);
-    } else if(this.selectedMedium.mediumType=='PostalAddress'){
-      this.emailSelected=false; this.addressSelected=true; this.phoneSelected=false;
+    } else if (this.selectedMedium.mediumType == 'PostalAddress') {
+      this.emailSelected = false; this.addressSelected = true; this.phoneSelected = false;
       this.mediumForm.controls['country'].setValue(this.selectedMedium.characteristic.country);
       this.mediumForm.controls['city'].setValue(this.selectedMedium.characteristic.city);
       this.mediumForm.controls['stateOrProvince'].setValue(this.selectedMedium.characteristic.stateOrProvince);
       this.mediumForm.controls['postCode'].setValue(this.selectedMedium.characteristic.postCode);
       this.mediumForm.controls['street'].setValue(this.selectedMedium.characteristic.street1);
     } else {
-      this.emailSelected=false; this.addressSelected=false; this.phoneSelected=true;
+      this.emailSelected = false; this.addressSelected = false; this.phoneSelected = true;
       const phoneNumber = parsePhoneNumber(this.selectedMedium.characteristic.phoneNumber)
       if (phoneNumber) {
         let pref = this.prefixes.filter(item => item.code === '+' + phoneNumber.countryCallingCode);
@@ -655,7 +654,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
       }
       this.mediumForm.controls['telephoneType'].setValue(this.selectedMedium.characteristic.contactType);
     }
-    this.showMediumModal=true;
+    this.showMediumModal = true;
   }
 
   openAddMedium(): void {
@@ -679,17 +678,17 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     }
   }
 
-  selectPrefix(pref:any) {
+  selectPrefix(pref: any) {
     this.prefixCheck = false;
     this.phonePrefix = pref;
   }
 
   onTypeChange(event: any) {
     this.mediumForm.reset();
-    if(event.target.value=='email'){
-      this.emailSelected=true;
-      this.addressSelected=false;
-      this.phoneSelected=false;
+    if (event.target.value == 'email') {
+      this.emailSelected = true;
+      this.addressSelected = false;
+      this.phoneSelected = false;
       this.mediumForm.get('country')?.clearValidators();
       this.mediumForm.get('country')?.setValue('');
       this.mediumForm.get('city')?.clearValidators();
@@ -703,14 +702,14 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
       this.mediumForm.get('street')?.setValue('');
       this.mediumForm.get('telephoneNumber')?.clearValidators();
       this.mediumForm.get('telephoneNumber')?.setValue('');
-      this.mediumForm.get('email')?.setValidators([Validators.required,Validators.email, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]);
+      this.mediumForm.get('email')?.setValidators([Validators.required, Validators.email, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]);
       this.mediumForm.get('email')?.markAsUntouched();
       this.mediumForm.get('email')?.setValue('');
       this.cdr.detectChanges();
-    }else if (event.target.value=='address'){
-      this.emailSelected=false;
-      this.addressSelected=true;
-      this.phoneSelected=false;
+    } else if (event.target.value == 'address') {
+      this.emailSelected = false;
+      this.addressSelected = true;
+      this.phoneSelected = false;
       this.mediumForm.get('telephoneNumber')?.clearValidators();
       this.mediumForm.get('telephoneNumber')?.setValue('');
       this.mediumForm.get('email')?.clearValidators();
@@ -731,10 +730,10 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
       this.mediumForm.get('street')?.markAsUntouched();
       this.mediumForm.get('street')?.setValue('');
       this.cdr.detectChanges();
-    }else{
-      this.emailSelected=false;
-      this.addressSelected=false;
-      this.phoneSelected=true;
+    } else {
+      this.emailSelected = false;
+      this.addressSelected = false;
+      this.phoneSelected = true;
       this.mediumForm.get('country')?.clearValidators();
       this.mediumForm.get('country')?.setValue('');
       this.mediumForm.get('city')?.clearValidators();
@@ -754,7 +753,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     }
 
   }
-  showMedium(){
+  showMedium() {
   }
 
   printActiveValidators(controlName: string) {
@@ -762,12 +761,12 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     if (!control || !control.validator) {
       return;
     }
-  
+
     const validatorFn = control.validator({} as AbstractControl);
     if (!validatorFn) {
       return;
     }
-  
+
   }
 
   printAllActiveValidators() {
@@ -775,13 +774,13 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
       this.printActiveValidators(controlName);
     });
   }
-  
 
 
-  public dropped(files: NgxFileDropEntry[],sel:any) {
+
+  public dropped(files: NgxFileDropEntry[], sel: any) {
     this.files = files;
     for (const droppedFile of files) {
- 
+
       // Is it a file?
       if (droppedFile.fileEntry.isFile) {
         const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
@@ -793,26 +792,26 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
               const base64String: string = e.target.result.split(',')[1];
               let fileBody = {
                 content: {
-                  name: 'orglogo'+file.name,
+                  name: 'orglogo' + file.name,
                   data: base64String
                 },
                 contentType: file.type,
                 isPublic: true
               }
-              if(!this.isValidFilename(fileBody.content.name)){
-                this.errorMessage='File names can only include alphabetical characters (A-Z, a-z) and a limited set of symbols, such as underscores (_), hyphens (-), and periods (.)';
+              if (!this.isValidFilename(fileBody.content.name)) {
+                this.errorMessage = 'File names can only include alphabetical characters (A-Z, a-z) and a limited set of symbols, such as underscores (_), hyphens (-), and periods (.)';
                 console.error('There was an error while uploading file!');
-                this.showError=true;
+                this.showError = true;
                 setTimeout(() => {
                   this.showError = false;
                 }, 3000);
                 return;
               }
               //IF FILES ARE HIGHER THAN 3MB THROW AN ERROR
-              if(file.size>this.MAX_FILE_SIZE){
-                this.errorMessage='File size must be under 3MB.';
+              if (file.size > this.MAX_FILE_SIZE) {
+                this.errorMessage = 'File size must be under 3MB.';
                 console.error('There was an error while uploading file!');
-                this.showError=true;
+                this.showError = true;
                 setTimeout(() => {
                   this.showError = false;
                 }, 3000);
@@ -820,40 +819,40 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
               }
               this.attachmentService.uploadFile(fileBody).subscribe({
                 next: data => {
-                    if(sel=='img'){
-                      if(file.type.startsWith("image")){
-                        this.showImgPreview=true;
-                        this.imgPreview=data.content;
-                      } else {
-                        this.errorMessage='File must have a valid image format!';
-                        this.showError=true;
-                        setTimeout(() => {
-                          this.showError = false;
-                        }, 3000);
-                      }
+                  if (sel == 'img') {
+                    if (file.type.startsWith("image")) {
+                      this.showImgPreview = true;
+                      this.imgPreview = data.content;
+                    } else {
+                      this.errorMessage = 'File must have a valid image format!';
+                      this.showError = true;
+                      setTimeout(() => {
+                        this.showError = false;
+                      }, 3000);
                     }
-                    this.cdr.detectChanges();
+                  }
+                  this.cdr.detectChanges();
                 },
                 error: error => {
-                    console.error('There was an error while uploading!', error);
-                    if(error.error.error){
-                      this.errorMessage='Error: '+error.error.error;
-                    } else {
-                      this.errorMessage='There was an error while uploading the file!';
-                    }
-                    if (error.status === 413) {
-                      this.errorMessage='File size too large! Must be under 3MB.';
-                    }
-                    this.showError=true;
-                    setTimeout(() => {
-                      this.showError = false;
-                    }, 3000);
+                  console.error('There was an error while uploading!', error);
+                  if (error.error.error) {
+                    this.errorMessage = 'Error: ' + error.error.error;
+                  } else {
+                    this.errorMessage = 'There was an error while uploading the file!';
+                  }
+                  if (error.status === 413) {
+                    this.errorMessage = 'File size too large! Must be under 3MB.';
+                  }
+                  this.showError = true;
+                  setTimeout(() => {
+                    this.showError = false;
+                  }, 3000);
                 }
               });
             };
             reader.readAsDataURL(file);
           }
- 
+
         });
       } else {
         // It was a directory (empty directories are added, otherwise only files)
@@ -865,23 +864,23 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
   isValidFilename(filename: string): boolean {
     return this.filenameRegex.test(filename);
   }
- 
-  public fileOver(event: any){
-  }
- 
-  public fileLeave(event: any){
+
+  public fileOver(event: any) {
   }
 
-  saveImgFromURL(){
-    this.showImgPreview=true;
-    this.imgPreview=this.imgURL.nativeElement.value;
+  public fileLeave(event: any) {
+  }
+
+  saveImgFromURL() {
+    this.showImgPreview = true;
+    this.imgPreview = this.imgURL.nativeElement.value;
     this.attImageName.reset();
     this.cdr.detectChanges();
   }
 
-  removeImg(){
-    this.showImgPreview=false;
-    this.imgPreview='';
+  removeImg() {
+    this.showImgPreview = false;
+    this.imgPreview = '';
     this.cdr.detectChanges();
   }
 
