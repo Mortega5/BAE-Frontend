@@ -58,11 +58,11 @@ body {
      meant to sit on top of a primary-colored surface. */
   --theme-default-text: rgb(0 0 0);
   --table-bg: #fff;
-  --table-text: rgb(107 114 128);
+  --table-text: var(--theme-default-text);
   /* gray-500 */
   --table-border-color: rgb(var(--theme-primary-100));
   --table-header-bg: rgb(var(--theme-primary-100));
-  --table-header-text: var(--theme-header-v2-outline-hover-text);
+  --table-header-text: var(--theme-primary-text);
   --table-header-hover-bg: rgb(var(--theme-primary-50) / 30%);
   --table-row-border-color: rgb(var(--theme-primary-50) / 40%);
   --table-row-hover-bg: rgb(var(--theme-secondary-50));

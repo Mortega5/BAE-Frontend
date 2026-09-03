@@ -2,19 +2,21 @@ import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewI
 import { LoginInfo, billingAccountCart } from 'src/app/models/interfaces';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { AccountServiceService } from 'src/app/services/account-service.service';
-import {LocalStorageService} from "src/app/services/local-storage.service";
+import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ProductOrderService } from 'src/app/services/product-order-service.service';
-import {components} from "src/app/models/product-catalog";
+import { components } from "src/app/models/product-catalog";
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 type ProductOffering = components["schemas"]["ProductOffering"];
 import { phoneNumbers, countries } from 'src/app/models/country.const'
 import { initFlowbite } from 'flowbite';
-import {EventMessageService} from "src/app/services/event-message.service";
+import { EventMessageService } from "src/app/services/event-message.service";
 import moment from 'moment';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TableColumn } from 'src/app/models/table-column.model';
+import { faEdit } from '@fortawesome/pro-solid-svg-icons';
 
 @Component({
   selector: 'billing-info',
@@ -24,30 +26,31 @@ import { takeUntil } from 'rxjs/operators';
 export class BillingInfoComponent implements OnInit, OnDestroy {
 
   loading: boolean = false;
-  orders:any[]=[];
-  profile:any;
-  partyId:any='';
-  partyInfo:any = {
+  orders: any[] = [];
+  profile: any;
+  partyId: any = '';
+  partyInfo: any = {
     id: '',
     name: '',
     href: ''
   }
-  billing_accounts: billingAccountCart[] =[];
-  selectedBilling:any;
-  billToDelete:any;
-  billToUpdate:any;
-  editBill:boolean=false;
-  deleteBill:boolean=false;
-  showOrderDetails:boolean=false;
-  orderToShow:any;
+  billing_accounts: billingAccountCart[] = [];
+  selectedBilling: any;
+  billToDelete: any;
+  billToUpdate: any;
+  editBill: boolean = false;
+  deleteBill: boolean = false;
+  showOrderDetails: boolean = false;
+  orderToShow: any;
   dateRange = new FormControl();
-  selectedDate:any;
+  selectedDate: any;
   countries: any[] = countries;
-  preferred:boolean=false;
-  isReadOnly:boolean=false;
+  preferred: boolean = false;
+  isReadOnly: boolean = false;
+  billingColumns: TableColumn[] = this.buildBillingColumns();
 
-  errorMessage:any='';
-  showError:boolean=false;
+  errorMessage: any = '';
+  showError: boolean = false;
 
   private destroy$ = new Subject<void>();
 
@@ -61,52 +64,52 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService
   ) {
     this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'BillAccChanged') {
-        this.getBilling();
-      }
-      if(ev.value == false){
-        this.editBill=false;
-      }
-      if(ev.type === 'ChangedSession') {
-        this.initPartyInfo();
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'BillAccChanged') {
+          this.getBilling();
+        }
+        if (ev.value == false) {
+          this.editBill = false;
+        }
+        if (ev.type === 'ChangedSession') {
+          this.initPartyInfo();
+        }
+      })
   }
 
   @HostListener('document:click')
   onClick() {
-    if(this.editBill==true){
-      this.editBill=false;
+    if (this.editBill == true) {
+      this.editBill = false;
       this.cdr.detectChanges();
     }
-    if(this.deleteBill==true){
-      this.deleteBill=false;
+    if (this.deleteBill == true) {
+      this.deleteBill = false;
       this.cdr.detectChanges();
     }
-    if(this.showOrderDetails==true){
-      this.showOrderDetails=false;
+    if (this.showOrderDetails == true) {
+      this.showOrderDetails = false;
       this.cdr.detectChanges();
     }
   }
 
   ngOnInit() {
-    this.loading=true;
+    this.loading = true;
     let today = new Date();
-    today.setMonth(today.getMonth()-1);
+    today.setMonth(today.getMonth() - 1);
     this.selectedDate = today.toISOString();
     this.initPartyInfo();
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  initPartyInfo(){
+  initPartyInfo() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
+    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
       if (aux.logged_as !== aux.id) {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
         this.partyId = loggedOrg.partyId;
@@ -115,12 +118,12 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
         this.partyInfo = {
           id: this.partyId,
           name: loggedOrg.name,
-          href : this.partyId,
+          href: this.partyId,
           role: environment.SELLER_ROLE
         }
 
         // Check if user has orgAdmin role for edit permission
-        if(loggedOrg && loggedOrg.roles){
+        if (loggedOrg && loggedOrg.roles) {
           const orgRoles = loggedOrg.roles.map((role: any) => role.name);
           const hasOrgAdminRole = orgRoles.some((role: any) => role === environment.ORG_ADMIN_ROLE);
           this.isReadOnly = !hasOrgAdminRole;
@@ -132,24 +135,25 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
         this.partyInfo = {
           id: this.partyId,
           name: aux.user,
-          href : this.partyId,
+          href: this.partyId,
           role: environment.SELLER_ROLE
         }
         this.isReadOnly = false;
       }
+      this.billingColumns = this.buildBillingColumns();
       this.getBilling();
     }
     initFlowbite();
   }
 
-  getBilling(){
-    let isBillSelected=false;
+  getBilling() {
+    let isBillSelected = false;
     this.accountService.getBillingAccount().then(data => {
-      this.billing_accounts=[];
-      for(let i=0; i< data.length;i++){
-        isBillSelected=false;
-        let email =''
-        let phone=''
+      this.billing_accounts = [];
+      for (let i = 0; i < data.length; i++) {
+        isBillSelected = false;
+        let email = ''
+        let phone = ''
         let phoneType = ''
         let address = {
           "city": '',
@@ -158,10 +162,10 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
           "stateOrProvince": '',
           "street": ''
         }
-        for(let j=0; j<data[i].contact[0].contactMedium.length;j++){
-          if(data[i].contact[0].contactMedium[j].mediumType == 'Email'){
+        for (let j = 0; j < data[i].contact[0].contactMedium.length; j++) {
+          if (data[i].contact[0].contactMedium[j].mediumType == 'Email') {
             email = data[i].contact[0].contactMedium[j].characteristic.emailAddress
-          } else if (data[i].contact[0].contactMedium[j].mediumType == 'PostalAddress'){
+          } else if (data[i].contact[0].contactMedium[j].mediumType == 'PostalAddress') {
             address = {
               "city": data[i].contact[0].contactMedium[j].characteristic.city,
               "country": data[i].contact[0].contactMedium[j].characteristic.country,
@@ -169,12 +173,12 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
               "stateOrProvince": data[i].contact[0].contactMedium[j].characteristic.stateOrProvince,
               "street": data[i].contact[0].contactMedium[j].characteristic.street1
             }
-          } else if (data[i].contact[0].contactMedium[j].mediumType == 'TelephoneNumber'){
+          } else if (data[i].contact[0].contactMedium[j].mediumType == 'TelephoneNumber') {
             phone = data[i].contact[0].contactMedium[j].characteristic.phoneNumber
             phoneType = data[i].contact[0].contactMedium[j].characteristic.contactType
           }
-          if(data[i].contact[0].contactMedium[j].preferred==true){
-            isBillSelected=true;
+          if (data[i].contact[0].contactMedium[j].preferred == true) {
+            isBillSelected = true;
           }
         }
         console.log(data[i])
@@ -188,8 +192,8 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
           "telephoneType": phoneType,
           "selected": isBillSelected
         })
-        if(isBillSelected){
-          this.selectedBilling={
+        if (isBillSelected) {
+          this.selectedBilling = {
             "id": data[i].id,
             "href": data[i].href,
             "name": data[i].name,
@@ -200,123 +204,149 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
           }
         }
       }
-      this.loading=false;
-      if(this.billing_accounts.length>0){
-        this.preferred=false;
-      }else{
-        this.preferred=true;
+      this.loading = false;
+      if (this.billing_accounts.length > 0) {
+        this.preferred = false;
+      } else {
+        this.preferred = true;
       }
       console.log(this.billing_accounts)
       this.cdr.detectChanges();
     })
-    
+
     this.cdr.detectChanges();
     initFlowbite();
   }
 
-  selectBill(baddr: billingAccountCart){
+  selectBill(baddr: billingAccountCart) {
     const index = this.billing_accounts.findIndex(item => item.id === baddr.id);
-    for(let i=0; i < this.billing_accounts.length; i++){
-      if(i==index){
-        this.billing_accounts[i].selected=true;
-        this.selectedBilling=this.billing_accounts[i];
+    for (let i = 0; i < this.billing_accounts.length; i++) {
+      if (i == index) {
+        this.billing_accounts[i].selected = true;
+        this.selectedBilling = this.billing_accounts[i];
       } else {
-        this.billing_accounts[i].selected=false;
+        this.billing_accounts[i].selected = false;
       }
-      if(this.billing_accounts[i].selected==false){
+      if (this.billing_accounts[i].selected == false) {
         this.updateBilling(this.billing_accounts[i])
-      }      
+      }
     }
-    for(let i=0; i < this.billing_accounts.length; i++){
-      if(this.billing_accounts[i].selected==true){
+    for (let i = 0; i < this.billing_accounts.length; i++) {
+      if (this.billing_accounts[i].selected == true) {
         this.updateBilling(this.billing_accounts[i])
-      }      
+      }
     }
     this.cdr.detectChanges();
   }
 
-  updateBilling(bill:billingAccountCart) {
-      let bill_body = {
-        name: bill.name,
-        contact: [{
-          contactMedium: [
-            {
-              mediumType: 'Email',
-              preferred: bill.selected,
-              characteristic: {
-                contactType: 'Email',
-                emailAddress: bill.email
-              }
-            },
-            {
-              mediumType: 'PostalAddress',
-              preferred: bill.selected,
-              characteristic: {
-                contactType: 'PostalAddress',
-                city: bill.postalAddress.city,
-                country: bill.postalAddress.country,
-                postCode: bill.postalAddress.postCode,
-                stateOrProvince: bill.postalAddress.stateOrProvince,
-                street1: bill.postalAddress.street
-              }
-            },
-            {
-              mediumType: 'TelephoneNumber',
-              preferred: bill.selected,
-              characteristic: {
-                contactType: bill.telephoneType,
-                phoneNumber: bill.telephoneNumber
-              }
+  updateBilling(bill: billingAccountCart) {
+    let bill_body = {
+      name: bill.name,
+      contact: [{
+        contactMedium: [
+          {
+            mediumType: 'Email',
+            preferred: bill.selected,
+            characteristic: {
+              contactType: 'Email',
+              emailAddress: bill.email
             }
-          ]
-        }],
-        relatedParty: [this.partyInfo],
-        state: "Defined"
-      }
-      this.accountService.updateBillingAccount(bill.id, bill_body).subscribe({
-        next: data => {
-          this.eventMessage.emitBillAccChange(false);
-        },
-        error: error => {
-          console.error('There was an error while updating!', error);
-          if(error.error.error){
-            console.log(error)
-            this.errorMessage='Error: '+error.error.error;
-          } else {
-            this.errorMessage='There was an error while updating billing account!';
+          },
+          {
+            mediumType: 'PostalAddress',
+            preferred: bill.selected,
+            characteristic: {
+              contactType: 'PostalAddress',
+              city: bill.postalAddress.city,
+              country: bill.postalAddress.country,
+              postCode: bill.postalAddress.postCode,
+              stateOrProvince: bill.postalAddress.stateOrProvince,
+              street1: bill.postalAddress.street
+            }
+          },
+          {
+            mediumType: 'TelephoneNumber',
+            preferred: bill.selected,
+            characteristic: {
+              contactType: bill.telephoneType,
+              phoneNumber: bill.telephoneNumber
+            }
           }
-          this.showError=true;
-          setTimeout(() => {
-            this.showError = false;
-          }, 3000);
+        ]
+      }],
+      relatedParty: [this.partyInfo],
+      state: "Defined"
+    }
+    this.accountService.updateBillingAccount(bill.id, bill_body).subscribe({
+      next: data => {
+        this.eventMessage.emitBillAccChange(false);
+      },
+      error: error => {
+        console.error('There was an error while updating!', error);
+        if (error.error.error) {
+          console.log(error)
+          this.errorMessage = 'Error: ' + error.error.error;
+        } else {
+          this.errorMessage = 'There was an error while updating billing account!';
         }
-      });
+        this.showError = true;
+        setTimeout(() => {
+          this.showError = false;
+        }, 3000);
+      }
+    });
   }
 
   onDeletedBill(baddr: billingAccountCart) {
     console.log('--- DELETE BILLING ADDRESS ---')
     //this.accountService.deleteBillingAccount(baddr.id).subscribe(() => this.getBilling());
-    this.deleteBill=false;
+    this.deleteBill = false;
     this.cdr.detectChanges();
   }
 
-  toggleEditBill(bill:billingAccountCart){
-    this.billToUpdate=bill;    
-    this.editBill=true;
+  toggleEditBill(bill: billingAccountCart) {
+    this.billToUpdate = bill;
+    this.editBill = true;
     this.cdr.detectChanges();
   }
 
-  toggleDeleteBill(bill:billingAccountCart){
-    this.deleteBill=true;
-    this.billToDelete=bill;
+  toggleDeleteBill(bill: billingAccountCart) {
+    this.deleteBill = true;
+    this.billToDelete = bill;
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
-    if(str){
+    if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
+  }
+
+  private buildBillingColumns(): TableColumn[] {
+    const selectedBg = (bill: billingAccountCart) => bill.selected ? 'bg-primary-30 dark:bg-secondary-200' : '';
+    return [
+      {
+        header: 'BILLING._title', getValue: bill => bill.name,
+        cellClass: bill => `${this.hasLongWord(bill.name, 20) ? 'break-all' : 'break-words'} ${selectedBg(bill)}`,
+      },
+      { header: 'BILLING._email', getValue: bill => bill.email, cellClass: bill => `break-all ${selectedBg(bill)}` },
+      {
+        header: 'BILLING._postalAddress', getValue: bill => this.formatBillingAddress(bill),
+        cellClass: bill => `break-all ${selectedBg(bill)}`,
+      },
+      { header: 'BILLING._phone', getValue: bill => `(${bill.telephoneType}) ${bill.telephoneNumber}`, cellClass: selectedBg },
+      ...(!this.isReadOnly ? [{
+        type: 'actions', header: 'BILLING._action',
+        width: 'w-28',
+        actions: [{ icon: faEdit, onClick: (bill: billingAccountCart) => this.toggleEditBill(bill), dataCy: 'billingEdit' }],
+      } as TableColumn] : []),
+    ];
+  }
+
+  private formatBillingAddress(bill: billingAccountCart): string {
+    const a = bill.postalAddress;
+    return `${a.street}, ${a.postCode} (${a.city}) ${a.stateOrProvince}, ${a.country}`;
   }
 
 }

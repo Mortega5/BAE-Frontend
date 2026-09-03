@@ -4,74 +4,22 @@
     <app-card>
         <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._mybills' | translate }}</h2>
         <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
-        <div class="m-4 relative overflow-x-auto shadow-md sm:rounded-lg">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                    <tr>
-                        <th scope="col" class="px-6 py-3">
-                            {{ 'BILLING._title' | translate }}
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            {{ 'BILLING._email' | translate }}
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            {{ 'BILLING._postalAddress' | translate }}
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            {{ 'BILLING._phone' | translate }}
-                        </th>
-                        @if(!isReadOnly){
-                            <th scope="col" class="px-6 py-3">
-                                {{ 'BILLING._action' | translate }}
-                            </th>
-                        }
-                    </tr>
-                </thead>
-                <tbody>
-                    @for (bill of billing_accounts; track bill.id) {
-                        <tr (click)="selectBill(bill)" class="border-b hover:bg-gray-200 dark:border-gray-700 dark:hover:bg-secondary-200" [ngClass]="bill.selected == true ? 'bg-primary-30 dark:bg-secondary-200' : 'bg-white dark:bg-secondary-300'">
-                            <td [ngClass]="{
-                                'break-all': hasLongWord(bill.name, 20),
-                                'break-words': !hasLongWord(bill.name, 20)
-                                }" class="px-6 py-4 text-wrap break-words">
-                                {{bill.name}}
-                            </td>
-                            <td class="px-6 py-4 text-wrap break-all">
-                                {{bill.email}}
-                            </td>
-                            <td class="px-6 py-4 text-wrap break-all">
-                                {{bill.postalAddress.street}}, {{bill.postalAddress.postCode}} ({{bill.postalAddress.city}}) {{bill.postalAddress.stateOrProvince}}, {{bill.postalAddress.country}}
-                            </td>
-                            <td class="px-6 py-4">
-                                ({{bill.telephoneType}}) {{bill.telephoneNumber}}
-                            </td>
-                            @if(!isReadOnly){
-                                <td class="px-6 py-4 inline-flex">
-                                    <app-button data-cy="billingEdit" (click)="toggleEditBill(bill);$event.stopPropagation();" type="button" shape="pill" prefixIcon="pen-to-square" class="me-2">
-                                        <span class="sr-only">Edit billing address</span>
-                                    </app-button>
-                                    <!--<button (click)="toggleDeleteBill(bill);$event.stopPropagation();" type="button" class="text-white bg-red-800 hover:bg-red-900 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-full text-sm p-1 lg:p-2.5 text-center inline-flex items-center me-2">
-                                        <svg class="w-[18px] h-[18px] text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                            <path fill-rule="evenodd" d="M8.586 2.586A2 2 0 0 1 10 2h4a2 2 0 0 1 2 2v2h3a1 1 0 1 1 0 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V8a1 1 0 0 1 0-2h3V4a2 2 0 0 1 .586-1.414ZM10 6h4V4h-4v2Zm1 4a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Zm4 0a1 1 0 1 0-2 0v8a1 1 0 1 0 2 0v-8Z" clip-rule="evenodd"/>
-                                            </svg>
-                                    </button>-->
-                                </td>
-                            }
-                        </tr>
-                    } @empty {
-                        <div class="flex justify-center w-full m-4">
-                            <div class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50" role="alert">
-                              <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-                              </svg>
-                              <div>
-                                  {{ 'BILLING._no_billing' | translate }}
-                              </div>
-                            </div>
-                        </div>                          
-                    }
-                </tbody>
-            </table>
+        <div class="m-4">
+            @if (billing_accounts.length === 0) {
+                <div class="flex justify-center w-full">
+                    <div class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50" role="alert">
+                      <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                      </svg>
+                      <div>
+                          {{ 'BILLING._no_billing' | translate }}
+                      </div>
+                    </div>
+                </div>
+            } @else {
+                <app-table-input [columns]="billingColumns" [items]="billing_accounts" [selectable]="false"
+                    [clickable]="true" (rowClick)="selectBill($event)" />
+            }
         </div>
         @if(!isReadOnly){
             <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'BILLING._add' | translate }}</h2>
