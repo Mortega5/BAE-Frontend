@@ -8,12 +8,13 @@ import { LocalStorageService } from "src/app/services/local-storage.service";
 import { RevenueSharingService } from 'src/app/services/revenue-sharing.service';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { RevenueReportComponent } from 'src/app/shared/revenue-report/revenue-report.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 
 @Component({
   selector: 'provider-revenue-sharing',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule, RevenueReportComponent,
-    LoadingSpinnerComponent
+    LoadingSpinnerComponent, ContentCardComponent
   ],
   templateUrl: './provider-revenue-sharing.component.html',
   styleUrl: './provider-revenue-sharing.component.css'
