@@ -1,34 +1,17 @@
-import {
-  Component,
-  OnInit,
-  ChangeDetectorRef,
-  ElementRef,
-  ViewChild,
-  AfterViewInit,
-  HostListener,
-  Input,
-  OnDestroy
-} from '@angular/core';
-import {FormGroup, FormControl, Validators, ReactiveFormsModule} from '@angular/forms';
-import {AccountServiceService} from 'src/app/services/account-service.service';
-import {LocalStorageService} from "../../services/local-storage.service";
-import {Router} from '@angular/router';
-import {components} from "../../models/product-catalog";
-
-type ProductOffering = components["schemas"]["ProductOffering"];
-import {phoneNumbers, countries, euCountries} from '../../models/country.const'
-import {initFlowbite} from 'flowbite';
+import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { Validators } from '@angular/forms';
+import { parsePhoneNumber } from 'libphonenumber-js/max';
 import moment from 'moment';
-import {LoginInfo, billingAccountCart} from 'src/app/models/interfaces';
-import {EventMessageService} from "../../services/event-message.service";
-import {getCountries, getCountryCallingCode, CountryCode} from 'libphonenumber-js'
-import {parsePhoneNumber} from 'libphonenumber-js/max'
-import {TranslateModule} from "@ngx-translate/core";
-import { getLocaleId } from '@angular/common';
-import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { LoginInfo, billingAccountCart } from 'src/app/models/interfaces';
+import { AccountServiceService } from 'src/app/services/account-service.service';
+import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { environment } from 'src/environments/environment';
+import { euCountries } from '../../models/country.const';
+import { EventMessageService } from "../../services/event-message.service";
+import { LocalStorageService } from "../../services/local-storage.service";
 
 @Component({
   selector: 'app-billing-account-form',
@@ -39,27 +22,40 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
 
   @Input() billAcc: billingAccountCart | undefined;
   @Input() preferred: boolean | undefined;
+  /** Hide the built-in submit button when the caller drives create/update from its own
+   * modal footer (e.g. billing-info's app-card footer) via a template reference instead. */
+  @Input() showActions: boolean = true;
 
-  billingForm = new FormGroup({
-    name: new FormControl('', [Validators.required, Validators.maxLength(250)]),
-    email: new FormControl('', [Validators.required, Validators.email, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'), Validators.maxLength(320)]),
-    country: new FormControl('AT', [Validators.required, Validators.maxLength(250)]),
-    city: new FormControl('', [Validators.required, Validators.maxLength(250)]),
-    stateOrProvince: new FormControl('', [Validators.required, Validators.maxLength(250)]),
-    postCode: new FormControl('', [Validators.required, Validators.maxLength(250)]),
-    street: new FormControl('', [Validators.required, Validators.maxLength(1000)]),
-    telephoneNumber: new FormControl('', [Validators.required, Validators.min(0)]),
-    telephoneType: new FormControl('Mobile')
-  });
-  prefixes: any[] = [...phoneNumbers].sort((a, b) => this.getCountryName(a.text).localeCompare(this.getCountryName(b.text)));
-  countries: any[] = countries;
-  phonePrefix: any = phoneNumbers[0];
-  @ViewChild('prefixList') prefixListRef!: ElementRef;
-  prefixCheck: boolean = false;
+  readonly billingFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'BILLING._title', required: true, colSpan: 2, dataCy: 'billingTitle', validators: [Validators.maxLength(250)] },
+    { type: 'string', name: 'city', label: 'BILLING._city', required: true, dataCy: 'billingCity', validators: [Validators.maxLength(250)], colSpan: 1, },
+    { type: 'string', name: 'stateOrProvince', label: 'BILLING._state', required: true, dataCy: 'billingState', validators: [Validators.maxLength(250)], colSpan: 1, },
+    {
+      type: 'select', name: 'country', label: 'BILLING._country', required: true, defaultValue: 'AT', dataCy: 'billingCountry', colSpan: 1,
+      options: euCountries.map(country => ({ value: country.code, label: country.name })),
+    },
+    { type: 'string', name: 'postCode', label: 'BILLING._post_code', required: true, dataCy: 'billingZip', validators: [Validators.maxLength(250)], colSpan: 1, },
+    { type: 'textarea', name: 'street', label: 'BILLING._street', required: true, colSpan: 2, rows: 4, dataCy: 'billingAddress', validators: [Validators.maxLength(1000)] },
+    {
+      type: 'string', name: 'email', label: 'BILLING._email', required: true, colSpan: 2, dataCy: 'billingEmail',
+      validators: [Validators.email, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'), Validators.maxLength(320)],
+    },
+    {
+      type: 'select', name: 'telephoneType', label: 'BILLING._phone_type', defaultValue: 'Mobile',
+      options: [
+        { value: 'Mobile', label: 'Mobile' }, { value: 'Landline', label: 'Landline' }, { value: 'Office', label: 'Office' },
+        { value: 'Home', label: 'Home' }, { value: 'Other', label: 'Other' },
+      ],
+      colSpan: 1
+    },
+    { type: 'phoneNumber', name: 'telephoneNumber', label: 'BILLING._phone', required: true, dataCy: 'billingPhone', colSpan: 1 },
+  ];
+  billingForm = buildFormGroup(this.billingFields);
+
   toastVisibility: boolean = false;
 
   partyId: any;
-  partyInfo:any = {
+  partyInfo: any = {
     id: '',
     name: '',
     href: ''
@@ -67,75 +63,57 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
   loading: boolean = false;
   is_create: boolean = false;
 
-  errorMessage:any='';
-  showError:boolean=false;
-
-  selectedCountry: string = ''; // Stores the selected country code
-
-  readonly euCountries = euCountries;
+  errorMessage: any = '';
+  showError: boolean = false;
 
   private destroy$ = new Subject<void>();
 
   constructor(
     private localStorage: LocalStorageService,
     private cdr: ChangeDetectorRef,
-    private router: Router,
     private accountService: AccountServiceService,
     private eventMessage: EventMessageService
   ) {
-    getLocaleId;
     this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'ChangedSession') {
-        this.initUserData();
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'ChangedSession') {
+          this.initUserData();
+        }
+      })
   }
-
 
   ngOnInit() {
-    if (this.billAcc != undefined) {
-      this.is_create = false;
-    } else {
-      this.is_create = true;
-    }
+    this.is_create = this.billAcc == undefined;
     this.initUserData();
-    if (this.is_create == false) {
+    if (!this.is_create) {
       this.setDefaultValues();
-    } else {
-      this.detectCountry();
     }
-
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  initUserData(){
+  initUserData() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
     if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
-      if(aux.logged_as==aux.id){
+      if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
-        console.log('init party info')
-        console.log(aux)
         this.partyInfo = {
           id: this.partyId,
           name: aux.user,
-          href : this.partyId,
+          href: this.partyId,
           role: environment.SELLER_ROLE
         }
       } else {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
         this.partyId = loggedOrg.partyId;
-        console.log('loggedOrg info')
-        console.log(loggedOrg)
         this.partyInfo = {
           id: this.partyId,
           name: loggedOrg.name,
-          href : this.partyId,
+          href: this.partyId,
           role: environment.SELLER_ROLE
         }
       }
@@ -144,15 +122,6 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
 
   setDefaultValues() {
     if (this.billAcc != undefined) {
-      const phoneNumber = parsePhoneNumber(this.billAcc.telephoneNumber)
-      if (phoneNumber) {
-        let pref = this.prefixes.filter(item => item.code === '+' + phoneNumber.countryCallingCode);
-        if (pref.length > 0) {
-          this.phonePrefix = pref[0];
-        }
-        this.billingForm.controls['telephoneNumber'].setValue(phoneNumber.nationalNumber);
-      }
-      //Get old bilAcc values
       this.billingForm.controls['name'].setValue(this.billAcc.name);
       this.billingForm.controls['email'].setValue(this.billAcc.email);
       this.billingForm.controls['country'].setValue(this.billAcc.postalAddress.country);
@@ -161,6 +130,8 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
       this.billingForm.controls['street'].setValue(this.billAcc.postalAddress.street);
       this.billingForm.controls['postCode'].setValue(this.billAcc.postalAddress.postCode);
       this.billingForm.controls['telephoneType'].setValue(this.billAcc.telephoneType);
+      // The prefix/national-number split is handled internally by app-phone-number-input's writeValue.
+      this.billingForm.controls['telephoneNumber'].setValue(this.billAcc.telephoneNumber);
     }
     this.cdr.detectChanges()
   }
@@ -169,8 +140,7 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
     this.billingForm.reset({
       telephoneType: 'Mobile'
     });
-    
-  
+
     Object.values(this.billingForm.controls).forEach(control => {
       control.setErrors(null); // clear errors
       control.markAsPristine();
@@ -179,34 +149,31 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  createBilling() {
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-
-    try{
-        const phoneNumber = parsePhoneNumber(this.phonePrefix.code + this.billingForm.value.telephoneNumber);
-        if (phoneNumber) {
-        if (!phoneNumber.isValid()) {
-            console.log('NUMERO INVALIDO')
-            this.billingForm.controls['telephoneNumber'].setErrors({'invalidPhoneNumber': true});
-            this.toastVisibility = true;
-            setTimeout(() => {
-            this.toastVisibility = false
-            }, 2000);
-            return;
-        } else {
-            this.billingForm.controls['telephoneNumber'].setErrors(null);
-            this.toastVisibility = false;
-        }
-        }
-    }
-    catch (error){
-        this.billingForm.controls['telephoneNumber'].setErrors({'invalidPhoneNumber': true});
+  private checkPhoneNumber(): boolean {
+    try {
+      const phoneNumber = parsePhoneNumber(this.billingForm.value.telephoneNumber);
+      if (phoneNumber && !phoneNumber.isValid()) {
+        this.billingForm.controls['telephoneNumber'].setErrors({ 'invalidPhoneNumber': true });
         this.toastVisibility = true;
         setTimeout(() => {
-        this.toastVisibility = false
+          this.toastVisibility = false
         }, 2000);
-        return;
+        return false;
+      }
+      this.billingForm.controls['telephoneNumber'].setErrors(null);
+      return true;
+    } catch (error) {
+      this.billingForm.controls['telephoneNumber'].setErrors({ 'invalidPhoneNumber': true });
+      this.toastVisibility = true;
+      setTimeout(() => {
+        this.toastVisibility = false
+      }, 2000);
+      return false;
     }
+  }
+
+  createBilling() {
+    if (!this.checkPhoneNumber()) return;
 
     if (this.billingForm.invalid) {
       this.toastVisibility = true;
@@ -245,7 +212,7 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
               preferred: this.preferred,
               characteristic: {
                 contactType: this.billingForm.value.telephoneType,
-                phoneNumber: this.phonePrefix.code + this.billingForm.value.telephoneNumber
+                phoneNumber: this.billingForm.value.telephoneNumber
               }
             }
           ]
@@ -262,13 +229,12 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
         error: error => {
           this.loading = false;
           console.error('There was an error while creating!', error);
-          if(error.error.error){
-            console.log(error)
-            this.errorMessage='Error: '+error.error.error;
+          if (error.error.error) {
+            this.errorMessage = 'Error: ' + error.error.error;
           } else {
-            this.errorMessage='There was an error while creating billing account!';
+            this.errorMessage = 'There was an error while creating billing account!';
           }
-          this.showError=true;
+          this.showError = true;
           setTimeout(() => {
             this.showError = false;
           }, 3000);
@@ -278,38 +244,9 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
   }
 
   updateBilling() {
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    try{
-        const phoneNumber = parsePhoneNumber(this.phonePrefix.code + this.billingForm.value.telephoneNumber);
-        if (phoneNumber) {
-          if (!phoneNumber.isValid()) {
-            console.log('NUMERO INVALIDO')
-            this.billingForm.controls['telephoneNumber'].setErrors({'invalidPhoneNumber': true});
-            this.toastVisibility = true;
-            setTimeout(() => {
-              this.toastVisibility = false
-            }, 2000);
-            return;
-          } else {
-            this.billingForm.controls['telephoneNumber'].setErrors(null);
-            this.toastVisibility = false;
-          }
-        }
-    }catch (error){
-        this.billingForm.controls['telephoneNumber'].setErrors({'invalidPhoneNumber': true});
-        this.toastVisibility = true;
-        setTimeout(() => {
-            this.toastVisibility = false
-        }, 2000);
-        return;
-    }
-    if (this.billingForm.invalid) {
-      if (this.billingForm.get('email')?.invalid == true) {
-        this.billingForm.controls['email'].setErrors({'invalidEmail': true});
-      } else {
-        this.billingForm.controls['email'].setErrors(null);
-      }
+    if (!this.checkPhoneNumber()) return;
 
+    if (this.billingForm.invalid) {
       this.toastVisibility = true;
       setTimeout(() => {
         this.toastVisibility = false
@@ -346,7 +283,7 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
                 preferred: this.billAcc.selected,
                 characteristic: {
                   contactType: this.billingForm.value.telephoneType,
-                  phoneNumber: this.phonePrefix.code + this.billingForm.value.telephoneNumber
+                  phoneNumber: this.billingForm.value.telephoneNumber
                 }
               }
             ]
@@ -361,56 +298,17 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
           },
           error: error => {
             console.error('There was an error while updating!', error);
-            if(error.error.error){
-              console.log(error)
-              this.errorMessage='Error: '+error.error.error;
+            if (error.error.error) {
+              this.errorMessage = 'Error: ' + error.error.error;
             } else {
-              this.errorMessage='There was an error while updating billing account!';
+              this.errorMessage = 'There was an error while updating billing account!';
             }
-            this.showError=true;
+            this.showError = true;
             setTimeout(() => {
               this.showError = false;
             }, 3000);
           }
         });
-      }
-    }
-  }
-
-  getCountryName(text: string): string {
-    const match = text.match(/\+\d+\s+(.+)$/);
-    return match ? match[1] : text;
-  }
-
-  @HostListener('keydown', ['$event'])
-  onKeydown(event: KeyboardEvent) {
-    if (!this.prefixCheck) return;
-    const letter = event.key.toLowerCase();
-    if (!/^[a-z]$/.test(letter)) return;
-    const match = this.prefixes.find(p => this.getCountryName(p.text).toLowerCase().startsWith(letter));
-    if (!match || !this.prefixListRef) return;
-    const btn = this.prefixListRef.nativeElement.querySelector(`[data-country="${match.country}"]`);
-    if (btn) btn.scrollIntoView({ block: 'nearest' });
-  }
-
-  selectPrefix(pref:any) {
-    console.log(pref)
-    this.prefixCheck = false;
-    this.phonePrefix = pref;
-  }
-
-  detectCountry() {
-    const userLanguage = navigator.language;
-    // Extract the country code from the language setting
-    // Assuming the language setting is in the format 'en-US'
-    const countryCode = userLanguage.split('-')[1];
-    // Set detectedCountry based on the countryCode
-    let detectedCountry = countryCode.toUpperCase() as CountryCode;  
-    let code = getCountryCallingCode(detectedCountry);
-    if (code) {
-      let pref = this.prefixes.filter(item => item.code === '+' + code);
-      if (pref.length > 0) {
-        this.phonePrefix = pref[0];
       }
     }
   }

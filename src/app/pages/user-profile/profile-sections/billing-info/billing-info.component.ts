@@ -38,7 +38,7 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
   selectedBilling: any;
   billToDelete: any;
   billToUpdate: any;
-  editBill: boolean = false;
+  showBillingModal: boolean = false;
   deleteBill: boolean = false;
   showOrderDetails: boolean = false;
   orderToShow: any;
@@ -68,9 +68,7 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
       .subscribe(ev => {
         if (ev.type === 'BillAccChanged') {
           this.getBilling();
-        }
-        if (ev.value == false) {
-          this.editBill = false;
+          this.cancelBillingModal();
         }
         if (ev.type === 'ChangedSession') {
           this.initPartyInfo();
@@ -78,12 +76,13 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
       })
   }
 
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.showBillingModal) this.cancelBillingModal();
+  }
+
   @HostListener('document:click')
   onClick() {
-    if (this.editBill == true) {
-      this.editBill = false;
-      this.cdr.detectChanges();
-    }
     if (this.deleteBill == true) {
       this.deleteBill = false;
       this.cdr.detectChanges();
@@ -306,8 +305,18 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
 
   toggleEditBill(bill: billingAccountCart) {
     this.billToUpdate = bill;
-    this.editBill = true;
+    this.showBillingModal = true;
     this.cdr.detectChanges();
+  }
+
+  openAddBilling(): void {
+    this.billToUpdate = undefined;
+    this.showBillingModal = true;
+  }
+
+  cancelBillingModal(): void {
+    this.billToUpdate = undefined;
+    this.showBillingModal = false;
   }
 
   toggleDeleteBill(bill: billingAccountCart) {

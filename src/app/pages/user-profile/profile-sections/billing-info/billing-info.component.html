@@ -1,63 +1,62 @@
 @if (loading) {
     <app-loading-spinner containerClass="w-3/4 md:w-4/5 h-full flex justify-center align-middle" />
 } @else {
-    <app-card>
-        <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._mybills' | translate }}</h2>
+        <div class="flex items-center justify-between">
+            <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._mybills' | translate }}</h2>
+            @if (!isReadOnly && billing_accounts.length > 0) {
+            <app-button type="button" (click)="openAddBilling()" suffixIcon="plus" class="mr-4">
+                {{ 'BILLING._add' | translate }}
+            </app-button>
+            }
+        </div>
         <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
         <div class="m-4">
             @if (billing_accounts.length === 0) {
-                <div class="flex justify-center w-full">
-                    <div class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50" role="alert">
-                      <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-                      </svg>
-                      <div>
-                          {{ 'BILLING._no_billing' | translate }}
-                      </div>
-                    </div>
+            <div class="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center px-6 py-12 text-center">
+                <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 bg-[#DDE6F6] dark:bg-secondary-300">
+                    <svg class="w-10 h-10 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v.75c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875v-.75C22.5 3.839 21.66 3 20.625 3H3.375z"/>
+                        <path fill-rule="evenodd" clip-rule="evenodd" d="M3.087 9l.54 9.176A3 3 0 006.62 21h10.757a3 3 0 002.995-2.824L20.913 9H3.087zm6.133 2.845a.75.75 0 011.06 0l1.72 1.72 1.72-1.72a.75.75 0 111.06 1.06l-1.72 1.72 1.72 1.72a.75.75 0 11-1.06 1.06L12 15.685l-1.72 1.72a.75.75 0 11-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06z"/>
+                    </svg>
                 </div>
+                <p class="text-base font-semibold text-gray-900 dark:text-white mb-1">{{ 'BILLING._no_billing' | translate }}</p>
+                @if (!isReadOnly) {
+                <app-button type="button" (click)="openAddBilling()" variant="secondary" suffixIcon="plus" class="mt-4">
+                    {{ 'BILLING._add' | translate }}
+                </app-button>
+                }
+            </div>
             } @else {
                 <app-table-input [columns]="billingColumns" [items]="billing_accounts" [selectable]="false"
                     [clickable]="true" (rowClick)="selectBill($event)" />
             }
         </div>
-        @if(!isReadOnly){
-            <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'BILLING._add' | translate }}</h2>
-            <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
-            <app-billing-account-form [preferred]="preferred"></app-billing-account-form>
-        }
-    </app-card>
 }
 
-<!-- BILL ADDRESS EDIT modal -->
-@if (editBill){
-    <div id="edit-bill-modal"
-    [ngClass]="editBill ? 'backdrop-blur-sm' : ''"
-    tabindex="-1"
-    aria-hidden="true"
-    class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4">
-
-        <div class="w-full max-w-2xl relative bg-secondary-50 dark:bg-secondary-100 border border-secondary-50 dark:border-gray-800 rounded-lg shadow-xl bg-cover bg-right-bottom"
-            (click)="$event.stopPropagation();">
-
-            <!-- Modal header -->
-            <div class="flex items-center justify-between p-4 border-b dark:border-gray-600">
-                <h2 class="text-xl md:text-2xl lg:text-3xl font-bold text-primary-100 dark:text-white">
-                {{ 'BILLING._edit' | translate }}
-                </h2>
-                <app-button (click)="editBill=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark">
-                <span class="sr-only">{{ 'CARD._close' | translate }}</span>
-                </app-button>
-            </div>
-
-            <!-- Modal body -->
-            <div class="p-4 max-h-[80vh] overflow-y-auto">
-                <app-billing-account-form [billAcc]="billToUpdate"></app-billing-account-form>
-            </div>
-
+@if (showBillingModal) {
+<div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4" (click)="cancelBillingModal()">
+    <app-card variant="modal" class="w-full max-w-2xl max-h-[90vh]" (click)="$event.stopPropagation()">
+        <div appCardHeader class="flex items-center justify-between">
+            <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+                {{ (billToUpdate ? 'BILLING._edit' : 'BILLING._add') | translate }}
+            </h3>
+            <app-button type="button" (click)="cancelBillingModal()" variant="ghost" size="sm" prefixIcon="xmark" />
         </div>
-    </div>
 
+        <app-billing-account-form #billingAccountForm [billAcc]="billToUpdate" [preferred]="preferred" [showActions]="false"></app-billing-account-form>
+
+        <div appCardFooter class="flex gap-3">
+            <app-button type="button" (click)="cancelBillingModal()" variant="ghost" size="sm">
+                {{ 'BILLING._cancel' | translate }}
+            </app-button>
+            <app-button type="button"
+                (click)="billToUpdate ? billingAccountForm.updateBilling() : billingAccountForm.createBilling()"
+                [disabled]="!billingAccountForm.billingForm?.valid" suffixIcon="floppy-disk">
+                {{ (billToUpdate ? 'BILLING._update' : 'BILLING._add') | translate }}
+            </app-button>
+        </div>
+    </app-card>
+</div>
 }
 
 <!-- BILL ADDRESS DELETE modal -->

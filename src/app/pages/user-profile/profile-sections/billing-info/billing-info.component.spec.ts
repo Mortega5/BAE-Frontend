@@ -80,4 +80,58 @@ describe('BillingInfoComponent', () => {
 
     expect(component.selectBill).toHaveBeenCalledWith(sampleBill as any);
   });
+
+  it('openAddBilling should open the modal in add mode', () => {
+    component.billToUpdate = sampleBill as any;
+    component.showBillingModal = false;
+
+    component.openAddBilling();
+
+    expect(component.billToUpdate).toBeUndefined();
+    expect(component.showBillingModal).toBeTrue();
+  });
+
+  it('toggleEditBill should open the modal in edit mode with the given bill', () => {
+    component.toggleEditBill(sampleBill as any);
+
+    expect(component.billToUpdate).toEqual(sampleBill as any);
+    expect(component.showBillingModal).toBeTrue();
+  });
+
+  it('cancelBillingModal should close the modal and clear the selected bill', () => {
+    component.billToUpdate = sampleBill as any;
+    component.showBillingModal = true;
+
+    component.cancelBillingModal();
+
+    expect(component.billToUpdate).toBeUndefined();
+    expect(component.showBillingModal).toBeFalse();
+  });
+
+  it('Escape key should close the modal when it is open', () => {
+    component.showBillingModal = true;
+
+    component.onEscape();
+
+    expect(component.showBillingModal).toBeFalse();
+  });
+
+  it('Escape key should do nothing when the modal is already closed', () => {
+    component.showBillingModal = false;
+    component.billToUpdate = sampleBill as any;
+
+    component.onEscape();
+
+    expect(component.billToUpdate).toEqual(sampleBill as any);
+  });
+
+  it('should render the billing modal only when showBillingModal is true', () => {
+    component.showBillingModal = false;
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-billing-account-form')).toBeNull();
+
+    component.showBillingModal = true;
+    fixture.detectChanges();
+    expect(fixture.nativeElement.querySelector('app-billing-account-form')).toBeTruthy();
+  });
 });

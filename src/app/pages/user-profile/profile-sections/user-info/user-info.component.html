@@ -1,7 +1,6 @@
 @if (loading) {
 <app-loading-spinner containerClass="w-3/4 md:w-4/5 h-full flex justify-center align-middle" />
 } @else {
-<app-card>
   <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._account' |
     translate }}</h2>
   <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
@@ -19,7 +18,6 @@
       {{ 'PROFILE._update' | translate }}
     </app-button>
   </div>
-</app-card>
 }
 @if(showError){
 <error-message
