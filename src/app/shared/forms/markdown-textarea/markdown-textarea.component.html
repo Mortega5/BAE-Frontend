@@ -1,3 +1,13 @@
+@if (readonly) {
+<div class="w-full border border-gray-200 dark:border-secondary-200 rounded-lg bg-gray-100 dark:bg-gray-700">
+  <div class="px-4 py-2 rounded-lg">
+    <markdown [ngClass]="{
+        'break-all': hasLongWord(value, 20),
+        'break-words': !hasLongWord(value, 20)
+        }" class="text-gray-800 dark:text-gray-200 text-wrap break-words" [data]="value"></markdown>
+  </div>
+</div>
+} @else {
 <div class="w-full col-span-2 mb-4 border rounded-lg md-toolbar-surface">
   <div class="flex items-center justify-between px-3 py-2 border-b md-toolbar-divider">
     <div class="flex flex-wrap items-center divide-gray-200 sm:divide-x sm:rtl:divide-x-reverse">
@@ -137,3 +147,4 @@
 
   </div>
 </div>
+}

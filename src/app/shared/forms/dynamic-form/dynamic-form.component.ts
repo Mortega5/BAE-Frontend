@@ -80,4 +80,12 @@ export class DynamicFormComponent {
   attachmentMaxFileSize(field: FormField): number {
     return this.asAttachment(field).maxFileSize ?? environment.MAX_FILE_SIZE;
   }
+
+  /** i18n key for the inline error shown under a touched, invalid field — undefined to show nothing. */
+  fieldError(field: FormField): string | undefined {
+    const control = this.formGroup.get(field.name);
+    if (!control || !control.touched || !control.invalid) return undefined;
+    if (control.errors?.['required']) return 'FORMS._required';
+    return undefined;
+  }
 }

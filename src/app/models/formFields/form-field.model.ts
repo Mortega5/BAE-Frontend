@@ -33,6 +33,12 @@ export interface NumberFormField extends BaseFormField {
   placeholder?: string;
 }
 
+export interface DateFormField extends BaseFormField {
+  type: 'date';
+  min?: string;
+  max?: string;
+}
+
 export interface SelectOption {
   value: any;
   label: string;
@@ -176,4 +182,4 @@ export interface AttachmentFormField extends BaseFormField {
   selectLabel?: string;
 }
 
-export type FormField = StringFormField | NumberFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | PaginatedTableFormField | CodeFormField | AttachmentFormField;
+export type FormField = StringFormField | NumberFormField | DateFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | PaginatedTableFormField | CodeFormField | AttachmentFormField;

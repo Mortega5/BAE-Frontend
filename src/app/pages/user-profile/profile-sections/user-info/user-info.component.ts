@@ -3,13 +3,14 @@ import { LoginInfo } from 'src/app/models/interfaces';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import {LocalStorageService} from "src/app/services/local-storage.service";
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { phoneNumbers, countries } from 'src/app/models/country.const'
 import {EventMessageService} from "src/app/services/event-message.service";
-import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 
 @Component({
   selector: 'user-info',
@@ -23,20 +24,48 @@ export class UserInfoComponent implements OnInit, OnDestroy {
   partyId:any='';
   token:string='';
   email:string='';
-  userProfileForm = new FormGroup({
-    name: new FormControl('', [Validators.required]),
-    lastname: new FormControl('', [Validators.required]),
-    treatment: new FormControl(''),
-    maritalstatus: new FormControl(''),
-    gender: new FormControl(''),
-    nacionality: new FormControl(''),
-    birthdate: new FormControl(''),
-    city: new FormControl(''),
-    country: new FormControl(''),
-  });
+  countries: any[] = countries;
+
+  readonly profileFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'PROFILE._name', required: true },
+    { type: 'string', name: 'lastname', label: 'PROFILE._lastname', required: true },
+    { type: 'select', name: 'treatment', label: 'PROFILE._treatment', options: [
+      { value: '', label: "I'd rather not say" },
+      { value: 'Miss', label: 'Miss' },
+      { value: 'Mrs', label: 'Mrs' },
+      { value: 'Mr', label: 'Mr' },
+      { value: 'Ms', label: 'Ms' },
+    ] },
+    { type: 'select', name: 'maritalstatus', label: 'PROFILE._marital_status', options: [
+      { value: '', label: "I'd rather not say" },
+      { value: 'Divorced', label: 'Divorced' },
+      { value: 'Married', label: 'Married' },
+      { value: 'Separated', label: 'Separated' },
+      { value: 'Single', label: 'Single' },
+      { value: 'Widowed', label: 'Widowed' },
+    ] },
+    { type: 'select', name: 'gender', label: 'PROFILE._gender', options: [
+      { value: '', label: "I'd rather not say" },
+      { value: 'Female', label: 'Female' },
+      { value: 'Male', label: 'Male' },
+      { value: 'Other', label: 'Other' },
+    ] },
+    { type: 'string', name: 'nacionality', label: 'PROFILE._nacionality' },
+  ];
+
+  readonly birthdateFields: FormField[] = [
+    { type: 'date', name: 'birthdate', label: 'PROFILE._date' },
+    { type: 'string', name: 'city', label: 'PROFILE._city' },
+    { type: 'select', name: 'country', label: 'PROFILE._country', options: [
+      { value: '', label: 'Select country' },
+      ...countries.map(country => ({ value: country.code, label: country.name })),
+    ] },
+  ];
+
+  userProfileForm = buildFormGroup([...this.profileFields, ...this.birthdateFields]);
+
   dateRange = new FormControl();
   selectedDate:any;
-  countries: any[] = countries;
   preferred:boolean=false;
 
   errorMessage:any='';
@@ -90,7 +119,6 @@ export class UserInfoComponent implements OnInit, OnDestroy {
       //this.partyId = aux.partyId;
       this.getProfile();
     }
-    initFlowbite();
   }
 
   getProfile(){
@@ -102,7 +130,6 @@ export class UserInfoComponent implements OnInit, OnDestroy {
     })
 
     this.cdr.detectChanges();
-    initFlowbite();
   }
 
   updateProfile(){

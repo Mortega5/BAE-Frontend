@@ -2478,6 +2478,7 @@
     "_fail_order": "Order completely failed"
   },
   "FORMS": {
+    "_required": "This field is mandatory.",
     "PROCUREMENT_MODE": {
       "_title": "Select Procurement Mode",
       "_manual": "Manual",

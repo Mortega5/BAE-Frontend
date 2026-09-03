@@ -31,6 +31,10 @@ export class MarkdownTextareaComponent implements ControlValueAccessor {
   @Input() placeholder: string = 'Write your description here...';
   @Input() rows: number = 8;
   @Input() maxLength: number = 100000;
+  /** Renders a plain rendered-markdown preview box with no toolbar/textarea at all,
+   * instead of the usual editor dimmed via CSS — matches how org-info's profile
+   * description used to look for non-admin (read-only) org members. */
+  @Input() readonly = false;
   value: string = '';
   showPreview = false;
   showEmoji = false;

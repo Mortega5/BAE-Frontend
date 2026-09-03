@@ -17,6 +17,8 @@ import { NgxFileDropEntry, FileSystemFileEntry, FileSystemDirectoryEntry } from 
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 
 type OrganizationUpdate = components["schemas"]["Organization_Update"];
 
@@ -37,53 +39,6 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
   email:string='';
   selectedDate:any;
   isReadOnly:boolean=false;
-  profileForm = new FormGroup({
-    name: new FormControl('', [Validators.required]),
-    website: new FormControl(''),
-    description: new FormControl(''),
-    country: new FormControl('', [Validators.required]),
-    contractManagementAddress: new FormControl(''),
-    contractManagementClientId: new FormControl(''),
-    contractManagementScopes: new FormControl(''),
-  });
-  mediumForm = new FormGroup({
-    contactTitle: new FormControl('', [Validators.required, Validators.maxLength(250)]),
-    email: new FormControl('', [Validators.required, Validators.email, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'), Validators.maxLength(320)]),
-    country: new FormControl('', Validators.maxLength(250)),
-    city: new FormControl('', Validators.maxLength(250)),
-    stateOrProvince: new FormControl('', Validators.maxLength(250)),
-    postCode: new FormControl('', Validators.maxLength(250)),
-    street: new FormControl('', Validators.maxLength(1000)),
-    telephoneNumber: new FormControl(''),
-    telephoneType: new FormControl('Mobile')
-  });
-  contactmediums:any[]=[];
-  emailSelected:boolean=true;
-  addressSelected:boolean=false;
-  phoneSelected:boolean=false;
-  prefixes: any[] = phoneNumbers;
-  countries: any[] = countries;
-  phonePrefix: any = phoneNumbers[0];
-  prefixCheck: boolean = false;
-  showEditMedium: boolean = false;
-  selectedMedium:any;
-  selectedMediumType:any;
-  toastVisibility: boolean = false;
-  successVisibility: boolean = false;
-
-  errorMessage:any='';
-  showError:boolean=false;
-  showPreview:boolean=false;
-  showEmoji:boolean=false;
-  description:string='';
-  showImgPreview:boolean=false;
-  imgPreview:any='';
-  attFileName = new FormControl('', [Validators.required, Validators.pattern('[a-zA-Z0-9 _.-]*')]);
-  attImageName = new FormControl('', [Validators.required, Validators.pattern('^https?:\\/\\/.*\\.(?:png|jpg|jpeg|gif|bmp|webp)$')])
-  filenameRegex = /^[A-Za-z0-9_.-]+$/;
-  MAX_FILE_SIZE: number=environment.MAX_FILE_SIZE;
-
-  selectedCountry: string = ''; // Stores the selected country code
 
   euCountries = [
     { code: 'AT', name: 'Austria' },
@@ -115,6 +70,44 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     { code: 'SE', name: 'Sweden' }
   ];
 
+  orgFields: FormField[] = this.buildOrgFields();
+  profileForm = buildFormGroup(this.orgFields);
+  mediumForm = new FormGroup({
+    contactTitle: new FormControl('', [Validators.required, Validators.maxLength(250)]),
+    email: new FormControl('', [Validators.required, Validators.email, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'), Validators.maxLength(320)]),
+    country: new FormControl('', Validators.maxLength(250)),
+    city: new FormControl('', Validators.maxLength(250)),
+    stateOrProvince: new FormControl('', Validators.maxLength(250)),
+    postCode: new FormControl('', Validators.maxLength(250)),
+    street: new FormControl('', Validators.maxLength(1000)),
+    telephoneNumber: new FormControl(''),
+    telephoneType: new FormControl('Mobile')
+  });
+  contactmediums:any[]=[];
+  emailSelected:boolean=true;
+  addressSelected:boolean=false;
+  phoneSelected:boolean=false;
+  prefixes: any[] = phoneNumbers;
+  countries: any[] = countries;
+  phonePrefix: any = phoneNumbers[0];
+  prefixCheck: boolean = false;
+  showEditMedium: boolean = false;
+  selectedMedium:any;
+  selectedMediumType:any;
+  toastVisibility: boolean = false;
+  successVisibility: boolean = false;
+
+  errorMessage:any='';
+  showError:boolean=false;
+  showImgPreview:boolean=false;
+  imgPreview:any='';
+  attFileName = new FormControl('', [Validators.required, Validators.pattern('[a-zA-Z0-9 _.-]*')]);
+  attImageName = new FormControl('', [Validators.required, Validators.pattern('^https?:\\/\\/.*\\.(?:png|jpg|jpeg|gif|bmp|webp)$')])
+  filenameRegex = /^[A-Za-z0-9_.-]+$/;
+  MAX_FILE_SIZE: number=environment.MAX_FILE_SIZE;
+
+  selectedCountry: string = ''; // Stores the selected country code
+
   @ViewChild('imgURL') imgURL!: ElementRef;
 
   public files: NgxFileDropEntry[] = [];
@@ -143,9 +136,6 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     today.setMonth(today.getMonth()-1);
     this.selectedDate = today.toISOString();
     this.initPartyInfo();
-    if(this.isReadOnly && this.profileForm.value.description) {
-      this.description = this.profileForm.value.description;
-    }
     setTimeout(() => {
       initFlowbite();
     }, 500);
@@ -174,12 +164,34 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
         this.isReadOnly = false;
       }
 
+      this.orgFields = this.buildOrgFields();
       this.token=aux.token;
       this.email=aux.email;
       this.profileForm.reset();
       this.getProfile();
     }
     initFlowbite();
+  }
+
+  private buildOrgFields(): FormField[] {
+    return [
+      { type: 'string', name: 'name', label: 'PROFILE._name', required: true, readonly: this.isReadOnly },
+      { type: 'string', name: 'website', label: 'PROFILE._website', readonly: this.isReadOnly },
+      {
+        type: 'select', name: 'country', label: 'PROFILE._country', required: true, readonly: this.isReadOnly,
+        dataCy: 'orgCountry',
+        options: this.euCountries.map(country => ({ value: country.code, label: country.name })),
+      },
+      ...(this.isDataspaceEnabled ? [
+        { type: 'string', name: 'contractManagementAddress', label: 'Contract Management Address', readonly: this.isReadOnly, colSpan: 2 },
+        { type: 'string', name: 'contractManagementClientId', label: 'Contract Management Client ID', readonly: this.isReadOnly },
+        { type: 'string', name: 'contractManagementScopes', label: 'Contract Management Scopes', readonly: this.isReadOnly, placeholder: 'external-marketplace, another-scope' },
+      ] as FormField[] : []),
+      {
+        type: 'markdownTextarea', name: 'description', label: 'UPDATE_OFFER._description', readonly: this.isReadOnly,
+        colSpan: 2, placeholder: 'Add product description...', rows: 8,
+      },
+    ];
   }
 
   getProfile(){
@@ -348,7 +360,6 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
           this.showImgPreview=true;
         } else if(profile.partyCharacteristic[i].name=='description') {
           this.profileForm.controls['description'].setValue(profile.partyCharacteristic[i].value);
-          this.description=profile.partyCharacteristic[i].value;
         }else if(profile.partyCharacteristic[i].name=='website') {
           this.profileForm.controls['website'].setValue(profile.partyCharacteristic[i].value);
         } else if(profile.partyCharacteristic[i].name=='country') {
@@ -810,98 +821,10 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  removeImg(){    
+  removeImg(){
     this.showImgPreview=false;
     this.imgPreview='';
     this.cdr.detectChanges();
   }
-
-    //Markdown actions:
-    addBold() {
-      const currentText = this.profileForm.value.description;
-      this.profileForm.patchValue({
-        description: currentText + ' **bold text** '
-      });  
-    }
-  
-    addItalic() {
-      const currentText = this.profileForm.value.description;
-      this.profileForm.patchValue({
-        description: currentText + ' _italicized text_ '
-      });
-    }
-  
-    addList(){
-      const currentText = this.profileForm.value.description;
-      this.profileForm.patchValue({
-        description: currentText + '\n- First item\n- Second item'
-      });
-    }
-  
-    addOrderedList(){
-      const currentText = this.profileForm.value.description;
-      this.profileForm.patchValue({
-        description: currentText + '\n1. First item\n2. Second item'
-      });
-    }
-  
-    addCode(){
-      const currentText = this.profileForm.value.description;
-      this.profileForm.patchValue({
-        description: currentText + '\n`code`'
-      });
-    }
-  
-    addCodeBlock(){
-      const currentText = this.profileForm.value.description;
-      this.profileForm.patchValue({
-        description: currentText + '\n```\ncode\n```'
-      });
-    }
-  
-    addBlockquote(){
-      const currentText = this.profileForm.value.description;
-      this.profileForm.patchValue({
-        description: currentText + '\n> blockquote'
-      });   
-    }
-  
-    addLink(){
-      const currentText = this.profileForm.value.description;
-      this.profileForm.patchValue({
-        description: currentText + ' [title](https://www.example.com) '
-      }); 
-    } 
-  
-    addTable(){
-      const currentText = this.profileForm.value.description;
-      this.profileForm.patchValue({
-        description: currentText + '\n| Syntax | Description |\n| ----------- | ----------- |\n| Header | Title |\n| Paragraph | Text |'
-      });
-    }
-  
-    addEmoji(event:any){
-      this.showEmoji=false;
-      const currentText = this.profileForm.value.description;
-      this.profileForm.patchValue({
-        description: currentText + event.emoji.native
-      });
-    }
-  
-    togglePreview(){
-      if(this.profileForm.value.description){
-        this.description=this.profileForm.value.description;
-      } else {
-        this.description=''
-      }
-    }
-
-    hasLongWord(str: string | undefined, threshold = 20) {
-      if(str){
-        return str.split(/\s+/).some(word => word.length > threshold);
-      } else {
-        return false
-      }   
-    }
 
 }

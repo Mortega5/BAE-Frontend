@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormControl, FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { DynamicFormComponent } from './dynamic-form.component';
@@ -165,6 +165,46 @@ describe('DynamicFormComponent', () => {
     fixture.detectChanges();
     const asterisk = fixture.nativeElement.querySelector('span.text-red-500');
     expect(asterisk).toBeNull();
+  });
+
+  it('should render a date input for date fields', () => {
+    const fields: FormField[] = [{ name: 'birthdate', label: 'Birthdate', type: 'date', min: '1900-01-01', max: '2020-01-01' }];
+    component.fields = fields;
+    component.formGroup = buildForm(fields);
+    fixture.detectChanges();
+    const input = fixture.nativeElement.querySelector('input[type="date"]');
+    expect(input).toBeTruthy();
+    expect(input.id).toBe('birthdate');
+    expect(input.min).toBe('1900-01-01');
+    expect(input.max).toBe('2020-01-01');
+  });
+
+  // --- fieldError / inline required message ---
+
+  it('should show the required error message once the field is touched and empty', () => {
+    const fields: FormField[] = [{ name: 'name', label: 'Name', type: 'string', required: true }];
+    component.fields = fields;
+    component.formGroup = new FormGroup({ name: new FormControl('', Validators.required) });
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('p.text-red-600')).toBeNull();
+
+    component.formGroup.get('name')?.markAsTouched();
+    fixture.detectChanges();
+
+    const error = fixture.nativeElement.querySelector('p.text-red-600');
+    expect(error).toBeTruthy();
+    expect(error.textContent).toContain('FORMS._required');
+  });
+
+  it('should not show a required error message for a field with no errors', () => {
+    const fields: FormField[] = [{ name: 'name', label: 'Name', type: 'string', required: true }];
+    component.fields = fields;
+    component.formGroup = new FormGroup({ name: new FormControl('Ada', Validators.required) });
+    component.formGroup.get('name')?.markAsTouched();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('p.text-red-600')).toBeNull();
   });
 
   it('should render one block per field', () => {

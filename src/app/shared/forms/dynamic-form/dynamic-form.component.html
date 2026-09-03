@@ -28,6 +28,14 @@
       class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
     }
 
+    @if (field.type === 'date') {
+    <input [id]="field.name" [formControlName]="field.name" type="date" [attr.min]="$any(field).min ?? null"
+      [attr.max]="$any(field).max ?? null" [attr.readonly]="field.readonly || null"
+      [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly"
+      [class.cursor-not-allowed]="field.readonly" [attr.data-cy]="field.dataCy ?? field.name"
+      class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+    }
+
     @if (field.type === 'boolean') {
     <select [id]="field.name" [formControlName]="field.name" [class.pointer-events-none]="field.readonly"
       [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"
@@ -76,11 +84,10 @@
     }
 
     @if (field.type === 'markdownTextarea') {
-    <div [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly"
-      [class.cursor-not-allowed]="field.readonly" [attr.data-cy]="field.dataCy ?? field.name">
+    <div [attr.data-cy]="field.dataCy ?? field.name">
       <app-markdown-textarea [id]="field.name" [formControlName]="field.name"
         [placeholder]="$any(field).placeholder ?? 'Write your description here...'" [rows]="$any(field).rows ?? 8"
-        class="block w-full"></app-markdown-textarea>
+        [readonly]="field.readonly ?? false" class="block w-full"></app-markdown-textarea>
     </div>
     }
 
@@ -154,6 +161,10 @@
       [selectLabel]="asAttachment(field).selectLabel ?? 'FORMS.ATTACHMENT._select_label'"
       [dataCy]="field.dataCy ?? field.name" [files]="formGroup.get(field.name)?.value"
       (filesChange)="formGroup.get(field.name)?.setValue($event)" />
+    }
+
+    @if (fieldError(field); as errorKey) {
+    <p class="text-sm text-red-600 dark:text-red-500 mt-1"><span class="font-medium">{{ errorKey | translate }}</span></p>
     }
   </div>
   }

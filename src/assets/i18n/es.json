@@ -2478,6 +2478,7 @@
     "_fail_order": "Pedido fallido"
   },
   "FORMS": {
+    "_required": "Este campo es obligatorio.",
     "PROCUREMENT_MODE": {
       "_title": "Selecciona el modo de contratación",
       "_manual": "Manual",
