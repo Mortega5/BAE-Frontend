@@ -1,7 +1,7 @@
 @if (loading) {
     <app-loading-spinner containerClass="w-3/4 md:w-4/5 h-full flex justify-center align-middle" />
   } @else {
-    <div class="bg-secondary-50 dark:bg-secondary-100 border border-secondary-50 dark:border-gray-800 p-8 rounded-lg">
+    <app-card>
         <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._account' | translate }}</h2>
         <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
         <div class="m-4 grid grid-cols-2 gap-4">
@@ -97,7 +97,7 @@
                 {{ 'PROFILE._update' | translate }}
             </app-button>
         </div>
-    </div>
+    </app-card>
 }
 @if(showError){
     <error-message class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50" [message]="errorMessage"></error-message>
