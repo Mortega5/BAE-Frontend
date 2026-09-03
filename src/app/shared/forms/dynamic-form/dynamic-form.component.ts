@@ -8,6 +8,7 @@ import { environment } from 'src/environments/environment';
 import { AttachmentUploadComponent } from '../attachment-upload/attachment-upload.component';
 import { MarkdownTextareaComponent } from '../markdown-textarea/markdown-textarea.component';
 import { MultiValueInputComponent } from '../multi-value-input/multi-value-input.component';
+import { PhoneNumberInputComponent } from '../phone-number-input/phone-number-input.component';
 import { RangeValueInputComponent } from '../range-value-input/range-value-input.component';
 import { UnitValueInputComponent } from '../unit-value-input/unit-value-input.component';
 import { StatusFieldComponent } from '../../status-field/status-field.component';
@@ -21,7 +22,7 @@ import { SearchSelectComponent } from 'src/app/shared/search-select/search-selec
   selector: 'app-dynamic-form',
   templateUrl: './dynamic-form.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent, MultiValueInputComponent, UnitValueInputComponent, RangeValueInputComponent, TableInputComponent, PaginatedTableComponent, CodeEditorComponent, MultipleSelectComponent, SearchSelectComponent, AttachmentUploadComponent, FaIconComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent, MultiValueInputComponent, UnitValueInputComponent, RangeValueInputComponent, PhoneNumberInputComponent, TableInputComponent, PaginatedTableComponent, CodeEditorComponent, MultipleSelectComponent, SearchSelectComponent, AttachmentUploadComponent, FaIconComponent],
 })
 export class DynamicFormComponent {
   @Input() fields: FormField[] = [];

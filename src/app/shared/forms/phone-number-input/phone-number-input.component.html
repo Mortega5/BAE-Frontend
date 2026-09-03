@@ -1,0 +1,33 @@
+<div class="w-full">
+  <div class="relative flex items-center">
+    <button type="button" (click)="prefixMenuOpen = !prefixMenuOpen" [disabled]="isReadonly"
+      [class.opacity-60]="isReadonly" [class.cursor-not-allowed]="isReadonly"
+      class="mb-2 flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-gray-900 bg-gray-100 border border-gray-300 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white rounded-s-lg hover:bg-gray-200 dark:hover:bg-primary-200 focus:ring-4 focus:outline-none focus:ring-gray-100">
+      {{ prefix.flag }} {{ prefix.code }}
+      <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 10 6">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="m1 1 4 4 4-4" />
+      </svg>
+    </button>
+    @if (prefixMenuOpen) {
+    <div
+      class="absolute bottom-12 right-0 z-20 max-h-48 w-full bg-white divide-y divide-gray-100 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white rounded-lg shadow overflow-y-auto">
+      <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdown-phone-button">
+        <li>
+          @for (pref of prefixes; track pref.code) {
+          <button type="button" (click)="selectPrefix(pref)"
+            class="inline-flex w-full px-4 py-2 text-sm text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-secondary-200"
+            role="menuitem">
+            <div class="inline-flex items-center">{{ pref.text }}</div>
+          </button>
+          }
+        </li>
+      </ul>
+    </div>
+    }
+    <input min="0" type="number" [value]="nationalNumber" (input)="onNumberInput($any($event.target).value)"
+      [disabled]="isReadonly" [class.opacity-60]="isReadonly" [class.cursor-not-allowed]="isReadonly"
+      class="mb-2 bg-gray-50 border text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-secondary-300 dark:text-white">
+  </div>
+</div>

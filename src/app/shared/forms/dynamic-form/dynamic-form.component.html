@@ -36,6 +36,11 @@
       class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
     }
 
+    @if (field.type === 'phoneNumber') {
+    <app-phone-number-input [formControlName]="field.name" [isReadonly]="field.readonly ?? false"
+      [attr.data-cy]="field.dataCy ?? field.name" />
+    }
+
     @if (field.type === 'boolean') {
     <select [id]="field.name" [formControlName]="field.name" [class.pointer-events-none]="field.readonly"
       [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"

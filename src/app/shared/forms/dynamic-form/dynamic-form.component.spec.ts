@@ -179,6 +179,16 @@ describe('DynamicFormComponent', () => {
     expect(input.max).toBe('2020-01-01');
   });
 
+  it('should render an app-phone-number-input for phoneNumber fields', () => {
+    const fields: FormField[] = [{ name: 'phone', label: 'Phone', type: 'phoneNumber', dataCy: 'phoneField' }];
+    component.fields = fields;
+    component.formGroup = buildForm(fields);
+    fixture.detectChanges();
+    const widget = fixture.nativeElement.querySelector('app-phone-number-input');
+    expect(widget).toBeTruthy();
+    expect(widget.getAttribute('data-cy')).toBe('phoneField');
+  });
+
   // --- fieldError / inline required message ---
 
   it('should show the required error message once the field is touched and empty', () => {

@@ -39,6 +39,13 @@ export interface DateFormField extends BaseFormField {
   max?: string;
 }
 
+/** A prefix-dropdown (country calling code) + national-number input, combined into a
+ * single dialable string value (e.g. "+34612345678") — same shape callers used to build
+ * by hand as `phonePrefix.code + telephoneNumber`. */
+export interface PhoneNumberFormField extends BaseFormField {
+  type: 'phoneNumber';
+}
+
 export interface SelectOption {
   value: any;
   label: string;
@@ -182,4 +189,4 @@ export interface AttachmentFormField extends BaseFormField {
   selectLabel?: string;
 }
 
-export type FormField = StringFormField | NumberFormField | DateFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | PaginatedTableFormField | CodeFormField | AttachmentFormField;
+export type FormField = StringFormField | NumberFormField | DateFormField | PhoneNumberFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | PaginatedTableFormField | CodeFormField | AttachmentFormField;
