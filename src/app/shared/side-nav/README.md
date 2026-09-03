@@ -50,13 +50,24 @@ the array (e.g. `catalogManagementEnabled ? [...] : []`).
 ## Usage
 
 ```html
-<app-side-nav [sections]="navSections" title="NS._my_offerings" mobileLabel="NS._offerings">
+<app-side-nav [sections]="navSections" [title]="'NS._my_offerings'" mobileLabel="NS._offerings">
   <router-outlet></router-outlet>
   <div sideNavFooter>
     <!-- optional: rendered at the bottom of the desktop sidebar only -->
   </div>
 </app-side-nav>
 ```
+
+**Always bind `title` with brackets (`[title]="'NS._key'"`), never as a plain
+attribute (`title="NS._key"`).** `title` is a native, global HTML attribute —
+Angular feeds a plain (unbracketed) attribute to a matching `@Input` *without*
+removing it from the DOM, so `title="NS._my_offerings"` also leaves a literal
+`title="NS._my_offerings"` attribute on the host element, which the browser
+then shows as its native hover tooltip over the *entire* side-nav (sidebar +
+projected content) — the raw, untranslated i18n key, on hover, seemingly at
+random depending on where the cursor lands. `mobileLabel` doesn't have this
+problem (it isn't a native HTML attribute name), so it's fine as a plain
+attribute.
 
 `title` is an optional i18n key shown above the desktop list and inside the
 mobile drawer's header — omit for no heading. `mobileLabel` is an optional

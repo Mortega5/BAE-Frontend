@@ -3,7 +3,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, Validators } from '@angular/forms';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 
 import { OrgInfoComponent } from './org-info.component';
@@ -30,9 +30,7 @@ describe('OrgInfoComponent', () => {
   });
 
   it('should require a title before saving a contact medium', () => {
-    component.emailSelected = true;
-    component.addressSelected = false;
-    component.phoneSelected = false;
+    component.mediumForm.get('type')?.setValue('email');
     component.mediumForm.patchValue({
       email: 'support@example.com'
     });
@@ -44,9 +42,7 @@ describe('OrgInfoComponent', () => {
   });
 
   it('should save the contact medium title as contactType', () => {
-    component.emailSelected = true;
-    component.addressSelected = false;
-    component.phoneSelected = false;
+    component.mediumForm.get('type')?.setValue('email');
     component.mediumForm.patchValue({
       contactTitle: 'Support',
       email: 'support@example.com'
@@ -135,6 +131,43 @@ describe('OrgInfoComponent', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
 
     expect(component.showMediumModal).toBeFalse();
+  });
+
+  it('should swap mediumBodyFields and required validators when the type changes', () => {
+    component.openAddMedium();
+    expect(component.emailSelected).toBeTrue();
+    expect(component.mediumBodyFields.map(f => f.name)).toEqual(['email']);
+
+    component.mediumForm.get('type')?.setValue('address');
+    expect(component.addressSelected).toBeTrue();
+    expect(component.mediumBodyFields.map(f => f.name)).toEqual(['country', 'city', 'stateOrProvince', 'postCode', 'street']);
+    expect(component.mediumForm.get('email')?.validator).toBeNull();
+    expect(component.mediumForm.get('country')?.hasValidator(Validators.required)).toBeTrue();
+
+    component.mediumForm.get('type')?.setValue('phone');
+    expect(component.phoneSelected).toBeTrue();
+    expect(component.mediumBodyFields.map(f => f.name)).toEqual(['telephoneNumber']);
+    expect(component.mediumForm.get('country')?.validator).toBeNull();
+    expect(component.mediumForm.get('telephoneNumber')?.hasValidator(Validators.required)).toBeTrue();
+  });
+
+  it('should hide the type selector from mediumHeaderFields while editing', () => {
+    expect(component.mediumHeaderFields.some(f => f.name === 'type')).toBeTrue();
+
+    component.showEdit({ id: 'x', mediumType: 'Email', characteristic: { contactType: 'Support', emailAddress: 'a@b.com' } });
+
+    expect(component.mediumHeaderFields.some(f => f.name === 'type')).toBeFalse();
+  });
+
+  it('showEdit should set the full phone number directly on telephoneNumber, without splitting a prefix', () => {
+    const medium = {
+      id: 'phone-1', mediumType: 'TelephoneNumber', preferred: false,
+      characteristic: { contactType: 'Support', phoneNumber: '+34612345678' },
+    };
+    component.showEdit(medium);
+
+    expect(component.phoneSelected).toBeTrue();
+    expect(component.mediumForm.get('telephoneNumber')?.value).toBe('+34612345678');
   });
 
   it('should not repeat the phone title in the info column', () => {

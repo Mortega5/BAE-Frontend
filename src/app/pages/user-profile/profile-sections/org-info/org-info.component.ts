@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, ValidatorFn, Validators } from '@angular/forms';
 import { faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { initFlowbite } from 'flowbite';
 import { parsePhoneNumber } from 'libphonenumber-js/max';
@@ -7,8 +7,8 @@ import moment from 'moment';
 import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { countries, phoneNumbers } from 'src/app/models/country.const';
-import { FormField } from 'src/app/models/formFields/form-field.model';
+import { countries, euCountries } from 'src/app/models/country.const';
+import { FormField, SelectOption } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { TableColumn } from 'src/app/models/table-column.model';
 import { AccountServiceService } from 'src/app/services/account-service.service';
@@ -46,58 +46,30 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
   selectedDate: any;
   isReadOnly: boolean = false;
 
-  euCountries = [
-    { code: 'AT', name: 'Austria' },
-    { code: 'BE', name: 'Belgium' },
-    { code: 'BG', name: 'Bulgaria' },
-    { code: 'HR', name: 'Croatia' },
-    { code: 'CY', name: 'Cyprus' },
-    { code: 'CZ', name: 'Czech Republic' },
-    { code: 'DK', name: 'Denmark' },
-    { code: 'EE', name: 'Estonia' },
-    { code: 'FI', name: 'Finland' },
-    { code: 'FR', name: 'France' },
-    { code: 'DE', name: 'Germany' },
-    { code: 'GR', name: 'Greece' },
-    { code: 'HU', name: 'Hungary' },
-    { code: 'IE', name: 'Ireland' },
-    { code: 'IT', name: 'Italy' },
-    { code: 'LV', name: 'Latvia' },
-    { code: 'LT', name: 'Lithuania' },
-    { code: 'LU', name: 'Luxembourg' },
-    { code: 'MT', name: 'Malta' },
-    { code: 'NL', name: 'Netherlands' },
-    { code: 'PL', name: 'Poland' },
-    { code: 'PT', name: 'Portugal' },
-    { code: 'RO', name: 'Romania' },
-    { code: 'SK', name: 'Slovakia' },
-    { code: 'SI', name: 'Slovenia' },
-    { code: 'ES', name: 'Spain' },
-    { code: 'SE', name: 'Sweden' }
-  ];
-
   orgFields: FormField[] = this.buildOrgFields();
   profileForm = buildFormGroup(this.orgFields);
-  mediumForm = new FormGroup({
-    contactTitle: new FormControl('', [Validators.required, Validators.maxLength(250)]),
-    email: new FormControl('', [Validators.required, Validators.email, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'), Validators.maxLength(320)]),
-    country: new FormControl('', Validators.maxLength(250)),
-    city: new FormControl('', Validators.maxLength(250)),
-    stateOrProvince: new FormControl('', Validators.maxLength(250)),
-    postCode: new FormControl('', Validators.maxLength(250)),
-    street: new FormControl('', Validators.maxLength(1000)),
-    telephoneNumber: new FormControl(''),
-    telephoneType: new FormControl('Mobile')
-  });
+
+  private readonly mediumTypeOptions: SelectOption[] = [
+    { value: 'email', label: 'Email' },
+    { value: 'address', label: 'Postal Address' },
+    { value: 'phone', label: 'Phone Number' },
+  ];
+
+  mediumForm = buildFormGroup([
+    { type: 'string', name: 'contactTitle', label: 'PROFILE._contact_title', required: true, colSpan: 2, validators: [Validators.maxLength(250)] },
+    { type: 'select', name: 'type', label: 'PROFILE._medium_type', colSpan: 2, defaultValue: 'email', options: this.mediumTypeOptions },
+    { type: 'string', name: 'email', label: 'PROFILE._email', colSpan: 2 },
+    { type: 'string', name: 'country', label: 'PROFILE._country' },
+    { type: 'string', name: 'city', label: 'PROFILE._city' },
+    { type: 'string', name: 'stateOrProvince', label: 'PROFILE._state' },
+    { type: 'string', name: 'postCode', label: 'PROFILE._post_code' },
+    { type: 'textarea', name: 'street', label: 'PROFILE._street', colSpan: 2, rows: 4 },
+    { type: 'phoneNumber', name: 'telephoneNumber', label: 'PROFILE._phone', colSpan: 2 },
+  ]);
+
   contactmediums: any[] = [];
   contactMediumColumns: TableColumn[] = this.buildContactMediumColumns();
-  emailSelected: boolean = true;
-  addressSelected: boolean = false;
-  phoneSelected: boolean = false;
-  prefixes: any[] = phoneNumbers;
   countries: any[] = countries;
-  phonePrefix: any = phoneNumbers[0];
-  prefixCheck: boolean = false;
   showMediumModal: boolean = false;
   selectedMedium: any;
   toastVisibility: boolean = false;
@@ -134,9 +106,17 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
           this.initPartyInfo();
         }
       })
+
+    this.mediumForm.get('type')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(type => this.applyMediumTypeValidators(type));
   }
 
   ngOnInit() {
+    // Deferred from the constructor: applyMediumTypeValidators() calls cdr.detectChanges(),
+    // which throws before the view exists (constructors run pre-view-init).
+    this.applyMediumTypeValidators(this.mediumForm.value.type);
+
     this.loading = true;
     let today = new Date();
     today.setMonth(today.getMonth() - 1);
@@ -187,7 +167,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
       {
         type: 'select', name: 'country', label: 'PROFILE._country', required: true, readonly: this.isReadOnly,
         dataCy: 'orgCountry',
-        options: this.euCountries.map(country => ({ value: country.code, label: country.name })),
+        options: euCountries.map(country => ({ value: country.code, label: country.name })),
       },
       ...(this.isDataspaceEnabled ? [
         { type: 'string', name: 'contractManagementAddress', label: 'Contract Management Address', readonly: this.isReadOnly, colSpan: 2 },
@@ -456,7 +436,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
   saveMedium(): boolean {
     if (this.phoneSelected) {
       try {
-        const phoneNumber = parsePhoneNumber(this.phonePrefix.code + this.mediumForm.value.telephoneNumber);
+        const phoneNumber = parsePhoneNumber(this.mediumForm.value.telephoneNumber);
         if (phoneNumber) {
           if (!phoneNumber.isValid()) {
             this.mediumForm.controls['telephoneNumber'].setErrors({ 'invalidPhoneNumber': true });
@@ -518,7 +498,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
           preferred: false,
           characteristic: {
             contactType: this.getContactTitle('Phone'),
-            phoneNumber: this.phonePrefix.code + this.mediumForm.value.telephoneNumber
+            phoneNumber: this.mediumForm.value.telephoneNumber
           }
         })
       }
@@ -590,7 +570,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
         }
       } else {
         try {
-          const phoneNumber = parsePhoneNumber(this.phonePrefix.code + this.mediumForm.value.telephoneNumber);
+          const phoneNumber = parsePhoneNumber(this.mediumForm.value.telephoneNumber);
           if (phoneNumber) {
             if (!phoneNumber.isValid()) {
               this.mediumForm.controls['telephoneNumber'].setErrors({ 'invalidPhoneNumber': true });
@@ -619,7 +599,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
           preferred: this.contactmediums[index].preferred,
           characteristic: {
             contactType: this.getContactTitle('Phone'),
-            phoneNumber: this.phonePrefix.code + this.mediumForm.value.telephoneNumber
+            phoneNumber: this.mediumForm.value.telephoneNumber
           }
         }
       }
@@ -633,26 +613,19 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     this.selectedMedium = medium;
     this.mediumForm.controls['contactTitle'].setValue(this.getMediumContactType(this.selectedMedium));
     if (this.selectedMedium.mediumType == 'Email') {
-      this.emailSelected = true; this.addressSelected = false; this.phoneSelected = false;
+      this.mediumForm.get('type')?.setValue('email');
       this.mediumForm.controls['email'].setValue(this.selectedMedium.characteristic.emailAddress);
     } else if (this.selectedMedium.mediumType == 'PostalAddress') {
-      this.emailSelected = false; this.addressSelected = true; this.phoneSelected = false;
+      this.mediumForm.get('type')?.setValue('address');
       this.mediumForm.controls['country'].setValue(this.selectedMedium.characteristic.country);
       this.mediumForm.controls['city'].setValue(this.selectedMedium.characteristic.city);
       this.mediumForm.controls['stateOrProvince'].setValue(this.selectedMedium.characteristic.stateOrProvince);
       this.mediumForm.controls['postCode'].setValue(this.selectedMedium.characteristic.postCode);
       this.mediumForm.controls['street'].setValue(this.selectedMedium.characteristic.street1);
     } else {
-      this.emailSelected = false; this.addressSelected = false; this.phoneSelected = true;
-      const phoneNumber = parsePhoneNumber(this.selectedMedium.characteristic.phoneNumber)
-      if (phoneNumber) {
-        let pref = this.prefixes.filter(item => item.code === '+' + phoneNumber.countryCallingCode);
-        if (pref.length > 0) {
-          this.phonePrefix = pref[0];
-        }
-        this.mediumForm.controls['telephoneNumber'].setValue(phoneNumber.nationalNumber);
-      }
-      this.mediumForm.controls['telephoneType'].setValue(this.selectedMedium.characteristic.contactType);
+      this.mediumForm.get('type')?.setValue('phone');
+      // The prefix/national-number split is handled internally by app-phone-number-input's writeValue.
+      this.mediumForm.controls['telephoneNumber'].setValue(this.selectedMedium.characteristic.phoneNumber);
     }
     this.showMediumModal = true;
   }
@@ -660,7 +633,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
   openAddMedium(): void {
     this.selectedMedium = null;
     this.mediumForm.reset();
-    this.onTypeChange({ target: { value: 'email' } });
+    this.mediumForm.get('type')?.setValue('email');
     this.showMediumModal = true;
   }
 
@@ -678,82 +651,70 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     }
   }
 
-  selectPrefix(pref: any) {
-    this.prefixCheck = false;
-    this.phonePrefix = pref;
+  get emailSelected(): boolean {
+    return !this.addressSelected && !this.phoneSelected;
   }
 
-  onTypeChange(event: any) {
-    this.mediumForm.reset();
-    if (event.target.value == 'email') {
-      this.emailSelected = true;
-      this.addressSelected = false;
-      this.phoneSelected = false;
-      this.mediumForm.get('country')?.clearValidators();
-      this.mediumForm.get('country')?.setValue('');
-      this.mediumForm.get('city')?.clearValidators();
-      this.mediumForm.get('city')?.setValue('');
-      this.mediumForm.get('stateOrProvince')?.clearValidators();
-      this.mediumForm.get('stateOrProvince')?.setValue('');
-      this.mediumForm.get('postCode')?.clearValidators();
-      this.mediumForm.get('postCode')?.setValue('');
-      this.mediumForm.get('stateOrProvince')?.setValue('');
-      this.mediumForm.get('street')?.clearValidators();
-      this.mediumForm.get('street')?.setValue('');
-      this.mediumForm.get('telephoneNumber')?.clearValidators();
-      this.mediumForm.get('telephoneNumber')?.setValue('');
-      this.mediumForm.get('email')?.setValidators([Validators.required, Validators.email, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')]);
-      this.mediumForm.get('email')?.markAsUntouched();
-      this.mediumForm.get('email')?.setValue('');
-      this.cdr.detectChanges();
-    } else if (event.target.value == 'address') {
-      this.emailSelected = false;
-      this.addressSelected = true;
-      this.phoneSelected = false;
-      this.mediumForm.get('telephoneNumber')?.clearValidators();
-      this.mediumForm.get('telephoneNumber')?.setValue('');
-      this.mediumForm.get('email')?.clearValidators();
-      this.mediumForm.get('email')?.setValue('');
-      this.mediumForm.get('country')?.setValidators([Validators.required]);
-      this.mediumForm.get('country')?.markAsUntouched();
-      this.mediumForm.get('country')?.setValue('');
-      this.mediumForm.get('city')?.setValidators([Validators.required]);
-      this.mediumForm.get('city')?.markAsUntouched();
-      this.mediumForm.get('city')?.setValue('');
-      this.mediumForm.get('stateOrProvince')?.setValidators([Validators.required]);
-      this.mediumForm.get('stateOrProvince')?.markAsUntouched();
-      this.mediumForm.get('stateOrProvince')?.setValue('');
-      this.mediumForm.get('postCode')?.setValidators([Validators.required]);
-      this.mediumForm.get('postCode')?.markAsUntouched();
-      this.mediumForm.get('postCode')?.setValue('');
-      this.mediumForm.get('street')?.setValidators([Validators.required]);
-      this.mediumForm.get('street')?.markAsUntouched();
-      this.mediumForm.get('street')?.setValue('');
-      this.cdr.detectChanges();
-    } else {
-      this.emailSelected = false;
-      this.addressSelected = false;
-      this.phoneSelected = true;
-      this.mediumForm.get('country')?.clearValidators();
-      this.mediumForm.get('country')?.setValue('');
-      this.mediumForm.get('city')?.clearValidators();
-      this.mediumForm.get('city')?.setValue('');
-      this.mediumForm.get('stateOrProvince')?.clearValidators();
-      this.mediumForm.get('stateOrProvince')?.setValue('');
-      this.mediumForm.get('postCode')?.clearValidators();
-      this.mediumForm.get('postCode')?.setValue('');
-      this.mediumForm.get('street')?.clearValidators();
-      this.mediumForm.get('street')?.setValue('');
-      this.mediumForm.get('email')?.clearValidators();
-      this.mediumForm.get('email')?.setValue('');
-      this.mediumForm.get('telephoneNumber')?.setValidators([Validators.required]);
-      this.mediumForm.get('telephoneNumber')?.markAsUntouched();
-      this.mediumForm.get('telephoneNumber')?.setValue('');
-      this.cdr.detectChanges();
+  get addressSelected(): boolean {
+    return this.mediumForm.value.type === 'address';
+  }
+
+  get phoneSelected(): boolean {
+    return this.mediumForm.value.type === 'phone';
+  }
+
+  /** Header fields shown above the type-dependent body — the type selector itself
+   * is hidden while editing (an existing medium's type can't change). */
+  get mediumHeaderFields(): FormField[] {
+    return [
+      ...(!this.selectedMedium ? [{
+        type: 'select', name: 'type', label: 'PROFILE._medium_type', colSpan: 2, options: this.mediumTypeOptions,
+      } as FormField] : []),
+      { type: 'string', name: 'contactTitle', label: 'PROFILE._contact_title', required: true, colSpan: 2 },
+    ];
+  }
+
+  /** Swapped based on the type selector's current value — same array-swap pattern
+   * `package-deployment`/`resource-spec-form` already use for a type-dependent dynamic-form. */
+  get mediumBodyFields(): FormField[] {
+    if (this.addressSelected) {
+      return [
+        { type: 'string', name: 'country', label: 'PROFILE._country', required: true, dataCy: 'mediumCountry' },
+        { type: 'string', name: 'city', label: 'PROFILE._city', required: true },
+        { type: 'string', name: 'stateOrProvince', label: 'PROFILE._state', required: true },
+        { type: 'string', name: 'postCode', label: 'PROFILE._post_code', required: true },
+        { type: 'textarea', name: 'street', label: 'PROFILE._street', required: true, colSpan: 2, rows: 4 },
+      ];
     }
-
+    if (this.phoneSelected) {
+      return [{ type: 'phoneNumber', name: 'telephoneNumber', label: 'PROFILE._phone', required: true, colSpan: 2 }];
+    }
+    return [{ type: 'string', name: 'email', label: 'PROFILE._email', required: true, colSpan: 2 }];
   }
-  showMedium() {
+
+  /** Validators for every type-dependent control, keyed by the medium type that needs them —
+   * anything not listed here for the active type gets cleared+blanked. */
+  private readonly mediumTypeValidators: Record<string, Record<string, ValidatorFn[]>> = {
+    email: { email: [Validators.required, Validators.email, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$')] },
+    address: {
+      country: [Validators.required], city: [Validators.required],
+      stateOrProvince: [Validators.required], postCode: [Validators.required], street: [Validators.required],
+    },
+    phone: { telephoneNumber: [Validators.required] },
+  };
+
+  /** Toggles which of email/address/phone controls are required, clearing and blanking
+   * the others — same validation behavior the old hand-built type-select used to drive,
+   * just triggered by mediumForm's own 'type' control instead of a raw DOM change event. */
+  private applyMediumTypeValidators(type: string): void {
+    const activeValidators = this.mediumTypeValidators[type] ?? {};
+    for (const name of ['email', 'country', 'city', 'stateOrProvince', 'postCode', 'street', 'telephoneNumber']) {
+      const control = this.mediumForm.get(name);
+      control?.setValidators(activeValidators[name] ?? []);
+      control?.markAsUntouched();
+      control?.setValue('');
+    }
+    this.cdr.detectChanges();
   }
 
   printActiveValidators(controlName: string) {
