@@ -1,15 +1,15 @@
-import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
-import { LoginInfo } from 'src/app/models/interfaces';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import { AccountServiceService } from 'src/app/services/account-service.service';
-import {LocalStorageService} from "src/app/services/local-storage.service";
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { phoneNumbers, countries } from 'src/app/models/country.const'
-import {EventMessageService} from "src/app/services/event-message.service";
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { countries } from 'src/app/models/country.const';
 import { FormField } from 'src/app/models/formFields/form-field.model';
+import { LoginInfo } from 'src/app/models/interfaces';
+import { AccountServiceService } from 'src/app/services/account-service.service';
+import { EventMessageService } from "src/app/services/event-message.service";
+import { LocalStorageService } from "src/app/services/local-storage.service";
+import { ApiServiceService } from 'src/app/services/product-service.service';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 
 @Component({
@@ -19,58 +19,74 @@ import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-gro
 })
 export class UserInfoComponent implements OnInit, OnDestroy {
   loading: boolean = false;
-  orders:any[]=[];
-  profile:any;
-  partyId:any='';
-  token:string='';
-  email:string='';
+  orders: any[] = [];
+  profile: any;
+  partyId: any = '';
+  token: string = '';
+  email: string = '';
   countries: any[] = countries;
 
+  readonly accountFields: FormField[] = [
+    { type: 'string', name: 'username', label: 'PROFILE._user_id', readonly: true, colSpan: 1 },
+    { type: 'string', name: 'email', label: 'PROFILE._email', readonly: true, colSpan: 1 },
+    { type: 'string', name: 'token', label: 'PROFILE._token', readonly: true },
+  ];
+
+  accountForm = buildFormGroup(this.accountFields);
+
   readonly profileFields: FormField[] = [
-    { type: 'string', name: 'name', label: 'PROFILE._name', required: true },
-    { type: 'string', name: 'lastname', label: 'PROFILE._lastname', required: true },
-    { type: 'select', name: 'treatment', label: 'PROFILE._treatment', options: [
-      { value: '', label: "I'd rather not say" },
-      { value: 'Miss', label: 'Miss' },
-      { value: 'Mrs', label: 'Mrs' },
-      { value: 'Mr', label: 'Mr' },
-      { value: 'Ms', label: 'Ms' },
-    ] },
-    { type: 'select', name: 'maritalstatus', label: 'PROFILE._marital_status', options: [
-      { value: '', label: "I'd rather not say" },
-      { value: 'Divorced', label: 'Divorced' },
-      { value: 'Married', label: 'Married' },
-      { value: 'Separated', label: 'Separated' },
-      { value: 'Single', label: 'Single' },
-      { value: 'Widowed', label: 'Widowed' },
-    ] },
-    { type: 'select', name: 'gender', label: 'PROFILE._gender', options: [
-      { value: '', label: "I'd rather not say" },
-      { value: 'Female', label: 'Female' },
-      { value: 'Male', label: 'Male' },
-      { value: 'Other', label: 'Other' },
-    ] },
-    { type: 'string', name: 'nacionality', label: 'PROFILE._nacionality' },
+    { type: 'string', name: 'name', label: 'PROFILE._name', required: true, colSpan: 2, placeholder: 'PROFILE._name_placeholder' },
+    { type: 'string', name: 'lastname', label: 'PROFILE._lastname', required: true, colSpan: 2, placeholder: 'PROFILE._lastname_placeholder' },
+    { type: 'string', name: 'nacionality', label: 'PROFILE._nacionality', colSpan: 2, placeholder: 'PROFILE._nacionality_placeholder' },
+    {
+      type: 'select', name: 'gender', label: 'PROFILE._gender', colSpan: 2, options: [
+        { value: '', label: "I'd rather not say" },
+        { value: 'Female', label: 'Female' },
+        { value: 'Male', label: 'Male' },
+        { value: 'Other', label: 'Other' },
+      ]
+    },
+    {
+      type: 'select', name: 'treatment', label: 'PROFILE._treatment', colSpan: 2, options: [
+        { value: '', label: "I'd rather not say" },
+        { value: 'Miss', label: 'Miss' },
+        { value: 'Mrs', label: 'Mrs' },
+        { value: 'Mr', label: 'Mr' },
+        { value: 'Ms', label: 'Ms' },
+      ]
+    },
+    {
+      type: 'select', name: 'maritalstatus', label: 'PROFILE._marital_status', colSpan: 2, options: [
+        { value: '', label: "I'd rather not say" },
+        { value: 'Divorced', label: 'Divorced' },
+        { value: 'Married', label: 'Married' },
+        { value: 'Separated', label: 'Separated' },
+        { value: 'Single', label: 'Single' },
+        { value: 'Widowed', label: 'Widowed' },
+      ]
+    }
   ];
 
   readonly birthdateFields: FormField[] = [
     { type: 'date', name: 'birthdate', label: 'PROFILE._date' },
-    { type: 'string', name: 'city', label: 'PROFILE._city' },
-    { type: 'select', name: 'country', label: 'PROFILE._country', options: [
-      { value: '', label: 'Select country' },
-      ...countries.map(country => ({ value: country.code, label: country.name })),
-    ] },
+    { type: 'string', name: 'city', label: 'PROFILE._city', colSpan: 1, placeholder: 'PROFILE._city_placeholder' },
+    {
+      type: 'select', name: 'country', label: 'PROFILE._country', colSpan: 1, options: [
+        { value: '', label: 'Select country' },
+        ...countries.map(country => ({ value: country.code, label: country.name })),
+      ]
+    },
   ];
 
   userProfileForm = buildFormGroup([...this.profileFields, ...this.birthdateFields]);
 
   dateRange = new FormControl();
-  selectedDate:any;
-  preferred:boolean=false;
+  selectedDate: any;
+  preferred: boolean = false;
 
-  errorMessage:any='';
-  showError:boolean=false;
-  successVisibility:boolean=false;
+  errorMessage: any = '';
+  showError: boolean = false;
+  successVisibility: boolean = false;
 
   private destroy$ = new Subject<void>();
 
@@ -82,57 +98,59 @@ export class UserInfoComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService
   ) {
     this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'ChangedSession') {
-        this.initPartyInfo();
-      }
-    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'ChangedSession') {
+          this.initPartyInfo();
+        }
+      })
   }
 
   ngOnInit() {
-    this.loading=true;
+    this.loading = true;
     let today = new Date();
-    today.setMonth(today.getMonth()-1);
+    today.setMonth(today.getMonth() - 1);
     this.selectedDate = today.toISOString();
     this.initPartyInfo();
   }
 
-  ngOnDestroy(){
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  initPartyInfo(){
+  initPartyInfo() {
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
-      if(aux.logged_as==aux.id){
+    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+      if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
       } else {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
         this.partyId = loggedOrg.partyId
-        this.accountService.getOrgInfo(this.partyId).then(data=> {
+        this.accountService.getOrgInfo(this.partyId).then(data => {
         })
       }
-      this.token=aux.token;
-      this.email=aux.email;
+      this.token = aux.token;
+      this.email = aux.email;
+      this.accountForm.controls['email'].setValue(this.email);
+      this.accountForm.controls['token'].setValue(this.token);
       //this.partyId = aux.partyId;
       this.getProfile();
     }
   }
 
-  getProfile(){
-    this.accountService.getUserInfo(this.partyId).then(data=> {
-      this.profile=data;
+  getProfile() {
+    this.accountService.getUserInfo(this.partyId).then(data => {
+      this.profile = data;
       this.loadProfileData(this.profile)
-      this.loading=false;
+      this.loading = false;
       this.cdr.detectChanges();
     })
 
     this.cdr.detectChanges();
   }
 
-  updateProfile(){
+  updateProfile() {
     let profile = {
       "id": this.partyId,
       "href": this.partyId,
@@ -145,34 +163,35 @@ export class UserInfoComponent implements OnInit, OnDestroy {
       "placeOfBirth": this.userProfileForm.value.city,
       "title": this.userProfileForm.value.treatment,
       "birthDate": this.userProfileForm.value.birthdate
-  }
-    this.accountService.updateUserInfo(this.partyId,profile).subscribe({
+    }
+    this.accountService.updateUserInfo(this.partyId, profile).subscribe({
       next: data => {
         this.userProfileForm.reset();
         this.getProfile();
         this.successVisibility = true;
         setTimeout(() => {
           this.successVisibility = false
-        }, 2000);       
-        this.getProfile();        
+        }, 2000);
+        this.getProfile();
       },
       error: error => {
-          console.error('There was an error while updating!', error);
-          if(error.error.error){
-            console.log(error)
-            this.errorMessage='Error: '+error.error.error;
-          } else {
-            this.errorMessage='There was an error while updating profile!';
-          }
-          this.showError=true;
-          setTimeout(() => {
-            this.showError = false;
-          }, 3000);
+        console.error('There was an error while updating!', error);
+        if (error.error.error) {
+          console.log(error)
+          this.errorMessage = 'Error: ' + error.error.error;
+        } else {
+          this.errorMessage = 'There was an error while updating profile!';
+        }
+        this.showError = true;
+        setTimeout(() => {
+          this.showError = false;
+        }, 3000);
       }
     });
   }
 
-  loadProfileData(profile:any){
+  loadProfileData(profile: any) {
+    this.accountForm.controls['username'].setValue(profile.externalReference?.[0]?.name);
     this.userProfileForm.controls['name'].setValue(profile.givenName);
     this.userProfileForm.controls['lastname'].setValue(profile.familyName);
     //this.userProfileForm.controls['treatment'].setValue(profile.title);

@@ -26,4 +26,19 @@ describe('UserInfoComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('loadProfileData should populate accountForm.username from the profile', () => {
+    component.loadProfileData({ externalReference: [{ name: 'jdoe' }] });
+
+    expect(component.accountForm.value.username).toBe('jdoe');
+  });
+
+  it('loadProfileData should not throw when externalReference is missing', () => {
+    expect(() => component.loadProfileData({})).not.toThrow();
+    expect(component.accountForm.value.username).toBeUndefined();
+  });
+
+  it('every accountFields entry should be readonly', () => {
+    expect(component.accountFields.every(f => f.readonly)).toBeTrue();
+  });
 });

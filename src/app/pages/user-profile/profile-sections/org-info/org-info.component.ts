@@ -162,16 +162,16 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
 
   private buildOrgFields(): FormField[] {
     return [
-      { type: 'string', name: 'name', label: 'PROFILE._name', required: true, readonly: this.isReadOnly },
-      { type: 'string', name: 'website', label: 'PROFILE._website', readonly: this.isReadOnly },
+      { type: 'string', name: 'name', label: 'PROFILE._name', required: true, readonly: this.isReadOnly, placeholder: 'PROFILE._org_name_placeholder' },
+      { type: 'string', name: 'website', label: 'PROFILE._website', readonly: this.isReadOnly, placeholder: 'PROFILE._website_placeholder' },
       {
         type: 'select', name: 'country', label: 'PROFILE._country', required: true, readonly: this.isReadOnly,
         dataCy: 'orgCountry',
         options: euCountries.map(country => ({ value: country.code, label: country.name })),
       },
       ...(this.isDataspaceEnabled ? [
-        { type: 'string', name: 'contractManagementAddress', label: 'Contract Management Address', readonly: this.isReadOnly, colSpan: 2 },
-        { type: 'string', name: 'contractManagementClientId', label: 'Contract Management Client ID', readonly: this.isReadOnly, colSpan: 1 },
+        { type: 'string', name: 'contractManagementAddress', label: 'Contract Management Address', readonly: this.isReadOnly, colSpan: 2, placeholder: 'Enter the contract management address' },
+        { type: 'string', name: 'contractManagementClientId', label: 'Contract Management Client ID', readonly: this.isReadOnly, colSpan: 1, placeholder: 'Enter the client ID' },
         { type: 'string', name: 'contractManagementScopes', label: 'Contract Management Scopes', readonly: this.isReadOnly, placeholder: 'external-marketplace, another-scope', colSpan: 1 },
       ] as FormField[] : []),
       {
@@ -670,7 +670,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
       ...(!this.selectedMedium ? [{
         type: 'select', name: 'type', label: 'PROFILE._medium_type', colSpan: 2, options: this.mediumTypeOptions,
       } as FormField] : []),
-      { type: 'string', name: 'contactTitle', label: 'PROFILE._contact_title', required: true, colSpan: 2 },
+      { type: 'string', name: 'contactTitle', label: 'PROFILE._contact_title', required: true, colSpan: 2, placeholder: 'PROFILE._contact_title_placeholder' },
     ];
   }
 
@@ -679,17 +679,17 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
   get mediumBodyFields(): FormField[] {
     if (this.addressSelected) {
       return [
-        { type: 'string', name: 'country', label: 'PROFILE._country', required: true, dataCy: 'mediumCountry' },
-        { type: 'string', name: 'city', label: 'PROFILE._city', required: true },
-        { type: 'string', name: 'stateOrProvince', label: 'PROFILE._state', required: true },
-        { type: 'string', name: 'postCode', label: 'PROFILE._post_code', required: true },
-        { type: 'textarea', name: 'street', label: 'PROFILE._street', required: true, colSpan: 2, rows: 4 },
+        { type: 'string', name: 'country', label: 'PROFILE._country', required: true, dataCy: 'mediumCountry', placeholder: 'PROFILE._country_placeholder' },
+        { type: 'string', name: 'city', label: 'PROFILE._city', required: true, placeholder: 'PROFILE._city_placeholder' },
+        { type: 'string', name: 'stateOrProvince', label: 'PROFILE._state', required: true, placeholder: 'PROFILE._state_placeholder' },
+        { type: 'string', name: 'postCode', label: 'PROFILE._post_code', required: true, placeholder: 'PROFILE._post_code_placeholder' },
+        { type: 'textarea', name: 'street', label: 'PROFILE._street', required: true, colSpan: 2, rows: 4, placeholder: 'PROFILE._street_placeholder' },
       ];
     }
     if (this.phoneSelected) {
       return [{ type: 'phoneNumber', name: 'telephoneNumber', label: 'PROFILE._phone', required: true, colSpan: 2 }];
     }
-    return [{ type: 'string', name: 'email', label: 'PROFILE._email', required: true, colSpan: 2 }];
+    return [{ type: 'string', name: 'email', label: 'PROFILE._email', required: true, colSpan: 2, placeholder: 'PROFILE._email_placeholder' }];
   }
 
   /** Validators for every type-dependent control, keyed by the medium type that needs them —
