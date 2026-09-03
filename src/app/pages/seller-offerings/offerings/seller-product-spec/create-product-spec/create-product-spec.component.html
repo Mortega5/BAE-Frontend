@@ -799,24 +799,22 @@
 @if(itemModal.type){
 <div (click)="closeItemModal()" class="fixed inset-0 z-50 flex items-center justify-center px-4"
   style="background-color: rgba(11, 21, 40, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
-  <div (click)="$event.stopPropagation()"
-    class="bg-white dark:bg-secondary-100 rounded-2xl shadow-xl w-full max-w-[680px] max-h-[90vh] overflow-y-auto">
-    <div class="p-8">
-      <div class="flex justify-between items-start mb-1">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-          @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._modal_title_feature' | translate }} }
-          @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._modal_title_benefit' | translate }} }
-          @else { {{ 'CREATE_PROD_SPEC._modal_title_usecase' | translate }} }
-        </h2>
-        <app-button type="button" (click)="closeItemModal()" variant="ghost" size="sm" prefixIcon="xmark" />
-      </div>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
-        @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._modal_desc_feature' | translate }} }
-        @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._modal_desc_benefit' | translate }} }
-        @else { {{ 'CREATE_PROD_SPEC._modal_desc_usecase' | translate }} }
-      </p>
+  <app-card variant="modal" class="w-full max-w-[680px] max-h-[90vh]" (click)="$event.stopPropagation()">
+    <div appCardHeader class="flex justify-between items-start">
+      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+        @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._modal_title_feature' | translate }} }
+        @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._modal_title_benefit' | translate }} }
+        @else { {{ 'CREATE_PROD_SPEC._modal_title_usecase' | translate }} }
+      </h2>
+      <app-button type="button" (click)="closeItemModal()" variant="ghost" size="sm" prefixIcon="xmark" />
+    </div>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+      @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._modal_desc_feature' | translate }} }
+      @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._modal_desc_benefit' | translate }} }
+      @else { {{ 'CREATE_PROD_SPEC._modal_desc_usecase' | translate }} }
+    </p>
 
-      <div class="mb-4">
+    <div class="mb-4">
         <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ 'CREATE_PROD_SPEC._item_name' |
           translate }}</label>
         <input type="text" [(ngModel)]="itemModal.name" [ngModelOptions]="{standalone: true}" maxLength="100"
@@ -859,50 +857,46 @@
       </div>
       }
 
-      <div class="flex justify-end items-center gap-3">
-        <app-button type="button" (click)="closeItemModal()" variant="link">
-          {{ 'CREATE_PROD_SPEC._cancel' | translate }}
-        </app-button>
-        <app-button type="button" (click)="saveItemModal()" [disabled]="!itemModal.name.trim()">
-          @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._save_feature' | translate }} }
-          @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._save_benefit' | translate }} }
-          @else { {{ 'CREATE_PROD_SPEC._save_usecase' | translate }} }
-        </app-button>
-      </div>
+    <div appCardFooter>
+      <app-button type="button" (click)="closeItemModal()" variant="link">
+        {{ 'CREATE_PROD_SPEC._cancel' | translate }}
+      </app-button>
+      <app-button type="button" (click)="saveItemModal()" [disabled]="!itemModal.name.trim()">
+        @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._save_feature' | translate }} }
+        @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._save_benefit' | translate }} }
+        @else { {{ 'CREATE_PROD_SPEC._save_usecase' | translate }} }
+      </app-button>
     </div>
-  </div>
+  </app-card>
 </div>
 }
 
 @if(faqDeleteIdx !== null){
 <div (click)="cancelDeleteFaq()" class="fixed inset-0 z-50 flex items-center justify-center px-4"
   style="background-color: rgba(11, 21, 40, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
-  <div (click)="$event.stopPropagation()"
-    class="bg-white dark:bg-secondary-100 rounded-2xl shadow-xl w-full max-w-[480px]">
-    <div class="p-8">
-      <div class="flex justify-end">
-        <app-button type="button" (click)="cancelDeleteFaq()" variant="ghost" size="sm" prefixIcon="xmark" />
+  <app-card variant="modal" class="w-full max-w-[480px]" (click)="$event.stopPropagation()">
+    <div class="flex justify-end">
+      <app-button type="button" (click)="cancelDeleteFaq()" variant="ghost" size="sm" prefixIcon="xmark" />
+    </div>
+    <div class="flex flex-col items-center text-center pb-2">
+      <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4" style="background-color: #DDE6F6;">
+        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24">
+          <path
+            d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 5a1.25 1.25 0 11-1.25 1.25A1.25 1.25 0 0112 7zm1.5 11h-3a.75.75 0 010-1.5h.75v-4h-.75a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75V16.5h.75a.75.75 0 010 1.5z" />
+        </svg>
       </div>
-      <div class="flex flex-col items-center text-center pb-2">
-        <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4" style="background-color: #DDE6F6;">
-          <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24">
-            <path
-              d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 5a1.25 1.25 0 11-1.25 1.25A1.25 1.25 0 0112 7zm1.5 11h-3a.75.75 0 010-1.5h.75v-4h-.75a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75V16.5h.75a.75.75 0 010 1.5z" />
-          </svg>
-        </div>
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">{{ 'CREATE_PROD_SPEC._delete_question_title' |
-          translate }}</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ 'CREATE_PROD_SPEC._delete_question_desc' | translate
-          }}</p>
-        <div class="grid grid-cols-2 gap-3 w-full">
-          <app-button type="button" (click)="cancelDeleteFaq()" variant="secondary" class="h-11">{{
-            'CREATE_PROD_SPEC._close' | translate }}</app-button>
-          <app-button type="button" (click)="confirmDeleteFaq()" class="h-11">{{
-            'CREATE_PROD_SPEC._confirm' | translate }}</app-button>
-        </div>
+      <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">{{ 'CREATE_PROD_SPEC._delete_question_title' |
+        translate }}</h2>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ 'CREATE_PROD_SPEC._delete_question_desc' | translate
+        }}</p>
+      <div class="grid grid-cols-2 gap-3 w-full">
+        <app-button type="button" (click)="cancelDeleteFaq()" variant="secondary" class="h-11">{{
+          'CREATE_PROD_SPEC._close' | translate }}</app-button>
+        <app-button type="button" (click)="confirmDeleteFaq()" class="h-11">{{
+          'CREATE_PROD_SPEC._confirm' | translate }}</app-button>
       </div>
     </div>
-  </div>
+  </app-card>
 </div>
 }
 

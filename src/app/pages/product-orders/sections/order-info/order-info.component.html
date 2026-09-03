@@ -46,20 +46,16 @@
 @if (showOrderDetails){
 <div id="order-details-modal" [ngClass]="showOrderDetails ? 'backdrop-blur-sm': ''" tabindex="-1" aria-hidden="true"
   class="flex justify-center overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%)] max-h-full shadow-2xl">
-  <div
-    class="w-full md:w-3/4 lg:w-1/2 relative bg-secondary-50 dark:bg-secondary-100 border border-secondary-50 dark:border-gray-800 rounded-lg shadow bg-cover bg-right-bottom"
-    (click)="$event.stopPropagation();">
-    <!-- Modal header -->
-    <div class="flex items-center justify-between p-2 rounded-t dark:border-gray-600 shadow-lg">
-      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{
-        'PRODUCT_ORDERS._order_details' | translate }}</h2>
-      <app-button (click)="showOrderDetails=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark" class="ms-auto">
+  <app-card variant="modal" class="w-full md:w-3/4 lg:w-1/2 max-h-[90vh]" (click)="$event.stopPropagation();">
+    <div appCardHeader class="flex items-center justify-between">
+      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 dark:text-white">
+        {{ 'PRODUCT_ORDERS._order_details' | translate }}
+      </h2>
+      <app-button (click)="showOrderDetails=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark">
         <span class="sr-only">{{ 'CARD._close' | translate }}</span>
       </app-button>
     </div>
-    <!-- Modal body -->
-    <div data-cy="orderDetailsModal" class="w-full h-full">
-      <div class="p-4 relative overflow-x-auto rounded-lg">
+    <div data-cy="orderDetailsModal" class="w-full">
         <div class="flex flex-row gap-2 pb-2 text-gray-600">
           <p class="w-fit text-base font-bold shrink-0 dark:text-white">
             {{ 'PRODUCT_INVENTORY._order_id' | translate }}
@@ -150,9 +146,8 @@
           [selectable]="false">
         </app-table-input>
         }
-      </div>
     </div>
-  </div>
+  </app-card>
 </div>
 
 }
@@ -160,33 +155,25 @@
 <!-- Confirm Modal -->
 <div #confirmModal id="confirmModal" tabindex="-1" aria-hidden="true"
   class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full bg-black bg-opacity-50">
-  <div class="relative w-full max-w-md max-h-full">
-    <!-- Contenedor del modal -->
-    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-      <!-- Encabezado -->
-      <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600 bg-primary-100">
-        <h3 class="text-xl font-semibold text-secondary-50 dark:text-white">
-          Confirm Action
-        </h3>
-        <app-button type="button" variant="ghost" size="sm" prefixIcon="xmark" (click)="closeModal()" class="ml-auto" />
-      </div>
-      <!-- Cuerpo del modal -->
-      <div class="p-6 text-center">
-        <p class="text-gray-500 dark:text-gray-300">
-          Are you sure you want to update this order item to <strong>{{ actionType }}</strong> status?
-        </p>
-      </div>
-      <!-- Botones de acción -->
-      <div class="flex items-center p-6 space-x-4 border-t border-gray-200 rounded-b dark:border-gray-600">
-        <app-button data-cy="confirmActionBtn" type="button" (click)="confirmAction()" size="sm">
-          Yes, Confirm
-        </app-button>
-        <app-button data-cy="cancelActionBtn" type="button" (click)="closeModal()" variant="ghost" size="sm">
-          Cancel
-        </app-button>
-      </div>
+  <app-card variant="modal" class="relative w-full max-w-md">
+    <div appCardHeader class="flex items-start justify-between">
+      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+        Confirm Action
+      </h3>
+      <app-button type="button" variant="ghost" size="sm" prefixIcon="xmark" (click)="closeModal()" />
     </div>
-  </div>
+    <p class="text-gray-500 dark:text-gray-300 text-center">
+      Are you sure you want to update this order item to <strong>{{ actionType }}</strong> status?
+    </p>
+    <div appCardFooter>
+      <app-button data-cy="confirmActionBtn" type="button" (click)="confirmAction()" size="sm">
+        Yes, Confirm
+      </app-button>
+      <app-button data-cy="cancelActionBtn" type="button" (click)="closeModal()" variant="ghost" size="sm">
+        Cancel
+      </app-button>
+    </div>
+  </app-card>
 </div>
 
 

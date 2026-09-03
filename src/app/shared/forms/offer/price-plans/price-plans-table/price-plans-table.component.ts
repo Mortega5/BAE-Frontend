@@ -2,6 +2,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {NgIf} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 
 @Component({
   selector: 'app-price-plans-table',
@@ -9,7 +10,8 @@ import { ButtonComponent } from 'src/app/shared/button/button.component';
   imports: [
     NgIf,
     TranslateModule,
-    ButtonComponent
+    ButtonComponent,
+    ContentCardComponent
   ],
   templateUrl: './price-plans-table.component.html',
   styleUrl: './price-plans-table.component.css'

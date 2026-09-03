@@ -11,12 +11,19 @@
   }
 
   &[data-variant="modal"] {
-    @apply shadow-xl;
+    /* A dialog must never exceed the viewport — cap it and let only the body
+       scroll internally, so the header/footer stay pinned in view (title+close
+       button, action buttons) rather than being scrolled out of sight along
+       with a tall body. This is scoped to this one instance's own box, unlike
+       the reverted stretch-to-match-a-sibling's-height work — no ancestor
+       markup needs to cooperate for this to work. */
+    @apply shadow-xl flex flex-col;
+    max-height: min(90vh, 100%);
   }
 }
 
 .app-card-header {
-  @apply px-4 md:px-6 py-4 border-b;
+  @apply px-4 md:px-6 py-4 border-b shrink-0;
   border-color: var(--card-border);
 
   &:empty {
@@ -26,10 +33,14 @@
 
 .app-card-content {
   @apply p-4 md:p-6;
+
+  .app-card[data-variant="modal"] & {
+    @apply flex-1 min-h-0 overflow-y-auto;
+  }
 }
 
 .app-card-footer {
-  @apply flex justify-end gap-3 px-4 md:px-6 py-4 border-t;
+  @apply flex justify-end gap-3 px-4 md:px-6 py-4 border-t shrink-0;
   border-color: var(--card-border);
 
   &:empty {

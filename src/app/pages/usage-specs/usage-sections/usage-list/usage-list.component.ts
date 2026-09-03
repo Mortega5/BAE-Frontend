@@ -12,12 +12,13 @@ import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-
 import { environment } from 'src/environments/environment';
 import { UsageSpecsPaths } from '../../usage-specs.paths';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 
 @Component({
   selector: 'usage-list',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule,
-    LoadingSpinnerComponent, ButtonComponent
+    LoadingSpinnerComponent, ButtonComponent, ContentCardComponent
   ],
   templateUrl: './usage-list.component.html',
   styleUrl: './usage-list.component.css'

@@ -1,26 +1,27 @@
 @if (previewProductOff) {
 <div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4" (click)="close()">
-  <div class="bg-white dark:bg-secondary-100 rounded-2xl shadow-xl w-full max-w-6xl max-h-[90vh] flex flex-col border border-[#EBECEE] dark:border-gray-800"
-    (click)="$event.stopPropagation()">
-    <div class="flex items-center justify-between px-6 pt-6">
-      <h2 class="text-xl font-extrabold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._preview' | translate }}</h2>
-      <app-button type="button" (click)="close()" variant="ghost" size="sm" prefixIcon="xmark" />
+  <app-card variant="modal" class="w-full max-w-6xl max-h-[90vh]" (click)="$event.stopPropagation()">
+    <div appCardHeader class="flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <h2 class="text-xl font-extrabold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._preview' | translate }}</h2>
+        <app-button type="button" (click)="close()" variant="ghost" size="sm" prefixIcon="xmark" />
+      </div>
+
+      <div class="flex items-stretch -mb-4">
+        <button type="button" (click)="activeTab = 'details'"
+          class="px-6 py-3 text-base font-semibold border-b-[3px] -mb-px transition-colors"
+          [ngClass]="activeTab === 'details' ? 'text-gray-900 dark:text-white border-primary-100 dark:border-primary-50' : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200'">
+          {{ 'CREATE_OFFER._preview_product_details' | translate }}
+        </button>
+        <button type="button" (click)="activeTab = 'card'"
+          class="px-6 py-3 text-base font-semibold border-b-[3px] -mb-px transition-colors"
+          [ngClass]="activeTab === 'card' ? 'text-gray-900 dark:text-white border-primary-100 dark:border-primary-50' : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200'">
+          {{ 'CREATE_OFFER._preview_card' | translate }}
+        </button>
+      </div>
     </div>
 
-    <div class="px-6 mt-4 border-b border-[#EBECEE] dark:border-gray-800 flex items-stretch">
-      <button type="button" (click)="activeTab = 'details'"
-        class="px-6 py-3 text-base font-semibold border-b-[3px] -mb-px transition-colors"
-        [ngClass]="activeTab === 'details' ? 'text-gray-900 dark:text-white border-primary-100 dark:border-primary-50' : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200'">
-        {{ 'CREATE_OFFER._preview_product_details' | translate }}
-      </button>
-      <button type="button" (click)="activeTab = 'card'"
-        class="px-6 py-3 text-base font-semibold border-b-[3px] -mb-px transition-colors"
-        [ngClass]="activeTab === 'card' ? 'text-gray-900 dark:text-white border-primary-100 dark:border-primary-50' : 'text-gray-500 dark:text-gray-400 border-transparent hover:text-gray-700 dark:hover:text-gray-200'">
-        {{ 'CREATE_OFFER._preview_card' | translate }}
-      </button>
-    </div>
-
-    <div class="flex-1 overflow-y-auto">
+    <div>
       @if (activeTab === 'details') {
       <app-product-details [previewProductOff]="previewProductOff" />
       } @else {
@@ -130,6 +131,6 @@
       </div>
       }
     </div>
-  </div>
+  </app-card>
 </div>
 }

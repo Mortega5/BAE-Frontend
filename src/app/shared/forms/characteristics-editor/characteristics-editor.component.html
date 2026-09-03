@@ -31,9 +31,8 @@
 
 @if (showForm) {
 <div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4" (click)="cancel()">
-  <div class="bg-white dark:bg-secondary-100 rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6"
-    (click)="$event.stopPropagation()">
-    <div class="flex items-center justify-between mb-4">
+  <app-card variant="modal" class="w-full max-w-2xl max-h-[90vh]" (click)="$event.stopPropagation()">
+    <div appCardHeader class="flex items-center justify-between">
       <h3 class="text-xl font-bold text-gray-900 dark:text-white">
         {{ (editingChar ? 'CHAR_SPEC._edit_char' : 'CHAR_SPEC._new_char') | translate }}
       </h3>
@@ -49,16 +48,16 @@
       @if (showError) {
       <div class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</div>
       }
-
-      <div class="flex justify-end gap-3">
-        <app-button type="button" (click)="cancel()" variant="ghost" size="sm">
-          {{ 'CHAR_SPEC._cancel' | translate }}
-        </app-button>
-        <app-button type="button" (click)="save()" [disabled]="!canSave">
-          {{ 'CHAR_SPEC._save_char' | translate }}
-        </app-button>
-      </div>
     </div>
-  </div>
+
+    <div appCardFooter>
+      <app-button type="button" (click)="cancel()" variant="ghost" size="sm">
+        {{ 'CHAR_SPEC._cancel' | translate }}
+      </app-button>
+      <app-button type="button" (click)="save()" [disabled]="!canSave">
+        {{ 'CHAR_SPEC._save_char' | translate }}
+      </app-button>
+    </div>
+  </app-card>
 </div>
 }

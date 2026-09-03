@@ -45,18 +45,15 @@
 @if (showInvoiceDetails){
 <div id="invoice-details-modal" [ngClass]="showInvoiceDetails ? 'backdrop-blur-sm': ''" tabindex="-1" aria-hidden="true"
   class="flex justify-center overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%)] max-h-full shadow-2xl">
-  <div data-cy="invoiceDetail"
-    class="w-full md:w-3/4 lg:w-1/2 relative bg-secondary-50 dark:bg-secondary-100 border border-secondary-50 dark:border-gray-800 rounded-lg shadow bg-cover bg-right-bottom"
-    (click)="$event.stopPropagation();">
-    <!-- Modal header -->
-    <div class="flex items-center justify-between p-2 rounded-t dark:border-gray-600 shadow-lg">
-      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{
+  <app-card data-cy="invoiceDetail" variant="modal" class="w-full md:w-3/4 lg:w-1/2 max-h-[90vh]" (click)="$event.stopPropagation();">
+    <div appCardHeader class="flex items-center justify-between">
+      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 dark:text-white">{{
         'INVOICES._invoice_details' | translate }}</h2>
-      <app-button (click)="showInvoiceDetails=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark" class="ms-auto">
+      <app-button (click)="showInvoiceDetails=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark">
         <span class="sr-only">{{ 'CARD._close' | translate }}</span>
       </app-button>
     </div>
-    <div data-cy="invoiceBillNo" class="px-6 py-6 border-b border-gray-200 dark:border-gray-700">
+    <div data-cy="invoiceBillNo" class="pb-6 border-b border-gray-200 dark:border-gray-700">
       <label for="invoicename" class="block mb-2 text-sm font-bold text-gray-700 dark:text-white">
         {{ 'INVOICES._billno' | translate }}
       </label>
@@ -77,10 +74,7 @@
         }
       </div>
     </div>
-    <!-- Modal body -->
-    <div class="w-full h-full">
-      <div class="p-4 relative overflow-x-auto rounded-lg">
-        @if (loadingACBRs) {
+    @if (loadingACBRs) {
         <app-loading-spinner containerClass="w-full h-24 flex justify-center items-center" />
         } @else if (appliedCustomerBillingRates.length === 0) {
         <p class="text-gray-500 dark:text-gray-400 text-sm">
@@ -155,8 +149,6 @@
           }
         </div>
         }
-      </div>
-    </div>
-  </div>
+  </app-card>
 </div>
 }

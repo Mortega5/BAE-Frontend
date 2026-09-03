@@ -1,18 +1,11 @@
-<div>
-  <div
-    class="w-full h-fit mb-4 bg-secondary-50 rounded-lg  dark:bg-secondary-100 dark:border-gray-800 border-gray-300 border-secondary-50 border flex flex-col shadow-lg">
-    <div class="flex w-full flex-cols items-center md:flex-row justify-between">
-      <div class="mb-4 md:mb-0 md:w-1/4 p-8">
-        <h2 class="text-2xl font-bold mb-4 dark:text-white">{{ 'CATEGORIES._categories' | translate }}</h2>
-      </div>
+<app-card>
+  <div appCardHeader class="flex w-full flex-cols items-center md:flex-row justify-between">
+    <h2 class="text-2xl font-bold dark:text-white">{{ 'CATEGORIES._categories' | translate }}</h2>
 
-      <div class="flex flex-row w-full justify-end">
-        <app-button data-cy="adminAddNewCategory" type="button" (click)="createCategory()" suffixIcon="plus" class="ml-2 mr-8 mb-4">
-          {{ 'CATEGORIES._add_new_cat' | translate }}
-        </app-button>
-      </div>
+    <app-button data-cy="adminAddNewCategory" type="button" (click)="createCategory()" suffixIcon="plus">
+      {{ 'CATEGORIES._add_new_cat' | translate }}
+    </app-button>
 
-    </div>
     <!-- <div class="flex w-full flex-col items-center md:flex-row justify-between">
 
         <div class="p-8 w-full">
@@ -81,7 +74,7 @@
   @if(loading){
   <app-loading-spinner />
   } @else {
-  <div class="bg-secondary-50 dark:bg-secondary-100 border dark:border-gray-800 mt-8 p-4 rounded-lg">
+  <div>
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full dark:bg-secondary-300">
       <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
         <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
@@ -168,4 +161,4 @@
     </div>
   </div>
   }
-</div>
+</app-card>

@@ -1,6 +1,6 @@
 <div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4">
-  <div class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-6 md:p-8 w-full max-w-2xl">
-    <div class="flex justify-between items-start mb-1">
+  <app-card variant="modal" class="w-full max-w-2xl">
+    <div appCardHeader class="flex justify-between items-start">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
         {{ 'CREATE_OFFER._add_new_price_plan' | translate }}
       </h2>
@@ -30,7 +30,7 @@
       </button>
     </div>
 
-    <div class="flex justify-end gap-3 mt-6">
+    <div appCardFooter>
       <app-button type="button" (click)="cancel()" variant="ghost">
         {{ 'CREATE_OFFER._cancel' | translate }}
       </app-button>
@@ -38,5 +38,5 @@
         {{ 'CREATE_OFFER._continue' | translate }}
       </app-button>
     </div>
-  </div>
+  </app-card>
 </div>

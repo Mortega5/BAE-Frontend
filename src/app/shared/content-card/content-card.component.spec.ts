@@ -72,6 +72,26 @@ describe('ContentCardComponent', () => {
     expect(getComputedStyle(footer).display).toBe('none');
   });
 
+  it('should cap the modal variant to the viewport and let only the content scroll', () => {
+    component.variant = 'modal';
+    fixture.detectChanges();
+
+    const card = cardEl();
+    expect(getComputedStyle(card).maxHeight).not.toBe('none');
+    const content = card.querySelector('.app-card-content') as HTMLElement;
+    expect(getComputedStyle(content).overflowY).toBe('auto');
+  });
+
+  it('should NOT cap the panel variant (no viewport-height limit)', () => {
+    component.variant = 'panel';
+    fixture.detectChanges();
+
+    const card = cardEl();
+    expect(getComputedStyle(card).maxHeight).toBe('none');
+    const content = card.querySelector('.app-card-content') as HTMLElement;
+    expect(getComputedStyle(content).overflowY).not.toBe('auto');
+  });
+
   it('should project header, body and footer all at once without dropping any of them', () => {
     const hostFixture = TestBed.createComponent(FullHostComponent);
     hostFixture.detectChanges();

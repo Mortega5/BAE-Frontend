@@ -9,6 +9,7 @@ import { CharValueType } from '../characteristic-value-spec/characteristic-value
 import { CharacteristicFormValue, SpecificationCharacteristicFormComponent } from '../specification-characteristic/specification-characteristic-form.component';
 import { TableInputComponent } from '../table-input/table-input.component';
 import { ButtonComponent } from '../../button/button.component';
+import { ContentCardComponent } from '../../content-card/content-card.component';
 
 export interface CharacteristicItem extends CharacteristicFormValue {
   id?: string;
@@ -17,7 +18,7 @@ export interface CharacteristicItem extends CharacteristicFormValue {
 @Component({
   selector: 'app-characteristics-editor',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FaIconComponent, TableInputComponent, SpecificationCharacteristicFormComponent, ButtonComponent],
+  imports: [CommonModule, TranslateModule, FaIconComponent, TableInputComponent, SpecificationCharacteristicFormComponent, ButtonComponent, ContentCardComponent],
   templateUrl: './characteristics-editor.component.html',
 })
 export class CharacteristicsEditorComponent {
