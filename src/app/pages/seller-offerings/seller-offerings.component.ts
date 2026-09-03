@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
+import { IconName } from '@fortawesome/fontawesome-svg-core';
 import { firstValueFrom, Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { QuoteService } from 'src/app/features/quotes/services/quote.service';
@@ -9,6 +10,7 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { WorkspaceHelpConfig } from 'src/app/themes';
+import { SideNavSection } from 'src/app/shared/side-nav/side-nav.model';
 import { environment } from 'src/environments/environment';
 import { SellerOfferingsPaths } from './seller-offerings.paths';
 
@@ -32,6 +34,8 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
   resourceSpecsCount = 0;
 
   workspaceHelpAction?: WorkspaceHelpConfig;
+
+  sections: SideNavSection[] = this.buildSections();
 
   private destroy$ = new Subject<void>();
 
@@ -148,5 +152,46 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
     this.serviceSpecsCount = servs;
     this.resourceSpecsCount = ress;
     this.softwaresCount = softwares;
+    this.sections = this.buildSections();
+  }
+
+  private buildSections(): SideNavSection[] {
+    return [
+      {
+        items: [
+          ...(this.catalogManagementEnabled
+            ? [{
+                label: 'OFFERINGS._catalogs',
+                routerLink: segments.catalogues,
+                icon: 'bars' as IconName,
+                count: this.catalogsCount,
+                dataCy: 'catalogSection',
+              }]
+            : []),
+          {
+            label: 'OFFERINGS._product_offers',
+            routerLink: segments.offers,
+            icon: 'box' as IconName,
+            count: this.productOffersCount,
+            dataCy: 'offerSection',
+          },
+          {
+            label: 'Software',
+            routerLink: segments.softwares,
+            icon: 'microchip' as IconName,
+            count: this.softwaresCount,
+            dataCy: 'softwareSection',
+          },
+        ],
+      },
+      {
+        label: 'OFFERINGS._specifications',
+        items: [
+          { label: 'OFFERINGS._products', routerLink: segments.productSpecs, count: this.productSpecsCount, dataCy: 'prdSpecSection' },
+          { label: 'OFFERINGS._services', routerLink: segments.serviceSpecs, count: this.serviceSpecsCount, dataCy: 'servSpecSection' },
+          { label: 'OFFERINGS._resources', routerLink: segments.resourceSpecs, count: this.resourceSpecsCount, dataCy: 'resSpecSection' },
+        ],
+      },
+    ];
   }
 }
