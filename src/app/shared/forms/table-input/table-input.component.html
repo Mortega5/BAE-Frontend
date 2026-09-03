@@ -99,7 +99,7 @@
       <tr>
         <td [attr.colspan]="columns.length + (selectable ? 1 : 0)"
           class="px-6 py-8 text-center table-input-empty-text">
-          No items available
+          {{ emptyMessage ? (emptyMessage | translate) : 'No items available' }}
         </td>
       </tr>
       }

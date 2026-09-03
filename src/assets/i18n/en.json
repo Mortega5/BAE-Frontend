@@ -945,6 +945,7 @@
     "_token": "Access token",
     "_email": "Email",
     "_profile": "Profile",
+    "_personal_info": "Personal information",
     "_name": "Name",
     "_lastname": "Lastname",
     "_treatment": "Treatment",

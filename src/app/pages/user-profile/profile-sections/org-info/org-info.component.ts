@@ -19,6 +19,8 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { TableColumn } from 'src/app/models/table-column.model';
+import { faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
 
 type OrganizationUpdate = components["schemas"]["Organization_Update"];
 
@@ -84,6 +86,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     telephoneType: new FormControl('Mobile')
   });
   contactmediums:any[]=[];
+  contactMediumColumns: TableColumn[] = this.buildContactMediumColumns();
   emailSelected:boolean=true;
   addressSelected:boolean=false;
   phoneSelected:boolean=false;
@@ -165,6 +168,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
       }
 
       this.orgFields = this.buildOrgFields();
+      this.contactMediumColumns = this.buildContactMediumColumns();
       this.token=aux.token;
       this.email=aux.email;
       this.profileForm.reset();
@@ -192,6 +196,33 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
         colSpan: 2, placeholder: 'Add product description...', rows: 8,
       },
     ];
+  }
+
+  private buildContactMediumColumns(): TableColumn[] {
+    return [
+      { header: 'PROFILE._medium_type', getValue: medium => medium.mediumType },
+      { header: 'PROFILE._contact_title', getValue: medium => this.getMediumContactType(medium) },
+      { header: 'PROFILE._info', hideOnMobile: true, getValue: medium => this.getMediumInfo(medium) },
+      ...(!this.isReadOnly ? [{
+        type: 'actions', header: 'PROFILE._actions',
+        actions: [
+          { icon: faEdit, onClick: (medium: any) => this.showEdit(medium), dataCy: 'editContact' },
+          {
+            icon: faTrash, onClick: (medium: any) => this.removeMedium(medium), dataCy: 'deleteContact',
+            buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
+          },
+        ],
+      } as TableColumn] : []),
+    ];
+  }
+
+  getMediumInfo(medium: any): string {
+    if (medium.mediumType === 'Email') return medium.characteristic.emailAddress;
+    if (medium.mediumType === 'PostalAddress') {
+      const c = medium.characteristic;
+      return `${c.street1}, ${c.postCode} (${c.city}) ${c.stateOrProvince}, ${c.country}`;
+    }
+    return medium.characteristic.phoneNumber;
   }
 
   getProfile(){

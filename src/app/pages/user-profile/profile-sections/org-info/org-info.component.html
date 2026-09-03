@@ -77,67 +77,9 @@
 
         <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._contact_info' | translate }}</h2>
         <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
-        <div class="m-4 relative overflow-x-auto shadow-md sm:rounded-lg">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-                <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                    <tr>
-                        <th scope="col" class="px-6 py-3">
-                            {{ 'PROFILE._medium_type' | translate }}
-                        </th>
-                        <th scope="col" class="px-6 py-3">
-                            {{ 'PROFILE._contact_title' | translate }}
-                        </th>
-                        <th scope="col" class="px-6 py-3 hidden md:table-cell">
-                            {{ 'PROFILE._info' | translate }}
-                        </th>
-                        @if(!isReadOnly){
-                            <th scope="col" class="px-6 py-3">
-                                {{ 'PROFILE._actions' | translate }}
-                            </th>
-                        }
-                    </tr>
-                </thead>
-                <tbody>
-                    @for(medium of contactmediums; track medium) {
-                        <tr class="border-b hover:bg-gray-200 dark:border-gray-700 dark:hover:bg-secondary-200">
-                            <td class="px-6 py-4">
-                                {{medium.mediumType}}
-                            </td>
-                            <td class="px-6 py-4">
-                                {{ getMediumContactType(medium) }}
-                            </td>
-                            <td class="px-6 py-4 hidden md:table-cell">
-                                @if(medium.mediumType == 'Email'){
-                                    {{medium.characteristic.emailAddress}}
-                                } @else if(medium.mediumType == 'PostalAddress') {
-                                    {{medium.characteristic.street1}}, {{medium.characteristic.postCode}} ({{medium.characteristic.city}}) {{medium.characteristic.stateOrProvince}}, {{medium.characteristic.country}}
-                                } @else {
-                                    {{medium.characteristic.phoneNumber}}
-                                }
-                            </td>
-                            @if(!isReadOnly){
-                            <td class="px-6 py-4 inline-flex">
-                                <app-button data-cy="editContact" type="button" (click)="showEdit(medium)" shape="pill" prefixIcon="pen-to-square" class="me-2">
-                                    <span class="sr-only">Edit contact</span>
-                                </app-button>
-                                <app-button data-cy="deleteContact" type="button" (click)="removeMedium(medium)" variant="danger" size="sm" prefixIcon="trash" class="me-2" />
-                            </td>
-                            }
-                        </tr>
-                    } @empty {
-                        <div class="flex justify-center w-full m-4">
-                            <div class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50" role="alert">
-                              <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-                              </svg>
-                              <div>
-                                  {{ 'PROFILE._no_mediums' | translate }}
-                              </div>
-                            </div>
-                        </div>                          
-                    }
-                </tbody>
-            </table>
+        <div class="m-4">
+            <app-table-input [columns]="contactMediumColumns" [items]="contactmediums" [selectable]="false"
+                emptyMessage="PROFILE._no_mediums" />
         </div>
         @if(!isReadOnly){
         <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._add_new_contact' | translate }}</h2>

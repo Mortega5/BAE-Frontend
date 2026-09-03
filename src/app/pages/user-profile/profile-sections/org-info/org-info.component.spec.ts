@@ -4,6 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { ReactiveFormsModule } from '@angular/forms';
+import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 
 import { OrgInfoComponent } from './org-info.component';
 
@@ -15,7 +16,7 @@ describe('OrgInfoComponent', () => {
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
       declarations: [OrgInfoComponent],
-      imports: [HttpClientTestingModule, ReactiveFormsModule, RouterTestingModule, TranslateModule.forRoot()]
+      imports: [HttpClientTestingModule, ReactiveFormsModule, RouterTestingModule, TranslateModule.forRoot(), TableInputComponent]
     })
     .compileComponents();
     

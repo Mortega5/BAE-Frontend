@@ -37,6 +37,8 @@ export class TableInputComponent implements ControlValueAccessor {
    * surface how many rows are selected across pages. Hidden entirely when falsy/0. */
   @Input() selectedCount = 0;
   @Input() selectedCountLabel?: string;
+  /** i18n key for the table-wide empty state (shown when `items` is empty). Defaults to the untranslated "No items available". */
+  @Input() emptyMessage?: string;
   @Output() rowClick = new EventEmitter<any>();
   @Output() sortChange = new EventEmitter<string>();
 

@@ -44,5 +44,6 @@ Most of these build on the global theme tokens (`--theme-primary-*`, `--theme-se
 | `clickable` | `boolean` | Emits `rowClick` when a row is clicked |
 | `isSelectable` | `(item) => boolean` | Determines whether a given row can be selected |
 | `sort` | `TableSort` | Current sort state (`key` + `direction`) |
+| `emptyMessage` | `string` | i18n key shown when `items` is empty. Omit to keep the default, untranslated "No items available". |
 | `rowClick` | `EventEmitter<any>` | Emitted when a row is clicked (if `clickable`) |
 | `sortChange` | `EventEmitter<string>` | Emitted with the `sortKey` when the sort button is clicked |

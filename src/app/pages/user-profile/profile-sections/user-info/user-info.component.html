@@ -17,7 +17,7 @@
                 <input type="text" id="token" class="mb-2 bg-gray-300 border border-gray-400  text-primary-100 dark:bg-secondary-200 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 cursor-not-allowed" value="{{token}}" disabled readonly>
             </div>
         </div>
-        <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._profile' | translate }}</h2>
+        <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._personal_info' | translate }}</h2>
         <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
         <app-dynamic-form class="block m-4" [fields]="profileFields" [formGroup]="userProfileForm" [columns]="2" />
         <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._birthdate' | translate }}</h2>
