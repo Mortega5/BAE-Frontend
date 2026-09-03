@@ -2,8 +2,8 @@
 
 Shared sidebar-nav + content shell, consolidating the near-identical "desktop
 sidebar list + mobile off-canvas drawer + `<router-outlet>`" layout duplicated
-across `seller-offerings`, `product-orders`, `product-inventory`, `admin` and
-`usage-specs`. Adopt incrementally, same approach as
+across `seller-offerings`, `product-orders`, `product-inventory`, `admin`,
+`usage-specs` and `user-profile`. Adopt incrementally, same approach as
 [app-button](../button/README.md)/[app-card](../content-card/README.md).
 
 The mobile nav is a plain Angular-driven off-canvas drawer (no Flowbite) —
@@ -17,10 +17,11 @@ the toggle silently did nothing. Rewritten to need no external JS init at all.
 ```ts
 interface SideNavItem {
   label: string;              // i18n key
-  routerLink: string | string[];
+  routerLink?: string | string[]; // required unless `onClick` is set instead
+  onClick?: () => void;        // non-navigational item (e.g. opens an external URL) — renders as a <button>, no active-state
   icon?: IconName;             // resolved via findButtonIcon, same registry app-button uses
   count?: number;              // omit to hide the badge — the caller computes this however it needs to
-  exact?: boolean;              // [routerLinkActiveOptions] — defaults to {exact: false}
+  exact?: boolean;              // [routerLinkActiveOptions] — defaults to {exact: false}, ignored for onClick items
   dataCy?: string;
 }
 
@@ -29,6 +30,14 @@ interface SideNavSection {
   items: SideNavItem[];
 }
 ```
+
+`onClick` exists for `user-profile`'s "payment dashboard"/"LEAR" items, which
+fetch a URL and `window.open` it rather than navigating anywhere — there's no
+route for `routerLinkActive` to match, so those items render as a plain
+`<button>` (same padding/hover/rounded-2xl look, just never highlighted). Any
+`onClick` item automatically gets a small external-link icon
+(`faArrowUpRightFromSquare`) next to its label, signalling it opens something
+rather than navigating in place — this is fixed, not a per-item `icon` you set.
 
 **The component never fetches anything itself.** Every existing page computes
 its counts differently (parallel per-resource HTTP calls, one bulk call, or
@@ -85,15 +94,6 @@ rendered into the desktop sidebar doesn't try to close a drawer that isn't
 open there). It also locks body scroll (`document.body` gets `overflow-hidden`
 via `Renderer2`) while open, and sets `inert` on the backdrop/drawer while
 closed so a keyboard user can't tab into off-screen, invisible controls.
-
-## Known gap: `user-profile` doesn't fit yet
-
-`user-profile.component.html`'s sidebar mixes real `routerLink` items with
-plain `(click)` action buttons that open external URLs — those aren't
-navigational and don't have a `routerLinkActive` state. This component
-doesn't have an escape hatch for that yet; don't force `user-profile` onto
-`app-side-nav` until that's decided (extra item variant, or leave that one
-page as-is).
 
 ## `class` doesn't reach the inner shell
 

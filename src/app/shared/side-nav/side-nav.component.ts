@@ -2,6 +2,7 @@ import { DOCUMENT, NgClass, NgTemplateOutlet } from '@angular/common';
 import { Component, HostListener, Inject, Input, OnDestroy, Renderer2 } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faArrowUpRightFromSquare } from '@fortawesome/free-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { findButtonIcon } from 'src/app/config/popular-icons';
 import { SideNavSection } from './side-nav.model';
@@ -33,6 +34,9 @@ export class SideNavComponent implements OnDestroy {
   @Input() showDesktopSidebar = true;
 
   protected mobileMenuOpen = false;
+  /** Shown next to the label of every `onClick` item — those open an
+   * external URL in a new tab rather than navigating within the app. */
+  protected readonly externalLinkIcon = faArrowUpRightFromSquare;
 
   constructor(
     private renderer: Renderer2,

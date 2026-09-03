@@ -69,23 +69,38 @@
   }
   <div class="flex flex-col gap-2 mb-3">
     @for (item of section.items; track $index) {
+    @if (item.routerLink) {
     <a [attr.data-cy]="item.dataCy" [routerLink]="item.routerLink" routerLinkActive
       [routerLinkActiveOptions]="{exact: !!item.exact}" #rla="routerLinkActive"
       (click)="closeOnClick && closeMobileMenu()"
       [ngClass]="rla.isActive ? 'bg-secondary-50 dark:bg-secondary-300' : 'hover:bg-secondary-50/50 dark:hover:bg-secondary-300'"
       class="flex items-center justify-between w-full p-4 rounded-2xl text-base font-medium text-gray-900 dark:text-white transition-colors focus:outline-none cursor-pointer">
-      <span class="flex items-center gap-3">
-        @if (resolvedIcon(item.icon)) {
-        <fa-icon [icon]="resolvedIcon(item.icon)!" class="w-5 h-5"></fa-icon>
-        }
-        {{ item.label | translate }}
-      </span>
-      @if (item.count !== undefined) {
-      <span class="inline-flex items-center justify-center min-w-[36px] h-7 px-2 rounded-full text-xs font-semibold"
-        [ngClass]="rla.isActive ? 'bg-primary-100 dark:bg-primary-100 text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{ item.count }}</span>
-      }
+      <ng-container *ngTemplateOutlet="itemContent; context: { item: item, active: rla.isActive }"></ng-container>
     </a>
+    } @else {
+    <button type="button" [attr.data-cy]="item.dataCy" (click)="item.onClick?.(); closeOnClick && closeMobileMenu()"
+      class="flex items-center justify-between w-full p-4 rounded-2xl text-base font-medium text-gray-900 dark:text-white transition-colors hover:bg-secondary-50/50 dark:hover:bg-secondary-300 focus:outline-none cursor-pointer">
+      <ng-container *ngTemplateOutlet="itemContent; context: { item: item, active: false }"></ng-container>
+    </button>
+    }
     }
   </div>
+  }
+</ng-template>
+
+<!-- Shared item content (icon, label, count badge) for both the <a> and <button> variants -->
+<ng-template #itemContent let-item="item" let-active="active">
+  <span class="flex items-center gap-3">
+    @if (resolvedIcon(item.icon)) {
+    <fa-icon [icon]="resolvedIcon(item.icon)!" class="w-5 h-5"></fa-icon>
+    }
+    {{ item.label | translate }}
+  </span>
+  @if (item.count !== undefined) {
+  <span class="inline-flex items-center justify-center min-w-[36px] h-7 px-2 rounded-full text-xs font-semibold"
+    [ngClass]="active ? 'bg-primary-100 dark:bg-primary-100 text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{ item.count }}</span>
+  }
+  @if (item.onClick) {
+  <fa-icon [icon]="externalLinkIcon" class="w-3.5 h-3.5 opacity-60 shrink-0"></fa-icon>
   }
 </ng-template>

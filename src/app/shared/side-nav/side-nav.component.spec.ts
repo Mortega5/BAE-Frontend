@@ -14,8 +14,9 @@ import { SideNavSection } from './side-nav.model';
 class HostComponent {
   title = 'NS._title';
   showDesktopSidebar = true;
+  onActionClick = jasmine.createSpy('onActionClick');
   sections: SideNavSection[] = [
-    { items: [{ label: 'NS._offers', routerLink: '/offers', count: 3 }] },
+    { items: [{ label: 'NS._offers', routerLink: '/offers', count: 3 }, { label: 'NS._action', onClick: () => this.onActionClick() }] },
     { label: 'NS._specs', items: [{ label: 'NS._products', routerLink: '/products' }] },
   ];
 }
@@ -121,6 +122,37 @@ describe('SideNavComponent', () => {
     document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
     hostFixture.detectChanges();
 
+    expect(drawer().classList).toContain('-translate-x-full');
+  });
+
+  it('should render an onClick item as a plain button and invoke its callback', () => {
+    const desktopButton = Array.from(hostFixture.nativeElement.querySelectorAll('[data-cy="sideNavDesktop"] button'))
+      .find((el: any) => el.textContent.includes('NS._action')) as HTMLButtonElement;
+
+    expect(desktopButton).toBeTruthy();
+    expect(desktopButton.querySelector('fa-icon')).toBeTruthy();
+    desktopButton.click();
+
+    expect(hostFixture.componentInstance.onActionClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('should not render the external-link icon for a plain routerLink item', () => {
+    const routerLinkItem = Array.from(hostFixture.nativeElement.querySelectorAll('[data-cy="sideNavDesktop"] a'))
+      .find((el: any) => el.textContent.includes('NS._offers')) as HTMLAnchorElement;
+
+    expect(routerLinkItem.querySelector('fa-icon')).toBeNull();
+  });
+
+  it('should close the mobile drawer when an onClick item inside it is clicked', () => {
+    mobileMenuButton().click();
+    hostFixture.detectChanges();
+
+    const mobileButton = Array.from(hostFixture.nativeElement.querySelectorAll('[data-cy="sideNavMobileDrawer"] button'))
+      .find((el: any) => el.textContent.includes('NS._action')) as HTMLButtonElement;
+    mobileButton.click();
+    hostFixture.detectChanges();
+
+    expect(hostFixture.componentInstance.onActionClick).toHaveBeenCalledTimes(1);
     expect(drawer().classList).toContain('-translate-x-full');
   });
 });
