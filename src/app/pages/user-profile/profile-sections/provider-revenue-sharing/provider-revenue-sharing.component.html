@@ -1,23 +1,33 @@
-<h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">Provider revenue sharing</h2>
-@if (loading) {
+<app-card>
+  <div appCardHeader>
+    <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">Provider revenue sharing
+    </h2>
+  </div>
+  <div appCardContent>
+    @if (loading) {
     <app-loading-spinner containerClass="h-full flex justify-center align-middle" />
-} @else {        
-        
-    @for (section of report; track section) {
-        <div class="border border-primary-100 dark:border-primary-50 rounded-lg p-4 md:p-8 mb-4">           
-      
-            <app-revenue-report [node]="section"></app-revenue-report>
-        </div>
-      }
-      
+    } @else {
 
-}
-@if(showError){
-    <div class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-      <div id="alert-additional-content-2" class="p-4 mb-4 text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-red-900 dark:border-red-900 dark:text-white" role="alert">
+    @for (section of report; track section) {
+    <app-card class="m-4">
+      <div appCardContent>
+        <app-revenue-report [node]="section"></app-revenue-report>
+      </div>
+    </app-card>
+    }
+
+    }
+    @if(showError){
+    <div
+      class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+      <div id="alert-additional-content-2"
+        class="p-4 mb-4 text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-red-900 dark:border-red-900 dark:text-white"
+        role="alert">
         <div class="flex items-center">
-          <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+          <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+            fill="currentColor" viewBox="0 0 20 20">
+            <path
+              d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
           </svg>
           <h3 class="text-lg font-medium">Error</h3>
         </div>
@@ -26,4 +36,6 @@
         </div>
       </div>
     </div>
-  }
+    }
+  </div>
+</app-card>

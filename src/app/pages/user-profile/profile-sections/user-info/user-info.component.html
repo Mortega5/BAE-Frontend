@@ -1,23 +1,30 @@
 @if (loading) {
 <app-loading-spinner containerClass="w-3/4 md:w-4/5 h-full flex justify-center align-middle" />
 } @else {
-  <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._account' |
-    translate }}</h2>
-  <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
-  <app-dynamic-form class="block m-4" [fields]="accountFields" [formGroup]="accountForm" [columns]="2" />
-  <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._personal_info' |
-    translate }}</h2>
-  <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
-  <app-dynamic-form class="block m-4" [fields]="profileFields" [formGroup]="userProfileForm" [columns]="6" />
-  <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._birthdate' |
-    translate }}</h2>
-  <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
-  <app-dynamic-form class="block m-4" [fields]="birthdateFields" [formGroup]="userProfileForm" [columns]="2" />
-  <div class="flex w-full justify-end">
-    <app-button type="button" [disabled]="!userProfileForm.valid" (click)="updateProfile()" class="m-2">
+<app-card>
+  <div appCardBody>
+    <div>
+      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._account' |
+        translate }}</h2>
+    </div>
+    <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
+    <app-dynamic-form class="block m-4" [fields]="accountFields" [formGroup]="accountForm" [columns]="2" />
+    <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._personal_info'
+      |
+      translate }}</h2>
+    <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
+    <app-dynamic-form class="block m-4" [fields]="profileFields" [formGroup]="userProfileForm" [columns]="6" />
+    <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._birthdate' |
+      translate }}</h2>
+    <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
+    <app-dynamic-form class="block m-4" [fields]="birthdateFields" [formGroup]="userProfileForm" [columns]="2" />
+  </div>
+  <div appCardFooter>
+    <app-button type="button" [disabled]="!userProfileForm.valid" (click)="updateProfile()">
       {{ 'PROFILE._update' | translate }}
     </app-button>
   </div>
+</app-card>
 }
 @if(showError){
 <error-message

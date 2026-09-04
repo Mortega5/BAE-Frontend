@@ -1,4 +1,5 @@
 import {Component, EventEmitter, HostListener, Input, OnDestroy, OnInit, Output} from '@angular/core';
+import { faCheck } from '@fortawesome/pro-solid-svg-icons';
 import {billingAccountCart} from "../../../models/interfaces";
 import {TranslateModule} from "@ngx-translate/core";
 import {NgClass} from "@angular/common";
@@ -15,6 +16,8 @@ import { takeUntil } from 'rxjs/operators';
   styleUrl: './billing-address.component.css'
 })
 export class BillingAddressComponent implements OnDestroy {
+
+  readonly faCheck = faCheck;
 
   @Input() position: number = 0;
   @Input() data: billingAccountCart = {
@@ -49,6 +52,11 @@ export class BillingAddressComponent implements OnDestroy {
         this.editBill=false;
       }
     })
+  }
+
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.editBill) this.editBill = false;
   }
 
   @HostListener('document:click')

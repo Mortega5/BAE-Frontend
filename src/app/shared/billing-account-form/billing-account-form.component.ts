@@ -176,6 +176,7 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
     if (!this.checkPhoneNumber()) return;
 
     if (this.billingForm.invalid) {
+      this.billingForm.markAllAsTouched();
       this.toastVisibility = true;
       setTimeout(() => {
         this.toastVisibility = false
@@ -247,6 +248,7 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
     if (!this.checkPhoneNumber()) return;
 
     if (this.billingForm.invalid) {
+      this.billingForm.markAllAsTouched();
       this.toastVisibility = true;
       setTimeout(() => {
         this.toastVisibility = false

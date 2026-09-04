@@ -120,6 +120,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     })
   }
 
+  @HostListener('document:keydown.escape')
+  onEscape(): void {
+    if (this.addBill) this.addBill = false;
+  }
+
   @HostListener('document:click')
   onClick() {
     if (this.addBill == true) {

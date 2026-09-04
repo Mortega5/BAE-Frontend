@@ -16,31 +16,19 @@
   <h1 class="mb-4 pb-2 mt-4 text-4xl font-extrabold leading-none tracking-tight text-gray-900 md:text-4xl lg:text-5xl dark:text-white w-full"><span class="underline underline-offset-3 decoration-8 decoration-primary-100 dark:decoration-primary-100">{{ 'SHOPPING_CART._checkout' | translate }}</span></h1>
   <div class="m-auto flex w-full flex-col items-center rtl:space-x-reverse lg:flex-row lg:items-start lg:space-x-8">
     
-    <div class="w-full space-y-6 ">      
-      <div class="bg-secondary-50 dark:bg-secondary-100 p-5 shadow-700 md:p-8 rounded rounded-lg">
-        <div class="mb-5 flex items-center justify-between md:mb-8">
+    <div class="w-full space-y-6 ">
+      <app-card>
+        <div appCardHeader class="flex items-center justify-between">
           <div class="flex items-center space-x-3 rtl:space-x-reverse md:space-x-4"><span
             class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-base text-white lg:text-xl">1</span>
             <p class="text-lg capitalize text-heading lg:text-xl dark:text-white">{{ 'SHOPPING_CART._contact' | translate }}</p>
           </div>
-
-          <!--<button
-            class="flex items-center text-sm font-semibold text-accent transition-colors duration-200 hover:text-accent-hover focus:text-accent-hover focus:outline-0">
-            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-4 w-4 stroke-2 ltr:mr-0.5 rtl:ml-0.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-            </svg>
-            {{ 'SHOPPING_CART._update' | translate }}
-          </button>-->
         </div>
-        <div class="w-full">
-          <div class="">
-            <div class="special-label dark:text-white">{{ 'SHOPPING_CART._contact_person' | translate }}</div>
-            <p class="text-lg text-heading lg:text-xl dark:text-white">{{contact.username}} {{contact.email}}</p>
-          </div>
-        </div>
-      </div>
-      <div class="bg-secondary-50 dark:bg-secondary-100 p-5 shadow-700 md:p-8 rounded rounded-lg">
-        <div class="mb-5 flex items-center justify-between md:mb-8">
+        <div class="special-label dark:text-white">{{ 'SHOPPING_CART._contact_person' | translate }}</div>
+        <p class="text-lg text-heading lg:text-xl dark:text-white">{{contact.username}} {{contact.email}}</p>
+      </app-card>
+      <app-card>
+        <div appCardHeader class="flex items-center justify-between">
           <div class="flex items-center space-x-3 rtl:space-x-reverse md:space-x-4"><span
             class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-base text-white lg:text-xl">2</span>
             <p class="text-lg capitalize text-heading lg:text-xl dark:text-white">{{ 'SHOPPING_CART._billingAddress' | translate }}</p></div>
@@ -55,42 +43,34 @@
         <div id="billing-addresses" role="radiogroup" aria-labelledby="billing-addresses">
           <label class="sr-only" id="billing-addresses-label" role="none">{{ 'SHOPPING_CART._billingAddress' | translate }}</label>
           @if (billingAddresses.length > 0) {
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3" role="none">
+            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2" role="none">
               @for(baddr of billingAddresses; track baddr.id; let pos = $index) {
                 <app-billing-address [data]="baddr" [position]="pos" (selectedEvent)="onSelected($event)" (deletedEvent)="onDeleted($event)"></app-billing-address>
               }
             </div>
           } @else {
             <app-billing-account-form [preferred]="true"></app-billing-account-form>
-            <!--
-              <button class="inline-flex items-center justify-center shrink-0 font-semibold leading-none rounded outline-none transition duration-300 ease-in-out focus:outline-0 focus:shadow focus:ring-1 focus:ring-accent-700 bg-primary-50 text-white border border-transparent hover:bg-primary-100 px-5 py-0 h-12 w-full col-span-2">
-                Add Billing Address
-              </button>
-            -->
           }
         </div>
-      </div>
-      <div class="bg-secondary-50 dark:bg-secondary-100 p-5 shadow-700 md:p-8 rounded rounded-lg">
-        <div class="mb-5 flex items-center justify-between md:mb-8">
+      </app-card>
+      <app-card>
+        <div appCardHeader class="flex items-center justify-between">
           <div class="flex items-center space-x-3 rtl:space-x-reverse md:space-x-4"><span
             class="flex h-8 w-8 items-center justify-center rounded-full bg-primary-100 text-base text-white lg:text-xl">3</span>
             <p class="text-lg capitalize text-heading lg:text-xl dark:text-white">{{ 'SHOPPING_CART._order_note' | translate }}</p></div>
         </div>
-        <div class="block">
-          <div>
-            <textarea id="large-input" name="orderNote" [(ngModel)]="orderNote"
-              class="flex w-full min-h-fit dark:text-white dark:bg-secondary-300 dark:border-secondary-200 dark:focus:border-primary-100 items-center rounded px-4 py-3 text-sm text-heading transition duration-300 ease-in-out focus:outline-0 focus:ring-0 border border-border-base focus:border-accent"
-              autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-              rows="4">
-            </textarea>
-          </div>
-        </div>
-      </div>
+        <textarea id="large-input" name="orderNote" [(ngModel)]="orderNote"
+          class="flex w-full min-h-fit dark:text-white dark:bg-secondary-300 dark:border-secondary-200 dark:focus:border-primary-100 items-center rounded px-4 py-3 text-sm text-heading transition duration-300 ease-in-out focus:outline-0 focus:ring-0 border border-border-base focus:border-accent"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          rows="4">
+        </textarea>
+      </app-card>
     </div>
-    <div class="w-full lg:w-3/4 rounded rounded-lg bg-secondary-50 dark:bg-secondary-100 p-4 mt-8 lg:mt-0">
+    <app-card class="w-full lg:w-3/4 mt-8 lg:mt-0">
+      <div appCardHeader>
+        <span class="text-2xl text-start font-bold dark:text-white">{{ 'SHOPPING_CART._your_order' | translate }}</span>
+      </div>
       <div class="w-full">
-        <div class="mb-4 flex flex-col items-center space-x-4 rtl:space-x-reverse">
-          <span class="text-2xl text-start font-bold dark:text-white">{{ 'SHOPPING_CART._your_order' | translate }}</span></div>
         <div class="flex flex-col border-b border-border-200 py-3">
           @if(loadingItems){
             <app-loading-spinner />
@@ -186,43 +166,41 @@
             </p>
           </div>
         }
-        <app-button data-cy="checkout" (click)="orderProduct()" [disabled]="items.length==0 || !this.validBillAddr" class="w-full mt-5">
+      </div>
+      <div appCardFooter>
+        <app-button data-cy="checkout" (click)="orderProduct()" [disabled]="items.length==0 || !this.validBillAddr" class="w-full">
           {{ 'SHOPPING_CART._checkout' | translate }}
         </app-button>
       </div>
-    </div>
+    </app-card>
   </div>
 </div>
 
 <!-- BILL ADDRESS ADD modal -->
 @if (addBill){
-  <div id="add-bill-modal"
-  [ngClass]="addBill ? 'backdrop-blur-sm' : ''"
-  tabindex="-1"
-  aria-hidden="true"
-  class="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4">
-
-    <div class="w-full max-w-2xl bg-secondary-50 dark:bg-secondary-100 border border-secondary-50 dark:border-gray-800 rounded-lg shadow-xl relative"
-        (click)="$event.stopPropagation();">
-    
-      <!-- Modal header -->
-      <div class="flex items-center justify-between p-4 border-b dark:border-gray-600">
-        <h2 class="text-xl md:text-2xl lg:text-3xl font-bold text-primary-100 dark:text-white">
-          {{ 'BILLING._add' | translate }}:
-        </h2>
+  <div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4">
+    <app-card variant="modal" class="w-full max-w-2xl max-h-[90vh]" (click)="$event.stopPropagation()">
+      <div appCardHeader class="flex items-center justify-between">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+          {{ 'BILLING._add' | translate }}
+        </h3>
         <app-button (click)="addBill=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark">
           <span class="sr-only">{{ 'CARD._close' | translate }}</span>
         </app-button>
       </div>
 
-      <!-- Modal body -->
-      <div class="max-h-[80vh] overflow-y-auto p-4">
-        <app-billing-account-form [preferred]="preferred"></app-billing-account-form>
+      <app-billing-account-form #billingAccountForm [preferred]="preferred" [showActions]="false"></app-billing-account-form>
+
+      <div appCardFooter class="flex gap-3">
+        <app-button type="button" (click)="addBill=false;" variant="ghost" size="sm">
+          {{ 'BILLING._cancel' | translate }}
+        </app-button>
+        <app-button type="button" (click)="billingAccountForm.createBilling()" suffixIcon="floppy-disk">
+          {{ 'BILLING._add' | translate }}
+        </app-button>
       </div>
-
-    </div>
+    </app-card>
   </div>
-
 }
 @if(showError){
   <error-message class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50" [message]="errorMessage"></error-message>

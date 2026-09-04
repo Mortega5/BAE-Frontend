@@ -1,22 +1,22 @@
-import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
-import { LoginInfo, billingAccountCart } from 'src/app/models/interfaces';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import { AccountServiceService } from 'src/app/services/account-service.service';
-import { LocalStorageService } from "src/app/services/local-storage.service";
-import { ProductOrderService } from 'src/app/services/product-order-service.service';
-import { components } from "src/app/models/product-catalog";
-import { FormGroup, FormControl, Validators } from '@angular/forms';
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-type ProductOffering = components["schemas"]["ProductOffering"];
-import { phoneNumbers, countries } from 'src/app/models/country.const'
+import { faEdit } from '@fortawesome/pro-solid-svg-icons';
 import { initFlowbite } from 'flowbite';
-import { EventMessageService } from "src/app/services/event-message.service";
 import moment from 'moment';
-import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { countries } from 'src/app/models/country.const';
+import { LoginInfo, billingAccountCart } from 'src/app/models/interfaces';
+import { components } from "src/app/models/product-catalog";
 import { TableColumn } from 'src/app/models/table-column.model';
-import { faEdit } from '@fortawesome/pro-solid-svg-icons';
+import { AccountServiceService } from 'src/app/services/account-service.service';
+import { EventMessageService } from "src/app/services/event-message.service";
+import { LocalStorageService } from "src/app/services/local-storage.service";
+import { ProductOrderService } from 'src/app/services/product-order-service.service';
+import { ApiServiceService } from 'src/app/services/product-service.service';
+import { environment } from 'src/environments/environment';
+type ProductOffering = components["schemas"]["ProductOffering"];
 
 @Component({
   selector: 'billing-info',
@@ -333,18 +333,17 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
   }
 
   private buildBillingColumns(): TableColumn[] {
-    const selectedBg = (bill: billingAccountCart) => bill.selected ? 'bg-primary-30 dark:bg-secondary-200' : '';
     return [
       {
         header: 'BILLING._title', getValue: bill => bill.name,
-        cellClass: bill => `${this.hasLongWord(bill.name, 20) ? 'break-all' : 'break-words'} ${selectedBg(bill)}`,
+        cellClass: bill => `${this.hasLongWord(bill.name, 20) ? 'break-all' : 'break-words'}`,
       },
-      { header: 'BILLING._email', getValue: bill => bill.email, cellClass: bill => `break-all ${selectedBg(bill)}` },
+      { header: 'BILLING._email', getValue: bill => bill.email, cellClass: bill => `break-all` },
       {
         header: 'BILLING._postalAddress', getValue: bill => this.formatBillingAddress(bill),
-        cellClass: bill => `break-all ${selectedBg(bill)}`,
+        cellClass: bill => `break-all`,
       },
-      { header: 'BILLING._phone', getValue: bill => `(${bill.telephoneType}) ${bill.telephoneNumber}`, cellClass: selectedBg },
+      { header: 'BILLING._phone', getValue: bill => `(${bill.telephoneType}) ${bill.telephoneNumber}` },
       ...(!this.isReadOnly ? [{
         type: 'actions', header: 'BILLING._action',
         width: 'w-28',

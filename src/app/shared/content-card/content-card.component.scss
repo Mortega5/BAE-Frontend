@@ -1,6 +1,14 @@
 /* --card-* variables are defined globally in styles.css (body / .dark body) so
    any theme can override them directly. Everything below only consumes them. */
 
+:host {
+  /* Custom elements default to display:inline, which silently breaks width
+     utilities and sibling-margin spacing (e.g. space-y-*) in any non-flex
+     parent. Flex/grid parents auto-blockify their children, which is why
+     this went unnoticed in modal/backdrop usages. */
+  display: block;
+}
+
 .app-card {
   @apply rounded-2xl border;
   background-color: var(--card-bg);

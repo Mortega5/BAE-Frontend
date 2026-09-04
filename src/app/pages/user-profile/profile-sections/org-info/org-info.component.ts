@@ -187,7 +187,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
       { header: 'PROFILE._contact_title', getValue: medium => this.getMediumContactType(medium) },
       { header: 'PROFILE._info', hideOnMobile: true, getValue: medium => this.getMediumInfo(medium) },
       ...(!this.isReadOnly ? [{
-        type: 'actions', header: 'PROFILE._actions',
+        type: 'actions', header: 'PROFILE._actions', width: 'w-32',
         actions: [
           { icon: faEdit, onClick: (medium: any) => this.showEdit(medium), dataCy: 'editContact' },
           {

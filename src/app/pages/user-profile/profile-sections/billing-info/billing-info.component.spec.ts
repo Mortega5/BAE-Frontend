@@ -5,6 +5,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { By } from '@angular/platform-browser';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
+import { BillingAccountFormComponent } from 'src/app/shared/billing-account-form/billing-account-form.component';
 
 import { BillingInfoComponent } from './billing-info.component';
 
@@ -22,7 +23,7 @@ describe('BillingInfoComponent', () => {
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
       imports: [HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot(), TableInputComponent],
-      declarations: [BillingInfoComponent]
+      declarations: [BillingInfoComponent, BillingAccountFormComponent]
     })
     .compileComponents();
 

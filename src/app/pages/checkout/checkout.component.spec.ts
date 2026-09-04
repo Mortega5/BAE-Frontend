@@ -15,6 +15,7 @@ import { ShoppingCartServiceService } from '../../services/shopping-cart-service
 import { PaymentService } from 'src/app/services/payment.service';
 import { ApiServiceService } from '../../services/product-service.service';
 import { environment } from '../../../environments/environment';
+import { BillingAccountFormComponent } from 'src/app/shared/billing-account-form/billing-account-form.component';
 
 describe('CheckoutComponent', () => {
   let component: CheckoutComponent;
@@ -78,7 +79,7 @@ describe('CheckoutComponent', () => {
     apiServiceSpy.getOfferingPrice.and.resolveTo({});
 
     await TestBed.configureTestingModule({
-      declarations: [CheckoutComponent],
+      declarations: [CheckoutComponent, BillingAccountFormComponent],
       imports: [TranslateModule.forRoot()],
       providers: [
         { provide: LocalStorageService, useValue: localStorageSpy },
@@ -170,6 +171,24 @@ describe('CheckoutComponent', () => {
 
     expect(component.addBill).toBeFalse();
     expect(detectSpy).toHaveBeenCalled();
+  });
+
+  it('Escape key should close the add-billing modal when it is open', () => {
+    component.addBill = true;
+
+    component.onEscape();
+
+    expect(component.addBill).toBeFalse();
+  });
+
+  it('should render an extra billing form for the add-billing modal only when addBill is true', () => {
+    fixture.detectChanges();
+    const initialCount = fixture.nativeElement.querySelectorAll('app-billing-account-form').length;
+
+    component.addBill = true;
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelectorAll('app-billing-account-form').length).toBe(initialCount + 1);
   });
 
   it('createProductOrder should include buyer, billing account and optional note', () => {
