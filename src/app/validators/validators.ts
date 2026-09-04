@@ -1,5 +1,6 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 import * as yaml from 'js-yaml';
+import { parsePhoneNumber } from 'libphonenumber-js/max';
 
 export const pricePlanValidator: ValidatorFn = (form: AbstractControl): ValidationErrors | null => {
   const paymentOnline = form.get('paymentOnline')?.value;
@@ -57,4 +58,17 @@ export function yamlValidator(control: AbstractControl): ValidationErrors | null
   if (value == null) return null;
   const values = Array.isArray(value) ? value : [value];
   return values.every(v => isValidSingleValue(v, yaml.load)) ? null : { invalidYaml: true };
+}
+
+/** Validates the combined dialable string `app-phone-number-input` produces (e.g. "+34612345678").
+ * Empty is left to `required` — this only rejects a non-empty, unparseable/invalid number. */
+export function phoneNumberValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value;
+  if (value == null || value === '') return null;
+  try {
+    const phoneNumber = parsePhoneNumber(value);
+    return phoneNumber?.isValid() ? null : { invalidPhoneNumber: true };
+  } catch {
+    return { invalidPhoneNumber: true };
+  }
 }

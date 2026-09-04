@@ -45,7 +45,8 @@
         <app-button type="button" (click)="editBill=false;" variant="ghost" size="sm">
           {{ 'BILLING._cancel' | translate }}
         </app-button>
-        <app-button type="button" (click)="billingAccountForm.updateBilling()" suffixIcon="floppy-disk">
+        <app-button type="button" (click)="billingAccountForm.updateBilling()"
+          [disabled]="billingAccountForm.billingForm.invalid" suffixIcon="floppy-disk">
           {{ 'BILLING._update' | translate }}
         </app-button>
       </div>

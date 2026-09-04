@@ -14,6 +14,10 @@ interface BaseFormField {
   dataCy?: string;
   /** Extra validators merged with the ones `buildFormGroup` derives automatically (e.g. required, code-language checks). */
   validators?: ValidatorFn[];
+  /** Maps a validator error key (e.g. 'email', 'maxlength', or a custom key set via `setErrors`)
+   * to the i18n key shown under the field once it's touched+invalid. 'required' always shows
+   * the shared `FORMS._required` message regardless of this map. */
+  errorMessages?: Record<string, string>;
 }
 
 interface TextBaseFormField extends BaseFormField {

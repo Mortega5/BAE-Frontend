@@ -195,7 +195,8 @@
         <app-button type="button" (click)="addBill=false;" variant="ghost" size="sm">
           {{ 'BILLING._cancel' | translate }}
         </app-button>
-        <app-button type="button" (click)="billingAccountForm.createBilling()" suffixIcon="floppy-disk">
+        <app-button type="button" (click)="billingAccountForm.createBilling()"
+          [disabled]="billingAccountForm.billingForm.invalid" suffixIcon="floppy-disk">
           {{ 'BILLING._add' | translate }}
         </app-button>
       </div>

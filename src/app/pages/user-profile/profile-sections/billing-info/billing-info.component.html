@@ -60,7 +60,7 @@
       </app-button>
       <app-button type="button"
         (click)="billToUpdate ? billingAccountForm.updateBilling() : billingAccountForm.createBilling()"
-        suffixIcon="floppy-disk">
+        [disabled]="billingAccountForm.billingForm.invalid" suffixIcon="floppy-disk">
         {{ (billToUpdate ? 'BILLING._update' : 'BILLING._add') | translate }}
       </app-button>
     </div>

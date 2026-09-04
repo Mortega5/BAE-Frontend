@@ -1,6 +1,5 @@
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-import { parsePhoneNumber } from 'libphonenumber-js/max';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -27,18 +26,34 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
   @Input() showActions: boolean = true;
 
   readonly billingFields: FormField[] = [
-    { type: 'string', name: 'name', label: 'BILLING._title', required: true, colSpan: 2, dataCy: 'billingTitle', validators: [Validators.maxLength(250)] },
-    { type: 'string', name: 'city', label: 'BILLING._city', required: true, dataCy: 'billingCity', validators: [Validators.maxLength(250)], colSpan: 1, },
-    { type: 'string', name: 'stateOrProvince', label: 'BILLING._state', required: true, dataCy: 'billingState', validators: [Validators.maxLength(250)], colSpan: 1, },
+    {
+      type: 'string', name: 'name', label: 'BILLING._title', required: true, colSpan: 2, dataCy: 'billingTitle',
+      validators: [Validators.maxLength(250)], errorMessages: { maxlength: 'BILLING._too_long' },
+    },
+    {
+      type: 'string', name: 'city', label: 'BILLING._city', required: true, dataCy: 'billingCity', colSpan: 1,
+      validators: [Validators.maxLength(250)], errorMessages: { maxlength: 'BILLING._too_long' },
+    },
+    {
+      type: 'string', name: 'stateOrProvince', label: 'BILLING._state', required: true, dataCy: 'billingState', colSpan: 1,
+      validators: [Validators.maxLength(250)], errorMessages: { maxlength: 'BILLING._too_long' },
+    },
     {
       type: 'select', name: 'country', label: 'BILLING._country', required: true, defaultValue: 'AT', dataCy: 'billingCountry', colSpan: 1,
       options: euCountries.map(country => ({ value: country.code, label: country.name })),
     },
-    { type: 'string', name: 'postCode', label: 'BILLING._post_code', required: true, dataCy: 'billingZip', validators: [Validators.maxLength(250)], colSpan: 1, },
-    { type: 'textarea', name: 'street', label: 'BILLING._street', required: true, colSpan: 2, rows: 4, dataCy: 'billingAddress', validators: [Validators.maxLength(1000)] },
+    {
+      type: 'string', name: 'postCode', label: 'BILLING._post_code', required: true, dataCy: 'billingZip', colSpan: 1,
+      validators: [Validators.maxLength(250)], errorMessages: { maxlength: 'BILLING._too_long' },
+    },
+    {
+      type: 'textarea', name: 'street', label: 'BILLING._street', required: true, colSpan: 2, rows: 4, dataCy: 'billingAddress',
+      validators: [Validators.maxLength(1000)], errorMessages: { maxlength: 'BILLING._too_long_larger' },
+    },
     {
       type: 'string', name: 'email', label: 'BILLING._email', required: true, colSpan: 2, dataCy: 'billingEmail',
       validators: [Validators.email, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'), Validators.maxLength(320)],
+      errorMessages: { email: 'BILLING._email_format', pattern: 'BILLING._email_format', maxlength: 'BILLING._too_long_email' },
     },
     {
       type: 'select', name: 'telephoneType', label: 'BILLING._phone_type', defaultValue: 'Mobile',
@@ -48,11 +63,12 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
       ],
       colSpan: 1
     },
-    { type: 'phoneNumber', name: 'telephoneNumber', label: 'BILLING._phone', required: true, dataCy: 'billingPhone', colSpan: 1 },
+    {
+      type: 'phoneNumber', name: 'telephoneNumber', label: 'BILLING._phone', required: true, dataCy: 'billingPhone', colSpan: 1,
+      errorMessages: { invalidPhoneNumber: 'BILLING._invalid_phone' },
+    },
   ];
   billingForm = buildFormGroup(this.billingFields);
-
-  toastVisibility: boolean = false;
 
   partyId: any;
   partyInfo: any = {
@@ -149,169 +165,124 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
     });
   }
 
-  private checkPhoneNumber(): boolean {
-    try {
-      const phoneNumber = parsePhoneNumber(this.billingForm.value.telephoneNumber);
-      if (phoneNumber && !phoneNumber.isValid()) {
-        this.billingForm.controls['telephoneNumber'].setErrors({ 'invalidPhoneNumber': true });
-        this.toastVisibility = true;
-        setTimeout(() => {
-          this.toastVisibility = false
-        }, 2000);
-        return false;
-      }
-      this.billingForm.controls['telephoneNumber'].setErrors(null);
-      return true;
-    } catch (error) {
-      this.billingForm.controls['telephoneNumber'].setErrors({ 'invalidPhoneNumber': true });
-      this.toastVisibility = true;
-      setTimeout(() => {
-        this.toastVisibility = false
-      }, 2000);
-      return false;
-    }
-  }
-
   createBilling() {
-    if (!this.checkPhoneNumber()) return;
-
-    if (this.billingForm.invalid) {
-      this.billingForm.markAllAsTouched();
-      this.toastVisibility = true;
-      setTimeout(() => {
-        this.toastVisibility = false
-      }, 2000);
-      return;
-    } else {
-      this.loading = true;
-      let billacc = {
-        name: this.billingForm.value.name,
-        contact: [{
-          contactMedium: [
-            {
-              mediumType: 'Email',
-              preferred: this.preferred,
-              characteristic: {
-                contactType: 'Email',
-                emailAddress: this.billingForm.value.email
-              }
-            },
-            {
-              mediumType: 'PostalAddress',
-              preferred: this.preferred,
-              characteristic: {
-                contactType: 'PostalAddress',
-                city: this.billingForm.value.city,
-                country: this.billingForm.value.country,
-                postCode: this.billingForm.value.postCode,
-                stateOrProvince: this.billingForm.value.stateOrProvince,
-                street1: this.billingForm.value.street
-              }
-            },
-            {
-              mediumType: 'TelephoneNumber',
-              preferred: this.preferred,
-              characteristic: {
-                contactType: this.billingForm.value.telephoneType,
-                phoneNumber: this.billingForm.value.telephoneNumber
-              }
+    if (this.billingForm.invalid) return;
+    this.loading = true;
+    let billacc = {
+      name: this.billingForm.value.name,
+      contact: [{
+        contactMedium: [
+          {
+            mediumType: 'Email',
+            preferred: this.preferred,
+            characteristic: {
+              contactType: 'Email',
+              emailAddress: this.billingForm.value.email
             }
-          ]
-        }],
-        relatedParty: [this.partyInfo],
-        state: "Defined"
-      }
-      this.accountService.postBillingAccount(billacc).subscribe({
-        next: data => {
-          this.eventMessage.emitBillAccChange(true);
-          this.resetBillingForm();
-          this.loading = false;
-        },
-        error: error => {
-          this.loading = false;
-          console.error('There was an error while creating!', error);
-          if (error.error.error) {
-            this.errorMessage = 'Error: ' + error.error.error;
-          } else {
-            this.errorMessage = 'There was an error while creating billing account!';
+          },
+          {
+            mediumType: 'PostalAddress',
+            preferred: this.preferred,
+            characteristic: {
+              contactType: 'PostalAddress',
+              city: this.billingForm.value.city,
+              country: this.billingForm.value.country,
+              postCode: this.billingForm.value.postCode,
+              stateOrProvince: this.billingForm.value.stateOrProvince,
+              street1: this.billingForm.value.street
+            }
+          },
+          {
+            mediumType: 'TelephoneNumber',
+            preferred: this.preferred,
+            characteristic: {
+              contactType: this.billingForm.value.telephoneType,
+              phoneNumber: this.billingForm.value.telephoneNumber
+            }
           }
-          this.showError = true;
-          setTimeout(() => {
-            this.showError = false;
-          }, 3000);
-        }
-      });
+        ]
+      }],
+      relatedParty: [this.partyInfo],
+      state: "Defined"
     }
+    this.accountService.postBillingAccount(billacc).subscribe({
+      next: data => {
+        this.eventMessage.emitBillAccChange(true);
+        this.resetBillingForm();
+        this.loading = false;
+      },
+      error: error => {
+        this.loading = false;
+        console.error('There was an error while creating!', error);
+        if (error.error.error) {
+          this.errorMessage = 'Error: ' + error.error.error;
+        } else {
+          this.errorMessage = 'There was an error while creating billing account!';
+        }
+        this.showError = true;
+        setTimeout(() => {
+          this.showError = false;
+        }, 3000);
+      }
+    });
   }
 
   updateBilling() {
-    if (!this.checkPhoneNumber()) return;
-
-    if (this.billingForm.invalid) {
-      this.billingForm.markAllAsTouched();
-      this.toastVisibility = true;
-      setTimeout(() => {
-        this.toastVisibility = false
-      }, 2000);
-      return;
-    } else {
-      if (this.billAcc != undefined) {
-        let bill_body = {
-          name: this.billingForm.value.name,
-          contact: [{
-            contactMedium: [
-              {
-                mediumType: 'Email',
-                preferred: this.billAcc.selected,
-                characteristic: {
-                  contactType: 'Email',
-                  emailAddress: this.billingForm.value.email
-                }
-              },
-              {
-                mediumType: 'PostalAddress',
-                preferred: this.billAcc.selected,
-                characteristic: {
-                  contactType: 'PostalAddress',
-                  city: this.billingForm.value.city,
-                  country: this.billingForm.value.country,
-                  postCode: this.billingForm.value.postCode,
-                  stateOrProvince: this.billingForm.value.stateOrProvince,
-                  street1: this.billingForm.value.street
-                }
-              },
-              {
-                mediumType: 'TelephoneNumber',
-                preferred: this.billAcc.selected,
-                characteristic: {
-                  contactType: this.billingForm.value.telephoneType,
-                  phoneNumber: this.billingForm.value.telephoneNumber
-                }
-              }
-            ]
-          }],
-          relatedParty: [this.partyInfo],
-          state: "Defined"
-        }
-        this.accountService.updateBillingAccount(this.billAcc.id, bill_body).subscribe({
-          next: data => {
-            this.eventMessage.emitBillAccChange(false);
-            this.resetBillingForm();
-          },
-          error: error => {
-            console.error('There was an error while updating!', error);
-            if (error.error.error) {
-              this.errorMessage = 'Error: ' + error.error.error;
-            } else {
-              this.errorMessage = 'There was an error while updating billing account!';
+    if (this.billingForm.invalid || this.billAcc == undefined) return;
+    let bill_body = {
+      name: this.billingForm.value.name,
+      contact: [{
+        contactMedium: [
+          {
+            mediumType: 'Email',
+            preferred: this.billAcc.selected,
+            characteristic: {
+              contactType: 'Email',
+              emailAddress: this.billingForm.value.email
             }
-            this.showError = true;
-            setTimeout(() => {
-              this.showError = false;
-            }, 3000);
+          },
+          {
+            mediumType: 'PostalAddress',
+            preferred: this.billAcc.selected,
+            characteristic: {
+              contactType: 'PostalAddress',
+              city: this.billingForm.value.city,
+              country: this.billingForm.value.country,
+              postCode: this.billingForm.value.postCode,
+              stateOrProvince: this.billingForm.value.stateOrProvince,
+              street1: this.billingForm.value.street
+            }
+          },
+          {
+            mediumType: 'TelephoneNumber',
+            preferred: this.billAcc.selected,
+            characteristic: {
+              contactType: this.billingForm.value.telephoneType,
+              phoneNumber: this.billingForm.value.telephoneNumber
+            }
           }
-        });
-      }
+        ]
+      }],
+      relatedParty: [this.partyInfo],
+      state: "Defined"
     }
+    this.accountService.updateBillingAccount(this.billAcc.id, bill_body).subscribe({
+      next: data => {
+        this.eventMessage.emitBillAccChange(false);
+        this.resetBillingForm();
+      },
+      error: error => {
+        console.error('There was an error while updating!', error);
+        if (error.error.error) {
+          this.errorMessage = 'Error: ' + error.error.error;
+        } else {
+          this.errorMessage = 'There was an error while updating billing account!';
+        }
+        this.showError = true;
+        setTimeout(() => {
+          this.showError = false;
+        }, 3000);
+      }
+    });
   }
 }

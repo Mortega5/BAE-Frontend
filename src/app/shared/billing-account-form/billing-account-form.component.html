@@ -7,40 +7,16 @@
   @if (showActions) {
   <div class="flex w-full justify-end mt-4">
     @if(is_create){
-    <app-button data-cy="addBilling" type="button" (click)="createBilling()" [disabled]="!billingForm.valid">
+    <app-button data-cy="addBilling" type="button" (click)="createBilling()" [disabled]="billingForm.invalid">
       {{ 'BILLING._add' | translate }}
     </app-button>
     } @else {
-    <app-button (click)="updateBilling()" [disabled]="!billingForm.valid">
+    <app-button (click)="updateBilling()" [disabled]="billingForm.invalid">
       {{ 'BILLING._update' | translate }}
     </app-button>
     }
   </div>
   }
-</div>
-}
-<!-- INFO (CREATED/UPDATED/ERROR) TOAST -->
-@if (toastVisibility) {
-<div id="toast-warning"
-  class="flex m-2 items-center w-fit max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 fixed top-1/2 right-0 z-50 justify-center"
-  role="alert">
-  <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 bg-red-700 text-red-200 rounded-lg">
-    <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-      <path
-        d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z" />
-    </svg>
-  </div>
-  <div>
-    @if(billingForm.get('telephoneNumber')?.errors?.['invalidPhoneNumber'] == true){
-    <div class="block ms-3 text-sm font-normal">{{ 'BILLING._invalid_phone' | translate }}</div>
-    }
-    @if(this.billingForm.get('email')?.invalid == true){
-    <div class="block ms-3 text-sm font-normal">{{ 'BILLING._invalid_email' | translate }}</div>
-    }
-  </div>
-  <app-button type="button" (click)="toastVisibility=false" variant="ghost" size="sm" prefixIcon="xmark" class="ms-auto">
-    <span class="sr-only">Close</span>
-  </app-button>
 </div>
 }
 @if(showError){
