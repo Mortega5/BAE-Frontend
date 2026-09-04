@@ -937,7 +937,8 @@
     "_subtotal": "Sub Total",
     "_tax": "Tax",
     "_calculated": "Calculated at checkout",
-    "_fee": "Service fee*"
+    "_fee": "Service fee*",
+    "_no_items": "Your cart is empty."
   },
   "PROFILE": {
     "_general": "General",

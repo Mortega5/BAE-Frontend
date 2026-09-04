@@ -71,65 +71,54 @@
         <span class="text-2xl text-start font-bold dark:text-white">{{ 'SHOPPING_CART._your_order' | translate }}</span>
       </div>
       <div class="w-full">
-        <div class="flex flex-col border-b border-border-200 py-3">
+        <div class="flex flex-col gap-3 py-3">
           @if(loadingItems){
             <app-loading-spinner />
          } @else {
           @for (item of items; track item.id; let idx = $index) {
-          <!-- <div class="flex justify-between py-2">
-            <div class="flex items-center justify-between text-base">
-              <img class="w-10 pr-2" [src]="item.image" alt="{{ item.name }}">
-              <span class="text-sm text-body">
-                <span class="text-sm font-bold text-heading">1</span><span class="mx-2">x</span><span>{{item.name}}</span>
-              </span>
-            </div>
-            <span class="text-sm text-body"> {{ getPrice(item).text }} {{ formatter.format(getPrice(item).price) }}</span></div> -->
-              <div data-cy="checkoutOffering" class="flex justify-between w-full mt-2 mb-2 rounded-lg bg-white border-secondary-50 dark:bg-primary-100 dark:border-secondary-200 border shadow-lg">
-                <div class="flex flex-col w-full">
-                  <div class="flex justify-between w-full">
-                    <button type="button" (click)="goToProdDetails(item)" class="flex p-2 box-decoration-clone">
-                      @if (item.image) {
-                         <img class="rounded-lg w-fit h-[100px]" src="{{item.image}}" alt="">
-                      } @else {
-                         <img class="rounded-lg w-fit h-[100px]" src="https://placehold.co/600x400/svg" alt="">
-                      }
-                   </button>
-                   <div class="p-2 flex items-center w-2/3">
-                      <p [ngClass]="{
-                        'break-all': hasLongWord(item.name, 20),
-                        'break-words': !hasLongWord(item.name, 20)
-                        }" class="text-lg text-gray-700 dark:text-gray-200 line-clamp-4 text-wrap break-words">{{item.name}}</p>
-                   </div> 
-                  </div>              
-                 <div class="p-2 flex items-center">
-                  <div class="p-2 flex items-center flex-row">
-                    @if (item.options.pricing) {
-                       <div class="items-center text-sm text-white">
-                          @for (price of item.options.pricing; track price) {
-                            <div class="flex place-content-center flex-col">
-                              <span class="font-bold text-gray-900 dark:text-primary-50 mr-3">{{ price['priceType'] }}:</span>
-                              <span class="text-xs text-gray-900 dark:text-primary-50">
-                                @if(price['priceType'] == 'usage'){
-                                  Estimated price:
-                                }
-                                {{ price['price']['taxIncludedAmount']['value'] }} {{ price['price']['taxIncludedAmount']['unit'] }}
-                                 @if(hasKey(price, 'recurringChargePeriod')){
-                                    / {{ price['recurringChargePeriod'] }}
-                                 }
-                              </span>
-                           </div>
-                          }
-                          </div>
-                    }
-                    </div>
-                 </div>
-                </div>
-               <div class="p-2 flex items-center">
+              <app-item-card data-cy="checkoutOffering" [selected]="true">
+                <button type="button" (click)="goToProdDetails(item)" class="shrink-0">
+                  @if (item.image) {
+                     <img class="rounded-xl w-20 h-20 object-cover" src="{{item.image}}" alt="">
+                  } @else {
+                     <img class="rounded-xl w-20 h-20 object-cover" src="https://placehold.co/600x400/svg" alt="">
+                  }
+               </button>
+               <div class="min-w-0 flex-1">
+                  <p [ngClass]="{
+                    'break-all': hasLongWord(item.name, 20),
+                    'break-words': !hasLongWord(item.name, 20)
+                    }" class="text-sm font-semibold text-gray-900 dark:text-white line-clamp-4 text-wrap">{{item.name}}</p>
+                  @if (item.options.pricing) {
+                     <div class="mt-1 flex flex-wrap gap-3">
+                        @for (price of item.options.pricing; track price) {
+                          <span class="text-xs text-gray-600 dark:text-gray-400">
+                            <span class="font-semibold text-gray-900 dark:text-white">{{ price['priceType'] }}:</span>
+                            @if(price['priceType'] == 'usage'){
+                              Estimated price:
+                            }
+                            {{ price['price']['taxIncludedAmount']['value'] }} {{ price['price']['taxIncludedAmount']['unit'] }}
+                             @if(hasKey(price, 'recurringChargePeriod')){
+                                / {{ price['recurringChargePeriod'] }}
+                             }
+                          </span>
+                        }
+                     </div>
+                  }
+               </div>
+               <div class="shrink-0">
                   <app-button type="button" (click)="deleteProduct(item)" variant="ghost" size="sm" prefixIcon="xmark">
                     <span class="sr-only">{{ 'SHOPPING_CART._remove_item' | translate }}</span>
                   </app-button>
                </div>
+            </app-item-card>
+          } @empty {
+          <div class="w-full rounded-2xl flex flex-col items-center justify-center px-6 py-6 text-center">
+            <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 bg-[#DDE6F6] dark:bg-secondary-300">
+              <fa-icon [icon]="faCartShopping" class="text-3xl text-primary-100 dark:text-primary-50"></fa-icon>
             </div>
+            <p class="text-base font-semibold text-gray-900 dark:text-white mb-1">{{ 'SHOPPING_CART._no_items' | translate }}</p>
+          </div>
           }
         }
         </div>
@@ -167,11 +156,13 @@
           </div>
         }
       </div>
+      @if (items.length > 0) {
       <div appCardFooter>
-        <app-button data-cy="checkout" (click)="orderProduct()" [disabled]="items.length==0 || !this.validBillAddr" class="w-full">
+        <app-button data-cy="checkout" (click)="orderProduct()" [disabled]="!this.validBillAddr" class="w-full">
           {{ 'SHOPPING_CART._checkout' | translate }}
         </app-button>
       </div>
+      }
     </app-card>
   </div>
 </div>

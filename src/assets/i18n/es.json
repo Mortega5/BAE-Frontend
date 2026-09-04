@@ -937,7 +937,8 @@
     "_subtotal": "Subtotal",
     "_tax": "Impuestos",
     "_calculated": "Se calcula al finalizar la compra",
-    "_fee": "Tasa de servicio*"
+    "_fee": "Tasa de servicio*",
+    "_no_items": "Tu carrito está vacío."
   },
   "PROFILE": {
     "_general": "General",

@@ -13,8 +13,8 @@
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <button type="button" (click)="pick('standard')" data-cy="planSubtypeStandard"
         [ngClass]="selectedType === 'standard'
-          ? 'bg-cyan-50 dark:bg-cyan-950/30 border-cyan-500 dark:border-cyan-400 shadow-[0_4px_24px_rgba(0,84,98,0.2)]'
-          : 'bg-white dark:bg-secondary-200 border-gray-200 dark:border-gray-800 hover:border-primary-100 dark:hover:border-primary-50'"
+          ? 'bg-[var(--card-selected-bg)] border-[var(--card-selected-border)]'
+          : 'bg-[var(--card-bg)] border-[var(--card-border)] hover:border-[var(--card-hover-border)]'"
         class="flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
         <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._standard_plan' | translate }}</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._standard_plan_desc' | translate }}</p>
@@ -22,8 +22,8 @@
 
       <button type="button" (click)="pick('flex')" data-cy="planSubtypeFlex"
         [ngClass]="selectedType === 'flex'
-          ? 'bg-cyan-50 dark:bg-cyan-950/30 border-cyan-500 dark:border-cyan-400 shadow-[0_4px_24px_rgba(0,84,98,0.2)]'
-          : 'bg-white dark:bg-secondary-200 border-gray-200 dark:border-gray-800 hover:border-primary-100 dark:hover:border-primary-50'"
+          ? 'bg-[var(--card-selected-bg)] border-[var(--card-selected-border)]'
+          : 'bg-[var(--card-bg)] border-[var(--card-border)] hover:border-[var(--card-hover-border)]'"
         class="flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
         <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._flex_plan' | translate }}</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._flex_plan_desc' | translate }}</p>

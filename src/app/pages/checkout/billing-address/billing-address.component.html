@@ -1,9 +1,5 @@
-<div role="radio" [attr.aria-checked]="data.selected" tabindex="0"
-  class="group relative flex items-center gap-3 cursor-pointer rounded-2xl border p-5 pr-14 transition-colors"
-  [ngClass]="data.selected
-    ? 'bg-cyan-50 dark:bg-cyan-950/30 border-cyan-500 dark:border-cyan-400 shadow-[0_4px_24px_rgba(0,84,98,0.2)]'
-    : 'bg-white dark:bg-secondary-200 border-gray-200 dark:border-gray-800 hover:border-primary-100 dark:hover:border-primary-50'"
-  (click)="selectBillingAddress($event)">
+<app-item-card role="radio" [attr.aria-checked]="data.selected" tabindex="0" class="group" [selected]="data.selected"
+  [clickable]="true" (click)="selectBillingAddress($event)">
   <div class="flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors"
     [ngClass]="data.selected
       ? 'border-primary-100 dark:border-primary-50 bg-primary-100 dark:bg-primary-50'
@@ -12,7 +8,7 @@
       <fa-icon [icon]="faCheck" class="text-[10px] text-white"></fa-icon>
     }
   </div>
-  <div class="min-w-0 flex-1">
+  <div class="min-w-0 flex-1 pr-8">
     <p [ngClass]="{
       'break-all': hasLongWord(data.name, 20),
       'break-words': !hasLongWord(data.name, 20)
@@ -24,7 +20,7 @@
       <span class="sr-only">{{ 'BILLING._edit' | translate }}</span>
     </app-button>
   </div>
-</div>
+</app-item-card>
 
 <!-- BILL ADDRESS EDIT modal -->
 @if (editBill){

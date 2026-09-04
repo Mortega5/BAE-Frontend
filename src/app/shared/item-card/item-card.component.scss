@@ -1,0 +1,32 @@
+/* --card-* variables are defined globally in styles.css (body / .dark body) so
+   any theme can override them directly. Everything below only consumes them. */
+
+:host {
+  display: block;
+}
+
+.app-item-card {
+  @apply rounded-2xl border p-5 flex items-center gap-3 transition-colors relative;
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+
+  &[data-clickable] {
+    cursor: pointer;
+  }
+
+  &[data-clickable]:hover {
+    border-color: var(--card-hover-border);
+  }
+
+  &[data-selected] {
+    background-color: var(--card-selected-bg);
+    border-color: var(--card-selected-border);
+
+    /* Wins over the plain &[data-clickable]:hover rule above on specificity
+       (two attribute selectors vs one) — a selected card keeps its accent
+       border on hover instead of flipping to the neutral hover color. */
+    &[data-clickable]:hover {
+      border-color: var(--card-selected-border);
+    }
+  }
+}

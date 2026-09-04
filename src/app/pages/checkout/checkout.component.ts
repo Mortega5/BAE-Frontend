@@ -429,8 +429,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       if(this.providerId){
         await this.getProviderInfo();
         this.groupItemsByOwner(this.providerId);
-        this.loadingItems=false;
       }
+      this.loadingItems=false;
       this.cdr.detectChanges();
       this.getTotalPrice();
       console.log('------------------')
@@ -649,8 +649,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       if(this.providerId){
         await this.getProviderInfo();
         this.groupItemsByOwner(this.providerId);
-        this.loadingItems=false;
       }
+      this.loadingItems=false;
       this.cdr.detectChanges();
       this.getTotalPrice();
       console.log('------------------')

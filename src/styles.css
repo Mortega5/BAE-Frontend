@@ -130,6 +130,11 @@ body {
 
   --card-bg: #fff;
   --card-border: #EBECEE;
+  /* app-item-card theme tokens — border colors use primary-100 in light / primary-50
+     in dark, the same pairing --card-hover-border and most button/link states use. */
+  --card-selected-bg: rgb(var(--theme-secondary-50));
+  --card-selected-border: rgb(var(--theme-primary-100));
+  --card-hover-border: rgb(var(--theme-primary-100));
 }
 
 /* bae's --theme-primary-50 was deliberately darkened (see "update stepper theme
@@ -181,6 +186,9 @@ body.theme-bae {
   --card-bg: #2e2e2e;
   --card-border: #ffffff26;
   /* gray-800 */
+  --card-selected-bg: rgb(var(--theme-primary-100) / 20%);
+  --card-selected-border: rgb(var(--theme-primary-50));
+  --card-hover-border: rgb(var(--theme-primary-50));
 }
 
 /* Default styles for Markdown elements */

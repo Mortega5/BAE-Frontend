@@ -10,8 +10,8 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <button type="button" data-cy="pricePlanTypeFree" (click)="selectPriceTier('free')"
         [ngClass]="priceType === 'free'
-          ? 'bg-cyan-50 dark:bg-cyan-950/30 border-cyan-500 dark:border-cyan-400 shadow-[0_4px_24px_rgba(0,84,98,0.2)]'
-          : 'bg-white dark:bg-secondary-200 border-gray-200 dark:border-gray-800 hover:border-primary-100 dark:hover:border-primary-50'"
+          ? 'bg-[var(--card-selected-bg)] border-[var(--card-selected-border)]'
+          : 'bg-[var(--card-bg)] border-[var(--card-border)] hover:border-[var(--card-hover-border)]'"
         class="flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
         <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._price_tier_free' | translate }}</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._price_tier_free_desc' | translate }}</p>
@@ -19,8 +19,8 @@
       @if(!custom){
       <button type="button" data-cy="pricePlanTypeTailored" (click)="selectPriceTier('tailored')"
         [ngClass]="priceType === 'tailored'
-          ? 'bg-cyan-50 dark:bg-cyan-950/30 border-cyan-500 dark:border-cyan-400 shadow-[0_4px_24px_rgba(0,84,98,0.2)]'
-          : 'bg-white dark:bg-secondary-200 border-gray-200 dark:border-gray-800 hover:border-primary-100 dark:hover:border-primary-50'"
+          ? 'bg-[var(--card-selected-bg)] border-[var(--card-selected-border)]'
+          : 'bg-[var(--card-bg)] border-[var(--card-border)] hover:border-[var(--card-hover-border)]'"
         class="flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
         <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._price_tier_tailored' | translate }}</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._price_tier_tailored_desc' | translate }}</p>
@@ -28,8 +28,8 @@
       }
       <button type="button" data-cy="pricePlanTypePaid" (click)="selectPriceTier('paid')"
         [ngClass]="priceType === 'paid'
-          ? 'bg-cyan-50 dark:bg-cyan-950/30 border-cyan-500 dark:border-cyan-400 shadow-[0_4px_24px_rgba(0,84,98,0.2)]'
-          : 'bg-white dark:bg-secondary-200 border-gray-200 dark:border-gray-800 hover:border-primary-100 dark:hover:border-primary-50'"
+          ? 'bg-[var(--card-selected-bg)] border-[var(--card-selected-border)]'
+          : 'bg-[var(--card-bg)] border-[var(--card-border)] hover:border-[var(--card-hover-border)]'"
         class="flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
         <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._price_tier_online' | translate }}</h3>
         <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._price_tier_online_desc' | translate }}</p>
