@@ -12,7 +12,8 @@ import { Tender, TenderAttachment, TenderStateType } from 'src/app/models/tender
 import { Quote, QuoteStateType } from 'src/app/models/quote.model';
 import { environment } from 'src/environments/environment';
 import { LoginInfo } from 'src/app/models/interfaces';
-import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/confirm-dialog.component';
+import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { ButtonVariant } from 'src/app/shared/button/button.component';
 import { QuoteDetailsModalComponent } from 'src/app/shared/quote-details-modal/quote-details-modal.component';
 import { ChatModalComponent } from 'src/app/shared/chat-modal/chat-modal.component';
 import { AttachmentModalComponent } from 'src/app/shared/attachment-modal/attachment-modal.component';
@@ -26,7 +27,7 @@ import { COORDINATOR_STATUS_MESSAGES, QUOTE_CATEGORIES, QUOTE_STATUSES, TENDERIN
   imports: [
     CommonModule,
     FormsModule,
-    ConfirmDialogComponent,
+    ConfirmModalComponent,
     QuoteDetailsModalComponent,
     ChatModalComponent,
     AttachmentModalComponent,
@@ -498,26 +499,28 @@ import { COORDINATOR_STATUS_MESSAGES, QUOTE_CATEGORIES, QUOTE_STATUSES, TENDERIN
     </div>
 
     <!-- Delete Confirmation Dialog -->
-    <app-confirm-dialog
-      [isOpen]="showDeleteConfirm"
+    <app-confirm-modal
+      [visible]="showDeleteConfirm"
       title="Delete Quote"
       [message]="deleteConfirmMessage"
-      confirmText="Delete"
-      confirmButtonClass="inline-flex h-10 items-center rounded-lg border border-[#F4C7C7] bg-white px-4 text-sm font-semibold text-[#B42318] transition-colors hover:bg-[#FFF1F1] focus:outline-none focus:ring-2 focus:ring-[#F4C7C7] disabled:cursor-not-allowed disabled:opacity-50"
-      (confirm)="deleteQuote()"
-      (cancel)="showDeleteConfirm = false"
-    ></app-confirm-dialog>
+      confirmLabel="Delete"
+      cancelLabel="Cancel"
+      confirmVariant="danger"
+      (confirmed)="deleteQuote()"
+      (cancelled)="showDeleteConfirm = false"
+    ></app-confirm-modal>
 
     <!-- Generic Confirmation Dialog -->
-    <app-confirm-dialog
-      [isOpen]="showGenericConfirm"
+    <app-confirm-modal
+      [visible]="showGenericConfirm"
       [title]="genericConfirmTitle"
       [message]="genericConfirmMessage"
-      [confirmText]="genericConfirmButtonText"
-      [confirmButtonClass]="genericConfirmButtonClass"
-      (confirm)="genericConfirmCallback && genericConfirmCallback()"
-      (cancel)="showGenericConfirm = false"
-    ></app-confirm-dialog>
+      [confirmLabel]="genericConfirmButtonText"
+      cancelLabel="Cancel"
+      [confirmVariant]="genericConfirmVariant"
+      (confirmed)="genericConfirmCallback && genericConfirmCallback()"
+      (cancelled)="showGenericConfirm = false"
+    ></app-confirm-modal>
 
     <!-- State Update Modal -->
     <div *ngIf="showStateUpdate" class="fixed inset-0 z-50 h-full w-full overflow-y-auto bg-[#0b1220]/45 px-4 py-8">
@@ -755,7 +758,7 @@ export class TenderListComponent implements OnInit {
   genericConfirmTitle = '';
   genericConfirmMessage = '';
   genericConfirmButtonText = 'Confirm';
-  genericConfirmButtonClass = 'inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] focus:outline-none focus:ring-2 focus:ring-[#B6CAEC] disabled:cursor-not-allowed disabled:opacity-50';
+  genericConfirmVariant: ButtonVariant = 'primary';
   genericConfirmCallback: (() => void) | null = null;
   isBroadcastSending = false;
 
@@ -1112,12 +1115,12 @@ export class TenderListComponent implements OnInit {
     message: string,
     callback: () => void,
     buttonText: string = 'Confirm',
-    buttonClass: string = 'inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] focus:outline-none focus:ring-2 focus:ring-[#B6CAEC] disabled:cursor-not-allowed disabled:opacity-50'
+    variant: ButtonVariant = 'primary'
   ) {
     this.genericConfirmTitle = title;
     this.genericConfirmMessage = message;
     this.genericConfirmButtonText = buttonText;
-    this.genericConfirmButtonClass = buttonClass;
+    this.genericConfirmVariant = variant;
     this.genericConfirmCallback = () => {
       callback();
       this.showGenericConfirm = false;
@@ -1226,7 +1229,7 @@ export class TenderListComponent implements OnInit {
       'Are you sure you want to broadcast this message to all the invited providers?',
       () => this.executeBroadcastMessage(),
       'Send',
-      'inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] focus:outline-none focus:ring-2 focus:ring-[#B6CAEC] disabled:cursor-not-allowed disabled:opacity-50'
+      'primary'
     );
   }
 
@@ -1429,7 +1432,7 @@ export class TenderListComponent implements OnInit {
         });
       },
       'Accept',
-      'inline-flex h-10 items-center rounded-lg bg-[#006B4A] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#00523A] focus:outline-none focus:ring-2 focus:ring-[#B8E6D1] disabled:cursor-not-allowed disabled:opacity-50'
+      'primary'
     );
   }
 
@@ -1459,7 +1462,7 @@ export class TenderListComponent implements OnInit {
         });
       },
       'Cancel Request',
-      'inline-flex h-10 items-center rounded-lg border border-[#F4C7C7] bg-white px-4 text-sm font-semibold text-[#B42318] transition-colors hover:bg-[#FFF1F1] focus:outline-none focus:ring-2 focus:ring-[#F4C7C7] disabled:cursor-not-allowed disabled:opacity-50'
+      'danger'
     );
   }
 
@@ -1496,7 +1499,7 @@ export class TenderListComponent implements OnInit {
         });
       },
       'Start Tender',
-      'inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] focus:outline-none focus:ring-2 focus:ring-[#B6CAEC] disabled:cursor-not-allowed disabled:opacity-50'
+      'primary'
     );
   }
 
@@ -1533,7 +1536,7 @@ export class TenderListComponent implements OnInit {
         });
       },
       'Close Tender',
-      'inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] focus:outline-none focus:ring-2 focus:ring-[#B6CAEC] disabled:cursor-not-allowed disabled:opacity-50'
+      'primary'
     );
   }
 
@@ -1571,7 +1574,7 @@ export class TenderListComponent implements OnInit {
         });
       },
       'Accept',
-      'inline-flex h-10 items-center rounded-lg bg-[#006B4A] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#00523A] focus:outline-none focus:ring-2 focus:ring-[#B8E6D1] disabled:cursor-not-allowed disabled:opacity-50'
+      'primary'
     );
   }
 
@@ -1583,7 +1586,7 @@ export class TenderListComponent implements OnInit {
       'Are you sure you want to accept this quote? Every other quote in this tender will be Rejected.',
       () => this.executeAcceptTenderQuote(quote, shortId),
       'Accept',
-      'inline-flex h-10 items-center rounded-lg bg-[#006B4A] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#00523A] focus:outline-none focus:ring-2 focus:ring-[#B8E6D1] disabled:cursor-not-allowed disabled:opacity-50'
+      'primary'
     );
   }
 
@@ -1685,7 +1688,7 @@ export class TenderListComponent implements OnInit {
         });
       },
       'Reject',
-      'inline-flex h-10 items-center rounded-lg border border-[#F4C7C7] bg-white px-4 text-sm font-semibold text-[#B42318] transition-colors hover:bg-[#FFF1F1] focus:outline-none focus:ring-2 focus:ring-[#F4C7C7] disabled:cursor-not-allowed disabled:opacity-50'
+      'danger'
     );
   }
 
@@ -1715,7 +1718,7 @@ export class TenderListComponent implements OnInit {
         });
       },
       'Cancel Quote',
-      'inline-flex h-10 items-center rounded-lg border border-[#F4C7C7] bg-white px-4 text-sm font-semibold text-[#B42318] transition-colors hover:bg-[#FFF1F1] focus:outline-none focus:ring-2 focus:ring-[#F4C7C7] disabled:cursor-not-allowed disabled:opacity-50'
+      'danger'
     );
   }
 

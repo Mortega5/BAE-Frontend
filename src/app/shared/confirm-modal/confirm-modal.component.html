@@ -1,0 +1,17 @@
+@if (visible) {
+<div class="fixed inset-0 z-[60] bg-black/40 dark:bg-black/60 flex items-center justify-center p-4"
+  (click)="$event.stopPropagation(); cancelled.emit()">
+  <app-card variant="modal" class="w-full max-w-md" (click)="$event.stopPropagation()">
+    <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ title | translate }}</h3>
+    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{{ message | translate }}</p>
+    <div appCardFooter class="flex gap-3">
+      <app-button type="button" variant="ghost" size="sm" (click)="$event.stopPropagation(); cancelled.emit()">
+        {{ cancelLabel | translate }}
+      </app-button>
+      <app-button type="button" [variant]="confirmVariant" (click)="$event.stopPropagation(); confirmed.emit()">
+        {{ confirmLabel | translate }}
+      </app-button>
+    </div>
+  </app-card>
+</div>
+}

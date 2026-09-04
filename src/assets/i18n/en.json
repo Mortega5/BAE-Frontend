@@ -739,6 +739,14 @@
     "_owner": "Owner",
     "_price_plan": "Price Plan"
   },
+  "CONFIRM_MODAL": {
+    "_confirm": "Confirm",
+    "_cancel": "Cancel",
+    "_discard_title": "Discard changes?",
+    "_discard_message": "You have unsaved changes. If you close now, they will be lost.",
+    "_discard": "Discard",
+    "_keep_editing": "Keep editing"
+  },
   "CATEGORIES_FILTER": {
     "_remove_badge": "Remove badge",
     "_applied_filters": "Applied filters:"

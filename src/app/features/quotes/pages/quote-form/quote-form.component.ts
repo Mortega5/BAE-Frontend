@@ -5,12 +5,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { QuoteService } from '../../services/quote.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { Quote } from 'src/app/models/quote.model';
-import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/confirm-dialog.component';
+import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-quote-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ConfirmDialogComponent],
+  imports: [CommonModule, ReactiveFormsModule, ConfirmModalComponent],
   template: `
     <div class="container mx-auto px-4 py-8">
       <div class="max-w-3xl mx-auto">
@@ -174,15 +174,16 @@ import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/confirm-di
     </div>
 
     <!-- Cancel Confirmation Dialog -->
-    <app-confirm-dialog
-      [isOpen]="showCancelConfirm"
+    <app-confirm-modal
+      [visible]="showCancelConfirm"
       title="Cancel Changes"
       message="Are you sure you want to cancel? Any unsaved changes will be lost."
-      confirmText="Yes, Cancel"
-      confirmButtonClass="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-      (confirm)="cancel()"
-      (cancel)="showCancelConfirm = false"
-    ></app-confirm-dialog>
+      confirmLabel="Yes, Cancel"
+      cancelLabel="Cancel"
+      confirmVariant="danger"
+      (confirmed)="cancel()"
+      (cancelled)="showCancelConfirm = false"
+    ></app-confirm-modal>
   `
 })
 export class QuoteFormComponent implements OnInit {

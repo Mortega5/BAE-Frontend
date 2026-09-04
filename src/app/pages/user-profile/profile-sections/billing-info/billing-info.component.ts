@@ -1,4 +1,5 @@
-import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { BillingAccountFormComponent } from 'src/app/shared/billing-account-form/billing-account-form.component';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { faEdit } from '@fortawesome/pro-solid-svg-icons';
@@ -39,6 +40,8 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
   billToDelete: any;
   billToUpdate: any;
   showBillingModal: boolean = false;
+  showDiscardConfirm: boolean = false;
+  @ViewChild('billingAccountForm') billingAccountFormRef?: BillingAccountFormComponent;
   deleteBill: boolean = false;
   showOrderDetails: boolean = false;
   orderToShow: any;
@@ -78,7 +81,11 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.showBillingModal) this.cancelBillingModal();
+    if (this.showDiscardConfirm) {
+      this.showDiscardConfirm = false;
+      return;
+    }
+    if (this.showBillingModal) this.requestCloseBillingModal();
   }
 
   @HostListener('document:click')
@@ -317,6 +324,24 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
   cancelBillingModal(): void {
     this.billToUpdate = undefined;
     this.showBillingModal = false;
+  }
+
+  /** Closes the modal directly when nothing was touched, otherwise asks for confirmation first. */
+  requestCloseBillingModal(): void {
+    if (this.billingAccountFormRef?.billingForm.dirty) {
+      this.showDiscardConfirm = true;
+      return;
+    }
+    this.cancelBillingModal();
+  }
+
+  confirmDiscardBillingModal(): void {
+    this.showDiscardConfirm = false;
+    this.cancelBillingModal();
+  }
+
+  cancelDiscardBillingModal(): void {
+    this.showDiscardConfirm = false;
   }
 
   toggleDeleteBill(bill: billingAccountCart) {

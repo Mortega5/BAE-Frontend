@@ -20,7 +20,6 @@ export class FaqComponent implements OnInit {
   deleteConfirmTitle = 'Delete FAQ';
   deleteConfirmMessage = '';
   deleteConfirmButtonText = 'Delete';
-  deleteConfirmButtonClass = 'px-4 py-2 text-sm font-medium text-white bg-red-700 border border-transparent rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500';
 
   constructor(
     private router: Router,

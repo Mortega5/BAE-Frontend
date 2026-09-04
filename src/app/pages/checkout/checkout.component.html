@@ -184,7 +184,7 @@
         <h3 class="text-xl font-bold text-gray-900 dark:text-white">
           {{ 'BILLING._add' | translate }}
         </h3>
-        <app-button (click)="addBill=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark">
+        <app-button (click)="requestCloseAddBill()" type="button" variant="ghost" size="sm" prefixIcon="xmark">
           <span class="sr-only">{{ 'CARD._close' | translate }}</span>
         </app-button>
       </div>
@@ -192,7 +192,7 @@
       <app-billing-account-form #billingAccountForm [preferred]="preferred" [showActions]="false"></app-billing-account-form>
 
       <div appCardFooter class="flex gap-3">
-        <app-button type="button" (click)="addBill=false;" variant="ghost" size="sm">
+        <app-button type="button" (click)="requestCloseAddBill()" variant="ghost" size="sm">
           {{ 'BILLING._cancel' | translate }}
         </app-button>
         <app-button type="button" (click)="billingAccountForm.createBilling()"
@@ -203,6 +203,9 @@
     </app-card>
   </div>
 }
+<app-confirm-modal [visible]="showDiscardConfirm" title="CONFIRM_MODAL._discard_title"
+  message="CONFIRM_MODAL._discard_message" confirmLabel="CONFIRM_MODAL._discard" cancelLabel="CONFIRM_MODAL._keep_editing"
+  (confirmed)="confirmDiscardAddBill()" (cancelled)="cancelDiscardAddBill()" />
 @if(showError){
   <error-message class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50" [message]="errorMessage"></error-message>
 }

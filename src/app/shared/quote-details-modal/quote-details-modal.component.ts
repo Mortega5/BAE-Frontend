@@ -14,13 +14,14 @@ import { QUOTE_STATUS_MESSAGES, TENDERING_STATUS_MESSAGES, COORDINATOR_STATUS_ME
 import { API_ROLES } from '../../models/roles.constants';
 import { NotificationComponent } from '../notification/notification.component';
 import { ChatModalComponent } from '../chat-modal/chat-modal.component';
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
+import { ButtonVariant } from '../button/button.component';
 import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-quote-details-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, NotificationComponent, ChatModalComponent, ConfirmDialogComponent],
+  imports: [CommonModule, FormsModule, NotificationComponent, ChatModalComponent, ConfirmModalComponent],
   template: `
     <!-- Modal Backdrop -->
     <div
@@ -403,15 +404,16 @@ import { environment } from 'src/environments/environment';
     </div>
 
     <!-- Confirmation Dialog -->
-    <app-confirm-dialog
-      [isOpen]="showConfirmDialog"
+    <app-confirm-modal
+      [visible]="showConfirmDialog"
       [title]="confirmDialogTitle"
       [message]="confirmDialogMessage"
-      [confirmText]="confirmDialogButtonText"
-      [confirmButtonClass]="confirmDialogButtonClass"
-      (confirm)="confirmDialogCallback && confirmDialogCallback()"
-      (cancel)="showConfirmDialog = false"
-    ></app-confirm-dialog>
+      [confirmLabel]="confirmDialogButtonText"
+      cancelLabel="Cancel"
+      [confirmVariant]="confirmDialogVariant"
+      (confirmed)="confirmDialogCallback && confirmDialogCallback()"
+      (cancelled)="showConfirmDialog = false"
+    ></app-confirm-modal>
   `
 })
 export class QuoteDetailsModalComponent implements OnInit, OnChanges {
@@ -435,7 +437,7 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
   confirmDialogMessage = '';
   confirmDialogCallback: (() => void) | null = null;
   confirmDialogButtonText = 'Confirm';
-  confirmDialogButtonClass = 'inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] focus:outline-none focus:ring-2 focus:ring-[#B6CAEC] disabled:cursor-not-allowed disabled:opacity-50';
+  confirmDialogVariant: ButtonVariant = 'primary';
 
   // Data enrichment
   buyerName = 'Loading...';
@@ -958,7 +960,7 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
     this.confirmDialogTitle = 'Accept Quote Request';
     this.confirmDialogMessage = 'Are you sure you want to accept this quote request?';
     this.confirmDialogButtonText = 'Accept';
-    this.confirmDialogButtonClass = 'inline-flex h-10 items-center rounded-lg bg-[#006B4A] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#00533A] focus:outline-none focus:ring-2 focus:ring-[#A8DDC8] disabled:cursor-not-allowed disabled:opacity-50';
+    this.confirmDialogVariant = 'primary';
     this.confirmDialogCallback = () => {
       this.isProcessing = true;
       const quoteId = this.quote!.id!;
@@ -994,7 +996,7 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
       ? 'Are you sure you want to accept this offer? All other provider offers in this tender will be rejected.'
       : 'Are you sure you want to accept this quote proposal?';
     this.confirmDialogButtonText = 'Accept';
-    this.confirmDialogButtonClass = 'inline-flex h-10 items-center rounded-lg bg-[#006B4A] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#00533A] focus:outline-none focus:ring-2 focus:ring-[#A8DDC8] disabled:cursor-not-allowed disabled:opacity-50';
+    this.confirmDialogVariant = 'primary';
     this.confirmDialogCallback = () => {
       this.isProcessing = true;
       const quoteId = this.quote!.id!;
@@ -1066,7 +1068,7 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
       ? 'Are you sure you want to cancel this tender? This will also cancel all related provider invites.'
       : 'Are you sure you want to cancel this quote?';
     this.confirmDialogButtonText = isCoordinator ? 'Cancel Tender' : 'Cancel Quote';
-    this.confirmDialogButtonClass = 'inline-flex h-10 items-center rounded-lg border border-[#F4C7C7] bg-white px-4 text-sm font-semibold text-[#B42318] transition-colors hover:bg-[#FFF1F1] focus:outline-none focus:ring-2 focus:ring-[#F4C7C7] disabled:cursor-not-allowed disabled:opacity-50';
+    this.confirmDialogVariant = 'danger';
     this.confirmDialogCallback = () => {
       this.isProcessing = true;
       this.showConfirmDialog = false;
@@ -1193,7 +1195,7 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
     this.confirmDialogTitle = 'Broadcast Message';
     this.confirmDialogMessage = 'Are you sure you want to broadcast this message to all the invited providers?';
     this.confirmDialogButtonText = 'Send';
-    this.confirmDialogButtonClass = 'inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] focus:outline-none focus:ring-2 focus:ring-[#B6CAEC] disabled:cursor-not-allowed disabled:opacity-50';
+    this.confirmDialogVariant = 'primary';
 
     this.confirmDialogCallback = () => {
       this.executeBroadcastMessage();

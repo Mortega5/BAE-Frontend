@@ -1,4 +1,4 @@
-import {ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit} from '@angular/core';
+import {ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {firstValueFrom, lastValueFrom} from 'rxjs';
 import {TranslateModule} from "@ngx-translate/core";
 import {LocalStorageService} from "../../services/local-storage.service";
@@ -43,6 +43,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   loading: boolean = false;
   loading_baddrs: boolean = false;
   addBill: boolean = false;
+  showDiscardConfirm: boolean = false;
+  @ViewChild('billingAccountForm') billingAccountFormRef?: BillingAccountFormComponent;
   relatedParty: string = '';
   contact = {email: '', username: ''};
   formatter: any;
@@ -122,15 +124,38 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.addBill) this.addBill = false;
+    if (this.showDiscardConfirm) {
+      this.showDiscardConfirm = false;
+      return;
+    }
+    if (this.addBill) this.requestCloseAddBill();
   }
 
   @HostListener('document:click')
   onClick() {
     if (this.addBill == true) {
-      this.addBill = false;
+      this.requestCloseAddBill();
       this.cdr.detectChanges();
     }
+  }
+
+  /** Closes the add-billing modal directly when nothing was touched, otherwise asks for confirmation first. */
+  requestCloseAddBill(): void {
+    if (this.showDiscardConfirm) return;
+    if (this.billingAccountFormRef?.billingForm.dirty) {
+      this.showDiscardConfirm = true;
+      return;
+    }
+    this.addBill = false;
+  }
+
+  confirmDiscardAddBill(): void {
+    this.showDiscardConfirm = false;
+    this.addBill = false;
+  }
+
+  cancelDiscardAddBill(): void {
+    this.showDiscardConfirm = false;
   }
 
   hasKey(obj: any, key: string): boolean {

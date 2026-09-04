@@ -191,6 +191,47 @@ describe('CheckoutComponent', () => {
     expect(fixture.nativeElement.querySelectorAll('app-billing-account-form').length).toBe(initialCount + 1);
   });
 
+  it('requestCloseAddBill should close directly when the form is untouched', () => {
+    component.addBill = true;
+    fixture.detectChanges();
+
+    component.requestCloseAddBill();
+
+    expect(component.addBill).toBeFalse();
+    expect(component.showDiscardConfirm).toBeFalse();
+  });
+
+  it('requestCloseAddBill should ask for confirmation when the form has unsaved changes', () => {
+    component.addBill = true;
+    fixture.detectChanges();
+    component.billingAccountFormRef!.billingForm.markAsDirty();
+
+    component.requestCloseAddBill();
+
+    expect(component.addBill).toBeTrue();
+    expect(component.showDiscardConfirm).toBeTrue();
+  });
+
+  it('confirmDiscardAddBill should close the modal and hide the confirmation', () => {
+    component.addBill = true;
+    component.showDiscardConfirm = true;
+
+    component.confirmDiscardAddBill();
+
+    expect(component.addBill).toBeFalse();
+    expect(component.showDiscardConfirm).toBeFalse();
+  });
+
+  it('cancelDiscardAddBill should only hide the confirmation, keeping the modal open', () => {
+    component.addBill = true;
+    component.showDiscardConfirm = true;
+
+    component.cancelDiscardAddBill();
+
+    expect(component.addBill).toBeTrue();
+    expect(component.showDiscardConfirm).toBeFalse();
+  });
+
   it('createProductOrder should include buyer, billing account and optional note', () => {
     component.relatedParty = 'party-1';
     component.selectedBillingAddress = { id: 'bill-1', email: 'buyer@example.com' } as any;

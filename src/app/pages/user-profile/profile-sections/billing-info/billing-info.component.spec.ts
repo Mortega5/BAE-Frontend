@@ -135,4 +135,45 @@ describe('BillingInfoComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('app-billing-account-form')).toBeTruthy();
   });
+
+  it('requestCloseBillingModal should close directly when the form is untouched', () => {
+    component.showBillingModal = true;
+    fixture.detectChanges();
+
+    component.requestCloseBillingModal();
+
+    expect(component.showBillingModal).toBeFalse();
+    expect(component.showDiscardConfirm).toBeFalse();
+  });
+
+  it('requestCloseBillingModal should ask for confirmation when the form has unsaved changes', () => {
+    component.showBillingModal = true;
+    fixture.detectChanges();
+    component.billingAccountFormRef!.billingForm.markAsDirty();
+
+    component.requestCloseBillingModal();
+
+    expect(component.showBillingModal).toBeTrue();
+    expect(component.showDiscardConfirm).toBeTrue();
+  });
+
+  it('confirmDiscardBillingModal should close the modal and hide the confirmation', () => {
+    component.showBillingModal = true;
+    component.showDiscardConfirm = true;
+
+    component.confirmDiscardBillingModal();
+
+    expect(component.showBillingModal).toBeFalse();
+    expect(component.showDiscardConfirm).toBeFalse();
+  });
+
+  it('cancelDiscardBillingModal should only hide the confirmation, keeping the modal open', () => {
+    component.showBillingModal = true;
+    component.showDiscardConfirm = true;
+
+    component.cancelDiscardBillingModal();
+
+    expect(component.showBillingModal).toBeTrue();
+    expect(component.showDiscardConfirm).toBeFalse();
+  });
 });

@@ -42,20 +42,20 @@
 
 @if (showBillingModal) {
 <div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4"
-  (click)="cancelBillingModal()">
+  (click)="requestCloseBillingModal()">
   <app-card variant="modal" class="w-full max-w-2xl max-h-[90vh]" (click)="$event.stopPropagation()">
     <div appCardHeader class="flex items-center justify-between">
       <h3 class="text-xl font-bold text-gray-900 dark:text-white">
         {{ (billToUpdate ? 'BILLING._edit' : 'BILLING._add') | translate }}
       </h3>
-      <app-button type="button" (click)="cancelBillingModal()" variant="ghost" size="sm" prefixIcon="xmark" />
+      <app-button type="button" (click)="requestCloseBillingModal()" variant="ghost" size="sm" prefixIcon="xmark" />
     </div>
 
     <app-billing-account-form #billingAccountForm [billAcc]="billToUpdate" [preferred]="preferred"
       [showActions]="false"></app-billing-account-form>
 
     <div appCardFooter class="flex gap-3">
-      <app-button type="button" (click)="cancelBillingModal()" variant="ghost" size="sm">
+      <app-button type="button" (click)="requestCloseBillingModal()" variant="ghost" size="sm">
         {{ 'BILLING._cancel' | translate }}
       </app-button>
       <app-button type="button"
@@ -66,6 +66,9 @@
     </div>
   </app-card>
 </div>
+<app-confirm-modal [visible]="showDiscardConfirm" title="CONFIRM_MODAL._discard_title"
+  message="CONFIRM_MODAL._discard_message" confirmLabel="CONFIRM_MODAL._discard" cancelLabel="CONFIRM_MODAL._keep_editing"
+  (confirmed)="confirmDiscardBillingModal()" (cancelled)="cancelDiscardBillingModal()" />
 }
 
 <!-- BILL ADDRESS DELETE modal -->

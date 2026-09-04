@@ -6,7 +6,7 @@ import { MarkdownComponent } from "ngx-markdown";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { LoginInfo } from "src/app/models/interfaces";
 import moment from 'moment';
-import { ConfirmDialogComponent } from "src/app/shared/confirm-dialog/confirm-dialog.component";
+import { ConfirmModalComponent } from "src/app/shared/confirm-modal/confirm-modal.component";
 import { Meta, Title } from "@angular/platform-browser";
 import { DomeBlogContentType } from "src/app/services/dome-blog-service.service";
 import { ButtonComponent } from 'src/app/shared/button/button.component';
@@ -14,7 +14,7 @@ import { ButtonComponent } from 'src/app/shared/button/button.component';
 @Component({
   selector: 'app-blog-entry-detail',
   standalone: true,
-  imports: [CommonModule, MarkdownComponent, ConfirmDialogComponent, ButtonComponent],
+  imports: [CommonModule, MarkdownComponent, ConfirmModalComponent, ButtonComponent],
   templateUrl: './blog-entry-detail.component.html',
   styleUrl: './blog-entry-detail.component.css'
 })
@@ -39,7 +39,6 @@ export class BlogEntryDetailComponent implements OnInit {
   deleteConfirmTitle = 'Delete entry';
   deleteConfirmMessage = '';
   deleteConfirmButtonText = 'Delete';
-  deleteConfirmButtonClass = 'px-4 py-2 text-sm font-medium text-white bg-red-700 border border-transparent rounded-md hover:bg-red-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500';
 
   async ngOnInit(): Promise<void> {
     this.applyRouteConfiguration();

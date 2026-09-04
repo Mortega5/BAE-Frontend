@@ -11,7 +11,7 @@ import { NotificationService } from 'src/app/services/notification.service';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { Quote, QuoteStateType } from 'src/app/models/quote.model';
-import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/confirm-dialog.component';
+import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
 import { QuoteDetailsModalComponent } from 'src/app/shared/quote-details-modal/quote-details-modal.component';
 import { ChatModalComponent } from 'src/app/shared/chat-modal/chat-modal.component';
 import { AttachmentModalComponent } from 'src/app/shared/attachment-modal/attachment-modal.component';
@@ -22,7 +22,7 @@ import { environment } from 'src/environments/environment';
 @Component({
   selector: 'app-quote-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmDialogComponent, QuoteDetailsModalComponent, ChatModalComponent, AttachmentModalComponent],
+  imports: [CommonModule, FormsModule, ConfirmModalComponent, QuoteDetailsModalComponent, ChatModalComponent, AttachmentModalComponent],
   template: `
     <div class="w-full mx-auto px-6 py-8">
       <div class="flex justify-between items-center mb-6">
@@ -202,37 +202,40 @@ import { environment } from 'src/environments/environment';
     </div>
 
     <!-- Delete Confirmation Dialog -->
-    <app-confirm-dialog
-      [isOpen]="showDeleteConfirm"
+    <app-confirm-modal
+      [visible]="showDeleteConfirm"
       title="Delete Quote"
       [message]="deleteConfirmMessage"
-      confirmText="Delete"
-      confirmButtonClass="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-      (confirm)="deleteQuote()"
-      (cancel)="showDeleteConfirm = false"
-    ></app-confirm-dialog>
+      confirmLabel="Delete"
+      cancelLabel="Cancel"
+      confirmVariant="danger"
+      (confirmed)="deleteQuote()"
+      (cancelled)="showDeleteConfirm = false"
+    ></app-confirm-modal>
 
     <!-- Accept Confirmation Dialog -->
-    <app-confirm-dialog
-      [isOpen]="showAcceptConfirm"
+    <app-confirm-modal
+      [visible]="showAcceptConfirm"
       title="Accept Quote"
       [message]="acceptConfirmMessage"
-      confirmText="Accept"
-      confirmButtonClass="px-4 py-2 text-sm font-medium text-white bg-green-600 border border-transparent rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-      (confirm)="acceptConfirmCallback && acceptConfirmCallback()"
-      (cancel)="showAcceptConfirm = false"
-    ></app-confirm-dialog>
+      confirmLabel="Accept"
+      cancelLabel="Cancel"
+      confirmVariant="primary"
+      (confirmed)="acceptConfirmCallback && acceptConfirmCallback()"
+      (cancelled)="showAcceptConfirm = false"
+    ></app-confirm-modal>
 
     <!-- Cancel Confirmation Dialog -->
-    <app-confirm-dialog
-      [isOpen]="showCancelConfirm"
+    <app-confirm-modal
+      [visible]="showCancelConfirm"
       title="Cancel Quote"
       [message]="cancelConfirmMessage"
-      confirmText="Cancel Quote"
-      confirmButtonClass="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-      (confirm)="cancelConfirmCallback && cancelConfirmCallback()"
-      (cancel)="showCancelConfirm = false"
-    ></app-confirm-dialog>
+      confirmLabel="Cancel Quote"
+      cancelLabel="Cancel"
+      confirmVariant="danger"
+      (confirmed)="cancelConfirmCallback && cancelConfirmCallback()"
+      (cancelled)="showCancelConfirm = false"
+    ></app-confirm-modal>
 
     <!-- State Update Modal -->
     <div *ngIf="showStateUpdate" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">

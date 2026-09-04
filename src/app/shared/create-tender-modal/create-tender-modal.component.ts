@@ -24,7 +24,8 @@ import {
   resolveTenderCategoryLeafNames,
   shouldUseUnfilteredProviderFallback,
 } from 'src/app/models/search-organizations-filters.model';
-import { ConfirmDialogComponent } from '../confirm-dialog/confirm-dialog.component';
+import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
+import { ButtonVariant } from '../button/button.component';
 import { TenderDateFieldComponent } from '../tender-date-field/tender-date-field.component';
 import {
   TenderProviderCandidate,
@@ -34,7 +35,7 @@ import {
 @Component({
   selector: 'app-create-tender-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmDialogComponent, TenderDateFieldComponent],
+  imports: [CommonModule, FormsModule, ConfirmModalComponent, TenderDateFieldComponent],
   template: `
     <!-- Tender Creation Modal -->
     <div *ngIf="isOpen" class="fixed inset-0 z-50 flex h-full w-full items-start justify-center overflow-hidden bg-[#0b1220]/45 px-4 py-6 font-[Blinker]" (click)="closeTenderModal()">
@@ -492,15 +493,16 @@ import {
     </div>
 
     <!-- Generic Confirmation Dialog -->
-    <app-confirm-dialog
-      [isOpen]="showGenericConfirm"
+    <app-confirm-modal
+      [visible]="showGenericConfirm"
       [title]="genericConfirmTitle"
       [message]="genericConfirmMessage"
-      [confirmText]="genericConfirmButtonText"
-      [confirmButtonClass]="genericConfirmButtonClass"
-      (confirm)="genericConfirmCallback && genericConfirmCallback()"
-      (cancel)="showGenericConfirm = false"
-    ></app-confirm-dialog>
+      [confirmLabel]="genericConfirmButtonText"
+      cancelLabel="Cancel"
+      [confirmVariant]="genericConfirmVariant"
+      (confirmed)="genericConfirmCallback && genericConfirmCallback()"
+      (cancelled)="showGenericConfirm = false"
+    ></app-confirm-modal>
   `,
   styles: []
 })
@@ -535,7 +537,7 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
   genericConfirmTitle = '';
   genericConfirmMessage = '';
   genericConfirmButtonText = 'Confirm';
-  genericConfirmButtonClass = 'inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] focus:outline-none focus:ring-2 focus:ring-[#B6CAEC] disabled:cursor-not-allowed disabled:opacity-50';
+  genericConfirmVariant: ButtonVariant = 'primary';
   genericConfirmCallback: (() => void) | null = null;
   currentUserId: string | null = null;
 
@@ -697,12 +699,12 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
     message: string,
     callback: () => void,
     buttonText: string = 'Confirm',
-    buttonClass: string = 'inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] focus:outline-none focus:ring-2 focus:ring-[#B6CAEC] disabled:cursor-not-allowed disabled:opacity-50'
+    variant: ButtonVariant = 'primary'
   ) {
     this.genericConfirmTitle = title;
     this.genericConfirmMessage = message;
     this.genericConfirmButtonText = buttonText;
-    this.genericConfirmButtonClass = buttonClass;
+    this.genericConfirmVariant = variant;
     this.genericConfirmCallback = () => {
       callback();
       this.showGenericConfirm = false;
@@ -1492,7 +1494,7 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
         });
       },
       'Remove',
-      'inline-flex h-10 items-center rounded-lg border border-[#F4C7C7] bg-white px-4 text-sm font-semibold text-[#B42318] transition-colors hover:bg-[#FFF1F1] focus:outline-none focus:ring-2 focus:ring-[#F4C7C7] disabled:cursor-not-allowed disabled:opacity-50'
+      'danger'
     );
   }
 
@@ -1534,7 +1536,7 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
       'Are you sure you want to finalize the tender? This will notify all invited providers.',
       () => this.executeFinalizeTender(),
       'Finalize',
-      'inline-flex h-10 items-center rounded-lg bg-[#006B4A] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#00523A] focus:outline-none focus:ring-2 focus:ring-[#B8E6D1] disabled:cursor-not-allowed disabled:opacity-50'
+      'primary'
     );
   }
 

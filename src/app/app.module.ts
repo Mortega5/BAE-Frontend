@@ -108,10 +108,10 @@ import { AboutDomeComponent } from "src/app/pages/about-dome/about-dome.componen
 import { OperatorRevenueSharingComponent } from "src/app/pages/admin/operator-revenue-sharing/operator-revenue-sharing.component";
 import { ProviderRevenueSharingComponent } from "src/app/pages/user-profile/profile-sections/provider-revenue-sharing/provider-revenue-sharing.component";
 import { DynamicFormComponent } from "src/app/shared/forms/dynamic-form/dynamic-form.component";
+import { ConfirmModalComponent } from "src/app/shared/confirm-modal/confirm-modal.component";
 import { MarkdownTextareaComponent } from "src/app/shared/forms/markdown-textarea/markdown-textarea.component";
 import { AttachmentUploadComponent } from "src/app/shared/forms/attachment-upload/attachment-upload.component";
 import { RequestValidationModalComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/request-validation-modal/request-validation-modal.component';
-import { ConfirmDialogComponent } from './shared/confirm-dialog/confirm-dialog.component';
 import { CreateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/create-software/create-software.component';
 import { SellerSoftware } from './pages/seller-offerings/offerings/seller-software/seller-software';
 import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offerings/seller-software/software-characteristics/software-characteristics.component';
@@ -233,12 +233,12 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     AboutDomeComponent,
     MarkdownTextareaComponent,
     DynamicFormComponent,
+    ConfirmModalComponent,
     AttachmentUploadComponent,
     ProviderRevenueSharingComponent,
     OperatorRevenueSharingComponent,
     CreateUsageSpecComponent,
     UpdateUsageSpecComponent,
-    ConfirmDialogComponent,
     SoftwareCharacteristicsComponent,
     SpecificationCharacteristicFormComponent,
     CharacteristicsEditorComponent,

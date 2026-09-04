@@ -34,7 +34,7 @@
         <h3 class="text-xl font-bold text-gray-900 dark:text-white">
           {{ 'BILLING._edit' | translate }}
         </h3>
-        <app-button (click)="editBill=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark">
+        <app-button (click)="requestCloseEditBill()" type="button" variant="ghost" size="sm" prefixIcon="xmark">
           <span class="sr-only">{{ 'CARD._close' | translate }}</span>
         </app-button>
       </div>
@@ -42,7 +42,7 @@
       <app-billing-account-form #billingAccountForm [billAcc]="data" [showActions]="false"></app-billing-account-form>
 
       <div appCardFooter class="flex gap-3">
-        <app-button type="button" (click)="editBill=false;" variant="ghost" size="sm">
+        <app-button type="button" (click)="requestCloseEditBill()" variant="ghost" size="sm">
           {{ 'BILLING._cancel' | translate }}
         </app-button>
         <app-button type="button" (click)="billingAccountForm.updateBilling()"
@@ -53,6 +53,9 @@
     </app-card>
   </div>
 }
+<app-confirm-modal [visible]="showDiscardConfirm" title="CONFIRM_MODAL._discard_title"
+  message="CONFIRM_MODAL._discard_message" confirmLabel="CONFIRM_MODAL._discard" cancelLabel="CONFIRM_MODAL._keep_editing"
+  (confirmed)="confirmDiscardEditBill()" (cancelled)="cancelDiscardEditBill()" />
 
 <!-- BILL ADDRESS DELETE modal -->
 @if (deleteBill){

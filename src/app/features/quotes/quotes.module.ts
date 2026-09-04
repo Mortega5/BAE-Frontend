@@ -6,7 +6,7 @@ import { QuoteListComponent } from './pages/quote-list/quote-list.component';
 import { QuoteDetailsComponent } from './pages/quote-details/quote-details.component';
 import { QuoteFormComponent } from './pages/quote-form/quote-form.component';
 import { NotificationComponent } from 'src/app/shared/notification/notification.component';
-import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/confirm-dialog.component';
+import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
 
 @NgModule({
   imports: [
@@ -16,7 +16,7 @@ import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/confirm-di
     QuoteDetailsComponent,
     QuoteFormComponent,
     NotificationComponent,
-    ConfirmDialogComponent
+    ConfirmModalComponent
   ],
   declarations: []
 })

@@ -4,12 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { QuoteService } from '../../services/quote.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { Quote } from 'src/app/models/quote.model';
-import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/confirm-dialog.component';
+import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-quote-details',
   standalone: true,
-  imports: [CommonModule, ConfirmDialogComponent],
+  imports: [CommonModule, ConfirmModalComponent],
   template: `
     <div class="container mx-auto px-4 py-8" *ngIf="quote">
       <div class="bg-white shadow-md rounded-lg p-6">
@@ -132,15 +132,16 @@ import { ConfirmDialogComponent } from 'src/app/shared/confirm-dialog/confirm-di
     </div>
 
     <!-- Delete Confirmation Dialog -->
-    <app-confirm-dialog
-      [isOpen]="showDeleteConfirm"
+    <app-confirm-modal
+      [visible]="showDeleteConfirm"
       title="Delete Quote"
       [message]="deleteConfirmMessage"
-      confirmText="Delete"
-      confirmButtonClass="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-      (confirm)="deleteQuote()"
-      (cancel)="showDeleteConfirm = false"
-    ></app-confirm-dialog>
+      confirmLabel="Delete"
+      cancelLabel="Cancel"
+      confirmVariant="danger"
+      (confirmed)="deleteQuote()"
+      (cancelled)="showDeleteConfirm = false"
+    ></app-confirm-modal>
   `
 })
 export class QuoteDetailsComponent implements OnInit {

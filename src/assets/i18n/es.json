@@ -739,6 +739,14 @@
     "_owner": "Propietario",
     "_price_plan": "Plan de precios"
   },
+  "CONFIRM_MODAL": {
+    "_confirm": "Confirmar",
+    "_cancel": "Cancelar",
+    "_discard_title": "¿Descartar cambios?",
+    "_discard_message": "Tienes cambios sin guardar. Si cierras ahora, se perderán.",
+    "_discard": "Descartar",
+    "_keep_editing": "Seguir editando"
+  },
   "CATEGORIES_FILTER": {
     "_remove_badge": "Eliminar etiqueta",
     "_applied_filters": "Filtros aplicados:"

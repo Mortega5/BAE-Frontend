@@ -44,4 +44,45 @@ describe('BillingAddressComponent', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('app-billing-account-form')).toBeTruthy();
   });
+
+  it('requestCloseEditBill should close directly when the form is untouched', () => {
+    component.editBill = true;
+    fixture.detectChanges();
+
+    component.requestCloseEditBill();
+
+    expect(component.editBill).toBeFalse();
+    expect(component.showDiscardConfirm).toBeFalse();
+  });
+
+  it('requestCloseEditBill should ask for confirmation when the form has unsaved changes', () => {
+    component.editBill = true;
+    fixture.detectChanges();
+    component.billingAccountFormRef!.billingForm.markAsDirty();
+
+    component.requestCloseEditBill();
+
+    expect(component.editBill).toBeTrue();
+    expect(component.showDiscardConfirm).toBeTrue();
+  });
+
+  it('confirmDiscardEditBill should close the modal and hide the confirmation', () => {
+    component.editBill = true;
+    component.showDiscardConfirm = true;
+
+    component.confirmDiscardEditBill();
+
+    expect(component.editBill).toBeFalse();
+    expect(component.showDiscardConfirm).toBeFalse();
+  });
+
+  it('cancelDiscardEditBill should only hide the confirmation, keeping the modal open', () => {
+    component.editBill = true;
+    component.showDiscardConfirm = true;
+
+    component.cancelDiscardEditBill();
+
+    expect(component.editBill).toBeTrue();
+    expect(component.showDiscardConfirm).toBeFalse();
+  });
 });

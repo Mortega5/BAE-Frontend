@@ -79,12 +79,13 @@
     </div>
 </div>
 
-<app-confirm-dialog
-  [isOpen]="showDeleteConfirm"
+<app-confirm-modal
+  [visible]="showDeleteConfirm"
   [title]="deleteConfirmTitle"
   [message]="deleteConfirmMessage"
-  [confirmText]="deleteConfirmButtonText"
-  [confirmButtonClass]="deleteConfirmButtonClass"
-  (confirm)="confirmDeleteEntry()"
-  (cancel)="closeDeleteDialog()"
-></app-confirm-dialog>
+  [confirmLabel]="deleteConfirmButtonText"
+  cancelLabel="Cancel"
+  confirmVariant="danger"
+  (confirmed)="confirmDeleteEntry()"
+  (cancelled)="closeDeleteDialog()"
+></app-confirm-modal>
