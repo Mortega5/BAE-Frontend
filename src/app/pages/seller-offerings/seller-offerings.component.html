@@ -4,18 +4,20 @@
       [showDesktopSidebar]="isListView">
       <router-outlet></router-outlet>
 
-      @if (workspaceHelpAction; as helpAction) {
-      <div sideNavFooter data-cy="sellerWorkspaceHelp" class="mt-auto pt-8 pb-2 px-2 lg:sticky lg:bottom-2">
-        <div
-          class="p-5 bg-white dark:bg-secondary-200 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
-          <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1.5">{{ helpAction.title | translate }}</h3>
-          <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">{{ helpAction.description | translate }}</p>
-          <app-button type="button" (click)="goToResources()" variant="neutral" class="w-full">
-            {{ helpAction.actionLabel | translate }}
-          </app-button>
+      <ng-container sideNavFooter>
+        @if (workspaceHelpAction; as helpAction) {
+        <div data-cy="sellerWorkspaceHelp" class="mt-auto pt-8 pb-2 px-2 lg:sticky lg:bottom-2">
+          <div
+            class="p-5 bg-white dark:bg-secondary-200 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+            <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1.5">{{ helpAction.title | translate }}</h3>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-3">{{ helpAction.description | translate }}</p>
+            <app-button type="button" (click)="goToResources()" variant="neutral" class="w-full">
+              {{ helpAction.actionLabel | translate }}
+            </app-button>
+          </div>
         </div>
-      </div>
-      }
+        }
+      </ng-container>
     </app-side-nav>
   </div>
 </div>
