@@ -10,7 +10,8 @@
     </div>
 
     <!-- Price Plan Form -->
-    <div [formGroup]="formGroup" class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-4 md:p-8">
+    <app-card>
+    <div [formGroup]="formGroup">
 
         <!-- Nombre -->
         <div class="mb-4">
@@ -189,6 +190,7 @@
         </div>
 
     </div>
+    </app-card>
 </app-drawer>
 
   <!-- Overlay when child drawer is open - covers entire viewport and dims parent -->

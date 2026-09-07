@@ -16,6 +16,7 @@ import { SelectOption } from 'src/app/models/formFields/form-field.model';
 import { SearchSelectComponent } from 'src/app/shared/search-select/search-select.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 
 
 @Component({
@@ -35,7 +36,8 @@ import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
     NgForOf,
     SearchSelectComponent,
     ButtonComponent,
-    DrawerComponent
+    DrawerComponent,
+    ContentCardComponent
   ],
   styleUrl: './price-plan-drawer.component.css'
 })
