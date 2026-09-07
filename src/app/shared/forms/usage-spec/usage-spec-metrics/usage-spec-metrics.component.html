@@ -1,7 +1,7 @@
 <div class="flex justify-between items-start gap-4 mb-2">
   <div>
-    <h2 class="text-2xl font-bold text-gray-900 mb-1">{{ 'USAGE_SPECS._metrics' | translate }}</h2>
-    <p class="text-sm text-gray-500 max-w-2xl">{{ 'USAGE_SPECS._metrics_desc' | translate }}</p>
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">{{ 'USAGE_SPECS._metrics' | translate }}</h2>
+    <p class="text-sm text-gray-500 dark:text-gray-400 max-w-2xl">{{ 'USAGE_SPECS._metrics_desc' | translate }}</p>
   </div>
   @if(metrics.length > 0 && showCreateMetric == false){
     <app-button data-cy="btnNewMetric" type="button" (click)="showCreateMetric=!showCreateMetric" variant="secondary" prefixIcon="plus" class="shrink-0">
@@ -26,8 +26,8 @@
             <path fill-rule="evenodd" clip-rule="evenodd" d="M3.087 9l.54 9.176A3 3 0 006.62 21h10.757a3 3 0 002.995-2.824L20.913 9H3.087zm6.133 2.845a.75.75 0 011.06 0l1.72 1.72 1.72-1.72a.75.75 0 111.06 1.06l-1.72 1.72 1.72 1.72a.75.75 0 11-1.06 1.06L12 15.685l-1.72 1.72a.75.75 0 11-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06z"/>
           </svg>
         </div>
-        <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ 'USAGE_SPECS._no_metrics' | translate }}</h3>
-        <p class="text-sm text-gray-500 mb-5">{{ 'USAGE_SPECS._add_metric_desc' | translate }}</p>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">{{ 'USAGE_SPECS._no_metrics' | translate }}</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">{{ 'USAGE_SPECS._add_metric_desc' | translate }}</p>
         <app-button data-cy="btnNewMetric" type="button" (click)="showCreateMetric=!showCreateMetric" variant="secondary" prefixIcon="plus">
           {{ 'USAGE_SPECS._create_metric' | translate }}
         </app-button>

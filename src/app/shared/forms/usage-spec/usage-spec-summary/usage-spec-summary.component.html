@@ -1,32 +1,32 @@
-<h2 class="text-2xl font-bold text-gray-900 mb-1">{{ 'USAGE_SPECS._summary' | translate }}</h2>
-<p class="text-sm text-gray-500 mb-6">{{ 'USAGE_SPECS._summary_desc' | translate }}</p>
+<h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">{{ 'USAGE_SPECS._summary' | translate }}</h2>
+<p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ 'USAGE_SPECS._summary_desc' | translate }}</p>
 
 <div class="flex flex-col gap-5">
   <div>
-    <label class="block text-sm font-semibold text-gray-900 mb-2">{{ 'USAGE_SPECS._name' | translate }}</label>
+    <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ 'USAGE_SPECS._name' | translate }}</label>
     <p [ngClass]="{
         'break-all': hasLongWord(usageSpecForm.get('generalInfo.name')?.value, 20),
         'break-words': !hasLongWord(usageSpecForm.get('generalInfo.name')?.value, 20)
-        }" class="bg-gray-50 border border-gray-200 text-gray-900 text-sm rounded-lg block w-full p-3">
+        }" class="bg-gray-50 dark:bg-secondary-300 border border-gray-200 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg block w-full p-3">
       {{ usageSpecForm.get('generalInfo.name')?.value }}
     </p>
   </div>
 
   @if(usageSpecForm.get('generalInfo.description')?.value != ''){
     <div>
-      <label class="block text-sm font-semibold text-gray-900 mb-2">{{ 'USAGE_SPECS._description' | translate }}</label>
-      <div class="bg-gray-50 border border-gray-200 rounded-lg p-3">
+      <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ 'USAGE_SPECS._description' | translate }}</label>
+      <div class="bg-gray-50 dark:bg-secondary-300 border border-gray-200 dark:border-secondary-200 rounded-lg p-3">
         <markdown [ngClass]="{
             'break-all': hasLongWord(usageSpecForm.get('generalInfo.description')?.value, 20),
             'break-words': !hasLongWord(usageSpecForm.get('generalInfo.description')?.value, 20)
-            }" class="text-gray-900 text-sm" [data]="usageSpecForm.get('generalInfo.description')?.value"></markdown>
+            }" class="text-gray-900 dark:text-white text-sm" [data]="usageSpecForm.get('generalInfo.description')?.value"></markdown>
       </div>
     </div>
   }
 
   @if(usageSpecForm.get('metrics')?.value && usageSpecForm.get('metrics')?.value.length > 0){
     <div>
-      <label class="block text-sm font-semibold text-gray-900 mb-2">{{ 'USAGE_SPECS._metrics' | translate }}</label>
+      <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ 'USAGE_SPECS._metrics' | translate }}</label>
       <app-table-input [columns]="metricColumns" [items]="usageSpecForm.get('metrics')?.value" [selectable]="false" />
     </div>
   }
