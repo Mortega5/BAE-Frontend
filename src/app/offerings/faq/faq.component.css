@@ -45,13 +45,13 @@
   align-items: center;
   justify-content: center;
   background: #dde6f6;
-  color: #2d58a7;
+  color: rgb(var(--theme-primary-100));
   flex-shrink: 0;
   transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 .faq-icon--open {
-  background: #2d58a7;
+  background: rgb(var(--theme-primary-100));
   color: #fff;
 }
 

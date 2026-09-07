@@ -22,7 +22,7 @@
 
   @if (!showAddForm) {
   <div class="flex w-full justify-center">
-    <app-button type="button" (click)="showAddForm = true" suffixIcon="plus">
+    <app-button type="button" (click)="showAddForm = true" data-cy="newCharacteristic" prefixIcon="plus">
       {{ 'CREATE_SOFTWARE._new_char' | translate }}
     </app-button>
   </div>

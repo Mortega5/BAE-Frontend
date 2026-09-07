@@ -10,7 +10,7 @@
     </div>
     <p class="text-base font-semibold text-gray-900 dark:text-white mb-1">{{ 'CHAR_SPEC._no_chars' | translate }}</p>
     @if (!readonly) {
-    <app-button type="button" (click)="showForm = true" variant="secondary" suffixIcon="plus" class="mt-4">
+    <app-button type="button" (click)="showForm = true" data-cy="newCharacteristic" prefixIcon="plus" class="mt-4">
       {{ 'CHAR_SPEC._new_char' | translate }}
     </app-button>
     }
@@ -18,7 +18,7 @@
   } @else {
   @if (!readonly) {
   <div class="flex w-full justify-end">
-    <app-button type="button" (click)="showForm = true" suffixIcon="plus">
+    <app-button type="button" (click)="showForm = true" data-cy="newCharacteristic" prefixIcon="plus">
       {{ 'CHAR_SPEC._new_char' | translate }}
     </app-button>
   </div>
