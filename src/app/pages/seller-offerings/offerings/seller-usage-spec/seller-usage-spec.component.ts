@@ -10,12 +10,12 @@ import { TableColumn } from 'src/app/models/table-column.model';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { PaginationService } from 'src/app/services/pagination.service';
 import { UsageServiceService } from 'src/app/services/usage-service.service';
-import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
-import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
-import { environment } from 'src/environments/environment';
-import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { environment } from 'src/environments/environment';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
 @Component({
   selector: 'seller-usage-spec',
@@ -39,7 +39,7 @@ export class SellerUsageSpecComponent implements OnInit {
       getValue: (usage: any) => usage.description,
     },
     {
-      type: 'actions', header: 'USAGE_SPECS._actions', width: 'w-20',
+      type: 'actions', header: 'USAGE_SPECS._actions', width: 'w-28',
       actions: [
         { icon: faPenToSquare, onClick: (usage: any) => this.goToUpdate(usage.id), dataCy: 'usageSpecEdit', tooltip: 'USAGE_SPECS._edit' },
       ],

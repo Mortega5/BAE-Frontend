@@ -8,7 +8,7 @@ import { PaginationService } from 'src/app/services/pagination.service';
 import {EventMessageService} from "src/app/services/event-message.service";
 import { FastAverageColor } from 'fast-average-color';
 import {components} from "src/app/models/product-catalog";
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
 import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.paths';
 import { initFlowbite } from 'flowbite';
@@ -36,8 +36,6 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
   protected readonly faSort = faSort;
   protected readonly faSwatchbook = faSwatchbook;
 
-  prodId: any = undefined;
-
   inventory:any[] = [];
   nextInventory:any[] =[];
   partyId:any='';
@@ -56,17 +54,13 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
   INVENTORY_LIMIT: number = environment.INVENTORY_LIMIT;
   searchField = new FormControl();
   keywordFilter:any=undefined;
+  /** Populated by loadModifyData() right before opening the "modify" price-plan drawer. */
   selectedProduct:any;
   selectedInv:any;
-  selectedResources:any[]=[];
-  selectedServices:any[]=[];
   productOff:any;
 
   errorMessage:any='';
   showError:boolean=false;
-  showDetails:boolean=false;
-  checkCustom:boolean=false;
-  checkFrom:boolean=true;
   private destroy$ = new Subject<void>();
 
   isModifyDrawerOpen:boolean = false;
@@ -83,7 +77,6 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private priceService: PriceServiceService,
     private router: Router,
-    private route: ActivatedRoute,
     private orderService: ProductOrderService,
     private eventMessage: EventMessageService,
     private paginationService: PaginationService,
@@ -109,10 +102,6 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    this.prodId = this.route.snapshot.queryParamMap.get('openProdId') ?? undefined;
-    if(this.prodId==undefined){
-      this.checkFrom=false;
-    }
     this.initInventory();
     const input = document.querySelector('[type=search]')
     if (input != undefined) {
@@ -175,10 +164,22 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
 
   goToProductDetails(productOff:ProductOffering| undefined) {
     document.querySelector("body > div[modal-backdrop]")?.remove()
-    //this.router.navigate(['/search', productOff?.id]);
-    console.log('info')
-    console.log(productOff)
     this.router.navigate([ProductInventoryPaths.detail(productOff?.id ?? '')]);
+  }
+
+  // TEMPORARY: shows the product detail inline (passing the already-fetched list item
+  // directly, so it doesn't need to re-fetch it and hit the same backend authorization bug
+  // as GET-by-id) instead of navigating to goToProductDetails()'s route. Revert to
+  // goToProductDetails() once that backend bug (relatedParty.role mismatch) is fixed.
+  showDetails = false;
+
+  openProductDetails(inv: any) {
+    this.selectedInv = inv;
+    this.showDetails = true;
+  }
+
+  closeProductDetails() {
+    this.showDetails = false;
   }
 
   async getInventory(next:boolean){
@@ -201,11 +202,6 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.loading_more = false;
         initFlowbite();
-        if(this.prodId!=undefined && this.checkFrom){
-          let idx = this.inventory.findIndex(element => element.id == this.prodId)
-          this.selectProduct(this.inventory[idx])
-          this.checkFrom=false;
-        }
     })
   }
 
@@ -277,36 +273,12 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     console.log(id)
   }
 
-  async selectProduct(prod:any){
+  /** Fetches the product spec + offering data needed by the "modify" price-plan drawer. */
+  private async loadModifyData(prod:any){
     this.selectedProduct=prod;
-    console.log('selecting prod')
-    console.log(this.selectedProduct)
-    this.selectedResources=[];
-    this.selectedServices=[];
-    /*for(let i=0; i<this.selectedProduct.productPrice?.length;i++){
-      if(this.selectedProduct.productPrice[i].priceType == 'custom'){
-        this.checkCustom=true;
-      }
-    }*/
 
-    console.log('is prod spec undefined?')
-    console.log(this.selectedProduct.product)
     let spec = await this.api.getProductSpecification(this.selectedProduct.product.productSpecification.id)
     this.selectedProdSpec = spec;
-    if(spec.serviceSpecification != undefined){
-      for(let j=0; j < spec.serviceSpecification.length; j++){
-        let serv = await this.api.getServiceSpec(spec.serviceSpecification[j].id);
-        this.selectedServices.push(serv);
-      }
-    }
-    if(spec.resourceSpecification != undefined){
-      for(let j=0; j < spec.resourceSpecification.length; j++){
-        let res = await this.api.getResourceSpec(spec.resourceSpecification[j].id);
-        this.selectedResources.push(res);
-      }
-    }
-    console.log('--- spec')
-    console.log(spec)
 
     let prodOff = await this.api.getProductById(this.selectedProduct.productOffering.id);
     let prodPrices: any[] | undefined= prodOff.productOfferingPrice;
@@ -315,10 +287,6 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
       for(let j=0; j < prodPrices.length; j++){
         let price = await this.api.getProductPrice(prodPrices[j].id);
         prices.push(price);
-        console.log(price)
-        if(price.priceType == 'custom'){
-          this.checkCustom = true;
-        }
       }
     }
 
@@ -335,21 +303,6 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
       serviceLevelAgreement: prodOff.serviceLevelAgreement,
       version: prodOff.version
     }
-
-    this.showDetails=true;
-    console.log(this.selectedProduct)
-  }
-
-  back(){
-    this.showDetails=false;
-  }
-
-  selectService(id:any){
-    this.router.navigate([ProductInventoryPaths.services()], { queryParams: { openServiceId: id, openProdId: this.selectedProduct.id } });
-  }
-
-  selectResource(id:any){
-    this.router.navigate([ProductInventoryPaths.resources()], { queryParams: { openResourceId: id, openProdId: this.selectedProduct.id } });
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
@@ -361,8 +314,7 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
   }
 
   async openModifyFromCard(inv: any) {
-    await this.selectProduct(inv);
-    this.showDetails = false;
+    await this.loadModifyData(inv);
     this.isModifyDrawerOpen = true;
   }
 

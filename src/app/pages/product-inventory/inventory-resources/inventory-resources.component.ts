@@ -13,6 +13,7 @@ import { environment } from 'src/environments/environment';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TableColumn } from 'src/app/models/table-column.model';
 
 @Component({
   selector: 'inventory-resources',
@@ -40,6 +41,17 @@ export class InventoryResourcesComponent implements OnInit, OnDestroy {
   showDetails:boolean=false;
   selectedRes:any;
   private destroy$ = new Subject<void>();
+
+  resourceColumns: TableColumn[] = [
+    { header: 'PRODUCT_INVENTORY._id', getValue: (res: any) => res.id, cellClass: 'text-primary-100 dark:text-primary-50 font-medium break-all' },
+    {
+      header: 'OFFERINGS._name',
+      getValue: (res: any) => res.name,
+      cellClass: (res: any) => this.hasLongWord(res.name, 20) ? 'break-all' : 'break-words',
+    },
+    { header: 'OFFERINGS._status', hideOnMobile: true, getValue: (res: any) => res.resourceStatus },
+    { header: 'PRODUCT_INVENTORY._start_date', hideOnMobile: true, type: 'date', getValue: (res: any) => res.startOperatingDate },
+  ];
 
   constructor(
     private inventoryService: ProductInventoryServiceService,

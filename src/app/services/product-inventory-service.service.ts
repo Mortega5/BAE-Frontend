@@ -44,8 +44,11 @@ export class ProductInventoryServiceService {
     return this.http.patch<any>(url, product);
   }
 
-  getProduct(id:any){
-    let url = `${ProductInventoryServiceService.BASE_URL}${ProductInventoryServiceService.API_INVENTORY}/product/${id}`;   
+  getProduct(id:any, partyId?:any){
+    let url = `${ProductInventoryServiceService.BASE_URL}${ProductInventoryServiceService.API_INVENTORY}/product/${id}`;
+    if(partyId){
+      url += `?relatedParty.id=${partyId}`;
+    }
     return lastValueFrom(this.http.get<any>(url));
   }
 

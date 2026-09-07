@@ -83,67 +83,13 @@
         </div>
       </div>
     </div>
-  </app-card>
-  @if(loading){
-  <app-loading-spinner />
-  } @else {
-  <app-card class="block mt-8">
-    <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300">
-      <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-        <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-          <tr>
-            <th scope="col" class="px-6 py-3">
-              {{ 'PRODUCT_INVENTORY._id' | translate }}
-            </th>
-            <th scope="col" class="px-6 py-3">
-              {{ 'OFFERINGS._name' | translate }}
-            </th>
-            <th scope="col" class="hidden md:table-cell px-6 py-3">
-              {{ 'OFFERINGS._status' | translate }}
-            </th>
-            <th scope="col" class="hidden md:table-cell px-6 py-3">
-              {{ 'PRODUCT_INVENTORY._start_date' | translate }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (res of resources; track res.id) {
-          <tr class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-            <td class="px-6 py-4 text-wrap break-all w-1/2 md:w-1/4">
-              <a (click)="selectResource(res)"
-                class="cursor-pointer font-medium text-primary-100 dark:text-primary-50 hover:underline">{{res.id}}</a>
-            </td>
-            <td [ngClass]="{
-                                        'break-all': hasLongWord(res.name, 20),
-                                        'break-words': !hasLongWord(res.name, 20)
-                                        }" class="px-6 py-4 text-wrap break-words w-1/2 md:w-1/4">
-              {{res.name}}
-            </td>
-            <td class="hidden md:table-cell px-6 py-4 md:w-1/4">
-              {{res.resourceStatus}}
-            </td>
-            <td class="hidden md:table-cell px-6 py-4 md:w-1/4">
-              {{res.startOperatingDate | date:'EEEE, dd/MM/yy, HH:mm'}}
-            </td>
-          </tr>
-          } @empty {
-          <div class="flex justify-center w-full m-4">
-            <div
-              class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
-              role="alert">
-              <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-              </svg>
-              <div>
-                {{ 'PRODUCT_INVENTORY._no_resources' | translate }}
-              </div>
-            </div>
-          </div>
-          }
-        </tbody>
-      </table>
+
+    @if(loading){
+    <app-loading-spinner containerClass="w-full h-full flex justify-center align-middle mt-8" />
+    } @else {
+    <div class="mt-8">
+      <app-table-input data-cy="resourcesTable" [columns]="resourceColumns" [items]="resources" [selectable]="false"
+        [clickable]="true" (rowClick)="selectResource($event)" [emptyMessage]="'PRODUCT_INVENTORY._no_resources'" />
     </div>
     <div>
       @if (!loading_more) {
@@ -159,9 +105,8 @@
         data-cy="loadMoreLoading" role="status" />
       }
     </div>
+    }
   </app-card>
-
-  }
   } @else {
   <app-card>
     <div appCardHeader>

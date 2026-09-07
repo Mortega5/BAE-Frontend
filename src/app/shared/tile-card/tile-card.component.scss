@@ -1,0 +1,54 @@
+/* --card-* variables are defined globally in styles.css (body / .dark body) so
+   any theme can override them directly. Everything below only consumes them. */
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.app-tile-card {
+  @apply h-full flex rounded-2xl overflow-hidden shadow-sm transition-all duration-200;
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+
+  &[data-view-mode="grid"] {
+    @apply flex-col;
+  }
+
+  &[data-view-mode="list"] {
+    @apply flex-row items-center;
+  }
+
+  &[data-clickable] {
+    cursor: pointer;
+  }
+
+  &[data-clickable]:hover {
+    @apply shadow-lg -translate-y-0.5;
+    border-color: var(--card-hover-border);
+  }
+}
+
+.app-tile-card-media {
+  @apply relative overflow-hidden shrink-0 bg-gray-100 dark:bg-secondary-300;
+
+  img {
+    @apply w-full h-full object-cover transition-transform duration-300;
+  }
+
+  [data-clickable] &:hover img {
+    @apply scale-105;
+  }
+
+  [data-view-mode="grid"] & {
+    @apply w-full h-48;
+  }
+
+  [data-view-mode="list"] & {
+    @apply w-28 h-28 m-3 rounded-xl;
+  }
+}
+
+.app-tile-card-body {
+  @apply flex-1 min-w-0;
+}

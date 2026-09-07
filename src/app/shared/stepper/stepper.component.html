@@ -35,8 +35,7 @@
       {{ (stepTemplates.get(currentStep)?.stepperStep ?? '') | translate }}
     </h3>
 
-    <div
-      class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-4 md:p-6">
+    <app-card>
       <div [class.animate-stepIn]="animateContent">
         @if (loading) {
         <app-loading-spinner />
@@ -44,7 +43,7 @@
         <ng-container *ngTemplateOutlet="currentTemplate"></ng-container>
         }
       </div>
-    </div>
+    </app-card>
 
     <div class="flex justify-end space-x-4">
       <app-button (click)="goBack()" [disabled]="currentStep === 0" variant="ghost" size="sm">
