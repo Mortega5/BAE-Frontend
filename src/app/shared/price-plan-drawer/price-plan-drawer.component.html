@@ -1,13 +1,6 @@
-<!-- Backdrop -->
-@if (isOpen){
-<div class="fixed inset-0 bg-black bg-opacity-50 z-30" (click)="onClose()">
-</div>
-}
-
-<!-- drawer component -->
-<div data-cy="toCartDrawer" [id]="drawerId"
-  class="fixed top-[75px] bottom-0 right-0 z-40 overflow-hidden transition-transform translate-x-full bg-secondary-50 dark:bg-gray-800 flex flex-col"
-  [class.translate-x-0]="isOpen" [class.translate-x-full]="!isOpen" [ngClass]="width" tabindex="-1"
+<app-drawer [isOpen]="isOpen" [widthClass]="width" [zIndexClass]="'z-40'"
+  [insetClass]="'top-[75px] bottom-0'" [panelClass]="'overflow-hidden flex flex-col'" (closed)="onClose()">
+<div data-cy="toCartDrawer" [id]="drawerId" class="flex-1 min-h-0 flex flex-col" tabindex="-1"
   aria-labelledby="drawer-add-to-cart-label">
 
   <!-- Scrollable content -->
@@ -249,3 +242,4 @@
     </app-button>
   </div>
 </div>
+</app-drawer>

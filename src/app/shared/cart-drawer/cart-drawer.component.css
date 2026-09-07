@@ -1,3 +1,7 @@
+:host {
+    display: block;
+}
+
 ::-webkit-scrollbar {
     width: 10px !important;
 }

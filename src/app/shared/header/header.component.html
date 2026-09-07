@@ -427,10 +427,4 @@
   </ng-template>
 </nav>
 
-@if (showCart) {
-<div class="fixed inset-0 z-40 backdrop-blur-sm bg-black/10">
-  <app-cart-drawer
-    class="absolute right-0 top-0 z-40 h-screen w-full max-w-[520px] p-4 overflow-y-auto bg-white dark:bg-gray-800"
-    (click)="$event.stopPropagation()" />
-</div>
-}
+<app-cart-drawer [isOpen]="showCart" />

@@ -1,12 +1,5 @@
-<!-- Drawer -->
-<div class="fixed inset-0 flex justify-end transition-opacity duration-500 z-[52]"
-     [ngClass]="{'opacity-100': isOpen, 'opacity-0 pointer-events-none': !isOpen}">
-
-  <!-- Backdrop that covers entire viewport -->
-  <div class="fixed inset-0 bg-black bg-opacity-40 z-[52]"></div>
-
-  <div class="w-full md:w-2/3 lg:w-1/2 bg-[#F7F9FD] dark:bg-secondary-200 h-screen transform transition-transform duration-500 flex flex-col relative z-[53]"
-       [ngClass]="{'translate-x-0': isOpen, 'translate-x-full': !isOpen, '-translate-x-full': !initialized}">
+<app-drawer [isOpen]="isOpen" [widthClass]="'w-full md:w-2/3 lg:w-1/2'" [zIndexClass]="'z-[52]'"
+  [panelClass]="'flex flex-col'" (closed)="closeDrawer()">
 
     <div class="p-6 flex-1 overflow-y-auto">
       <!-- Título -->
@@ -377,5 +370,4 @@
       </form>
     </div>
 
-  </div>
-</div>
+</app-drawer>

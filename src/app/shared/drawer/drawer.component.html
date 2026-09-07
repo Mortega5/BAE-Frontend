@@ -1,0 +1,11 @@
+<div class="fixed inset-0 bg-black/40 dark:bg-black/60 transition-opacity duration-300"
+  [ngClass]="zIndexClass"
+  [class.opacity-100]="isOpen" [class.opacity-0]="!isOpen" [class.pointer-events-none]="!isOpen"
+  (click)="closed.emit()"></div>
+
+<div class="app-drawer-panel fixed right-0 transition-transform duration-300"
+  [ngClass]="[widthClass, zIndexClass, insetClass, panelClass]"
+  [class.translate-x-0]="isOpen" [class.translate-x-full]="!isOpen"
+  (click)="$event.stopPropagation()">
+  <ng-content></ng-content>
+</div>

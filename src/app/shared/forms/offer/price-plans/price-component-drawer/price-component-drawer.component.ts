@@ -10,6 +10,7 @@ import moment from 'moment';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
 
 @Component({
   selector: 'app-price-component-drawer',
@@ -21,7 +22,8 @@ import { ButtonComponent } from 'src/app/shared/button/button.component';
     MarkdownTextareaComponent,
     TranslateModule,
     NgClass,
-    ButtonComponent
+    ButtonComponent,
+    DrawerComponent
   ],
   styleUrl: './price-component-drawer.component.css'
 })
@@ -33,7 +35,6 @@ export class PriceComponentDrawerComponent implements OnInit {
   @Output() save = new EventEmitter<any>();
 
   isOpen = false;
-  initialized = false;
 
   priceComponentForm!: FormGroup;
   showPriceTypeDropdown = false;
@@ -70,10 +71,8 @@ export class PriceComponentDrawerComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.initialized = false;
     setTimeout(() => {
       this.isOpen = true;
-      this.initialized = true;
       document.body.style.overflow = 'hidden';
     }, 50);
 

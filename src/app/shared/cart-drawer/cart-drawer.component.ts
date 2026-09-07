@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, HostListener, OnDestroy } from '@angular/core';
+import { Component, Input, OnChanges, OnInit, SimpleChanges, ChangeDetectorRef, HostListener, OnDestroy } from '@angular/core';
 import {
   faCartShopping
 } from "@fortawesome/sharp-solid-svg-icons";
@@ -22,7 +22,11 @@ import { takeUntil } from 'rxjs/operators';
   templateUrl: './cart-drawer.component.html',
   styleUrl: './cart-drawer.component.css'
 })
-export class CartDrawerComponent implements OnInit, OnDestroy {
+export class CartDrawerComponent implements OnInit, OnChanges, OnDestroy {
+  /** Kept mounted permanently by the header (so its translate-x transition can play),
+   * so the cart needs to be refetched every time it's opened, not just once on init. */
+  @Input() isOpen = false;
+
   protected readonly faCartShopping = faCartShopping;
   items: any[] = [];
   totalPrice:any;
@@ -69,6 +73,13 @@ export class CartDrawerComponent implements OnInit, OnDestroy {
     })
     console.log('Elementos en el carrito....')
     console.log(this.items)
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isOpen'] && !changes['isOpen'].firstChange && this.isOpen) {
+      this.loading = true;
+      this.getCart();
+    }
   }
 
   ngOnDestroy(){

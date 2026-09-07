@@ -15,6 +15,7 @@ import { takeUntil } from 'rxjs/operators';
 import { SelectOption } from 'src/app/models/formFields/form-field.model';
 import { SearchSelectComponent } from 'src/app/shared/search-select/search-select.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
 
 
 @Component({
@@ -33,7 +34,8 @@ import { ButtonComponent } from 'src/app/shared/button/button.component';
     TierPricingDrawerComponent,
     NgForOf,
     SearchSelectComponent,
-    ButtonComponent
+    ButtonComponent,
+    DrawerComponent
   ],
   styleUrl: './price-plan-drawer.component.css'
 })
@@ -47,7 +49,6 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   @Output() close = new EventEmitter<void>();
 
   isOpen = false;
-  initialized = false;
   showPriceComponentDrawer = false;
   showConfigurationDrawer = false;
   showTierPricingDrawer = false;
@@ -68,13 +69,11 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
-    this.initialized = false;
     console.log('--- PROD PROF ----')
     console.log(this.formGroup?.get('productProfile')?.value)
     console.log(' --- --- ')
     setTimeout(() => {
       this.isOpen = true;
-      this.initialized = true;
       document.body.style.overflow = 'hidden';
     }, 50);
 

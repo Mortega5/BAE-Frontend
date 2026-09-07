@@ -20,6 +20,7 @@ import { FormsModule } from '@angular/forms';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
 import { ButtonComponent } from "../button/button.component";
+import { DrawerComponent } from "../drawer/drawer.component";
 
 
 @Component({
@@ -33,7 +34,8 @@ import { ButtonComponent } from "../button/button.component";
     ReactiveFormsModule,
     FormsModule,
     LoadingSpinnerComponent,
-    ButtonComponent
+    ButtonComponent,
+    DrawerComponent
 ],
   templateUrl: './price-plan-drawer.component.html',
   styleUrl: './price-plan-drawer.component.css'

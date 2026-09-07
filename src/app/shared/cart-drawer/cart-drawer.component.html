@@ -1,12 +1,14 @@
-<div id="cart-drawer" (click)="$event.stopPropagation();" class="h-full flex flex-col" tabindex="-1"
+<app-drawer [isOpen]="isOpen" (closed)="hideCart()">
+<div id="cart-drawer" class="h-full flex flex-col" tabindex="-1"
   aria-labelledby="cart-drawer-label" aria-hidden="true">
 
-  <fa-icon class="mr-2 text-gray-500 dark:text-gray-400" [icon]="faCartShopping"></fa-icon>
-  <h3 id="cart-drawer-label"
-    class="inline-flex items-center text-base font-semibold text-gray-500 dark:text-gray-400 text-xl"
-    aria-hidden="true">
-    {{ 'CART_DRAWER._title' | translate }}
-  </h3>
+  <div class="flex items-center">
+    <fa-icon class="mr-2 text-gray-500 dark:text-gray-400" [icon]="faCartShopping"></fa-icon>
+    <h3 id="cart-drawer-label" class="text-base font-semibold text-gray-500 dark:text-gray-400 text-xl"
+      aria-hidden="true">
+      {{ 'CART_DRAWER._title' | translate }}
+    </h3>
+  </div>
 
   <hr class="h-px my-2 bg-gray-200 border-0 dark:bg-gray-700">
 
@@ -110,3 +112,4 @@
   </div>
 }
 </div>
+</app-drawer>

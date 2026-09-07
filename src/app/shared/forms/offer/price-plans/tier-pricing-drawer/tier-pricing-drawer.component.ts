@@ -7,6 +7,7 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { LoginInfo } from 'src/app/models/interfaces';
 import moment from 'moment';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
 
 interface SubRange {
   id: string;
@@ -28,7 +29,8 @@ interface SubRange {
     NgClass,
     NgIf,
     NgForOf,
-    ButtonComponent
+    ButtonComponent,
+    DrawerComponent
   ],
   styleUrl: './tier-pricing-drawer.component.css'
 })
@@ -38,7 +40,6 @@ export class TierPricingDrawerComponent implements OnInit {
   @Output() saveTierPricing = new EventEmitter<any[]>(); // Emits array of configured price components
 
   isOpen = false;
-  initialized = false;
 
   // Range characteristics (filtered)
   rangeCharacteristics: any[] = [];
@@ -73,10 +74,8 @@ export class TierPricingDrawerComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.initialized = false;
     setTimeout(() => {
       this.isOpen = true;
-      this.initialized = true;
       document.body.style.overflow = 'hidden';
     }, 50);
 

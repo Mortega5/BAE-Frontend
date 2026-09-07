@@ -1,20 +1,21 @@
 import { Component, EventEmitter, Input, Output, OnInit, HostListener } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import {NgClass, NgForOf, NgIf} from "@angular/common";
+import {NgForOf, NgIf} from "@angular/common";
 import { certifications } from 'src/app/models/certification-standards.const';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
 
 @Component({
   selector: 'app-configuration-profile-drawer',
   standalone: true,
   templateUrl: './configuration-profile-drawer.component.html',
   imports: [
-    NgClass,
     NgIf,
     NgForOf,
     TranslateModule,
-    ButtonComponent
+    ButtonComponent,
+    DrawerComponent
   ],
   styleUrl: './configuration-profile-drawer.component.css'
 })
@@ -25,7 +26,6 @@ export class ConfigurationProfileDrawerComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
 
   isOpen = false;
-  initialized = false;
   form!: FormGroup;
 
   constructor(private fb: FormBuilder) {}
@@ -57,7 +57,6 @@ export class ConfigurationProfileDrawerComponent implements OnInit {
 
     setTimeout(() => {
       this.isOpen = true;
-      this.initialized = true;
     }, 50);
   }
 

@@ -1,14 +1,5 @@
-<!-- Drawer Overlay (Backdrop) -->
-<div class="fixed inset-0 bg-black bg-opacity-40 flex justify-end transition-opacity duration-1000 z-50"
-     [ngClass]="{'opacity-100': isOpen, 'opacity-0 pointer-events-none': !isOpen}">
-
-  <!-- Overlay when child drawer is open - covers entire viewport and dims parent -->
-  <div *ngIf="showPriceComponentDrawer || showTierPricingDrawer"
-       class="fixed inset-0 bg-black bg-opacity-30 pointer-events-none z-[51]"></div>
-
-  <!-- Drawer Content -->
-  <div class="w-full md:w-5/6 bg-[#F7F9FD] dark:bg-secondary-200 h-full p-6 overflow-y-auto transform transition-transform duration-1000 relative z-50"
-       [ngClass]="{'translate-x-0': isOpen, 'translate-x-full': !isOpen, '-translate-x-full': !initialized}">
+<app-drawer [isOpen]="isOpen" [widthClass]="'w-full md:w-5/6'" [zIndexClass]="'z-50'"
+  [panelClass]="'p-6 overflow-y-auto'" (closed)="closeDrawer()">
 
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
@@ -198,7 +189,11 @@
         </div>
 
     </div>
-  </div>
+</app-drawer>
+
+  <!-- Overlay when child drawer is open - covers entire viewport and dims parent -->
+  <div *ngIf="showPriceComponentDrawer || showTierPricingDrawer"
+       class="fixed inset-0 bg-black bg-opacity-30 pointer-events-none z-[51]"></div>
 
     <!-- Drawer para editar Price Components -->
     <app-price-component-drawer *ngIf="showPriceComponentDrawer"
@@ -215,5 +210,3 @@
                              (saveTierPricing)="closeTierPricingDrawer($event)"
                              (close)="closeTierPricingDrawer(null)">
     </app-tier-pricing-drawer>
-
-</div>

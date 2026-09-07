@@ -9,6 +9,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonComponent } from './button/button.component';
 import { ContentCardComponent } from './content-card/content-card.component';
+import { DrawerComponent } from './drawer/drawer.component';
 import { SideNavComponent } from './side-nav/side-nav.component';
 import { CartDrawerComponent } from "./cart-drawer/cart-drawer.component";
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
@@ -45,6 +46,7 @@ const STANDALONE_IMPORTS = [
   LoadingSpinnerComponent,
   ButtonComponent,
   ContentCardComponent,
+  DrawerComponent,
   SideNavComponent
 ];
 
