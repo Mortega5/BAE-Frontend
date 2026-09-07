@@ -94,10 +94,7 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
       { type: 'string', name: 'name', label: 'CHAR_SPEC._char_name', required: true, maxLength: 100, colSpan: 1, readonly: ro, dataCy: 'charName', placeholder: 'CHAR_SPEC._char_name_placeholder' },
       { type: 'select', name: 'valueType', label: 'CHAR_SPEC._value_type', options: this.valueTypeOptions, readonly: ro, colSpan: 1, dataCy: 'charType' },
       { type: 'textarea', name: 'description', label: 'CHAR_SPEC._description', readonly: ro, colSpan: 2, dataCy: 'charDescription', placeholder: 'CHAR_SPEC._description_placeholder' },
-      {
-        type: 'bubbleSelect', name: 'configurable', label: 'CHAR_SPEC._make_optional', readonly: ro, colSpan: 2,
-        options: [{ value: true, label: '_yes' }, { value: false, label: '_no' }],
-      },
+      { type: 'boolean', name: 'configurable', label: 'CHAR_SPEC._make_optional', readonly: ro, colSpan: 2 },
     ];
   }
 
