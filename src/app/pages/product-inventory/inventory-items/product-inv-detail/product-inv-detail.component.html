@@ -1,9 +1,7 @@
 <div class="container mx-auto pt-2 pb-8">
   <!-- Breadcrumb -->
   <div class="p-4">
-    <nav
-      class="flex px-5 py-3 text-gray-700 border border-secondary-50 rounded-lg bg-secondary-50 dark:bg-secondary-100 dark:border-gray-800"
-      aria-label="Breadcrumb">
+    <nav class="flex" aria-label="Breadcrumb">
       <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
         <li class="inline-flex items-center">
           <app-button (click)="back()" variant="link" prefixIcon="chevron-left">
@@ -26,47 +24,42 @@
   </div>
   <!-- End Breadcrumb -->
 
-  <!-- START HEADER CARD -->
-  <div
-    class="w-full lg:h-fit mb-4 bg-secondary-50 rounded-lg dark:bg-secondary-100 dark:border-gray-800 border-secondary-50 border lg:grid lg:grid-cols-60/40">
-    <div class="flex lg:hidden overflow-hidden justify-center items-center bg-white rounded-t-lg w-full">
-      <img class="rounded-t-lg h-5/6 w-5/6 object-contain dark:text-white" src="{{getProductImage()}}"
-        alt="Product image" />
+  <app-card>
+    <!-- START HEADER -->
+    <div class="w-full lg:h-fit mb-4 lg:grid lg:grid-cols-60/40">
+      <div class="flex lg:hidden overflow-hidden justify-center items-center bg-white rounded-2xl w-full">
+        <img class="rounded-2xl h-5/6 w-5/6 object-contain dark:text-white" src="{{getProductImage()}}"
+          alt="Product image" />
+      </div>
+      <div class="grid grid-rows-auto h-fit">
+        <div class="mt-2 h-fit">
+          <h5 class="md:text-3xl lg:text-4xl font-semibold tracking-tight text-primary-100 dark:text-white">
+            {{productOff?.name}}</h5>
+        </div>
+        <div class="pt-2 line-clamp-5 h-fit">
+          <markdown [ngClass]="{
+                      'break-all': hasLongWord(productOff?.description, 20),
+                      'break-words': !hasLongWord(productOff?.description, 20)
+                      }" class="dark:text-gray-200 text-wrap break-words" [data]="productOff?.description"></markdown>
+        </div>
+        <div class="pt-2 line-clamp-5 h-fit">
+          Start Date: {{ prod.startDate }}
+        </div>
+      </div>
+      <div class="hidden lg:block overflow-hidden rounded-2xl">
+        <div class="hidden lg:flex relative justify-center items-center w-full h-full">
+          <!-- Imagen de fondo difuminada -->
+          <div class="object-contain overflow-hidden absolute inset-0 bg-cover bg-center opacity-75"
+            style="background-image: url({{getProductImage()}});filter: blur(20px);"></div>
+          <!-- Imagen superior -->
+          <img class="object-contain h-5/6 w-5/6 max-h-[350px] z-10 p-8 dark:text-white" src="{{getProductImage()}}"
+            alt="Product image">
+        </div>
+      </div>
     </div>
-    <div class="grid grid-rows-auto p-4 md:p-8 h-fit">
-      <div class="mt-2 h-fit">
-        <!--<a href="#">-->
-        <h5 class="md:text-3xl lg:text-4xl font-semibold tracking-tight text-primary-100 dark:text-white">
-          {{productOff?.name}}</h5>
-        <!--</a>-->
-      </div>
-      <div class="pt-2 line-clamp-5 h-fit">
-        <markdown [ngClass]="{
-                    'break-all': hasLongWord(productOff?.description, 20),
-                    'break-words': !hasLongWord(productOff?.description, 20)
-                    }" class="dark:text-gray-200 text-wrap break-words" [data]="productOff?.description"></markdown>
-      </div>
-      <div class="pt-2 line-clamp-5 h-fit">
-        Start Date: {{ prod.startDate }}
-      </div>
-    </div>
-    <div class="hidden lg:block overflow-hidden rounded-r-lg">
-      <div class="hidden lg:flex relative justify-center items-center w-full h-full">
-        <!-- Imagen de fondo difuminada -->
-        <div class="object-contain overflow-hidden absolute inset-0 bg-cover bg-center opacity-75"
-          style="background-image: url({{getProductImage()}});filter: blur(20px);"></div>
-        <!-- Imagen superior -->
-        <img class="object-contain h-5/6 w-5/6 max-h-[350px] z-10 p-8 dark:text-white" src="{{getProductImage()}}"
-          alt="Product image">
-      </div>
-    </div>
-  </div>
-  <!-- END HEADER CARD -->
+    <!-- END HEADER -->
 
-  <div
-    class="w-full h-full bg-secondary-50 rounded-b-lg p-4 dark:bg-secondary-100 dark:border-gray-800 border-secondary-50 border-b">
-
-    <div id="desc-container" class="w-full bg-secondary-50/95 dark:bg-secondary-100/95 rounded-lg p-8 lg:p-12">
+    <div id="desc-container" class="w-full">
 
       <div id="details-container">
         <h2 #detailsContent class="text-4xl font-extrabold text-primary-100 dark:text-primary-50 text-center pb-4">
@@ -184,4 +177,4 @@
       }
 
     </div>
-  </div>
+  </app-card>

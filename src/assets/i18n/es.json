@@ -1068,10 +1068,12 @@
     "_created": "Creado",
     "_unsubscribe": "Cancelar suscripción",
     "_close_modal": "Cerrar modal",
-    "_cancel_sub": "¿Estás seguro de que quieres cancelar esta suscripción?",
+    "_cancel_sub_title": "Cancelar suscripción",
+    "_cancel_sub": "¿Estás seguro de que quieres cancelar esta suscripción? ({{name}})",
     "_cancel": "No, cancelar",
     "_yes_sure": "Sí, estoy seguro",
-    "_renew_sub": "¿Estás seguro de que quieres renovar esta suscripción?"
+    "_renew_sub_title": "Renovar suscripción",
+    "_renew_sub": "¿Estás seguro de que quieres renovar esta suscripción? ({{name}})"
   },
   "BILLING": {
     "_title": "Título",

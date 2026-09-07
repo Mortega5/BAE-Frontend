@@ -1068,10 +1068,12 @@
     "_created": "Created",
     "_unsubscribe": "Unsubscribe",
     "_close_modal": "Close modal",
-    "_cancel_sub": "Are you sure you want to cancel this subscription?",
+    "_cancel_sub_title": "Cancel subscription",
+    "_cancel_sub": "Are you sure you want to cancel this subscription? ({{name}})",
     "_cancel": "No, cancel",
     "_yes_sure": "Yes, I'm sure",
-    "_renew_sub": "Are you sure you want to renew this subscription?"
+    "_renew_sub_title": "Renew subscription",
+    "_renew_sub": "Are you sure you want to renew this subscription? ({{name}})"
   },
   "BILLING": {
     "_title": "Title",

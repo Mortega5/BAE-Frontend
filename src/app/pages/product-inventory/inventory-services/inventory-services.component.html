@@ -87,7 +87,7 @@
   @if(loading){
   <app-loading-spinner />
   } @else {
-  <div class="bg-secondary-50 dark:bg-secondary-100 border dark:border-gray-800 mt-8 p-4 rounded-lg">
+  <app-card class="block mt-8">
     <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300">
       <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
         <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
@@ -159,16 +159,13 @@
         data-cy="loadMoreLoading" />
       }
     </div>
-  </div>
+  </app-card>
 
   }
   } @else {
-  <div
-    class="w-full h-fit mb-4 bg-secondary-50 rounded-lg dark:bg-secondary-100 dark:border-gray-800 border-secondary-50 border flex flex-col shadow-lg">
-    <div class="pb-4">
-      <nav
-        class="flex px-5 py-3 text-gray-700 border border-secondary-50 rounded-lg bg-secondary-50 dark:bg-secondary-100 dark:border-gray-800"
-        aria-label="Breadcrumb">
+  <app-card>
+    <div appCardHeader>
+      <nav class="flex" aria-label="Breadcrumb">
         <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
           <li class="inline-flex items-center">
             <app-button (click)="back()" variant="link" prefixIcon="chevron-left">
@@ -189,7 +186,7 @@
         </ol>
       </nav>
     </div>
-    <div class="p-4">
+    <div>
       <h2 class="text-2xl font-extrabold text-primary-100 text-center dark:text-primary-50 pb-4">{{selectedServ.name}}
       </h2>
       <markdown [ngClass]="{
@@ -246,7 +243,7 @@
 
       }
     </div>
-  </div>
+  </app-card>
   }
 
 </div>

@@ -23,6 +23,7 @@ import { takeUntil } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { ThemeService } from 'src/app/services/theme.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'inventory-products',
@@ -87,7 +88,8 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService,
     private paginationService: PaginationService,
     private accountService: AccountServiceService,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private translate: TranslateService
   ) {
     this.eventMessage.messages$
     .pipe(takeUntil(this.destroy$))
@@ -258,9 +260,17 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     this.prodToUnsubscribe=inv;
   }
 
+  get unsubscribeConfirmMessage(): string {
+    return this.translate.instant('PRODUCT_INVENTORY._cancel_sub', { name: this.prodToUnsubscribe?.product?.name ?? '' });
+  }
+
   showRenewModal(inv:any){
     this.renewModal=true;
     this.prodToRenew=inv;
+  }
+
+  get renewConfirmMessage(): string {
+    return this.translate.instant('PRODUCT_INVENTORY._renew_sub', { name: this.prodToRenew?.product?.name ?? '' });
   }
   
   renewProduct(id:any){
