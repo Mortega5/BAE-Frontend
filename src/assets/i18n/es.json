@@ -2625,6 +2625,7 @@
   "USAGE_SPECS": {
     "_back": "Volver",
     "_delete_metric": "Eliminar métrica",
+    "_edit": "Editar",
     "_usage_spec": "Métricas de pago por uso",
     "_create": "Crear métrica de pago por uso",
     "_update": "Actualizar métrica de pago por uso",

@@ -10,7 +10,7 @@ import { SideNavSection } from './side-nav.model';
 /** Shared sidebar-nav + content shell, consolidating the near-identical
  * "desktop sidebar list + mobile off-canvas drawer + router-outlet" layout
  * duplicated across seller-offerings, product-orders, product-inventory,
- * admin and usage-specs. Adopt incrementally, same approach as
+ * and admin. Adopt incrementally, same approach as
  * app-button/app-card. The page's own content (typically a <router-outlet>)
  * is projected in, not owned by this component. */
 @Component({

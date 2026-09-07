@@ -32,6 +32,7 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
   productSpecsCount = 0;
   serviceSpecsCount = 0;
   resourceSpecsCount = 0;
+  usageSpecsCount = 0;
 
   workspaceHelpAction?: WorkspaceHelpConfig;
 
@@ -127,6 +128,7 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
     const prodSpecUrl = `${base}${environment.PRODUCT_CATALOG}${environment.PRODUCT_SPEC}?limit=${limit}&${partyParam}`;
     const servSpecUrl = `${base}${environment.SERVICE}${environment.SERVICE_SPEC}?limit=${limit}&${partyParam}`;
     const resSpecUrl = `${base}${environment.RESOURCE}${environment.RESOURCE_SPEC}?limit=${limit}&${partyParam}`;
+    const usageSpecUrl = `${base}/usage/usageSpecification?limit=${limit}&${partyParam}`;
 
     const safeCount = async (url: string) => {
       try {
@@ -137,13 +139,14 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
       }
     };
 
-    const [offers, catalogs, prods, servs, ress, softwares] = await Promise.all([
+    const [offers, catalogs, prods, servs, ress, softwares, usageSpecs] = await Promise.all([
       safeCount(offersUrl),
       this.catalogManagementEnabled ? safeCount(catalogsUrl) : Promise.resolve(0),
       safeCount(prodSpecUrl),
       safeCount(servSpecUrl),
       safeCount(resSpecUrl),
       this.api.getSoftwareResourceByUserPaged({ limit: 1, offset: 0 }, undefined, [], partyId).then(res => res.total).catch(() => 0),
+      safeCount(usageSpecUrl),
     ]);
 
     this.productOffersCount = offers;
@@ -152,6 +155,7 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
     this.serviceSpecsCount = servs;
     this.resourceSpecsCount = ress;
     this.softwaresCount = softwares;
+    this.usageSpecsCount = usageSpecs;
     this.sections = this.buildSections();
   }
 
@@ -190,6 +194,7 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
           { label: 'OFFERINGS._products', routerLink: segments.productSpecs, count: this.productSpecsCount, dataCy: 'prdSpecSection' },
           { label: 'OFFERINGS._services', routerLink: segments.serviceSpecs, count: this.serviceSpecsCount, dataCy: 'servSpecSection' },
           { label: 'OFFERINGS._resources', routerLink: segments.resourceSpecs, count: this.resourceSpecsCount, dataCy: 'resSpecSection' },
+          { label: 'USAGE_SPECS._usage_spec', routerLink: segments.usageSpecs, count: this.usageSpecsCount, dataCy: 'usageSpecSection' },
         ],
       },
     ];

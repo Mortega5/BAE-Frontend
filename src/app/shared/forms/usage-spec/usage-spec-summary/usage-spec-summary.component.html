@@ -27,28 +27,7 @@
   @if(usageSpecForm.get('metrics')?.value && usageSpecForm.get('metrics')?.value.length > 0){
     <div>
       <label class="block text-sm font-semibold text-gray-900 mb-2">{{ 'USAGE_SPECS._metrics' | translate }}</label>
-      <div class="relative w-full border border-gray-200 rounded-2xl overflow-hidden">
-        <table class="w-full text-sm text-left text-gray-700">
-          <thead class="text-xs text-gray-500 uppercase">
-            <tr class="border-b border-gray-200">
-              <th scope="col" class="px-6 py-3 font-semibold">{{ 'USAGE_SPECS._name' | translate }}</th>
-              <th scope="col" class="hidden md:table-cell px-6 py-3 font-semibold">{{ 'USAGE_SPECS._description' | translate }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (metric of usageSpecForm.get('metrics')?.value; track metric) {
-              <tr class="border-t border-gray-100">
-                <td [ngClass]="{ 'break-all': hasLongWord(metric.name, 20), 'break-words': !hasLongWord(metric.name, 20) }" class="px-6 py-4 text-gray-900">
-                  {{metric.name}}
-                </td>
-                <td [ngClass]="{ 'break-all': hasLongWord(metric.description, 20), 'break-words': !hasLongWord(metric.description, 20) }" class="hidden md:table-cell px-6 py-4 text-gray-600">
-                  {{metric.description}}
-                </td>
-              </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+      <app-table-input [columns]="metricColumns" [items]="usageSpecForm.get('metrics')?.value" [selectable]="false" />
     </div>
   }
 </div>

@@ -65,8 +65,9 @@ import { PaginatedTableComponent } from './shared/forms/paginated-table/paginate
 import { FilterBarComponent } from './shared/forms/filter-bar/filter-bar.component';
 import { FilteredPaginatedTableComponent } from './shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { SellerResourceSpecComponent } from './pages/seller-offerings/offerings/seller-resource-spec/seller-resource-spec.component';
-import { CreateUsageSpecComponent } from './pages/usage-specs/usage-sections/create-usage-spec/create-usage-spec.component';
-import { UpdateUsageSpecComponent } from './pages/usage-specs/usage-sections/update-usage-spec/update-usage-spec.component';
+import { CreateUsageSpecComponent } from './pages/seller-offerings/offerings/seller-usage-spec/create-usage-spec/create-usage-spec.component';
+import { SellerUsageSpecComponent } from './pages/seller-offerings/offerings/seller-usage-spec/seller-usage-spec.component';
+import { UpdateUsageSpecComponent } from './pages/seller-offerings/offerings/seller-usage-spec/update-usage-spec/update-usage-spec.component';
 import { SellerServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/seller-service-spec.component';
 import { ServiceSpecFormComponent } from './pages/seller-offerings/offerings/seller-service-spec/service-spec-form/service-spec-form.component';
 import { SellerOfferingsComponent } from "./pages/seller-offerings/seller-offerings.component";
@@ -241,6 +242,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     OperatorRevenueSharingComponent,
     CreateUsageSpecComponent,
     UpdateUsageSpecComponent,
+    SellerUsageSpecComponent,
     SoftwareCharacteristicsComponent,
     SpecificationCharacteristicFormComponent,
     CharacteristicsEditorComponent,

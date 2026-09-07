@@ -16,7 +16,6 @@ import {
   faMoon,
   faPieChart,
   faReceipt,
-  faRuler,
   faSun,
   faUser,
   faUsers
@@ -469,7 +468,6 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   protected readonly faUsers = faUsers;
   protected readonly faCogs = faCogs;
   protected readonly faReceipt = faReceipt;
-  protected readonly faRuler = faRuler;
   protected readonly faPieChart = faPieChart;
   protected readonly faBars = faBars;
   protected readonly faArrowRight = faArrowRight;

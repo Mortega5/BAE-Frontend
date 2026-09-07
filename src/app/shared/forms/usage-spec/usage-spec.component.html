@@ -1,96 +1,56 @@
-<div class="bg-secondary-50 dark:bg-secondary-100 border border-secondary-50 dark:border-gray-800 mt-4 p-4 md:p-8 rounded-lg w-full">
-    @if(formType === 'update'){
-      <h2 class="text-3xl font-bold text-primary-100 dark:text-white pb-4">
-        {{ 'USAGE_SPECS._update' | translate }}
-      </h2>
-    } @else {
-      <h2 class="text-3xl font-bold text-primary-100 dark:text-white pb-4">
-        {{ 'USAGE_SPECS._create' | translate }}
-      </h2>
-    }
-  
-  @if(loadingData){
-      <app-loading-spinner />
-  } @else {
-    <!-- Stepper -->
-    <form [formGroup]="usageSpecForm">
-      <ol class="flex items-start w-full text-sm font-medium text-center text-gray-500 dark:text-gray-400">
-        @for (step of steps; track i; let i = $index) {
-          <li 
-              (click)="handleStepClick(i)"
-              [class.cursor-not-allowed]="!canNavigate(i)"
-              [class.opacity-50]="!canNavigate(i)"          
-              [class.text-primary-100]="currentStep === i"
-              class="flex-1 cursor-pointer">
-            <span class="flex items-center justify-center w-8 h-8 md:w-10 md:h-10 mx-auto border-2 border-primary-100 dark:border-primary-50 shrink-0 rounded-full"
-                  [class.bg-primary-100]="currentStep === i"
-                  [class.text-white]="currentStep === i">
-              {{ i + 1 }}
-            </span>
-            <span class="md:block mt-2 hidden">{{ step }}</span>
-          </li>
-        }
-      </ol>
-  
-      <h3 class="block md:hidden mt-2 text-center text-2xl text-primary-100 dark:text-white pb-4">{{ this.steps[currentStep] }}</h3>
-  
-  
-      <div class="md:p-8">
-        <!-- Step Forms -->
-        @if (currentStep === 0) {
-            <usage-spec-general-info
-            [data]="usageSpec" 
-            [formType]="formType" 
-            [form]="usageSpecForm.controls['generalInfo']"
-            (formChange)="handleSubformChange($event)">
-            </usage-spec-general-info>
-        } @else if (currentStep === 1) {
-            <usage-spec-metrics
-            [data]="usageSpec" 
-            [formType]="formType"
-            formControlName="metrics"
-            (formChange)="handleSubformChange($event)">
-            </usage-spec-metrics>
-        } @else if (currentStep === 2) {
-            <usage-spec-summary [usageSpecForm]="usageSpecForm"></usage-spec-summary>
-        }
-      </div>
-  
-      <!-- Navigation Buttons -->
-      <div class="flex justify-end mt-6 space-x-4">
-        <app-button data-cy="usageSpecPrevious" (click)="goToStep(currentStep - 1)"
-                [disabled]="currentStep === 0" variant="ghost" size="sm" prefixIcon="chevron-left">
-          {{ 'USAGE_SPECS._previous' | translate }}
-        </app-button>
+<h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
+  {{ (formType === 'update' ? 'USAGE_SPECS._update' : 'USAGE_SPECS._create') | translate }}
+</h1>
 
-        <app-button data-cy="stepperNext" (click)="goToStep(currentStep + 1)"
-                [disabled]="currentStep === steps.length - 1 || (formType === 'create' && !validateCurrentStep()) || !canNavigate(currentStep)"
-                variant="ghost" size="sm" suffixIcon="chevron-right">
-          {{ 'USAGE_SPECS._next' | translate }}
-        </app-button>
-        @if(formType === 'create' && currentStep === 2 || formType === 'update'){
-          <app-button data-cy="stepperSubmit" (click)="submitForm()"
-          [disabled]="!usageSpecForm.controls['generalInfo'].valid">
-            {{ formType === 'create' ? 'Create Usage Spec' : 'Update Usage Spec' }}
-          </app-button>
-        }
-      </div>
-    </form>
-  }
-  </div>
-  
-  @if(showError){
-    <div class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-      <div id="alert-additional-content-2" class="p-4 mb-4 text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-red-900 dark:border-red-900 dark:text-white" role="alert">
-        <div class="flex items-center">
-          <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-          </svg>
-          <h3 class="text-lg font-medium">Error</h3>
+@if (loadingData) {
+<app-loading-spinner />
+} @else {
+<form [formGroup]="usageSpecForm">
+  <app-stepper [allUnlocked]="formType === 'update'" [canAdvance]="canAdvance"
+    previousLabel="USAGE_SPECS._previous" nextLabel="USAGE_SPECS._next"
+    [submitLabel]="formType === 'update' ? 'USAGE_SPECS._update' : 'USAGE_SPECS._create'"
+    [submitAlwaysVisible]="formType === 'update'"
+    [submitDisabled]="!usageSpecForm.controls['generalInfo'].valid"
+    (stepChanged)="onStepChanged($event)" (submitted)="submitForm()">
+
+    <ng-template stepperStep="USAGE_SPECS._general_info" stepId="generalInfo">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'USAGE_SPECS._general_info' | translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'USAGE_SPECS._general_info_desc' | translate }}</p>
         </div>
-        <div class="mt-2 mb-4 text-sm">
-          {{errorMessage}}
-        </div>
+        <usage-spec-general-info [data]="usageSpec" [formType]="formType" [form]="usageSpecForm.controls['generalInfo']"
+          (formChange)="handleSubformChange($event)">
+        </usage-spec-general-info>
       </div>
+    </ng-template>
+
+    <ng-template stepperStep="USAGE_SPECS._metrics" stepId="metrics">
+      <usage-spec-metrics [data]="usageSpec" [formType]="formType" formControlName="metrics"
+        (formChange)="handleSubformChange($event)">
+      </usage-spec-metrics>
+    </ng-template>
+
+    <ng-template stepperStep="USAGE_SPECS._summary" stepId="summary">
+      <usage-spec-summary [usageSpecForm]="usageSpecForm"></usage-spec-summary>
+    </ng-template>
+
+  </app-stepper>
+</form>
+}
+
+@if (showError) {
+<div class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
+  <div id="alert-additional-content-2" class="p-4 mb-4 text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-red-900 dark:border-red-900 dark:text-white" role="alert">
+    <div class="flex items-center">
+      <svg class="flex-shrink-0 w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+      </svg>
+      <h3 class="text-lg font-medium">Error</h3>
     </div>
-  }
+    <div class="mt-2 mb-4 text-sm">
+      {{errorMessage}}
+    </div>
+  </div>
+</div>
+}

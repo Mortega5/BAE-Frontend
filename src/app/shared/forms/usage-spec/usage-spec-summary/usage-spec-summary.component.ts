@@ -12,6 +12,8 @@ import {
   NG_VALUE_ACCESSOR,
   Validators
 } from '@angular/forms';
+import { TableColumn } from 'src/app/models/table-column.model';
+import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 
 @Component({
   selector: 'usage-spec-summary',
@@ -22,7 +24,8 @@ import {
     MarkdownComponent,
     NgClass,
     PickerComponent,
-    SharedModule],
+    SharedModule,
+    TableInputComponent],
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
@@ -36,6 +39,20 @@ import {
 export class UsageSpecSummaryComponent implements OnInit {
   @Input() usageSpecForm!: FormGroup;
 
+  metricColumns: TableColumn[] = [
+    {
+      header: 'USAGE_SPECS._name',
+      getValue: (metric: any) => metric.name,
+      cellClass: (metric: any) => this.hasLongWord(metric.name, 20) ? 'break-all' : 'break-words',
+    },
+    {
+      header: 'USAGE_SPECS._description',
+      hideOnMobile: true,
+      getValue: (metric: any) => metric.description,
+      cellClass: (metric: any) => this.hasLongWord(metric.description, 20) ? 'break-all' : 'break-words',
+    },
+  ];
+
   async ngOnInit() {
     console.log('--- INFO SUMMARY')
     console.log(this.usageSpecForm)
@@ -48,7 +65,7 @@ export class UsageSpecSummaryComponent implements OnInit {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
   }
 
 }

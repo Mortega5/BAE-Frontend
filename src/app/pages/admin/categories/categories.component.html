@@ -2,7 +2,7 @@
   <div appCardHeader class="flex w-full flex-cols items-center md:flex-row justify-between">
     <h2 class="text-2xl font-bold dark:text-white">{{ 'CATEGORIES._categories' | translate }}</h2>
 
-    <app-button data-cy="adminAddNewCategory" type="button" (click)="createCategory()" suffixIcon="plus">
+    <app-button dataCy="adminAddNewCategory" (click)="createCategory()" prefixIcon="plus">
       {{ 'CATEGORIES._add_new_cat' | translate }}
     </app-button>
 

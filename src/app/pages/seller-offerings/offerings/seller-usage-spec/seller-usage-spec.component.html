@@ -1,0 +1,29 @@
+<app-card>
+  <div appCardHeader class="flex w-full flex-cols items-center md:flex-row justify-between">
+    <h2 class="text-2xl font-bold dark:text-white">{{ 'USAGE_SPECS._list' | translate }}</h2>
+
+    <app-button dataCy="createUsageSpec" (click)="goToCreate()" prefixIcon="plus">
+      {{ 'USAGE_SPECS._add_new' | translate }}
+    </app-button>
+  </div>
+
+  @if(loading){
+  <app-loading-spinner />
+  } @else {
+  <div>
+    <app-table-input data-cy="usageSpecTable" [columns]="usageSpecColumns" [items]="usageSpecs" [selectable]="false"
+      [emptyMessage]="'USAGE_SPECS._no_usage'" />
+    @if (!loading_more) {
+    @if (page_check) {
+    <div class="flex pt-6 pb-2 justify-center align-middle">
+      <app-button (click)="next()" variant="secondary" suffixIcon="arrow-down" size="sm" class="shadow-lg">
+        {{ 'USAGE_SPECS._load_more' | translate }}
+      </app-button>
+    </div>
+    }
+    } @else {
+    <app-loading-spinner containerClass="w-full h-full flex justify-center align-middle mt-2" />
+    }
+  </div>
+  }
+</app-card>

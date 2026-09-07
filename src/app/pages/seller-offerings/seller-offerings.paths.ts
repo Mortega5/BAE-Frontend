@@ -14,6 +14,7 @@ const segments = {
   productSpecs: 'productSpecs',
   serviceSpecs: 'serviceSpecs',
   resourceSpecs: 'resourceSpecs',
+  usageSpecs: 'usageSpecs',
   new: 'new',
   custom: 'custom',
   id: ':id',
@@ -42,4 +43,5 @@ export const SellerOfferingsPaths = {
   productSpecs: group(segments.productSpecs),
   serviceSpecs: group(segments.serviceSpecs),
   resourceSpecs: group(segments.resourceSpecs),
+  usageSpecs: group(segments.usageSpecs),
 } as const;

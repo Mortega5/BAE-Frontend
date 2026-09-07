@@ -16,6 +16,9 @@ import { SellerServiceSpecComponent } from './offerings/seller-service-spec/sell
 import { CreateSoftwareComponent } from './offerings/seller-software/create-software/create-software.component';
 import { SellerSoftware } from './offerings/seller-software/seller-software';
 import { UpdateSoftwareComponent } from './offerings/seller-software/update-software/update-software.component';
+import { CreateUsageSpecComponent } from './offerings/seller-usage-spec/create-usage-spec/create-usage-spec.component';
+import { SellerUsageSpecComponent } from './offerings/seller-usage-spec/seller-usage-spec.component';
+import { UpdateUsageSpecComponent } from './offerings/seller-usage-spec/update-usage-spec/update-usage-spec.component';
 import { SellerOfferingsPaths } from './seller-offerings.paths';
 
 const { segments } = SellerOfferingsPaths;
@@ -69,6 +72,14 @@ export const sellerOfferingsRoutes: Routes = [
       { path: '', component: SellerResourceSpecComponent },
       { path: segments.new, component: ResourceSpecFormComponent, data: { mode: 'create' } },
       { path: segments.id, component: ResourceSpecFormComponent, data: { mode: 'update' } },
+    ],
+  },
+  {
+    path: segments.usageSpecs,
+    children: [
+      { path: '', component: SellerUsageSpecComponent },
+      { path: segments.new, component: CreateUsageSpecComponent },
+      { path: segments.id, component: UpdateUsageSpecComponent },
     ],
   },
 ];

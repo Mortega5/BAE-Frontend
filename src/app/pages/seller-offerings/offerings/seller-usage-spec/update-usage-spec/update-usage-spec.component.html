@@ -1,0 +1,17 @@
+<div class="w-full flex-1 flex flex-col">
+  <!-- Breadcrumb -->
+  <div class="p-4">
+    <app-button (click)="goBack()" variant="link" prefixIcon="chevron-left">
+      {{ 'USAGE_SPECS._back' | translate }}
+    </app-button>
+  </div>
+  <!-- End Breadcrumb -->
+
+  @if (notFound) {
+  <app-not-found-state message="This usage specification could not be found." (back)="goBack()" />
+  } @else if (loading) {
+  <app-loading-spinner />
+  } @else {
+  <usage-spec-form [partyId]="partyId" [formType]="'update'" [usageSpec]="usageSpec"></usage-spec-form>
+  }
+</div>

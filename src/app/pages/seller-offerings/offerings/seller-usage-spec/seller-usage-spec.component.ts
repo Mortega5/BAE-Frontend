@@ -2,28 +2,50 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faPenToSquare } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import moment from 'moment';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { TableColumn } from 'src/app/models/table-column.model';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { PaginationService } from 'src/app/services/pagination.service';
 import { UsageServiceService } from 'src/app/services/usage-service.service';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { environment } from 'src/environments/environment';
-import { UsageSpecsPaths } from '../../usage-specs.paths';
+import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 
 @Component({
-  selector: 'usage-list',
+  selector: 'seller-usage-spec',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule,
-    LoadingSpinnerComponent, ButtonComponent, ContentCardComponent
+    LoadingSpinnerComponent, ButtonComponent, ContentCardComponent, TableInputComponent
   ],
-  templateUrl: './usage-list.component.html',
-  styleUrl: './usage-list.component.css'
+  templateUrl: './seller-usage-spec.component.html',
+  styleUrl: './seller-usage-spec.component.css'
 })
-export class UsageListComponent implements OnInit {
+export class SellerUsageSpecComponent implements OnInit {
+  usageSpecColumns: TableColumn[] = [
+    {
+      header: 'USAGE_SPECS._name',
+      getValue: (usage: any) => usage.name,
+      cellClass: (usage: any) => this.hasLongWord(usage.name, 20) ? 'break-all' : 'break-words',
+    },
+    {
+      header: 'USAGE_SPECS._description',
+      hideOnMobile: true,
+      getValue: (usage: any) => usage.description,
+    },
+    {
+      type: 'actions', header: 'USAGE_SPECS._actions', width: 'w-20',
+      actions: [
+        { icon: faPenToSquare, onClick: (usage: any) => this.goToUpdate(usage.id), dataCy: 'usageSpecEdit', tooltip: 'USAGE_SPECS._edit' },
+      ],
+    },
+  ];
+
   usageSpecs: any[] = [];
   nextUsageSpecs: any[] = [];
   loading: boolean = false;
@@ -88,11 +110,11 @@ export class UsageListComponent implements OnInit {
   }
 
   goToCreate() {
-    this.router.navigate([UsageSpecsPaths.new()])
+    this.router.navigate([SellerOfferingsPaths.usageSpecs.new()])
   }
 
   goToUpdate(usageSpecId: string) {
-    this.router.navigate([UsageSpecsPaths.edit(usageSpecId)])
+    this.router.navigate([SellerOfferingsPaths.usageSpecs.edit(usageSpecId)])
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {

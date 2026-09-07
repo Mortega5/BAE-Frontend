@@ -4,20 +4,20 @@ import { TranslateModule } from '@ngx-translate/core';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
-import { UsageSpecsComponent } from './usage-specs.component';
+import { SellerUsageSpecComponent } from './seller-usage-spec.component';
 
-describe('UsageSpecsComponent', () => {
-  let component: UsageSpecsComponent;
-  let fixture: ComponentFixture<UsageSpecsComponent>;
+describe('SellerUsageSpecComponent', () => {
+  let component: SellerUsageSpecComponent;
+  let fixture: ComponentFixture<SellerUsageSpecComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [UsageSpecsComponent, HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()]
+      imports: [SellerUsageSpecComponent, HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()]
     })
     .compileComponents();
-    
-    fixture = TestBed.createComponent(UsageSpecsComponent);
+
+    fixture = TestBed.createComponent(SellerUsageSpecComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

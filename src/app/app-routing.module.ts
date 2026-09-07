@@ -6,9 +6,6 @@ import { BlogEntryDetailComponent } from "src/app/pages/dome-blog/blog-entry-det
 import { DomeBlogComponent } from "src/app/pages/dome-blog/dome-blog.component";
 import { EntryFormComponent } from "src/app/pages/dome-blog/entry-form/entry-form.component";
 import { FaqComponent } from "src/app/offerings/faq/faq.component";
-import { UsageSpecsComponent } from "src/app/pages/usage-specs/usage-specs.component";
-import { UsageSpecsPaths } from "src/app/pages/usage-specs/usage-specs.paths";
-import { usageSpecsRoutes } from "src/app/pages/usage-specs/usage-specs.routes";
 import { AuthGuard } from './guard/auth.guard';
 import { quoteGuardGuard } from './guard/quote-guard.guard';
 import { AdminComponent } from "./pages/admin/admin.component";
@@ -138,12 +135,6 @@ const routes: Routes = [
     loadChildren: () => import('./features/tenders/tenders.module').then(m => m.TendersModule),
     canActivate: [AuthGuard, quoteGuardGuard],
     data: { roles: [] }
-  },
-  {
-    path: UsageSpecsPaths.rootSegment,
-    component: UsageSpecsComponent,
-    canActivate: [AuthGuard], data: { roles: ['seller'] },
-    children: usageSpecsRoutes,
   },
   {
     path: 'blog',

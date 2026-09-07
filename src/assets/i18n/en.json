@@ -2625,6 +2625,7 @@
   "USAGE_SPECS": {
     "_back": "Back",
     "_delete_metric": "Delete metric",
+    "_edit": "Edit",
     "_usage_spec": "Pay per use metrics",
     "_create": "Create pay per use metric",
     "_update": "Update pay per use metric",

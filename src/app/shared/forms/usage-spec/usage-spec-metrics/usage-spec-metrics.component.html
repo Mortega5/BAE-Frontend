@@ -11,33 +11,8 @@
 </div>
 
 @if (metrics.length > 0){
-  <div class="relative w-full mt-4 border border-gray-200 rounded-2xl overflow-visible">
-    <table class="w-full text-sm text-left text-gray-700">
-      <thead class="text-xs text-gray-500 uppercase">
-        <tr class="border-b border-gray-200">
-          <th scope="col" class="px-6 py-3 font-semibold">{{ 'USAGE_SPECS._name' | translate }}</th>
-          <th scope="col" class="px-6 py-3 font-semibold">{{ 'USAGE_SPECS._description' | translate }}</th>
-          <th scope="col" class="px-6 py-3 font-semibold w-20">{{ 'USAGE_SPECS._actions' | translate }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        @for (metric of metrics; track metric;) {
-          <tr class="border-t border-gray-100">
-            <td [ngClass]="{ 'break-all': hasLongWord(metric.name, 20), 'break-words': !hasLongWord(metric.name, 20) }" class="px-6 py-4 text-gray-900">
-              {{metric.name}}
-            </td>
-            <td [ngClass]="{ 'break-all': hasLongWord(metric.description, 20), 'break-words': !hasLongWord(metric.description, 20) }" class="px-6 py-4 text-gray-600">
-              {{metric.description || '-'}}
-            </td>
-            <td class="px-6 py-4">
-              <app-button type="button" (click)="deleteMetric(metric)" variant="danger" shape="pill" prefixIcon="trash">
-                <span class="sr-only">{{ 'USAGE_SPECS._delete_metric' | translate }}</span>
-              </app-button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+  <div class="mt-4">
+    <app-table-input data-cy="metricsTable" [columns]="metricColumns" [items]="metrics" [selectable]="false" />
   </div>
 }
 
@@ -45,8 +20,8 @@
   @if(metrics.length === 0){
     <div class="rounded-2xl flex-1 dashed-pane mt-4">
       <div class="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center">
-        <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 p-4" style="background-color: #DDE6F6;">
-          <svg class="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#2D58A7">
+        <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 p-4 bg-[#DDE6F6] dark:bg-secondary-300">
+          <svg class="w-10 h-10 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v.75c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875v-.75C22.5 3.839 21.66 3 20.625 3H3.375z"/>
             <path fill-rule="evenodd" clip-rule="evenodd" d="M3.087 9l.54 9.176A3 3 0 006.62 21h10.757a3 3 0 002.995-2.824L20.913 9H3.087zm6.133 2.845a.75.75 0 011.06 0l1.72 1.72 1.72-1.72a.75.75 0 111.06 1.06l-1.72 1.72 1.72 1.72a.75.75 0 11-1.06 1.06L12 15.685l-1.72 1.72a.75.75 0 11-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06z"/>
           </svg>
@@ -61,18 +36,7 @@
   }
 } @else {
   <form class="mt-6 flex flex-col gap-5" [formGroup]="metricsForm">
-    <div>
-      <label for="metric-name" class="block text-sm font-semibold text-gray-900 mb-2">{{ 'USAGE_SPECS._name' | translate }} <span class="text-red-500">*</span></label>
-      <input data-cy="metricName" formControlName="name" type="text" id="metric-name" maxLength="100"
-        placeholder="{{ 'USAGE_SPECS._metric_name_placeholder' | translate }}"
-        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3"/>
-    </div>
-    <div>
-      <label for="metric-description" class="block text-sm font-semibold text-gray-900 mb-2">{{ 'USAGE_SPECS._description' | translate }}</label>
-      <textarea data-cy="metricDescription" id="metric-description" formControlName="description" rows="4"
-        placeholder="{{ 'USAGE_SPECS._metric_description_placeholder' | translate }}"
-        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3 resize-none"></textarea>
-    </div>
+    <app-dynamic-form [fields]="metricFields" [formGroup]="metricsForm" />
     <div class="flex justify-end items-center gap-3">
       <app-button type="button" (click)="showCreateMetric=false; metricsForm.reset();" variant="link">
         {{ 'USAGE_SPECS._cancel' | translate }}

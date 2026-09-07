@@ -6,7 +6,7 @@
     <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._mybills' |
       translate }}</h2>
     @if (!isReadOnly && billing_accounts.length > 0) {
-    <app-button type="button" (click)="openAddBilling()" suffixIcon="plus" class="mr-4">
+    <app-button (click)="openAddBilling()" prefixIcon="plus" class="mr-4">
       {{ 'BILLING._add' | translate }}
     </app-button>
     }

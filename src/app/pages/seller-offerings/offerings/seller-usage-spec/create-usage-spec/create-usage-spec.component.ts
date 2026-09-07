@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { TranslateModule } from "@ngx-translate/core";
 import moment from 'moment';
 import { LoginInfo } from 'src/app/models/interfaces';
-import { UsageSpecsPaths } from 'src/app/pages/usage-specs/usage-specs.paths';
+import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { UsageSpecComponent } from 'src/app/shared/forms/usage-spec/usage-spec.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
@@ -48,7 +48,7 @@ export class CreateUsageSpecComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigate([UsageSpecsPaths.list()]);
+    this.router.navigate([SellerOfferingsPaths.usageSpecs.list()]);
   }
 
 }
