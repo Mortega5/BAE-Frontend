@@ -107,7 +107,13 @@
         </div>
       }
     } @else {
-      <p class="text-gray-700 dark:text-gray-400">{{ 'CART_DRAWER._empty' | translate }}.</p>
+      <div class="w-full min-h-[33vh] rounded-2xl flex flex-col items-center justify-center px-6 py-6 text-center">
+        <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 bg-[#DDE6F6] dark:bg-secondary-300">
+          <fa-icon [icon]="faCartShopping" class="text-3xl text-primary-100 dark:text-primary-50"></fa-icon>
+        </div>
+        <p class="text-base font-semibold text-gray-900 dark:text-white mb-1">{{ 'CART_DRAWER._empty' | translate }}</p>
+        <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'CART_DRAWER._empty_subtitle' | translate }}</p>
+      </div>
     }
   </div>
 }

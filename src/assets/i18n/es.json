@@ -755,6 +755,7 @@
     "_title": "Carrito de la compra",
     "_close": "Cerrar menú",
     "_empty": "Carrito vacío",
+    "_empty_subtitle": "Explora el catálogo y añade productos a tu carrito",
     "_purchase": "Continuar con la compra",
     "_subtotal": "Subtotal",
     "_provider": "Proveedor"

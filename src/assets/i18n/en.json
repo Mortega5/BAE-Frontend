@@ -755,6 +755,7 @@
     "_title": "Shopping Cart",
     "_close": "Close menu",
     "_empty": "Empty cart",
+    "_empty_subtitle": "Browse the marketplace and add products to your cart",
     "_purchase": "Proceed to purchase",
     "_subtotal": "Subtotal",
     "_provider": "Provider"
