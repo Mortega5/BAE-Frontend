@@ -4,7 +4,8 @@
   } @else {
   <!-- FILTERS -->
   <app-card>
-    <h2 appCardHeader class="text-xl font-bold dark:text-white">{{ 'PRODUCT_INVENTORY._search_criteria' | translate }}</h2>
+    <h2 appCardHeader class="text-xl font-bold dark:text-white">{{ 'PRODUCT_INVENTORY._search_criteria' | translate }}
+    </h2>
     <div class="flex w-full flex-col items-center lg:flex-row justify-between">
 
       <div class="w-full">
@@ -74,88 +75,86 @@
     <app-loading-spinner containerClass="w-full h-full flex justify-center align-middle mt-8" />
     } @else {
     <div class="grid grid-cols-1 place-items-center sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8">
-    @for (inv of inventory; track inv.id; let idx = $index) {
-    <app-tile-card data-cy="productInventory" [image]="getProductImage(inv.product)" [clickable]="true"
-      (cardClick)="openProductDetails(inv)">
+      @for (inv of inventory; track inv.id; let idx = $index) {
+      <app-tile-card data-cy="productInventory" [image]="getProductImage(inv.product)" [clickable]="true"
+        (cardClick)="openProductDetails(inv)">
 
-      <div tileCardMediaOverlay class="absolute top-2 left-2">
-        <bae-badge variant="status" [status]="statusBadgeVariant(inv.status)" [label]="inv.status"></bae-badge>
-      </div>
+        <div tileCardMediaOverlay class="absolute top-2 left-2">
+          <bae-badge variant="status" [status]="statusBadgeVariant(inv.status)" [label]="inv.status"></bae-badge>
+        </div>
 
-      <div class="flex items-start justify-between gap-2">
-        <h5 class="text-lg font-semibold text-gray-900 dark:text-white truncate">{{inv.product?.name}}</h5>
-        <div class="flex items-center gap-1.5 shrink-0">
-          <span
-            class="bg-gray-100 dark:bg-secondary-300 text-gray-600 dark:text-gray-300 text-xs font-medium px-2.5 py-1 rounded-full">
-            V{{inv.product?.version || 'latest'}}
-          </span>
-          @if(inv.status == 'active'){
-          <div class="relative">
-            <button type="button" data-cy="cardMenuToggle" (click)="toggleCardMenu(idx, $event)"
-              class="w-7 h-7 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-secondary-300">
-              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                <circle cx="12" cy="5" r="2" />
-                <circle cx="12" cy="12" r="2" />
-                <circle cx="12" cy="19" r="2" />
-              </svg>
-            </button>
-            @if(openCardMenuIdx === idx){
-            <div
-              class="absolute right-0 top-8 z-20 bg-white dark:bg-secondary-100 rounded-xl shadow-lg border border-gray-100 dark:border-secondary-200 py-2 w-44 text-left"
-              (click)="$event.stopPropagation()">
-              <button type="button" data-cy="modifyInvProduct"
-                (click)="openModifyFromCard(inv); openCardMenuIdx = null"
-                class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">
-                {{ 'PRODUCT_INVENTORY._modify_chars' | translate }}
+        <div class="flex items-start justify-between gap-2">
+          <h5 class="text-lg font-semibold text-gray-900 dark:text-white truncate">{{inv.product?.name}}</h5>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <bae-badge variant="plain" [label]="'V' + (inv.product?.version || 'latest')"></bae-badge>
+            @if(inv.status == 'active'){
+            <div class="relative">
+              <button type="button" data-cy="cardMenuToggle" (click)="toggleCardMenu(idx, $event)"
+                class="w-7 h-7 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-secondary-300">
+                <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                  <circle cx="12" cy="5" r="2" />
+                  <circle cx="12" cy="12" r="2" />
+                  <circle cx="12" cy="19" r="2" />
+                </svg>
               </button>
-              <button type="button" data-cy="terminateInvProduct"
-                (click)="showUnsubscribeModal(inv); openCardMenuIdx = null"
-                class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-secondary-300">
-                {{ 'PRODUCT_INVENTORY._unsubscribe' | translate }}
-              </button>
+              @if(openCardMenuIdx === idx){
+              <div
+                class="absolute right-0 top-8 z-20 bg-white dark:bg-secondary-100 rounded-xl shadow-lg border border-gray-100 dark:border-secondary-200 py-2 w-44 text-left"
+                (click)="$event.stopPropagation()">
+                <button type="button" data-cy="modifyInvProduct"
+                  (click)="openModifyFromCard(inv); openCardMenuIdx = null"
+                  class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">
+                  {{ 'PRODUCT_INVENTORY._modify_chars' | translate }}
+                </button>
+                <button type="button" data-cy="terminateInvProduct"
+                  (click)="showUnsubscribeModal(inv); openCardMenuIdx = null"
+                  class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-secondary-300">
+                  {{ 'PRODUCT_INVENTORY._unsubscribe' | translate }}
+                </button>
+              </div>
+              }
             </div>
             }
           </div>
+        </div>
+
+        <markdown class="mt-1 h-16 line-clamp-3 text-sm text-gray-500 dark:text-gray-400"
+          [data]="inv.product?.description"></markdown>
+
+        <div class="flex flex-wrap gap-1.5 mt-3">
+          @for (cat of inv.product?.category; track cat.id) {
+          <bae-badge [category]=cat></bae-badge>
           }
         </div>
+      </app-tile-card>
+      } @empty {
+      <div class="min-h-19 dark:text-gray-600 text-center dark:text-gray-400">{{ 'PRODUCT_INVENTORY._not_found' |
+        translate }}</div>
+      }
+      @if (loading_more) {
+      <div class="w-full h-full min-h-[280px] flex items-center justify-center">
+        <app-loading-spinner containerClass="" data-cy="loadMoreLoading" />
       </div>
-
-      <markdown class="mt-1 h-16 line-clamp-3 text-sm text-gray-500 dark:text-gray-400"
-        [data]="inv.product?.description"></markdown>
-
-      <div class="flex flex-wrap gap-1.5 mt-3">
-        @for (cat of inv.product?.category; track cat.id) {
-        <bae-badge [category]=cat></bae-badge>
-        }
-      </div>
-    </app-tile-card>
-    } @empty {
-    <div class="min-h-19 dark:text-gray-600 text-center dark:text-gray-400">{{ 'PRODUCT_INVENTORY._not_found' |
-      translate }}</div>
+      } @else if (hasMore) {
+      <button type="button" data-cy="loadMore" (click)="next()"
+        class="w-full h-full min-h-[280px] flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 dark:border-secondary-200 text-gray-500 dark:text-gray-400 hover:border-primary-100 hover:text-primary-100 dark:hover:border-primary-50 dark:hover:text-primary-50 transition-colors">
+        <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+        </svg>
+        <span class="text-sm font-medium">{{ 'PRODUCT_INVENTORY._load_more' | translate }}</span>
+      </button>
+      }
+    </div>
     }
-  </div>
-  @if (!loading_more) {
-  @if (page_check) {
-  <div class="flex pt-6 pb-6 justify-center align-middle">
-    <app-button data-cy="loadMore" (click)="next()" variant="ghost" suffixIcon="arrow-down" size="sm">
-      Load more
-    </app-button>
-  </div>
-  }
-  } @else {
-  <app-loading-spinner containerClass="w-full h-full flex justify-center align-middle mt-2" data-cy="loadMoreLoading" />
-  }
-  }
   </app-card>
   }
 
   <app-confirm-modal [visible]="unsubscribeModal" title="PRODUCT_INVENTORY._cancel_sub_title"
-    [message]="unsubscribeConfirmMessage" confirmLabel="PRODUCT_INVENTORY._yes_sure" cancelLabel="PRODUCT_INVENTORY._cancel"
-    confirmVariant="danger" (confirmed)="unsubscribeProduct()" (cancelled)="unsubscribeModal=false" />
+    [message]="unsubscribeConfirmMessage" confirmLabel="PRODUCT_INVENTORY._yes_sure"
+    cancelLabel="PRODUCT_INVENTORY._cancel" confirmVariant="danger" (confirmed)="unsubscribeProduct()"
+    (cancelled)="unsubscribeModal=false" />
 
-  <app-confirm-modal [visible]="renewModal" title="PRODUCT_INVENTORY._renew_sub_title"
-    [message]="renewConfirmMessage" confirmLabel="PRODUCT_INVENTORY._yes_sure" cancelLabel="PRODUCT_INVENTORY._cancel"
-    confirmVariant="primary" (confirmed)="renewProduct(prodToRenew.id)" (cancelled)="renewModal=false" />
   @if(showError){
   <error-message
     class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"

@@ -1,29 +1,24 @@
-import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
-import { LoginInfo, billingAccountCart } from 'src/app/models/interfaces';
-import { ProductInventoryServiceService } from 'src/app/services/product-inventory-service.service';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import { ProductOrderService } from 'src/app/services/product-order-service.service';
-import { PriceServiceService } from 'src/app/services/price-service.service';
-import { PaginationService } from 'src/app/services/pagination.service';
-import {EventMessageService} from "src/app/services/event-message.service";
-import { FastAverageColor } from 'fast-average-color';
-import {components} from "src/app/models/product-catalog";
+import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
+import { TranslateService } from '@ngx-translate/core';
+import { initFlowbite } from 'flowbite';
+import moment from 'moment';
+import { Subject, firstValueFrom } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { LoginInfo, billingAccountCart } from 'src/app/models/interfaces';
+import { components } from "src/app/models/product-catalog";
 import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
 import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.paths';
-import { initFlowbite } from 'flowbite';
+import { AccountServiceService } from 'src/app/services/account-service.service';
+import { EventMessageService } from "src/app/services/event-message.service";
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { PaginationService } from 'src/app/services/pagination.service';
+import { ProductOrderService } from 'src/app/services/product-order-service.service';
+import { ApiServiceService } from 'src/app/services/product-service.service';
+import { BadgeStatus } from 'src/app/shared/badge/badge.component';
 import { environment } from 'src/environments/environment';
 type ProductOffering = components["schemas"]["ProductOffering"];
-import moment from 'moment';
-import { FormControl } from '@angular/forms';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { faIdCard, faSort, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { firstValueFrom } from 'rxjs';
-import { AccountServiceService } from 'src/app/services/account-service.service';
-import { TranslateService } from '@ngx-translate/core';
-import { BadgeStatus } from 'src/app/shared/badge/badge.component';
 
 @Component({
   selector: 'inventory-products',
@@ -32,50 +27,42 @@ import { BadgeStatus } from 'src/app/shared/badge/badge.component';
 })
 export class InventoryProductsComponent implements OnInit, OnDestroy {
 
-  protected readonly faIdCard = faIdCard;
-  protected readonly faSort = faSort;
   protected readonly faSwatchbook = faSwatchbook;
 
-  inventory:any[] = [];
-  nextInventory:any[] =[];
-  partyId:any='';
+  inventory: any[] = [];
+  partyId: any = '';
   loading: boolean = false;
-  bgColor: string[] = [];
-  products: ProductOffering[]=[];
-  unsubscribeModal:boolean=false;
-  renewModal:boolean=false;
-  prodToRenew:any;
-  prodToUnsubscribe:any;
-  prices: any[]=[];
-  filters: any[]=['active','created'];
+  unsubscribeModal: boolean = false;
+  prodToUnsubscribe: any;
+  filters: any[] = ['active', 'created'];
   loading_more: boolean = false;
-  page_check:boolean = true;
-  page: number=0;
-  INVENTORY_LIMIT: number = environment.INVENTORY_LIMIT;
-  searchField = new FormControl();
-  keywordFilter:any=undefined;
-  /** Populated by loadModifyData() right before opening the "modify" price-plan drawer. */
-  selectedProduct:any;
-  selectedInv:any;
-  productOff:any;
+  /** 5 per page, not 6, so a 6th grid cell is free for the "load more" tile when there's more. */
+  pageSize: number = 5;
+  total: number = 0;
 
-  errorMessage:any='';
-  showError:boolean=false;
+  get hasMore(): boolean {
+    return this.inventory.length < this.total;
+  }
+  /** Populated by loadModifyData() right before opening the "modify" price-plan drawer. */
+  selectedProduct: any;
+  selectedInv: any;
+  productOff: any;
+
+  errorMessage: any = '';
+  showError: boolean = false;
   private destroy$ = new Subject<void>();
 
-  isModifyDrawerOpen:boolean = false;
-  selectedProdSpec:any;
+  isModifyDrawerOpen: boolean = false;
+  selectedProdSpec: any;
   billingAddresses: billingAccountCart[] = [];
   selectedBillingAddress: any = null;
   showBillingSelector: boolean = false;
   pendingModifyPayload: any = null;
 
   constructor(
-    private inventoryService: ProductInventoryServiceService,
     private localStorage: LocalStorageService,
     private api: ApiServiceService,
     private cdr: ChangeDetectorRef,
-    private priceService: PriceServiceService,
     private router: Router,
     private orderService: ProductOrderService,
     private eventMessage: EventMessageService,
@@ -84,45 +71,29 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     private translate: TranslateService
   ) {
     this.eventMessage.messages$
-    .pipe(takeUntil(this.destroy$))
-    .subscribe(ev => {
-      if(ev.type === 'ChangedSession') {
-        this.initInventory();
-      }
-    })
-  }
-
-  private searchInputListener = (_e: Event) => {
-    console.log(`Input updated`)
-    if (this.searchField.value == '') {
-      this.keywordFilter = undefined;
-      this.getInventory(false);
-    }
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'ChangedSession') {
+          this.initInventory();
+        }
+      })
   }
 
   ngOnInit() {
     this.initInventory();
-    const input = document.querySelector('[type=search]')
-    if (input != undefined) {
-      input.addEventListener('input', this.searchInputListener);
-    }
   }
 
-  ngOnDestroy(){
-    const input = document.querySelector('[type=search]')
-    if (input != undefined) {
-      input.removeEventListener('input', this.searchInputListener);
-    }
+  ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  initInventory(){
+  initInventory() {
     this.loading = true;
 
     let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
-      if(aux.logged_as==aux.id){
+    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+      if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
       } else {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
@@ -135,15 +106,11 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
 
   @HostListener('document:click')
   onClick() {
-    if(this.unsubscribeModal==true){
-      this.unsubscribeModal=false;
+    if (this.unsubscribeModal == true) {
+      this.unsubscribeModal = false;
       this.cdr.detectChanges();
     }
-    if(this.prodToRenew==true){
-      this.prodToRenew=false;
-      this.cdr.detectChanges();
-    }
-    if(this.openCardMenuIdx !== null){
+    if (this.openCardMenuIdx !== null) {
       this.openCardMenuIdx = null;
       this.cdr.detectChanges();
     }
@@ -166,19 +133,19 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     }
   }
 
-  getProductImage(prod:ProductOffering) {
+  getProductImage(prod: ProductOffering) {
     let images: any[] = []
-    if(prod?.attachment){
+    if (prod?.attachment) {
       let profile = prod?.attachment?.filter(item => item.name === 'Profile Picture') ?? [];
       images = prod.attachment?.filter(item => item.attachmentType === 'Picture') ?? [];
-      if(profile.length!=0){
+      if (profile.length != 0) {
         images = profile;
-      } 
+      }
     }
     return images.length > 0 ? images?.at(0)?.url : 'https://placehold.co/600x400/svg';
   }
 
-  goToProductDetails(productOff:ProductOffering| undefined) {
+  goToProductDetails(productOff: ProductOffering | undefined) {
     document.querySelector("body > div[modal-backdrop]")?.remove()
     this.router.navigate([ProductInventoryPaths.detail(productOff?.id ?? '')]);
   }
@@ -198,30 +165,29 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     this.showDetails = false;
   }
 
-  async getInventory(next:boolean){
-    if(next == false){
+  async getInventory(next: boolean) {
+    if (next == false) {
       this.loading = true;
+      this.inventory = [];
     }
 
-    let options = {
-      "keywords": this.keywordFilter,
-      "filters": this.filters,
-      "partyId": this.partyId
-    }
-    
-    await this.paginationService.getItemsPaginated(this.page, this.INVENTORY_LIMIT, next, this.inventory, this.nextInventory, options,
-      this.paginationService.getInventory.bind(this.paginationService)).then(data => {
-        this.page_check = data.page_check;
-        this.inventory = data.items;
-        this.nextInventory = data.nextItems;
-        this.page = data.page;
-        this.loading = false;
-        this.loading_more = false;
-        initFlowbite();
-    })
+    const offset = next ? this.inventory.length : 0;
+
+    const data = await this.paginationService.getInventoryPaged(
+      { limit: this.pageSize, offset },
+      undefined,
+      this.filters,
+      this.partyId
+    );
+
+    this.inventory = next ? [...this.inventory, ...data.items] : data.items;
+    this.total = data.total;
+    this.loading = false;
+    this.loading_more = false;
+    initFlowbite();
   }
 
-  onStateFilterChange(filter:string){
+  onStateFilterChange(filter: string) {
     const index = this.filters.findIndex(item => item === filter);
     if (index !== -1) {
       this.filters.splice(index, 1);
@@ -235,7 +201,7 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     this.getInventory(false);
   }
 
-  async next(){
+  async next() {
     this.loading_more = true;
     try {
       await this.getInventory(true);
@@ -244,12 +210,7 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     }
   }
 
-  filterInventoryByKeywords(){
-    this.keywordFilter=this.searchField.value;
-    this.getInventory(false);
-  }
-
-  async unsubscribeProduct(){
+  async unsubscribeProduct() {
     const inv = this.prodToUnsubscribe;
     const orderItem: any = {
       id: inv.productOffering.id,
@@ -267,46 +228,33 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     await this.onModifySubmit(orderItem);
   }
 
-  showUnsubscribeModal(inv:any){
-    this.unsubscribeModal=true;
-    this.prodToUnsubscribe=inv;
+  showUnsubscribeModal(inv: any) {
+    this.unsubscribeModal = true;
+    this.prodToUnsubscribe = inv;
   }
 
   get unsubscribeConfirmMessage(): string {
     return this.translate.instant('PRODUCT_INVENTORY._cancel_sub', { name: this.prodToUnsubscribe?.product?.name ?? '' });
   }
 
-  showRenewModal(inv:any){
-    this.renewModal=true;
-    this.prodToRenew=inv;
-  }
-
-  get renewConfirmMessage(): string {
-    return this.translate.instant('PRODUCT_INVENTORY._renew_sub', { name: this.prodToRenew?.product?.name ?? '' });
-  }
-  
-  renewProduct(id:any){
-    console.log(id)
-  }
-
   /** Fetches the product spec + offering data needed by the "modify" price-plan drawer. */
-  private async loadModifyData(prod:any){
-    this.selectedProduct=prod;
+  private async loadModifyData(prod: any) {
+    this.selectedProduct = prod;
 
     let spec = await this.api.getProductSpecification(this.selectedProduct.product.productSpecification.id)
     this.selectedProdSpec = spec;
 
     let prodOff = await this.api.getProductById(this.selectedProduct.productOffering.id);
-    let prodPrices: any[] | undefined= prodOff.productOfferingPrice;
-    let prices: any[]=[];
-    if(prodPrices!== undefined){
-      for(let j=0; j < prodPrices.length; j++){
+    let prodPrices: any[] | undefined = prodOff.productOfferingPrice;
+    let prices: any[] = [];
+    if (prodPrices !== undefined) {
+      for (let j = 0; j < prodPrices.length; j++) {
         let price = await this.api.getProductPrice(prodPrices[j].id);
         prices.push(price);
       }
     }
 
-    this.productOff={
+    this.productOff = {
       id: prodOff.id,
       name: prodOff.name,
       category: prodOff.category,
@@ -318,14 +266,6 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
       productOfferingTerm: prodOff.productOfferingTerm,
       serviceLevelAgreement: prodOff.serviceLevelAgreement,
       version: prodOff.version
-    }
-  }
-
-  hasLongWord(str: string | undefined, threshold = 20) {
-    if(str){
-      return str.split(/\s+/).some(word => word.length > threshold);
-    } else {
-      return false
     }
   }
 

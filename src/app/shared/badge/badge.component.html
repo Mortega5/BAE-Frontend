@@ -3,6 +3,8 @@
   <span class="bae-badge-status-dot"></span>
   <span class="truncate">{{ label }}</span>
 </span>
+} @else if (variant === 'plain') {
+<span class="bae-badge-plain" [attr.data-status]="status">{{ label }}</span>
 } @else {
 <a class="text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded-full text-secondary-50 bg-primary-100 dark:bg-secondary-50 dark:text-primary-100 mb-2 max-w-full">
   <fa-icon [icon]="faCloud" class="text-secondary-50 dark:text-primary-100 mr-2"></fa-icon>

@@ -1030,6 +1030,7 @@
   },
   "PRODUCT_INVENTORY": {
     "_loading": "Loading...",
+    "_load_more": "Load more",
     "_products": "Products",
     "_services": "Services",
     "_resources": "Resources",
@@ -1080,9 +1081,7 @@
     "_cancel_sub_title": "Cancel subscription",
     "_cancel_sub": "Are you sure you want to cancel this subscription? ({{name}})",
     "_cancel": "No, cancel",
-    "_yes_sure": "Yes, I'm sure",
-    "_renew_sub_title": "Renew subscription",
-    "_renew_sub": "Are you sure you want to renew this subscription? ({{name}})"
+    "_yes_sure": "Yes, I'm sure"
   },
   "BILLING": {
     "_title": "Title",

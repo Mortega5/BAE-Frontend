@@ -48,3 +48,41 @@
 .bae-badge-status[data-status="danger"] .bae-badge-status-dot {
   background-color: var(--status-badge-danger);
 }
+
+/* Accent pill, colored text only — for metadata (version...) that isn't a state.
+   Defaults to the theme's own accent color rather than gray-on-gray, which had too
+   little contrast in both light and dark. */
+.bae-badge-plain {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  /* A translucent tint of the accent color, not --card-bg — the badge otherwise sits
+     on a card that uses --card-bg itself, so the pill would blend right into it. */
+  background-color: rgb(var(--theme-primary-100) / 12%);
+  color: rgb(var(--theme-primary-100));
+}
+
+:host-context(.dark) .bae-badge-plain {
+  background-color: rgb(var(--theme-primary-50) / 32%);
+  color: rgb(var(--theme-primary-50));
+}
+
+.bae-badge-plain[data-status="success"] {
+  color: var(--status-badge-success);
+}
+
+.bae-badge-plain[data-status="info"] {
+  color: var(--status-badge-info);
+}
+
+.bae-badge-plain[data-status="warning"] {
+  color: var(--status-badge-warning);
+}
+
+.bae-badge-plain[data-status="danger"] {
+  color: var(--status-badge-danger);
+}

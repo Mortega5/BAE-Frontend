@@ -16,8 +16,10 @@ export class BadgeComponent {
   @Input() category:Category = {name:'Default'}
   /** 'tag' (default) keeps the existing icon + solid-color pill used for categories.
    * 'status' renders a colored dot + label instead — for state indicators (active,
-   * suspended...) that shouldn't compete visually with actual category tags. */
-  @Input() variant: 'tag' | 'status' = 'tag';
+   * suspended...) that shouldn't compete visually with actual category tags.
+   * 'plain' is a neutral pill with just colored text — for metadata (version...)
+   * that isn't a state but still wants a semantic color when it needs one. */
+  @Input() variant: 'tag' | 'status' | 'plain' = 'tag';
   @Input() status: BadgeStatus = 'neutral';
   @Input() label = '';
     protected readonly faAddressCard = faAddressCard;

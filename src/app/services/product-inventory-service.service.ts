@@ -7,6 +7,7 @@ import {components} from "../models/product-catalog";
 type ProductOffering = components["schemas"]["ProductOffering"];
 import {LocalStorageService} from "./local-storage.service";
 import moment from 'moment';
+import { PageRequest, PageResult } from '../models/pagination.model';
 
 @Injectable({
   providedIn: 'root'
@@ -37,6 +38,23 @@ export class ProductInventoryServiceService {
       url=url+'&body='+keywords
     }
     return lastValueFrom(this.http.get<any[]>(url));
+  }
+
+  /** Single-request, real limit/offset pagination — reads the total item count from
+   * X-Total-Count instead of the old two-request "fetch this page + peek the next one"
+   * workaround, which only existed because the proxy used to mishandle limit/offset. */
+  async getInventoryPaged(params: PageRequest, id:any, filters:any[], keywords:any): Promise<PageResult<any>> {
+    let url = `${ProductInventoryServiceService.BASE_URL}${ProductInventoryServiceService.API_INVENTORY}/product?limit=${params.limit}&offset=${params.offset}&relatedParty.id=${id}`
+    if(filters.length>0){
+      url = url + '&status=' + filters.join(',');
+    }
+    if(keywords!=undefined){
+      url = url + '&body=' + keywords
+    }
+    const response = await lastValueFrom(this.http.get<any[]>(url, { observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
   }
 
   updateProduct(product:any,id:any){
