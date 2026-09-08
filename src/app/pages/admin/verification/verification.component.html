@@ -3,21 +3,7 @@
     <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'ADMIN._verification' | translate }}</h2>
   </div>
   <div appCardContent>
-    <form class="flex flex-col gap-4" [formGroup]="verificationForm">
-      <div>
-        <label for="verif-id" class="font-bold text-sm dark:text-white">{{ 'ADMIN._productId' | translate }}</label>
-        <input formControlName="productId" type="text" id="verif-id"
-          [ngClass]="verificationForm.get('productId')?.invalid == true && verificationForm.value.productId != '' ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
-          class="mt-1 mb-2 bg-gray-50 dark:bg-secondary-300 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
-      </div>
-
-      <div>
-        <label for="vc" class="font-bold text-sm dark:text-white">{{ 'ADMIN._vc' | translate }}</label>
-        <textarea data-cy="adminVerifiableCredential" formControlName="vc" rows="8"
-          class="mt-1 block w-full min-h-fit p-2.5 text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 rounded-lg focus:ring-primary-100 focus:border-primary-100"
-          placeholder="Add credential..."></textarea>
-      </div>
-    </form>
+    <app-dynamic-form class="block" [fields]="verificationFormFields" [formGroup]="verificationForm" />
   </div>
   <div appCardFooter>
     <app-button data-cy="adminAddCredential" type="button" (click)="verifyCredential();" suffixIcon="arrow-right">

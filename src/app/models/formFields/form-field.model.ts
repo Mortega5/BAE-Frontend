@@ -27,6 +27,8 @@ interface TextBaseFormField extends BaseFormField {
 
 export interface StringFormField extends TextBaseFormField {
   type: 'string';
+  /** Defaults to 'text'; use 'password' to mask sensitive values like SMTP credentials. */
+  inputType?: 'text' | 'password';
 }
 
 export interface NumberFormField extends BaseFormField {

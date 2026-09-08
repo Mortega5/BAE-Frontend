@@ -6,6 +6,7 @@ import {
   ContactUsDestinations,
   ContactUsSupportType
 } from 'src/app/models/contact-us.constants';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { environment } from 'src/environments/environment';
 
 interface EmailConfig {
@@ -53,6 +54,22 @@ export class EmailComponent {
     supportType,
     controlName: this.contactUsDestinationControlNames[supportType],
     labelKey: this.contactUsDestinationLabels[supportType]
+  }));
+
+  emailFormFields: FormField[] = [
+    { type: 'string', name: 'smtpServer', label: 'ADMIN._smtpServer', required: true, dataCy: 'adminSmtpServer' },
+    { type: 'string', name: 'smtpPort', label: 'ADMIN._smtpPort', required: true, dataCy: 'adminSmtpPort' },
+    { type: 'string', name: 'email', label: 'ADMIN._sourceEmail', required: true, dataCy: 'adminSourceEmail' },
+    { type: 'string', name: 'emailUser', label: 'ADMIN._emailUser', required: true, dataCy: 'adminEmailUser' },
+    { type: 'string', name: 'emailPassword', label: 'ADMIN._emailPass', required: true, inputType: 'password', dataCy: 'adminEmailPass' },
+  ];
+
+  contactUsFormFields: FormField[] = this.contactUsDestinationFields.map((destination): FormField => ({
+    type: 'string',
+    name: destination.controlName,
+    label: destination.labelKey,
+    required: true,
+    dataCy: `admin${destination.controlName}`,
   }));
 
   emailForm = new FormGroup({

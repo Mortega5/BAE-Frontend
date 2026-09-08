@@ -12,6 +12,8 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { BadgeStatus, lifecycleStatusBadgeVariant } from 'src/app/shared/badge/badge.component';
+import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
+import { noWhitespaceValidator } from 'src/app/validators/validators';
 
 import {components} from "src/app/models/product-catalog";
 type Category_Update = components["schemas"]["Category_Update"];
@@ -38,9 +40,21 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
   currentStepId: string = 'general';
 
   //SERVICE GENERAL INFO:
+  generalFormFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'UPDATE_CATEGORIES._name', required: true, maxLength: 100, dataCy: 'adminCategoryNameInput' },
+    {
+      type: 'statusPicker',
+      name: 'lifecycleStatus',
+      label: 'UPDATE_CATALOG._status',
+      options: buildLifecycleStatusOptions('adminCategoryStatus'),
+    },
+    { type: 'markdownTextarea', name: 'description', label: 'UPDATE_CATEGORIES._description', dataCy: 'adminCategoryDescription' },
+  ];
+
   generalForm = new FormGroup({
-    name: new FormControl('', [Validators.required, Validators.maxLength(100)]),
-    description: new FormControl(''),
+    name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
+    lifecycleStatus: new FormControl('Active'),
+    description: new FormControl('', Validators.maxLength(100000)),
   });
   isParent:boolean=true;
   parentSelectionCheck:boolean=false;
@@ -48,8 +62,6 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
   selectedCategory:any=undefined;
   selected:any[];
   loading: boolean = false;
-
-  catStatus:any='Active';
 
   errorMessage:any='';
   showError:boolean=false;
@@ -117,9 +129,11 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
 
   populateCatInfo(){
     //GENERAL INFORMATION
-    this.generalForm.controls['name'].setValue(this.category.name);
-    this.generalForm.controls['description'].setValue(this.category.description);
-    this.catStatus=this.category.lifecycleStatus;
+    this.generalForm.patchValue({
+      name: this.category.name,
+      lifecycleStatus: this.category.lifecycleStatus,
+      description: this.category.description,
+    });
     if(this.category.isRoot==false){
       this.isParent=false;
       this.parentSelectionCheck=true;
@@ -255,7 +269,7 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
       this.categoryToUpdate={
         name: this.generalForm.value.name,
         description: this.generalForm.value.description != null ? this.generalForm.value.description : '',
-        lifecycleStatus: this.catStatus,
+        lifecycleStatus: this.generalForm.value.lifecycleStatus ?? 'Active',
         isRoot: this.isParent
       }
       if(this.isParent==false){
@@ -283,11 +297,6 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
         }, 3000);
       }
     })
-  }
-
-  setCatStatus(status:any){
-    this.catStatus=status;
-    this.cdr.detectChanges();
   }
 
   statusBadgeVariant(status: string): BadgeStatus {

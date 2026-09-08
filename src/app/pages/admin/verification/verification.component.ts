@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { AdminPaths } from 'src/app/pages/admin/admin.paths';
 import { environment } from 'src/environments/environment';
 
@@ -14,6 +15,11 @@ export class VerificationComponent {
 
   showError: boolean = false;
   errorMessage: string = '';
+
+  verificationFormFields: FormField[] = [
+    { type: 'string', name: 'productId', label: 'ADMIN._productId', required: true, dataCy: 'adminVerificationProductId' },
+    { type: 'textarea', name: 'vc', label: 'ADMIN._vc', required: true, rows: 8, placeholder: 'Add credential...', dataCy: 'adminVerifiableCredential' },
+  ];
 
   verificationForm = new FormGroup({
     productId: new FormControl('', [Validators.required]),

@@ -151,7 +151,7 @@ describe('UpdateCategoryComponent', () => {
 
     expect(component.generalForm.value.name).toBe('Root Category');
     expect(component.generalForm.value.description).toBe('Root desc');
-    expect(component.catStatus).toBe('Active');
+    expect(component.generalForm.value.lifecycleStatus).toBe('Active');
     expect(component.isParent).toBeTrue();
     expect(component.parentSelectionCheck).toBeFalse();
   });
@@ -206,8 +206,7 @@ describe('UpdateCategoryComponent', () => {
   });
 
   it('onStepChanged should build categoryToUpdate when reaching the last step', () => {
-    component.generalForm.patchValue({ name: 'New name', description: 'New desc' });
-    component.catStatus = 'Launched';
+    component.generalForm.patchValue({ name: 'New name', description: 'New desc', lifecycleStatus: 'Launched' });
     component.isParent = true;
 
     component.onStepChanged({ step: 1, isLastStep: true, label: '', stepId: 'summary' });
@@ -254,14 +253,5 @@ describe('UpdateCategoryComponent', () => {
 
     expect(component.showError).toBeTrue();
     expect(component.errorMessage).toBe('Error: Update failed');
-  });
-
-  it('setCatStatus should update status and trigger detectChanges', () => {
-    const cdrSpy = spyOn((component as any).cdr, 'detectChanges');
-
-    component.setCatStatus('Retired');
-
-    expect(component.catStatus).toBe('Retired');
-    expect(cdrSpy).toHaveBeenCalled();
   });
 });

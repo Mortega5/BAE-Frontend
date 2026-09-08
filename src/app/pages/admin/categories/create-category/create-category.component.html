@@ -19,19 +19,9 @@
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_CATEGORIES._general_info' | translate }}</p>
         </div>
 
-        <form class="flex flex-col gap-4" [formGroup]="generalForm">
-          <div>
-            <label for="prod-name" class="font-bold text-sm dark:text-white">{{ 'CREATE_CATEGORIES._name' | translate }}</label>
-            <input data-cy="adminCategoryNameInput" formControlName="name" type="text" id="prod-name" maxLength="100"
-              [ngClass]="generalForm.get('name')?.invalid == true && generalForm.value.name!='' ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
-              class="mt-1 bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
-          </div>
+        <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" />
 
-          <div>
-            <label class="font-bold text-sm dark:text-white">{{ 'CREATE_CATEGORIES._description' | translate }}</label>
-            <app-markdown-textarea data-cy="adminCategoryDescription" formControlName="description"></app-markdown-textarea>
-          </div>
-
+        <div class="flex flex-col gap-4">
           <div>
             <label class="font-bold text-sm dark:text-white block mb-2">{{ 'CREATE_CATEGORIES._choose_parent' | translate }}</label>
             <label class="inline-flex items-center cursor-pointer">
@@ -97,7 +87,7 @@
           </div>
           }
           }
-        </form>
+        </div>
       </div>
     </ng-template>
 

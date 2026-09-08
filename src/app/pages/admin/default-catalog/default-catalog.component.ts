@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
@@ -18,6 +19,11 @@ export class DefaultCatalogComponent implements OnInit {
   errorMessage = '';
   successMessage = '';
   defaultCatalogId = '';
+
+  defaultCatalogFormFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'ADMIN._name', required: true, maxLength: 100, dataCy: 'adminDefaultCatalogName' },
+    { type: 'markdownTextarea', name: 'description', label: 'CREATE_CATALOG._description', dataCy: 'adminDefaultCatalogDescription' },
+  ];
 
   defaultCatalogForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),

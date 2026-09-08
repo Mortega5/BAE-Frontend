@@ -12,6 +12,8 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { BadgeStatus, lifecycleStatusBadgeVariant } from 'src/app/shared/badge/badge.component';
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { noWhitespaceValidator } from 'src/app/validators/validators';
 
 import {components} from "src/app/models/product-catalog";
 type Category_Create = components["schemas"]["Category_Create"];
@@ -31,9 +33,14 @@ export class CreateCategoryComponent implements OnInit, OnDestroy {
   currentStepId: string = 'general';
 
   //SERVICE GENERAL INFO:
+  generalFormFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'CREATE_CATEGORIES._name', required: true, maxLength: 100, dataCy: 'adminCategoryNameInput' },
+    { type: 'markdownTextarea', name: 'description', label: 'CREATE_CATEGORIES._description', dataCy: 'adminCategoryDescription' },
+  ];
+
   generalForm = new FormGroup({
-    name: new FormControl('', [Validators.required, Validators.maxLength(100)]),
-    description: new FormControl(''),
+    name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
+    description: new FormControl('', Validators.maxLength(100000)),
   });
   isParent:boolean=true;
   parentSelectionCheck:boolean=false;

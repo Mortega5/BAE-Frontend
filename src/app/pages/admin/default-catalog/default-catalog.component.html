@@ -16,20 +16,7 @@
   </div>
   } @else {
   <div appCardContent>
-    <form class="flex flex-col gap-4" [formGroup]="defaultCatalogForm">
-      <div>
-        <label for="default-catalog-name" class="font-bold text-sm dark:text-white">{{ 'ADMIN._name' | translate }}</label>
-        <input data-cy="adminDefaultCatalogName" formControlName="name" type="text" id="default-catalog-name" maxLength="100"
-          [ngClass]="defaultCatalogForm.get('name')?.invalid && defaultCatalogForm.get('name')?.touched ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
-          class="mt-1 bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
-      </div>
-
-      <div>
-        <label for="default-catalog-description" class="font-bold text-sm dark:text-white">{{ 'CREATE_CATALOG._description' | translate }}</label>
-        <textarea data-cy="adminDefaultCatalogDescription" formControlName="description" id="default-catalog-description" rows="5" maxLength="100000"
-          class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5"></textarea>
-      </div>
-    </form>
+    <app-dynamic-form class="block" [fields]="defaultCatalogFormFields" [formGroup]="defaultCatalogForm" />
 
     @if(showSuccess){
     <div class="mt-4 p-4 text-sm rounded-lg text-green-700 bg-green-100 dark:bg-secondary-200 dark:text-green-400" role="alert">

@@ -12,20 +12,18 @@
     <form [formGroup]="featuresForm">
       <div formArrayName="flags" class="flex flex-col gap-3">
         @for(flagControl of flagsArray.controls; track i; let i = $index){
-        <div [formGroupName]="i" [attr.data-cy]="'adminFeatureFlag-' + (flagControl.get('key')?.value ?? '')" class="grid gap-3 md:grid-cols-[minmax(0,1fr)_auto] items-center p-4 border border-gray-200 dark:border-secondary-200 rounded-lg bg-gray-50 dark:bg-secondary-300">
-          <div>
+        <app-item-card [formGroupName]="i" [attr.data-cy]="'adminFeatureFlag-' + (flagControl.get('key')?.value ?? '')">
+          <div class="flex-1 min-w-0">
             <p class="font-semibold text-gray-900 dark:text-white">{{ getDefinition(flagControl.get('key')?.value ?? '')?.labelKey ?? '' | translate }}</p>
             <p class="text-sm text-gray-500 dark:text-gray-400">{{ getDefinition(flagControl.get('key')?.value ?? '')?.descriptionKey ?? '' | translate }}</p>
             <p class="mt-1 font-mono text-xs text-gray-400 dark:text-gray-400">{{ flagControl.get('key')?.value }}</p>
           </div>
 
-          <div class="flex items-center justify-between gap-4 md:justify-end">
-            <label class="inline-flex items-center cursor-pointer">
-              <input type="checkbox" formControlName="enabled" class="sr-only peer">
-              <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-primary-50 dark:peer-focus:ring-secondary-200 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-100"></div>
-            </label>
-          </div>
-        </div>
+          <label class="inline-flex items-center cursor-pointer shrink-0">
+            <input type="checkbox" formControlName="enabled" class="sr-only peer">
+            <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-primary-50 dark:peer-focus:ring-secondary-200 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-100"></div>
+          </label>
+        </app-item-card>
         }
       </div>
     </form>

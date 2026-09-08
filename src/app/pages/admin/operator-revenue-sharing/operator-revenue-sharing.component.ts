@@ -4,12 +4,13 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { ItemCardComponent } from 'src/app/shared/item-card/item-card.component';
 
 @Component({
   selector: 'operator-revenue-sharing',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule,
-    LoadingSpinnerComponent, ContentCardComponent
+    LoadingSpinnerComponent, ContentCardComponent, ItemCardComponent
   ],
   templateUrl: './operator-revenue-sharing.component.html',
   styleUrl: './operator-revenue-sharing.component.css'
