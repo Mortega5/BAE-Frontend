@@ -2,6 +2,7 @@
   (click)="onCardClick()">
   <div class="app-tile-card-media">
     <img [src]="image ?? 'https://placehold.co/600x400/svg'" [alt]="imageAlt">
+    <ng-content select="[tileCardMediaOverlay]"></ng-content>
   </div>
   <div class="app-tile-card-body">
     <ng-content></ng-content>

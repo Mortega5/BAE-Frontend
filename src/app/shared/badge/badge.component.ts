@@ -5,6 +5,8 @@ import {faCloud} from "@fortawesome/pro-solid-svg-icons";
 import {components} from "../../models/product-catalog";
 type Category = components["schemas"]["Category"];
 
+export type BadgeStatus = 'success' | 'info' | 'warning' | 'danger' | 'neutral';
+
 @Component({
   selector: 'bae-badge',
   templateUrl: './badge.component.html',
@@ -12,6 +14,12 @@ type Category = components["schemas"]["Category"];
 })
 export class BadgeComponent {
   @Input() category:Category = {name:'Default'}
+  /** 'tag' (default) keeps the existing icon + solid-color pill used for categories.
+   * 'status' renders a colored dot + label instead — for state indicators (active,
+   * suspended...) that shouldn't compete visually with actual category tags. */
+  @Input() variant: 'tag' | 'status' = 'tag';
+  @Input() status: BadgeStatus = 'neutral';
+  @Input() label = '';
     protected readonly faAddressCard = faAddressCard;
   protected readonly faCloud = faCloud;
 }

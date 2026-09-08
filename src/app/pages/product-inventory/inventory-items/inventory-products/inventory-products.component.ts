@@ -22,8 +22,8 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { firstValueFrom } from 'rxjs';
 import { AccountServiceService } from 'src/app/services/account-service.service';
-import { ThemeService } from 'src/app/services/theme.service';
 import { TranslateService } from '@ngx-translate/core';
+import { BadgeStatus } from 'src/app/shared/badge/badge.component';
 
 @Component({
   selector: 'inventory-products',
@@ -81,7 +81,6 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService,
     private paginationService: PaginationService,
     private accountService: AccountServiceService,
-    private themeService: ThemeService,
     private translate: TranslateService
   ) {
     this.eventMessage.messages$
@@ -143,11 +142,28 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     if(this.prodToRenew==true){
       this.prodToRenew=false;
       this.cdr.detectChanges();
-    }   
+    }
+    if(this.openCardMenuIdx !== null){
+      this.openCardMenuIdx = null;
+      this.cdr.detectChanges();
+    }
   }
-  
-  get cardDefaultBgUrl(): string | undefined {
-    return this.themeService.getCurrentThemeConfig()?.assets?.cardDefaultBgUrl;
+
+  openCardMenuIdx: number | null = null;
+
+  toggleCardMenu(idx: number, event: Event): void {
+    event.stopPropagation();
+    this.openCardMenuIdx = this.openCardMenuIdx === idx ? null : idx;
+  }
+
+  statusBadgeVariant(status: string): BadgeStatus {
+    switch (status) {
+      case 'active': return 'info';
+      case 'created': return 'success';
+      case 'suspended': return 'warning';
+      case 'terminated': return 'danger';
+      default: return 'neutral';
+    }
   }
 
   getProductImage(prod:ProductOffering) {

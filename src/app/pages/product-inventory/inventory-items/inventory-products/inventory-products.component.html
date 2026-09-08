@@ -78,65 +78,55 @@
     <app-tile-card data-cy="productInventory" [image]="getProductImage(inv.product)" [clickable]="true"
       (cardClick)="openProductDetails(inv)">
 
-      <div class="bg-cover bg-right-bottom bg-opacity-25 rounded-lg"
-        [style.background-image]="'url(' + cardDefaultBgUrl + ')'">
-        <div class="px-5 py-5 bg-secondary-50/95 dark:bg-secondary-100/95 rounded-lg">
-          <div class="h-[30px] overflow-y-hidden overflow-x-hidden">
-            @for (cat of inv.product?.category; track cat.id) {
-            <bae-badge class="ml-2" [category]=cat></bae-badge>
-            }
-          </div>
-          <div class="flex flex-row items-center justify-between">
-            <h5 class="text-xl font-semibold tracking-tight text-primary-100 dark:text-white">{{inv.product?.name}}
-            </h5>
-            @if(inv.status == 'active'){
-            <div class="flex gap-1">
-              <app-button data-cy="modifyInvProduct" type="button" [attr.data-tooltip-target]="'modify-default-' + idx"
-                (click)="openModifyFromCard(inv);$event.stopPropagation();" variant="primary" shape="pill" size="sm"
-                prefixIcon="pen-to-square">
-                <span class="sr-only">{{ 'PRODUCT_INVENTORY._modify_chars' | translate }}</span>
-              </app-button>
-              <div [attr.id]="'modify-default-' + idx" role="tooltip"
-                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 rounded-lg shadow-sm opacity-0 tooltip bg-primary-100">
-                {{ 'PRODUCT_INVENTORY._modify_chars' | translate }}
-                <div class="tooltip-arrow" data-popper-arrow></div>
-              </div>
-              <app-button data-cy="terminateInvProduct" type="button"
-                [attr.data-tooltip-target]="'unsubscribe-default-' + idx"
-                (click)="showUnsubscribeModal(inv);$event.stopPropagation();" variant="danger" shape="pill" size="sm"
-                prefixIcon="xmark">
-                <span class="sr-only">Unsubscribe</span>
-              </app-button>
-              <div [attr.id]="'unsubscribe-default-' + idx" role="tooltip"
-                class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 rounded-lg shadow-sm opacity-0 tooltip bg-primary-100">
-                {{ 'PRODUCT_INVENTORY._unsubscribe' | translate }}
-                <div class="tooltip-arrow" data-popper-arrow></div>
-              </div>
-            </div>
-            }
-          </div>
+      <div tileCardMediaOverlay class="absolute top-2 left-2">
+        <bae-badge variant="status" [status]="statusBadgeVariant(inv.status)" [label]="inv.status"></bae-badge>
+      </div>
 
-          <markdown class="min-h-19 h-19 line-clamp-2 text-gray-600 dark:text-gray-400"
-            [data]="inv.product?.description"></markdown>
-          <div class="flex w-full justify-between mt-2.5 mb-5 text-gray-500 font-mono">
-            <div>V: {{inv.product?.version || 'latest'}}</div>
-            <div class="flex items-center justify-center rounded-lg">
-              @if(inv.status == 'active'){
-              <span
-                class="bg-blue-100 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{inv.status}}</span>
-              } @else if(inv.status == 'created') {
-              <span
-                class="bg-blue-100 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">{{inv.status}}</span>
-              } @else if(inv.status == 'suspended') {
-              <span
-                class="bg-blue-100 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{inv.status}}</span>
-              } @else if(inv.status == 'terminated') {
-              <span
-                class="bg-blue-100  text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{inv.status}}</span>
-              }
+      <div class="flex items-start justify-between gap-2">
+        <h5 class="text-lg font-semibold text-gray-900 dark:text-white truncate">{{inv.product?.name}}</h5>
+        <div class="flex items-center gap-1.5 shrink-0">
+          <span
+            class="bg-gray-100 dark:bg-secondary-300 text-gray-600 dark:text-gray-300 text-xs font-medium px-2.5 py-1 rounded-full">
+            V{{inv.product?.version || 'latest'}}
+          </span>
+          @if(inv.status == 'active'){
+          <div class="relative">
+            <button type="button" data-cy="cardMenuToggle" (click)="toggleCardMenu(idx, $event)"
+              class="w-7 h-7 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-secondary-300">
+              <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+                <circle cx="12" cy="5" r="2" />
+                <circle cx="12" cy="12" r="2" />
+                <circle cx="12" cy="19" r="2" />
+              </svg>
+            </button>
+            @if(openCardMenuIdx === idx){
+            <div
+              class="absolute right-0 top-8 z-20 bg-white dark:bg-secondary-100 rounded-xl shadow-lg border border-gray-100 dark:border-secondary-200 py-2 w-44 text-left"
+              (click)="$event.stopPropagation()">
+              <button type="button" data-cy="modifyInvProduct"
+                (click)="openModifyFromCard(inv); openCardMenuIdx = null"
+                class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">
+                {{ 'PRODUCT_INVENTORY._modify_chars' | translate }}
+              </button>
+              <button type="button" data-cy="terminateInvProduct"
+                (click)="showUnsubscribeModal(inv); openCardMenuIdx = null"
+                class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-secondary-300">
+                {{ 'PRODUCT_INVENTORY._unsubscribe' | translate }}
+              </button>
             </div>
+            }
           </div>
+          }
         </div>
+      </div>
+
+      <markdown class="mt-1 h-16 line-clamp-3 text-sm text-gray-500 dark:text-gray-400"
+        [data]="inv.product?.description"></markdown>
+
+      <div class="flex flex-wrap gap-1.5 mt-3">
+        @for (cat of inv.product?.category; track cat.id) {
+        <bae-badge [category]=cat></bae-badge>
+        }
       </div>
     </app-tile-card>
     } @empty {

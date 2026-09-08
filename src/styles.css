@@ -135,6 +135,19 @@ body {
   --card-selected-bg: rgb(var(--theme-secondary-50));
   --card-selected-border: rgb(var(--theme-primary-100));
   --card-hover-border: rgb(var(--theme-primary-100));
+
+  /* bae-badge status-dot variant — semantic colors, same across themes since they're
+     bright/saturated enough to stay legible on both the light and dark chip background. */
+  --status-badge-success: rgb(34 197 94);
+  /* green-500 */
+  --status-badge-info: rgb(59 130 246);
+  /* blue-500 */
+  --status-badge-warning: rgb(234 179 8);
+  /* yellow-500 */
+  --status-badge-danger: rgb(239 68 68);
+  /* red-500 */
+  --status-badge-neutral: rgb(156 163 175);
+  /* gray-400 */
 }
 
 /* bae's --theme-primary-50 was deliberately darkened (see "update stepper theme
