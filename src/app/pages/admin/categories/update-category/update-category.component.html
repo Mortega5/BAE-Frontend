@@ -109,7 +109,7 @@
         <div>
           <label class="font-bold text-sm dark:text-white block mb-1">{{ 'UPDATE_CATEGORIES._status' | translate }}</label>
           <bae-badge variant="status" [status]="statusBadgeVariant(categoryToUpdate?.lifecycleStatus ?? '')"
-            [label]="categoryToUpdate?.lifecycleStatus ?? ''"></bae-badge>
+            [label]="statusLabel(categoryToUpdate?.lifecycleStatus ?? '') | translate"></bae-badge>
         </div>
 
         @if(categoryToUpdate?.description !=''){

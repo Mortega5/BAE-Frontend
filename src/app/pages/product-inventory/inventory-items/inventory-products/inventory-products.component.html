@@ -80,7 +80,7 @@
         (cardClick)="openProductDetails(inv)">
 
         <div tileCardMediaOverlay class="absolute top-2 left-2">
-          <bae-badge variant="status" [status]="statusBadgeVariant(inv.status)" [label]="inv.status"></bae-badge>
+          <bae-badge variant="status" [status]="statusBadgeVariant(inv.status)" [label]="statusLabel(inv.status) | translate"></bae-badge>
         </div>
 
         <div class="flex items-start justify-between gap-2">

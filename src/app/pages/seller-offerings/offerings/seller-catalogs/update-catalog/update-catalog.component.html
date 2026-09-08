@@ -49,7 +49,7 @@
         <div class="mb-4">
           <label class="font-bold text-lg mr-4 dark:text-white">{{ 'UPDATE_CATALOG._status' | translate }}</label>
           <bae-badge variant="status" [status]="statusBadgeVariant(generalForm.value.lifecycleStatus ?? '')"
-            [label]="generalForm.value.lifecycleStatus ?? ''"></bae-badge>
+            [label]="statusLabel(generalForm.value.lifecycleStatus ?? '') | translate"></bae-badge>
         </div>
 
         @if (generalForm.value.description !== '') {

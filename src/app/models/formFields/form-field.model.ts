@@ -2,6 +2,7 @@ import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { ValidatorFn } from '@angular/forms';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
+import { lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 
 interface BaseFormField {
   name: string;
@@ -98,6 +99,10 @@ export interface StatusPickerOption {
   label: string;
   activeClass: string;
   dataCy?: string;
+  /** Other wire values this step should also render as "active" for — e.g. the
+   * "Deleted" step also lights up for the legacy 'Obsolete' value, since they
+   * share the same display label but Obsolete is no longer a pickable target. */
+  matchValues?: string[];
 }
 
 export interface StatusPickerFormField extends BaseFormField {
@@ -105,8 +110,14 @@ export interface StatusPickerFormField extends BaseFormField {
   options: StatusPickerOption[];
 }
 
+/** Full backend `lifecycleStatus` wire vocabulary. Obsolete is a legacy value
+ * some old records still carry; it's excluded from SELECTABLE_LIFECYCLE_STATUSES
+ * below since it's no longer offered as a target, but a status-picker step can
+ * still match it via `matchValues` (see buildLifecycleStatusOptions). */
 const LIFECYCLE_STATUSES = ['Active', 'Launched', 'Retired', 'Obsolete'] as const;
 export type LifecycleStatus = typeof LIFECYCLE_STATUSES[number];
+
+const SELECTABLE_LIFECYCLE_STATUSES = ['Active', 'Launched', 'Retired'] as const;
 
 const LIFECYCLE_STATUS_ACTIVE_CLASSES: Record<LifecycleStatus, string> = {
   Active: 'text-blue-500',
@@ -115,21 +126,15 @@ const LIFECYCLE_STATUS_ACTIVE_CLASSES: Record<LifecycleStatus, string> = {
   Obsolete: 'text-gray-700 dark:text-gray-400',
 };
 
-const LIFECYCLE_STATUS_LABELS: Record<LifecycleStatus, string> = {
-  Active: 'UPDATE_CATALOG._active',
-  Launched: 'UPDATE_CATALOG._launched',
-  Retired: 'UPDATE_CATALOG._retired',
-  Obsolete: 'UPDATE_CATALOG._obsolete',
-};
-
 export function buildLifecycleStatusOptions(dataCyPrefix: string = '', disabledStatuses: string[] = []): StatusPickerOption[] {
-  return LIFECYCLE_STATUSES
+  return SELECTABLE_LIFECYCLE_STATUSES
     .filter(status => !disabledStatuses.includes(status))
     .map(status => ({
       value: status,
-      label: LIFECYCLE_STATUS_LABELS[status],
+      label: lifecycleStatusLabel(status),
       activeClass: LIFECYCLE_STATUS_ACTIVE_CLASSES[status],
       dataCy: `${dataCyPrefix}${status}`,
+      matchValues: status === 'Retired' ? ['Retired', 'Obsolete'] : undefined,
     }));
 }
 

@@ -114,7 +114,7 @@
       [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly">
       @for (opt of asStatusPicker(field).options; track opt.value; let last = $last) {
       <app-status-field [label]="opt.label" [value]="opt.value" [activeClass]="opt.activeClass"
-        [isActive]="formGroup.get(field.name)?.value === opt.value" [isLast]="last" [dataCy]="opt.dataCy"
+        [isActive]="statusPickerOptionActive(asStatusPicker(field), opt)" [isLast]="last" [dataCy]="opt.dataCy"
         (selected)="formGroup.get(field.name)?.setValue($event)" />
       }
     </ol>

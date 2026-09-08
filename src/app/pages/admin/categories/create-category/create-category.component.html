@@ -106,7 +106,7 @@
         <div>
           <label class="font-bold text-sm dark:text-white block mb-1">{{ 'CREATE_CATEGORIES._status' | translate }}</label>
           <bae-badge variant="status" [status]="statusBadgeVariant(categoryToCreate?.lifecycleStatus ?? '')"
-            [label]="categoryToCreate?.lifecycleStatus ?? ''"></bae-badge>
+            [label]="statusLabel(categoryToCreate?.lifecycleStatus ?? '') | translate"></bae-badge>
         </div>
 
         @if(categoryToCreate?.description !=''){

@@ -46,7 +46,7 @@
         <div class="mb-4">
           <label class="font-bold text-lg mr-4 dark:text-white">{{ 'CREATE_CATALOG._status' | translate }}</label>
           <bae-badge variant="status" [status]="statusBadgeVariant(catalogToCreate?.lifecycleStatus ?? '')"
-            [label]="catalogToCreate?.lifecycleStatus ?? ''"></bae-badge>
+            [label]="statusLabel(catalogToCreate?.lifecycleStatus ?? '') | translate"></bae-badge>
         </div>
 
         @if (catalogToCreate?.description !== '') {

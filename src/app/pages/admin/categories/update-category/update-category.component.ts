@@ -11,7 +11,7 @@ import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
-import { BadgeStatus, lifecycleStatusBadgeVariant } from 'src/app/shared/badge/badge.component';
+import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 
@@ -301,5 +301,9 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
 
   statusBadgeVariant(status: string): BadgeStatus {
     return lifecycleStatusBadgeVariant(status);
+  }
+
+  statusLabel(status: string): string {
+    return lifecycleStatusLabel(status);
   }
 }

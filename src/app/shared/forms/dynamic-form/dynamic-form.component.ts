@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { AttachmentFormField, BubbleSelectFormField, CodeFormField, FormField, MultiValueStringFormField, PaginatedTableFormField, RangeValueFormField, SelectableFormField, StatusPickerFormField, TableFormField, UnitValueFormField } from 'src/app/models/formFields/form-field.model';
+import { AttachmentFormField, BubbleSelectFormField, CodeFormField, FormField, MultiValueStringFormField, PaginatedTableFormField, RangeValueFormField, SelectableFormField, StatusPickerFormField, StatusPickerOption, TableFormField, UnitValueFormField } from 'src/app/models/formFields/form-field.model';
 import { environment } from 'src/environments/environment';
 import { AttachmentUploadComponent } from '../attachment-upload/attachment-upload.component';
 import { MarkdownTextareaComponent } from '../markdown-textarea/markdown-textarea.component';
@@ -48,6 +48,14 @@ export class DynamicFormComponent {
 
   asStatusPicker(field: FormField): StatusPickerFormField {
     return field as StatusPickerFormField;
+  }
+
+  /** A statusPicker step is active if the form's current value matches its own
+   * value OR any of its `matchValues` (e.g. the "Deleted" step also lights up
+   * for the legacy 'Obsolete' value, even though it's not itself selectable). */
+  statusPickerOptionActive(field: StatusPickerFormField, opt: StatusPickerOption): boolean {
+    const value = this.formGroup.get(field.name)?.value;
+    return (opt.matchValues ?? [opt.value]).includes(value);
   }
 
   asMultiValue(field: FormField): MultiValueStringFormField {

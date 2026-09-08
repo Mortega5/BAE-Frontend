@@ -12,7 +12,7 @@ import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { environment } from 'src/environments/environment';
 import { AdminPaths } from '../admin.paths';
-import { BadgeStatus, lifecycleStatusBadgeVariant } from 'src/app/shared/badge/badge.component';
+import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { TableColumn } from 'src/app/models/table-column.model';
 type Category = components["schemas"]["Category"];
 
@@ -48,7 +48,7 @@ export class CategoriesComponent implements OnDestroy {
     },
     {
       header: 'ADMIN._status',
-      getValue: (cat: any) => cat.lifecycleStatus ?? '-',
+      getValue: (cat: any) => lifecycleStatusLabel(cat.lifecycleStatus ?? ''),
       type: 'status-badge',
       width: 'w-28',
       getStatus: (cat: any) => this.statusBadgeVariant(cat.lifecycleStatus ?? ''),

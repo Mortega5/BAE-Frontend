@@ -13,7 +13,7 @@ import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { PriceServiceService } from 'src/app/services/price-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
-import { lifecycleStatusBadgeVariant } from 'src/app/shared/badge/badge.component';
+import { expandLifecycleStatusFilter, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
@@ -48,7 +48,6 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
         { value: 'Active', label: 'OFFERINGS._active' },
         { value: 'Launched', label: 'OFFERINGS._launched' },
         { value: 'Retired', label: 'OFFERINGS._retired' },
-        { value: 'Obsolete', label: 'OFFERINGS._obsolete' },
       ],
     },
   ];
@@ -69,7 +68,7 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
       },
       {
         header: 'OFFERINGS._status',
-        getValue: (item: any) => item.lifecycleStatus ?? '-',
+        getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''),
         type: 'status-badge',
         width: 'w-40',
         sortKey: 'lifecycleStatus',
@@ -154,7 +153,7 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
   }
 
   fetchOffers = async (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
-    const status = (filters['status'] ?? []) as string[];
+    const status = expandLifecycleStatusFilter((filters['status'] ?? []) as string[]);
     const result = await this.api.getProductOfferByOwnerPaged(params, this.filter, status, this.partyId, this.isBundle);
 
     this.customMap = {};

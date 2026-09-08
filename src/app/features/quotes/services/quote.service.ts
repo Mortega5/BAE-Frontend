@@ -50,7 +50,7 @@ export class QuoteService {
   constructor(private http: HttpClient) {}
 
   // TMF 648 Quote Management API methods
-  
+
   /**
    * Creates a new quote
    * POST /quote
@@ -81,7 +81,7 @@ export class QuoteService {
     if (fields) params = params.set('fields', fields);
     if (offset !== undefined) params = params.set('offset', offset.toString());
     if (limit !== undefined) params = params.set('limit', limit.toString());
-    
+
     return this.http.get<Quote[]>(`${this.apiUrl}/quote`, { params, ...this.httpOptions });
   }
 
@@ -92,7 +92,7 @@ export class QuoteService {
   retrieveQuote(id: string, fields?: string): Observable<Quote> {
     let params = new HttpParams();
     if (fields) params = params.set('fields', fields);
-    
+
     // URL encode the ID to handle special characters like colons
     const encodedId = encodeURIComponent(id);
     console.log('Retrieving quote with URL:', `${this.apiUrl}/quoteById/${encodedId}`);
@@ -157,7 +157,7 @@ export class QuoteService {
     let params = new HttpParams();
     params = params.set('userId', author || '');
     params = params.set('messageContent', noteText);
-    
+
     const encodedId = encodeURIComponent(id);
     console.log('Adding note to quote with URL:', `${this.apiUrl}/addNoteToQuote/${encodedId}`);
     return this.http.patch<Quote>(`${this.apiUrl}/addNoteToQuote/${encodedId}`, null, { params, ...this.httpOptions });
@@ -167,20 +167,20 @@ export class QuoteService {
    * Update quote completion dates
    */
   updateQuoteCompletionDates(
-    id: string, 
-    expectedDate?: string, 
+    id: string,
+    expectedDate?: string,
     requestedDate?: string
   ): Observable<Quote> {
     const updates: Partial<Quote_Update> = {};
     if (expectedDate) updates.expectedQuoteCompletionDate = expectedDate;
     if (requestedDate) updates.requestedQuoteCompletionDate = requestedDate;
-    
+
     return this.patchQuote(id, updates);
   }
 
   /**
    * Get quotes by user with role filtering
-   * GET /quoteByUser/{userId}?role={role}
+   * GET /quoteByUser/{userId}?role={role}  
    */
   getQuotesByUserAndRole(userId: string, role: 'customer' | 'seller'): Observable<Quote[]> {
     let params = new HttpParams();
@@ -208,7 +208,7 @@ export class QuoteService {
       this.listQuotes().subscribe({
         next: (quotes) => {
           let filtered = quotes;
-          
+
           if (criteria.state) {
             filtered = filtered.filter(q => q.state === criteria.state);
           }
@@ -219,11 +219,11 @@ export class QuoteService {
             filtered = filtered.filter(q => q.externalId === criteria.externalId);
           }
           if (criteria.description) {
-            filtered = filtered.filter(q => 
+            filtered = filtered.filter(q =>
               q.description?.toLowerCase().includes(criteria.description!.toLowerCase())
             );
           }
-          
+
           observer.next(filtered);
         },
         error: (error) => observer.error(error)
@@ -232,7 +232,7 @@ export class QuoteService {
   }
 
   // Legacy methods for backward compatibility (if needed)
-  
+
   /**
    * Update quote status using the specific updateQuoteStatus endpoint
    * PATCH /updateQuoteStatus/{id}?statusValue={status}
@@ -240,18 +240,18 @@ export class QuoteService {
   updateQuoteStatus(id: string, status: string): Observable<Quote> {
     let params = new HttpParams();
     params = params.set('statusValue', status);
-    
+
     const encodedId = encodeURIComponent(id);
     console.log('Updating quote status with URL:', `${this.apiUrl}/updateQuoteStatus/${encodedId}`);
     console.log('Status value:', status);
-    
+
     return this.http.patch<Quote>(`${this.apiUrl}/updateQuoteStatus/${encodedId}`, null, { params, ...this.httpOptions });
   }
 
   /**
    * Update quote completion date using the specific updateQuoteDate endpoint
    * PATCH /updateQuoteDate/{id}?date={date}&dateType={dateType}
-   * 
+   *
    * Date types:
    * - 'requested' → requestedQuoteCompletionDate
    * - 'expected' → expectedQuoteCompletionDate
@@ -262,11 +262,11 @@ export class QuoteService {
     let params = new HttpParams();
     params = params.set('date', date);
     params = params.set('dateType', dateType);
-    
+
     const encodedId = encodeURIComponent(id);
     console.log('Updating quote date with URL:', `${this.apiUrl}/updateQuoteDate/${encodedId}`);
     console.log('Date:', date, 'DateType:', dateType);
-    
+
     return this.http.patch<Quote>(`${this.apiUrl}/updateQuoteDate/${encodedId}`, null, { params, ...this.httpOptions });
   }
 
@@ -280,7 +280,7 @@ export class QuoteService {
   /**
    * Add attachment to quote (file upload)
    * PATCH /addAttachmentToQuote/{id}
-   * 
+   *
    * @param id - Quote ID
    * @param file - PDF file (max 100MB)
    * @param description - Optional description of the attachment
@@ -291,9 +291,9 @@ export class QuoteService {
     if (description) {
       formData.append('description', description);
     }
-    
+
     const encodedId = encodeURIComponent(id);
-    
+
     return this.http.patch<Quote>(`${this.apiUrl}/addAttachmentToQuote/${encodedId}`, formData);
   }
 
@@ -419,7 +419,7 @@ export class QuoteService {
     return new Observable(observer => {
       this.listQuotes().subscribe({
         next: (quotes) => {
-          const userQuotes = quotes.filter(quote => 
+          const userQuotes = quotes.filter(quote =>
             quote.relatedParty?.some(party => party.id === userId)
           );
           observer.next(userQuotes);
@@ -430,7 +430,7 @@ export class QuoteService {
   }
 
   // Helper methods for quote status checking
-  
+
   isQuoteCancelled(quote: Quote): boolean {
     return quote.quoteItem?.some(item => item.state === QUOTE_STATUSES.CANCELLED) || false;
   }
@@ -463,7 +463,7 @@ export class QuoteService {
       customerMessage,
       customerIdRef
     };
-    
+
     return this.http.post<Quote>(`${this.apiUrl}/tendering/createCoordinatorQuote`, payload, this.httpOptions).pipe(
       map(quote => this.mapQuoteToTender(quote))
     );
@@ -474,8 +474,8 @@ export class QuoteService {
    * POST /quoteManagement/tendering/createQuote
    */
   createTenderingQuote(
-    customerIdRef: string, 
-    providerIdRef: string, 
+    customerIdRef: string,
+    providerIdRef: string,
     externalId: string,
     customerMessage?: string
   ): Observable<Tender> {
@@ -485,7 +485,7 @@ export class QuoteService {
       providerIdRef,
       externalId
     };
-    
+
     return this.http.post<Quote>(`${this.apiUrl}/tendering/createQuote`, payload, this.httpOptions).pipe(
       map(quote => this.mapQuoteToTender(quote))
     );
@@ -500,10 +500,10 @@ export class QuoteService {
     externalId: string,
     customerMessage?: string
   ): Observable<Tender[]> {
-    const requests = providerIds.map(providerId => 
+    const requests = providerIds.map(providerId =>
       this.createTenderingQuote(customerIdRef, providerId, externalId, customerMessage)
     );
-    
+
     return forkJoin(requests);
   }
 
@@ -524,17 +524,17 @@ export class QuoteService {
    * GET /quoteManagement/tendering/quotes/{userId}?role={role}&externalId={externalId}
    */
   getTenderingQuotesByUser(
-    userId: string, 
+    userId: string,
     role: ApiRole = API_ROLES.SELLER,
     externalId?: string
   ): Observable<Tender[]> {
     const encodedUserId = encodeURIComponent(userId);
     let params = new HttpParams().set('role', role);
-    
+
     if (externalId) {
       params = params.set('externalId', externalId);
     }
-    
+
     console.log('Getting tendering quotes for user:', encodedUserId, 'role:', role, 'externalId:', externalId);
     return this.http.get<Quote[]>(`${this.apiUrl}/tendering/quotes/${encodedUserId}`, { params, ...this.httpOptions }).pipe(
       map(quotes => quotes.map(quote => this.mapQuoteToTender(quote)))
@@ -550,7 +550,7 @@ export class QuoteService {
     let params = new HttpParams()
       .set('role', role)
       .set('externalId', externalId);
-    
+
     console.log('Getting tendering quotes by external ID:', externalId);
     return this.http.get<Quote[]>(`${this.apiUrl}/tendering/quotes/${encodedUserId}`, { params, ...this.httpOptions });
   }
@@ -565,7 +565,7 @@ export class QuoteService {
       userId,
       messageContent
     };
-    
+
     console.log('Broadcasting message to external ID:', externalId);
     return this.http.post<any>(`${this.apiUrl}/tendering/broadcastMessage`, payload, this.httpOptions);
   }
@@ -588,8 +588,8 @@ export class QuoteService {
    */
   private mapQuoteToTender(quote: Quote): Tender {
     // Extract response deadline from quote
-    const responseDeadline = quote.expectedFulfillmentStartDate || 
-                            quote.effectiveQuoteCompletionDate || 
+    const responseDeadline = quote.expectedFulfillmentStartDate ||
+                            quote.effectiveQuoteCompletionDate ||
                             new Date().toISOString();
 
     // Extract tender title from quote.description (this is where the title is saved)

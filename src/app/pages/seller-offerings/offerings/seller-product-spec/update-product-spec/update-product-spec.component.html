@@ -341,19 +341,8 @@
                   {{prod.name}}
                 </td>
                 <td class="hidden md:table-cell px-6 py-4">
-                  @if(prod.lifecycleStatus == 'Active'){
-                  <span
-                    class="bg-blue-100 dark:bg-secondary-300 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{prod.lifecycleStatus}}</span>
-                  } @else if(prod.lifecycleStatus == 'Launched') {
-                  <span
-                    class="bg-blue-100 dark:bg-secondary-300 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">{{prod.lifecycleStatus}}</span>
-                  } @else if(prod.lifecycleStatus == 'Retired') {
-                  <span
-                    class="bg-blue-100 dark:bg-secondary-300 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{prod.lifecycleStatus}}</span>
-                  } @else if(prod.lifecycleStatus == 'Obsolete') {
-                  <span
-                    class="bg-blue-100 dark:bg-secondary-300 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{prod.lifecycleStatus}}</span>
-                  }
+                  <bae-badge variant="status" [status]="statusBadgeVariant(prod.lifecycleStatus ?? '')"
+                    [label]="statusLabel(prod.lifecycleStatus ?? '') | translate"></bae-badge>
                 </td>
                 <td class="hidden md:table-cell px-6 py-4">
                   @if(prod.isBundle == false){

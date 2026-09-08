@@ -133,6 +133,16 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     }
   }
 
+  statusLabel(status: string): string {
+    switch (status) {
+      case 'active': return 'PRODUCT_INVENTORY._active';
+      case 'created': return 'PRODUCT_INVENTORY._created';
+      case 'suspended': return 'PRODUCT_INVENTORY._suspended';
+      case 'terminated': return 'PRODUCT_INVENTORY._terminated';
+      default: return status;
+    }
+  }
+
   getProductImage(prod: ProductOffering) {
     let images: any[] = []
     if (prod?.attachment) {

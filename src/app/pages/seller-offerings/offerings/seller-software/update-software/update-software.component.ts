@@ -17,7 +17,7 @@ import { RESOURCE_STATUS_TYPES } from '../../../../../models/software.model';
 import { NotificationService } from '../../../../../services/notification.service';
 import { ResourceSpecServiceService } from '../../../../../services/resource-spec-service.service';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
-import { lifecycleStatusBadgeVariant } from '../../../../../shared/badge/badge.component';
+import { lifecycleStatusBadgeVariant, lifecycleStatusLabel } from '../../../../../shared/badge/badge.component';
 
 type SoftwareSupportPackage = components['schemas']['SoftwareResource'];
 type CharacteristicValueSpecification = components['schemas']['Characteristic'];
@@ -69,7 +69,7 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
       columns: [
         { header: 'Name', getValue: item => item.name ?? '-' },
         { header: 'Version', getValue: item => item.version ?? '-', width: 'w-24' },
-        { header: 'Status', getValue: item => item.lifecycleStatus ?? '-', width: 'w-28', type: 'status-badge', getStatus: item => lifecycleStatusBadgeVariant(item.lifecycleStatus) },
+        { header: 'Status', getValue: item => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-28', type: 'status-badge', getStatus: item => lifecycleStatusBadgeVariant(item.lifecycleStatus) },
         { header: 'Last update', getValue: item => this.datePipe.transform(item.lastUpdate, 'dd/MM/yy, HH:mm') ?? '-', width: 'w-36' },
       ],
     },

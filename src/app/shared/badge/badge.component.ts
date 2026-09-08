@@ -9,15 +9,44 @@ export type BadgeStatus = 'success' | 'info' | 'warning' | 'danger' | 'neutral';
 
 /** Maps the TMF `lifecycleStatus` vocabulary (Active/Launched/Retired/Obsolete —
  * see LIFECYCLE_STATUSES in form-field.model.ts) to a bae-badge status color,
- * for the many admin/catalog tables that show it. */
+ * for the many admin/catalog tables that show it. Obsolete shares Retired's
+ * color since they now share the same display label ("Deleted") — see
+ * lifecycleStatusLabel below. */
 export function lifecycleStatusBadgeVariant(status: string): BadgeStatus {
   switch (status) {
     case 'Active': return 'info';
     case 'Launched': return 'success';
-    case 'Retired': return 'warning';
-    case 'Obsolete': return 'danger';
+    case 'Retired':
+    case 'Obsolete':
+      return 'warning';
     default: return 'neutral';
   }
+}
+
+const LIFECYCLE_STATUS_LABELS: Record<string, string> = {
+  Active: 'LIFECYCLE_STATUS._draft',
+  Launched: 'LIFECYCLE_STATUS._published',
+  Retired: 'LIFECYCLE_STATUS._deleted',
+  Obsolete: 'LIFECYCLE_STATUS._deleted',
+};
+
+/** i18n key for the user-facing word for a `lifecycleStatus` wire value — the
+ * backend vocabulary (Active/Launched/Retired/Obsolete) never changes, but
+ * nobody outside engineering should see those words: Active reads as "Draft",
+ * Launched as "Published", and Retired/Obsolete both as "Deleted" (Obsolete is
+ * a legacy value old records may still carry; it's no longer offered as a
+ * pickable target — see buildLifecycleStatusOptions). Always pipe the result
+ * through `| translate`. */
+export function lifecycleStatusLabel(status: string): string {
+  return LIFECYCLE_STATUS_LABELS[status] ?? status;
+}
+
+/** Expands a selected lifecycleStatus filter value into every wire value it
+ * should match — 'Retired' also pulls in the legacy 'Obsolete' value, since
+ * both are shown as a single "Deleted" checkbox in filter UIs (there's no
+ * separate 'Obsolete' filter option any more). */
+export function expandLifecycleStatusFilter(values: string[]): string[] {
+  return values.flatMap(value => value === 'Retired' ? ['Retired', 'Obsolete'] : [value]);
 }
 
 /** Maps the resource operational-status vocabulary (standby/available/suspended/unknown —

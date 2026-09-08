@@ -2212,10 +2212,10 @@
     "_order_by": "Order by...",
     "_last_update": "Last update",
     "_name": "Name",
-    "_active": "Active",
-    "_launched": "Launched",
-    "_retired": "Retired",
-    "_obsolete": "Obsolete",
+    "_active": "Draft",
+    "_launched": "Published",
+    "_retired": "Deleted",
+    "_obsolete": "Deleted",
     "_status": "Status",
     "_actions": "Actions",
     "_load_more": "Load more",
@@ -2322,6 +2322,11 @@
     "_resource_spec_delete_success": "Resource specification deleted",
     "_resource_spec_delete_error": "Could not delete this resource specification.",
     "_create_custom_offer": "Create custom offer"
+  },
+  "LIFECYCLE_STATUS": {
+    "_draft": "Draft",
+    "_published": "Published",
+    "_deleted": "Deleted"
   },
   "ANALYTICS": {
     "_analytics": "Analytics",
