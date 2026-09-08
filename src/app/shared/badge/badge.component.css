@@ -13,14 +13,16 @@
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 500;
-  background-color: rgb(255 255 255 / 90%);
+  /* A translucent tint of the accent color, not --card-bg/white — needs to read
+     clearly against a plain card/page, not just the photo it can also sit on. */
+  background-color: rgb(var(--theme-primary-100) / 12%);
   box-shadow: 0 1px 2px rgb(0 0 0 / 5%);
   color: rgb(55 65 81);
   /* gray-700 */
 }
 
 :host-context(.dark) .bae-badge-status {
-  background-color: var(--card-bg);
+  background-color: rgb(var(--theme-primary-50) / 32%);
   color: rgb(229 231 235);
   /* gray-200 */
 }
