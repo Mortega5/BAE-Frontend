@@ -11,7 +11,7 @@ import { Subscription } from "rxjs";
 import { FormChangeState } from "src/app/models/interfaces";
 import { PageRequest, PageResult } from "src/app/models/pagination.model";
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
-import { getBundleTypeClass, lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { BadgeStatus, lifecycleStatusBadgeVariant } from 'src/app/shared/badge/badge.component';
 import { ProductSpecServiceService } from "../../../../services/product-spec-service.service";
 import { PaginatedTableComponent } from '../../paginated-table/paginated-table.component';
 import { TableInputComponent } from '../../table-input/table-input.component';
@@ -67,11 +67,11 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
     { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
     { header: 'Product Type', getValue: (item: any) => item['@type'] ?? 'ProductSpecification', hideOnMobile: true },
     {
-      header: 'Type', width: 'w-28', type: 'badge',
+      header: 'Type', width: 'w-28', type: 'status-badge',
       getValue: (item: any) => item.isBundle ? 'Bundle' : 'Simple',
-      cellClass: (item: any) => getBundleTypeClass(item.isBundle)
+      getStatus: (item: any): BadgeStatus => item.isBundle ? 'success' : 'info',
     },
-    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
+    { header: 'Status', getValue: (item: any) => item.lifecycleStatus ?? '-', width: 'w-28', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
     { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52', sortKey: 'lastUpdate' },
   ];
 

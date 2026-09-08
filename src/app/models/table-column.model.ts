@@ -1,4 +1,5 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { BadgeStatus } from 'src/app/shared/badge/badge.component';
 
 interface BaseTableColumn<T = any> {
   header: string;
@@ -25,6 +26,15 @@ export interface TextTableColumn<T = any> extends BaseTableColumn<T> {
 export interface BadgeTableColumn<T = any> extends BaseTableColumn<T> {
   type: 'badge';
   getValue: (item: T) => string | number | boolean | null | undefined;
+}
+
+/** Renders the shared bae-badge status-dot chip instead of a plain colored span —
+ * use for actual state columns (lifecycleStatus, resource status...) so they all
+ * look the same across every table in the app. */
+export interface StatusBadgeTableColumn<T = any> extends BaseTableColumn<T> {
+  type: 'status-badge';
+  getValue: (item: T) => string | null | undefined;
+  getStatus: (item: T) => BadgeStatus;
 }
 
 export interface IconButtonTableColumn<T = any> extends BaseTableColumn<T> {
@@ -67,4 +77,4 @@ export interface ImageTableColumn<T = any> extends BaseTableColumn<T> {
   alt?: string;
 }
 
-export type TableColumn<T = any> = TextTableColumn<T> | BadgeTableColumn<T> | IconButtonTableColumn<T> | DateTableColumn<T> | ActionsTableColumn<T> | ImageTableColumn<T>;
+export type TableColumn<T = any> = TextTableColumn<T> | BadgeTableColumn<T> | StatusBadgeTableColumn<T> | IconButtonTableColumn<T> | DateTableColumn<T> | ActionsTableColumn<T> | ImageTableColumn<T>;

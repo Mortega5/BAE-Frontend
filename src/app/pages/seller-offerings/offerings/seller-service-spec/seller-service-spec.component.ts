@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
 import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
@@ -11,10 +12,9 @@ import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
+import { lifecycleStatusBadgeVariant } from 'src/app/shared/badge/badge.component';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
-import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 import { SellerOfferingsPaths } from '../../seller-offerings.paths';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'seller-service-spec',
@@ -67,10 +67,10 @@ export class SellerServiceSpecComponent implements OnInit, OnDestroy {
       {
         header: 'OFFERINGS._status',
         getValue: (item: any) => item.lifecycleStatus ?? '-',
-        type: 'badge',
-        width: 'w-1/4',
+        type: 'status-badge',
+        width: 'w-40',
         sortKey: 'lifecycleStatus',
-        cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
+        getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus ?? ''),
       },
       {
         header: 'OFFERINGS._last_update',

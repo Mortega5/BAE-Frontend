@@ -10,6 +10,7 @@ import { CharacteristicFormValue, SpecificationCharacteristicFormComponent } fro
 import { TableInputComponent } from '../table-input/table-input.component';
 import { ButtonComponent } from '../../button/button.component';
 import { ContentCardComponent } from '../../content-card/content-card.component';
+import { BadgeStatus } from '../../badge/badge.component';
 
 export interface CharacteristicItem extends CharacteristicFormValue {
   id?: string;
@@ -60,9 +61,9 @@ export class CharacteristicsEditorComponent {
         cellClass: () => 'break-all',
       },
       {
-        header: 'CHAR_SPEC._configurable', type: 'badge', width: 'w-32',
+        header: 'CHAR_SPEC._configurable', type: 'status-badge', width: 'w-32',
         getValue: (c: CharacteristicItem) => c.configurable ? '_yes' : '_no',
-        cellClass: (c: CharacteristicItem) => c.configurable ? 'text-green-500' : 'text-red-500',
+        getStatus: (c: CharacteristicItem): BadgeStatus => c.configurable ? 'success' : 'danger',
       },
     ];
     if (!this.readonly) {

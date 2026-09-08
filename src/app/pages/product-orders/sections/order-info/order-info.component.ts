@@ -26,13 +26,14 @@ import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { SharedModule } from "../../../../shared/shared.module";
+import { BadgeComponent, orderItemActionBadgeVariant, orderStateBadgeVariant } from 'src/app/shared/badge/badge.component';
 type ProductOffering = components["schemas"]["ProductOffering"];
 
 @Component({
   selector: 'app-order-info',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule, SharedModule,
-    FilteredPaginatedTableComponent, TableInputComponent, LoadingSpinnerComponent
+    FilteredPaginatedTableComponent, TableInputComponent, LoadingSpinnerComponent, BadgeComponent
   ],
   providers: [DatePipe],
   templateUrl: './order-info.component.html',
@@ -65,7 +66,7 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
 
   orderColumns: TableColumn[] = [
     { header: 'PRODUCT_INVENTORY._order_id', getValue: (item: any) => `...${item.id.slice(-6)}`, width: 'w-28', hideOnMobile: true, sortKey: 'id' },
-    { header: 'PRODUCT_INVENTORY._status', type: 'badge', getValue: (item: any) => item.state ?? 'PRODUCT_ORDERS._unchecked', cellClass: (item: any) => this.orderStateClass(item.state), width: 'w-28', sortKey: 'state' },
+    { header: 'PRODUCT_INVENTORY._status', type: 'status-badge', getValue: (item: any) => item.state ?? 'PRODUCT_ORDERS._unchecked', getStatus: (item: any) => orderStateBadgeVariant(item.state), width: 'w-28', sortKey: 'state' },
     { header: 'PRODUCT_INVENTORY._bill', getValue: (item: any) => item.billingAccount?.name ?? '-', width: 'w-1/3', hideOnMobile: true },
     { header: 'PRODUCT_ORDERS._date', type: 'date', getValue: (item: any) => item.orderDate, sortKey: 'orderDate' },
     { header: 'PRODUCT_ORDERS._actions', type: 'icon-button', icon: faStickyNote, tooltip: 'PRODUCT_ORDERS._show_notes', dataCy: 'orderNotesButton', onClick: (item: any) => this.toggleDrawer(item), width: 'w-24' },
@@ -76,14 +77,14 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     { header: 'PRODUCT_ORDERS._name', getValue: (item: any) => item.name },
     { header: 'PRODUCT_ORDERS._price_plan', getValue: (item: any) => this.getPricePlanLabel(item) },
     {
-      header: 'PRODUCT_ORDERS._state', type: 'badge', width: 'w-28',
+      header: 'PRODUCT_ORDERS._state', type: 'status-badge', width: 'w-28',
       getValue: (item: any) => item.productOrderItem.state ?? 'Unchecked',
-      cellClass: (item: any) => this.orderStateClass(item.productOrderItem.state),
+      getStatus: (item: any) => orderStateBadgeVariant(item.productOrderItem.state),
     },
     {
-      header: 'PRODUCT_ORDERS._items_action', type: 'badge', width: 'w-28',
+      header: 'PRODUCT_ORDERS._items_action', type: 'status-badge', width: 'w-28',
       getValue: (item: any) => item.productOrderItem.action,
-      cellClass: (item: any) => this.orderItemActionClass(item.productOrderItem.action),
+      getStatus: (item: any) => orderItemActionBadgeVariant(item.productOrderItem.action),
     },
     {
       header: 'PRODUCT_ORDERS._actions', type: 'actions', width: 'w-40',
@@ -180,6 +181,7 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected readonly faIdCard = faIdCard;
   protected readonly faSort = faSort;
+  protected readonly orderStateBadgeVariant = orderStateBadgeVariant;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -415,39 +417,6 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.paginationService.getOrdersPaged(params, status, this.partyId, this.role, action);
   }
 
-  private orderStateClass(state: string): string {
-    const base = 'text-xs font-medium me-2 px-2.5 py-0.5 rounded border';
-    switch (state) {
-      case 'inProgress':
-      case 'acknowledged':
-        return `bg-blue-100 dark:bg-blue-300 text-blue-600 border-blue-400 ${base}`;
-      case 'completed':
-        return `bg-blue-100 dark:bg-green-300 text-green-500 border-green-500 ${base}`;
-      case 'partial':
-        return `bg-blue-100 dark:bg-purple-300 text-purple-500 border-purple-500 ${base}`;
-      case 'failed':
-      case 'cancelled':
-        return `bg-blue-100 dark:bg-red-300 text-red-500 border-red-500 ${base}`;
-      case 'pending':
-        return `bg-blue-100 dark:bg-yello-300 text-yellow-500 border-yellow-500 ${base}`;
-      default:
-        return `bg-amber-500 dark:bg-amber-900 text-amber-900 dark:text-amber-100 border-amber-950 ${base}`;
-    }
-  }
-
-  private orderItemActionClass(action: string): string {
-    const base = 'text-xs font-medium me-2 px-2.5 py-0.5 rounded border';
-    switch (action) {
-      case 'add':
-        return `bg-blue-100 dark:bg-blue-300 text-blue-600 border-blue-400 ${base}`;
-      case 'delete':
-        return `bg-blue-100 dark:bg-red-300 text-red-500 border-red-500 ${base}`;
-      case 'modify':
-        return `bg-blue-100 dark:bg-yellow-300 text-yellow-500 border-yellow-500 ${base}`;
-      default:
-        return '';
-    }
-  }
 
   private getPricePlanLabel(item: any): string {
     const price = item.productOfferingPrice;

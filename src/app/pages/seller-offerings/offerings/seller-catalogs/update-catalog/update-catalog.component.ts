@@ -14,6 +14,7 @@ import { noWhitespaceValidator } from 'src/app/validators/validators';
 
 import { components } from 'src/app/models/product-catalog';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
+import { BadgeStatus, lifecycleStatusBadgeVariant } from 'src/app/shared/badge/badge.component';
 
 type Catalog_Update = components['schemas']['Catalog_Update'];
 
@@ -124,6 +125,10 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
 
   goBack() {
     this.router.navigate([SellerOfferingsPaths.catalogues.list()]);
+  }
+
+  statusBadgeVariant(status: string): BadgeStatus {
+    return lifecycleStatusBadgeVariant(status);
   }
 
   setCatalogData() {

@@ -68,31 +68,8 @@
           <p class="w-fit text-base font-bold shrink-0 dark:text-white">
             {{ 'PRODUCT_INVENTORY._state' | translate }}
           </p>
-          @if(orderToShow.state === 'inProgress'){
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400 w-fit">{{orderToShow.state}}</span>
-          } @else if(orderToShow.state === 'partial') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-purple-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-purple-500 w-fit">{{orderToShow.state}}</span>
-          } @else if(orderToShow.state === 'completed') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500 w-fit">{{orderToShow.state}}</span>
-          } @else if(orderToShow.state === 'failed') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{orderToShow.state}}</span>
-          } @else if(orderToShow.state === 'pending') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{orderToShow.state}}</span>
-          }@else if(orderToShow.state === 'acknowledged'){
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{orderToShow.state}}</span>
-          }@else if(orderToShow.state === 'cancelled' || orderToShow.state === 'cancelled') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{orderToShow.state}}</span>
-          } @else {
-          <span
-            class="bg-amber-500 dark:bg-amber-900 text-amber-900 dark:text-amber-100 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-amber-950">Unchecked</span>
-          }
+          <bae-badge variant="status" [status]="orderStateBadgeVariant(orderToShow.state)"
+            [label]="orderToShow.state || 'Unchecked'"></bae-badge>
         </div>
         <div class="flex flex-row gap-2 pb-2 text-gray-600">
           <p class="w-fit text-base font-bold shrink-0 dark:text-white">

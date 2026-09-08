@@ -61,7 +61,6 @@ export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
       {
         header: 'CREATE_SOFTWARE._type', type: 'badge', width: 'w-28',
         getValue: (c: any) => c.valueType,
-        cellClass: () => 'text-xs font-medium px-2 py-0.5 rounded bg-gray-100 dark:bg-secondary-200 text-gray-700 dark:text-gray-200',
       },
       {
         header: 'CREATE_SOFTWARE._values', getValue: (c: any) => this.displayValue(c),

@@ -48,23 +48,8 @@
 
         <div class="mb-4">
           <label class="font-bold text-lg mr-4 dark:text-white">{{ 'UPDATE_CATALOG._status' | translate }}</label>
-          @if (generalForm.value.lifecycleStatus === 'Active') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{
-            generalForm.value.lifecycleStatus }}</span>
-          } @else if (generalForm.value.lifecycleStatus === 'Launched') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">{{
-            generalForm.value.lifecycleStatus }}</span>
-          } @else if (generalForm.value.lifecycleStatus === 'Retired') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{
-            generalForm.value.lifecycleStatus }}</span>
-          } @else if (generalForm.value.lifecycleStatus === 'Obsolete') {
-          <span
-            class="bg-blue-100 dark:bg-secondary-100 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{
-            generalForm.value.lifecycleStatus }}</span>
-          }
+          <bae-badge variant="status" [status]="statusBadgeVariant(generalForm.value.lifecycleStatus ?? '')"
+            [label]="generalForm.value.lifecycleStatus ?? ''"></bae-badge>
         </div>
 
         @if (generalForm.value.description !== '') {

@@ -13,8 +13,8 @@ import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ApiServiceService } from 'src/app/services/product-service.service';
+import { lifecycleStatusBadgeVariant } from 'src/app/shared/badge/badge.component';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
-import { lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 type Catalog = components["schemas"]["Catalog"];
 
@@ -73,10 +73,10 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
       {
         header: 'OFFERINGS._status',
         getValue: (item: Catalog) => item.lifecycleStatus ?? '-',
-        type: 'badge',
+        type: 'status-badge',
         width: 'w-28',
         sortKey: 'lifecycleStatus',
-        cellClass: (item: Catalog) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
+        getStatus: (item: Catalog) => lifecycleStatusBadgeVariant(item.lifecycleStatus ?? ''),
       },
       {
         header: 'OFFERINGS._role',

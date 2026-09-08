@@ -12,8 +12,8 @@ import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
+import { lifecycleStatusBadgeVariant } from 'src/app/shared/badge/badge.component';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
-import { getBundleTypeClass, lifecycleStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
 import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
 @Component({
@@ -74,18 +74,10 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
       {
         header: 'OFFERINGS._status',
         getValue: (item: any) => item.lifecycleStatus ?? '-',
-        type: 'badge',
-        width: 'w-24',
+        type: 'status-badge',
+        width: 'w-40',
         sortKey: 'lifecycleStatus',
-        cellClass: (item: any) => lifecycleStatusClass(item.lifecycleStatus ?? ''),
-      },
-      {
-        header: 'OFFERINGS._type',
-        getValue: (item: any) => item.isBundle ? 'OFFERINGS._bundle' : 'OFFERINGS._simple',
-        type: 'badge',
-        width: 'w-28',
-        hideOnMobile: true,
-        cellClass: (item: any) => getBundleTypeClass(item.isBundle)
+        getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus ?? ''),
       },
       {
         header: 'OFFERINGS._last_update',

@@ -5,13 +5,14 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faChevronDown } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { TableColumn, TableColumnAction, TableSort } from 'src/app/models/table-column.model';
+import { BadgeComponent, BadgeStatus } from 'src/app/shared/badge/badge.component';
 
 const DEFAULT_DATE_FORMAT = 'EEEE, dd/MM/yy, HH:mm';
 
 @Component({
   selector: 'app-table-input',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FaIconComponent],
+  imports: [CommonModule, TranslateModule, FaIconComponent, BadgeComponent],
   templateUrl: './table-input.component.html',
   styleUrl: './table-input.component.css',
   providers: [
@@ -162,6 +163,11 @@ export class TableInputComponent implements ControlValueAccessor {
     if (column.type === 'icon-button' || column.type === 'date' || column.type === 'actions' || column.type === 'image') return '';
     const value = column.getValue ? column.getValue(item) : null;
     return value == null ? '' : String(value);
+  }
+
+  getStatusValue(column: TableColumn, item: any): BadgeStatus {
+    if (column.type !== 'status-badge') return 'neutral';
+    return column.getStatus(item);
   }
 
   getDateValue(column: TableColumn, item: any): string {

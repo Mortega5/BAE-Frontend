@@ -14,7 +14,7 @@ import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
-import { resourceStatusClass } from 'src/app/shared/utils/lifecycle-status.utils';
+import { resourceStatusBadgeVariant } from 'src/app/shared/badge/badge.component';
 import { RESOURCE_STATUS_TYPES, ResourceStatusType, SoftwareResource } from '../../../../models/software.model';
 import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
@@ -68,10 +68,10 @@ export class SellerSoftware implements OnInit, OnDestroy {
       {
         header: 'OFFERINGS._status',
         getValue: (item: SoftwareResource) => item.resourceStatus ?? '-',
-        type: 'badge',
+        type: 'status-badge',
         width: 'w-1/4',
         sortKey: 'resourceStatus',
-        cellClass: (item: SoftwareResource) => resourceStatusClass(item.resourceStatus ?? ''),
+        getStatus: (item: SoftwareResource) => resourceStatusBadgeVariant(item.resourceStatus ?? ''),
       },
       {
         header: 'OFFERINGS._type',

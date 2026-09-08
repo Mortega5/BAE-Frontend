@@ -20,7 +20,7 @@ import { RESOURCE_STATUS_TYPES } from '../../../../../models/software.model';
 import { TableColumn, TableSort } from '../../../../../models/table-column.model';
 import { ResourceSpecServiceService } from '../../../../../services/resource-spec-service.service';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
-import { lifecycleStatusClass } from '../../../../../shared/utils/lifecycle-status.utils';
+import { lifecycleStatusBadgeVariant } from '../../../../../shared/badge/badge.component';
 
 type SoftwareCreate = components["schemas"]["Resource_Create"];
 type CharacteristicValueSpecification = components["schemas"]["Characteristic"];
@@ -66,7 +66,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
   softwareSpecColumns: TableColumn[] = [
     { header: 'Name', getValue: item => item.name ?? '-', sortKey: 'name' },
     { header: 'Version', getValue: item => item.version ?? '-', width: 'w-24' },
-    { header: 'Status', getValue: item => item.lifecycleStatus ?? '-', width: 'w-28', type: 'badge', cellClass: item => lifecycleStatusClass(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
+    { header: 'Status', getValue: item => item.lifecycleStatus ?? '-', width: 'w-28', type: 'status-badge', getStatus: item => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
     { header: 'Last update', getValue: item => this.datePipe.transform(item.lastUpdate, 'dd/MM/yy, HH:mm') ?? '-', width: 'w-36', sortKey: 'lastUpdate' },
   ];
   softwareSpecForm = new FormGroup({

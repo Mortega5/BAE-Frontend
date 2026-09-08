@@ -52,9 +52,12 @@
         }
         @for (col of columns; track $index) {
         <td class="px-6 py-4"
-          [ngClass]="[col.type !== 'badge' && col.type !== 'icon-button' && col.type !== 'actions' && col.type !== 'image' ? getCellClass(col, item) : '', col.hideOnMobile ? 'hidden sm:table-cell' : '']">
+          [ngClass]="[col.type !== 'badge' && col.type !== 'status-badge' && col.type !== 'icon-button' && col.type !== 'actions' && col.type !== 'image' ? getCellClass(col, item) : '', col.hideOnMobile ? 'hidden sm:table-cell' : '']">
           @if (col.type === 'badge') {
-          <span [ngClass]="getCellClass(col, item)">{{ getCellValue(col, item) | translate }}</span>
+          <bae-badge variant="plain" [label]="getCellValue(col, item) | translate"></bae-badge>
+          } @else if (col.type === 'status-badge') {
+          <bae-badge variant="status" [status]="getStatusValue(col, item)"
+            [label]="getCellValue(col, item) | translate"></bae-badge>
           } @else if (col.type === 'icon-button') {
           @if (!col.showIf || col.showIf(item)) {
           <button type="button" [attr.data-cy]="col.dataCy"
