@@ -179,13 +179,14 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
             count: this.productOffersCount,
             dataCy: 'offerSection',
           },
-          {
-            label: 'Software',
-            routerLink: segments.softwares,
-            icon: 'microchip' as IconName,
-            count: this.softwaresCount,
-            dataCy: 'softwareSection',
-          },
+          // Software is now managed inside Resources (SoftwareSpecification / SoftwareSupportPackageSpecification baseTemplate).
+          // {
+          //   label: 'Software',
+          //   routerLink: segments.softwares,
+          //   icon: 'microchip' as IconName,
+          //   count: this.softwaresCount,
+          //   dataCy: 'softwareSection',
+          // },
         ],
       },
       {

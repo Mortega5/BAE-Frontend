@@ -118,6 +118,7 @@ import { RequestValidationModalComponent } from './pages/seller-offerings/offeri
 import { CreateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/create-software/create-software.component';
 import { SellerSoftware } from './pages/seller-offerings/offerings/seller-software/seller-software';
 import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offerings/seller-software/software-characteristics/software-characteristics.component';
+import { PackageDeploymentComponent } from './shared/forms/package-deployment/package-deployment';
 import { SpecificationCharacteristicFormComponent } from './shared/forms/specification-characteristic/specification-characteristic-form.component';
 import { CharacteristicsEditorComponent } from './shared/forms/characteristics-editor/characteristics-editor.component';
 import { UpdateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/update-software/update-software.component';
@@ -246,6 +247,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     UpdateUsageSpecComponent,
     SellerUsageSpecComponent,
     SoftwareCharacteristicsComponent,
+    PackageDeploymentComponent,
     SpecificationCharacteristicFormComponent,
     CharacteristicsEditorComponent,
     StepperComponent,

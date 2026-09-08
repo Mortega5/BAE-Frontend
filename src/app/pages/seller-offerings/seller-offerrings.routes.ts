@@ -13,9 +13,6 @@ import { ResourceSpecFormComponent } from './offerings/seller-resource-spec/reso
 import { SellerResourceSpecComponent } from './offerings/seller-resource-spec/seller-resource-spec.component';
 import { ServiceSpecFormComponent } from './offerings/seller-service-spec/service-spec-form/service-spec-form.component';
 import { SellerServiceSpecComponent } from './offerings/seller-service-spec/seller-service-spec.component';
-import { CreateSoftwareComponent } from './offerings/seller-software/create-software/create-software.component';
-import { SellerSoftware } from './offerings/seller-software/seller-software';
-import { UpdateSoftwareComponent } from './offerings/seller-software/update-software/update-software.component';
 import { CreateUsageSpecComponent } from './offerings/seller-usage-spec/create-usage-spec/create-usage-spec.component';
 import { SellerUsageSpecComponent } from './offerings/seller-usage-spec/seller-usage-spec.component';
 import { UpdateUsageSpecComponent } from './offerings/seller-usage-spec/update-usage-spec/update-usage-spec.component';
@@ -42,14 +39,15 @@ export const sellerOfferingsRoutes: Routes = [
       { path: segments.id, component: UpdateOfferComponent },
     ],
   },
-  {
-    path: segments.softwares,
-    children: [
-      { path: '', component: SellerSoftware },
-      { path: segments.new, component: CreateSoftwareComponent },
-      { path: segments.id, component: UpdateSoftwareComponent },
-    ],
-  },
+  // Software is now managed inside Resources (SoftwareSpecification / SoftwareSupportPackageSpecification baseTemplate).
+  // {
+  //   path: segments.softwares,
+  //   children: [
+  //     { path: '', component: SellerSoftware },
+  //     { path: segments.new, component: CreateSoftwareComponent },
+  //     { path: segments.id, component: UpdateSoftwareComponent },
+  //   ],
+  // },
   {
     path: segments.productSpecs,
     children: [

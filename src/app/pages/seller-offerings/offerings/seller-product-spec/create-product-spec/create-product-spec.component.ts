@@ -5,10 +5,11 @@ import { Router } from '@angular/router';
 import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateService } from '@ngx-translate/core';
 import moment from 'moment';
-import { Subject } from 'rxjs';
+import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IconCategory, POPULAR_ICON_CATEGORIES, findIconByName } from 'src/app/config/popular-icons';
 import { FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { HELM_DEPLOYMENT_CHARACTERISTICS } from 'src/app/models/helm-deployment-characteristics.const';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
@@ -741,6 +742,52 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
     this.characteristicItems = items;
     this.prodChars = [...untouched, ...updatedEditable].filter(c => !removedEnabledCompanions.includes(c.name ?? ''));
+  }
+
+  /** For every selected SoftwareSpecification, fetches its softwareSupportPackage and checks
+   * whether its DeploymentDefinition characteristic is of type 'helm'. If any is, the Helm
+   * default characteristics (namespace, helmValuesOverride) are added to this product spec. */
+  async onResourceSpecsChange(specs: any[]): Promise<void> {
+    this.selectedResourceSpecs = specs;
+
+    const softwareSpecs = specs.filter(spec => spec?.['@type'] === 'SoftwareSpecification');
+    const deploymentTypes = await Promise.all(softwareSpecs.map(spec => this.getDeploymentType(spec)));
+    const needsHelmDefaults = deploymentTypes.some(type => type === 'helm');
+
+    this.syncHelmDeploymentCharacteristics(needsHelmDefaults);
+  }
+
+  /** Resolves a SoftwareSpecification's deployment type ('helm'/'docker') via its
+   * softwareSupportPackage's DeploymentDefinition characteristic (value may arrive as an array). */
+  private async getDeploymentType(spec: any): Promise<string | undefined> {
+    const packageId = spec?.softwareSupportPackage?.id;
+    if (!packageId) return undefined;
+    const pkg = await lastValueFrom(this.resSpecService.getSoftwareSupportPackage(packageId));
+    const deploymentChar = (pkg.resourceCharacteristic ?? []).find((c: any) => c.valueType?.toLowerCase() === 'deployment');
+    const rawValue = deploymentChar?.value;
+    const value = Array.isArray(rawValue) ? rawValue[0] : rawValue;
+    return value?.type;
+  }
+
+  /** Adds the Helm default characteristics that are missing, without touching ones already
+   * present (whatever their value — switching between helm SoftwareSpecs must not reset them).
+   * When no longer needed, drops them regardless of whether the user changed their value. */
+  private syncHelmDeploymentCharacteristics(needsHelmDefaults: boolean): void {
+    const helmDefaultNames = new Set(HELM_DEPLOYMENT_CHARACTERISTICS.map(d => d.name));
+
+    if (!needsHelmDefaults) {
+      this.prodChars = this.prodChars.filter(c => !helmDefaultNames.has(c.name));
+      this.characteristicItems = this.buildCharacteristicItems();
+      return;
+    }
+
+    const existingNames = new Set(this.prodChars.map(c => c.name));
+    const missing = HELM_DEPLOYMENT_CHARACTERISTICS
+      .filter(d => !existingNames.has(d.name))
+      .map(d => ({ ...d, id: 'urn:ngsi-ld:characteristic:' + uuidv4() }));
+
+    this.prodChars = [...this.prodChars, ...missing];
+    this.characteristicItems = this.buildCharacteristicItems();
   }
 
   showFinish() {

@@ -88,7 +88,11 @@ export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
   }
 
   get editingDeploymentValue(): any {
-    return this.editingIndex != null ? this.characteristics[this.editingIndex]?.value : null;
+    if (this.editingIndex == null) {
+      return null;
+    }
+    const v = this.characteristics[this.editingIndex]?.value;
+    return Array.isArray(v) ? v[0] ?? null : v;
   }
 
   get valueFields(): FormField[] {
@@ -187,7 +191,7 @@ export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
       case 'number':
         return Array.isArray(v) ? v.map((entry: any) => ({ value: entry.amount, unit: entry.unit })) : [];
       case 'range':
-        return v ?? null;
+        return Array.isArray(v) ? v[0] ?? null : v ?? null;
       default:
         return null;
     }

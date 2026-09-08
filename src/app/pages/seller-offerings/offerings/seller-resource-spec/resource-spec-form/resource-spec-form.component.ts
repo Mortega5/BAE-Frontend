@@ -18,7 +18,7 @@ import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { buildResourceConfigUpdate, buildResourceConfiguration } from '../../../../../models/formFields/software-resource-fields';
-import { SoftwareSpecification } from '../../../../../models/software.model';
+import { SoftwareCharacteristic, SoftwareDeploymentDefinition, SoftwareSpecification } from '../../../../../models/software.model';
 import { CharValueType } from '../../../../../shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
 
 type ResourceSpecification_Create = components['schemas']['ResourceSpecification_Create'];
@@ -29,7 +29,9 @@ type ResourceSpecificationCharacteristic = components['schemas']['ResourceSpecif
 const BASE_TEMPLATE_OPTIONS = [
   { value: '', label: 'None' },
   { value: 'SoftwareSpecification', label: 'Software Specification' },
-  { value: 'SoftwareSupportPackageSpecification', label: 'Software Support Package Specification' },
+  // Software Support Packages are now authored inline via the "Package Deployment" step
+  // when creating a SoftwareSpecification, not as their own resource spec type.
+  // { value: 'SoftwareSupportPackageSpecification', label: 'Software Support Package Specification' },
 ];
 
 const GENERAL_FORM_FIELDS_CREATE: FormField[] = [
@@ -75,6 +77,16 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   templateConfigFields: FormField[] = [];
   templateConfigColumnCount = 1;
   templateConfigForm: FormGroup = new FormGroup({});
+  advancedConfigOpen = false;
+
+  deploymentForm: FormGroup | null = null;
+  deploymentInitialValue?: SoftwareDeploymentDefinition;
+  private originalDeploymentChar: SoftwareCharacteristic | null = null;
+
+  get requiresPackageDeployment(): boolean {
+    const type = this.isUpdate ? this.res?.['@type'] : this.generalForm.value.baseTemplate;
+    return type === 'SoftwareSpecification';
+  }
 
   generalForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
@@ -180,10 +192,16 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     this.templateConfigForm.patchValue(this.res);
 
     if (type === 'SoftwareSpecification') {
-      this.resSpecService.getSoftwareSupportPackage((this.res as SoftwareSpecification).softwareSupportPackage?.id!)
-        .subscribe(pkg => {
-          this.templateConfigForm.patchValue({ softwareSupportPackage: pkg });
-        });
+      const packageId = (this.res as SoftwareSpecification).softwareSupportPackage?.id;
+      if (packageId) {
+        this.resSpecService.getSoftwareSupportPackage(packageId)
+          .subscribe(pkg => {
+            this.templateConfigForm.patchValue({ softwareSupportPackage: pkg });
+            const pkgChars = (pkg.resourceCharacteristic ?? []) as SoftwareCharacteristic[];
+            this.originalDeploymentChar = pkgChars.find(c => c.valueType === 'deployment') ?? null;
+            this.deploymentInitialValue = this.originalDeploymentChar?.value as SoftwareDeploymentDefinition | undefined;
+          });
+      }
     }
   }
 
@@ -214,6 +232,43 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     }));
   }
 
+  onDeploymentFormReady(form: FormGroup): void {
+    this.deploymentForm = form;
+  }
+
+  private getArtifactType(deployment: SoftwareDeploymentDefinition): string {
+    switch (deployment.type) {
+      case 'helm':
+        return 'HelmChart';
+      case 'docker':
+        return deployment.properties?.composeFile ? 'DockerCompose' : 'DockerImage';
+    }
+  }
+
+  private buildResourceCharacteristics(): ResourceSpecificationCharacteristic[] {
+    const chars: any[] = [...this.prodChars];
+    if (!this.requiresPackageDeployment) return chars;
+
+    if (this.deploymentForm) {
+      chars.push({
+        name: 'deploymentDefinition',
+        valueType: 'deployment',
+        value: this.deploymentForm.value,
+        '@schemaLocation': environment.DEPLOYMENT_SCHEMA_LOCATION,
+      });
+    } else if (this.originalDeploymentChar) {
+      chars.push(this.originalDeploymentChar);
+    }
+
+    chars.push({
+      name: 'artifactType',
+      valueType: 'string',
+      value: this.getArtifactType(this.deploymentForm?.value || this.originalDeploymentChar),
+    });
+
+    return chars;
+  }
+
   private prepareData(): void {
     if (!this.generalForm.value.name) return;
 
@@ -221,7 +276,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
       name: this.generalForm.value.name,
       description: this.generalForm.value.description ?? '',
       lifecycleStatus: this.generalForm.value.lifecycleStatus ?? 'Active',
-      resourceSpecCharacteristic: this.prodChars,
+      resourceSpecCharacteristic: this.buildResourceCharacteristics(),
       ...(!this.isUpdate && {
         relatedParty: [{ id: this.partyId, role: environment.SELLER_ROLE, '@referredType': '' }],
       }),
@@ -269,14 +324,18 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   }
 
   get canAdvance(): boolean {
-    if (this.currentStep === 0) return this.generalForm?.valid ?? false;
-    if (this.currentStep === 2) return this.templateConfigFields.length === 0 || this.templateConfigForm.valid;
+    if (this.currentStepId === 'general') return this.generalForm?.valid ?? false;
+    if (this.currentStepId === 'packageDeployment') {
+      return !this.requiresPackageDeployment || (this.deploymentForm?.valid ?? false);
+    }
+    if (this.currentStepId === 'configuration') return this.templateConfigFields.length === 0 || this.templateConfigForm.valid;
     return true;
   }
 
   onStepChanged(event: StepChangedEvent): void {
     this.currentStep = event.step;
-    if (this.currentStep === 1 && this.isUpdate) setTimeout(() => initFlowbite(), 100);
+    this.currentStepId = event.stepId ?? 'general';
+    if (this.currentStepId === 'characteristics' && this.isUpdate) setTimeout(() => initFlowbite(), 100);
     if (event.isLastStep) this.prepareData();
   }
 }

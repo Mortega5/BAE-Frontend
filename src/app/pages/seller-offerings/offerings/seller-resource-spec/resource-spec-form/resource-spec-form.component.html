@@ -44,7 +44,22 @@
       </div>
     </ng-template>
 
-    <!-- Step 3: Configuration -->
+    <!-- Step 3: Package Deployment -->
+    @if (requiresPackageDeployment) {
+    <ng-template stepperStep="Package Deployment" stepId="packageDeployment">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._package_deployment_title' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ i18nPrefix + '._package_deployment_subtitle' |
+            translate }}</p>
+        </div>
+        <app-package-deployment [initialValue]="deploymentInitialValue" (formReady)="onDeploymentFormReady($event)" />
+      </div>
+    </ng-template>
+    }
+
+    <!-- Step 4: Configuration -->
     <ng-template stepperStep="Configuration" stepId="configuration">
       <div class="flex flex-col gap-5">
         <div>
@@ -66,8 +81,31 @@
             <span>{{ i18nPrefix + '._no_config' | translate }}</span>
           </div>
           } @else {
-          <app-dynamic-form class="w-full block" [fields]="templateConfigFields" [formGroup]="templateConfigForm"
-            [columns]="templateConfigColumnCount" [columns]="3" />
+          <div class="w-full border border-gray-200 rounded-lg bg-white dark:bg-secondary-200 dark:border-gray-700">
+            <h3>
+              <button type="button" (click)="advancedConfigOpen = !advancedConfigOpen"
+                class="flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 dark:text-gray-400 gap-3"
+                [attr.aria-expanded]="advancedConfigOpen" aria-controls="advanced-config-body">
+                <span class="text-primary-100 dark:text-primary-50">{{ i18nPrefix + '._advanced_config' | translate
+                  }}</span>
+                <svg class="w-4 h-4 text-primary-100 dark:text-primary-50 transition-transform duration-500 ease-out"
+                  [style.transform]="advancedConfigOpen ? 'rotateX(180deg)' : 'rotateX(0deg)'" aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+                  <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="m19 9-7 7-7-7" />
+                </svg>
+              </button>
+            </h3>
+            <div id="advanced-config-body" class="grid transition-[grid-template-rows] duration-300 ease-out"
+              [style.grid-template-rows]="advancedConfigOpen ? '1fr' : '0fr'">
+              <div class="overflow-hidden">
+                <div class="p-5 pt-0">
+                  <app-dynamic-form class="w-full block" [fields]="templateConfigFields"
+                    [formGroup]="templateConfigForm" [columns]="templateConfigColumnCount" />
+                </div>
+              </div>
+            </div>
+          </div>
           }
         </div>
       </div>
