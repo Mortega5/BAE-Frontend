@@ -14,7 +14,7 @@
   } @else {
   <div>
     <app-table-input data-cy="usageSpecTable" [columns]="usageSpecColumns" [items]="usageSpecs" [selectable]="false"
-      [emptyMessage]="'USAGE_SPECS._no_usage'" />
+      [clickable]="true" (rowClick)="goToUpdate($event.id)" [emptyMessage]="'USAGE_SPECS._no_usage'" />
     @if (!loading_more) {
     @if (page_check) {
     <div class="flex pt-6 pb-2 justify-center align-middle">

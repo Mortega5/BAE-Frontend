@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faPenToSquare } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import moment from 'moment';
 import { LoginInfo } from 'src/app/models/interfaces';
@@ -37,12 +36,6 @@ export class SellerUsageSpecComponent implements OnInit {
       header: 'USAGE_SPECS._description',
       hideOnMobile: true,
       getValue: (usage: any) => usage.description,
-    },
-    {
-      type: 'actions', header: 'USAGE_SPECS._actions', width: 'w-28',
-      actions: [
-        { icon: faPenToSquare, onClick: (usage: any) => this.goToUpdate(usage.id), dataCy: 'usageSpecEdit', tooltip: 'USAGE_SPECS._edit' },
-      ],
     },
   ];
 
