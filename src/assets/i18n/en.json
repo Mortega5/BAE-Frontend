@@ -1567,6 +1567,9 @@
     "_no_config": "No configuration required for the selected template.",
     "_template_config_title": "Configuration",
     "_template_config_subtitle": "Fill in the configuration values defined by the selected template.",
+    "_advanced_config": "Advanced configuration",
+    "_package_deployment_title": "Package Deployment",
+    "_package_deployment_subtitle": "Configure how this software package is built and deployed.",
     "_add_new_config": "Add a new configuration options",
     "_add_a_config": "Add a configuration option",
     "_add_a_config_desc": "Fill in the details below to define a new configuration option.",
@@ -1656,7 +1659,10 @@
     "_update_res": "Update resource",
     "_no_config": "No configuration required for the selected template.",
     "_template_config_title": "Configuration",
-    "_template_config_subtitle": "Fill in the configuration values defined by the selected template."
+    "_template_config_subtitle": "Fill in the configuration values defined by the selected template.",
+    "_advanced_config": "Advanced configuration",
+    "_package_deployment_title": "Package Deployment",
+    "_package_deployment_subtitle": "Configure how this software package is built and deployed."
   },
   "BLUEPRINT_PROD": {
     "_items": "Components",
@@ -2632,9 +2638,9 @@
     "_delete_metric": "Delete metric",
     "_edit": "Edit",
     "_usage_spec": "Pay per use metrics",
+    "_usage_spec_subtitle": "Manage your pay per use metrics",
     "_create": "Create pay per use metric",
     "_update": "Update pay per use metric",
-    "_list": "Usage List",
     "_add_new": "Add new Usage Specification",
     "_name": "Name",
     "_description": "Description",

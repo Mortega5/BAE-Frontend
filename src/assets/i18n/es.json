@@ -1567,6 +1567,9 @@
     "_no_config": "No se requiere configuración para la plantilla seleccionada.",
     "_template_config_title": "Configuración",
     "_template_config_subtitle": "Completa los valores de configuración definidos por la plantilla seleccionada.",
+    "_advanced_config": "Configuración avanzada",
+    "_package_deployment_title": "Despliegue del paquete",
+    "_package_deployment_subtitle": "Configura cómo se construye y despliega este paquete de software.",
     "_add_new_config": "Añadir una nueva opción de configuración",
     "_add_a_config": "Añadir una opción de configuración",
     "_add_a_config_desc": "Rellena los siguientes datos para definir una nueva opción de configuración.",
@@ -1656,7 +1659,10 @@
     "_update_res": "Actualizar recurso",
     "_no_config": "No se requiere configuración para la plantilla seleccionada.",
     "_template_config_title": "Configuración",
-    "_template_config_subtitle": "Completa los valores de configuración definidos por la plantilla seleccionada."
+    "_template_config_subtitle": "Completa los valores de configuración definidos por la plantilla seleccionada.",
+    "_advanced_config": "Configuración avanzada",
+    "_package_deployment_title": "Despliegue del paquete",
+    "_package_deployment_subtitle": "Configura cómo se construye y despliega este paquete de software."
   },
   "BLUEPRINT_PROD": {
     "_items": "Componentes",
@@ -2632,9 +2638,9 @@
     "_delete_metric": "Eliminar métrica",
     "_edit": "Editar",
     "_usage_spec": "Métricas de pago por uso",
+    "_usage_spec_subtitle": "Gestiona tus métricas de pago por uso",
     "_create": "Crear métrica de pago por uso",
     "_update": "Actualizar métrica de pago por uso",
-    "_list": "Lista de uso",
     "_add_new": "Añadir nueva especificación de uso",
     "_name": "Nombre",
     "_description": "Descripción",
