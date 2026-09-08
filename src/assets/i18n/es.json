@@ -2339,6 +2339,12 @@
     "_load_more": "Cargar más",
     "_categories": "Categorías",
     "_verification": "Verificación",
+    "_analytics": "Analítica",
+    "_searchFilters": "Búsqueda y filtros",
+    "_features": "Funcionalidades",
+    "_group_catalog": "Catálogo",
+    "_group_business": "Negocio",
+    "_group_config": "Configuración",
     "_productId": "ID del producto",
     "_vc": "Credencial verificable",
     "_add": "Añadir",
@@ -2389,6 +2395,7 @@
   },
   "CATEGORIES": {
     "_categories": "Categorías",
+    "_categories_subtitle": "Gestiona las categorías disponibles para clasificar tus productos, recursos y servicios.",
     "_add_new_cat": "Añadir nueva categoría",
     "_no_cat": "No se han incluido categorías"
   },

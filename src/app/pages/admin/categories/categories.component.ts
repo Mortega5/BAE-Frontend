@@ -12,6 +12,8 @@ import { LocalStorageService } from "src/app/services/local-storage.service";
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { environment } from 'src/environments/environment';
 import { AdminPaths } from '../admin.paths';
+import { BadgeStatus, lifecycleStatusBadgeVariant } from 'src/app/shared/badge/badge.component';
+import { TableColumn } from 'src/app/models/table-column.model';
 type Category = components["schemas"]["Category"];
 
 @Component({
@@ -26,12 +28,38 @@ export class CategoriesComponent implements OnDestroy {
 
   searchField = new FormControl();
   categories: any[] = [];
+  /** categories flattened depth-first, each with a displayName prefixed by its
+   * ancestors' names — table-input has no nested-row support, so this is how the
+   * tree gets shown as a single flat, indented list. */
+  flatCategories: any[] = [];
   unformattedCategories: any[] = [];
   page: number = 0;
   CATEGOY_LIMIT: number = environment.CATEGORY_LIMIT;
   loading: boolean = false;
   partyId: any;
   status: any[] = ['Active', 'Launched'];
+
+  categoryColumns: TableColumn[] = [
+    {
+      header: 'ADMIN._name',
+      getValue: (cat: any) => cat.displayName,
+      cellClass: (cat: any) => this.hasLongWord(cat.displayName, 20) ? 'break-all' : 'break-words',
+      width: 'w-2/4',
+    },
+    {
+      header: 'ADMIN._status',
+      getValue: (cat: any) => cat.lifecycleStatus ?? '-',
+      type: 'status-badge',
+      width: 'w-28',
+      getStatus: (cat: any) => this.statusBadgeVariant(cat.lifecycleStatus ?? ''),
+    },
+    {
+      header: 'ADMIN._last_update',
+      type: 'date',
+      getValue: (cat: any) => cat.lastUpdate,
+      width: 'w-40',
+    },
+  ];
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -83,6 +111,10 @@ export class CategoriesComponent implements OnDestroy {
     this.router.navigate([AdminPaths.categories.edit(catId)]);
   }
 
+  statusBadgeVariant(status: string): BadgeStatus {
+    return lifecycleStatusBadgeVariant(status);
+  }
+
   async getCategories() {
     /*this.api.getCatalog(this.selectedCatalog.id).then(data => {
       if(data.category){
@@ -112,9 +144,27 @@ export class CategoriesComponent implements OnDestroy {
     );
 
     this.categories = categoryTrees.filter((cat): cat is Category => !!cat);
+    this.flatCategories = this.flattenCategories(this.categories);
     this.loading = false;
     this.cdr.detectChanges();
     initFlowbite();
+  }
+
+  private flattenCategories(categories: any[], path = ''): any[] {
+    return categories.flatMap((cat: any) => {
+      const displayName = path ? `${path} / ${cat.name}` : cat.name;
+      const flattened = { ...cat, displayName };
+      const children = this.flattenCategories(cat.children || [], displayName);
+      return [flattened, ...children];
+    });
+  }
+
+  hasLongWord(str: string | undefined, threshold = 20) {
+    if (str) {
+      return str.split(/\s+/).some(word => word.length > threshold);
+    } else {
+      return false
+    }
   }
 
   private async loadCategorySubtree(parent: any): Promise<Category> {

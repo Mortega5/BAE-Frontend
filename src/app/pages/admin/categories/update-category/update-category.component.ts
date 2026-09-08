@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef, HostListener, ElementRef, ViewChild, OnDestroy } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { AdminPaths } from 'src/app/pages/admin/admin.paths';
@@ -10,6 +10,8 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
+import { BadgeStatus, lifecycleStatusBadgeVariant } from 'src/app/shared/badge/badge.component';
 
 import {components} from "src/app/models/product-catalog";
 type Category_Update = components["schemas"]["Category_Update"];
@@ -33,19 +35,7 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
   categories:any[]=[];
   unformattedCategories:any[]=[];
 
-  stepsElements:string[]=['general-info','summary'];
-  stepsCircles:string[]=['general-circle','summary-circle'];
-
-  //markdown variables:
-  showPreview:boolean=false;
-  showEmoji:boolean=false;
-  description:string='';  
-
-  //CONTROL VARIABLES:
-  showGeneral:boolean=true;
-  showSummary:boolean=false;
-  //Check if step was done
-  generalDone:boolean=false;
+  currentStepId: string = 'general';
 
   //SERVICE GENERAL INFO:
   generalForm = new FormGroup({
@@ -71,7 +61,6 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
-    private elementRef: ElementRef,
     private api: ApiServiceService
   ) {
     this.eventMessage.messages$
@@ -86,12 +75,11 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
     })
   }
 
-  @HostListener('document:click')
-  onClick() {
-    if(this.showEmoji==true){
-      this.showEmoji=false;
-      this.cdr.detectChanges();
+  get canAdvance(): boolean {
+    if (this.currentStepId === 'general') {
+      return this.generalForm.valid && (!this.parentSelectionCheck || this.selectedCategory !== undefined);
     }
+    return true;
   }
 
   async ngOnInit() {
@@ -216,11 +204,11 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
       }));
   }
 
-  toggleGeneral() {
-    this.selectStep('general-info','general-circle');
-    this.showGeneral=true;
-    this.showSummary=false;
-    this.showPreview=false;
+  onStepChanged(event: StepChangedEvent): void {
+    this.currentStepId = event.stepId ?? 'general';
+    if (event.isLastStep) {
+      this.buildCategoryToUpdate();
+    }
   }
 
   toggleParent(){
@@ -262,7 +250,7 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
     }
   }
 
-  showFinish(){
+  private buildCategoryToUpdate(){
     if(this.generalForm.value.name!=null){
       this.categoryToUpdate={
         name: this.generalForm.value.name,
@@ -273,14 +261,7 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
       if(this.isParent==false){
         this.categoryToUpdate.parentId=this.selectedCategory.id;
       }
-      console.log(this.isParent)
-      console.log('CATEGORY TO UPDATE:')
-      console.log(this.categoryToUpdate)
-      this.showGeneral=false;
-      this.showSummary=true;
-      this.selectStep('summary','summary-circle');
     }
-    this.showPreview=false;
   }
 
   updateCategory(){
@@ -309,140 +290,7 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  //STEPS METHODS
-  removeClass(elem: HTMLElement, cls:string) {
-    var str = " " + elem.className + " ";
-    elem.className = str.replace(" " + cls + " ", " ").replace(/^\s+|\s+$/g, "");
-  }
-
-  addClass(elem: HTMLElement, cls:string) {
-      elem.className += (" " + cls);
-  }
-
-  unselectMenu(elem:HTMLElement | null,cls:string){
-    if(elem != null){
-      if(elem.className.match(cls)){
-        this.removeClass(elem,cls)
-      } else {
-        console.log('already unselected')
-      }
-    }
-  }
-
-  selectMenu(elem:HTMLElement| null,cls:string){
-    if(elem != null){
-      if(elem.className.match(cls)){
-        console.log('already selected')
-      } else {
-        this.addClass(elem,cls)
-      }
-    }
-  }
-
-  //STEPS CSS EFFECTS:
-  selectStep(step:string,stepCircle:string){
-    const index = this.stepsElements.findIndex(item => item === step);
-    if (index !== -1) {
-      this.stepsElements.splice(index, 1);
-      this.selectMenu(document.getElementById(step),'text-primary-100 dark:text-primary-50')
-      this.unselectMenu(document.getElementById(step),'text-gray-500') 
-      for(let i=0; i<this.stepsElements.length;i++){
-        this.unselectMenu(document.getElementById(this.stepsElements[i]),'text-primary-100 dark:text-primary-50')
-        this.selectMenu(document.getElementById(this.stepsElements[i]),'text-gray-500') 
-      }
-      this.stepsElements.push(step);
-    }
-    const circleIndex = this.stepsCircles.findIndex(item => item === stepCircle);
-    if (index !== -1) {
-      this.stepsCircles.splice(circleIndex, 1);
-      this.selectMenu(document.getElementById(stepCircle),'border-primary-100 dark:border-primary-50')
-      this.unselectMenu(document.getElementById(stepCircle),'border-gray-400');
-      for(let i=0; i<this.stepsCircles.length;i++){
-        this.unselectMenu(document.getElementById(this.stepsCircles[i]),'border-primary-100 dark:border-primary-50')
-        this.selectMenu(document.getElementById(this.stepsCircles[i]),'border-gray-400');
-      }
-      this.stepsCircles.push(stepCircle);
-    }
-  }
-
-  //Markdown actions:
-  addBold() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' **bold text** '
-    });
-  }
-
-  addItalic() {
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' _italicized text_ '
-    });
-  }
-
-  addList(){
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n- First item\n- Second item'
-    });    
-  }
-
-  addOrderedList(){
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n1. First item\n2. Second item'
-    });    
-  }
-
-  addCode(){
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n`code`'
-    });    
-  }
-
-  addCodeBlock(){
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n```\ncode\n```'
-    }); 
-  }
-
-  addBlockquote(){
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n> blockquote'
-    });    
-  }
-
-  addLink(){
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + ' [title](https://www.example.com) '
-    });    
-  } 
-
-  addTable(){
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + '\n| Syntax | Description |\n| ----------- | ----------- |\n| Header | Title |\n| Paragraph | Text |'
-    });
-  }
-
-  addEmoji(event:any){
-    console.log(event)
-    this.showEmoji=false;
-    const currentText = this.generalForm.value.description;
-    this.generalForm.patchValue({
-      description: currentText + event.emoji.native
-    });
-  }
-
-  togglePreview(){
-    if(this.generalForm.value.description){
-      this.description=this.generalForm.value.description;
-    } else {
-      this.description=''
-    }  
+  statusBadgeVariant(status: string): BadgeStatus {
+    return lifecycleStatusBadgeVariant(status);
   }
 }

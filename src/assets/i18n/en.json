@@ -2339,6 +2339,12 @@
     "_load_more": "Load more",
     "_categories": "Categories",
     "_verification": "Verification",
+    "_analytics": "Analytics",
+    "_searchFilters": "Search & filters",
+    "_features": "Features",
+    "_group_catalog": "Catalog",
+    "_group_business": "Business",
+    "_group_config": "Config",
     "_productId": "Product ID",
     "_vc": "Verifiable Credential",
     "_add": "Add",
@@ -2389,6 +2395,7 @@
   },
   "CATEGORIES": {
     "_categories": "Categories",
+    "_categories_subtitle": "Manage the categories available to classify your products, resources and services.",
     "_add_new_cat": "Add new category",
     "_no_cat": "No categories included"
   },

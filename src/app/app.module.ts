@@ -87,7 +87,6 @@ import { BillingAccountFormComponent } from "./shared/billing-account-form/billi
 import { CardComponent } from "./shared/card/card.component";
 import { CategoriesFilterComponent } from "./shared/categories-filter/categories-filter.component";
 import { CategoriesPanelComponent } from "./shared/categories-panel/categories-panel.component";
-import { CategoriesRecursionListComponent } from './shared/categories-recursion-list/categories-recursion-list.component';
 import { CategoriesRecursionComponent } from "./shared/categories-recursion/categories-recursion.component";
 import { CategoryItemComponent } from "./shared/category-item/category-item.component";
 import { CharacteristicComponent } from "./shared/characteristic/characteristic.component";
@@ -121,6 +120,7 @@ import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offer
 import { PackageDeploymentComponent } from './shared/forms/package-deployment/package-deployment';
 import { SpecificationCharacteristicFormComponent } from './shared/forms/specification-characteristic/specification-characteristic-form.component';
 import { CharacteristicsEditorComponent } from './shared/forms/characteristics-editor/characteristics-editor.component';
+import { StatusSelectorComponent } from './shared/forms/status-selector/status-selector.component';
 import { UpdateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/update-software/update-software.component';
 import { StatusFieldComponent } from './shared/status-field/status-field.component';
 import { StepperStepDirective } from './shared/stepper/stepper-step.directive';
@@ -176,7 +176,6 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     CategoriesComponent,
     CreateCategoryComponent,
     UpdateCategoryComponent,
-    CategoriesRecursionListComponent,
     ContactUsComponent,
     VerificationComponent,
     EmailComponent,
@@ -249,6 +248,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     PackageDeploymentComponent,
     SpecificationCharacteristicFormComponent,
     CharacteristicsEditorComponent,
+    StatusSelectorComponent,
     BadgeComponent,
     StepperComponent,
     StepperStepDirective,

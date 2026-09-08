@@ -1,13 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Component } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
 import {
   CONTACT_US_SUPPORT_TYPES,
   ContactUsDestinations,
   ContactUsSupportType
 } from 'src/app/models/contact-us.constants';
-import { AdminPaths } from 'src/app/pages/admin/admin.paths';
 import { environment } from 'src/environments/environment';
 
 interface EmailConfig {
@@ -70,16 +68,11 @@ export class EmailComponent {
   });
 
   constructor(
-    private router: Router,
     private http: HttpClient
   ) { }
 
   ngOnInit() {
     this.getConfig();
-  }
-
-  goBack() {
-    this.router.navigate([AdminPaths.categories.list()]);
   }
 
   showSuccessMessage(message: string) {

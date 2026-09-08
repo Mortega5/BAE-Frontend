@@ -205,13 +205,12 @@ describe('UpdateCategoryComponent', () => {
     expect(component.selected).toEqual([second]);
   });
 
-  it('showFinish should build categoryToUpdate for root category', () => {
+  it('onStepChanged should build categoryToUpdate when reaching the last step', () => {
     component.generalForm.patchValue({ name: 'New name', description: 'New desc' });
     component.catStatus = 'Launched';
     component.isParent = true;
-    const stepSpy = spyOn(component, 'selectStep');
 
-    component.showFinish();
+    component.onStepChanged({ step: 1, isLastStep: true, label: '', stepId: 'summary' });
 
     expect(component.categoryToUpdate).toEqual({
       name: 'New name',
@@ -219,17 +218,15 @@ describe('UpdateCategoryComponent', () => {
       lifecycleStatus: 'Launched',
       isRoot: true,
     } as any);
-    expect(component.showGeneral).toBeFalse();
-    expect(component.showSummary).toBeTrue();
-    expect(stepSpy).toHaveBeenCalledWith('summary', 'summary-circle');
+    expect(component.currentStepId).toBe('summary');
   });
 
-  it('showFinish should include parentId for non-root category', () => {
+  it('onStepChanged should include parentId for non-root category', () => {
     component.generalForm.patchValue({ name: 'New child', description: 'Child desc' });
     component.isParent = false;
     component.selectedCategory = { id: 'parent-1' };
 
-    component.showFinish();
+    component.onStepChanged({ step: 1, isLastStep: true, label: '', stepId: 'summary' });
 
     expect(component.categoryToUpdate?.parentId).toBe('parent-1');
   });
@@ -266,15 +263,5 @@ describe('UpdateCategoryComponent', () => {
 
     expect(component.catStatus).toBe('Retired');
     expect(cdrSpy).toHaveBeenCalled();
-  });
-
-  it('togglePreview should copy description to preview text', () => {
-    component.generalForm.patchValue({ description: 'Markdown text' });
-    component.togglePreview();
-    expect(component.description).toBe('Markdown text');
-
-    component.generalForm.patchValue({ description: '' });
-    component.togglePreview();
-    expect(component.description).toBe('');
   });
 });

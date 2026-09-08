@@ -1,88 +1,65 @@
-<div>
-  <!-- Breadcrumb -->
-  <div class="p-4">
-    <nav
-      class="flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-secondary-50 dark:bg-secondary-100 dark:border-gray-800 dark:text-white"
-      aria-label="Breadcrumb">
-      <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
-        <li class="inline-flex items-center">
-          <app-button (click)="goBack()" variant="link" prefixIcon="chevron-left">
-            {{ 'CREATE_CATEGORIES._back' | translate }}
-          </app-button>
-        </li>
-        <li aria-current="page">
-          <div class="flex items-center">
-            <svg class="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400 dark:text-white" aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="m1 9 4-4-4-4" />
-            </svg>
-            <span class="ms-1 text-sm font-medium text-gray-500 dark:text-white md:ms-2 ">{{ 'ADMIN._email' | translate
-              }}</span>
-          </div>
-        </li>
-      </ol>
-    </nav>
+<app-card>
+  <div appCardHeader>
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'ADMIN._email' | translate }}</h2>
   </div>
-  <!-- End Breadcrumb -->
-
-
-  <div
-    class="bg-secondary-50 dark:bg-secondary-100 border border-secondary-50 dark:border-gray-800 mt-4 p-8 rounded-lg">
-    <h2 class="text-3xl font-bold text-primary-100 ml-4 dark:text-white">{{ 'ADMIN._email' | translate }}</h2>
-    <hr class="h-px m-4 bg-gray-300 dark:bg-gray-200 border-0">
-
-    <div class="md:grid">
+  <div appCardContent>
+    <form class="flex flex-col gap-4" [formGroup]="emailForm">
       <div>
-        <form class="m-4 gap-4" [formGroup]="emailForm">
-          <label for="smtp-server" class="font-bold text-lg dark:text-white">{{ 'ADMIN._smtpServer' | translate
-            }}</label>
-          <input formControlName="smtpServer" type="text" id="smtp-server"
-            [ngClass]="emailForm.get('smtpServer')?.invalid == true && emailForm.value.smtpServer != '' ? 'border-red-600' : 'border-gray-300'"
-            class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-
-          <label for="smtp-port" class="font-bold text-lg dark:text-white">{{ 'ADMIN._smtpPort' | translate }}</label>
-          <input formControlName="smtpPort" type="text" id="smtp-port"
-            [ngClass]="emailForm.get('smtpPort')?.invalid == true && emailForm.value.smtpPort != '' ? 'border-red-600' : 'border-gray-300'"
-            class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-
-          <label for="email" class="font-bold text-lg dark:text-white">{{ 'ADMIN._sourceEmail' | translate }}</label>
-          <input formControlName="email" type="text" id="email"
-            [ngClass]="emailForm.get('email')?.invalid == true && emailForm.value.email != '' ? 'border-red-600' : 'border-gray-300'"
-            class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-
-          <label for="email-user" class="font-bold text-lg dark:text-white">{{ 'ADMIN._emailUser' | translate }}</label>
-          <input formControlName="emailUser" type="text" id="email-user"
-            [ngClass]="emailForm.get('emailUser')?.invalid == true && emailForm.value.emailUser != '' ? 'border-red-600' : 'border-gray-300'"
-            class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-
-          <label for="email-pass" class="font-bold text-lg dark:text-white">{{ 'ADMIN._emailPass' | translate }}</label>
-          <input formControlName="emailPassword" type="password" id="email-pass"
-            [ngClass]="emailForm.get('emailPassword')?.invalid == true && emailForm.value.emailPassword != '' ? 'border-red-600' : 'border-gray-300'"
-            class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-
-          <h3 class="mt-6 mb-2 font-bold text-xl text-primary-100 dark:text-white">{{ 'ADMIN._contactUsDestinations' |
-            translate }}</h3>
-
-          @for(destination of contactUsDestinationFields; track destination.supportType) {
-          <label [for]="'contact-us-' + destination.supportType + '-email'" class="font-bold text-lg dark:text-white">{{
-            destination.labelKey | translate }}</label>
-          <input [formControlName]="destination.controlName" type="text"
-            [id]="'contact-us-' + destination.supportType + '-email'"
-            [ngClass]="emailForm.get(destination.controlName)?.invalid == true && emailForm.get(destination.controlName)?.value != '' ? 'border-red-600' : 'border-gray-300'"
-            class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-          }
-        </form>
-
-        <div class="flex w-full justify-items-end justify-end ml-4">
-          <app-button data-cy="adminAddCredential" type="button" (click)="addConfig();" suffixIcon="arrow-right">
-            {{ 'ADMIN._add' | translate }}
-          </app-button>
-        </div>
+        <label for="smtp-server" class="font-bold text-sm dark:text-white">{{ 'ADMIN._smtpServer' | translate }}</label>
+        <input formControlName="smtpServer" type="text" id="smtp-server"
+          [ngClass]="emailForm.get('smtpServer')?.invalid == true && emailForm.value.smtpServer != '' ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
+          class="mt-1 bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
       </div>
-    </div>
+
+      <div>
+        <label for="smtp-port" class="font-bold text-sm dark:text-white">{{ 'ADMIN._smtpPort' | translate }}</label>
+        <input formControlName="smtpPort" type="text" id="smtp-port"
+          [ngClass]="emailForm.get('smtpPort')?.invalid == true && emailForm.value.smtpPort != '' ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
+          class="mt-1 bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+      </div>
+
+      <div>
+        <label for="email" class="font-bold text-sm dark:text-white">{{ 'ADMIN._sourceEmail' | translate }}</label>
+        <input formControlName="email" type="text" id="email"
+          [ngClass]="emailForm.get('email')?.invalid == true && emailForm.value.email != '' ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
+          class="mt-1 bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+      </div>
+
+      <div>
+        <label for="email-user" class="font-bold text-sm dark:text-white">{{ 'ADMIN._emailUser' | translate }}</label>
+        <input formControlName="emailUser" type="text" id="email-user"
+          [ngClass]="emailForm.get('emailUser')?.invalid == true && emailForm.value.emailUser != '' ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
+          class="mt-1 bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+      </div>
+
+      <div>
+        <label for="email-pass" class="font-bold text-sm dark:text-white">{{ 'ADMIN._emailPass' | translate }}</label>
+        <input formControlName="emailPassword" type="password" id="email-pass"
+          [ngClass]="emailForm.get('emailPassword')?.invalid == true && emailForm.value.emailPassword != '' ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
+          class="mt-1 bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+      </div>
+
+      <h3 class="mt-2 font-bold text-lg text-gray-900 dark:text-white">{{ 'ADMIN._contactUsDestinations' | translate }}</h3>
+
+      @for(destination of contactUsDestinationFields; track destination.supportType) {
+      <div>
+        <label [for]="'contact-us-' + destination.supportType + '-email'" class="font-bold text-sm dark:text-white">
+          {{ destination.labelKey | translate }}
+        </label>
+        <input [formControlName]="destination.controlName" type="text"
+          [id]="'contact-us-' + destination.supportType + '-email'"
+          [ngClass]="emailForm.get(destination.controlName)?.invalid == true && emailForm.get(destination.controlName)?.value != '' ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
+          class="mt-1 bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+      </div>
+      }
+    </form>
   </div>
-</div>
+  <div appCardFooter>
+    <app-button data-cy="adminAddCredential" type="button" (click)="addConfig();" suffixIcon="arrow-right">
+      {{ 'ADMIN._add' | translate }}
+    </app-button>
+  </div>
+</app-card>
 
 @if(showError){
 <error-message

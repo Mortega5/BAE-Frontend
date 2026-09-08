@@ -1,106 +1,56 @@
-<div>
+<div class="w-full flex-1 flex flex-col">
   <!-- Breadcrumb -->
   <div class="p-4">
-    <nav
-      class="flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-secondary-50 dark:bg-secondary-100 dark:border-gray-800 dark:text-white"
-      aria-label="Breadcrumb">
-      <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
-        <li class="inline-flex items-center">
-          <app-button (click)="goBack()" variant="link" prefixIcon="chevron-left">
-            {{ 'CREATE_CATEGORIES._back' | translate }}
-          </app-button>
-        </li>
-        <li aria-current="page">
-          <div class="flex items-center">
-            <svg class="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400 dark:text-white" aria-hidden="true"
-              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="m1 9 4-4-4-4" />
-            </svg>
-            <span class="ms-1 text-sm font-medium text-gray-500 dark:text-white md:ms-2 ">{{ 'CREATE_CATEGORIES._create'
-              | translate }}</span>
-          </div>
-        </li>
-      </ol>
-    </nav>
+    <app-button (click)="goBack()" variant="link" prefixIcon="chevron-left">
+      {{ 'CREATE_CATEGORIES._back' | translate }}
+    </app-button>
   </div>
   <!-- End Breadcrumb -->
 
-  <div
-    class="bg-secondary-50 dark:bg-secondary-100 border border-secondary-50 dark:border-gray-800 mt-4 p-8 rounded-lg">
-    <h2 class="text-3xl font-bold text-primary-100 ml-4 dark:text-white">{{ 'CREATE_CATEGORIES._new' | translate }}</h2>
-    <hr class="h-px m-4 bg-gray-300 dark:bg-gray-200 border-0">
-    <div class="md:grid md:grid-cols-20/80">
-      <div class="flex sm:flex-row md:flex-col md:mr-4 w-full md:w-fit overflow-x-auto">
-        <h2 class="hidden md:block text-xl font-bold text-black mb-4 dark:text-white">{{ 'CREATE_CATEGORIES._steps' |
-          translate }}</h2>
-        <button id="general-info" (click)="toggleGeneral()" [disabled]="!generalDone"
-          class="grid sm:grid-rows-2 md:grid-rows-1 md:grid-cols-40/60 xl:grid-cols-20/80 mb-2 mr-2 md:mr-0 text-primary-100 dark:text-primary-50 justify-items-center md:justify-items-start">
-          <span id="general-circle"
-            class="flex items-center justify-center w-6 h-6 md:w-8 md:h-8 border border-2 border-primary-100 dark:border-primary-50 rounded-full shrink-0">
-            1
-          </span>
-          <span>
-            <h3 class="flex sm:text-center md:text-start">{{ 'CREATE_CATEGORIES._general' | translate }}</h3>
-            <p class="hidden xl:flex text-xs sm:text-center md:text-start">{{ 'CREATE_CATEGORIES._general_info' |
-              translate }}</p>
-          </span>
-        </button>
-        <hr class="h-px mb-2 bg-gray-300 dark:bg-gray-200 border-0">
-        <button id="summary" [disabled]="true"
-          class="grid sm:grid-rows-2 md:grid-rows-1 md:grid-cols-40/60 xl:grid-cols-20/80 mb-2 mr-2 md:mr-0 text-gray-500 justify-items-center md:justify-items-start">
-          <span id="summary-circle"
-            class="flex items-center justify-center w-6 h-6 md:w-8 md:h-8 border border-2 border-gray-400 rounded-full shrink-0">
-            2
-          </span>
-          <span>
-            <h3 class="flex leading-tight justify-start">{{ 'CREATE_CATEGORIES._finish' | translate }}</h3>
-            <p class="hidden xl:flex text-xs justify-start text-start">{{ 'CREATE_CATEGORIES._summary' | translate }}
-            </p>
-          </span>
-        </button>
-      </div>
-      <div>
-        @if(showGeneral){
-        <h2 class="text-3xl font-bold text-primary-100 ml-4 dark:text-white">{{ 'CREATE_CATEGORIES._general' | translate
-          }}</h2>
-        <form class="m-4 gap-4" [formGroup]="generalForm">
-          <label for="prod-name" class="font-bold text-lg dark:text-white">{{ 'CREATE_CATEGORIES._name' | translate
-            }}</label>
-          <input data-cy="adminCategoryNameInput" formControlName="name" type="text" id="prod-name" maxLength="100"
-            [ngClass]="generalForm.get('name')?.invalid == true && generalForm.value.name!='' ? 'border-red-600' : 'border-gray-300'"
-            class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+  <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'CREATE_CATEGORIES._new' | translate }}</h1>
 
-          <label for="prod-name" class="font-bold text-lg dark:text-white">{{ 'CREATE_CATEGORIES._description' |
-            translate }}</label>
-          <app-markdown-textarea data-cy="adminCategoryDescription"
-            formControlName="description"></app-markdown-textarea>
-          <label class="font-bold text-lg dark:text-white">{{ 'CREATE_CATEGORIES._choose_parent' | translate }}</label>
-          <label class="inline-flex items-center me-5 cursor-pointer ml-4">
-            <input data-cy="adminToggleParentCategory" type="checkbox" (change)="toggleParent()"
-              [checked]="parentSelectionCheck" class="sr-only peer">
-            <div
-              class="relative w-11 h-6 bg-gray-400 dark:bg-gray-700 rounded-full peer peer-focus:ring-4 peer-focus:ring-primary-100 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-100">
-            </div>
-          </label>
+  <app-stepper [canAdvance]="canAdvance" submitLabel="CREATE_CATEGORIES._create"
+    (stepChanged)="onStepChanged($event)" (submitted)="createCategory()">
+
+    <ng-template stepperStep="CREATE_CATEGORIES._general" stepId="general">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_CATEGORIES._general' | translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_CATEGORIES._general_info' | translate }}</p>
+        </div>
+
+        <form class="flex flex-col gap-4" [formGroup]="generalForm">
+          <div>
+            <label for="prod-name" class="font-bold text-sm dark:text-white">{{ 'CREATE_CATEGORIES._name' | translate }}</label>
+            <input data-cy="adminCategoryNameInput" formControlName="name" type="text" id="prod-name" maxLength="100"
+              [ngClass]="generalForm.get('name')?.invalid == true && generalForm.value.name!='' ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"
+              class="mt-1 bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+          </div>
+
+          <div>
+            <label class="font-bold text-sm dark:text-white">{{ 'CREATE_CATEGORIES._description' | translate }}</label>
+            <app-markdown-textarea data-cy="adminCategoryDescription" formControlName="description"></app-markdown-textarea>
+          </div>
+
+          <div>
+            <label class="font-bold text-sm dark:text-white block mb-2">{{ 'CREATE_CATEGORIES._choose_parent' | translate }}</label>
+            <label class="inline-flex items-center cursor-pointer">
+              <input data-cy="adminToggleParentCategory" type="checkbox" (change)="toggleParent()"
+                [checked]="parentSelectionCheck" class="sr-only peer">
+              <div
+                class="relative w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-focus:ring-4 peer-focus:ring-primary-50 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-100">
+              </div>
+            </label>
+          </div>
+
           @if(parentSelectionCheck){
           @if(categories.length==0){
-          <div class="flex justify-center w-full m-4">
-            <div
-              class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
-              role="alert">
-              <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-              </svg>
-              <div>
-                {{ 'OFFERINGS._no_categories' | translate }}
-              </div>
-            </div>
+          <div
+            class="rounded-2xl border border-dashed border-gray-300 dark:border-secondary-200 flex flex-col items-center justify-center px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+            {{ 'OFFERINGS._no_categories' | translate }}
           </div>
-          }@else{
-          <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full mt-4">
+          } @else {
+          <div class="relative overflow-x-auto rounded-lg border border-gray-200 dark:border-secondary-200 w-full">
             <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
               <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
                 <tr class="flex w-full justify-between">
@@ -118,7 +68,7 @@
               <tbody>
                 @for (cat of categories; track cat.id;let idx = $index) {
                 <tr data-cy="adminParentCategoryRow"
-                  class="flex border-b dark:border-gray-700 hover:bg-gray-200 w-full justify-between dark:bg-secondary-300 dark:hover:bg-secondary-200">
+                  class="flex border-b dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-secondary-200 w-full justify-between">
                   <td data-cy="adminParentCategoryName" class="flex px-6 py-4 w-3/5 text-wrap break-all">
                     <b>{{cat.name}}</b>
                   </td>
@@ -128,7 +78,7 @@
                   <td class="flex px-6 py-4 w-fit justify-end">
                     <input id="select-checkbox" data-cy="adminParentCategoryCheckbox"
                       [checked]="isCategorySelected(cat)" type="checkbox" value="" (click)="addCategory(cat)"
-                      class="flex w-4 h-4 justify-end text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                      class="flex w-4 h-4 justify-end text-primary-100 bg-gray-100 border-gray-300 rounded focus:ring-primary-100 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
                   </td>
                 </tr>
                 @if(cat.children.length>0){
@@ -147,74 +97,46 @@
           </div>
           }
           }
-
         </form>
-        <div class="flex w-full justify-items-end justify-end">
-          <app-button data-cy="adminCategoryNext" type="button" (click)="showFinish();generalDone=true;"
-            [disabled]="!generalForm.valid || (parentSelectionCheck == true && selectedCategory==undefined)"
-            suffixIcon="arrow-right">
-            {{ 'CREATE_CATEGORIES._next' | translate }}
-          </app-button>
+      </div>
+    </ng-template>
+
+    <ng-template stepperStep="CREATE_CATEGORIES._finish" stepId="summary">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_CATEGORIES._finish' | translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_CATEGORIES._summary' | translate }}</p>
+        </div>
+
+        <div>
+          <label class="font-bold text-sm dark:text-white">{{ 'CREATE_CATEGORIES._name' | translate }}</label>
+          <p class="mt-1 text-gray-900 dark:text-white text-wrap break-all">{{categoryToCreate?.name}}</p>
+        </div>
+
+        <div>
+          <label class="font-bold text-sm dark:text-white block mb-1">{{ 'CREATE_CATEGORIES._status' | translate }}</label>
+          <bae-badge variant="status" [status]="statusBadgeVariant(categoryToCreate?.lifecycleStatus ?? '')"
+            [label]="categoryToCreate?.lifecycleStatus ?? ''"></bae-badge>
+        </div>
+
+        @if(categoryToCreate?.description !=''){
+        <div>
+          <label class="font-bold text-sm dark:text-white">{{ 'CREATE_CATEGORIES._description' | translate }}</label>
+          <div class="mt-1 px-4 py-2 bg-gray-50 dark:bg-secondary-300 border border-gray-200 dark:border-secondary-200 rounded-lg">
+            <markdown class="text-gray-900 dark:text-white text-wrap break-all" [data]="categoryToCreate?.description"></markdown>
+          </div>
         </div>
         }
 
-        @if(showSummary){
-        <h2 class="text-3xl font-bold text-primary-100 ml-4 dark:text-white">{{ 'CREATE_CATEGORIES._finish' | translate
-          }}</h2>
-        <div class="m-8">
-          <div>
-            <label class="font-bold text-lg dark:text-white">{{ 'CREATE_CATEGORIES._name' | translate }}</label>
-            <label
-              class="mb-2 bg-gray-50 text-wrap break-all border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-              {{categoryToCreate?.name}}
-            </label>
-          </div>
-
-          <div class="mb-4">
-            <label class="font-bold text-lg mr-4 dark:text-white">{{ 'CREATE_CATEGORIES._status' | translate }}</label>
-            @if(categoryToCreate?.lifecycleStatus == 'Active'){
-            <span
-              class="bg-blue-100 dark:bg-secondary-300 text-blue-600 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-blue-400">{{categoryToCreate?.lifecycleStatus}}</span>
-            } @else if(categoryToCreate?.lifecycleStatus == 'Launched') {
-            <span
-              class="bg-blue-100 dark:bg-secondary-300 text-green-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-green-500">{{categoryToCreate?.lifecycleStatus}}</span>
-            } @else if(categoryToCreate?.lifecycleStatus == 'Retired') {
-            <span
-              class="bg-blue-100 dark:bg-secondary-300 text-yellow-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-yellow-500">{{categoryToCreate?.lifecycleStatus}}</span>
-            } @else if(categoryToCreate?.lifecycleStatus == 'Obsolete') {
-            <span
-              class="bg-blue-100 dark:bg-secondary-300 text-red-500 text-xs font-medium me-2 px-2.5 py-0.5 rounded border border-red-500">{{categoryToCreate?.lifecycleStatus}}</span>
-            }
-          </div>
-
-          @if(categoryToCreate?.description !=''){
-          <label class="font-bold text-lg dark:text-white">{{ 'CREATE_CATEGORIES._description' | translate }}</label>
-          <div class="px-4 py-2 bg-white dark:bg-secondary-300 border dark:border-secondary-200 rounded-lg p-4 mb-4">
-            <markdown class="bg-gray-50 dark:bg-secondary-100 dark:text-white text-gray-900 text-wrap break-all"
-              [data]="categoryToCreate?.description"></markdown>
-          </div>
-          }
-
-          @if(isParent==false){
-          <label class="font-bold text-lg dark:text-white">{{ 'CREATE_CATEGORIES._parent' | translate }}</label>
-          <div
-            class="px-4 py-2 bg-white border border-1 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white rounded-lg p-4 mb-4">
-            <label class="text-base dark:text-white text-wrap break-all">{{selectedCategory.name}}</label>
-          </div>
-          }
-
-
-          <div class="flex w-full justify-items-end justify-end ml-4">
-            <app-button data-cy="adminCreateCategory" type="button" (click)="createCategory();" suffixIcon="arrow-right">
-              {{ 'CREATE_CATEGORIES._create' | translate }}
-            </app-button>
-          </div>
-
+        @if(isParent==false){
+        <div>
+          <label class="font-bold text-sm dark:text-white">{{ 'CREATE_CATEGORIES._parent' | translate }}</label>
+          <p class="mt-1 text-gray-900 dark:text-white text-wrap break-all">{{selectedCategory.name}}</p>
         </div>
         }
       </div>
-    </div>
-  </div>
+    </ng-template>
+  </app-stepper>
 </div>
 
 @if(showError){
