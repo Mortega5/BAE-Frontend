@@ -2323,6 +2323,17 @@
     "_resource_spec_delete_error": "No se ha podido eliminar esta especificación de recurso.",
     "_create_custom_offer": "Crear oferta personalizada"
   },
+  "ANALYTICS": {
+    "_analytics": "Analítica",
+    "_business_insights": "Análisis de negocio",
+    "_business_insights_desc": "Rendimiento comercial, engagement y analítica de negocio del marketplace.",
+    "_usage_monitor": "Monitor de uso",
+    "_usage_monitor_desc": "Monitorización del uso de la plataforma para administradores del marketplace.",
+    "_open_superset": "Abrir Superset",
+    "_no_dashboard_title": "No hay ningún dashboard configurado",
+    "_no_dashboard_desc": "Configura la URL de analítica para incrustar aquí el dashboard remoto.",
+    "_dashboard_unavailable": "Dashboard no disponible"
+  },
   "ADMIN": {
     "_admin": "Administración",
     "_filter_state": "Filtrar por estado",

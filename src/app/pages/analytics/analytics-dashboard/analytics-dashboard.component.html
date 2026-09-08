@@ -1,0 +1,47 @@
+<div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+  <div>
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ tabConfig.label | translate }}</h2>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ tabConfig.description | translate }}</p>
+  </div>
+  @if (hasDashboardConfig) {
+  <a [href]="supersetDomain" target="_blank" rel="noopener noreferrer"
+    class="inline-flex h-10 items-center rounded-lg border border-gray-300 dark:border-secondary-200 bg-gray-50 dark:bg-secondary-300 px-4 text-sm font-semibold text-gray-700 dark:text-gray-200 transition-colors hover:border-primary-100 hover:text-primary-100 dark:hover:border-primary-50 dark:hover:text-primary-50 focus:outline-none focus:ring-2 focus:ring-primary-50">
+    {{ 'ANALYTICS._open_superset' | translate }}
+  </a>
+  }
+</div>
+
+<div class="overflow-hidden rounded-2xl border border-gray-200 dark:border-secondary-200">
+  @if (!hasDashboardConfig) {
+  <div class="flex min-h-[360px] flex-col items-center justify-center px-6 py-12 text-center">
+    <div class="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-primary-100/10 text-primary-100 dark:text-primary-50">
+      <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"
+          d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125C16.5 3.504 17.004 3 17.625 3h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+      </svg>
+    </div>
+    <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'ANALYTICS._no_dashboard_title' | translate }}</h3>
+    <p class="mt-1 max-w-md text-sm text-gray-500 dark:text-gray-400">{{ 'ANALYTICS._no_dashboard_desc' | translate }}</p>
+  </div>
+  } @else {
+  <div class="analytics-embed-shell">
+    @if (loading || statusMessage) {
+    <div class="analytics-status">
+      @if (loading) {
+      <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-primary-100 dark:border-primary-50"></div>
+      }
+      <span>{{ statusMessage }}</span>
+    </div>
+    }
+
+    @if (errorMessage) {
+    <div class="analytics-error">
+      <h3 class="text-base font-semibold text-red-800 dark:text-red-400">{{ 'ANALYTICS._dashboard_unavailable' | translate }}</h3>
+      <p class="mt-1 text-sm text-red-700 dark:text-red-300">{{ errorMessage }}</p>
+    </div>
+    }
+
+    <div #supersetMount class="analytics-embed-mount"></div>
+  </div>
+  }
+</div>

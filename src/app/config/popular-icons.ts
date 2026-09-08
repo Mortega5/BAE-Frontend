@@ -44,7 +44,7 @@ import {
   faUsers,
   faUserShield,
 } from '@fortawesome/free-solid-svg-icons';
-import { faAnglesLeft, faAnglesRight, faArrowDown, faArrowRight, faBars, faCartShopping, faCheck, faChevronDown, faChevronLeft, faChevronRight, faDownload, faEdit, faLayerGroup, faPlus, faSave, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { faAnglesLeft, faAnglesRight, faArrowDown, faArrowRight, faBars, faCartShopping, faCheck, faChevronDown, faChevronLeft, faChevronRight, faDisplayChartUp, faDownload, faEdit, faLayerGroup, faPlus, faSave, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons';
 
 export interface PopularIcon {
   name: string;
@@ -108,6 +108,7 @@ export const POPULAR_ICON_CATEGORIES: IconCategory[] = [
       { name: 'laptop-code', icon: faLaptopCode },
       { name: 'server', icon: faServer },
       { name: 'mobile', icon: faMobileScreen },
+      { name: 'display-chart-up', icon: faDisplayChartUp },
       { name: 'tools', icon: faScrewdriverWrench },
     ],
   },

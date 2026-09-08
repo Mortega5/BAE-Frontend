@@ -2323,6 +2323,17 @@
     "_resource_spec_delete_error": "Could not delete this resource specification.",
     "_create_custom_offer": "Create custom offer"
   },
+  "ANALYTICS": {
+    "_analytics": "Analytics",
+    "_business_insights": "Business Insights",
+    "_business_insights_desc": "Marketplace business performance, engagement and commercial analytics.",
+    "_usage_monitor": "Usage Monitor",
+    "_usage_monitor_desc": "Platform usage monitoring for marketplace administrators.",
+    "_open_superset": "Open Superset",
+    "_no_dashboard_title": "No dashboard configured",
+    "_no_dashboard_desc": "Configure the analytics URL to embed the remote dashboard here.",
+    "_dashboard_unavailable": "Dashboard unavailable"
+  },
   "ADMIN": {
     "_admin": "Administration",
     "_filter_state": "Filter by status",

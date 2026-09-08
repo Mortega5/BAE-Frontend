@@ -11,6 +11,9 @@ import { quoteGuardGuard } from './guard/quote-guard.guard';
 import { AdminComponent } from "./pages/admin/admin.component";
 import { AdminPaths } from "./pages/admin/admin.paths";
 import { adminRoutes } from "./pages/admin/admin.routes";
+import { AnalyticsComponent } from "./pages/analytics/analytics.component";
+import { AnalyticsPaths } from "./pages/analytics/analytics.paths";
+import { analyticsRoutes } from "./pages/analytics/analytics.routes";
 import { CatalogsComponent } from "./pages/catalogs/catalogs.component";
 import { CheckoutComponent } from "./pages/checkout/checkout.component";
 import { ContactUsFormComponent } from "./pages/contact-us/contact-us-form.component";
@@ -121,9 +124,10 @@ const routes: Routes = [
     children: productOrdersRoutes,
   },
   {
-    path: 'analytics',
-    loadComponent: () => import('./pages/analytics/analytics.component').then(c => c.AnalyticsComponent),
-    canActivate: [AuthGuard], data: { roles: [] }
+    path: AnalyticsPaths.rootSegment,
+    component: AnalyticsComponent,
+    canActivate: [AuthGuard], data: { roles: [] },
+    children: analyticsRoutes,
   },
   {
     path: 'quote-list',
