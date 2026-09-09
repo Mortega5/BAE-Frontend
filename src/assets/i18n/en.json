@@ -829,6 +829,8 @@
     "_knowledge": "Knowledge Base",
     "_ticketing": "Ticketing System",
     "_change_session": "Change session",
+    "_session_switched_org": "You are now acting as {{org}}.",
+    "_session_switched_personal": "You are back to your personal session.",
     "_admin": "Administration",
     "_publish": "Publish your offerings",
     "_register_here": "Register here",
@@ -1197,7 +1199,8 @@
   "UPDATE_SOFTWARE": {
     "_save": "Save",
     "_edit": "Update Software Resource",
-    "_update": "Update Software"
+    "_update": "Update Software",
+    "_wrong_org_notice": "This software resource belongs to a different organization — returning to the list."
   },
   "UPDATE_CATALOG": {
     "_back": "Back",
@@ -1230,7 +1233,8 @@
     "_publish": "Publish",
     "_publish_confirm_title": "Publish catalog?",
     "_publish_confirm_message": "This will make the catalog visible and available immediately.",
-    "_publish_error": "There was an error while publishing the catalog!"
+    "_publish_error": "There was an error while publishing the catalog!",
+    "_wrong_org_notice": "This catalog belongs to a different organization — returning to the list."
   },
   "CREATE_PROD_SPEC": {
     "_back": "Back",
@@ -1570,7 +1574,8 @@
     "_publish": "Publish",
     "_publish_confirm_title": "Publish product specification?",
     "_publish_confirm_message": "This will make the product specification visible and available immediately.",
-    "_publish_error": "There was an error while publishing the product specification!"
+    "_publish_error": "There was an error while publishing the product specification!",
+    "_wrong_org_notice": "This product spec belongs to a different organization — returning to the list."
   },
   "CREATE_RES_SPEC": {
     "_back": "Back",
@@ -1692,7 +1697,8 @@
     "_publish": "Publish",
     "_publish_confirm_title": "Publish resource specification?",
     "_publish_confirm_message": "This will make the resource specification visible and available immediately.",
-    "_publish_error": "There was an error while publishing the resource specification!"
+    "_publish_error": "There was an error while publishing the resource specification!",
+    "_wrong_org_notice": "This resource spec belongs to a different organization — returning to the list."
   },
   "BLUEPRINT_PROD": {
     "_items": "Components",
@@ -1828,7 +1834,8 @@
     "_publish": "Publish",
     "_publish_confirm_title": "Publish service specification?",
     "_publish_confirm_message": "This will make the service specification visible and available immediately.",
-    "_publish_error": "There was an error while publishing the service specification!"
+    "_publish_error": "There was an error while publishing the service specification!",
+    "_wrong_org_notice": "This service spec belongs to a different organization — returning to the list."
   },
   "CREATE_OFFER": {
     "_back": "Back",
@@ -2234,7 +2241,8 @@
     "_publish": "Publish",
     "_publish_confirm_title": "Publish offer?",
     "_publish_confirm_message": "This will make the offer visible and available immediately.",
-    "_publish_error": "There was an error while publishing the offer!"
+    "_publish_error": "There was an error while publishing the offer!",
+    "_wrong_org_notice": "This offer belongs to a different organization — returning to the list."
   },
   "OFFERINGS": {
     "_catalogs": "Catalogues",

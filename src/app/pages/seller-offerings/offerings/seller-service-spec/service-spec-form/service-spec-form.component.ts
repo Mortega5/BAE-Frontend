@@ -1,13 +1,16 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
+import { belongsToParty } from 'src/app/shared/session-ownership.util';
 import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
 import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
@@ -78,11 +81,19 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
     private servSpecService: ServiceSpecServiceService,
     private route: ActivatedRoute,
     private router: Router,
+    private notificationService: NotificationService,
+    private translate: TranslateService,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
       .subscribe(ev => {
-        if (ev.type === 'ChangedSession') this.initPartyInfo();
+        if (ev.type === 'ChangedSession') {
+          this.initPartyInfo();
+          if (!belongsToParty(this.serv, this.partyId)) {
+            this.notificationService.showInfo(this.translate.instant('UPDATE_SERV_SPEC._wrong_org_notice'));
+            this.goBack();
+          }
+        }
       });
   }
 
@@ -120,6 +131,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
         this.partyId = aux.partyId;
       } else {
         const loggedOrg = aux.organizations.find((element: { id: any }) => element.id === aux.logged_as);
+        if (!loggedOrg) return;
         this.partyId = loggedOrg.partyId;
       }
     }

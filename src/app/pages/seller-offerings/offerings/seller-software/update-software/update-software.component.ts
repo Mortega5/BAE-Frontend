@@ -2,11 +2,13 @@ import { DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { belongsToParty } from 'src/app/shared/session-ownership.util';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 
 import { components } from 'src/app/models/software-catalog';
@@ -88,12 +90,17 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
     private datePipe: DatePipe,
     private route: ActivatedRoute,
     private router: Router,
+    private translate: TranslateService,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
       .subscribe(ev => {
         if (ev.type === 'ChangedSession') {
           this.initPartyInfo();
+          if (!belongsToParty(this.software, this.partyId)) {
+            this.notificationService.showInfo(this.translate.instant('UPDATE_SOFTWARE._wrong_org_notice'));
+            this.goBack();
+          }
         }
       });
   }
@@ -176,6 +183,7 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
         this.partyId = aux.partyId;
       } else {
         const loggedOrg = aux.organizations.find((element: { id: any }) => element.id === aux.logged_as);
+        if (!loggedOrg) return;
         this.partyId = loggedOrg.partyId;
       }
     }

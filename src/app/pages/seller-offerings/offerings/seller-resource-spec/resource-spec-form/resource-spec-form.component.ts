@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -9,6 +10,8 @@ import { components } from 'src/app/models/resource-catalog';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { NotificationService } from 'src/app/services/notification.service';
+import { belongsToParty } from 'src/app/shared/session-ownership.util';
 import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/resource-spec-service.service';
 import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
@@ -111,11 +114,19 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     private resSpecService: ResourceSpecServiceService,
     private route: ActivatedRoute,
     private router: Router,
+    private notificationService: NotificationService,
+    private translate: TranslateService,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
       .subscribe(ev => {
-        if (ev.type === 'ChangedSession') this.initPartyInfo();
+        if (ev.type === 'ChangedSession') {
+          this.initPartyInfo();
+          if (!belongsToParty(this.res, this.partyId)) {
+            this.notificationService.showInfo(this.translate.instant('UPDATE_RES_SPEC._wrong_org_notice'));
+            this.goBack();
+          }
+        }
       });
   }
 
@@ -169,6 +180,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
         this.partyId = aux.partyId;
       } else {
         const loggedOrg = aux.organizations.find((element: { id: any }) => element.id == aux.logged_as);
+        if (!loggedOrg) return;
         this.partyId = loggedOrg.partyId;
       }
     }

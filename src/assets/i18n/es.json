@@ -829,6 +829,8 @@
     "_knowledge": "Base de conocimiento",
     "_ticketing": "Sistema de tickets",
     "_change_session": "Cambiar sesión",
+    "_session_switched_org": "Ahora actúas como {{org}}.",
+    "_session_switched_personal": "Has vuelto a tu sesión personal.",
     "_admin": "Administración",
     "_publish": "Publica tus ofertas",
     "_register_here": "Regístrate aquí",
@@ -1197,7 +1199,8 @@
   "UPDATE_SOFTWARE": {
     "_save": "Guardar",
     "_edit": "Actualizar Recurso Software",
-    "_update": "Actualizar Software"
+    "_update": "Actualizar Software",
+    "_wrong_org_notice": "Este recurso software pertenece a otra organización — volviendo a la lista."
   },
   "UPDATE_CATALOG": {
     "_back": "Atrás",
@@ -1230,7 +1233,8 @@
     "_publish": "Publicar",
     "_publish_confirm_title": "¿Publicar catálogo?",
     "_publish_confirm_message": "El catálogo pasará a estar visible y disponible de inmediato.",
-    "_publish_error": "¡Se produjo un error al publicar el catálogo!"
+    "_publish_error": "¡Se produjo un error al publicar el catálogo!",
+    "_wrong_org_notice": "Este catálogo pertenece a otra organización — volviendo a la lista."
   },
   "CREATE_PROD_SPEC": {
     "_back": "Atrás",
@@ -1570,7 +1574,8 @@
     "_publish": "Publicar",
     "_publish_confirm_title": "¿Publicar especificación de producto?",
     "_publish_confirm_message": "La especificación de producto pasará a estar visible y disponible de inmediato.",
-    "_publish_error": "¡Se produjo un error al publicar la especificación de producto!"
+    "_publish_error": "¡Se produjo un error al publicar la especificación de producto!",
+    "_wrong_org_notice": "Esta especificación de producto pertenece a otra organización — volviendo a la lista."
   },
   "CREATE_RES_SPEC": {
     "_back": "Atrás",
@@ -1692,7 +1697,8 @@
     "_publish": "Publicar",
     "_publish_confirm_title": "¿Publicar especificación de recurso?",
     "_publish_confirm_message": "La especificación de recurso pasará a estar visible y disponible de inmediato.",
-    "_publish_error": "¡Se produjo un error al publicar la especificación de recurso!"
+    "_publish_error": "¡Se produjo un error al publicar la especificación de recurso!",
+    "_wrong_org_notice": "Esta especificación de recurso pertenece a otra organización — volviendo a la lista."
   },
   "BLUEPRINT_PROD": {
     "_items": "Componentes",
@@ -1828,7 +1834,8 @@
     "_publish": "Publicar",
     "_publish_confirm_title": "¿Publicar especificación de servicio?",
     "_publish_confirm_message": "La especificación de servicio pasará a estar visible y disponible de inmediato.",
-    "_publish_error": "¡Se produjo un error al publicar la especificación de servicio!"
+    "_publish_error": "¡Se produjo un error al publicar la especificación de servicio!",
+    "_wrong_org_notice": "Esta especificación de servicio pertenece a otra organización — volviendo a la lista."
   },
   "CREATE_OFFER": {
     "_back": "Atrás",
@@ -2234,7 +2241,8 @@
     "_publish": "Publicar",
     "_publish_confirm_title": "¿Publicar oferta?",
     "_publish_confirm_message": "La oferta pasará a estar visible y disponible de inmediato.",
-    "_publish_error": "¡Se produjo un error al publicar la oferta!"
+    "_publish_error": "¡Se produjo un error al publicar la oferta!",
+    "_wrong_org_notice": "Esta oferta pertenece a otra organización — volviendo a la lista."
   },
   "OFFERINGS": {
     "_catalogs": "Catálogos",

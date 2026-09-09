@@ -17,6 +17,7 @@ import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
+import { NotificationService } from 'src/app/services/notification.service';
 import { PaginationService } from 'src/app/services/pagination.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
@@ -26,6 +27,7 @@ import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/ch
 import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
+import { belongsToParty } from 'src/app/shared/session-ownership.util';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
@@ -264,6 +266,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     private route: ActivatedRoute,
     private router: Router,
     private translate: TranslateService,
+    private notificationService: NotificationService,
   ) {
     for (let i = 0; i < certifications.length; i++) {
       this.availableISOS.push(certifications[i])
@@ -273,6 +276,10 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
       .subscribe(ev => {
         if (ev.type === 'ChangedSession') {
           this.initPartyInfo();
+          if (!belongsToParty(this.prod, this.partyId)) {
+            this.notificationService.showInfo(this.translate.instant('UPDATE_PROD_SPEC._wrong_org_notice'));
+            this.goBack();
+          }
         }
       })
   }
@@ -557,6 +564,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
         this.partyId = aux.partyId;
       } else {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
+        if (!loggedOrg) return;
         this.partyId = loggedOrg.partyId
       }
     }

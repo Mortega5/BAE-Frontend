@@ -96,6 +96,7 @@
   font-weight: 700;
   color: #fff;
   line-height: 1.2;
+  overflow-wrap: break-word;
 }
 
 .mobile-user-box__email {

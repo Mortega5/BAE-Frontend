@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { currencies } from 'currencies.json';
 import { initFlowbite } from 'flowbite';
@@ -11,6 +12,8 @@ import { components } from "src/app/models/product-catalog";
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
+import { NotificationService } from "src/app/services/notification.service";
+import { belongsToParty } from "src/app/shared/session-ownership.util";
 import { PaginationService } from 'src/app/services/pagination.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
@@ -221,7 +224,9 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
     private attachmentService: AttachmentServiceService,
     private servSpecService: ServiceSpecServiceService,
     private resSpecService: ResourceSpecServiceService,
-    private paginationService: PaginationService
+    private paginationService: PaginationService,
+    private notificationService: NotificationService,
+    private translate: TranslateService
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -231,6 +236,10 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
         }
         if (ev.type === 'ChangedSession') {
           this.initPartyInfo();
+          if (!belongsToParty(this.offer, this.partyId)) {
+            this.notificationService.showInfo(this.translate.instant('UPDATE_OFFER._wrong_org_notice'));
+            this.goBack();
+          }
         }
         if (ev.type === 'SavePricePlan') {
           this.createdPrices.push(ev.value as ProductOfferingPrice_DTO)
@@ -292,6 +301,7 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
         this.partyId = aux.partyId;
       } else {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
+        if (!loggedOrg) return;
         this.partyId = loggedOrg.partyId
       }
     }

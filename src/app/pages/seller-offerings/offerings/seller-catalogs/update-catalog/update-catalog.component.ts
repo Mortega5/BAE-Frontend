@@ -1,13 +1,16 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
+import { belongsToParty } from 'src/app/shared/session-ownership.util';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 
 import { components } from 'src/app/models/product-catalog';
@@ -61,12 +64,18 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
     private api: ApiServiceService,
     private route: ActivatedRoute,
     private router: Router,
+    private notificationService: NotificationService,
+    private translate: TranslateService,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
       .subscribe(ev => {
         if (ev.type === 'ChangedSession') {
           this.initPartyInfo();
+          if (!belongsToParty(this.cat, this.partyId)) {
+            this.notificationService.showInfo(this.translate.instant('UPDATE_CATALOG._wrong_org_notice'));
+            this.goBack();
+          }
         }
       });
   }
@@ -116,6 +125,7 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
         this.partyId = aux.partyId;
       } else {
         const loggedOrg = aux.organizations.find((element: { id: any }) => element.id === aux.logged_as);
+        if (!loggedOrg) return;
         this.partyId = loggedOrg.partyId;
       }
     }

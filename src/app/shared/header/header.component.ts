@@ -39,6 +39,7 @@ import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offe
 import { UserProfilePaths } from 'src/app/pages/user-profile/user-profile.paths';
 import { EventMessageService } from '../../services/event-message.service';
 import { LocalStorageService } from '../../services/local-storage.service';
+import { NotificationService } from '../../services/notification.service';
 import { RefreshLoginServiceService } from '../../services/refresh-login-service.service';
 import { ShoppingCartServiceService } from '../../services/shopping-cart-service.service';
 import { ThemeMode, ThemeService } from '../../services/theme.service';
@@ -70,7 +71,8 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
     private qrVerifier: QrVerifierService,
     private themeService: ThemeService,
     private sc: ShoppingCartServiceService,
-    private refreshApi: RefreshLoginServiceService
+    private refreshApi: RefreshLoginServiceService,
+    private notificationService: NotificationService
   ) { }
 
   providerThemeName = environment.providerThemeName;
@@ -391,6 +393,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
       this.eventMessage.emitChangedSession(this.loginInfo);
       this.hydrateLoginFromStorage();
       initFlowbite();
+      this.notificationService.showInfo(this.translate.instant('HEADER._session_switched_personal'));
       return;
     }
 
@@ -413,6 +416,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
     this.eventMessage.emitChangedSession(this.loginInfo);
     this.hydrateLoginFromStorage();
     initFlowbite();
+    this.notificationService.showInfo(this.translate.instant('HEADER._session_switched_org', { org: org.name }));
   }
 
   hideDropdown(dropdownId: string) {
