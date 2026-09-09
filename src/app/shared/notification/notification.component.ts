@@ -1,28 +1,32 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NotificationService } from '../../services/notification.service';
+import { TranslateModule } from '@ngx-translate/core';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
+import { faCircleCheck, faCircleInfo, faCircleXmark, faTriangleExclamation, faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { NotificationService, NotificationType, NOTIFICATION_DURATION_MS } from '../../services/notification.service';
+
+const NOTIFICATION_ICONS: Record<NotificationType, IconDefinition> = {
+  success: faCircleCheck,
+  info: faCircleInfo,
+  warning: faTriangleExclamation,
+  error: faCircleXmark,
+};
 
 @Component({
   selector: 'app-notification',
   standalone: true,
-  imports: [CommonModule],
-  template: `
-    <div
-      *ngIf="notificationService.notification$ | async as notification"
-      [ngClass]="{
-        'fixed top-4 right-4 z-[200] p-4 rounded-lg shadow-lg': true,
-        'bg-green-100 text-green-800': notification.type === 'success',
-        'bg-red-100 text-red-800': notification.type === 'error',
-        'bg-blue-100 text-blue-800': notification.type === 'info'
-      }"
-      class="transition-all duration-300 ease-in-out"
-    >
-      {{ notification.message }}
-    </div>
-  `
+  imports: [CommonModule, TranslateModule, FaIconComponent],
+  templateUrl: './notification.component.html',
+  styleUrl: './notification.component.scss',
 })
-export class NotificationComponent implements OnInit {
+export class NotificationComponent {
+  protected readonly faXmark = faXmark;
+  protected readonly durationMs = NOTIFICATION_DURATION_MS;
+
   constructor(public notificationService: NotificationService) {}
 
-  ngOnInit() {}
-} 
+  protected icon(type: NotificationType): IconDefinition {
+    return NOTIFICATION_ICONS[type];
+  }
+}

@@ -1,0 +1,17 @@
+@if (notificationService.notification$ | async; as notification) {
+  <div class="app-toast" [attr.data-type]="notification.type" role="status">
+    <div class="app-toast-icon">
+      <fa-icon [icon]="icon(notification.type)"></fa-icon>
+    </div>
+    <p class="app-toast-message">{{ notification.message }}</p>
+    <button
+      type="button"
+      class="app-toast-close"
+      (click)="notificationService.clear()"
+      [attr.aria-label]="'COMMON._close' | translate"
+    >
+      <fa-icon [icon]="faXmark"></fa-icon>
+    </button>
+    <div class="app-toast-progress" [style.animation-duration.ms]="durationMs"></div>
+  </div>
+}
