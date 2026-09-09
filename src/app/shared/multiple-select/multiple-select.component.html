@@ -26,7 +26,7 @@
 
   @if (isOpen) {
   <div
-    class="absolute mt-1 w-full bg-white dark:bg-secondary-300 dark:text-white border border-gray-300 dark:border-secondary-200 rounded-lg shadow-lg z-10">
+    class="absolute mt-1 w-full bg-[var(--theme-input-bg)] dark:text-white border border-[var(--theme-input-border)] rounded-lg shadow-lg z-10">
     <ul class="max-h-48 overflow-y-auto">
       @for (option of normalizedOptions; track option.value) {
       <li (click)="toggleSelection(option)"

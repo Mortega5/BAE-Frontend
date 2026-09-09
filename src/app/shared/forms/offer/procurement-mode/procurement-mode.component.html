@@ -6,7 +6,7 @@
     <div class="relative">
       <button data-cy="procurement" id="procurement" type="button"
         (click)="showProcurementDropdown = !showProcurementDropdown"
-        class="flex items-center justify-between w-full p-3 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 rounded-lg text-sm text-left text-gray-900 dark:text-white focus:ring-primary-100 focus:border-primary-100">
+        class="flex items-center justify-between w-full p-3 bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] rounded-lg text-sm text-left text-gray-900 dark:text-white focus:ring-primary-100 focus:border-primary-100">
         <span class="truncate">{{ selectedProcurementNameKey | translate }}</span>
         <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 shrink-0 transition-transform" [class.rotate-180]="showProcurementDropdown"
           xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
@@ -16,7 +16,7 @@
 
       @if(showProcurementDropdown){
         <div class="fixed inset-0 z-10" (click)="showProcurementDropdown = false"></div>
-        <ul class="absolute left-0 right-0 top-full mt-1 z-20 bg-white dark:bg-secondary-300 border border-[#EBECEE] dark:border-secondary-200 rounded-lg py-1 overflow-hidden shadow-lg">
+        <ul class="absolute left-0 right-0 top-full mt-1 z-20 bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] rounded-lg py-1 overflow-hidden shadow-lg">
           @for(mode of procurementModes; track mode.id){
             <li>
               <button type="button" [attr.data-cy]="'procurement-' + mode.id" (click)="selectProcurementMode(mode.id)"
@@ -37,7 +37,7 @@
   @if (extBillingEnabledControl) {
     <div class="flex items-center gap-3">
       <input data-cy="extBillingToggle" id="extBilling" type="checkbox" [formControl]="extBillingEnabledControl"
-        class="w-4 h-4 text-primary-100 bg-gray-50 dark:bg-secondary-300 border-gray-300 dark:border-secondary-200 rounded focus:ring-primary-100"/>
+        class="w-4 h-4 text-primary-100 bg-[var(--theme-input-bg)] border-[var(--theme-input-border)] rounded focus:ring-primary-100"/>
       <label for="extBilling" class="text-sm font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._ext_billing' | translate }}</label>
     </div>
   }
@@ -46,10 +46,8 @@
     <div>
       <label for="plaSpecId" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">{{ 'CREATE_OFFER._pla_spec_id' | translate }}</label>
       <input data-cy="plaSpecId" id="plaSpecId" type="url" [formControl]="plaSpecIdControl"
-        class="bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100"
-        [class.border-gray-300]="!(plaSpecIdControl.invalid && plaSpecIdControl.touched)"
-        [class.dark:border-secondary-200]="!(plaSpecIdControl.invalid && plaSpecIdControl.touched)"
-        [class.border-red-500]="plaSpecIdControl.invalid && plaSpecIdControl.touched"
+        class="bg-[var(--theme-input-bg)] border dark:text-white text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100"
+        [ngClass]="(plaSpecIdControl.invalid && plaSpecIdControl.touched) ? 'border-red-500' : 'border-[var(--theme-input-border)]'"
         placeholder="https://external-billing-engine.example.com"/>
       @if (plaSpecIdControl.invalid && plaSpecIdControl.touched) {
         <p class="mt-1 text-xs text-red-600">{{ 'CREATE_OFFER._pla_spec_id_required' | translate }}</p>

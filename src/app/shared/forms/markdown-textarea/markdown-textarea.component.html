@@ -125,18 +125,18 @@
       <div class="tooltip-arrow" data-popper-arrow></div>
     </div>
   </div>
-  <div class="relative bg-gray-50 dark:bg-secondary-300 rounded-b-lg">
+  <div class="relative bg-[var(--theme-input-bg)] rounded-b-lg">
     <label [for]="editorId" class="sr-only">Publish post</label>
     @if(showPreview){
     <markdown [ngClass]="{
           'break-all': hasLongWord(value, 20),
           'break-words': !hasLongWord(value, 20)
-          }" class="min-h-16 h-fit block bg-gray-50 dark:bg-secondary-300 text-wrap break-words text-gray-900 dark:text-white px-4 py-2" [data]="value">
+          }" class="min-h-16 h-fit block bg-[var(--theme-input-bg)] text-wrap break-words text-gray-900 dark:text-white px-4 py-2" [data]="value">
     </markdown>
 
     }@else{
     <textarea [id]="editorId" data-cy="textArea"
-      class="px-4 py-2 block w-full h-fit px-0 text-sm text-gray-900 dark:text-white bg-gray-50 dark:bg-secondary-300 border-0" [placeholder]="placeholder | translate"
+      class="px-4 py-2 block w-full h-fit px-0 text-sm text-gray-900 dark:text-white bg-[var(--theme-input-bg)] border-0" [placeholder]="placeholder | translate"
       [value]="value" [rows]="rows" [attr.maxLength]="maxLength" (input)="updateValue($event)"></textarea>
     }
     @if(showEmoji){

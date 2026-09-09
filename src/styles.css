@@ -57,6 +57,16 @@ body {
      so they stay legible in dark mode. Unlike --theme-primary-text, this is not
      meant to sit on top of a primary-colored surface. */
   --theme-default-text: rgb(0 0 0);
+  /* Real form-control surface (text/number/date/textarea/select, checkboxes, the
+     multiple-select and search-select boxes...) — per the Stitch redesign this is
+     plain white on a light background instead of the previous bg-gray-50 tint, so
+     it now matches --card-bg (both #fff) and relies on --theme-input-border alone
+     to read as a control. In dark mode it reuses --theme-secondary-300 (the same
+     "input" tone already wired up for the table redesign), not --card-bg — the
+     dark mockup keeps controls one shade lighter than the card that hosts them. */
+  --theme-input-bg: #fff;
+  --theme-input-border: rgb(203 213 225);
+  /* slate-300 */
   --table-bg: #fff;
   --table-text: var(--theme-default-text);
   /* gray-500 */
@@ -112,13 +122,10 @@ body {
   --badge-plain-text: rgb(51 65 85);
   /* slate-700 */
 
-  /* app-markdown-textarea toolbar tokens — light-mode values match the toolbar's
-     previous hardcoded appearance exactly; dark mode gets real values instead of
-     inheriting nothing. */
-  --md-toolbar-bg: #f9fafb;
-  /* gray-50 */
-  --md-toolbar-border: #e5e7eb;
-  /* gray-200 */
+  /* app-markdown-textarea toolbar tokens — kept in sync with --theme-input-*
+     since the toolbar sits directly above the textarea, which now uses those. */
+  --md-toolbar-bg: var(--theme-input-bg);
+  --md-toolbar-border: var(--theme-input-border);
   --md-toolbar-icon: rgb(107 114 128);
   /* gray-500 */
   --md-toolbar-icon-hover-bg: #f3f4f6;
@@ -203,8 +210,8 @@ body.theme-bae {
      --theme-secondary-200 (borders, table header) stays untouched and still branded. */
   --theme-secondary-300: 26 37 48;
   /* #1a2530 */
-  --md-toolbar-bg: rgb(var(--theme-secondary-300));
-  --md-toolbar-border: rgb(var(--theme-secondary-200));
+  --theme-input-bg: rgb(var(--theme-secondary-300));
+  --theme-input-border: rgb(var(--theme-secondary-200));
   --md-toolbar-icon: rgb(209 213 219);
   /* gray-300 */
   --md-toolbar-icon-hover-bg: rgb(var(--theme-secondary-200));

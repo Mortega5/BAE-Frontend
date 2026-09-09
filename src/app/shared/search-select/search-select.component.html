@@ -1,6 +1,6 @@
 <div class="search-select-root relative w-full" [attr.id]="id" [attr.data-cy]="dataCy">
   <div
-    class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 rounded-lg flex flex-wrap items-center gap-1 focus-within:ring-1 focus-within:ring-primary-100 focus-within:border-primary-100"
+    class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] rounded-lg flex flex-wrap items-center gap-1 focus-within:ring-1 focus-within:ring-primary-100 focus-within:border-primary-100"
     [class.pointer-events-none]="isReadonly" [class.opacity-60]="isReadonly">
     @if (multiple) {
     @for (item of selectedOptions; track item.value) {
@@ -35,7 +35,7 @@
 
   @if (isOpen) {
   <div
-    class="absolute mt-1 w-full bg-white dark:bg-secondary-300 dark:text-white border border-gray-300 dark:border-secondary-200 rounded-lg shadow-lg z-10">
+    class="absolute mt-1 w-full bg-[var(--theme-input-bg)] dark:text-white border border-[var(--theme-input-border)] rounded-lg shadow-lg z-10">
     <ul class="max-h-48 overflow-y-auto">
       @for (option of filteredOptions; track option.value) {
       <li (click)="selectOption(option)"

@@ -12,7 +12,7 @@
     </button>
     @if (prefixMenuOpen) {
     <div
-      class="absolute bottom-12 right-0 z-20 max-h-48 w-full bg-white divide-y divide-gray-100 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white rounded-lg shadow overflow-y-auto">
+      class="absolute bottom-12 right-0 z-20 max-h-48 w-full bg-[var(--theme-input-bg)] divide-y divide-gray-100 dark:border-[var(--theme-input-border)] dark:text-white rounded-lg shadow overflow-y-auto">
       <ul class="py-2 text-sm text-gray-700" aria-labelledby="dropdown-phone-button">
         <li>
           @for (pref of prefixes; track pref.code) {
@@ -28,6 +28,6 @@
     }
     <input min="0" type="number" [value]="nationalNumber" (input)="onNumberInput($any($event.target).value)"
       [disabled]="isReadonly" [class.opacity-60]="isReadonly" [class.cursor-not-allowed]="isReadonly"
-      class="mb-2 bg-gray-50 border text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-secondary-300 dark:text-white">
+      class="mb-2 bg-[var(--theme-input-bg)] border text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:text-white">
   </div>
 </div>

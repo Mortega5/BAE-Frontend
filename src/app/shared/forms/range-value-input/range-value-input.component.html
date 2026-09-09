@@ -3,13 +3,13 @@
   <div class="flex gap-2 flex-wrap">
     <input type="number" [(ngModel)]="inputFrom" [placeholder]="fromPlaceholder | translate"
       (keyup.enter)="set()"
-      class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 flex-1 min-w-24" />
+      class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-sm rounded-lg p-2.5 flex-1 min-w-24" />
     <input type="number" [(ngModel)]="inputTo" [placeholder]="toPlaceholder | translate"
       (keyup.enter)="set()"
-      class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 flex-1 min-w-24" />
+      class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-sm rounded-lg p-2.5 flex-1 min-w-24" />
     <input type="text" [(ngModel)]="inputUnit" [placeholder]="unitPlaceholder | translate"
       (keyup.enter)="set()"
-      class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg p-2.5 w-28" />
+      class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-sm rounded-lg p-2.5 w-28" />
     <app-button type="button" (click)="set()" [disabled]="!canSet" size="sm" class="whitespace-nowrap">
       {{ setLabel | translate }}
     </app-button>
