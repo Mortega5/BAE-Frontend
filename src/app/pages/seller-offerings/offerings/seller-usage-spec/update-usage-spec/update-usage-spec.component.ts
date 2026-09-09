@@ -2,8 +2,6 @@ import { ChangeDetectorRef, Component, ElementRef, OnInit } from '@angular/core'
 import { ReactiveFormsModule } from "@angular/forms";
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from "@ngx-translate/core";
-import moment from 'moment';
-import { LoginInfo } from 'src/app/models/interfaces';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { UsageServiceService } from 'src/app/services/usage-service.service';
@@ -58,8 +56,8 @@ export class UpdateUsageSpecComponent implements OnInit {
   }
 
   initPartyInfo() {
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
       } else {

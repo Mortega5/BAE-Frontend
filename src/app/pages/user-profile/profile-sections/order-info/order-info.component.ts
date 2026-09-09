@@ -1,5 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
-import { LoginInfo, billingAccountCart } from 'src/app/models/interfaces';
+import { billingAccountCart } from 'src/app/models/interfaces';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import {LocalStorageService} from "src/app/services/local-storage.service";
@@ -13,7 +13,6 @@ type ProductOffering = components["schemas"]["ProductOffering"];
 import { phoneNumbers, countries } from 'src/app/models/country.const'
 import { initFlowbite } from 'flowbite';
 import {EventMessageService} from "src/app/services/event-message.service";
-import moment from 'moment';
 import { environment } from 'src/environments/environment';
 import { faIdCard, faSort, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { Subject } from 'rxjs';
@@ -90,8 +89,8 @@ export class OrderInfoComponent implements OnInit, OnDestroy {
   }
 
   initPartyInfo(){
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if(aux.logged_as == aux.id){
         this.partyId = aux.partyId;
         let userRoles = aux.roles.map((elem: any) => {

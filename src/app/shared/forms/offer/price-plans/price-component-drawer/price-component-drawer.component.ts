@@ -6,9 +6,7 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import {TranslateModule} from "@ngx-translate/core";
 import {NgClass} from "@angular/common";
 import { initFlowbite } from 'flowbite';
-import moment from 'moment';
 import { certifications } from 'src/app/models/certification-standards.const';
-import { LoginInfo } from 'src/app/models/interfaces';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
 
@@ -150,8 +148,8 @@ export class PriceComponentDrawerComponent implements OnInit {
 
 
   initPartyInfo(){
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if(aux.logged_as==aux.id){
         this.partyId = aux.partyId;
       } else {

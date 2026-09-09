@@ -4,13 +4,11 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateService } from '@ngx-translate/core';
-import moment from 'moment';
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IconCategory, POPULAR_ICON_CATEGORIES, findIconByName } from 'src/app/config/popular-icons';
 import { FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { HELM_DEPLOYMENT_CHARACTERISTICS } from 'src/app/models/helm-deployment-characteristics.const';
-import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
@@ -499,8 +497,8 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   initPartyInfo() {
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
       } else {

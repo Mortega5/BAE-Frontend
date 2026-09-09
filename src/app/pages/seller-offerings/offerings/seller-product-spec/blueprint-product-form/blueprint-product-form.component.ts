@@ -1,10 +1,8 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
-import moment from 'moment';
 import { Subject } from 'rxjs';
 import { FormField } from 'src/app/models/formFields/form-field.model';
-import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { TableColumn } from 'src/app/models/table-column.model';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
@@ -145,8 +143,8 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   }
 
   initPartyInfo() {
-    const aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if (JSON.stringify(aux) !== '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if (aux.logged_as === aux.id) {
         this.partyId = aux.partyId;
       } else {

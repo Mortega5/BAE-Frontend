@@ -4,8 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import {EventMessageService} from "src/app/services/event-message.service";
 import {LocalStorageService} from "src/app/services/local-storage.service";
 import { DomeBlogContentType, DomeBlogServiceService } from "src/app/services/dome-blog-service.service"
-import { LoginInfo } from 'src/app/models/interfaces';
-import moment from 'moment';
 import { Subject } from 'rxjs';
 import { ConfirmModalComponent } from "src/app/shared/confirm-modal/confirm-modal.component";
 import { ButtonComponent } from 'src/app/shared/button/button.component';
@@ -66,8 +64,8 @@ export class DomeBlogComponent implements OnInit, OnDestroy {
   }
 
   initPartyInfo(){
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       console.log('user info ---')
       console.log(aux)
       if(aux.logged_as==aux.id){

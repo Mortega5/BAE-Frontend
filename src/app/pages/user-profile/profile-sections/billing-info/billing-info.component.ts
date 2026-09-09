@@ -4,11 +4,10 @@ import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { faEdit } from '@fortawesome/pro-solid-svg-icons';
 import { initFlowbite } from 'flowbite';
-import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { countries } from 'src/app/models/country.const';
-import { LoginInfo, billingAccountCart } from 'src/app/models/interfaces';
+import { billingAccountCart } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
 import { TableColumn } from 'src/app/models/table-column.model';
 import { AccountServiceService } from 'src/app/services/account-service.service';
@@ -114,8 +113,8 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
   }
 
   initPartyInfo() {
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if (aux.logged_as !== aux.id) {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
         this.partyId = loggedOrg.partyId;

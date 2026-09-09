@@ -6,12 +6,10 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faCheck, faIdCard, faPlay, faSort, faStickyNote, faSwatchbook, faXmark } from "@fortawesome/pro-solid-svg-icons";
 import { TranslateModule } from '@ngx-translate/core';
 import { Drawer, initFlowbite, Modal } from 'flowbite';
-import moment from 'moment';
 import { from, Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { countries } from 'src/app/models/country.const';
 import { FormField } from 'src/app/models/formFields/form-field.model';
-import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
@@ -315,8 +313,8 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   initPartyInfo() {
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
         this.currentUser = aux.user;

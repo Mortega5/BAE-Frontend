@@ -3,13 +3,11 @@ import { AbstractControl, FormControl, ValidatorFn, Validators } from '@angular/
 import { faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { initFlowbite } from 'flowbite';
 import { parsePhoneNumber } from 'libphonenumber-js/max';
-import moment from 'moment';
 import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { countries, euCountries } from 'src/app/models/country.const';
 import { FormField, SelectOption } from 'src/app/models/formFields/form-field.model';
-import { LoginInfo } from 'src/app/models/interfaces';
 import { TableColumn } from 'src/app/models/table-column.model';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
@@ -133,8 +131,8 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
   }
 
   initPartyInfo() {
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if (aux.logged_as !== aux.id) {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
         this.partyId = loggedOrg.partyId;

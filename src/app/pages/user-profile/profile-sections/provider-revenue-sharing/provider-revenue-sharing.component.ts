@@ -2,8 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
-import moment from 'moment';
-import { LoginInfo, Report } from 'src/app/models/interfaces';
+import { Report } from 'src/app/models/interfaces';
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { RevenueSharingService } from 'src/app/services/revenue-sharing.service';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
@@ -71,8 +70,8 @@ export class ProviderRevenueSharingComponent implements OnInit {
   }
 
   initPartyInfo() {
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
       } else {

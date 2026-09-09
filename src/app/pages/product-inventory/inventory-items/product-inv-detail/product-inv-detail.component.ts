@@ -11,11 +11,10 @@ type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
 //type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
 import { certifications } from 'src/app/models/certification-standards.const'
 import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { LoginInfo, cartProduct,productSpecCharacteristicValueCart } from 'src/app/models/interfaces';
+import { cartProduct,productSpecCharacteristicValueCart } from 'src/app/models/interfaces';
 import { ProductInventoryServiceService } from 'src/app/services/product-inventory-service.service'
 import {EventMessageService} from "src/app/services/event-message.service";
 import { jwtDecode } from "jwt-decode";
-import moment from 'moment';
 import { environment } from 'src/environments/environment';
 import { Location } from '@angular/common';
 import { TableColumn } from 'src/app/models/table-column.model';
@@ -151,16 +150,17 @@ export class ProductInvDetailComponent implements OnInit {
   }
 
   private handleLoginState() {
-    const aux = this.localStorage.getObject('login_items') as LoginInfo;
-    const isValidSession = aux && Object.keys(aux).length > 0 && (aux.expire - moment().unix() - 4) > 0;
+    const aux = this.localStorage.getValidLoginInfo();
 
-    this.check_logged = isValidSession;
-    if (isValidSession) {
+    this.check_logged = !!aux;
+    if (aux) {
       if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
       } else {
         const loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as);
-        this.partyId = loggedOrg.partyId;
+        if (loggedOrg) {
+          this.partyId = loggedOrg.partyId;
+        }
       }
     }
     this.cdr.detectChanges();

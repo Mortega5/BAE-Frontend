@@ -1,10 +1,9 @@
 import { ChangeDetectorRef, Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { Validators } from '@angular/forms';
-import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
-import { LoginInfo, billingAccountCart } from 'src/app/models/interfaces';
+import { billingAccountCart } from 'src/app/models/interfaces';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { environment } from 'src/environments/environment';
@@ -113,8 +112,8 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
   }
 
   initUserData() {
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
         this.partyInfo = {

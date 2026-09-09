@@ -6,7 +6,6 @@ import { AttachmentServiceService } from "src/app/services/attachment-service.se
 import {LocalStorageService} from "src/app/services/local-storage.service";
 import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LoginInfo } from 'src/app/models/interfaces';
 import moment from 'moment';
 import { ConfirmModalComponent } from "src/app/shared/confirm-modal/confirm-modal.component";
 import { environment } from "src/environments/environment";
@@ -203,8 +202,8 @@ export class EntryFormComponent implements OnInit {
   }
 
   initPartyInfo(){
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if(aux.logged_as==aux.id){
         this.partyId = aux.partyId;
         this.name = aux.user;

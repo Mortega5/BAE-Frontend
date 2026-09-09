@@ -10,7 +10,6 @@ import {AttachmentServiceService} from "src/app/services/attachment-service.serv
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { PaginationService } from 'src/app/services/pagination.service';
-import { LoginInfo } from 'src/app/models/interfaces';
 import { initFlowbite } from 'flowbite';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import moment from 'moment';
@@ -420,8 +419,8 @@ export class NewPricePlanComponent implements OnInit, OnDestroy {
   }
 
   initPartyInfo(){
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if(aux.logged_as==aux.id){
         this.partyId = aux.partyId;
       } else {

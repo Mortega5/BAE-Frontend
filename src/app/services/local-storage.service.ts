@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import moment from 'moment';
 import {Category, LoginInfo} from "../models/interfaces";
 import {components} from "../models/product-catalog";
 type ProductOffering = components["schemas"]["ProductOffering"];
@@ -82,6 +83,19 @@ export class LocalStorageService {
 
   removeLoginInfo(): void {
     localStorage.setItem("login_items", JSON.stringify({}));
+  }
+
+  // True when `login_items` holds a non-empty session whose expiry (minus a
+  // 4s grace window) hasn't passed. Centralizes a check that used to be
+  // hand-copied across ~40 components.
+  isLoggedIn(): boolean {
+    const aux = this.getObject('login_items') as LoginInfo;
+    return JSON.stringify(aux) !== '{}' && ((aux.expire - moment().unix()) - 4) > 0;
+  }
+
+  // The current session, or null if not logged in / expired.
+  getValidLoginInfo(): LoginInfo | null {
+    return this.isLoggedIn() ? (this.getObject('login_items') as LoginInfo) : null;
   }
 
 }

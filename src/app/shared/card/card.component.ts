@@ -21,9 +21,8 @@ import { Modal } from 'flowbite';
 import { Router } from '@angular/router';
 import { PriceServiceService } from 'src/app/services/price-service.service';
 import { initFlowbite } from 'flowbite';
-import { LoginInfo, cartProduct,productSpecCharacteristicValueCart } from '../../models/interfaces';
+import { cartProduct,productSpecCharacteristicValueCart } from '../../models/interfaces';
 import { ShoppingCartServiceService } from 'src/app/services/shopping-cart-service.service';
-import moment from 'moment';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { jwtDecode } from "jwt-decode";
 import { environment } from 'src/environments/environment';
@@ -252,8 +251,8 @@ export class CardComponent implements OnInit, OnDestroy, AfterViewInit {
     this.themeSubscription = this.themeService.currentTheme$.subscribe(theme => {
       this.currentTheme = theme;
     });
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       this.check_logged=true;
       if(aux.logged_as==aux.id){
         this.customerId = aux.partyId;

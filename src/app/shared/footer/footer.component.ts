@@ -5,9 +5,7 @@ import {
   faXTwitter,
   faYoutube,
 } from '@fortawesome/free-brands-svg-icons';
-import moment from 'moment';
 import { Subject, takeUntil } from 'rxjs';
-import { LoginInfo } from 'src/app/models/interfaces';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { EventMessageService } from '../../services/event-message.service';
@@ -47,8 +45,8 @@ export class FooterComponent implements OnInit, OnDestroy {
   }
 
   private checkIfLogged() {
-    const userInfo = this.localStorage.getObject('login_items') as LoginInfo;
-    if ((JSON.stringify(userInfo) != '{}' && (((userInfo.expire - moment().unix()) - 4) > 0))) {
+    const userInfo = this.localStorage.getValidLoginInfo();
+    if (userInfo) {
       this.checkLogged = true;
     }
   }

@@ -3,10 +3,9 @@ import { Router } from '@angular/router';
 import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { TranslateService } from '@ngx-translate/core';
 import { initFlowbite } from 'flowbite';
-import moment from 'moment';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { LoginInfo, billingAccountCart } from 'src/app/models/interfaces';
+import { billingAccountCart } from 'src/app/models/interfaces';
 import { components } from "src/app/models/product-catalog";
 import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
 import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.paths';
@@ -91,8 +90,8 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
   initInventory() {
     this.loading = true;
 
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if (aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
       } else {

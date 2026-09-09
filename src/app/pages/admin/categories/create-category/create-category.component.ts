@@ -4,10 +4,8 @@ import { ApiServiceService } from 'src/app/services/product-service.service';
 import { AdminPaths } from 'src/app/pages/admin/admin.paths';
 import {LocalStorageService} from "src/app/services/local-storage.service";
 import {EventMessageService} from "src/app/services/event-message.service";
-import { LoginInfo } from 'src/app/models/interfaces';
 import { initFlowbite } from 'flowbite';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
-import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
@@ -88,8 +86,8 @@ export class CreateCategoryComponent implements OnInit, OnDestroy {
   }
 
   initPartyInfo(){
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if(aux.logged_as==aux.id){
         this.partyId = aux.partyId;
       } else {

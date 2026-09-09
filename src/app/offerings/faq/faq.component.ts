@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import moment from 'moment';
-import { LoginInfo } from 'src/app/models/interfaces';
 import { DomeBlogServiceService } from 'src/app/services/dome-blog-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 
@@ -110,8 +108,8 @@ export class FaqComponent implements OnInit {
   }
 
   private initPartyInfo(){
-    const aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       this.checkAdmin=aux.roles.some(role =>
         role.name === 'admin'
       );

@@ -5,7 +5,7 @@ import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { FeedbackInfo, LoginInfo } from 'src/app/models/interfaces';
+import { FeedbackInfo } from 'src/app/models/interfaces';
 import { LoginServiceService } from "src/app/services/login-service.service";
 import { PaginationService } from 'src/app/services/pagination.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
@@ -231,11 +231,11 @@ export class SearchComponent implements OnInit, OnDestroy {
       });
     }
     setTimeout(() => {
-      const userInfo = this.localStorage.getObject('login_items') as LoginInfo;
+      const userInfo = this.localStorage.getValidLoginInfo();
       //this.localStorage.setObject('feedback', {});
 
       // The user is logged in
-      if ((JSON.stringify(userInfo) != '{}' && (((userInfo.expire - moment().unix()) - 4) > 0))) {
+      if (userInfo) {
         if (environment.feedbackCampaign) {
           let feedbackInfo = this.localStorage.getObject('feedback') as FeedbackInfo;
           console.log('---------------------- feedbackInfo')

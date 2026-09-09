@@ -10,7 +10,6 @@ type ProductSpecification = components["schemas"]["ProductSpecification"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
 //type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
 import { Location } from '@angular/common';
-import moment from 'moment';
 import { Subject } from "rxjs";
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
@@ -19,7 +18,7 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ShoppingCartServiceService } from 'src/app/services/shopping-cart-service.service';
 import { UsageServiceService } from 'src/app/services/usage-service.service';
 import { environment } from 'src/environments/environment';
-import { LoginInfo, cartProduct, productSpecCharacteristicValueCart } from '../../models/interfaces';
+import { cartProduct, productSpecCharacteristicValueCart } from '../../models/interfaces';
 import { EventMessageService } from "../../services/event-message.service";
 import { ThemeService } from '../../services/theme.service';
 
@@ -229,8 +228,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if (JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix()) - 4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       this.check_logged = true;
       this.cdr.detectChanges();
 

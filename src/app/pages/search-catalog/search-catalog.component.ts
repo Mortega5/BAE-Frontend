@@ -1,7 +1,6 @@
 import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
 import { initFlowbite } from 'flowbite';
-import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AccountServiceService } from "src/app/services/account-service.service";
@@ -9,7 +8,7 @@ import { PaginationService } from 'src/app/services/pagination.service';
 import { PriceServiceService } from 'src/app/services/price-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { environment } from 'src/environments/environment';
-import { Category, LoginInfo } from "../../models/interfaces";
+import { Category } from "../../models/interfaces";
 import { components } from "../../models/product-catalog";
 import { EventMessageService } from "../../services/event-message.service";
 import { LocalStorageService } from "../../services/local-storage.service";
@@ -142,10 +141,9 @@ export class SearchCatalogComponent implements OnInit, OnDestroy {
 
     console.log('Productos:')
     console.log(this.products)
-    const userInfo = this.localStorage.getObject('login_items') as LoginInfo;
-
+    const userInfo = this.localStorage.getValidLoginInfo();
     // The user is logged in
-    if ((JSON.stringify(userInfo) != '{}' && (((userInfo.expire - moment().unix()) - 4) > 0))) {
+    if (userInfo) {
       this.feedback = true;
     }
 

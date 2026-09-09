@@ -1,5 +1,4 @@
 import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
-import { LoginInfo } from 'src/app/models/interfaces';
 import { ProductInventoryServiceService } from 'src/app/services/product-inventory-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
@@ -10,7 +9,6 @@ import {EventMessageService} from "src/app/services/event-message.service";
 import {faIdCard, faSort, faSwatchbook} from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
 import { environment } from 'src/environments/environment';
-import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TableColumn } from 'src/app/models/table-column.model';
@@ -91,8 +89,8 @@ export class InventoryServicesComponent implements OnInit, OnDestroy {
   initInventory(){
     this.loading=true;
 
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if(aux.logged_as==aux.id){
         this.partyId = aux.partyId;
       } else {

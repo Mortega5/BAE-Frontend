@@ -4,8 +4,6 @@ import {TranslateModule} from "@ngx-translate/core";
 import {NgClass, NgForOf, NgIf} from "@angular/common";
 import { UsageServiceService } from 'src/app/services/usage-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { LoginInfo } from 'src/app/models/interfaces';
-import moment from 'moment';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
 
@@ -93,8 +91,8 @@ export class TierPricingDrawerComponent implements OnInit {
   }
 
   initPartyInfo() {
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if(JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0)) {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (aux) {
       if(aux.logged_as == aux.id) {
         this.partyId = aux.partyId;
       } else {
