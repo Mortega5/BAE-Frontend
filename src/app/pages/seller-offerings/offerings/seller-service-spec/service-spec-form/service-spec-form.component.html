@@ -7,9 +7,30 @@
   </div>
   <!-- End Breadcrumb -->
 
-  <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
-    {{ (isUpdate ? 'UPDATE_SERV_SPEC._update_serv' : 'CREATE_SERV_SPEC._new') | translate }}
-  </h1>
+  <div class="flex items-center justify-between mb-6 gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white truncate">
+        {{ (isUpdate ? 'UPDATE_SERV_SPEC._update_serv' : 'CREATE_SERV_SPEC._new') | translate }}
+      </h1>
+      @if (isUpdate && !notFound) {
+      <bae-badge variant="status" [status]="statusBadgeVariant(serv?.lifecycleStatus ?? '')"
+        [label]="statusLabel(serv?.lifecycleStatus ?? '') | translate"></bae-badge>
+      }
+    </div>
+    @if (isUpdate && !notFound) {
+    <div class="flex items-center gap-3 shrink-0">
+      <app-button type="button" variant="danger" size="sm" [disabled]="loading" (click)="showDeleteConfirm = true">
+        {{ 'UPDATE_SERV_SPEC._delete' | translate }}
+      </app-button>
+      @if (isDraft) {
+      <app-button type="button" size="sm" [disabled]="loading" prefixIcon="rocket-launch"
+        (click)="showPublishConfirm = true">
+        {{ 'UPDATE_SERV_SPEC._publish' | translate }}
+      </app-button>
+      }
+    </div>
+    }
+  </div>
 
   @if (notFound) {
   <app-not-found-state message="This service specification could not be found." (back)="goBack()" />
@@ -52,6 +73,16 @@
   message="PUBLISH_DRAFT_MODAL._message" cancelLabel="PUBLISH_DRAFT_MODAL._save_draft"
   confirmLabel="PUBLISH_DRAFT_MODAL._publish" confirmVariant="primary"
   (resolved)="$event ? publish() : saveDraft()" (closed)="showPublishDraftModal = false" />
+
+<app-confirm-modal [visible]="showDeleteConfirm" title="UPDATE_SERV_SPEC._delete_confirm_title"
+  message="UPDATE_SERV_SPEC._delete_confirm_message" confirmLabel="UPDATE_SERV_SPEC._delete"
+  cancelLabel="CONFIRM_MODAL._cancel" confirmVariant="danger" (resolved)="onDeleteResolved($event)"
+  (closed)="showDeleteConfirm = false" />
+
+<app-confirm-modal [visible]="showPublishConfirm" title="UPDATE_SERV_SPEC._publish_confirm_title"
+  message="UPDATE_SERV_SPEC._publish_confirm_message" confirmLabel="UPDATE_SERV_SPEC._publish"
+  cancelLabel="CONFIRM_MODAL._cancel" confirmVariant="primary" (resolved)="onPublishResolved($event)"
+  (closed)="showPublishConfirm = false" />
 
 @if (showError) {
 <error-message

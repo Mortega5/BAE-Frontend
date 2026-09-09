@@ -4,12 +4,13 @@ import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
+import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
 import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
@@ -30,10 +31,6 @@ const GENERAL_FORM_FIELDS_CREATE: FormField[] = [
 
 const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
   { type: 'string', name: 'name', label: 'UPDATE_SERV_SPEC._name', required: true, maxLength: 100, dataCy: 'servSpecName', placeholder: 'CREATE_SERV_SPEC._name_placeholder' },
-  {
-    type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_SERV_SPEC._status',
-    options: buildLifecycleStatusOptions('serviceSpecStatus'),
-  },
   { type: 'markdownTextarea', name: 'description', label: 'UPDATE_SERV_SPEC._description', placeholder: 'CREATE_SERV_SPEC._description_placeholder' },
 ];
 
@@ -48,6 +45,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
   get isUpdate(): boolean { return this.mode === 'update'; }
   get i18nPrefix(): string { return this.isUpdate ? 'UPDATE_SERV_SPEC' : 'CREATE_SERV_SPEC'; }
   get notFound(): boolean { return this.isUpdate && !this.loading && !this.serv; }
+  get isDraft(): boolean { return this.serv?.lifecycleStatus === 'Active'; }
 
   get generalFormFields(): FormField[] {
     return this.isUpdate ? GENERAL_FORM_FIELDS_UPDATE : GENERAL_FORM_FIELDS_CREATE;
@@ -71,6 +69,8 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
   errorMessage: any = '';
   showError = false;
   showPublishDraftModal = false;
+  showDeleteConfirm = false;
+  showPublishConfirm = false;
 
   private destroy$ = new Subject<void>();
 
@@ -221,6 +221,67 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
     this.showPublishDraftModal = false;
     this.showError = true;
     setTimeout(() => this.showError = false, 3000);
+  }
+
+  statusBadgeVariant(status: string): BadgeStatus {
+    return lifecycleStatusBadgeVariant(status);
+  }
+
+  statusLabel(status: string): string {
+    return lifecycleStatusLabel(status);
+  }
+
+  onDeleteResolved(confirmed: boolean): void {
+    this.showDeleteConfirm = false;
+    if (confirmed) {
+      this.deleteService();
+    }
+  }
+
+  onPublishResolved(confirmed: boolean): void {
+    this.showPublishConfirm = false;
+    if (confirmed) {
+      this.publishService();
+    }
+  }
+
+  private deleteService(): void {
+    this.loading = true;
+    this.servSpecService.deleteServSpec(this.serv.id).subscribe({
+      next: () => {
+        this.loading = false;
+        this.goBack();
+      },
+      error: (error: any) => {
+        console.error('There was an error while deleting the service specification!', error);
+        this.errorMessage = error.error?.error
+          ? 'Error: ' + error.error.error
+          : 'There was an error while deleting the service specification!';
+        this.loading = false;
+        this.showError = true;
+        setTimeout(() => { this.showError = false; }, 3000);
+      },
+    });
+  }
+
+  private publishService(): void {
+    this.loading = true;
+    this.servSpecService.updateServSpec({ lifecycleStatus: 'Launched' }, this.serv.id).subscribe({
+      next: () => {
+        this.loading = false;
+        this.serv.lifecycleStatus = 'Launched';
+        this.generalForm.patchValue({ lifecycleStatus: 'Launched' });
+      },
+      error: (error: any) => {
+        console.error('There was an error while publishing the service specification!', error);
+        this.errorMessage = error.error?.error
+          ? 'Error: ' + error.error.error
+          : 'There was an error while publishing the service specification!';
+        this.loading = false;
+        this.showError = true;
+        setTimeout(() => { this.showError = false; }, 3000);
+      },
+    });
   }
 
 }

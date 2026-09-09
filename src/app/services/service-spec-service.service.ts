@@ -74,4 +74,9 @@ export class ServiceSpecServiceService {
     let url = `${ServiceSpecServiceService.BASE_URL}${ServiceSpecServiceService.SERVICE}${ServiceSpecServiceService.API_SERVICE_SPEC}/${id}`;
     return this.http.patch<any>(url, body);
   }
+
+  deleteServSpec(id: any) {
+    let url = `${ServiceSpecServiceService.BASE_URL}${ServiceSpecServiceService.SERVICE}${ServiceSpecServiceService.API_SERVICE_SPEC}/${id}`;
+    return this.http.delete<any>(url);
+  }
 }

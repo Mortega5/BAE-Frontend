@@ -1811,7 +1811,15 @@
     "_description": "Description",
     "_next": "Next",
     "_finish": "Finish",
-    "_update_serv": "Update service"
+    "_update_serv": "Update service",
+    "_delete": "Delete",
+    "_delete_confirm_title": "Delete service specification?",
+    "_delete_confirm_message": "This will permanently delete this service specification. This action cannot be undone.",
+    "_delete_error": "There was an error while deleting the service specification!",
+    "_publish": "Publish",
+    "_publish_confirm_title": "Publish service specification?",
+    "_publish_confirm_message": "This will make the service specification visible and available immediately.",
+    "_publish_error": "There was an error while publishing the service specification!"
   },
   "CREATE_OFFER": {
     "_back": "Back",

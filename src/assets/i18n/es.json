@@ -1811,7 +1811,15 @@
     "_description": "Descripción",
     "_next": "Siguiente",
     "_finish": "Finalizar",
-    "_update_serv": "Actualizar servicio"
+    "_update_serv": "Actualizar servicio",
+    "_delete": "Eliminar",
+    "_delete_confirm_title": "¿Eliminar especificación de servicio?",
+    "_delete_confirm_message": "Esto eliminará permanentemente esta especificación de servicio. Esta acción no se puede deshacer.",
+    "_delete_error": "¡Se produjo un error al eliminar la especificación de servicio!",
+    "_publish": "Publicar",
+    "_publish_confirm_title": "¿Publicar especificación de servicio?",
+    "_publish_confirm_message": "La especificación de servicio pasará a estar visible y disponible de inmediato.",
+    "_publish_error": "¡Se produjo un error al publicar la especificación de servicio!"
   },
   "CREATE_OFFER": {
     "_back": "Atrás",
