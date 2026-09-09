@@ -220,7 +220,11 @@ body.theme-bae {
   --theme-secondary-300: 26 37 48;
   /* #1a2530 */
   --theme-input-bg: rgb(var(--theme-secondary-300));
-  --theme-input-border: rgb(var(--theme-secondary-200));
+  /* Its own standalone value (not aliased to --theme-secondary-200) so it can be
+     retuned independently of the theme's branded border color — matches the
+     Stitch dark mockup's neutral slate-700 border on inputs/selects. */
+  --theme-input-border: rgb(51 65 85);
+  /* slate-700 */
   /* Flipped vs. the light defaults above — see the comment on --md-body-bg. */
   --md-body-bg: var(--theme-page-bg);
   --md-toolbar-bg: var(--theme-input-bg);
