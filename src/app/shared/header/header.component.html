@@ -313,6 +313,43 @@
     </div>
     }
 
+    @if (!isProduction && availableProviderThemes.length > 1) {
+    @if (mobile) {
+    <div class="mobile-nav-item flex items-center justify-between">
+      <span class="flex items-center"><fa-icon [icon]="paletteIcon" class="mr-2"></fa-icon>{{ 'HEADER._theme_dev' |
+        translate }}</span>
+      <div class="flex gap-3">
+        @for (theme of availableProviderThemes; track theme.name) {
+        <button type="button" [attr.data-cy]="'providerTheme-' + theme.name" [attr.aria-label]="theme.displayName"
+          [class.opacity-50]="currentTheme?.name !== theme.name" (click)="selectProviderTheme(theme)">
+          {{ theme.displayName }}
+        </button>
+        }
+      </div>
+    </div>
+    } @else {
+    <div class="relative">
+      <button type="button" data-cy="providerThemeSelector" aria-label="Provider theme selector (dev only)"
+        class="inline-flex h-[44px] w-[44px] items-center justify-center rounded-[10px] text-white/90 hover:text-white hover:bg-white/10 transition"
+        (click)="toggleProviderThemeDropdown($event)">
+        <fa-icon [icon]="paletteIcon"></fa-icon>
+      </button>
+      @if (providerThemeDropdownOpen) {
+      <div class="absolute right-0 mt-2 w-48 rounded-lg bg-white dark:bg-gray-800 shadow-lg py-1 z-50"
+        (click)="$event.stopPropagation()">
+        @for (theme of availableProviderThemes; track theme.name) {
+        <button type="button" [attr.data-cy]="'providerTheme-' + theme.name"
+          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          [class.font-semibold]="currentTheme?.name === theme.name" (click)="selectProviderTheme(theme)">
+          {{ theme.displayName }}
+        </button>
+        }
+      </div>
+      }
+    </div>
+    }
+    }
+
     @if (mobile) {
     <div class="h-px mx-2 my-1 bg-white/10"></div>
     } @else {

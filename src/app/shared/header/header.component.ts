@@ -14,6 +14,7 @@ import {
   faDisplay,
   faHandHoldingBox,
   faMoon,
+  faPalette,
   faPieChart,
   faReceipt,
   faSun,
@@ -73,6 +74,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   ) { }
 
   providerThemeName = environment.providerThemeName;
+  isProduction = environment.isProduction;
   quotesEnabled = environment.QUOTES_ENABLED;
   tenderEnabled = environment.TENDER_ENABLED;
 
@@ -112,6 +114,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   isNavBarOpen = false;
   flagDropdownOpen = false;
   themeDropdownOpen = false;
+  providerThemeDropdownOpen = false;
 
   cartCount = 0;
   scrolled = false;
@@ -122,6 +125,9 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   currentTheme: ThemeConfig | null = null;
   headerLinks: NavLink[] = [];
   themeAuthUrls?: ThemeAuthUrlsConfig;
+  /** Dev-only: lets a developer try out every registered provider theme without
+   * changing environment config. Never shown in production. */
+  availableProviderThemes: ThemeConfig[] = [];
 
   themeMode: ThemeMode = ThemeMode.System;
   protected readonly ThemeMode = ThemeMode;
@@ -147,6 +153,16 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
     this.themeDropdownOpen = !this.themeDropdownOpen;
   }
 
+  selectProviderTheme(theme: ThemeConfig): void {
+    this.themeService.initializeProviderTheme(theme.name);
+    this.providerThemeDropdownOpen = false;
+  }
+
+  toggleProviderThemeDropdown(event: Event): void {
+    event.stopPropagation();
+    this.providerThemeDropdownOpen = !this.providerThemeDropdownOpen;
+  }
+
   @HostListener('window:scroll')
   onScroll() {
     this.scrolled = window.scrollY > 10;
@@ -163,6 +179,9 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
     }
     if (this.themeDropdownOpen) {
       this.themeDropdownOpen = false;
+    }
+    if (this.providerThemeDropdownOpen) {
+      this.providerThemeDropdownOpen = false;
     }
   }
 
@@ -185,6 +204,10 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
     this.langs = this.translate.getLangs();
     const currLang = this.localStorage.getItem('current_language');
     this.defaultLang = currLang ?? this.translate.getDefaultLang();
+
+    if (!this.isProduction) {
+      this.availableProviderThemes = this.themeService.getAvailableThemes();
+    }
 
     this.themeSubscription = this.themeService.currentTheme$.subscribe(theme => {
       this.currentTheme = theme;
@@ -472,4 +495,5 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   protected readonly lightIcon = faSun;
   protected readonly darkIcon = faMoon;
   protected readonly systemIcon = faDisplay;
+  protected readonly paletteIcon = faPalette;
 }

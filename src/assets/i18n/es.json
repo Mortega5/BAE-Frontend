@@ -822,6 +822,7 @@
     "_theme_light": "Claro",
     "_theme_dark": "Oscuro",
     "_theme_system": "Sistema",
+    "_theme_dev": "Tema (dev)",
     "_sign_out": "Cerrar sesión",
     "_inventory": "Mi inventario",
     "_support": "Soporte",
