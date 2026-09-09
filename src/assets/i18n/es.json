@@ -1221,7 +1221,15 @@
     "_launched": "Publicado",
     "_retired": "Retirado",
     "_obsolete": "Obsoleto",
-    "_update_error": "¡Se produjo un error al actualizar el catálogo!"
+    "_update_error": "¡Se produjo un error al actualizar el catálogo!",
+    "_delete": "Eliminar",
+    "_delete_confirm_title": "¿Eliminar catálogo?",
+    "_delete_confirm_message": "Esto eliminará permanentemente este catálogo. Esta acción no se puede deshacer.",
+    "_delete_error": "¡Se produjo un error al eliminar el catálogo!",
+    "_publish": "Publicar",
+    "_publish_confirm_title": "¿Publicar catálogo?",
+    "_publish_confirm_message": "El catálogo pasará a estar visible y disponible de inmediato.",
+    "_publish_error": "¡Se produjo un error al publicar el catálogo!"
   },
   "CREATE_PROD_SPEC": {
     "_back": "Atrás",

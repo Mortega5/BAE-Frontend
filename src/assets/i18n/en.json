@@ -1221,7 +1221,15 @@
     "_launched": "Launched",
     "_retired": "Retired",
     "_obsolete": "Obsolete",
-    "_update_error": "There was an error while updating the catalog!"
+    "_update_error": "There was an error while updating the catalog!",
+    "_delete": "Delete",
+    "_delete_confirm_title": "Delete catalog?",
+    "_delete_confirm_message": "This will permanently delete this catalog. This action cannot be undone.",
+    "_delete_error": "There was an error while deleting the catalog!",
+    "_publish": "Publish",
+    "_publish_confirm_title": "Publish catalog?",
+    "_publish_confirm_message": "This will make the catalog visible and available immediately.",
+    "_publish_error": "There was an error while publishing the catalog!"
   },
   "CREATE_PROD_SPEC": {
     "_back": "Back",

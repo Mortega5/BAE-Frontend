@@ -7,7 +7,27 @@
   </div>
   <!-- End Breadcrumb -->
 
-  <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'UPDATE_CATALOG._update' | translate }}</h1>
+  <div class="flex items-center justify-between mb-6 gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white truncate">{{ 'UPDATE_CATALOG._update' | translate }}</h1>
+      @if (!notFound) {
+      <bae-badge variant="status" [status]="statusBadgeVariant(cat?.lifecycleStatus ?? '')"
+        [label]="statusLabel(cat?.lifecycleStatus ?? '') | translate"></bae-badge>
+      }
+    </div>
+    @if (!notFound) {
+    <div class="flex items-center gap-3 shrink-0">
+      <app-button type="button" variant="danger" size="sm" [disabled]="loading" (click)="showDeleteConfirm = true">
+        {{ 'UPDATE_CATALOG._delete' | translate }}
+      </app-button>
+      @if (isDraft) {
+      <app-button type="button" size="sm" [disabled]="loading" prefixIcon="rocket-launch" (click)="showPublishConfirm = true">
+        {{ 'UPDATE_CATALOG._publish' | translate }}
+      </app-button>
+      }
+    </div>
+    }
+  </div>
 
   @if (notFound) {
   <app-not-found-state message="This catalog could not be found." (back)="goBack()" />
@@ -70,6 +90,14 @@
   </app-stepper>
   }
 </div>
+
+<app-confirm-modal [visible]="showDeleteConfirm" title="UPDATE_CATALOG._delete_confirm_title"
+  message="UPDATE_CATALOG._delete_confirm_message" confirmLabel="UPDATE_CATALOG._delete" cancelLabel="CONFIRM_MODAL._cancel"
+  confirmVariant="danger" (resolved)="onDeleteResolved($event)" (closed)="showDeleteConfirm = false" />
+
+<app-confirm-modal [visible]="showPublishConfirm" title="UPDATE_CATALOG._publish_confirm_title"
+  message="UPDATE_CATALOG._publish_confirm_message" confirmLabel="UPDATE_CATALOG._publish" cancelLabel="CONFIRM_MODAL._cancel"
+  confirmVariant="primary" (resolved)="onPublishResolved($event)" (closed)="showPublishConfirm = false" />
 
 @if (showError) {
 <error-message

@@ -450,6 +450,12 @@ export class ApiServiceService {
     return this.http.patch<any>(url, catalog);
   }
 
+  deleteCatalog(id: any) {
+    let url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog/${id}`;
+
+    return this.http.delete<any>(url);
+  }
+
   updateAdminCatalog(catalog: any, id: any) {
     let url = `${ApiServiceService.BASE_URL}/admin/catalog/catalog/${id}`;
 

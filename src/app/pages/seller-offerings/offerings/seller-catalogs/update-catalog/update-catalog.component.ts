@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from 'src/app/services/event-message.service';
@@ -38,12 +38,6 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
 
   generalFormFields: FormField[] = [
     { type: 'string', name: 'name', label: 'UPDATE_CATALOG._name', required: true, maxLength: 100, dataCy: 'catalogName' },
-    {
-      type: 'statusPicker',
-      name: 'lifecycleStatus',
-      label: 'UPDATE_CATALOG._status',
-      options: buildLifecycleStatusOptions('catalogStatus'),
-    },
     { type: 'markdownTextarea', name: 'description', label: 'UPDATE_CATALOG._description', dataCy: 'catalogDsc' },
   ];
 
@@ -55,7 +49,13 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
 
   errorMessage: any = '';
   showError = false;
+  showDeleteConfirm = false;
+  showPublishConfirm = false;
   private destroy$ = new Subject<void>();
+
+  get isDraft(): boolean {
+    return this.cat?.lifecycleStatus === 'Active';
+  }
 
   constructor(
     private localStorage: LocalStorageService,
@@ -162,6 +162,59 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
         this.errorMessage = error.error?.error
           ? 'Error: ' + error.error.error
           : 'There was an error while updating the catalog!';
+        this.loading = false;
+        this.showError = true;
+        setTimeout(() => { this.showError = false; }, 3000);
+      },
+    });
+  }
+
+  onDeleteResolved(confirmed: boolean) {
+    this.showDeleteConfirm = false;
+    if (confirmed) {
+      this.deleteCatalog();
+    }
+  }
+
+  onPublishResolved(confirmed: boolean) {
+    this.showPublishConfirm = false;
+    if (confirmed) {
+      this.publishCatalog();
+    }
+  }
+
+  private deleteCatalog() {
+    this.loading = true;
+    this.api.deleteCatalog(this.cat.id).subscribe({
+      next: () => {
+        this.loading = false;
+        this.goBack();
+      },
+      error: error => {
+        console.error('There was an error while deleting the catalog!', error);
+        this.errorMessage = error.error?.error
+          ? 'Error: ' + error.error.error
+          : 'There was an error while deleting the catalog!';
+        this.loading = false;
+        this.showError = true;
+        setTimeout(() => { this.showError = false; }, 3000);
+      },
+    });
+  }
+
+  private publishCatalog() {
+    this.loading = true;
+    this.api.updateCatalog({ lifecycleStatus: 'Launched' }, this.cat.id).subscribe({
+      next: () => {
+        this.loading = false;
+        this.cat.lifecycleStatus = 'Launched';
+        this.generalForm.patchValue({ lifecycleStatus: 'Launched' });
+      },
+      error: error => {
+        console.error('There was an error while publishing the catalog!', error);
+        this.errorMessage = error.error?.error
+          ? 'Error: ' + error.error.error
+          : 'There was an error while publishing the catalog!';
         this.loading = false;
         this.showError = true;
         setTimeout(() => { this.showError = false; }, 3000);
