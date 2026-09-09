@@ -61,16 +61,23 @@ body {
   --table-text: var(--theme-default-text);
   /* gray-500 */
   --table-border-color: rgb(var(--theme-primary-100));
-  --table-header-bg: rgb(var(--theme-primary-100));
+  /* Deeper than --theme-primary-100 (used elsewhere for buttons/links) so the header
+     reads as its own dark "band" per the Stitch redesign, while still following
+     whichever theme is active instead of a fixed color. */
+  --table-header-bg: rgb(var(--theme-secondary-400));
   --table-header-text: var(--theme-primary-text);
   --table-header-hover-bg: rgb(var(--theme-primary-50) / 30%);
   --table-row-border-color: rgb(var(--theme-primary-50) / 40%);
   --table-row-hover-bg: rgb(var(--theme-secondary-50));
   --table-row-selected-bg: rgb(var(--theme-secondary-50));
   --table-empty-text: var(--theme-default-text);
-  --table-action-bg: rgb(var(--theme-primary-100));
-  --table-action-hover-bg: rgb(var(--theme-primary-50));
-  --table-action-text: var(--theme-primary-text);
+  /* Ghost-style action buttons (Stitch redesign) — transparent by default, only
+     tinted on hover, instead of a solid filled circle. */
+  --table-action-bg: transparent;
+  --table-action-hover-bg: rgb(var(--theme-secondary-50));
+  --table-action-text: rgb(148 163 184);
+  /* slate-400 */
+  --table-action-text-hover: rgb(var(--theme-primary-100));
   --table-action-focus-ring: rgb(var(--theme-primary-50) / 50%);
   --table-selection-accent: rgb(var(--theme-primary-100));
   --table-selection-bg: rgb(243 244 246);
@@ -78,6 +85,32 @@ body {
   --table-selection-border: rgb(209 213 219);
   /* gray-300 */
   --table-selection-ring: rgb(var(--theme-primary-50) / 50%);
+
+  /* bae-badge status-dot variant, "full color" pill style (Stitch redesign) — a
+     translucent tint + matching border derived from each --status-badge-* dot
+     color, so the whole pill (not just the dot) reads as that status' color.
+     color-mix keeps them derived from the single source of truth per status
+     instead of duplicating hex values. */
+  --status-badge-success-bg: color-mix(in srgb, var(--status-badge-success) 12%, transparent);
+  --status-badge-success-border: color-mix(in srgb, var(--status-badge-success) 35%, transparent);
+  --status-badge-info-bg: color-mix(in srgb, var(--status-badge-info) 12%, transparent);
+  --status-badge-info-border: color-mix(in srgb, var(--status-badge-info) 35%, transparent);
+  --status-badge-warning-bg: color-mix(in srgb, var(--status-badge-warning) 14%, transparent);
+  --status-badge-warning-border: color-mix(in srgb, var(--status-badge-warning) 40%, transparent);
+  --status-badge-danger-bg: color-mix(in srgb, var(--status-badge-danger) 12%, transparent);
+  --status-badge-danger-border: color-mix(in srgb, var(--status-badge-danger) 35%, transparent);
+  --status-badge-neutral-bg: color-mix(in srgb, var(--status-badge-neutral) 15%, transparent);
+  --status-badge-neutral-border: color-mix(in srgb, var(--status-badge-neutral) 35%, transparent);
+
+  /* bae-badge 'plain' variant (type/version tags) — neutral gray by default,
+     independent of the theme accent, matching the "ProductSpecification" style
+     tag in the Stitch redesign. Per-status colors (data-status != neutral) reuse
+     the --status-badge-*-bg/border tokens above instead of their own. */
+  --badge-plain-bg: rgb(100 116 139 / 10%);
+  /* slate-500 */
+  --badge-plain-border: rgb(100 116 139 / 25%);
+  --badge-plain-text: rgb(51 65 85);
+  /* slate-700 */
 
   /* app-markdown-textarea toolbar tokens — light-mode values match the toolbar's
      previous hardcoded appearance exactly; dark mode gets real values instead of
@@ -178,6 +211,27 @@ body.theme-bae {
   --table-row-hover-bg: rgb(var(--theme-secondary-400));
   --table-row-selected-bg: rgb(var(--theme-primary-100) / 20%);
   --table-empty-text: var(--theme-default-text);
+  --table-action-hover-bg: rgb(var(--theme-secondary-300) / 60%);
+  --table-action-text: rgb(148 163 184);
+  /* slate-400 */
+  --table-action-text-hover: rgb(var(--theme-primary-50));
+
+  --status-badge-success-bg: color-mix(in srgb, var(--status-badge-success) 22%, transparent);
+  --status-badge-success-border: color-mix(in srgb, var(--status-badge-success) 45%, transparent);
+  --status-badge-info-bg: color-mix(in srgb, var(--status-badge-info) 22%, transparent);
+  --status-badge-info-border: color-mix(in srgb, var(--status-badge-info) 45%, transparent);
+  --status-badge-warning-bg: color-mix(in srgb, var(--status-badge-warning) 24%, transparent);
+  --status-badge-warning-border: color-mix(in srgb, var(--status-badge-warning) 50%, transparent);
+  --status-badge-danger-bg: color-mix(in srgb, var(--status-badge-danger) 22%, transparent);
+  --status-badge-danger-border: color-mix(in srgb, var(--status-badge-danger) 45%, transparent);
+  --status-badge-neutral-bg: color-mix(in srgb, var(--status-badge-neutral) 25%, transparent);
+  --status-badge-neutral-border: color-mix(in srgb, var(--status-badge-neutral) 45%, transparent);
+
+  --badge-plain-bg: rgb(148 163 184 / 15%);
+  /* slate-400 */
+  --badge-plain-border: rgb(148 163 184 / 30%);
+  --badge-plain-text: rgb(226 232 240);
+  /* slate-200 */
 
   --button-secondary-bg: rgb(var(--theme-secondary-300));
   --button-secondary-bg-hover: rgb(var(--theme-secondary-200));

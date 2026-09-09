@@ -1,13 +1,16 @@
 <div class="overflow-x-auto overflow-y-hidden rounded-2xl border table-input-container" [class.opacity-80]="isReadonly"
   [class.cursor-not-allowed]="isReadonly">
   <table class="w-full table-fixed text-sm text-left table-input-text">
-    <thead class="text-sm font-semibold table-input-header">
+    <thead class="text-xs font-semibold uppercase tracking-wider table-input-header">
       <tr>
         @if (selectable) {
         <th scope="col" class="px-4 py-3 w-20 text-center normal-case"
           [attr.title]="selectedCount > 0 ? selectedCountLabel : null">
           @if (selectedCount > 0) {
-          [ {{ selectedCount }} ]
+          <span
+            class="inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-white/20 text-[11px] font-bold normal-case tracking-normal">
+            {{ selectedCount }}
+          </span>
           }
         </th>
         }
@@ -31,7 +34,7 @@
     </thead>
     <tbody>
       @for (item of items; track $index) {
-      <tr class="border-b table-input-row"
+      <tr class="border-b table-input-row transition-colors"
         [class.cursor-pointer]="!isReadonly && isRowSelectable(item) && (selectable || clickable)"
         [class.opacity-50]="!isRowSelectable(item)" [class.cursor-not-allowed]="!isRowSelectable(item)" [ngClass]="{
           'table-input-row-hoverable': !isReadonly && isRowSelectable(item) && (selectable || clickable),
@@ -40,11 +43,11 @@
         @if (selectable) {
         <td class="px-4 py-3 w-20">
           @if (multiple) {
-          <input type="checkbox" class="w-4 h-4 rounded focus:ring-4 table-input-selection-control"
+          <input type="checkbox" class="w-4 h-4 rounded-md transition-colors focus:ring-4 table-input-selection-control"
             [class.cursor-not-allowed]="isReadonly || !isRowSelectable(item)" [checked]="isSelected(item)"
             [disabled]="isReadonly || !isRowSelectable(item)" (click)="$event.stopPropagation(); toggle(item)">
           } @else {
-          <input type="radio" class="w-4 h-4 rounded focus:ring-4 table-input-selection-control"
+          <input type="radio" class="w-4 h-4 rounded-md transition-colors focus:ring-4 table-input-selection-control"
             [class.cursor-not-allowed]="isReadonly || !isRowSelectable(item)" [checked]="isSelected(item)"
             [disabled]="isReadonly || !isRowSelectable(item)" (click)="$event.stopPropagation(); toggle(item)">
           }

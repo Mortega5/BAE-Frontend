@@ -88,7 +88,8 @@
       [allowCreate]="asSelectable(field).allowCreate ?? false" [createHandler]="asSelectable(field).onCreate" />
     } @else if (asSelectable(field).multiple) {
     <multiple-select [id]="field.name" [formControlName]="field.name" [options]="asSelectable(field).options"
-      [readonly]="field.readonly ?? false" [dataCy]="field.dataCy ?? field.name"></multiple-select>
+      [readonly]="field.readonly ?? false" [dataCy]="field.dataCy ?? field.name"
+      [placeholder]="asSelectable(field).placeholder || 'FORMS.MULTIPLE_SELECT._add_items'"></multiple-select>
     } @else {
     <select [id]="field.name" [formControlName]="field.name" [class.pointer-events-none]="field.readonly"
       [class.opacity-60]="field.readonly" [class.cursor-not-allowed]="field.readonly"

@@ -27,6 +27,10 @@ export class MultipleSelectComponent implements ControlValueAccessor {
   @Input() id?: string;
   @Input() dataCy?: string;
   @Input() readonly: boolean = false;
+  /** i18n key shown (with a "+") once no chip is selected yet. Defaults to a
+   * generic "Add..." wording so it reads fine both for filters ("add a filter")
+   * and regular multi-select form fields. */
+  @Input() placeholder: string = 'FORMS.MULTIPLE_SELECT._add_items';
   @Output() selectedItemsChange = new EventEmitter<any[]>();
 
   isOpen = false;

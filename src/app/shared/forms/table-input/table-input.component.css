@@ -56,6 +56,8 @@
 
 .table-input-action-bg:hover {
   background-color: var(--table-action-hover-bg);
+  /* Wins over .table-input-action-text (same element) since :hover adds specificity. */
+  color: var(--table-action-text-hover);
 }
 
 .table-input-action-bg:focus {

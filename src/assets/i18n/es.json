@@ -2691,6 +2691,9 @@
       "_error_loading": "Error al cargar los datos",
       "_selected_count": "{{count}} seleccionados"
     },
+    "MULTIPLE_SELECT": {
+      "_add_items": "Añadir..."
+    },
     "ATTACHMENT": {
       "_drop_label": "Suelta un archivo para adjuntarlo o",
       "_select_label": "selecciona un archivo.",

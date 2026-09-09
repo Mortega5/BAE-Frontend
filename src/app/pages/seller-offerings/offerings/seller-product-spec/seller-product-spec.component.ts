@@ -66,7 +66,7 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
       {
         header: 'OFFERINGS._type',
         getValue: (item: any) => item['@type'] ?? 'ProductSpecification',
-        type: 'text',
+        type: 'badge',
         hideOnMobile: true,
         width: 'w-60'
       },

@@ -48,6 +48,11 @@
         <span class="sr-only">{{ 'FORMS.PAGINATED_TABLE._previous' | translate }}</span>
       </app-button>
 
+      <span
+        class="inline-flex items-center justify-center min-w-[1.75rem] h-7 px-2 rounded-md text-xs font-semibold bg-primary-100/10 text-primary-100 dark:text-primary-50 border border-primary-100/30 dark:border-primary-50/30">
+        {{ currentPage }}
+      </span>
+
       <app-button type="button" variant="ghost" size="sm" prefixIcon="chevron-right"
         [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
         <span class="sr-only">{{ 'FORMS.PAGINATED_TABLE._next' | translate }}</span>
