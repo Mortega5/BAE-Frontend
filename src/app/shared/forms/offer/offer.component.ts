@@ -13,6 +13,8 @@ import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offe
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { BadgeComponent, BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { SearchSelectComponent } from 'src/app/shared/search-select/search-select.component';
@@ -44,6 +46,8 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
     PricePlansComponent,
     ProcurementModeComponent,
     EdcContractDefinitionComponent,
+    BadgeComponent,
+    ButtonComponent,
     ConfirmModalComponent,
     LoadingSpinnerComponent,
     SearchSelectComponent,
@@ -69,9 +73,15 @@ export class OfferComponent implements OnInit, OnDestroy {
   errorMessage: any = '';
   showError: boolean = false;
   showPublishDraftModal: boolean = false;
+  showDeleteConfirm: boolean = false;
+  showPublishConfirm: boolean = false;
   loading: boolean = false;
   bundleChecked: boolean = false;
   offersBundle: any[] = [];
+
+  get isDraft(): boolean {
+    return this.formType === 'update' && this.offer?.lifecycleStatus === 'Active';
+  }
   loadingData: boolean = false;
 
   // Auto-catalogue: the seller no longer picks a catalogue manually — we reuse
@@ -124,7 +134,6 @@ export class OfferComponent implements OnInit, OnDestroy {
     this.productOfferForm = this.fb.group({
       generalInfo: this.fb.group({}),
       prodSpec: new FormControl(null, [Validators.required]),
-      catalogue: new FormControl(null),
       category: new FormControl([]),
       license: this.fb.group({}),
       edcContractDefinition: this.fb.group({}),
@@ -197,8 +206,7 @@ export class OfferComponent implements OnInit, OnDestroy {
   validateCurrentStep(): boolean {
     switch (this.currentStepId) {
       case 'general':
-        return (this.productOfferForm.get('generalInfo')?.valid || false)
-          && (!this.catalogSelectionRequired() || !!this.productOfferForm.get('catalogue')?.value?.id);
+        return this.productOfferForm.get('generalInfo')?.valid || false;
       case 'productSpec':
         return !!this.productOfferForm.get('prodSpec')?.value;
       case 'category':
@@ -269,7 +277,6 @@ export class OfferComponent implements OnInit, OnDestroy {
       const existing = await this.api.getCatalogsByUser(0, undefined, ['Launched'], this.partyId);
       if (Array.isArray(existing) && existing.length > 0) {
         this.autoCatalogue = existing[0];
-        this.productOfferForm.patchValue({ catalogue: this.autoCatalogue });
         return this.autoCatalogue;
       }
       const catalogueName = await this.getDefaultCatalogueName();
@@ -282,7 +289,6 @@ export class OfferComponent implements OnInit, OnDestroy {
       }));
       if (created?.id) {
         this.autoCatalogue = created;
-        this.productOfferForm.patchValue({ catalogue: created });
       }
       return this.autoCatalogue;
     } catch (err) {
@@ -1012,8 +1018,8 @@ export class OfferComponent implements OnInit, OnDestroy {
     this.offerToCreate = offer;
 
     const catalogueId = this.catalogManagementEnabled
-      ? formValue.catalogue?.id
-      : formValue.catalogue?.id || this.autoCatalogue?.id;
+      ? formValue.generalInfo?.catalogue?.id
+      : this.autoCatalogue?.id;
     if (this.formType === 'create' && !catalogueId) {
       this.errorMessage = 'No catalogue available for this user. Please create one first.';
       this.loading = false;
@@ -1048,6 +1054,66 @@ export class OfferComponent implements OnInit, OnDestroy {
 
   goBack() {
     this.router.navigate([SellerOfferingsPaths.offers.list()]);
+  }
+
+  statusBadgeVariant(status: string): BadgeStatus {
+    return lifecycleStatusBadgeVariant(status);
+  }
+
+  statusLabel(status: string): string {
+    return lifecycleStatusLabel(status);
+  }
+
+  onDeleteResolved(confirmed: boolean) {
+    this.showDeleteConfirm = false;
+    if (confirmed) {
+      this.deleteOffer();
+    }
+  }
+
+  onPublishResolved(confirmed: boolean) {
+    this.showPublishConfirm = false;
+    if (confirmed) {
+      this.publishOffer();
+    }
+  }
+
+  private deleteOffer() {
+    this.loading = true;
+    this.api.deleteProductOffering(this.offer.id).subscribe({
+      next: () => {
+        this.loading = false;
+        this.goBack();
+      },
+      error: (error: any) => {
+        console.error('There was an error while deleting the offer!', error);
+        this.errorMessage = error.error?.error
+          ? 'Error: ' + error.error.error
+          : 'There was an error while deleting the offer!';
+        this.loading = false;
+        this.showError = true;
+        setTimeout(() => { this.showError = false; }, 3000);
+      },
+    });
+  }
+
+  private publishOffer() {
+    this.loading = true;
+    this.api.updateProductOffering({ lifecycleStatus: 'Launched' }, this.offer.id).subscribe({
+      next: () => {
+        this.loading = false;
+        this.offer.lifecycleStatus = 'Launched';
+      },
+      error: (error: any) => {
+        console.error('There was an error while publishing the offer!', error);
+        this.errorMessage = error.error?.error
+          ? 'Error: ' + error.error.error
+          : 'There was an error while publishing the offer!';
+        this.loading = false;
+        this.showError = true;
+        setTimeout(() => { this.showError = false; }, 3000);
+      },
+    });
   }
 
   addToISOString(duration: number, unit: string): string {

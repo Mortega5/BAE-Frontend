@@ -2201,7 +2201,15 @@
     "_no_prods_to_proceed": "Please add at least one product specification to proceed to the next step",
     "_no_cats": "There's no catalogues.",
     "_no_categories": "There's no categories",
-    "_no_offer": "There's no offerings."
+    "_no_offer": "There's no offerings.",
+    "_delete": "Delete",
+    "_delete_confirm_title": "Delete offer?",
+    "_delete_confirm_message": "This will permanently delete this product offer. This action cannot be undone.",
+    "_delete_error": "There was an error while deleting the offer!",
+    "_publish": "Publish",
+    "_publish_confirm_title": "Publish offer?",
+    "_publish_confirm_message": "This will make the offer visible and available immediately.",
+    "_publish_error": "There was an error while publishing the offer!"
   },
   "OFFERINGS": {
     "_catalogs": "Catalogues",

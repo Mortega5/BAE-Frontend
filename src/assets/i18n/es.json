@@ -2201,7 +2201,15 @@
     "_no_prods_to_proceed": "Añade al menos una especificación de producto para continuar al siguiente paso",
     "_no_cats": "No hay catálogos.",
     "_no_categories": "No hay categorías",
-    "_no_offer": "No hay ofertas."
+    "_no_offer": "No hay ofertas.",
+    "_delete": "Eliminar",
+    "_delete_confirm_title": "¿Eliminar oferta?",
+    "_delete_confirm_message": "Esto eliminará permanentemente esta oferta de producto. Esta acción no se puede deshacer.",
+    "_delete_error": "¡Se produjo un error al eliminar la oferta!",
+    "_publish": "Publicar",
+    "_publish_confirm_title": "¿Publicar oferta?",
+    "_publish_confirm_message": "La oferta pasará a estar visible y disponible de inmediato.",
+    "_publish_error": "¡Se produjo un error al publicar la oferta!"
   },
   "OFFERINGS": {
     "_catalogs": "Catálogos",

@@ -1,163 +1,187 @@
-<div class="flex items-center justify-between mb-6">
-  <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white">
-    @if(formType === 'update'){
+<div class="flex items-center justify-between mb-6 gap-3">
+  <div class="flex items-center gap-3 min-w-0">
+    <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white truncate">
+      @if(formType === 'update'){
       {{ 'UPDATE_OFFER._update' | translate }}
-    } @else {
+      } @else {
       {{ 'CREATE_OFFER._create' | translate }}
+      }
+    </h1>
+    @if (formType === 'update' && offer?.lifecycleStatus) {
+    <bae-badge variant="status" [status]="statusBadgeVariant(offer.lifecycleStatus)"
+      [label]="statusLabel(offer.lifecycleStatus) | translate"></bae-badge>
     }
-  </h1>
-  <button type="button" data-cy="offerPreview" (click)="emitPreview()"
-    class="inline-flex items-center gap-2 text-sm font-semibold text-primary-100 dark:text-primary-50 hover:text-primary-50 dark:hover:text-primary-100">
-    <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/>
-      <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-    </svg>
-    {{ 'CREATE_OFFER._preview' | translate }}
-  </button>
+  </div>
+  <div class="flex items-center gap-3 shrink-0">
+    <button type="button" data-cy="offerPreview" (click)="emitPreview()"
+      class="inline-flex items-center gap-2 text-sm font-semibold text-primary-100 dark:text-primary-50 hover:text-primary-50 dark:hover:text-primary-100">
+      <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
+        stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      {{ 'CREATE_OFFER._preview' | translate }}
+    </button>
+    @if (formType === 'update') {
+    <app-button type="button" variant="danger" size="sm" [disabled]="loading" (click)="showDeleteConfirm = true">
+      {{ 'UPDATE_OFFER._delete' | translate }}
+    </app-button>
+    @if (isDraft) {
+    <app-button type="button" size="sm" [disabled]="loading" prefixIcon="rocket-launch"
+      (click)="showPublishConfirm = true">
+      {{ 'UPDATE_OFFER._publish' | translate }}
+    </app-button>
+    }
+    }
+  </div>
 </div>
 
 @if(loadingData){
-  <app-loading-spinner role="status" />
+<app-loading-spinner role="status" />
 } @else {
 <form [formGroup]="productOfferForm">
 
-    <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance" [loading]="loading"
-      [submitLabel]="isUpdate ? 'Update Offer' : 'Create Offer'" [submitAlwaysVisible]="isUpdate"
-      [submitDisabled]="!isFormValid || loading" (stepChanged)="onStepChanged($event)" (submitted)="submitForm()">
+  <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance" [loading]="loading"
+    [submitLabel]="isUpdate ? 'Update Offer' : 'Create Offer'" [submitAlwaysVisible]="isUpdate"
+    [submitDisabled]="!isFormValid || loading" (stepChanged)="onStepChanged($event)" (submitted)="submitForm()">
 
-      <ng-template stepperStep="CREATE_OFFER._step_general_info" stepId="general">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._step1_title' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._step1_subtitle' | translate }}</p>
-          </div>
-          <app-general-info-form [data]="offer" [formType]="formType" [form]="productOfferForm.controls['generalInfo']">
-            @if (catalogSelectionRequired()) {
-              <div>
-                <div class="flex items-center gap-2 mb-2">
-                  <label class="block text-sm font-semibold text-gray-900 dark:text-white">
-                    {{ 'CREATE_OFFER._catalog' | translate }}<span class="text-red-600 ml-0.5">*</span>
-                  </label>
-                  @if (!productOfferForm.get('catalogue')?.value?.id) {
-                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_OFFER._mandatory_field' | translate }}</p>
-                  }
-                </div>
-                <app-search-select data-cy="offerCatalogSelect" [options]="availableCatalogs" [multiple]="false"
-                  [placeholder]="'CREATE_OFFER._select'" formControlName="catalogue" />
-              </div>
-            }
-          </app-general-info-form>
+    <ng-template stepperStep="CREATE_OFFER._step_general_info" stepId="general">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._step1_title' | translate }}
+          </h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._step1_subtitle' | translate }}</p>
         </div>
-      </ng-template>
+        <app-general-info-form [data]="offer" [formType]="formType" [form]="productOfferForm.controls['generalInfo']"
+          [catalogSelectionRequired]="catalogSelectionRequired()" [availableCatalogs]="availableCatalogs" />
+      </div>
+    </ng-template>
 
-      <ng-template stepperStep="CREATE_OFFER._step_category" stepId="category">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._category' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._step2_subtitle' | translate }}</p>
-          </div>
+    <ng-template stepperStep="CREATE_OFFER._step_category" stepId="category">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._category' | translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._step2_subtitle' | translate }}</p>
+        </div>
 
-          @if (loadingCategories) {
-            <div class="text-sm text-gray-500 dark:text-gray-400 p-3">{{ 'COMMON._loading' | translate }}</div>
-          } @else {
-            <div class="flex flex-col gap-4">
-              <div>
-                <div class="flex items-center gap-2 mb-2">
-                  <label class="block text-sm font-semibold text-gray-900 dark:text-white">
-                    {{ 'CREATE_OFFER._category' | translate }}<span class="text-red-600 ml-0.5">*</span>
-                  </label>
-                  @if (!selectedRootCategory?.id) {
-                    <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_OFFER._mandatory_field' | translate }}</p>
-                  }
-                </div>
-                <app-search-select data-cy="offerRootCategorySelect" [options]="rootCategoryOptions" [multiple]="false"
-                  [placeholder]="'CREATE_OFFER._select'" [selected]="selectedRootCategory"
-                  (selectionChange)="onRootCategoryChange($event)" />
-              </div>
-              <div>
-                <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-                  {{ 'CREATE_OFFER._subcategory' | translate }}
-                </label>
-                @if (selectedRootCategory?.id) {
-                  <app-search-select data-cy="offerSubcategorySelect" [options]="subcategoryOptions" [multiple]="false"
-                    [placeholder]="'CREATE_OFFER._select'" [selected]="selectedSubcategory"
-                    (selectionChange)="onSubcategoryChange($event)" />
-                } @else {
-                  <p class="text-sm text-gray-500 dark:text-gray-400 p-3 border border-dashed border-gray-300 dark:border-secondary-200 rounded-lg">
-                    {{ 'CREATE_OFFER._select_category_first' | translate }}
-                  </p>
-                }
-              </div>
+        @if (loadingCategories) {
+        <div class="text-sm text-gray-500 dark:text-gray-400 p-3">{{ 'COMMON._loading' | translate }}</div>
+        } @else {
+        <div class="grid grid-cols-4 gap-4">
+          <div class="col-span-2">
+            <div class="flex items-center gap-2 mb-2">
+              <label class="block text-sm font-semibold text-gray-900 dark:text-white">
+                {{ 'CREATE_OFFER._category' | translate }}<span class="text-red-600 ml-0.5">*</span>
+              </label>
+              @if (!selectedRootCategory?.id) {
+              <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_OFFER._mandatory_field' | translate }}</p>
+              }
             </div>
-          }
-        </div>
-      </ng-template>
-
-      <ng-template stepperStep="CREATE_OFFER._product_specifications" stepId="productSpec">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._product_specifications' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._product_spec_subtitle' | translate }}</p>
+            <app-search-select data-cy="offerRootCategorySelect" [options]="rootCategoryOptions" [multiple]="false"
+              [placeholder]="'CREATE_OFFER._select'" [selected]="selectedRootCategory"
+              (selectionChange)="onRootCategoryChange($event)" />
           </div>
-          <app-prod-spec-form formControlName="prodSpec" [data]="offer" [partyId]="partyId" [formType]="formType"
-            (formChange)="handleSubformChange($event)">
-          </app-prod-spec-form>
-        </div>
-      </ng-template>
-
-      <ng-template stepperStep="CREATE_OFFER._step_terms" stepId="license">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._terms_conditions' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._step3_subtitle' | translate }}</p>
+          <div class="col-span-2">
+            <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+              {{ 'CREATE_OFFER._subcategory' | translate }}
+            </label>
+            @if (selectedRootCategory?.id) {
+            <app-search-select data-cy="offerSubcategorySelect" [options]="subcategoryOptions" [multiple]="false"
+              [placeholder]="'CREATE_OFFER._select'" [selected]="selectedSubcategory"
+              (selectionChange)="onSubcategoryChange($event)" />
+            } @else {
+            <p
+              class="text-sm text-gray-500 dark:text-gray-400 p-3 border border-dashed border-gray-300 dark:border-secondary-200 rounded-lg">
+              {{ 'CREATE_OFFER._select_category_first' | translate }}
+            </p>
+            }
           </div>
-          <app-license-form [data]="offer" [formType]="formType" [form]="productOfferForm.controls['license']"
-            (formChange)="handleSubformChange($event)">
-          </app-license-form>
         </div>
-      </ng-template>
+        }
+      </div>
+    </ng-template>
 
-      @if (showContractDefinitionStep) {
-      <ng-template stepperStep="CREATE_OFFER._step_contract_definition" stepId="contractDefinition">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._contract_definition' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._contract_definition_subtitle' | translate }}</p>
-          </div>
-          <app-edc-contract-definition-form [data]="offer" [formType]="formType"
-            [form]="productOfferForm.controls['edcContractDefinition']" (formChange)="handleSubformChange($event)">
-          </app-edc-contract-definition-form>
+    <ng-template stepperStep="CREATE_OFFER._product_specifications" stepId="productSpec">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._product_specifications' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._product_spec_subtitle' | translate
+            }}</p>
         </div>
-      </ng-template>
-      }
+        <app-prod-spec-form formControlName="prodSpec" [data]="offer" [partyId]="partyId" [formType]="formType"
+          (formChange)="handleSubformChange($event)">
+        </app-prod-spec-form>
+      </div>
+    </ng-template>
 
-      <ng-template stepperStep="CREATE_OFFER._step_price_plans" stepId="price">
-        <app-price-plans-form [form]="productOfferForm" [prodSpec]="productOfferForm.get('prodSpec')?.value"
-          [custom]="false" (formChange)="handleSubformChange($event)">
-        </app-price-plans-form>
-      </ng-template>
-
-      <ng-template stepperStep="CREATE_OFFER._step_procurement_mode" stepId="procurement">
-        <div class="flex flex-col gap-5">
-          <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._procurement_mode' | translate }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._step5_subtitle' | translate }}</p>
-          </div>
-          <app-procurement-mode [data]="offer" [form]="productOfferForm.controls['procurementMode']" [formType]="formType"
-            (formChange)="handleSubformChange($event)">
-          </app-procurement-mode>
+    <ng-template stepperStep="CREATE_OFFER._step_terms" stepId="license">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._terms_conditions' | translate
+            }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._step3_subtitle' | translate }}</p>
         </div>
-      </ng-template>
+        <app-license-form [data]="offer" [formType]="formType" [form]="productOfferForm.controls['license']"
+          (formChange)="handleSubformChange($event)">
+        </app-license-form>
+      </div>
+    </ng-template>
 
-    </app-stepper>
+    @if (showContractDefinitionStep) {
+    <ng-template stepperStep="CREATE_OFFER._step_contract_definition" stepId="contractDefinition">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._contract_definition' |
+            translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._contract_definition_subtitle' |
+            translate }}</p>
+        </div>
+        <app-edc-contract-definition-form [data]="offer" [formType]="formType"
+          [form]="productOfferForm.controls['edcContractDefinition']" (formChange)="handleSubformChange($event)">
+        </app-edc-contract-definition-form>
+      </div>
+    </ng-template>
+    }
+
+    <ng-template stepperStep="CREATE_OFFER._step_price_plans" stepId="price">
+      <app-price-plans-form [form]="productOfferForm" [prodSpec]="productOfferForm.get('prodSpec')?.value"
+        [custom]="false" (formChange)="handleSubformChange($event)">
+      </app-price-plans-form>
+    </ng-template>
+
+    <ng-template stepperStep="CREATE_OFFER._step_procurement_mode" stepId="procurement">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._procurement_mode' | translate
+            }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._step5_subtitle' | translate }}</p>
+        </div>
+        <app-procurement-mode [data]="offer" [form]="productOfferForm.controls['procurementMode']" [formType]="formType"
+          (formChange)="handleSubformChange($event)">
+        </app-procurement-mode>
+      </div>
+    </ng-template>
+
+  </app-stepper>
 
 </form>
 }
 
 <app-confirm-modal [visible]="showPublishDraftModal" title="PUBLISH_DRAFT_MODAL._title"
   message="PUBLISH_DRAFT_MODAL._message" cancelLabel="PUBLISH_DRAFT_MODAL._save_draft"
-  confirmLabel="PUBLISH_DRAFT_MODAL._publish" confirmVariant="primary"
-  (resolved)="$event ? publish() : saveDraft()" (closed)="showPublishDraftModal = false" />
+  confirmLabel="PUBLISH_DRAFT_MODAL._publish" confirmVariant="primary" (resolved)="$event ? publish() : saveDraft()"
+  (closed)="showPublishDraftModal = false" />
+
+<app-confirm-modal [visible]="showDeleteConfirm" title="UPDATE_OFFER._delete_confirm_title"
+  message="UPDATE_OFFER._delete_confirm_message" confirmLabel="UPDATE_OFFER._delete" cancelLabel="CONFIRM_MODAL._cancel"
+  confirmVariant="danger" (resolved)="onDeleteResolved($event)" (closed)="showDeleteConfirm = false" />
+
+<app-confirm-modal [visible]="showPublishConfirm" title="UPDATE_OFFER._publish_confirm_title"
+  message="UPDATE_OFFER._publish_confirm_message" confirmLabel="UPDATE_OFFER._publish"
+  cancelLabel="CONFIRM_MODAL._cancel" confirmVariant="primary" (resolved)="onPublishResolved($event)"
+  (closed)="showPublishConfirm = false" />
 
 @if(showError){
 <div
