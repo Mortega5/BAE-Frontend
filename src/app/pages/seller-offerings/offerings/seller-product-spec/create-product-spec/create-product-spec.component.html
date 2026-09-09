@@ -10,7 +10,7 @@
   <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'CREATE_PROD_SPEC._new' | translate }}</h1>
 
   <app-stepper [canAdvance]="canAdvance" submitLabel="CREATE_PROD_SPEC._create_prod" [submitDisabled]="loading"
-    (stepChanged)="onStepChanged($event)" (submitted)="createProduct()">
+    (stepChanged)="onStepChanged($event)" (submitted)="onSubmitProduct()">
 
     <ng-template stepperStep="General Info" stepId="general">
       <div class="flex flex-col gap-5">
@@ -772,6 +772,11 @@
   </app-stepper>
 
 </div>
+
+<app-confirm-modal [visible]="showPublishDraftModal" title="PUBLISH_DRAFT_MODAL._title"
+  message="PUBLISH_DRAFT_MODAL._message" cancelLabel="PUBLISH_DRAFT_MODAL._save_draft"
+  confirmLabel="PUBLISH_DRAFT_MODAL._publish" confirmVariant="primary"
+  (resolved)="$event ? publish() : saveDraft()" (closed)="showPublishDraftModal = false" />
 
 @if(itemModal.type){
 <div (click)="closeItemModal()" class="fixed inset-0 z-50 flex items-center justify-center px-4"

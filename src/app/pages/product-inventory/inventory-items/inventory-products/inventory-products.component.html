@@ -152,8 +152,8 @@
 
   <app-confirm-modal [visible]="unsubscribeModal" title="PRODUCT_INVENTORY._cancel_sub_title"
     [message]="unsubscribeConfirmMessage" confirmLabel="PRODUCT_INVENTORY._yes_sure"
-    cancelLabel="PRODUCT_INVENTORY._cancel" confirmVariant="danger" (confirmed)="unsubscribeProduct()"
-    (cancelled)="unsubscribeModal=false" />
+    cancelLabel="PRODUCT_INVENTORY._cancel" confirmVariant="danger" (resolved)="onUnsubscribeConfirmResolved($event)"
+    (closed)="onUnsubscribeConfirmResolved(false)" />
 
   @if(showError){
   <error-message

@@ -51,7 +51,7 @@
 }
 <app-confirm-modal [visible]="showDiscardConfirm" title="CONFIRM_MODAL._discard_title"
   message="CONFIRM_MODAL._discard_message" confirmLabel="CONFIRM_MODAL._discard" cancelLabel="CONFIRM_MODAL._keep_editing"
-  (confirmed)="confirmDiscardEditBill()" (cancelled)="cancelDiscardEditBill()" />
+  (resolved)="$event ? confirmDiscardEditBill() : cancelDiscardEditBill()" (closed)="cancelDiscardEditBill()" />
 
 <!-- BILL ADDRESS DELETE modal -->
 @if (deleteBill){

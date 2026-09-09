@@ -15,7 +15,6 @@ import { environment } from 'src/environments/environment';
 
 import { components } from 'src/app/models/product-catalog';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
-import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 
 type Catalog_Create = components['schemas']['Catalog_Create'];
 
@@ -45,6 +44,7 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
 
   errorMessage: any = '';
   showError = false;
+  showPublishDraftModal = false;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -99,14 +99,6 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
     this.router.navigate([SellerOfferingsPaths.catalogues.list()]);
   }
 
-  statusBadgeVariant(status: string): BadgeStatus {
-    return lifecycleStatusBadgeVariant(status);
-  }
-
-  statusLabel(status: string): string {
-    return lifecycleStatusLabel(status);
-  }
-
   setCatalogData() {
     if (this.generalForm.value.name != null) {
       this.catalogToCreate = {
@@ -122,11 +114,26 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
     }
   }
 
-  createCatalog() {
+  onSubmitCatalog() {
+    this.showPublishDraftModal = true;
+  }
+
+  saveDraft() {
+    this.createCatalog('Active');
+  }
+
+  publish() {
+    this.createCatalog('Launched');
+  }
+
+  private createCatalog(lifecycleStatus: 'Active' | 'Launched') {
+    if (!this.catalogToCreate) return;
+    this.catalogToCreate.lifecycleStatus = lifecycleStatus;
     this.loading = true;
     this.api.postCatalog(this.catalogToCreate).subscribe({
       next: () => {
         this.loading = false;
+        this.showPublishDraftModal = false;
         this.goBack();
       },
       error: error => {
@@ -135,6 +142,7 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
           ? 'Error: ' + error.error.error
           : 'There was an error while creating the catalog!';
         this.loading = false;
+        this.showPublishDraftModal = false;
         this.showError = true;
         setTimeout(() => { this.showError = false; }, 3000);
       },

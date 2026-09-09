@@ -115,6 +115,11 @@
   }
 </div>
 
+<app-confirm-modal [visible]="showPublishDraftModal" title="PUBLISH_DRAFT_MODAL._title"
+  message="PUBLISH_DRAFT_MODAL._message" cancelLabel="PUBLISH_DRAFT_MODAL._save_draft"
+  confirmLabel="PUBLISH_DRAFT_MODAL._publish" confirmVariant="primary"
+  (resolved)="$event ? publish() : saveDraft()" (closed)="showPublishDraftModal = false" />
+
 @if (showError) {
 <error-message
   class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"

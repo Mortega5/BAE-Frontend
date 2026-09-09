@@ -747,6 +747,12 @@
     "_discard": "Discard",
     "_keep_editing": "Keep editing"
   },
+  "PUBLISH_DRAFT_MODAL": {
+    "_title": "Ready to go",
+    "_message": "Publish it now to make it live immediately, or save it as a draft to finish later.",
+    "_save_draft": "Save as draft",
+    "_publish": "Publish"
+  },
   "CATEGORIES_FILTER": {
     "_remove_badge": "Remove badge",
     "_applied_filters": "Applied filters:"

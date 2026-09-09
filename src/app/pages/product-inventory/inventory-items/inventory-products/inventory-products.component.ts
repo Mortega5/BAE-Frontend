@@ -220,6 +220,14 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     }
   }
 
+  onUnsubscribeConfirmResolved(confirmed: boolean) {
+    if (confirmed) {
+      void this.unsubscribeProduct();
+    } else {
+      this.unsubscribeModal = false;
+    }
+  }
+
   async unsubscribeProduct() {
     const inv = this.prodToUnsubscribe;
     const orderItem: any = {

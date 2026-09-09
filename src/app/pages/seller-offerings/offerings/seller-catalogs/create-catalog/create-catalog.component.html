@@ -11,7 +11,7 @@
 
   <app-stepper [canAdvance]="canAdvance" submitLabel="CREATE_CATALOG._create"
     [submitDisabled]="!generalForm.valid || loading" (stepChanged)="onStepChanged($event)"
-    (submitted)="createCatalog()">
+    (submitted)="onSubmitCatalog()">
 
     <ng-template stepperStep="General Info">
       <div class="flex flex-col gap-5">
@@ -43,12 +43,6 @@
           </label>
         </div>
 
-        <div class="mb-4">
-          <label class="font-bold text-lg mr-4 dark:text-white">{{ 'CREATE_CATALOG._status' | translate }}</label>
-          <bae-badge variant="status" [status]="statusBadgeVariant(catalogToCreate?.lifecycleStatus ?? '')"
-            [label]="statusLabel(catalogToCreate?.lifecycleStatus ?? '') | translate"></bae-badge>
-        </div>
-
         @if (catalogToCreate?.description !== '') {
         <label class="font-bold text-lg dark:text-white">{{ 'CREATE_CATALOG._description' | translate }}</label>
         <div
@@ -66,6 +60,11 @@
 
   </app-stepper>
 </div>
+
+<app-confirm-modal [visible]="showPublishDraftModal" title="PUBLISH_DRAFT_MODAL._title"
+  message="PUBLISH_DRAFT_MODAL._message" cancelLabel="PUBLISH_DRAFT_MODAL._save_draft"
+  confirmLabel="PUBLISH_DRAFT_MODAL._publish" confirmVariant="primary"
+  (resolved)="$event ? publish() : saveDraft()" (closed)="showPublishDraftModal = false" />
 
 @if (showError) {
 <error-message

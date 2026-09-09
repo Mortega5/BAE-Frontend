@@ -13,6 +13,7 @@ import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offe
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { SearchSelectComponent } from 'src/app/shared/search-select/search-select.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
@@ -43,6 +44,7 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
     PricePlansComponent,
     ProcurementModeComponent,
     EdcContractDefinitionComponent,
+    ConfirmModalComponent,
     LoadingSpinnerComponent,
     SearchSelectComponent,
     StepperComponent,
@@ -66,6 +68,7 @@ export class OfferComponent implements OnInit, OnDestroy {
   pricePlans: any = [];
   errorMessage: any = '';
   showError: boolean = false;
+  showPublishDraftModal: boolean = false;
   loading: boolean = false;
   bundleChecked: boolean = false;
   offersBundle: any[] = [];
@@ -225,9 +228,16 @@ export class OfferComponent implements OnInit, OnDestroy {
       // Por ahora solo mostramos los cambios
       this.updateOffer();
     } else {
-      // Lógica de creación existente
-      this.createOffer();
+      this.showPublishDraftModal = true;
     }
+  }
+
+  saveDraft() {
+    this.createOffer('Active');
+  }
+
+  publish() {
+    this.createOffer('Launched');
   }
 
   async ngOnInit() {
@@ -670,6 +680,8 @@ export class OfferComponent implements OnInit, OnDestroy {
   private handleApiError(error: any): void {
     console.error('Error while creating offer price!', error);
     this.errorMessage = error?.error?.error ? 'Error: ' + error.error.error : 'Error creating offer price!';
+    this.loading = false;
+    this.showPublishDraftModal = false;
     this.showError = true;
     setTimeout(() => (this.showError = false), 3000);
   }
@@ -889,12 +901,12 @@ export class OfferComponent implements OnInit, OnDestroy {
     return updatedPrice;
   }
 
-  async createOffer() {
+  async createOffer(lifecycleStatus: 'Active' | 'Launched' = 'Active') {
     this.loading = true;
     const plans = this.productOfferForm.value.pricePlans;
 
     if (plans.length === 0) {
-      this.saveOfferInfo();
+      this.saveOfferInfo(lifecycleStatus);
       return;
     }
 
@@ -915,7 +927,7 @@ export class OfferComponent implements OnInit, OnDestroy {
         this.productOfferForm.value.pricePlans[i].id = createdPriceId;
 
         if (i === plans.length - 1) {
-          this.saveOfferInfo();
+          this.saveOfferInfo(lifecycleStatus);
         }
       } catch (error: any) {
         this.handleApiError(error);
@@ -923,7 +935,7 @@ export class OfferComponent implements OnInit, OnDestroy {
     }
   }
 
-  saveOfferInfo(): void {
+  saveOfferInfo(createLifecycleStatus: 'Active' | 'Launched' = 'Active'): void {
     const formValue = this.productOfferForm.value;
 
     const seenCategoryIds = new Set<string>();
@@ -944,7 +956,7 @@ export class OfferComponent implements OnInit, OnDestroy {
     }));
 
     const generalInfo = formValue.generalInfo;
-    const lifecycleStatus = this.formType === 'update' ? generalInfo.status : 'Active';
+    const lifecycleStatus = this.formType === 'update' ? generalInfo.status : createLifecycleStatus;
 
     const offer: any = {
       name: generalInfo.name,
@@ -1005,6 +1017,7 @@ export class OfferComponent implements OnInit, OnDestroy {
     if (this.formType === 'create' && !catalogueId) {
       this.errorMessage = 'No catalogue available for this user. Please create one first.';
       this.loading = false;
+      this.showPublishDraftModal = false;
       this.showError = true;
       setTimeout(() => (this.showError = false), 3000);
       return;
@@ -1019,12 +1032,14 @@ export class OfferComponent implements OnInit, OnDestroy {
         console.log('product offer created:');
         console.log(data);
         this.loading = false;
+        this.showPublishDraftModal = false;
         this.goBack();
       },
       error: (error) => {
         console.error('Error during offer save/update:', error);
         this.errorMessage = error?.error?.error ? 'Error: ' + error.error.error : 'An error occurred while saving the offer!';
         this.loading = false;
+        this.showPublishDraftModal = false;
         this.showError = true;
         setTimeout(() => (this.showError = false), 3000);
       }

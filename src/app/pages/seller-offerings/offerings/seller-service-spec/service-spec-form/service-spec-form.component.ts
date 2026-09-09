@@ -70,6 +70,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
 
   errorMessage: any = '';
   showError = false;
+  showPublishDraftModal = false;
 
   private destroy$ = new Subject<void>();
 
@@ -182,19 +183,34 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
-    this.loading = true;
     this.setServiceData();
     if (this.isUpdate) {
+      this.loading = true;
       this.servSpecService.updateServSpec(this.serviceData as ServiceSpecification_Update, this.serv.id).subscribe({
         next: () => { this.loading = false; this.goBack(); },
         error: e => this.handleError(e),
       });
     } else {
-      this.servSpecService.postServSpec(this.serviceData as ServiceSpecification_Create).subscribe({
-        next: () => { this.loading = false; this.goBack(); },
-        error: e => this.handleError(e),
-      });
+      this.showPublishDraftModal = true;
     }
+  }
+
+  saveDraft(): void {
+    this.createService('Active');
+  }
+
+  publish(): void {
+    this.createService('Launched');
+  }
+
+  private createService(lifecycleStatus: 'Active' | 'Launched'): void {
+    if (!this.serviceData) return;
+    (this.serviceData as any).lifecycleStatus = lifecycleStatus;
+    this.loading = true;
+    this.servSpecService.postServSpec(this.serviceData as ServiceSpecification_Create).subscribe({
+      next: () => { this.loading = false; this.showPublishDraftModal = false; this.goBack(); },
+      error: e => this.handleError(e),
+    });
   }
 
   private handleError(error: any): void {
@@ -202,6 +218,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
       ? 'Error: ' + error.error.error
       : `There was an error while ${this.isUpdate ? 'updating' : 'creating'} the service!`;
     this.loading = false;
+    this.showPublishDraftModal = false;
     this.showError = true;
     setTimeout(() => this.showError = false, 3000);
   }

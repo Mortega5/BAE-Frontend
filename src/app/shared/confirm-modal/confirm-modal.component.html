@@ -1,14 +1,20 @@
 @if (visible) {
 <div class="fixed inset-0 z-[60] bg-black/40 dark:bg-black/60 flex items-center justify-center p-4"
-  (click)="$event.stopPropagation(); cancelled.emit()">
+  (click)="$event.stopPropagation(); closed.emit()">
   <app-card variant="modal" class="w-full max-w-md" (click)="$event.stopPropagation()">
-    <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ title | translate }}</h3>
+    <div class="flex items-start justify-between gap-3">
+      <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ title | translate }}</h3>
+      <app-button type="button" variant="ghost" size="sm" prefixIcon="xmark"
+        (click)="$event.stopPropagation(); closed.emit()">
+        <span class="sr-only">{{ 'CARD._close' | translate }}</span>
+      </app-button>
+    </div>
     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{{ message | translate }}</p>
     <div appCardFooter class="flex gap-3">
-      <app-button type="button" variant="ghost" size="sm" (click)="$event.stopPropagation(); cancelled.emit()">
+      <app-button type="button" variant="ghost" size="sm" (click)="$event.stopPropagation(); resolved.emit(false)">
         {{ cancelLabel | translate }}
       </app-button>
-      <app-button type="button" [variant]="confirmVariant" (click)="$event.stopPropagation(); confirmed.emit()">
+      <app-button type="button" [variant]="confirmVariant" size="sm" (click)="$event.stopPropagation(); resolved.emit(true)">
         {{ confirmLabel | translate }}
       </app-button>
     </div>

@@ -100,6 +100,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
 
   errorMessage: any = '';
   showError = false;
+  showPublishDraftModal = false;
   loading = false;
 
   allowedChars: CharValueType[] = ['string', 'number', 'range', 'object'];
@@ -303,15 +304,33 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   }
 
   save(): void {
-    this.loading = true;
     this.prepareData();
     if (this.isUpdate) {
+      this.loading = true;
       this.resSpecService.updateResSpec(this.resourceData as ResourceSpecification_Update, this.res.id, this.res?.['@type'] as ResourceSpecType)
         .subscribe({ next: () => { this.loading = false; this.goBack(); }, error: e => this.handleError(e) });
     } else {
-      this.resSpecService.postResSpec(this.resourceData as ResourceSpecification_Create, (this.resourceData as any)?.['@type'] as ResourceSpecType)
-        .subscribe({ next: () => { this.loading = false; this.goBack(); }, error: e => this.handleError(e) });
+      this.showPublishDraftModal = true;
     }
+  }
+
+  saveDraft(): void {
+    this.createResource('Active');
+  }
+
+  publish(): void {
+    this.createResource('Launched');
+  }
+
+  private createResource(lifecycleStatus: 'Active' | 'Launched'): void {
+    if (!this.resourceData) return;
+    (this.resourceData as any).lifecycleStatus = lifecycleStatus;
+    this.loading = true;
+    this.resSpecService.postResSpec(this.resourceData as ResourceSpecification_Create, (this.resourceData as any)?.['@type'] as ResourceSpecType)
+      .subscribe({
+        next: () => { this.loading = false; this.showPublishDraftModal = false; this.goBack(); },
+        error: e => this.handleError(e),
+      });
   }
 
   private handleError(error: any): void {
@@ -319,6 +338,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
       ? 'Error: ' + error.error.error
       : `There was an error while ${this.isUpdate ? 'updating' : 'creating'} the resource!`;
     this.loading = false;
+    this.showPublishDraftModal = false;
     this.showError = true;
     setTimeout(() => this.showError = false, 3000);
   }

@@ -63,6 +63,6 @@
   [confirmLabel]="deleteConfirmButtonText"
   cancelLabel="Cancel"
   confirmVariant="danger"
-  (confirmed)="confirmDeleteEntry()"
-  (cancelled)="closeDeleteDialog()"
+  (resolved)="$event ? confirmDeleteEntry() : closeDeleteDialog()"
+  (closed)="closeDeleteDialog()"
 ></app-confirm-modal>

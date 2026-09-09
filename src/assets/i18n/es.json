@@ -747,6 +747,12 @@
     "_discard": "Descartar",
     "_keep_editing": "Seguir editando"
   },
+  "PUBLISH_DRAFT_MODAL": {
+    "_title": "Todo listo",
+    "_message": "Publícalo ahora para que esté disponible de inmediato, o guárdalo como borrador para terminarlo más tarde.",
+    "_save_draft": "Guardar como borrador",
+    "_publish": "Publicar"
+  },
   "CATEGORIES_FILTER": {
     "_remove_badge": "Eliminar etiqueta",
     "_applied_filters": "Filtros aplicados:"

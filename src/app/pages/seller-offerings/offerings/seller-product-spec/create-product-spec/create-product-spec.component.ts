@@ -217,6 +217,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
   errorMessage: any = '';
   showError: boolean = false;
+  showPublishDraftModal: boolean = false;
   loading: boolean = false;
 
   blueprintConfig: BlueprintProductFormValue;
@@ -975,11 +976,26 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     console.log(this.productSpecToCreate)
   }
 
-  createProduct() {
+  onSubmitProduct() {
+    this.showPublishDraftModal = true;
+  }
+
+  saveDraft() {
+    this.createProduct('Active');
+  }
+
+  publish() {
+    this.createProduct('Launched');
+  }
+
+  private createProduct(lifecycleStatus: 'Active' | 'Launched') {
+    if (!this.productSpecToCreate) return;
+    this.productSpecToCreate.lifecycleStatus = lifecycleStatus;
     this.loading = true;
     this.prodSpecService.postProdSpec(this.productSpecToCreate).subscribe({
       next: data => {
         this.loading = false;
+        this.showPublishDraftModal = false;
         this.goBack();
       },
       error: error => {
@@ -991,6 +1007,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
           this.errorMessage = 'There was an error while creating the product!';
         }
         this.loading = false;
+        this.showPublishDraftModal = false;
         this.showError = true;
         setTimeout(() => {
           this.showError = false;

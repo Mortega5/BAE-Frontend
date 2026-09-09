@@ -18,11 +18,15 @@ export class ConfirmModalComponent {
   @Input() confirmLabel = 'CONFIRM_MODAL._confirm';
   @Input() cancelLabel = 'CONFIRM_MODAL._cancel';
   @Input() confirmVariant: ButtonVariant = 'danger';
-  @Output() confirmed = new EventEmitter<void>();
-  @Output() cancelled = new EventEmitter<void>();
+  /** true when the confirm button was clicked, false when the cancel button was clicked. */
+  @Output() resolved = new EventEmitter<boolean>();
+  /** Fired when the modal is dismissed without picking either button — backdrop
+   * click, Escape, or the close (X) button. Left for the caller to interpret;
+   * it carries no assumption about what "closed" should do. */
+  @Output() closed = new EventEmitter<void>();
 
   @HostListener('document:keydown.escape')
   onEscape(): void {
-    if (this.visible) this.cancelled.emit();
+    if (this.visible) this.closed.emit();
   }
 }
