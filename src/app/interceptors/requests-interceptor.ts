@@ -10,7 +10,6 @@ import { Observable, catchError, throwError } from 'rxjs';
 import {LocalStorageService} from "../services/local-storage.service";
 import { EventMessageService } from "../services/event-message.service";
 import { LoginInfo } from '../models/interfaces';
-import moment from 'moment';
 import { environment } from 'src/environments/environment';
 
 export function shouldAttachAuthHeaders(requestUrl: string, internalBaseUrls: string[]): boolean {
@@ -34,10 +33,9 @@ export class RequestInterceptor implements HttpInterceptor {
     ) { }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-        let aux = this.localStorage.getObject('login_items') as LoginInfo;
-        const isLoggedIn = JSON.stringify(aux) != '{}' && (((aux.expire - moment().unix())-4) > 0);
+        const aux = this.localStorage.getValidLoginInfo();
 
-        if(isLoggedIn) {
+        if(aux) {
             if (!this.shouldAttachAuthHeaders(request.url)) {
                 return next.handle(request);
             }
@@ -65,7 +63,7 @@ export class RequestInterceptor implements HttpInterceptor {
     // instead of silently keep failing while the app still thinks it's logged in.
     private handleAuthError(error: unknown) {
         if (error instanceof HttpErrorResponse && error.status === 401) {
-            this.localStorage.setObject('login_items', {});
+            this.localStorage.removeLoginInfo();
             this.eventMessage.emitLogin({} as LoginInfo);
         }
         return throwError(() => error);

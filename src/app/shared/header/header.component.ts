@@ -22,7 +22,6 @@ import {
 } from '@fortawesome/sharp-solid-svg-icons';
 import { TranslateService } from '@ngx-translate/core';
 import { initFlowbite } from 'flowbite';
-import moment from 'moment';
 import { Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { environment } from 'src/environments/environment';
@@ -256,14 +255,9 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   }
 
   private hydrateLoginFromStorage() {
-    const aux = this.localStorage.getObject('login_items') as LoginInfo;
+    const aux = this.localStorage.getValidLoginInfo();
 
-    if (JSON.stringify(aux) === '{}') {
-      this.resetLoginState();
-      return;
-    }
-
-    if (((aux.expire - moment().unix()) - 4) <= 0) {
+    if (!aux) {
       this.resetLoginState();
       return;
     }
@@ -336,7 +330,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
 
   async logout() {
     this.closeUserDropdown();
-    this.localStorage.setObject('login_items', {});
+    this.localStorage.removeLoginInfo();
     this.resetLoginState();
     this.refreshApi.stopInterval();
     this.eventMessage.emitLogin({} as LoginInfo);

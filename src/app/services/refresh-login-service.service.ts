@@ -83,7 +83,7 @@ export class RefreshLoginServiceService {
     // Only logout if user is logged
     const aux = this.localStorage.getObject('login_items') as any;
     if (aux && Object.keys(aux).length > 0) {
-      this.localStorage.setObject('login_items', {});
+      this.localStorage.removeLoginInfo();
       this.eventMessage.emitLogin({} as LoginInfo);
       this.api.logout()
         .catch((err) => {
