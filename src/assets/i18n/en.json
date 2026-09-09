@@ -1683,7 +1683,15 @@
     "_template_config_subtitle": "Fill in the configuration values defined by the selected template.",
     "_advanced_config": "Advanced configuration",
     "_package_deployment_title": "Package Deployment",
-    "_package_deployment_subtitle": "Configure how this software package is built and deployed."
+    "_package_deployment_subtitle": "Configure how this software package is built and deployed.",
+    "_delete": "Delete",
+    "_delete_confirm_title": "Delete resource specification?",
+    "_delete_confirm_message": "This will permanently delete this resource specification. This action cannot be undone.",
+    "_delete_error": "There was an error while deleting the resource specification!",
+    "_publish": "Publish",
+    "_publish_confirm_title": "Publish resource specification?",
+    "_publish_confirm_message": "This will make the resource specification visible and available immediately.",
+    "_publish_error": "There was an error while publishing the resource specification!"
   },
   "BLUEPRINT_PROD": {
     "_items": "Components",

@@ -1683,7 +1683,15 @@
     "_template_config_subtitle": "Completa los valores de configuración definidos por la plantilla seleccionada.",
     "_advanced_config": "Configuración avanzada",
     "_package_deployment_title": "Despliegue del paquete",
-    "_package_deployment_subtitle": "Configura cómo se construye y despliega este paquete de software."
+    "_package_deployment_subtitle": "Configura cómo se construye y despliega este paquete de software.",
+    "_delete": "Eliminar",
+    "_delete_confirm_title": "¿Eliminar especificación de recurso?",
+    "_delete_confirm_message": "Esto eliminará permanentemente esta especificación de recurso. Esta acción no se puede deshacer.",
+    "_delete_error": "¡Se produjo un error al eliminar la especificación de recurso!",
+    "_publish": "Publicar",
+    "_publish_confirm_title": "¿Publicar especificación de recurso?",
+    "_publish_confirm_message": "La especificación de recurso pasará a estar visible y disponible de inmediato.",
+    "_publish_error": "¡Se produjo un error al publicar la especificación de recurso!"
   },
   "BLUEPRINT_PROD": {
     "_items": "Componentes",

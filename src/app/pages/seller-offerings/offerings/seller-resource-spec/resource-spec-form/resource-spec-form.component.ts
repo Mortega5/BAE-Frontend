@@ -5,13 +5,14 @@ import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { components } from 'src/app/models/resource-catalog';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/resource-spec-service.service';
+import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
@@ -43,10 +44,6 @@ const GENERAL_FORM_FIELDS_CREATE: FormField[] = [
 const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
   { type: 'string', name: 'name', label: 'UPDATE_RES_SPEC._name', required: true, maxLength: 100, dataCy: 'resSpecName', placeholder: 'CREATE_RES_SPEC._name_placeholder' },
   { type: 'select', name: 'baseTemplate', label: 'CREATE_RES_SPEC._base_template', readonly: true, options: BASE_TEMPLATE_OPTIONS },
-  {
-    type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_RES_SPEC._status',
-    options: buildLifecycleStatusOptions('resourceSpecStatus'),
-  },
   { type: 'markdownTextarea', name: 'description', label: 'UPDATE_RES_SPEC._description', placeholder: 'CREATE_RES_SPEC._description_placeholder' },
 ];
 
@@ -62,6 +59,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   get isUpdate(): boolean { return this.mode === 'update'; }
   get i18nPrefix(): string { return this.isUpdate ? 'UPDATE_RES_SPEC' : 'CREATE_RES_SPEC'; }
   get notFound(): boolean { return this.isUpdate && !this.loading && !this.res; }
+  get isDraft(): boolean { return this.res?.lifecycleStatus === 'Active'; }
 
   partyId: any = '';
 
@@ -101,6 +99,8 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   errorMessage: any = '';
   showError = false;
   showPublishDraftModal = false;
+  showDeleteConfirm = false;
+  showPublishConfirm = false;
   loading = false;
 
   allowedChars: CharValueType[] = ['string', 'number', 'range', 'object'];
@@ -341,6 +341,67 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     this.showPublishDraftModal = false;
     this.showError = true;
     setTimeout(() => this.showError = false, 3000);
+  }
+
+  statusBadgeVariant(status: string): BadgeStatus {
+    return lifecycleStatusBadgeVariant(status);
+  }
+
+  statusLabel(status: string): string {
+    return lifecycleStatusLabel(status);
+  }
+
+  onDeleteResolved(confirmed: boolean): void {
+    this.showDeleteConfirm = false;
+    if (confirmed) {
+      this.deleteResource();
+    }
+  }
+
+  onPublishResolved(confirmed: boolean): void {
+    this.showPublishConfirm = false;
+    if (confirmed) {
+      this.publishResource();
+    }
+  }
+
+  private deleteResource(): void {
+    this.loading = true;
+    this.resSpecService.deleteResSpec(this.res.id, this.res?.['@type'] as ResourceSpecType).subscribe({
+      next: () => {
+        this.loading = false;
+        this.goBack();
+      },
+      error: (error: any) => {
+        console.error('There was an error while deleting the resource specification!', error);
+        this.errorMessage = error.error?.error
+          ? 'Error: ' + error.error.error
+          : 'There was an error while deleting the resource specification!';
+        this.loading = false;
+        this.showError = true;
+        setTimeout(() => { this.showError = false; }, 3000);
+      },
+    });
+  }
+
+  private publishResource(): void {
+    this.loading = true;
+    this.resSpecService.updateResSpec({ lifecycleStatus: 'Launched' }, this.res.id, this.res?.['@type'] as ResourceSpecType).subscribe({
+      next: () => {
+        this.loading = false;
+        this.res.lifecycleStatus = 'Launched';
+        this.generalForm.patchValue({ lifecycleStatus: 'Launched' });
+      },
+      error: (error: any) => {
+        console.error('There was an error while publishing the resource specification!', error);
+        this.errorMessage = error.error?.error
+          ? 'Error: ' + error.error.error
+          : 'There was an error while publishing the resource specification!';
+        this.loading = false;
+        this.showError = true;
+        setTimeout(() => { this.showError = false; }, 3000);
+      },
+    });
   }
 
   get canAdvance(): boolean {

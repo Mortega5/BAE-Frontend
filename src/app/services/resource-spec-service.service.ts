@@ -123,6 +123,13 @@ export class ResourceSpecServiceService {
     return this.http.patch<any>(url, body);
   }
 
+  deleteResSpec(id: any, type: ResourceSpecType = 'ResourceSpecification') {
+    const resource = this.RESOURCE_API[type].resource;
+    const spec = this.RESOURCE_API[type].spec;
+    let url = `${ResourceSpecServiceService.BASE_URL}${resource}${spec}/${id}`;
+    return this.http.delete<any>(url);
+  }
+
   // TODO: review partyId
   getSoftwareSupportPackages(partyId: string, pagination: PaginationParams<SoftwareSupportPackage> = {}): Observable<SoftwareSupportPackage[]> {
     const { resource, spec } = this.RESOURCE_API['SoftwareSupportPackage'];
