@@ -10,14 +10,14 @@ Each variable has a default value on `body` (light theme) and, where it differs,
 
 | Variable | Affects | Light default | Dark default |
 |---|---|---|---|
-| `--table-bg` | Table container background | `#fff` | `rgb(var(--theme-secondary-300))` |
+| `--table-bg` | Table container background | `#fff` | `var(--card-bg)` (`#131c24`) — matches the card it sits in, not the input tone |
 | `--table-text` | Default cell text color | `rgb(107 114 128)` (gray-500) | `rgb(229 231 235)` (gray-200) |
 | `--table-border-color` | Table container border | `rgb(var(--theme-primary-100))` | `rgb(var(--theme-secondary-200))` |
-| `--table-header-bg` | Header row background (`<thead>`) | `rgb(var(--theme-secondary-400))` | `rgb(var(--theme-secondary-200))` |
+| `--table-header-bg` | Header row background (`<thead>`) | `rgb(var(--theme-secondary-400))` | `rgb(var(--theme-secondary-200))` — stays per-theme branded (green/blue) even in dark mode |
 | `--table-header-text` | Header text color (labels and sort button) | `var(--theme-primary-text)` | *(inherits the same value)* |
 | `--table-header-hover-bg` | Background on hover over the column sort button (`.table-input-sort-btn:hover`) | `rgb(var(--theme-primary-50) / 30%)` | `rgb(var(--theme-secondary-300) / 60%)` |
-| `--table-row-border-color` | Divider line between body rows | `rgb(var(--theme-primary-50) / 40%)` | `rgb(var(--theme-secondary-200))` |
-| `--table-row-hover-bg` | Background on hover over a selectable/clickable row | `rgb(var(--theme-secondary-50))` | `rgb(var(--theme-secondary-400))` |
+| `--table-row-border-color` | Divider line between body rows | `rgb(var(--theme-primary-50) / 40%)` | `rgb(30 41 59 / 80%)` (slate-800/80, neutral — not theme-branded) |
+| `--table-row-hover-bg` | Background on hover over a selectable/clickable row | `rgb(var(--theme-secondary-50))` | `rgb(30 41 59 / 40%)` (slate-800/40, neutral — not theme-branded) |
 | `--table-row-selected-bg` | Background of a selected row | `rgb(var(--theme-secondary-50))` | `rgb(var(--theme-primary-100) / 20%)` |
 | `--table-empty-text` | Text color for the "No items available" row and the actions-column empty label | `var(--theme-primary-text)` | *(inherits the same value)* |
 | `--table-action-bg` | Background of action/icon-button cells (default, overridable per-action via `buttonClass`) — ghost style, transparent until hovered | `transparent` | *(inherits the same value)* |
