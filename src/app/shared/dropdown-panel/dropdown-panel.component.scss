@@ -1,0 +1,27 @@
+/* --card-* / --dropdown-* variables are defined globally in styles.css
+   (body / .dark body) so any theme can override them directly. */
+
+:host {
+  /* Custom elements default to display:inline; the caller positions this
+     `absolute` off a `relative` parent, which needs a block box to size against. */
+  display: block;
+}
+
+:host(.hidden) {
+  /* Flowbite's dropdown JS toggles the `hidden` class directly on this host
+     element. Tailwind's `.hidden { display: none }` and the bare `:host` rule
+     above tie on specificity (both 0,1,0) — whichever loads later in the
+     stylesheet wins, which isn't reliably this component's `:host` rule losing.
+     `:host(.hidden)` compiles to a more specific `[_nghost-xxx].hidden` selector
+     that always wins regardless of load order. */
+  display: none;
+}
+
+.app-dropdown-panel {
+  /* No positioning here (no `relative`/`absolute`) — z-index only matters on the
+     actually-positioned ancestor, so stacking (`z-*`) is the caller's job, applied
+     to this component's host element alongside its own `absolute`/`fixed`. */
+  @apply rounded-lg border shadow-lg py-1 overflow-hidden;
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+}

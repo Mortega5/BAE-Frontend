@@ -9,6 +9,7 @@ import { initFlowbite } from 'flowbite';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
+import { DropdownPanelComponent } from 'src/app/shared/dropdown-panel/dropdown-panel.component';
 
 @Component({
   selector: 'app-price-component-drawer',
@@ -21,7 +22,8 @@ import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
     TranslateModule,
     NgClass,
     ButtonComponent,
-    DrawerComponent
+    DrawerComponent,
+    DropdownPanelComponent
   ],
   styleUrl: './price-component-drawer.component.css'
 })

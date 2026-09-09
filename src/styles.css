@@ -185,6 +185,12 @@ body {
   --card-selected-border: rgb(var(--theme-primary-100));
   --card-hover-border: rgb(var(--theme-primary-100));
 
+  /* app-dropdown-panel — the floating menu/popover surface reuses --card-bg/--card-border
+     (it's visually just a small elevated card); this is its only extra token, for the
+     hover state on its items. */
+  --dropdown-item-hover-bg: rgb(243 244 246);
+  /* gray-100 */
+
   /* bae-badge status-dot variant — semantic colors, same across themes since they're
      bright/saturated enough to stay legible on both the light and dark chip background. */
   --status-badge-success: rgb(34 197 94);
@@ -297,6 +303,9 @@ body.theme-bae {
   --card-selected-bg: rgb(var(--theme-primary-100) / 20%);
   --card-selected-border: rgb(var(--theme-primary-50));
   --card-hover-border: rgb(var(--theme-primary-50));
+
+  --dropdown-item-hover-bg: rgb(55 65 81);
+  /* gray-700 */
 }
 
 /* Default styles for Markdown elements */

@@ -52,14 +52,14 @@
     }
 
     @if (is_logged) {
-    <div id="userDropdown"
-      class="dropdown-glass hidden absolute right-6 sm:right-10 top-[88px] z-50 w-[260px] rounded-[14px] p-2">
+    <app-dropdown-panel id="userDropdown"
+      class="hidden absolute right-6 sm:right-10 top-[88px] z-50 w-[260px] p-2">
       <div class="px-3 py-2">
-        <div class="text-[13px] font-semibold text-slate-900">{{ username }}</div>
-        <div class="mt-0.5 text-[12px] text-slate-600 break-all">{{ email }}</div>
+        <div class="text-[13px] font-semibold text-slate-900 dark:text-white">{{ username }}</div>
+        <div class="mt-0.5 text-[12px] text-slate-600 dark:text-gray-400 break-all">{{ email }}</div>
       </div>
 
-      <div class="h-px my-2 bg-slate-900/10"></div>
+      <div class="h-px my-2 bg-slate-900/10 dark:bg-white/10"></div>
 
       <ul class="flex flex-col">
         <li>
@@ -127,12 +127,13 @@
         </li>
       </ul>
 
-      <div class="h-px my-2 bg-slate-900/10"></div>
+      <div class="h-px my-2 bg-slate-900/10 dark:bg-white/10"></div>
 
       <div class="flex flex-col">
         @if (orgs.length > 0 && isAdmin) {
         <button data-cy="changeSession" type="button" class="dropdown-item" data-dropdown-toggle="orgs-dropdown"
-          data-dropdown-placement="left-start">
+          data-dropdown-placement="left-start" data-dropdown-trigger="hover" data-dropdown-delay="150"
+          data-dropdown-offset-distance="0">
           <fa-icon [icon]="faAnglesLeft" class="mr-2"></fa-icon>{{ 'HEADER._change_session' | translate }}
         </button>
         }
@@ -141,12 +142,12 @@
           <fa-icon [icon]="faArrowRightFromBracket" class="mr-2"></fa-icon>{{ 'HEADER._sign_out' | translate }}
         </button>
       </div>
-    </div>
+    </app-dropdown-panel>
     }
   </div>
 
-  <div id="support-dropdown"
-    class="dropdown-glass hidden absolute right-6 sm:right-10 top-[88px] z-50 w-[260px] rounded-[14px] p-2">
+  <app-dropdown-panel id="support-dropdown"
+    class="hidden absolute right-6 sm:right-10 top-[88px] z-50 w-[260px] p-2">
     <ul class="flex flex-col">
       <li>
         <a class="dropdown-item" target="_blank" [href]="knowledge">
@@ -159,10 +160,10 @@
         </a>
       </li>
     </ul>
-  </div>
+  </app-dropdown-panel>
 
-  <div data-cy="orgsDropdown" id="orgs-dropdown"
-    class="dropdown-glass hidden absolute right-[280px] top-[88px] z-50 w-[260px] rounded-[14px] p-2">
+  <app-dropdown-panel data-cy="orgsDropdown" id="orgs-dropdown"
+    class="hidden absolute right-[296px] top-[88px] z-50 w-[260px] p-2">
     <ul class="flex flex-col">
       @for (org of orgs; track org.id; let idx = $index) {
       @if (org.id != loginInfo?.logged_as || loginInfo?.logged_as == loginInfo?.id) {
@@ -182,7 +183,7 @@
       </li>
       }
     </ul>
-  </div>
+  </app-dropdown-panel>
 
   <ng-template #navLinksTemplate let-mobile="mobile">
     @for (link of headerLinks; track link.id) {
@@ -197,7 +198,7 @@
         <span class="inline-block opacity-80">▾</span>
       </button>
 
-      <div class="dropdown-glass hidden absolute left-0 top-[calc(100%+14px)] z-50 w-[260px] rounded-[14px] p-2"
+      <app-dropdown-panel class="hidden absolute left-0 top-[calc(100%+14px)] z-50 w-[260px] p-2"
         [id]="link.id + 'Menu'">
         <ul class="flex flex-col" [attr.aria-labelledby]="link.id">
           @for (childLink of link.children; track childLink.label) {
@@ -216,7 +217,7 @@
           </li>
           }
         </ul>
-      </div>
+      </app-dropdown-panel>
     </li>
     } @else {
     @for (childLink of link.children; track childLink.label) {
@@ -291,8 +292,7 @@
         <fa-icon [icon]="themeModeIcon"></fa-icon>
       </button>
       @if (themeDropdownOpen) {
-      <div class="absolute right-0 mt-2 w-40 rounded-lg bg-white dark:bg-gray-800 shadow-lg py-1 z-50"
-        (click)="$event.stopPropagation()">
+      <app-dropdown-panel class="absolute right-0 mt-2 w-40 z-50" (click)="$event.stopPropagation()">
         <button type="button" data-cy="themeLight"
           class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
           [class.font-semibold]="themeMode === ThemeMode.Light" (click)="setThemeMode(ThemeMode.Light)">
@@ -308,7 +308,7 @@
           [class.font-semibold]="themeMode === ThemeMode.System" (click)="setThemeMode(ThemeMode.System)">
           <fa-icon [icon]="systemIcon"></fa-icon>{{ 'HEADER._theme_system' | translate }}
         </button>
-      </div>
+      </app-dropdown-panel>
       }
     </div>
     }
@@ -335,8 +335,7 @@
         <fa-icon [icon]="paletteIcon"></fa-icon>
       </button>
       @if (providerThemeDropdownOpen) {
-      <div class="absolute right-0 mt-2 w-48 rounded-lg bg-white dark:bg-gray-800 shadow-lg py-1 z-50"
-        (click)="$event.stopPropagation()">
+      <app-dropdown-panel class="absolute right-0 mt-2 w-48 z-50" (click)="$event.stopPropagation()">
         @for (theme of availableProviderThemes; track theme.name) {
         <button type="button" [attr.data-cy]="'providerTheme-' + theme.name"
           class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
@@ -344,7 +343,7 @@
           {{ theme.displayName }}
         </button>
         }
-      </div>
+      </app-dropdown-panel>
       }
     </div>
     }

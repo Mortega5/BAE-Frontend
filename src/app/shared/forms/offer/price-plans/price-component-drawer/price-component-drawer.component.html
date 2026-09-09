@@ -55,15 +55,15 @@
 
             <!-- Popover -->
             @if(showPopover) {
-              <div
-                class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 w-64 p-3 text-sm bg-white dark:bg-secondary-100 border border-gray-300 dark:border-gray-800 rounded-lg shadow-sm">
+              <app-dropdown-panel
+                class="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 w-64 p-3 text-sm">
                 <div class="font-semibold mb-1 text-gray-900 dark:text-white">
                   {{ 'FORMS.PRICE_PLAN_COMPONENT._product_char' | translate }}
                 </div>
                 <p class="text-gray-700 dark:text-gray-300">
                   {{ 'FORMS.PRICE_PLAN_COMPONENT._prod_char_info' | translate }}
                 </p>
-              </div>
+              </app-dropdown-panel>
             }
           </div>
         </div>
@@ -182,7 +182,8 @@
 
               @if(showPriceTypeDropdown){
                 <div class="fixed inset-0 z-10" (click)="showPriceTypeDropdown = false"></div>
-                <ul class="absolute left-0 right-0 top-full mt-1 z-20 bg-white dark:bg-secondary-100 rounded-lg py-1 overflow-hidden border border-gray-200 dark:border-gray-800 shadow-lg">
+                <app-dropdown-panel class="absolute left-0 right-0 top-full mt-1 z-20">
+                  <ul>
                   @for(opt of priceTypeOptions; track opt.id){
                     <li>
                       <button type="button" [attr.data-cy]="'priceType-' + opt.id.replace(' ', '-')" (click)="selectPriceType(opt.id)"
@@ -192,7 +193,8 @@
                       </button>
                     </li>
                   }
-                </ul>
+                  </ul>
+                </app-dropdown-panel>
               }
             </div>
           </div>

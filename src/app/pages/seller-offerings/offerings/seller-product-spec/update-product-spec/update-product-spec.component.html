@@ -144,8 +144,8 @@
                       </svg>
                     </button>
                     @if(isItemMenuOpen('feature', idx)){
-                    <div
-                      class="absolute right-6 top-12 z-20 bg-white dark:bg-secondary-100 rounded-xl shadow-lg border border-gray-100 dark:border-secondary-200 py-2 w-36 text-left"
+                    <app-dropdown-panel
+                      class="absolute right-6 top-12 z-20 w-36 text-left"
                       (click)="$event.stopPropagation()">
                       <button type="button" (click)="openItemModal('feature', idx); openItemMenuIdx=null"
                         class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
@@ -153,7 +153,7 @@
                       <button type="button" (click)="removeItem('feature', idx)"
                         class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
                         'CREATE_PROD_SPEC._delete' | translate }}</button>
-                    </div>
+                    </app-dropdown-panel>
                     }
                   </td>
                 </tr>
@@ -215,8 +215,8 @@
                       </svg>
                     </button>
                     @if(isItemMenuOpen('benefit', idx)){
-                    <div
-                      class="absolute right-6 top-12 z-20 bg-white dark:bg-secondary-100 rounded-xl shadow-lg border border-gray-100 dark:border-secondary-200 py-2 w-36 text-left"
+                    <app-dropdown-panel
+                      class="absolute right-6 top-12 z-20 w-36 text-left"
                       (click)="$event.stopPropagation()">
                       <button type="button" (click)="openItemModal('benefit', idx); openItemMenuIdx=null"
                         class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
@@ -224,7 +224,7 @@
                       <button type="button" (click)="removeItem('benefit', idx)"
                         class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
                         'CREATE_PROD_SPEC._delete' | translate }}</button>
-                    </div>
+                    </app-dropdown-panel>
                     }
                   </td>
                 </tr>
@@ -285,8 +285,8 @@
                       </svg>
                     </button>
                     @if(isItemMenuOpen('usecase', idx)){
-                    <div
-                      class="absolute right-6 top-12 z-20 bg-white dark:bg-secondary-100 rounded-xl shadow-lg border border-gray-100 dark:border-secondary-200 py-2 w-36 text-left"
+                    <app-dropdown-panel
+                      class="absolute right-6 top-12 z-20 w-36 text-left"
                       (click)="$event.stopPropagation()">
                       <button type="button" (click)="openItemModal('usecase', idx); openItemMenuIdx=null"
                         class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
@@ -294,7 +294,7 @@
                       <button type="button" (click)="removeItem('usecase', idx)"
                         class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
                         'CREATE_PROD_SPEC._delete' | translate }}</button>
-                    </div>
+                    </app-dropdown-panel>
                     }
                   </td>
                 </tr>
