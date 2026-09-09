@@ -90,6 +90,16 @@ export class AppComponent implements OnInit {
       this.refreshApi.startInterval(((aux.expire - moment().unix())-4)*1000, aux);
       initFlowbite();
     }
+
+    // Keep other open tabs in sync: a login/logout/session-switch there
+    // changes `login_items` here too, but nothing re-reads it in this tab
+    // without this — the UI (header) and the refresh loop would go stale.
+    window.addEventListener('storage', (event: StorageEvent) => {
+      if (event.key === 'login_items') {
+        this.eventMessage.emitLogin(this.localStorage.getValidLoginInfo() ?? {} as LoginInfo);
+      }
+    });
+
     this.isWorkspaceRoute = this.workspaceRoutes.some(r => this.router.url.startsWith(r));
     this.router.events
       .pipe(
