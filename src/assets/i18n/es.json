@@ -1561,7 +1561,15 @@
     "_cancel": "Cancelar",
     "_upload": "Subir",
     "_request_validation_disabled": "Solicitar validación está desactivado porque el perfil de cumplimiento tiene cambios sin guardar. Actualiza primero el producto.",
-    "_existing_certifications": "Certificaciones existentes"
+    "_existing_certifications": "Certificaciones existentes",
+    "_delete": "Eliminar",
+    "_delete_confirm_title": "¿Eliminar especificación de producto?",
+    "_delete_confirm_message": "Esto eliminará permanentemente esta especificación de producto. Esta acción no se puede deshacer.",
+    "_delete_error": "¡Se produjo un error al eliminar la especificación de producto!",
+    "_publish": "Publicar",
+    "_publish_confirm_title": "¿Publicar especificación de producto?",
+    "_publish_confirm_message": "La especificación de producto pasará a estar visible y disponible de inmediato.",
+    "_publish_error": "¡Se produjo un error al publicar la especificación de producto!"
   },
   "CREATE_RES_SPEC": {
     "_back": "Atrás",

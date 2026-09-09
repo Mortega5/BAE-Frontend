@@ -80,6 +80,11 @@ export class ProductSpecServiceService {
     return this.http.patch<any>(url, body);
   }
 
+  deleteProdSpec(id: any) {
+    let url = `${ProductSpecServiceService.BASE_URL}${ProductSpecServiceService.API_PRODUCT_CATALOG}${ProductSpecServiceService.API_PRODUCT_SPEC}/${id}`;
+    return this.http.delete<any>(url);
+  }
+
   requestComplianceCertificate(productSpecification: any) {
     let url = `${ProductSpecServiceService.BASE_URL}/compliance/certificate`;
     return this.http.post<any>(url, productSpecification);

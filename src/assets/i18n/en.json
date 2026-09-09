@@ -1561,7 +1561,15 @@
     "_cancel": "Cancel",
     "_upload": "Upload",
     "_request_validation_disabled": "Request Validation is disabled because the compliance profile has unsaved changes. Update the product first.",
-    "_existing_certifications": "Existing certifications"
+    "_existing_certifications": "Existing certifications",
+    "_delete": "Delete",
+    "_delete_confirm_title": "Delete product specification?",
+    "_delete_confirm_message": "This will permanently delete this product specification. This action cannot be undone.",
+    "_delete_error": "There was an error while deleting the product specification!",
+    "_publish": "Publish",
+    "_publish_confirm_title": "Publish product specification?",
+    "_publish_confirm_message": "This will make the product specification visible and available immediately.",
+    "_publish_error": "There was an error while publishing the product specification!"
   },
   "CREATE_RES_SPEC": {
     "_back": "Back",

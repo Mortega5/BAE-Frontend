@@ -10,7 +10,7 @@ import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IconCategory, POPULAR_ICON_CATEGORIES, findIconByName } from 'src/app/config/popular-icons';
 import { certifications } from 'src/app/models/certification-standards.const';
-import { buildLifecycleStatusOptions, FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
+import { FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { HELM_DEPLOYMENT_CHARACTERISTICS } from 'src/app/models/helm-deployment-characteristics.const';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
@@ -224,10 +224,16 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
   errorMessage: any = '';
   showError: boolean = false;
+  showDeleteConfirm: boolean = false;
+  showPublishConfirm: boolean = false;
   loading: boolean = false;
 
   get notFound(): boolean {
     return !this.loading && !this.prod;
+  }
+
+  get isDraft(): boolean {
+    return this.prod?.lifecycleStatus === 'Active';
   }
 
   blueprintConfig: BlueprintProductFormValue;
@@ -513,10 +519,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     { type: 'string', name: 'brand', label: 'UPDATE_PROD_SPEC._product_brand', colSpan: 1 },
     { type: 'string', name: 'version', label: 'UPDATE_PROD_SPEC._product_version', required: true, colSpan: 1 },
     { type: 'string', name: 'number', label: 'UPDATE_PROD_SPEC._id_number', colSpan: 1 },
-    {
-      type: 'statusPicker', name: 'lifecycleStatus', label: 'UPDATE_RES_SPEC._status',
-      options: buildLifecycleStatusOptions('productSpecStatus'),
-    },
     { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS, readonly: true },
 
     { type: 'markdownTextarea', name: 'description', label: 'UPDATE_PROD_SPEC._product_description', placeholder: 'CREATE_PROD_SPEC._product_description_placeholder' },
@@ -1340,6 +1342,59 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
           this.showError = false;
         }, 3000);
       }
+    });
+  }
+
+  onDeleteResolved(confirmed: boolean) {
+    this.showDeleteConfirm = false;
+    if (confirmed) {
+      this.deleteProduct();
+    }
+  }
+
+  onPublishResolved(confirmed: boolean) {
+    this.showPublishConfirm = false;
+    if (confirmed) {
+      this.publishProduct();
+    }
+  }
+
+  private deleteProduct() {
+    this.loading = true;
+    this.prodSpecService.deleteProdSpec(this.prod.id).subscribe({
+      next: () => {
+        this.loading = false;
+        this.goBack();
+      },
+      error: error => {
+        console.error('There was an error while deleting the product specification!', error);
+        this.errorMessage = error.error?.error
+          ? 'Error: ' + error.error.error
+          : 'There was an error while deleting the product specification!';
+        this.loading = false;
+        this.showError = true;
+        setTimeout(() => { this.showError = false; }, 3000);
+      },
+    });
+  }
+
+  private publishProduct() {
+    this.loading = true;
+    this.prodSpecService.updateProdSpec({ lifecycleStatus: 'Launched' }, this.prod.id).subscribe({
+      next: () => {
+        this.loading = false;
+        this.prod.lifecycleStatus = 'Launched';
+        this.generalForm.patchValue({ lifecycleStatus: 'Launched' });
+      },
+      error: error => {
+        console.error('There was an error while publishing the product specification!', error);
+        this.errorMessage = error.error?.error
+          ? 'Error: ' + error.error.error
+          : 'There was an error while publishing the product specification!';
+        this.loading = false;
+        this.showError = true;
+        setTimeout(() => { this.showError = false; }, 3000);
+      },
     });
   }
 
