@@ -9,7 +9,7 @@
 </div>
 } @else {
 <div class="w-full col-span-2 mb-4 border rounded-lg md-toolbar-surface">
-  <div class="flex items-center justify-between px-3 py-2 border-b md-toolbar-divider">
+  <div class="flex items-center justify-between px-3 py-2 border-b rounded-t-lg md-toolbar-divider">
     <div class="flex flex-wrap items-center divide-gray-200 sm:divide-x sm:rtl:divide-x-reverse">
       <div class="flex items-center space-x-1 rtl:space-x-reverse sm:pe-4">
         <button [disabled]="showPreview" [ngClass]="showPreview ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'"
@@ -125,18 +125,18 @@
       <div class="tooltip-arrow" data-popper-arrow></div>
     </div>
   </div>
-  <div class="relative bg-[var(--theme-input-bg)] rounded-b-lg">
+  <div class="relative bg-[var(--md-body-bg)] rounded-b-lg">
     <label [for]="editorId" class="sr-only">Publish post</label>
     @if(showPreview){
     <markdown [ngClass]="{
           'break-all': hasLongWord(value, 20),
           'break-words': !hasLongWord(value, 20)
-          }" class="min-h-16 h-fit block bg-[var(--theme-input-bg)] text-wrap break-words text-gray-900 dark:text-white px-4 py-2" [data]="value">
+          }" class="min-h-16 h-fit block bg-[var(--md-body-bg)] rounded-b-lg text-wrap break-words text-gray-900 dark:text-white px-4 py-2" [data]="value">
     </markdown>
 
     }@else{
     <textarea [id]="editorId" data-cy="textArea"
-      class="px-4 py-2 block w-full h-fit px-0 text-sm text-gray-900 dark:text-white bg-[var(--theme-input-bg)] border-0" [placeholder]="placeholder | translate"
+      class="px-4 py-2 block w-full h-fit px-0 text-sm text-gray-900 dark:text-white bg-[var(--md-body-bg)] rounded-b-lg border-0" [placeholder]="placeholder | translate"
       [value]="value" [rows]="rows" [attr.maxLength]="maxLength" (input)="updateValue($event)"></textarea>
     }
     @if(showEmoji){

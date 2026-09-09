@@ -122,10 +122,19 @@ body {
   --badge-plain-text: rgb(51 65 85);
   /* slate-700 */
 
-  /* app-markdown-textarea toolbar tokens — kept in sync with --theme-input-*
-     since the toolbar sits directly above the textarea, which now uses those. */
-  --md-toolbar-bg: var(--theme-input-bg);
-  --md-toolbar-border: var(--theme-input-border);
+  /* app-markdown-textarea tokens, per the Stitch "product detail" mockup — the
+     toolbar strip and the editor body are two DIFFERENT surfaces there (not one
+     shared color as we first assumed): --md-body-bg (the outer container + the
+     actual textarea/preview) matches --theme-input-bg, while --md-toolbar-bg (the
+     button row on top of it) matches --theme-page-bg. Both flip which token they
+     point to in dark mode below — that's not a mistake, it's what the mockup
+     shows in each mode. --md-toolbar-border is its own neutral slate rather than
+     --theme-input-border, since dark mode wants a plain slate-700 there instead
+     of the theme-branded secondary-200. */
+  --md-body-bg: var(--theme-input-bg);
+  --md-toolbar-bg: var(--theme-page-bg);
+  --md-toolbar-border: rgb(203 213 225);
+  /* slate-300 */
   --md-toolbar-icon: rgb(107 114 128);
   /* gray-500 */
   --md-toolbar-icon-hover-bg: #f3f4f6;
@@ -212,6 +221,11 @@ body.theme-bae {
   /* #1a2530 */
   --theme-input-bg: rgb(var(--theme-secondary-300));
   --theme-input-border: rgb(var(--theme-secondary-200));
+  /* Flipped vs. the light defaults above — see the comment on --md-body-bg. */
+  --md-body-bg: var(--theme-page-bg);
+  --md-toolbar-bg: var(--theme-input-bg);
+  --md-toolbar-border: rgb(51 65 85 / 80%);
+  /* slate-700/80 */
   --md-toolbar-icon: rgb(209 213 219);
   /* gray-300 */
   --md-toolbar-icon-hover-bg: rgb(var(--theme-secondary-200));

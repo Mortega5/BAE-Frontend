@@ -2,11 +2,12 @@
    any theme can override them directly. Everything below only consumes them. */
 
 .md-toolbar-surface {
-  background-color: var(--md-toolbar-bg);
+  background-color: var(--md-body-bg);
   border-color: var(--md-toolbar-border);
 }
 
 .md-toolbar-divider {
+  background-color: var(--md-toolbar-bg);
   border-color: var(--md-toolbar-border);
 }
 
