@@ -76,9 +76,12 @@ export class AppComponent implements OnInit {
         this.refreshApi.stopInterval();
         let info = ev.value as LoginInfo;
 
-        this.refreshApi.startInterval(((info.expire - moment().unix())-4)*1000, ev);
-        initFlowbite();
-        //this.refreshApi.startInterval(3000, ev.value);
+        // An empty payload (logout) carries no expire; just stop the
+        // refresh loop instead of scheduling one with a NaN duration.
+        if (info?.expire) {
+          this.refreshApi.startInterval(((info.expire - moment().unix())-4)*1000, ev);
+          initFlowbite();
+        }
       }
     })
     let aux = this.localStorage.getObject('login_items') as LoginInfo;

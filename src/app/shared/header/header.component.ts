@@ -39,6 +39,7 @@ import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offe
 import { UserProfilePaths } from 'src/app/pages/user-profile/user-profile.paths';
 import { EventMessageService } from '../../services/event-message.service';
 import { LocalStorageService } from '../../services/local-storage.service';
+import { RefreshLoginServiceService } from '../../services/refresh-login-service.service';
 import { ShoppingCartServiceService } from '../../services/shopping-cart-service.service';
 import { ThemeMode, ThemeService } from '../../services/theme.service';
 import { NavLink, ThemeAuthUrlsConfig, ThemeConfig } from '../../themes';
@@ -68,7 +69,8 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
     private router: Router,
     private qrVerifier: QrVerifierService,
     private themeService: ThemeService,
-    private sc: ShoppingCartServiceService
+    private sc: ShoppingCartServiceService,
+    private refreshApi: RefreshLoginServiceService
   ) { }
 
   providerThemeName = environment.providerThemeName;
@@ -336,6 +338,8 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
     this.closeUserDropdown();
     this.localStorage.setObject('login_items', {});
     this.resetLoginState();
+    this.refreshApi.stopInterval();
+    this.eventMessage.emitLogin({} as LoginInfo);
 
     if (this.router.url === '/dashboard') {
       window.location.reload();
