@@ -13,6 +13,7 @@ import { FeaturedComponent } from 'src/app/offerings/featured/featured.component
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { LoginServiceService } from 'src/app/services/login-service.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { StatsServiceService } from 'src/app/services/stats-service.service';
 import { ThemeService } from 'src/app/services/theme.service';
@@ -78,6 +79,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     private router: Router,
     private statsService: StatsServiceService,
     private themeService: ThemeService,
+    private notificationService: NotificationService,
   ) { }
 
   ngOnInit() {
@@ -144,6 +146,9 @@ export class DashboardComponent implements OnInit, OnDestroy {
         this.localStorage.addLoginInfo(info);
         this.eventMessage.emitLogin(info);
         initFlowbite();
+      }).catch((error) => {
+        console.error('Error exchanging login token', error);
+        this.notificationService.showError('There was an error logging you in. Please try again.');
       });
       this.router.navigate(['/dashboard']);
     } else {
