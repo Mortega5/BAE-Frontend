@@ -246,10 +246,14 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     }
   }
 
-  private buildResourceCharacteristics(): ResourceSpecificationCharacteristic[] {
-    const chars: any[] = [...this.prodChars];
-    if (!this.requiresPackageDeployment) return chars;
+  /** "Package Deployment" step characteristics — deploymentDefinition + artifactType.
+   * These go under `resourceCharacteristic` (the Resource-instance field), not the
+   * spec's own `resourceSpecCharacteristic`: the proxy moves them onto the software
+   * support package resource automatically, for both create and update. */
+  private buildDeploymentCharacteristics(): any[] {
+    if (!this.requiresPackageDeployment) return [];
 
+    const chars: any[] = [];
     if (this.deploymentForm) {
       chars.push({
         name: 'deploymentDefinition',
@@ -273,11 +277,14 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   private prepareData(): void {
     if (!this.generalForm.value.name) return;
 
+    const deploymentChars = this.buildDeploymentCharacteristics();
+
     this.resourceData = Object.assign({}, {
       name: this.generalForm.value.name,
       description: this.generalForm.value.description ?? '',
       lifecycleStatus: this.generalForm.value.lifecycleStatus ?? 'Active',
-      resourceSpecCharacteristic: this.buildResourceCharacteristics(),
+      resourceSpecCharacteristic: this.prodChars,
+      ...(deploymentChars.length > 0 && { resourceCharacteristic: deploymentChars }),
       ...(!this.isUpdate && {
         relatedParty: [{ id: this.partyId, role: environment.SELLER_ROLE, '@referredType': '' }],
       }),
