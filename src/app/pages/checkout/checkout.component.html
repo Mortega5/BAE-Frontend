@@ -194,7 +194,7 @@
     </app-card>
   </div>
 }
-<app-confirm-modal [visible]="showDiscardConfirm" title="CONFIRM_MODAL._discard_title"
+<app-confirm-modal [visible]="showDiscardConfirm" [title]="'CONFIRM_MODAL._discard_title'"
   message="CONFIRM_MODAL._discard_message" confirmLabel="CONFIRM_MODAL._discard" cancelLabel="CONFIRM_MODAL._keep_editing"
   (resolved)="$event ? confirmDiscardAddBill() : cancelDiscardAddBill()" (closed)="cancelDiscardAddBill()" />
 @if(showError){

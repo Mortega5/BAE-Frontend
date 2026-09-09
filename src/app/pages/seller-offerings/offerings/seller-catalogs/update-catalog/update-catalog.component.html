@@ -91,11 +91,11 @@
   }
 </div>
 
-<app-confirm-modal [visible]="showDeleteConfirm" title="UPDATE_CATALOG._delete_confirm_title"
+<app-confirm-modal [visible]="showDeleteConfirm" [title]="'UPDATE_CATALOG._delete_confirm_title'"
   message="UPDATE_CATALOG._delete_confirm_message" confirmLabel="UPDATE_CATALOG._delete" cancelLabel="CONFIRM_MODAL._cancel"
   confirmVariant="danger" (resolved)="onDeleteResolved($event)" (closed)="showDeleteConfirm = false" />
 
-<app-confirm-modal [visible]="showPublishConfirm" title="UPDATE_CATALOG._publish_confirm_title"
+<app-confirm-modal [visible]="showPublishConfirm" [title]="'UPDATE_CATALOG._publish_confirm_title'"
   message="UPDATE_CATALOG._publish_confirm_message" confirmLabel="UPDATE_CATALOG._publish" cancelLabel="CONFIRM_MODAL._cancel"
   confirmVariant="primary" (resolved)="onPublishResolved($event)" (closed)="showPublishConfirm = false" />
 

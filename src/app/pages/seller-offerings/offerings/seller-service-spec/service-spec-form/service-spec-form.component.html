@@ -69,17 +69,17 @@
   }
 </div>
 
-<app-confirm-modal [visible]="showPublishDraftModal" title="PUBLISH_DRAFT_MODAL._title"
+<app-confirm-modal [visible]="showPublishDraftModal" [title]="'PUBLISH_DRAFT_MODAL._title'"
   message="PUBLISH_DRAFT_MODAL._message" cancelLabel="PUBLISH_DRAFT_MODAL._save_draft"
   confirmLabel="PUBLISH_DRAFT_MODAL._publish" confirmVariant="primary"
   (resolved)="$event ? publish() : saveDraft()" (closed)="showPublishDraftModal = false" />
 
-<app-confirm-modal [visible]="showDeleteConfirm" title="UPDATE_SERV_SPEC._delete_confirm_title"
+<app-confirm-modal [visible]="showDeleteConfirm" [title]="'UPDATE_SERV_SPEC._delete_confirm_title'"
   message="UPDATE_SERV_SPEC._delete_confirm_message" confirmLabel="UPDATE_SERV_SPEC._delete"
   cancelLabel="CONFIRM_MODAL._cancel" confirmVariant="danger" (resolved)="onDeleteResolved($event)"
   (closed)="showDeleteConfirm = false" />
 
-<app-confirm-modal [visible]="showPublishConfirm" title="UPDATE_SERV_SPEC._publish_confirm_title"
+<app-confirm-modal [visible]="showPublishConfirm" [title]="'UPDATE_SERV_SPEC._publish_confirm_title'"
   message="UPDATE_SERV_SPEC._publish_confirm_message" confirmLabel="UPDATE_SERV_SPEC._publish"
   cancelLabel="CONFIRM_MODAL._cancel" confirmVariant="primary" (resolved)="onPublishResolved($event)"
   (closed)="showPublishConfirm = false" />
