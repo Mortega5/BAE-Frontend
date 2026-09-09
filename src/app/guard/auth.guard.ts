@@ -36,6 +36,10 @@ export class AuthGuard implements CanActivate {
         aux.roles.forEach((role: any) => userRoles.push(role.name.toLowerCase()))
       } else {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
+        if (!loggedOrg) {
+          this.router.navigate(['/dashboard']);
+          return false;
+        }
         loggedOrg.roles.forEach((role: any) => userRoles.push(role.name.toLowerCase()))
 
         if(aux.roles.some(role => role.name.toLowerCase() === environment.ADMIN_ROLE.toLowerCase())){
