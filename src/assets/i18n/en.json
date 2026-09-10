@@ -8,7 +8,9 @@
     "_close": "Close",
     "_error": "Error",
     "_no_results": "No results found",
-    "_create_option": "Create \"{{value}}\""
+    "_create_option": "Create \"{{value}}\"",
+    "_view_details": "View details",
+    "_hide_details": "Hide details"
   },
   "ERRORS": {
     "_error_prefix": "Error: {{message}}"
@@ -2467,6 +2469,8 @@
     "_contactUsLegalEmail": "Legal support destination email",
     "_updateSuccessTitle": "Update success",
     "_emailConfigUpdated": "Email configuration updated successfully.",
+    "_emailConfigLoadError": "There was an error while loading the email configuration.",
+    "_emailConfigSaveError": "There was an error while updating the email configuration.",
     "_defaultCatalogSaveSuccess": "Default catalog saved successfully.",
     "_defaultCatalogSaveError": "There was an error while saving the default catalog.",
     "_searchFiltersSaveSuccess": "Search and filters configuration saved successfully.",

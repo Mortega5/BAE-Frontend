@@ -687,7 +687,15 @@ export class OfferComponent implements OnInit, OnDestroy {
     console.error('Error while creating offer price!', error);
     this.loading = false;
     this.showPublishDraftModal = false;
-    this.notificationService.showError('CREATE_OFFER._price_create_error');
+    this.notificationService.showError('CREATE_OFFER._price_create_error', {
+      details: this.extractErrorDetail(error)
+    });
+  }
+
+  /** Extracts a raw backend/exception detail string for the toast's "view details" toggle.
+   * Never shown as the toast's translated `message` — see NotificationService.showError. */
+  private extractErrorDetail(error: any): string | undefined {
+    return error?.error?.error || error?.error?.message || error?.message || undefined;
   }
 
   private async createPriceAlteration(component: any, currency: string): Promise<any> {
@@ -1042,7 +1050,9 @@ export class OfferComponent implements OnInit, OnDestroy {
         console.error('Error during offer save/update:', error);
         this.loading = false;
         this.showPublishDraftModal = false;
-        this.notificationService.showError(this.formType === 'create' ? 'CREATE_OFFER._save_error' : 'UPDATE_OFFER._update_error');
+        this.notificationService.showError(this.formType === 'create' ? 'CREATE_OFFER._save_error' : 'UPDATE_OFFER._update_error', {
+          details: this.extractErrorDetail(error)
+        });
       }
     });
   }
@@ -1084,7 +1094,9 @@ export class OfferComponent implements OnInit, OnDestroy {
       error: (error: any) => {
         console.error('There was an error while deleting the offer!', error);
         this.loading = false;
-        this.notificationService.showError('UPDATE_OFFER._delete_error');
+        this.notificationService.showError('UPDATE_OFFER._delete_error', {
+          details: this.extractErrorDetail(error)
+        });
       },
     });
   }
@@ -1100,7 +1112,9 @@ export class OfferComponent implements OnInit, OnDestroy {
       error: (error: any) => {
         console.error('There was an error while publishing the offer!', error);
         this.loading = false;
-        this.notificationService.showError('UPDATE_OFFER._publish_error');
+        this.notificationService.showError('UPDATE_OFFER._publish_error', {
+          details: this.extractErrorDetail(error)
+        });
       },
     });
   }
@@ -1362,7 +1376,9 @@ export class OfferComponent implements OnInit, OnDestroy {
     } catch (error: any) {
       console.error('❌ Error updating offer:', error);
       this.loading = false;
-      this.notificationService.showError('UPDATE_OFFER._update_error');
+      this.notificationService.showError('UPDATE_OFFER._update_error', {
+        details: this.extractErrorDetail(error)
+      });
     }
   }
 

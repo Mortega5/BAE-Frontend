@@ -125,9 +125,10 @@ export class CartCardComponent implements OnInit {
 
       // Resetear las selecciones
       this.resetSelections();
-    } catch (error) {
+    } catch (error: any) {
       console.error('There was an error while adding item to the cart!', error);
-      this.notificationService.showError('CARD._add_cart_error');
+      const detail = error?.error?.error || error?.error?.message || error?.message;
+      this.notificationService.showError('CARD._add_cart_error', detail ? { details: detail } : undefined);
     }
 
     this.cdr.detectChanges();

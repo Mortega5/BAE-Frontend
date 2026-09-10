@@ -289,21 +289,20 @@ export class AnalyticsConfigComponent implements OnInit {
     return this.readString(analyticsSuperset.guestTokenPath) || DEFAULT_GUEST_TOKEN_PATH;
   }
 
-  /** `fallbackKey` is an i18n key (resolved by the toast's own `| translate` pipe),
-   * not literal text — only used when the backend gives no error detail to show instead. */
+  /** `fallbackKey` is an i18n key (resolved by the toast's own `| translate` pipe). The
+   * toast always shows that translated message; any raw backend/exception detail goes
+   * behind its "view details" toggle instead of being baked into the shown text. */
   private handleError(error: any, fallbackKey: string): void {
-    let message: string;
+    let details: string | undefined;
     if (error?.error?.error) {
-      const details = error.error.details
+      const extra = error.error.details
         ? ` ${typeof error.error.details === 'string' ? error.error.details : JSON.stringify(error.error.details)}`
         : '';
-      message = `Error: ${error.error.error}${details}`;
-    } else if (error?.message) {
-      message = error.message;
+      details = `${error.error.error}${extra}`;
     } else {
-      message = fallbackKey;
+      details = error?.message || undefined;
     }
 
-    this.notificationService.showError(message);
+    this.notificationService.showError(fallbackKey, { details });
   }
 }

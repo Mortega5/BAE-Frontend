@@ -263,11 +263,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       }
     } catch (error: any) {
       console.error('There was an error during purchase!', error);
-      if (error?.error?.error) {
-        this.notificationService.showError('Error: ' + error.error.error);
-      } else {
-        this.notificationService.showError('SHOPPING_CART._order_error');
-      }
+      const detail = error?.error?.error || error?.error?.message || error?.message;
+      this.notificationService.showError('SHOPPING_CART._order_error', detail ? { details: detail } : undefined);
     } finally {
       this.loading_purchase = false;
       this.cdr.detectChanges();

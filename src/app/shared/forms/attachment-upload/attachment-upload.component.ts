@@ -135,7 +135,10 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
         error: (error: any) => {
           this.uploading = false;
           this.uploadProgress = null;
-          this.notificationService.showError(error?.status === 413 ? 'FORMS.ATTACHMENT._too_large' : 'FORMS.ATTACHMENT._upload_error');
+          this.notificationService.showError(
+            error?.status === 413 ? 'FORMS.ATTACHMENT._too_large' : 'FORMS.ATTACHMENT._upload_error',
+            { details: error?.error?.error || error?.error?.message || error?.message }
+          );
         },
       });
     };

@@ -213,7 +213,7 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
       error: error => {
         this.loading = false;
         console.error('There was an error while creating!', error);
-        this.notificationService.showError('BILLING._save_error');
+        this.notificationService.showError('BILLING._save_error', { details: error?.error?.error || error?.error?.message || error?.message });
       }
     });
   }
@@ -265,7 +265,7 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
       },
       error: error => {
         console.error('There was an error while updating!', error);
-        this.notificationService.showError('BILLING._save_error');
+        this.notificationService.showError('BILLING._save_error', { details: error?.error?.error || error?.error?.message || error?.message });
       }
     });
   }

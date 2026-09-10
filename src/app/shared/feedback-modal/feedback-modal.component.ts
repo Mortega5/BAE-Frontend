@@ -78,9 +78,9 @@ export class FeedbackModalComponent implements OnInit {
       try {
         await lastValueFrom(this.feedbackService.sendFeedback(body))
         this.showThanksMessage=true;
-      } catch (error) {
+      } catch (error: any) {
         console.error('There was an error while sending feedback!', error);
-        this.notificationService.showError('FEEDBACK._error');
+        this.notificationService.showError('FEEDBACK._error', { details: error?.error?.error || error?.error?.message || error?.message });
       }
     }
 

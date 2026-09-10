@@ -381,11 +381,8 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
       }
     } catch (error: any) {
       console.error('Error submitting modify order:', error);
-      if (error.error?.error) {
-        this.notificationService.showError('Error: ' + error.error.error);
-      } else {
-        this.notificationService.showError('PRODUCT_INVENTORY._modify_error');
-      }
+      const details = error?.error?.error || error?.error?.message || error?.message;
+      this.notificationService.showError('PRODUCT_INVENTORY._modify_error', details ? { details } : undefined);
     }
     this.showBillingSelector = false;
   }

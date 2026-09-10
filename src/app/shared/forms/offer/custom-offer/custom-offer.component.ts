@@ -244,7 +244,9 @@ export class CustomOfferComponent implements OnInit {
         error: (error) => {
           console.error('Error during offer save/update:', error);
           this.loading=false;
-          this.notificationService.showError('CREATE_OFFER._save_error');
+          this.notificationService.showError('CREATE_OFFER._save_error', {
+            details: this.extractErrorDetail(error)
+          });
         }
       });
     }
@@ -387,7 +389,15 @@ export class CustomOfferComponent implements OnInit {
 
     private handleApiError(error: any): void {
       console.error('Error while creating offer price!', error);
-      this.notificationService.showError('CREATE_OFFER._price_create_error');
+      this.notificationService.showError('CREATE_OFFER._price_create_error', {
+        details: this.extractErrorDetail(error)
+      });
+    }
+
+    /** Extracts a raw backend/exception detail string for the toast's "view details" toggle.
+     * Never shown as the toast's translated `message` — see NotificationService.showError. */
+    private extractErrorDetail(error: any): string | undefined {
+      return error?.error?.error || error?.error?.message || error?.message || undefined;
     }
   
     validateCurrentStep(): boolean {

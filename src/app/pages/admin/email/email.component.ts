@@ -89,8 +89,8 @@ export class EmailComponent {
     this.getConfig();
   }
 
-  getErrorMessage(error: any, defaultMessage: string): string {
-    return error?.error?.error ? 'Error: ' + error.error.error : defaultMessage;
+  private getErrorDetails(error: any): string | undefined {
+    return error?.error?.error || error?.message || undefined;
   }
 
   fillData(data: EmailConfig) {
@@ -117,7 +117,7 @@ export class EmailComponent {
       },
       error: error => {
         console.error('There was an error while getting config!', error);
-        this.notificationService.showError(this.getErrorMessage(error, 'There was an error while getting the config'));
+        this.notificationService.showError('ADMIN._emailConfigLoadError', { details: this.getErrorDetails(error) });
       }
     })
   }
@@ -145,7 +145,7 @@ export class EmailComponent {
       },
       error: error => {
         console.error('There was an error while updating!', error);
-        this.notificationService.showError(this.getErrorMessage(error, 'There was an error while updating the config'));
+        this.notificationService.showError('ADMIN._emailConfigSaveError', { details: this.getErrorDetails(error) });
       }
     })
   }

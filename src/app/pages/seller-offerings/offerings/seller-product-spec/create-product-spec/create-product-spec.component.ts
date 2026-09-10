@@ -1001,7 +1001,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
         console.error('There was an error while creating!', error);
         this.loading = false;
         this.showPublishDraftModal = false;
-        this.notificationService.showError('CREATE_PROD_SPEC._save_error');
+        this.notificationService.showError('CREATE_PROD_SPEC._save_error', { details: error?.error?.error || error?.error?.message || error?.message });
       }
     });
   }

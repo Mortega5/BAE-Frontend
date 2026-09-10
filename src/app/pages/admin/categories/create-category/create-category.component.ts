@@ -210,10 +210,8 @@ export class CreateCategoryComponent implements OnInit, OnDestroy {
       },
       error: error => {
         console.error('There was an error while updating!', error);
-        const message = error?.error?.error
-          ? 'Error: ' + error.error.error
-          : 'CREATE_CATEGORIES._create_error';
-        this.notificationService.showError(message);
+        const details = error?.error?.error || error?.error?.message || error?.message;
+        this.notificationService.showError('CREATE_CATEGORIES._create_error', details ? { details } : undefined);
       }
     })
   }

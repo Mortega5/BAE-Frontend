@@ -347,9 +347,10 @@ export class CardComponent implements OnInit, OnDestroy, AfterViewInit {
 
       // Emitir evento de producto añadido
       this.eventMessage.emitAddedCartItem(productOff as cartProduct);
-    } catch (error) {
+    } catch (error: any) {
       console.error('There was an error while adding item to the cart!', error);
-      this.notificationService.showError('CARD._add_cart_error');
+      const detail = error?.error?.error || error?.error?.message || error?.message;
+      this.notificationService.showError('CARD._add_cart_error', detail ? { details: detail } : undefined);
     }
 
     // Restablecer selecciones si es necesario
@@ -394,9 +395,10 @@ async deleteProduct(product: Product | undefined){
         console.log('removed');
         this.eventMessage.emitRemovedCartItem(product as Product);
         this.notificationService.showSuccess('SHOPPING_CART._remove_item_success');
-      } catch (error) {
+      } catch (error: any) {
         console.error('There was an error while removing the item from the cart!', error);
-        this.notificationService.showError('SHOPPING_CART._remove_item_error');
+        const detail = error?.error?.error || error?.error?.message || error?.message;
+        this.notificationService.showError('SHOPPING_CART._remove_item_error', detail ? { details: detail } : undefined);
       }
     }
   }

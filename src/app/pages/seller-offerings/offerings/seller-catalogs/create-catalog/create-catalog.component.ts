@@ -139,7 +139,9 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
         console.error('There was an error while creating the catalog!', error);
         this.loading = false;
         this.showPublishDraftModal = false;
-        this.notificationService.showError('CREATE_CATALOG._create_error');
+        this.notificationService.showError('CREATE_CATALOG._create_error', {
+          details: error?.error?.error || error?.error?.message || error?.message
+        });
       },
     });
   }

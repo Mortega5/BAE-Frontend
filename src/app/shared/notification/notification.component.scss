@@ -3,16 +3,23 @@
    is visually just a small elevated card, per the Stitch "Toast & Feedback
    Notification Tokens" redesign. */
 
-.app-toast {
+.app-toast-stack {
   position: fixed;
   top: 1rem;
   right: 1rem;
   z-index: 200;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 0.75rem;
   width: 100%;
   max-width: 24rem;
+}
+
+.app-toast {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   padding: 1rem 1rem 1.125rem 1.25rem;
   border-radius: 0.75rem;
   background-color: var(--card-bg);
@@ -55,8 +62,12 @@
   }
 }
 
-.app-toast-message {
+.app-toast-body {
   flex: 1;
+  min-width: 0;
+}
+
+.app-toast-message {
   margin: 0;
   font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
   font-size: 0.875rem;
@@ -64,12 +75,47 @@
   color: var(--theme-default-text);
 }
 
+.app-toast-details-toggle {
+  margin-top: 0.25rem;
+  padding: 0;
+  background: none;
+  border: none;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: underline;
+  color: var(--status-badge-neutral);
+  cursor: pointer;
+
+  .app-toast[data-type="error"] & {
+    color: var(--status-badge-danger);
+  }
+}
+
+.app-toast-details {
+  margin: 0.375rem 0 0;
+  padding: 0.5rem 0.625rem;
+  border-radius: 0.375rem;
+  background-color: var(--status-badge-neutral-bg);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  color: var(--theme-default-text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .app-toast-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
-  padding: 0.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
   background: transparent;
   border: none;
-  border-radius: 0.375rem;
+  border-radius: 9999px;
   font-size: 0.8125rem;
   color: var(--status-badge-neutral);
   cursor: pointer;
@@ -107,6 +153,14 @@
 
   .app-toast[data-type="error"] & {
     background-color: var(--status-badge-danger);
+  }
+
+  /* Frozen at whatever width it had reached — the JS timer behind it was
+     cleared (NotificationService.pauseTimer), so the notification itself
+     no longer auto-dismisses; freezing the bar keeps it honest instead of
+     letting the CSS animation run down to empty on its own. */
+  &.app-toast-progress--paused {
+    animation-play-state: paused;
   }
 }
 

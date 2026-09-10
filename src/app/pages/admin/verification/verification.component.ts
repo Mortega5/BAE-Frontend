@@ -48,10 +48,8 @@ export class VerificationComponent {
       },
       error: error => {
         console.error('There was an error while updating!', error);
-        const message = error?.error?.error
-          ? 'Error: ' + error.error.error
-          : 'ADMIN._verificationError';
-        this.notificationService.showError(message);
+        const details = error?.error?.error || error?.error?.message || error?.message;
+        this.notificationService.showError('ADMIN._verificationError', details ? { details } : undefined);
       }
     })
   }

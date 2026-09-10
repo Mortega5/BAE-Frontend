@@ -284,10 +284,8 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
       },
       error: error => {
         console.error('There was an error while updating!', error);
-        const message = error?.error?.error
-          ? 'Error: ' + error.error.error
-          : 'UPDATE_CATEGORIES._update_error';
-        this.notificationService.showError(message);
+        const details = error?.error?.error || error?.error?.message || error?.message;
+        this.notificationService.showError('UPDATE_CATEGORIES._update_error', details ? { details } : undefined);
       }
     })
   }

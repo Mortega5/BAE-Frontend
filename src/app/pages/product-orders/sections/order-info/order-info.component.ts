@@ -257,10 +257,11 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
       // orderToShow is a separate (enriched) object from the row cached by the orders
       // table, so its state change doesn't propagate there on its own - patch it locally.
       this.paginatedTable?.patchItem((o: any) => o.id === this.orderToShow.id, { state: stateResponse.state });
-    } catch (error) {
+    } catch (error: any) {
       this.selectedItem.productOrderItem['state'] = prevState
 
-      this.notificationService.showError('PRODUCT_ORDERS._update_state_error');
+      const detail = error?.error?.error || error?.error?.message || error?.message;
+      this.notificationService.showError('PRODUCT_ORDERS._update_state_error', detail ? { details: detail } : undefined);
       console.error("Error updating order:", error);
     }
 
@@ -289,8 +290,9 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
       // Llamar al servicio para actualizar solo la nota
       const noteResponse = await this.orderService.updateOrder(this.orderToShow.id, notePatchData);
       console.log("Order note added successfully:", noteResponse);
-    } catch (error) {
-      this.notificationService.showError('PRODUCT_ORDERS._update_state_note_error');
+    } catch (error: any) {
+      const detail = error?.error?.error || error?.error?.message || error?.message;
+      this.notificationService.showError('PRODUCT_ORDERS._update_state_note_error', detail ? { details: detail } : undefined);
       console.error("Error updating order notes:", error);
     }
 
@@ -530,8 +532,9 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
       await this.orderService.updateOrder(this.selectedOrder.id, patchData);
       console.log('Order notes updated successfully');
       this.notificationService.showSuccess('PRODUCT_ORDERS._add_note_success');
-    } catch (error) {
-      this.notificationService.showError('PRODUCT_ORDERS._add_note_error');
+    } catch (error: any) {
+      const detail = error?.error?.error || error?.error?.message || error?.message;
+      this.notificationService.showError('PRODUCT_ORDERS._add_note_error', detail ? { details: detail } : undefined);
       console.error('Error updating order notes:', error);
       // Remove the note if update fails
       this.selectedOrder.note.pop();

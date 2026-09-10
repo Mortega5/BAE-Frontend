@@ -179,9 +179,10 @@ export class InvoicesInfoComponent implements OnInit, OnDestroy {
       next: () => {
         this.notificationService.showSuccess('INVOICES._update_billno_success');
       },
-      error: error => {
+      error: (error: any) => {
         invoice.billNo = oldName;
-        this.notificationService.showError('INVOICES._update_billno_error');
+        const detail = error?.error?.error || error?.error?.message || error?.message;
+        this.notificationService.showError('INVOICES._update_billno_error', detail ? { details: detail } : undefined);
         console.error('There was an error while updating!', error);
       }
     });

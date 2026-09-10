@@ -218,9 +218,9 @@ export class ChatModalComponent implements OnInit, OnDestroy, OnChanges {
       this.newMessage = '';
       // Reload messages after sending
       await this.loadMessages();
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error sending message:', err);
-      this.notificationService.showError('CHAT_MODAL._send_error');
+      this.notificationService.showError('CHAT_MODAL._send_error', { details: err?.error?.error || err?.error?.message || err?.message });
     } finally {
       this.isSending = false;
     }

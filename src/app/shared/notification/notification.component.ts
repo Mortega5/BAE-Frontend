@@ -4,7 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { faCircleCheck, faCircleInfo, faCircleXmark, faTriangleExclamation, faXmark } from '@fortawesome/pro-solid-svg-icons';
-import { NotificationService, NotificationType, NOTIFICATION_DURATION_MS } from '../../services/notification.service';
+import { NotificationService, NotificationType } from '../../services/notification.service';
 
 const NOTIFICATION_ICONS: Record<NotificationType, IconDefinition> = {
   success: faCircleCheck,
@@ -22,11 +22,28 @@ const NOTIFICATION_ICONS: Record<NotificationType, IconDefinition> = {
 })
 export class NotificationComponent {
   protected readonly faXmark = faXmark;
-  protected readonly durationMs = NOTIFICATION_DURATION_MS;
+
+  /** Ids of notifications whose error details are currently expanded. Purely
+   * view state (not part of NotificationService's model) — expanding one also
+   * pauses its auto-dismiss timer via notificationService.pauseTimer(). */
+  private expandedIds = new Set<number>();
 
   constructor(public notificationService: NotificationService) {}
 
   protected icon(type: NotificationType): IconDefinition {
     return NOTIFICATION_ICONS[type];
+  }
+
+  protected isExpanded(id: number): boolean {
+    return this.expandedIds.has(id);
+  }
+
+  protected toggleDetails(id: number): void {
+    if (this.expandedIds.has(id)) {
+      this.expandedIds.delete(id);
+    } else {
+      this.expandedIds.add(id);
+      this.notificationService.pauseTimer(id);
+    }
   }
 }

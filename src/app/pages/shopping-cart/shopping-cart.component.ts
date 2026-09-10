@@ -185,9 +185,10 @@ export class ShoppingCartComponent implements OnInit, AfterViewInit{
       console.log('deleted');
       this.eventMessage.emitRemovedCartItem(product as cartProduct);
       this.notificationService.showSuccess('SHOPPING_CART._remove_item_success');
-    } catch (error) {
+    } catch (error: any) {
       console.error('There was an error while removing the item from the cart:', error);
-      this.notificationService.showError('SHOPPING_CART._remove_item_error');
+      const detail = error?.error?.error || error?.error?.message || error?.message;
+      this.notificationService.showError('SHOPPING_CART._remove_item_error', detail ? { details: detail } : undefined);
     }
   }
 
@@ -253,9 +254,10 @@ export class ShoppingCartComponent implements OnInit, AfterViewInit{
 
       // Redirigir al inventario
       this.goToInventory();
-    } catch (error) {
+    } catch (error: any) {
       console.error('There was an error while processing the order:', error);
-      this.notificationService.showError('SHOPPING_CART._order_error');
+      const detail = error?.error?.error || error?.error?.message || error?.message;
+      this.notificationService.showError('SHOPPING_CART._order_error', detail ? { details: detail } : undefined);
     }
   }
 

@@ -167,7 +167,9 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
       error: error => {
         console.error('There was an error while updating the catalog!', error);
         this.loading = false;
-        this.notificationService.showError('UPDATE_CATALOG._update_error');
+        this.notificationService.showError('UPDATE_CATALOG._update_error', {
+          details: error?.error?.error || error?.error?.message || error?.message
+        });
       },
     });
   }
@@ -197,7 +199,9 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
       error: error => {
         console.error('There was an error while deleting the catalog!', error);
         this.loading = false;
-        this.notificationService.showError('UPDATE_CATALOG._delete_error');
+        this.notificationService.showError('UPDATE_CATALOG._delete_error', {
+          details: error?.error?.error || error?.error?.message || error?.message
+        });
       },
     });
   }
@@ -214,7 +218,9 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
       error: error => {
         console.error('There was an error while publishing the catalog!', error);
         this.loading = false;
-        this.notificationService.showError('UPDATE_CATALOG._publish_error');
+        this.notificationService.showError('UPDATE_CATALOG._publish_error', {
+          details: error?.error?.error || error?.error?.message || error?.message
+        });
       },
     });
   }

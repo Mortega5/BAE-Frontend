@@ -99,17 +99,11 @@ export class DefaultCatalogComponent implements OnInit {
     }
   }
 
-  /** `fallbackKey` is an i18n key (resolved by the toast's own `| translate` pipe),
-   * not literal text — only used when the backend gives no error detail to show instead. */
+  /** `fallbackKey` is an i18n key (resolved by the toast's own `| translate` pipe). The
+   * toast always shows that translated message; any raw backend/exception detail goes
+   * behind its "view details" toggle instead of being baked into the shown text. */
   private handleError(error: any, fallbackKey: string) {
-    let message: string;
-    if (error?.error?.error) {
-      message = `Error: ${error.error.error}`;
-    } else if (error?.message) {
-      message = error.message;
-    } else {
-      message = fallbackKey;
-    }
-    this.notificationService.showError(message);
+    const details = error?.error?.error || error?.message || undefined;
+    this.notificationService.showError(fallbackKey, { details });
   }
 }

@@ -213,7 +213,7 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
       },
       error: (error) => {
         console.error('Unable to update the software package resource', error);
-        this.notificationService.showError('UPDATE_SOFTWARE._update_error');
+        this.notificationService.showError('UPDATE_SOFTWARE._update_error', { details: error?.error?.error || error?.error?.message || error?.message });
       }
     });
   }

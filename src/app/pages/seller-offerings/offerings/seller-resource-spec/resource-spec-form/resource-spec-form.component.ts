@@ -363,7 +363,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   private handleError(error: any): void {
     console.error(`There was an error while ${this.isUpdate ? 'updating' : 'creating'} the resource specification!`, error);
     const key = this.isUpdate ? 'CREATE_RES_SPEC._update_error' : 'CREATE_RES_SPEC._create_error';
-    this.notificationService.showError(key);
+    this.notificationService.showError(key, { details: error?.error?.error || error?.error?.message || error?.message });
     this.loading = false;
     this.showPublishDraftModal = false;
   }
@@ -401,7 +401,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
       error: (error: any) => {
         console.error('There was an error while deleting the resource specification!', error);
         this.loading = false;
-        this.notificationService.showError('UPDATE_RES_SPEC._delete_error');
+        this.notificationService.showError('UPDATE_RES_SPEC._delete_error', { details: error?.error?.error || error?.error?.message || error?.message });
       },
     });
   }
@@ -418,7 +418,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
       error: (error: any) => {
         console.error('There was an error while publishing the resource specification!', error);
         this.loading = false;
-        this.notificationService.showError('UPDATE_RES_SPEC._publish_error');
+        this.notificationService.showError('UPDATE_RES_SPEC._publish_error', { details: error?.error?.error || error?.error?.message || error?.message });
       },
     });
   }

@@ -97,7 +97,7 @@ export class ContactUsFormComponent implements OnDestroy {
       },
       error: (error) => {
         console.error('There was an error while sending the contact us message!', error);
-        this.notificationService.showError('ContactUs.error.generic');
+        this.notificationService.showError('ContactUs.error.generic', { details: error?.error?.error || error?.error?.message || error?.message });
       },
     });
   }

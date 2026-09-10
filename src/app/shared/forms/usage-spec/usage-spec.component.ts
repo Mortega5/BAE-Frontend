@@ -185,7 +185,7 @@ export class UsageSpecComponent implements OnInit, OnDestroy {
       },
       error: error => {
         console.error('There was an error while creating the usageSpec!', error);
-        this.notificationService.showError('USAGE_SPECS._create_error');
+        this.notificationService.showError('USAGE_SPECS._create_error', { details: error?.error?.error || error?.error?.message || error?.message });
       }
     });
 
@@ -235,7 +235,7 @@ export class UsageSpecComponent implements OnInit, OnDestroy {
       this.goBack();
     } catch (error: any) {
       console.error('❌ Error updating Usage Spec:', error);
-      this.notificationService.showError('USAGE_SPECS._update_error');
+      this.notificationService.showError('USAGE_SPECS._update_error', { details: error?.error?.error || error?.error?.message || error?.message });
     }
   }
 

@@ -168,7 +168,7 @@ export class UserInfoComponent implements OnInit, OnDestroy {
       },
       error: error => {
         console.error('There was an error while updating!', error);
-        this.notificationService.showError('PROFILE._update_error');
+        this.notificationService.showError('PROFILE._update_error', { details: error?.error?.error || error?.error?.message || error?.message });
       }
     });
   }

@@ -8,7 +8,9 @@
     "_close": "Cerrar",
     "_error": "Error",
     "_no_results": "No se encontraron resultados",
-    "_create_option": "Crear \"{{value}}\""
+    "_create_option": "Crear \"{{value}}\"",
+    "_view_details": "Ver detalles",
+    "_hide_details": "Ocultar detalles"
   },
   "ERRORS": {
     "_error_prefix": "Error: {{message}}"
@@ -2467,6 +2469,8 @@
     "_contactUsLegalEmail": "Correo electrónico de destino para soporte legal",
     "_updateSuccessTitle": "Actualización correcta",
     "_emailConfigUpdated": "La configuración de correo electrónico se ha actualizado correctamente.",
+    "_emailConfigLoadError": "Se ha producido un error al cargar la configuración de correo electrónico.",
+    "_emailConfigSaveError": "Se ha producido un error al actualizar la configuración de correo electrónico.",
     "_defaultCatalogSaveSuccess": "El catálogo predeterminado se ha guardado correctamente.",
     "_defaultCatalogSaveError": "Se ha producido un error al guardar el catálogo predeterminado.",
     "_searchFiltersSaveSuccess": "La configuración de búsqueda y filtros se ha guardado correctamente.",

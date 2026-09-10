@@ -176,7 +176,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
       error: error => {
         console.error('There was an error while creating the software!', error);
         this.loading = false;
-        this.notificationService.showError('CREATE_SOFTWARE._create_error');
+        this.notificationService.showError('CREATE_SOFTWARE._create_error', { details: error?.error?.error || error?.error?.message || error?.message });
       },
     });
   }
