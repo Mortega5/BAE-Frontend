@@ -10,6 +10,7 @@ import { environment } from 'src/environments/environment';
 import { euCountries } from '../../models/country.const';
 import { EventMessageService } from "../../services/event-message.service";
 import { LocalStorageService } from "../../services/local-storage.service";
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-billing-account-form',
@@ -78,16 +79,14 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
   loading: boolean = false;
   is_create: boolean = false;
 
-  errorMessage: any = '';
-  showError: boolean = false;
-
   private destroy$ = new Subject<void>();
 
   constructor(
     private localStorage: LocalStorageService,
     private cdr: ChangeDetectorRef,
     private accountService: AccountServiceService,
-    private eventMessage: EventMessageService
+    private eventMessage: EventMessageService,
+    private notificationService: NotificationService
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -209,19 +208,12 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
         this.eventMessage.emitBillAccChange(true);
         this.resetBillingForm();
         this.loading = false;
+        this.notificationService.showSuccess('BILLING._save_success');
       },
       error: error => {
         this.loading = false;
         console.error('There was an error while creating!', error);
-        if (error.error.error) {
-          this.errorMessage = 'Error: ' + error.error.error;
-        } else {
-          this.errorMessage = 'There was an error while creating billing account!';
-        }
-        this.showError = true;
-        setTimeout(() => {
-          this.showError = false;
-        }, 3000);
+        this.notificationService.showError('BILLING._save_error');
       }
     });
   }
@@ -269,18 +261,11 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
       next: data => {
         this.eventMessage.emitBillAccChange(false);
         this.resetBillingForm();
+        this.notificationService.showSuccess('BILLING._save_success');
       },
       error: error => {
         console.error('There was an error while updating!', error);
-        if (error.error.error) {
-          this.errorMessage = 'Error: ' + error.error.error;
-        } else {
-          this.errorMessage = 'There was an error while updating billing account!';
-        }
-        this.showError = true;
-        setTimeout(() => {
-          this.showError = false;
-        }, 3000);
+        this.notificationService.showError('BILLING._save_error');
       }
     });
   }

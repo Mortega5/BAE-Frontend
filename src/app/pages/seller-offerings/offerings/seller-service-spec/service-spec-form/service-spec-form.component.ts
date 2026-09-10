@@ -67,8 +67,6 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
   characteristicItems: CharacteristicItem[] = [];
   allowedChars: CharValueType[] = ['string', 'number', 'range', 'object'];
 
-  errorMessage: any = '';
-  showError = false;
   showPublishDraftModal = false;
   showDeleteConfirm = false;
   showPublishConfirm = false;
@@ -197,7 +195,11 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
     if (this.isUpdate) {
       this.loading = true;
       this.servSpecService.updateServSpec(this.serviceData as ServiceSpecification_Update, this.serv.id).subscribe({
-        next: () => { this.loading = false; this.goBack(); },
+        next: () => {
+          this.loading = false;
+          this.notificationService.showSuccess('CREATE_SERV_SPEC._update_success');
+          this.goBack();
+        },
         error: e => this.handleError(e),
       });
     } else {
@@ -218,19 +220,22 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
     (this.serviceData as any).lifecycleStatus = lifecycleStatus;
     this.loading = true;
     this.servSpecService.postServSpec(this.serviceData as ServiceSpecification_Create).subscribe({
-      next: () => { this.loading = false; this.showPublishDraftModal = false; this.goBack(); },
+      next: () => {
+        this.loading = false;
+        this.showPublishDraftModal = false;
+        this.notificationService.showSuccess('CREATE_SERV_SPEC._create_success');
+        this.goBack();
+      },
       error: e => this.handleError(e),
     });
   }
 
   private handleError(error: any): void {
-    this.errorMessage = error.error?.error
-      ? 'Error: ' + error.error.error
-      : `There was an error while ${this.isUpdate ? 'updating' : 'creating'} the service!`;
+    console.error(`There was an error while ${this.isUpdate ? 'updating' : 'creating'} the service specification!`, error);
+    const key = this.isUpdate ? 'CREATE_SERV_SPEC._update_error' : 'CREATE_SERV_SPEC._create_error';
+    this.notificationService.showError(key);
     this.loading = false;
     this.showPublishDraftModal = false;
-    this.showError = true;
-    setTimeout(() => this.showError = false, 3000);
   }
 
   statusBadgeVariant(status: string): BadgeStatus {
@@ -260,16 +265,13 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
     this.servSpecService.deleteServSpec(this.serv.id).subscribe({
       next: () => {
         this.loading = false;
+        this.notificationService.showSuccess('UPDATE_SERV_SPEC._delete_success');
         this.goBack();
       },
       error: (error: any) => {
         console.error('There was an error while deleting the service specification!', error);
-        this.errorMessage = error.error?.error
-          ? 'Error: ' + error.error.error
-          : 'There was an error while deleting the service specification!';
         this.loading = false;
-        this.showError = true;
-        setTimeout(() => { this.showError = false; }, 3000);
+        this.notificationService.showError('UPDATE_SERV_SPEC._delete_error');
       },
     });
   }
@@ -281,15 +283,12 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.serv.lifecycleStatus = 'Launched';
         this.generalForm.patchValue({ lifecycleStatus: 'Launched' });
+        this.notificationService.showSuccess('UPDATE_SERV_SPEC._publish_success');
       },
       error: (error: any) => {
         console.error('There was an error while publishing the service specification!', error);
-        this.errorMessage = error.error?.error
-          ? 'Error: ' + error.error.error
-          : 'There was an error while publishing the service specification!';
         this.loading = false;
-        this.showError = true;
-        setTimeout(() => { this.showError = false; }, 3000);
+        this.notificationService.showError('UPDATE_SERV_SPEC._publish_error');
       },
     });
   }

@@ -13,6 +13,7 @@ import { AccountServiceService } from 'src/app/services/account-service.service'
 import { AttachmentServiceService } from "src/app/services/attachment-service.service";
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
+import { NotificationService } from 'src/app/services/notification.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { environment } from 'src/environments/environment';
@@ -71,7 +72,6 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
   showMediumModal: boolean = false;
   selectedMedium: any;
   toastVisibility: boolean = false;
-  successVisibility: boolean = false;
 
   errorMessage: any = '';
   showError: boolean = false;
@@ -96,6 +96,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
     private accountService: AccountServiceService,
     private eventMessage: EventMessageService,
     private attachmentService: AttachmentServiceService,
+    private notificationService: NotificationService,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -303,23 +304,12 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
       next: data => {
         this.profileForm.reset();
         this.getProfile();
-        this.successVisibility = true;
-        setTimeout(() => {
-          this.successVisibility = false;
-        }, 2000);
         this.mediumForm.reset();
+        this.notificationService.showSuccess('PROFILE._success');
       },
       error: error => {
         console.error('There was an error while updating!', error);
-        if (error.error.error) {
-          this.errorMessage = 'Error: ' + error.error.error;
-        } else {
-          this.errorMessage = 'There was an error while updating profile!';
-        }
-        this.showError = true;
-        setTimeout(() => {
-          this.showError = false;
-        }, 3000);
+        this.notificationService.showError('PROFILE._update_error');
       }
     });
   }

@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
+import { NotificationService } from 'src/app/services/notification.service';
 import {
   applyRuntimeFeaturesConfig,
   FEATURE_FLAG_DEFINITIONS,
@@ -21,15 +22,10 @@ type FeatureFlagFormGroup = FormGroup<{
   templateUrl: './features-config.component.html',
   styleUrl: './features-config.component.css'
 })
-export class FeaturesConfigComponent implements OnInit, OnDestroy {
+export class FeaturesConfigComponent implements OnInit {
   readonly definitions = FEATURE_FLAG_DEFINITIONS;
   loading = false;
   saving = false;
-  showError = false;
-  showSuccess = false;
-  errorMessage = '';
-  successMessage = '';
-  private successTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   featuresForm = new FormGroup({
     flags: new FormArray<FeatureFlagFormGroup>([])
@@ -37,18 +33,12 @@ export class FeaturesConfigComponent implements OnInit, OnDestroy {
 
   constructor(
     private http: HttpClient,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private notificationService: NotificationService
   ) {}
 
   ngOnInit(): void {
     void this.loadConfig();
-  }
-
-  ngOnDestroy(): void {
-    if (this.successTimeoutId) {
-      clearTimeout(this.successTimeoutId);
-      this.successTimeoutId = null;
-    }
   }
 
   get flagsArray(): FormArray<FeatureFlagFormGroup> {
@@ -61,12 +51,11 @@ export class FeaturesConfigComponent implements OnInit, OnDestroy {
 
   async loadConfig(): Promise<void> {
     this.loading = true;
-    this.showError = false;
 
     try {
       await this.syncFromBackend();
     } catch (error: any) {
-      this.handleError(error, this.translate.instant('ADMIN.FEATURES._load_error'));
+      this.handleError(error, 'ADMIN.FEATURES._load_error');
     } finally {
       this.loading = false;
     }
@@ -77,8 +66,6 @@ export class FeaturesConfigComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.showError = false;
-    this.showSuccess = false;
     this.saving = true;
 
     try {
@@ -89,13 +76,9 @@ export class FeaturesConfigComponent implements OnInit, OnDestroy {
       applyRuntimeFeaturesConfig(payload);
       await this.syncFromBackend();
 
-      this.successMessage = this.translate.instant('ADMIN.FEATURES._save_success');
-      this.showSuccess = true;
-      this.successTimeoutId = setTimeout(() => {
-        this.showSuccess = false;
-      }, 3000);
+      this.notificationService.showSuccess('ADMIN.FEATURES._save_success');
     } catch (error: any) {
-      this.handleError(error, this.translate.instant('ADMIN.FEATURES._save_error'));
+      this.handleError(error, 'ADMIN.FEATURES._save_error');
     } finally {
       this.saving = false;
     }
@@ -148,17 +131,15 @@ export class FeaturesConfigComponent implements OnInit, OnDestroy {
   }
 
   private handleError(error: any, fallbackMessage: string): void {
+    let message: string;
     if (error?.error?.error) {
-      this.errorMessage = this.translate.instant('ERRORS._error_prefix', { message: error.error.error });
+      message = this.translate.instant('ERRORS._error_prefix', { message: error.error.error });
     } else if (error?.message) {
-      this.errorMessage = error.message;
+      message = error.message;
     } else {
-      this.errorMessage = fallbackMessage;
+      message = fallbackMessage;
     }
 
-    this.showError = true;
-    setTimeout(() => {
-      this.showError = false;
-    }, 3000);
+    this.notificationService.showError(message);
   }
 }

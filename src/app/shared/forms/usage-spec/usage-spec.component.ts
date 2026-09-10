@@ -13,6 +13,7 @@ import { StepChangedEvent, StepperComponent } from 'src/app/shared/stepper/stepp
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { FormChangeState } from "../../../models/interfaces";
+import { NotificationService } from '../../../services/notification.service';
 import { ApiServiceService } from "../../../services/product-service.service";
 import { UsageSpecGeneralInfoComponent } from './usage-spec-general-info/usage-spec-general-info.component';
 import { UsageSpecMetricsComponent } from './usage-spec-metrics/usage-spec-metrics.component';
@@ -45,9 +46,6 @@ export class UsageSpecComponent implements OnInit, OnDestroy {
   isFormValid = false;
   loadingData: boolean = false;
 
-  errorMessage: any = '';
-  showError: boolean = false;
-
   private formChanges: { [key: string]: FormChangeState } = {};
   private formSubscription: Subscription | null = null;
   private destroy$ = new Subject<void>();
@@ -57,6 +55,7 @@ export class UsageSpecComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService,
     private fb: FormBuilder,
     private usageSpecService: UsageServiceService,
+    private notificationService: NotificationService,
     private router: Router) {
 
     this.usageSpecForm = this.fb.group({
@@ -181,20 +180,12 @@ export class UsageSpecComponent implements OnInit, OnDestroy {
       next: data => {
         console.log('usageSpec created:')
         console.log(data)
+        this.notificationService.showSuccess('USAGE_SPECS._create_success');
         this.goBack();
       },
       error: error => {
         console.error('There was an error while creating the usageSpec!', error);
-        if (error.error.error) {
-          console.log(error)
-          this.errorMessage = 'Error: ' + error.error.error;
-        } else {
-          this.errorMessage = 'There was an error while creating the usageSpec!';
-        }
-        this.showError = true;
-        setTimeout(() => {
-          this.showError = false;
-        }, 3000);
+        this.notificationService.showError('USAGE_SPECS._create_error');
       }
     });
 
@@ -240,12 +231,11 @@ export class UsageSpecComponent implements OnInit, OnDestroy {
       // Llamar a la API para actualizar la oferta
       await lastValueFrom(this.usageSpecService.updateUsageSpec(basePayload, this.usageSpec.id));
       console.log('✅ Usage Spec updated successfully');
+      this.notificationService.showSuccess('USAGE_SPECS._update_success');
       this.goBack();
     } catch (error: any) {
       console.error('❌ Error updating Usage Spec:', error);
-      this.errorMessage = error?.error?.error ? 'Error: ' + error.error.error : 'An error occurred while updating the Usage Spec!';
-      this.showError = true;
-      setTimeout(() => (this.showError = false), 3000);
+      this.notificationService.showError('USAGE_SPECS._update_error');
     }
   }
 

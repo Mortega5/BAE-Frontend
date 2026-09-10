@@ -314,6 +314,9 @@
       "required": "Este campo es obligatorio.",
       "email": "Introduce una dirección de correo electrónico válida.",
       "privacyRequired": "Debes aceptar la Política de privacidad y los Términos de servicio."
+    },
+    "error": {
+      "generic": "Se produjo un error al enviar tu mensaje. Inténtalo de nuevo."
     }
   },
   "LANDINGPAGE": {
@@ -720,6 +723,7 @@
     "_product_version": "Versión del producto",
     "_id_number": "Número de identificación",
     "_added_card": "Añadido al carrito",
+    "_add_cart_error": "Hubo un error al añadir el producto al carrito",
     "_undo": "Deshacer",
     "_close_toast": "Cerrar",
     "_from": "Desde",
@@ -952,7 +956,11 @@
     "_tax": "Impuestos",
     "_calculated": "Se calcula al finalizar la compra",
     "_fee": "Tasa de servicio*",
-    "_no_items": "Tu carrito está vacío."
+    "_no_items": "Tu carrito está vacío.",
+    "_order_success": "Pedido realizado correctamente",
+    "_order_error": "Hubo un error al realizar el pedido",
+    "_remove_item_success": "Producto eliminado del carrito",
+    "_remove_item_error": "Hubo un error al eliminar el producto del carrito"
   },
   "PROFILE": {
     "_general": "General",
@@ -1019,6 +1027,7 @@
     "_invalid_contact_title": "¡El título es obligatorio!",
     "_save": "Guardar",
     "_success": "Actualizado correctamente",
+    "_update_error": "Se produjo un error al actualizar el perfil.",
     "_website": "Sitio web",
     "_website_placeholder": "Introduce la URL de un sitio web",
     "_add_logo": "Añadir logo de la organización",
@@ -1059,6 +1068,8 @@
     "_modify_chars": "Modificar características",
     "_select_billing": "Selecciona la dirección de facturación",
     "_confirm_modify": "Confirmar cambios",
+    "_modify_success": "Solicitud de modificación del producto enviada correctamente",
+    "_modify_error": "Hubo un error al modificar el producto",
     "_res_details": "Detalles del recurso",
     "_res_chars": "Características del recurso",
     "_serv_details": "Detalles del servicio",
@@ -1118,7 +1129,10 @@
     "_too_long": "Este campo es demasiado largo. Debe tener menos de 250 caracteres.",
     "_too_long_larger": "Este campo es demasiado largo. Debe tener menos de 1000 caracteres.",
     "_too_long_email": "El correo electrónico es demasiado largo. Debe tener menos de 320 caracteres.",
-    "_email_format": "El correo electrónico debe seguir el siguiente formato: example@example.example"
+    "_email_format": "El correo electrónico debe seguir el siguiente formato: example@example.example",
+    "_save_success": "Datos de facturación guardados correctamente.",
+    "_save_error": "Se produjo un error al guardar la cuenta de facturación.",
+    "_preferred_error": "Se produjo un error al actualizar la cuenta de facturación predeterminada."
   },
   "INVOICES": {
     "_invoice_id": "ID de factura",
@@ -1139,6 +1153,8 @@
     "_as_customer": "Como cliente",
     "_as_provider": "Como proveedor",
     "_invoice_details": "Detalles de la factura:",
+    "_update_billno_success": "Número de factura actualizado correctamente",
+    "_update_billno_error": "Hubo un error al actualizar el número de factura",
     "_applied_billing_rates": "Tarifas de facturación aplicadas",
     "_product_acbr_ref": "Referencia ACBR del producto",
     "_no_billing_rates": "No se encontraron tarifas de facturación",
@@ -1167,6 +1183,7 @@
     "_summary": "Resumen del catálogo",
     "_summary_desc": "Revisa la información del catálogo antes de crearlo.",
     "_finish": "Finalizar",
+    "_create_success": "Catálogo creado correctamente",
     "_create_error": "¡Se produjo un error al crear el catálogo!"
   },
   "CREATE_SOFTWARE": {
@@ -1194,13 +1211,17 @@
     "_unit": "Unidad",
     "_from": "Desde",
     "_to": "Hasta",
-    "_delete": "Eliminar característica"
+    "_delete": "Eliminar característica",
+    "_create_success": "Recurso software creado correctamente.",
+    "_create_error": "No se ha podido crear el recurso software."
   },
   "UPDATE_SOFTWARE": {
     "_save": "Guardar",
     "_edit": "Actualizar Recurso Software",
     "_update": "Actualizar Software",
-    "_wrong_org_notice": "Este recurso software pertenece a otra organización — volviendo a la lista."
+    "_wrong_org_notice": "Este recurso software pertenece a otra organización — volviendo a la lista.",
+    "_update_success": "Recurso software actualizado correctamente.",
+    "_update_error": "No se ha podido actualizar el recurso software."
   },
   "UPDATE_CATALOG": {
     "_back": "Atrás",
@@ -1225,14 +1246,17 @@
     "_launched": "Publicado",
     "_retired": "Retirado",
     "_obsolete": "Obsoleto",
+    "_update_success": "Catálogo actualizado correctamente",
     "_update_error": "¡Se produjo un error al actualizar el catálogo!",
     "_delete": "Eliminar",
     "_delete_confirm_title": "¿Eliminar catálogo?",
     "_delete_confirm_message": "Esto eliminará permanentemente este catálogo. Esta acción no se puede deshacer.",
+    "_delete_success": "Catálogo eliminado correctamente",
     "_delete_error": "¡Se produjo un error al eliminar el catálogo!",
     "_publish": "Publicar",
     "_publish_confirm_title": "¿Publicar catálogo?",
     "_publish_confirm_message": "El catálogo pasará a estar visible y disponible de inmediato.",
+    "_publish_success": "Catálogo publicado correctamente",
     "_publish_error": "¡Se produjo un error al publicar el catálogo!",
     "_wrong_org_notice": "Este catálogo pertenece a otra organización — volviendo a la lista."
   },
@@ -1570,10 +1594,12 @@
     "_delete": "Eliminar",
     "_delete_confirm_title": "¿Eliminar especificación de producto?",
     "_delete_confirm_message": "Esto eliminará permanentemente esta especificación de producto. Esta acción no se puede deshacer.",
+    "_delete_success": "Especificación de producto eliminada correctamente",
     "_delete_error": "¡Se produjo un error al eliminar la especificación de producto!",
     "_publish": "Publicar",
     "_publish_confirm_title": "¿Publicar especificación de producto?",
     "_publish_confirm_message": "La especificación de producto pasará a estar visible y disponible de inmediato.",
+    "_publish_success": "Especificación de producto publicada correctamente",
     "_publish_error": "¡Se produjo un error al publicar la especificación de producto!",
     "_wrong_org_notice": "Esta especificación de producto pertenece a otra organización — volviendo a la lista."
   },
@@ -1693,10 +1719,12 @@
     "_delete": "Eliminar",
     "_delete_confirm_title": "¿Eliminar especificación de recurso?",
     "_delete_confirm_message": "Esto eliminará permanentemente esta especificación de recurso. Esta acción no se puede deshacer.",
+    "_delete_success": "Especificación de recurso eliminada correctamente",
     "_delete_error": "¡Se produjo un error al eliminar la especificación de recurso!",
     "_publish": "Publicar",
     "_publish_confirm_title": "¿Publicar especificación de recurso?",
     "_publish_confirm_message": "La especificación de recurso pasará a estar visible y disponible de inmediato.",
+    "_publish_success": "Especificación de recurso publicada correctamente",
     "_publish_error": "¡Se produjo un error al publicar la especificación de recurso!",
     "_wrong_org_notice": "Esta especificación de recurso pertenece a otra organización — volviendo a la lista."
   },
@@ -1830,10 +1858,12 @@
     "_delete": "Eliminar",
     "_delete_confirm_title": "¿Eliminar especificación de servicio?",
     "_delete_confirm_message": "Esto eliminará permanentemente esta especificación de servicio. Esta acción no se puede deshacer.",
+    "_delete_success": "Especificación de servicio eliminada correctamente",
     "_delete_error": "¡Se produjo un error al eliminar la especificación de servicio!",
     "_publish": "Publicar",
     "_publish_confirm_title": "¿Publicar especificación de servicio?",
     "_publish_confirm_message": "La especificación de servicio pasará a estar visible y disponible de inmediato.",
+    "_publish_success": "Especificación de servicio publicada correctamente",
     "_publish_error": "¡Se produjo un error al publicar la especificación de servicio!",
     "_wrong_org_notice": "Esta especificación de servicio pertenece a otra organización — volviendo a la lista."
   },
@@ -2237,10 +2267,12 @@
     "_delete": "Eliminar",
     "_delete_confirm_title": "¿Eliminar oferta?",
     "_delete_confirm_message": "Esto eliminará permanentemente esta oferta de producto. Esta acción no se puede deshacer.",
+    "_delete_success": "Oferta eliminada correctamente",
     "_delete_error": "¡Se produjo un error al eliminar la oferta!",
     "_publish": "Publicar",
     "_publish_confirm_title": "¿Publicar oferta?",
     "_publish_confirm_message": "La oferta pasará a estar visible y disponible de inmediato.",
+    "_publish_success": "Oferta publicada correctamente",
     "_publish_error": "¡Se produjo un error al publicar la oferta!",
     "_wrong_org_notice": "Esta oferta pertenece a otra organización — volviendo a la lista."
   },
@@ -2418,6 +2450,8 @@
     "_group_config": "Configuración",
     "_productId": "ID del producto",
     "_vc": "Credencial verificable",
+    "_verificationSuccess": "Credencial verificada correctamente.",
+    "_verificationError": "Se produjo un error al verificar la credencial.",
     "_add": "Añadir",
     "_revenue": "Reparto de ingresos",
     "_email": "Correo electrónico",
@@ -2433,6 +2467,16 @@
     "_contactUsLegalEmail": "Correo electrónico de destino para soporte legal",
     "_updateSuccessTitle": "Actualización correcta",
     "_emailConfigUpdated": "La configuración de correo electrónico se ha actualizado correctamente.",
+    "_defaultCatalogSaveSuccess": "El catálogo predeterminado se ha guardado correctamente.",
+    "_defaultCatalogSaveError": "Se ha producido un error al guardar el catálogo predeterminado.",
+    "_searchFiltersSaveSuccess": "La configuración de búsqueda y filtros se ha guardado correctamente.",
+    "_searchFiltersSaveError": "Se ha producido un error al guardar la configuración de búsqueda y filtros.",
+    "_searchFiltersJsonSaveSuccess": "El JSON de filtros de búsqueda se ha guardado correctamente.",
+    "_searchFiltersJsonSaveError": "Se ha producido un error al guardar el JSON proporcionado.",
+    "_analyticsConfigSaveSuccess": "La configuración de analítica se ha guardado correctamente.",
+    "_analyticsConfigSaveError": "Se ha producido un error al guardar la configuración de analítica.",
+    "_analyticsJsonSaveSuccess": "El JSON de analítica se ha guardado correctamente.",
+    "_analyticsJsonSaveError": "Se ha producido un error al guardar el JSON proporcionado.",
     "_defaultCatalog": "Catálogo predeterminado",
     "_defaultCatalogId": "ID del catálogo predeterminado",
     "_noDefaultCatalogConfigured": "Actualmente no hay ningún catálogo predeterminado configurado.",
@@ -2489,7 +2533,9 @@
     "_status": "Estado",
     "_next": "Siguiente",
     "_choose_parent": "Elige una categoría superior",
-    "_parent": "Categoría superior"
+    "_parent": "Categoría superior",
+    "_create_success": "Categoría creada correctamente.",
+    "_create_error": "Se produjo un error al crear la categoría."
   },
   "UPDATE_CATEGORIES": {
     "_categories": "Categorías",
@@ -2510,7 +2556,9 @@
     "_status": "Estado",
     "_next": "Siguiente",
     "_choose_parent": "Elige una categoría superior",
-    "_parent": "Categoría superior"
+    "_parent": "Categoría superior",
+    "_update_success": "Categoría actualizada correctamente.",
+    "_update_error": "Se produjo un error al actualizar la categoría."
   },
   "ORGANIZATION": {
     "_details": "Detalles de la organización",
@@ -2591,7 +2639,11 @@
     "_reject_order": "Rechazar el item del pedido",
     "_start_treatment": "Iniciar tratamiento del pedido",
     "_complete_order": "Pedido completado",
-    "_fail_order": "Pedido fallido"
+    "_fail_order": "Pedido fallido",
+    "_update_state_error": "Hubo un error al actualizar el estado del pedido",
+    "_update_state_note_error": "Hubo un error al añadir la nota del cambio de estado",
+    "_add_note_success": "Nota añadida correctamente",
+    "_add_note_error": "Hubo un error al añadir la nota"
   },
   "FORMS": {
     "_required": "Este campo es obligatorio.",
@@ -2710,7 +2762,8 @@
       "_invalid_type": "Este tipo de archivo no está permitido.",
       "_too_large": "El archivo debe pesar menos de 3MB.",
       "_invalid_name": "El nombre del archivo solo puede incluir letras, números, guiones bajos, guiones y puntos.",
-      "_upload_error": "Se produjo un error al subir el archivo."
+      "_upload_error": "Se produjo un error al subir el archivo.",
+      "_upload_success": "Archivo subido correctamente."
     }
   },
   "USAGE_SPECS": {
@@ -2742,7 +2795,11 @@
     "_metric_description_placeholder": "Describe esta métrica",
     "_summary": "Resumen",
     "_summary_desc": "Revisa los detalles antes de guardar.",
-    "_cancel": "Cancelar"
+    "_cancel": "Cancelar",
+    "_create_success": "Métrica de pago por uso creada correctamente.",
+    "_create_error": "No se ha podido crear la métrica de pago por uso.",
+    "_update_success": "Métrica de pago por uso actualizada correctamente.",
+    "_update_error": "No se ha podido actualizar la métrica de pago por uso."
   },
   "ABOUT_DOME": {
     "_title": "Descubre DOME Marketplace",
@@ -2792,7 +2849,11 @@
     "_send": "Enviar",
     "_thanks": "Gracias por contactar con DOME Marketplace.",
     "_footer_title": "¿Cómo valorarías tu experiencia general con DOME?",
-    "_footer_improve": "¿Cómo podemos mejorar DOME?"
+    "_footer_improve": "¿Cómo podemos mejorar DOME?",
+    "_error": "Se produjo un error al enviar tu comentario. Inténtalo de nuevo."
+  },
+  "CHAT_MODAL": {
+    "_send_error": "Error al enviar el mensaje. Inténtalo de nuevo."
   },
   "CHAR_SPEC": {
     "_step_title": "Opciones de configuración",

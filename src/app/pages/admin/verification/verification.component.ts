@@ -4,6 +4,7 @@ import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { AdminPaths } from 'src/app/pages/admin/admin.paths';
+import { NotificationService } from 'src/app/services/notification.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -12,9 +13,6 @@ import { environment } from 'src/environments/environment';
   styleUrl: './verification.component.css'
 })
 export class VerificationComponent {
-
-  showError: boolean = false;
-  errorMessage: string = '';
 
   verificationFormFields: FormField[] = [
     { type: 'string', name: 'productId', label: 'ADMIN._productId', required: true, dataCy: 'adminVerificationProductId' },
@@ -28,7 +26,8 @@ export class VerificationComponent {
 
   constructor(
     private router: Router,
-    private http: HttpClient
+    private http: HttpClient,
+    private notificationService: NotificationService
   ) {}
 
   goBack() {
@@ -44,20 +43,15 @@ export class VerificationComponent {
 
     return this.http.patch<any>(url, body).subscribe({
       next: data => {
+        this.notificationService.showSuccess('ADMIN._verificationSuccess');
         this.goBack();
       },
       error: error => {
         console.error('There was an error while updating!', error);
-        if(error.error.error){
-          console.log(error)
-          this.errorMessage = 'Error: ' + error.error.error;
-        } else {
-          this.errorMessage = 'There was an error while uploading the product!';
-        }
-        this.showError = true;
-        setTimeout(() => {
-          this.showError = false;
-        }, 3000);
+        const message = error?.error?.error
+          ? 'Error: ' + error.error.error
+          : 'ADMIN._verificationError';
+        this.notificationService.showError(message);
       }
     })
   }

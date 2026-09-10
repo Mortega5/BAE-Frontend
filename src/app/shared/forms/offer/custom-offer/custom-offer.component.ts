@@ -11,6 +11,7 @@ import {RelatedPartyIdComponent} from "../related-party-id/related-party-id.comp
 import { lastValueFrom, firstValueFrom } from 'rxjs';
 import {components} from "src/app/models/product-catalog";
 import {EventMessageService} from "src/app/services/event-message.service";
+import { NotificationService } from "src/app/services/notification.service";
 import {FormChangeState, PricePlanChangeState} from "../../../../models/interfaces";
 import {Subscription} from "rxjs";
 import moment from 'moment';
@@ -54,8 +55,6 @@ export class CustomOfferComponent implements OnInit {
   currentStep = 0;
   isFormValid = false;
   pricePlans:any = [];
-  errorMessage:any='';
-  showError:boolean=false;
   loading:boolean=false;
   loadingData:boolean=false;
   bundleChecked:boolean=false;
@@ -68,7 +67,8 @@ export class CustomOfferComponent implements OnInit {
   constructor(private api: ApiServiceService,
     private eventMessage: EventMessageService,
     private fb: FormBuilder, private quoteService: QuoteService,
-    private route: ActivatedRoute, private router: Router) {
+    private route: ActivatedRoute, private router: Router,
+    private notificationService: NotificationService) {
 
       this.productOfferForm = this.fb.group({
         prodSpec: new FormControl(null, [Validators.required]),
@@ -238,14 +238,13 @@ export class CustomOfferComponent implements OnInit {
           console.log('product offer created:');
           console.log(data);
           this.loading=false;
+          this.notificationService.showSuccess('CREATE_OFFER._create_success');
           this.goBack();
         },
         error: (error) => {
           console.error('Error during offer save/update:', error);
-          this.errorMessage = error?.error?.error ? 'Error: ' + error.error.error : 'An error occurred while saving the offer!';
           this.loading=false;
-          this.showError = true;
-          setTimeout(() => (this.showError = false), 3000);
+          this.notificationService.showError('CREATE_OFFER._save_error');
         }
       });
     }
@@ -388,9 +387,7 @@ export class CustomOfferComponent implements OnInit {
 
     private handleApiError(error: any): void {
       console.error('Error while creating offer price!', error);
-      this.errorMessage = error?.error?.error ? 'Error: ' + error.error.error : 'Error creating offer price!';
-      this.showError = true;
-      setTimeout(() => (this.showError = false), 3000);
+      this.notificationService.showError('CREATE_OFFER._price_create_error');
     }
   
     validateCurrentStep(): boolean {

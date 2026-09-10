@@ -13,6 +13,7 @@ import { faThumbsUp } from '@fortawesome/pro-regular-svg-icons';
 import { TranslateModule } from "@ngx-translate/core";
 import { Subject, takeUntil } from 'rxjs';
 import { CONTACT_US_SUPPORT_TYPES } from "src/app/models/contact-us.constants";
+import { NotificationService } from '../../services/notification.service';
 import { ContactUsService } from '../../services/contactUs.service';
 
 export interface IContactUs {
@@ -47,6 +48,7 @@ export class ContactUsFormComponent implements OnDestroy {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly contactUsService = inject(ContactUsService)
+  private readonly notificationService = inject(NotificationService);
 
   faThumbsUp = faThumbsUp;
 
@@ -92,6 +94,10 @@ export class ContactUsFormComponent implements OnDestroy {
     this.contactUsService.sendEmail(rawValue).pipe(takeUntil(this.unsub)).subscribe({
       next: () => {
         this.submittedSuccessfully = true;
+      },
+      error: (error) => {
+        console.error('There was an error while sending the contact us message!', error);
+        this.notificationService.showError('ContactUs.error.generic');
       },
     });
   }

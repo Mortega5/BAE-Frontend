@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
+import { NotificationService } from 'src/app/services/notification.service';
 import { environment } from 'src/environments/environment';
 
 type AnalyticsDashboardKey = 'businessInsightsNonLear' | 'businessInsightsLear' | 'usageMonitor';
@@ -21,7 +22,7 @@ interface AnalyticsConfigPayload {
   templateUrl: './analytics-config.component.html',
   styleUrl: './analytics-config.component.css'
 })
-export class AnalyticsConfigComponent implements OnInit, OnDestroy {
+export class AnalyticsConfigComponent implements OnInit {
   readonly dashboardSections: Array<{ key: AnalyticsDashboardKey; label: string }> = [
     { key: 'businessInsightsNonLear', label: 'Business Insights Non-LEAR' },
     { key: 'businessInsightsLear', label: 'Business Insights LEAR' },
@@ -30,12 +31,7 @@ export class AnalyticsConfigComponent implements OnInit, OnDestroy {
 
   loading = false;
   saving = false;
-  showError = false;
-  showSuccess = false;
-  errorMessage = '';
-  successMessage = '';
   providedJson = '';
-  private successTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   analyticsForm = new FormGroup({
     analyticsEnabled: new FormControl<boolean>(false, { nonNullable: true }),
@@ -65,22 +61,17 @@ export class AnalyticsConfigComponent implements OnInit, OnDestroy {
     })
   });
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit(): void {
     void this.loadConfig();
   }
 
-  ngOnDestroy(): void {
-    if (this.successTimeoutId) {
-      clearTimeout(this.successTimeoutId);
-      this.successTimeoutId = null;
-    }
-  }
-
   async loadConfig(): Promise<void> {
     this.loading = true;
-    this.showError = false;
 
     try {
       await this.syncFromBackend();
@@ -96,8 +87,6 @@ export class AnalyticsConfigComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.showError = false;
-    this.showSuccess = false;
     this.saving = true;
 
     try {
@@ -105,13 +94,9 @@ export class AnalyticsConfigComponent implements OnInit, OnDestroy {
       await this.saveAnalyticsPayload(payload);
       await this.syncFromBackend();
 
-      this.successMessage = 'Analytics configuration saved successfully.';
-      this.showSuccess = true;
-      this.successTimeoutId = setTimeout(() => {
-        this.showSuccess = false;
-      }, 3000);
+      this.notificationService.showSuccess('ADMIN._analyticsConfigSaveSuccess');
     } catch (error: any) {
-      this.handleError(error, 'There was an error while saving analytics configuration.');
+      this.handleError(error, 'ADMIN._analyticsConfigSaveError');
     } finally {
       this.saving = false;
     }
@@ -122,8 +107,6 @@ export class AnalyticsConfigComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.showError = false;
-    this.showSuccess = false;
     this.saving = true;
 
     try {
@@ -132,13 +115,9 @@ export class AnalyticsConfigComponent implements OnInit, OnDestroy {
       await this.saveAnalyticsPayload(payload);
       await this.syncFromBackend();
 
-      this.successMessage = 'Analytics JSON saved successfully.';
-      this.showSuccess = true;
-      this.successTimeoutId = setTimeout(() => {
-        this.showSuccess = false;
-      }, 3000);
+      this.notificationService.showSuccess('ADMIN._analyticsJsonSaveSuccess');
     } catch (error: any) {
-      this.handleError(error, 'There was an error while saving provided JSON.');
+      this.handleError(error, 'ADMIN._analyticsJsonSaveError');
     } finally {
       this.saving = false;
     }
@@ -310,21 +289,21 @@ export class AnalyticsConfigComponent implements OnInit, OnDestroy {
     return this.readString(analyticsSuperset.guestTokenPath) || DEFAULT_GUEST_TOKEN_PATH;
   }
 
-  private handleError(error: any, fallbackMessage: string): void {
+  /** `fallbackKey` is an i18n key (resolved by the toast's own `| translate` pipe),
+   * not literal text — only used when the backend gives no error detail to show instead. */
+  private handleError(error: any, fallbackKey: string): void {
+    let message: string;
     if (error?.error?.error) {
       const details = error.error.details
         ? ` ${typeof error.error.details === 'string' ? error.error.details : JSON.stringify(error.error.details)}`
         : '';
-      this.errorMessage = `Error: ${error.error.error}${details}`;
+      message = `Error: ${error.error.error}${details}`;
     } else if (error?.message) {
-      this.errorMessage = error.message;
+      message = error.message;
     } else {
-      this.errorMessage = fallbackMessage;
+      message = fallbackKey;
     }
 
-    this.showError = true;
-    setTimeout(() => {
-      this.showError = false;
-    }, 3000);
+    this.notificationService.showError(message);
   }
 }

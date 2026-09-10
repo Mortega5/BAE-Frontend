@@ -12,6 +12,7 @@ import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductOrderService } from 'src/app/services/product-order-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
@@ -47,8 +48,6 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
   selectedInv: any;
   productOff: any;
 
-  errorMessage: any = '';
-  showError: boolean = false;
   private destroy$ = new Subject<void>();
 
   isModifyDrawerOpen: boolean = false;
@@ -67,7 +66,8 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService,
     private paginationService: PaginationService,
     private accountService: AccountServiceService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private notificationService: NotificationService
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -376,19 +376,16 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
       } else {
         this.showBillingSelector = false;
         this.pendingModifyPayload = null;
+        this.notificationService.showSuccess('PRODUCT_INVENTORY._modify_success');
         this.router.navigate([ProductOrdersPaths.root()]);
       }
     } catch (error: any) {
       console.error('Error submitting modify order:', error);
       if (error.error?.error) {
-        this.errorMessage = 'Error: ' + error.error.error;
+        this.notificationService.showError('Error: ' + error.error.error);
       } else {
-        this.errorMessage = 'There was an error while modifying the product!';
+        this.notificationService.showError('PRODUCT_INVENTORY._modify_error');
       }
-      this.showError = true;
-      setTimeout(() => {
-        this.showError = false;
-      }, 3000);
     }
     this.showBillingSelector = false;
   }

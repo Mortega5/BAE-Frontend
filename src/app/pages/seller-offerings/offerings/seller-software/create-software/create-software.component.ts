@@ -16,6 +16,7 @@ import { environment } from 'src/environments/environment';
 import { FormField, SelectOption } from '../../../../../models/formFields/form-field.model';
 import { RESOURCE_STATUS_TYPES } from '../../../../../models/software.model';
 import { TableColumn, TableSort } from '../../../../../models/table-column.model';
+import { NotificationService } from '../../../../../services/notification.service';
 import { ResourceSpecServiceService } from '../../../../../services/resource-spec-service.service';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 import { lifecycleStatusBadgeVariant, lifecycleStatusLabel } from '../../../../../shared/badge/badge.component';
@@ -73,8 +74,6 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
 
   resourceCharacteristics: CharacteristicValueSpecification[] = [];
 
-  errorMessage: any = '';
-  showError = false;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -82,6 +81,7 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService,
     private api: ApiServiceService,
     private resSpecService: ResourceSpecServiceService,
+    private notificationService: NotificationService,
     private datePipe: DatePipe,
     private route: ActivatedRoute,
     private router: Router,
@@ -170,16 +170,13 @@ export class CreateSoftwareComponent implements OnInit, OnDestroy {
     this.api.postSoftware(this.softwareToCreate).subscribe({
       next: () => {
         this.loading = false;
+        this.notificationService.showSuccess('CREATE_SOFTWARE._create_success');
         this.goBack();
       },
       error: error => {
         console.error('There was an error while creating the software!', error);
-        this.errorMessage = error.error?.error
-          ? 'Error: ' + error.error.error
-          : 'There was an error while creating the software!';
         this.loading = false;
-        this.showError = true;
-        setTimeout(() => { this.showError = false; }, 3000);
+        this.notificationService.showError('CREATE_SOFTWARE._create_error');
       },
     });
   }

@@ -13,6 +13,7 @@ import { initFlowbite } from 'flowbite';
 import moment from 'moment';
 import { environment } from 'src/environments/environment';
 import {LocalStorageService} from "../../services/local-storage.service";
+import { NotificationService } from 'src/app/services/notification.service';
 import { Router } from '@angular/router';
 import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.paths';
 import {firstValueFrom} from "rxjs";
@@ -42,7 +43,8 @@ export class ShoppingCartComponent implements OnInit, AfterViewInit{
     private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
     private orderService: ProductOrderService,
-    private router: Router) {
+    private router: Router,
+    private notificationService: NotificationService) {
 
   }
 
@@ -178,9 +180,15 @@ export class ShoppingCartComponent implements OnInit, AfterViewInit{
   }
 
   async deleteProduct(product: cartProduct){
-    await this.cartService.removeItemShoppingCart(product.id);
-    console.log('deleted');
-    this.eventMessage.emitRemovedCartItem(product as cartProduct);
+    try {
+      await this.cartService.removeItemShoppingCart(product.id);
+      console.log('deleted');
+      this.eventMessage.emitRemovedCartItem(product as cartProduct);
+      this.notificationService.showSuccess('SHOPPING_CART._remove_item_success');
+    } catch (error) {
+      console.error('There was an error while removing the item from the cart:', error);
+      this.notificationService.showError('SHOPPING_CART._remove_item_error');
+    }
   }
 
   removeClass(elem: HTMLElement, cls:string) {
@@ -241,10 +249,13 @@ export class ShoppingCartComponent implements OnInit, AfterViewInit{
       // Vaciar el carrito
       await this.emptyShoppingCart();
 
+      this.notificationService.showSuccess('SHOPPING_CART._order_success');
+
       // Redirigir al inventario
       this.goToInventory();
     } catch (error) {
       console.error('There was an error while processing the order:', error);
+      this.notificationService.showError('SHOPPING_CART._order_error');
     }
   }
 

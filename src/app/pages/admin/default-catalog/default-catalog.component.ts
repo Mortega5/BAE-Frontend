@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { ApiServiceService } from 'src/app/services/product-service.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 
@@ -14,10 +15,6 @@ import { environment } from 'src/environments/environment';
 export class DefaultCatalogComponent implements OnInit {
   loading = false;
   loadingDefaultCatalog = false;
-  showError = false;
-  showSuccess = false;
-  errorMessage = '';
-  successMessage = '';
   defaultCatalogId = '';
 
   defaultCatalogFormFields: FormField[] = [
@@ -30,7 +27,10 @@ export class DefaultCatalogComponent implements OnInit {
     description: new FormControl('', [Validators.maxLength(100000)])
   });
 
-  constructor(private api: ApiServiceService) {}
+  constructor(
+    private api: ApiServiceService,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit() {
     void this.loadDefaultCatalogInfo();
@@ -65,8 +65,6 @@ export class DefaultCatalogComponent implements OnInit {
     }
 
     this.loading = true;
-    this.showError = false;
-    this.showSuccess = false;
 
     try {
       const payload: any = {
@@ -93,29 +91,25 @@ export class DefaultCatalogComponent implements OnInit {
       this.defaultCatalogId = catalogId;
       environment.DFT_CATALOG_ID = catalogId;
 
-      this.successMessage = 'Default catalog saved successfully.';
-      this.showSuccess = true;
-      setTimeout(() => {
-        this.showSuccess = false;
-      }, 3000);
+      this.notificationService.showSuccess('ADMIN._defaultCatalogSaveSuccess');
     } catch (error) {
-      this.handleError(error, 'There was an error while saving the default catalog.');
+      this.handleError(error, 'ADMIN._defaultCatalogSaveError');
     } finally {
       this.loading = false;
     }
   }
 
-  private handleError(error: any, fallbackMessage: string) {
+  /** `fallbackKey` is an i18n key (resolved by the toast's own `| translate` pipe),
+   * not literal text — only used when the backend gives no error detail to show instead. */
+  private handleError(error: any, fallbackKey: string) {
+    let message: string;
     if (error?.error?.error) {
-      this.errorMessage = `Error: ${error.error.error}`;
+      message = `Error: ${error.error.error}`;
     } else if (error?.message) {
-      this.errorMessage = error.message;
+      message = error.message;
     } else {
-      this.errorMessage = fallbackMessage;
+      message = fallbackKey;
     }
-    this.showError = true;
-    setTimeout(() => {
-      this.showError = false;
-    }, 3000);
+    this.notificationService.showError(message);
   }
 }

@@ -15,6 +15,7 @@ import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
+import { NotificationService } from 'src/app/services/notification.service';
 import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
@@ -213,8 +214,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   //FINAL PRODUCT USING API CALL STRUCTURE
   productSpecToCreate: ProductSpecification_Create | undefined;
 
-  errorMessage: any = '';
-  showError: boolean = false;
   showPublishDraftModal: boolean = false;
   loading: boolean = false;
 
@@ -287,6 +286,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     private datePipe: DatePipe,
     private router: Router,
     private translate: TranslateService,
+    private notificationService: NotificationService,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -994,22 +994,14 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
       next: data => {
         this.loading = false;
         this.showPublishDraftModal = false;
+        this.notificationService.showSuccess('CREATE_PROD_SPEC._create_success');
         this.goBack();
       },
       error: error => {
         console.error('There was an error while creating!', error);
-        if (error.error.error) {
-          console.log(error)
-          this.errorMessage = 'Error: ' + error.error.error;
-        } else {
-          this.errorMessage = 'There was an error while creating the product!';
-        }
         this.loading = false;
         this.showPublishDraftModal = false;
-        this.showError = true;
-        setTimeout(() => {
-          this.showError = false;
-        }, 3000);
+        this.notificationService.showError('CREATE_PROD_SPEC._save_error');
       }
     });
   }

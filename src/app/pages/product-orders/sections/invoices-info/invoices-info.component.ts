@@ -13,6 +13,7 @@ import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { InvoicesService } from 'src/app/services/invoices-service';
 import { LocalStorageService } from "src/app/services/local-storage.service";
+import { NotificationService } from 'src/app/services/notification.service';
 import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
 import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/paginated-table.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
@@ -70,6 +71,7 @@ export class InvoicesInfoComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService,
     private router: Router,
     private route: ActivatedRoute,
+    private notificationService: NotificationService,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -174,9 +176,12 @@ export class InvoicesInfoComponent implements OnInit, OnDestroy {
     this.invoicesService.updateInvoice({
       billNo: this.editableInvoiceName
     }, invoice.id).subscribe({
-      next: () => { },
+      next: () => {
+        this.notificationService.showSuccess('INVOICES._update_billno_success');
+      },
       error: error => {
         invoice.billNo = oldName;
+        this.notificationService.showError('INVOICES._update_billno_error');
         console.error('There was an error while updating!', error);
       }
     });

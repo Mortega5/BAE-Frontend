@@ -29,6 +29,7 @@ import { environment } from 'src/environments/environment';
 import {ThemeConfig} from "../../themes";
 import {Subscription} from "rxjs";
 import {ThemeService} from "../../services/theme.service";
+import { NotificationService } from '../../services/notification.service';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { getShortOfferDescription, getVisibleOfferDescription } from './offer-card-text.util';
@@ -53,9 +54,7 @@ export class CardComponent implements OnInit, OnDestroy, AfterViewInit {
   price: any = {price:0,priceType:'X'};
   images: AttachmentRefOrValue[]  = [];
   bgColor: string = '';
-  toastVisibility: boolean = false;
   detailsModalVisibility: boolean = false;
-  lastAddedProd:any | undefined;
   targetModal: any;
   modal: Modal;
   prodSpec:ProductSpecification = {};
@@ -85,8 +84,6 @@ export class CardComponent implements OnInit, OnDestroy, AfterViewInit {
   closeCats:boolean=false;
   loadMoreCats:boolean=false;
 
-  errorMessage:any='';
-  showError:boolean=false;
   orgInfo:any=undefined;
 
   selectedPricePlanId: string | null = null;
@@ -112,7 +109,8 @@ export class CardComponent implements OnInit, OnDestroy, AfterViewInit {
     private cartService: ShoppingCartServiceService,
     private accService: AccountServiceService,
     private themeService: ThemeService,
-    private router: Router
+    private router: Router,
+    private notificationService: NotificationService
     ) {
       this.targetModal = document.getElementById('details-modal');
       this.modal = new Modal(this.targetModal);
@@ -121,26 +119,9 @@ export class CardComponent implements OnInit, OnDestroy, AfterViewInit {
       .pipe(takeUntil(this.destroy$))
       .subscribe(ev => {
         if(ev.type === 'CloseCartCard') {
+          // Note: the success/error toast for this flow is fired by cart-card's own
+          // addProductToCart(), which is what emits this event - don't double-toast here.
           this.hideCartSelection();
-          //TOGGLE TOAST
-          if(ev.value!=undefined){
-            this.lastAddedProd=ev.value;
-            this.toastVisibility=true;
-
-            this.cdr.detectChanges();
-            //document.getElementById("progress-bar")?.classList.toggle("hover:w-100");
-            let element = document.getElementById("progress-bar")
-            let parent = document.getElementById("toast-add-cart")
-            if (element != null && parent != null) {
-              element.style.width = '0%'
-              element.offsetWidth
-              element.style.width = '100%'
-              setTimeout(() => {
-                this.toastVisibility=false
-              }, 3500);
-            }
-          }
-
           this.cdr.detectChanges();
         }
         if(ev.type === 'CloseQuoteRequest'){
@@ -352,145 +333,23 @@ export class CardComponent implements OnInit, OnDestroy, AfterViewInit {
       });*/
   }
 
-  /* async addProductToCart(productOff:Product| undefined,options:boolean){
-    //this.localStorage.addCartItem(productOff as Product);
-    if(options==true){
-      console.log('termschecked:')
-      console.log(this.selected_terms)
-      if(productOff!= undefined && productOff?.productOfferingPrice != undefined){
-        let prodOptions = {
-          "id": productOff?.id,
-          "name": productOff?.name,
-          "image": this.getProductImage(),
-          "href": productOff.href,
-          "options": {
-            "characteristics": this.selected_chars,
-            "pricing": this.selected_price
-          },
-          "termsAccepted": this.selected_terms
-        }
-        this.lastAddedProd=prodOptions;
-      await this.cartService.addItemShoppingCart(prodOptions).subscribe({
-        next: data => {
-            console.log(data)
-            console.log('Update successful');
-            //TOGGLE TOAST
-            this.toastVisibility=true;
-
-            this.cdr.detectChanges();
-            //document.getElementById("progress-bar")?.classList.toggle("hover:w-100");
-            let element = document.getElementById("progress-bar")
-            let parent = document.getElementById("toast-add-cart")
-            if (element != null && parent != null) {
-              element.style.width = '0%'
-              element.offsetWidth
-              element.style.width = '100%'
-              setTimeout(() => {
-                this.toastVisibility=false
-              }, 3500);
-            }
-        },
-        error: error => {
-            console.error('There was an error while updating!', error);
-            if(error.error.error){
-              console.log(error)
-              this.errorMessage='Error: '+error.error.error;
-            } else {
-              this.errorMessage='There was an error while adding item to the cart!';
-            }
-            this.showError=true;
-            setTimeout(() => {
-              this.showError = false;
-            }, 3000);
-        }
-      });
-    }
-    } else {
-      if(productOff!= undefined && productOff?.productOfferingPrice != undefined){
-        let prodOptions = {
-          "id": productOff?.id,
-          "name": productOff?.name,
-          "image": this.getProductImage(),
-          "href": productOff.href,
-          "options": {
-            "characteristics": this.selected_chars,
-            "pricing": this.selected_price
-          },
-          "termsAccepted": true
-        }
-        this.lastAddedProd=prodOptions;
-      await this.cartService.addItemShoppingCart(prodOptions).subscribe({
-        next: data => {
-            console.log(data)
-            console.log('Update successful');
-            //TOGGLE TOAST
-            this.toastVisibility=true;
-
-            this.cdr.detectChanges();
-            //document.getElementById("progress-bar")?.classList.toggle("hover:w-100");
-            let element = document.getElementById("progress-bar")
-            let parent = document.getElementById("toast-add-cart")
-            if (element != null && parent != null) {
-              element.style.width = '0%'
-              element.offsetWidth
-              element.style.width = '100%'
-              setTimeout(() => {
-                this.toastVisibility=false
-              }, 3500);
-            }
-        },
-        error: error => {
-            console.error('There was an error while updating!', error);
-            if(error.error.error){
-              console.log(error)
-              this.errorMessage='Error: '+error.error.error;
-            } else {
-              this.errorMessage='There was an error while adding item to the cart!';
-            }
-            this.showError=true;
-            setTimeout(() => {
-              this.showError = false;
-            }, 3000);
-        }
-      });
-    }
-    }
-    if(productOff!== undefined){
-      this.eventMessage.emitAddedCartItem(productOff as cartProduct);
-    }
-
-    if(this.cartSelection==true){
-      this.cartSelection=false;
-      this.check_char=false;
-      this.check_terms=false;
-      this.check_prices=false;
-      this.selected_chars=[];
-      this.selected_price={};
-      this.selected_terms=false;
-      this.cdr.detectChanges();
-    }
-    this.cdr.detectChanges();
-  } */
-
-
   async addProductToCart(productOff: Product | undefined, options: boolean) {
     if (!productOff || !productOff.productOfferingPrice) return;
 
     const prodOptions = this.createProdOptions(productOff, options);
-    this.lastAddedProd = prodOptions;
 
     try {
       // Añadir producto al carrito
       await this.cartService.addItemShoppingCart(prodOptions);
       console.log('Update successful');
 
-      // Mostrar el toast
-      this.showToast();
+      this.notificationService.showSuccess('CARD._added_card');
 
       // Emitir evento de producto añadido
       this.eventMessage.emitAddedCartItem(productOff as cartProduct);
     } catch (error) {
-      this.handleError(error, 'There was an error while adding item to the cart!');
+      console.error('There was an error while adding item to the cart!', error);
+      this.notificationService.showError('CARD._add_cart_error');
     }
 
     // Restablecer selecciones si es necesario
@@ -515,29 +374,6 @@ export class CardComponent implements OnInit, OnDestroy, AfterViewInit {
     };
   }
 
-  private showToast() {
-    this.toastVisibility = true;
-    this.cdr.detectChanges();
-
-    const element = document.getElementById('progress-bar');
-    const parent = document.getElementById('toast-add-cart');
-    if (element && parent) {
-      element.style.width = '0%'; // Reinicia el ancho
-      element.offsetWidth; // Forzar el reflujo
-      element.style.width = '100%'; // Llena la barra de progreso
-      setTimeout(() => {
-        this.toastVisibility = false; // Ocultar el toast tras 3.5 segundos
-      }, 3500);
-    }
-  }
-
-  private handleError(error: any, defaultMessage: string) {
-    console.error(defaultMessage, error);
-    this.errorMessage = error?.error?.error ? `Error: ${error.error.error}` : defaultMessage;
-    this.showError = true;
-    setTimeout(() => (this.showError = false), 3000);
-  }
-
   private resetSelections() {
     this.cartSelection = false;
     this.check_char = false;
@@ -552,12 +388,17 @@ export class CardComponent implements OnInit, OnDestroy, AfterViewInit {
 
 async deleteProduct(product: Product | undefined){
     if(product !== undefined) {
-      //this.localStorage.removeCartItem(product);
-      await this.cartService.removeItemShoppingCart(product.id);
-      console.log('removed');
-      this.eventMessage.emitRemovedCartItem(product as Product);
+      try {
+        //this.localStorage.removeCartItem(product);
+        await this.cartService.removeItemShoppingCart(product.id);
+        console.log('removed');
+        this.eventMessage.emitRemovedCartItem(product as Product);
+        this.notificationService.showSuccess('SHOPPING_CART._remove_item_success');
+      } catch (error) {
+        console.error('There was an error while removing the item from the cart!', error);
+        this.notificationService.showError('SHOPPING_CART._remove_item_error');
+      }
     }
-    this.toastVisibility=false;
   }
 
   toggleDetailsModal(){

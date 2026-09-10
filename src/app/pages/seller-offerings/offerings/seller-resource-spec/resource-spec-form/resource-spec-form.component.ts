@@ -97,8 +97,6 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   prodChars: ResourceSpecificationCharacteristic[] = [];
   characteristicItems: CharacteristicItem[] = [];
 
-  errorMessage: any = '';
-  showError = false;
   showPublishDraftModal = false;
   showDeleteConfirm = false;
   showPublishConfirm = false;
@@ -325,7 +323,14 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     if (this.isUpdate) {
       this.loading = true;
       this.resSpecService.updateResSpec(this.resourceData as ResourceSpecification_Update, this.res.id, this.res?.['@type'] as ResourceSpecType)
-        .subscribe({ next: () => { this.loading = false; this.goBack(); }, error: e => this.handleError(e) });
+        .subscribe({
+          next: () => {
+            this.loading = false;
+            this.notificationService.showSuccess('CREATE_RES_SPEC._update_success');
+            this.goBack();
+          },
+          error: e => this.handleError(e),
+        });
     } else {
       this.showPublishDraftModal = true;
     }
@@ -345,19 +350,22 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.resSpecService.postResSpec(this.resourceData as ResourceSpecification_Create, (this.resourceData as any)?.['@type'] as ResourceSpecType)
       .subscribe({
-        next: () => { this.loading = false; this.showPublishDraftModal = false; this.goBack(); },
+        next: () => {
+          this.loading = false;
+          this.showPublishDraftModal = false;
+          this.notificationService.showSuccess('CREATE_RES_SPEC._create_success');
+          this.goBack();
+        },
         error: e => this.handleError(e),
       });
   }
 
   private handleError(error: any): void {
-    this.errorMessage = error.error?.error
-      ? 'Error: ' + error.error.error
-      : `There was an error while ${this.isUpdate ? 'updating' : 'creating'} the resource!`;
+    console.error(`There was an error while ${this.isUpdate ? 'updating' : 'creating'} the resource specification!`, error);
+    const key = this.isUpdate ? 'CREATE_RES_SPEC._update_error' : 'CREATE_RES_SPEC._create_error';
+    this.notificationService.showError(key);
     this.loading = false;
     this.showPublishDraftModal = false;
-    this.showError = true;
-    setTimeout(() => this.showError = false, 3000);
   }
 
   statusBadgeVariant(status: string): BadgeStatus {
@@ -387,16 +395,13 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     this.resSpecService.deleteResSpec(this.res.id, this.res?.['@type'] as ResourceSpecType).subscribe({
       next: () => {
         this.loading = false;
+        this.notificationService.showSuccess('UPDATE_RES_SPEC._delete_success');
         this.goBack();
       },
       error: (error: any) => {
         console.error('There was an error while deleting the resource specification!', error);
-        this.errorMessage = error.error?.error
-          ? 'Error: ' + error.error.error
-          : 'There was an error while deleting the resource specification!';
         this.loading = false;
-        this.showError = true;
-        setTimeout(() => { this.showError = false; }, 3000);
+        this.notificationService.showError('UPDATE_RES_SPEC._delete_error');
       },
     });
   }
@@ -408,15 +413,12 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.res.lifecycleStatus = 'Launched';
         this.generalForm.patchValue({ lifecycleStatus: 'Launched' });
+        this.notificationService.showSuccess('UPDATE_RES_SPEC._publish_success');
       },
       error: (error: any) => {
         console.error('There was an error while publishing the resource specification!', error);
-        this.errorMessage = error.error?.error
-          ? 'Error: ' + error.error.error
-          : 'There was an error while publishing the resource specification!';
         this.loading = false;
-        this.showError = true;
-        setTimeout(() => { this.showError = false; }, 3000);
+        this.notificationService.showError('UPDATE_RES_SPEC._publish_error');
       },
     });
   }

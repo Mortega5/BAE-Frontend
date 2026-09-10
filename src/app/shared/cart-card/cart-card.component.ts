@@ -10,6 +10,7 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { LoginInfo, cartProduct,productSpecCharacteristicValueCart } from '../../models/interfaces';
 import { ShoppingCartServiceService } from 'src/app/services/shopping-cart-service.service';
 import {EventMessageService} from "../../services/event-message.service";
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'cart-card',
@@ -32,9 +33,6 @@ export class CartCardComponent implements OnInit {
   formattedPrices:any[]=[];
   lastAddedProd:cartProduct | undefined;
 
-  errorMessage:any='';
-  showError:boolean=false;
-
   constructor(
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
@@ -45,6 +43,7 @@ export class CartCardComponent implements OnInit {
     private localStorage: LocalStorageService,
     private cartService: ShoppingCartServiceService,
     private eventMessage: EventMessageService,
+    private notificationService: NotificationService,
   ) {
   }
 
@@ -122,10 +121,13 @@ export class CartCardComponent implements OnInit {
       this.eventMessage.emitAddedCartItem(productOff as cartProduct);
       this.eventMessage.emitCloseCartCard(productOff as cartProduct);
 
+      this.notificationService.showSuccess('CARD._added_card');
+
       // Resetear las selecciones
       this.resetSelections();
     } catch (error) {
-      this.handleError(error, 'There was an error while adding item to the cart!');
+      console.error('There was an error while adding item to the cart!', error);
+      this.notificationService.showError('CARD._add_cart_error');
     }
 
     this.cdr.detectChanges();
@@ -143,13 +145,6 @@ export class CartCardComponent implements OnInit {
       },
       termsAccepted: options ? this.selected_terms : true,
     };
-  }
-
-  private handleError(error: any, defaultMessage: string) {
-    console.error(defaultMessage, error);
-    this.errorMessage = error?.error?.error ? `Error: ${error.error.error}` : defaultMessage;
-    this.showError = true;
-    setTimeout(() => (this.showError = false), 3000);
   }
 
   private resetSelections() {

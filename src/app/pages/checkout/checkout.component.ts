@@ -3,6 +3,7 @@ import {firstValueFrom, lastValueFrom} from 'rxjs';
 import {TranslateModule} from "@ngx-translate/core";
 import {LocalStorageService} from "../../services/local-storage.service";
 import {EventMessageService} from "../../services/event-message.service";
+import {NotificationService} from "../../services/notification.service";
 import {PriceServiceService} from "../../services/price-service.service";
 import {ShoppingCartServiceService} from "../../services/shopping-cart-service.service";
 import {ApiServiceService} from "../../services/product-service.service";
@@ -70,7 +71,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     private api: ApiServiceService,
     private cdr: ChangeDetectorRef,
     private router: Router,
-    private route: ActivatedRoute) {
+    private route: ActivatedRoute,
+    private notificationService: NotificationService) {
     // Bind the method to preserve context
     this.orderProduct = this.orderProduct.bind(this);
     this.eventMessage.messages$
@@ -256,10 +258,16 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         console.log('non-redirectURL')
         // we clear the shopping cart only if no redirection is applied
         await this.emptyShoppingCart();
+        this.notificationService.showSuccess('SHOPPING_CART._order_success');
         this.goToInventory();
       }
-    } catch (error) {
-      this.handleError(error, 'There was an error during purchase!');
+    } catch (error: any) {
+      console.error('There was an error during purchase!', error);
+      if (error?.error?.error) {
+        this.notificationService.showError('Error: ' + error.error.error);
+      } else {
+        this.notificationService.showError('SHOPPING_CART._order_error');
+      }
     } finally {
       this.loading_purchase = false;
       this.cdr.detectChanges();
@@ -639,12 +647,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   async deleteProduct(product: cartProduct) {
-    await this.cartService.removeItemShoppingCart(product.id)
-    console.log('deleted');
-    this.eventMessage.emitRemovedCartItem(product as cartProduct);
-    this.cartService.getShoppingCart().then(async data => {
-      console.log('---CARRITO API---')
-      console.log(data)
+    try {
+      await this.cartService.removeItemShoppingCart(product.id)
+      this.eventMessage.emitRemovedCartItem(product as cartProduct);
+      this.notificationService.showSuccess('SHOPPING_CART._remove_item_success');
+      const data = await this.cartService.getShoppingCart();
       this.items = data;
       if(this.providerId){
         await this.getProviderInfo();
@@ -653,8 +660,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       this.loadingItems=false;
       this.cdr.detectChanges();
       this.getTotalPrice();
-      console.log('------------------')
-    })
+    } catch (error) {
+      this.notificationService.showError('SHOPPING_CART._remove_item_error');
+    }
   }
 
   goToProdDetails(product: cartProduct){

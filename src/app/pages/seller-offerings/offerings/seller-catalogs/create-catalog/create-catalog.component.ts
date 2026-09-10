@@ -7,6 +7,7 @@ import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
@@ -40,8 +41,6 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
     description: new FormControl('', Validators.maxLength(100000)),
   });
 
-  errorMessage: any = '';
-  showError = false;
   showPublishDraftModal = false;
   private destroy$ = new Subject<void>();
 
@@ -51,6 +50,7 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
     private api: ApiServiceService,
     private route: ActivatedRoute,
     private router: Router,
+    private notificationService: NotificationService,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -132,17 +132,14 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
       next: () => {
         this.loading = false;
         this.showPublishDraftModal = false;
+        this.notificationService.showSuccess('CREATE_CATALOG._create_success');
         this.goBack();
       },
       error: error => {
         console.error('There was an error while creating the catalog!', error);
-        this.errorMessage = error.error?.error
-          ? 'Error: ' + error.error.error
-          : 'There was an error while creating the catalog!';
         this.loading = false;
         this.showPublishDraftModal = false;
-        this.showError = true;
-        setTimeout(() => { this.showError = false; }, 3000);
+        this.notificationService.showError('CREATE_CATALOG._create_error');
       },
     });
   }

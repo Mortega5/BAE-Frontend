@@ -154,11 +154,6 @@
     cancelLabel="PRODUCT_INVENTORY._cancel" confirmVariant="danger" (resolved)="onUnsubscribeConfirmResolved($event)"
     (closed)="onUnsubscribeConfirmResolved(false)" />
 
-  @if(showError){
-  <error-message
-    class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
-    [message]="errorMessage"></error-message>
-  }
 
   <app-price-plan-drawer [mode]="'modify'" [productOff]="productOff" [prodSpec]="selectedProdSpec"
     [isOpen]="isModifyDrawerOpen" [inventoryProductId]="selectedProduct?.id"

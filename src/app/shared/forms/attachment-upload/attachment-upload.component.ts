@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FileSystemFileEntry, NgxFileDropEntry, NgxFileDropModule } from 'ngx-file-drop';
 import { v4 as uuidv4 } from 'uuid';
 import { AttachmentServiceService } from 'src/app/services/attachment-service.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { environment } from 'src/environments/environment';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 
@@ -60,7 +61,10 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
   private errorTimeout: any;
   private readonly filenameRegex = /^[A-Za-z0-9_.-]+$/;
 
-  constructor(private attachmentService: AttachmentServiceService) { }
+  constructor(
+    private attachmentService: AttachmentServiceService,
+    private notificationService: NotificationService,
+  ) { }
 
   get isReadonly(): boolean {
     return this.readonly || this.isDisabled;
@@ -91,16 +95,16 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
 
   private handleFile(file: File): void {
     if (!this.isAcceptedType(file)) {
-      this.showError('FORMS.ATTACHMENT._invalid_type');
+      this.showInlineUploadError('FORMS.ATTACHMENT._invalid_type');
       return;
     }
     if (file.size > this.maxFileSize) {
-      this.showError('FORMS.ATTACHMENT._too_large');
+      this.showInlineUploadError('FORMS.ATTACHMENT._too_large');
       return;
     }
     const name = `${uuidv4()}_${file.name}`;
     if (!this.filenameRegex.test(name)) {
-      this.showError('FORMS.ATTACHMENT._invalid_name');
+      this.showInlineUploadError('FORMS.ATTACHMENT._invalid_name');
       return;
     }
 
@@ -125,12 +129,13 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
             const uploaded: UploadedAttachment = { name: file.name, url: data.content, attachmentType: file.type };
             this.attachments = this.multiple ? [...this.attachments, uploaded] : [uploaded];
             this.emitChange();
+            this.notificationService.showSuccess('FORMS.ATTACHMENT._upload_success');
           }
         },
         error: (error: any) => {
           this.uploading = false;
           this.uploadProgress = null;
-          this.showError(error?.status === 413 ? 'FORMS.ATTACHMENT._too_large' : 'FORMS.ATTACHMENT._upload_error');
+          this.notificationService.showError(error?.status === 413 ? 'FORMS.ATTACHMENT._too_large' : 'FORMS.ATTACHMENT._upload_error');
         },
       });
     };
@@ -154,7 +159,7 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
     this.emitChange();
   }
 
-  private showError(key: string): void {
+  private showInlineUploadError(key: string): void {
     this.errorMessage = key;
     if (this.errorTimeout) clearTimeout(this.errorTimeout);
     this.errorTimeout = setTimeout(() => { this.errorMessage = null; }, 3000);

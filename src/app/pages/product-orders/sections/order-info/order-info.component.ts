@@ -16,6 +16,7 @@ import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
+import { NotificationService } from 'src/app/services/notification.service';
 import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductOrderService } from 'src/app/services/product-order-service.service';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
@@ -46,8 +47,6 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
   dateRange = new FormControl();
   countries: any[] = countries;
   preferred: boolean = false;
-  showError: boolean = false;
-  errorMessage: string = '';
   customerName$!: Observable<string>;
 
   check_custom: boolean = false;
@@ -191,6 +190,7 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     private orderService: ProductOrderService,
     private eventMessage: EventMessageService,
     private paginationService: PaginationService,
+    private notificationService: NotificationService,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -224,12 +224,6 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.modalInstance) {
       this.modalInstance.hide();
     }
-  }
-
-  handleError(msg: string) {
-    this.errorMessage = msg;
-    this.showError = true;
-    setTimeout(() => (this.showError = false), 3000);
   }
 
   async confirmAction() {
@@ -266,7 +260,7 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     } catch (error) {
       this.selectedItem.productOrderItem['state'] = prevState
 
-      this.handleError("Error updating order state");
+      this.notificationService.showError('PRODUCT_ORDERS._update_state_error');
       console.error("Error updating order:", error);
     }
 
@@ -296,6 +290,7 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
       const noteResponse = await this.orderService.updateOrder(this.orderToShow.id, notePatchData);
       console.log("Order note added successfully:", noteResponse);
     } catch (error) {
+      this.notificationService.showError('PRODUCT_ORDERS._update_state_note_error');
       console.error("Error updating order notes:", error);
     }
 
@@ -534,8 +529,9 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
 
       await this.orderService.updateOrder(this.selectedOrder.id, patchData);
       console.log('Order notes updated successfully');
+      this.notificationService.showSuccess('PRODUCT_ORDERS._add_note_success');
     } catch (error) {
-      this.handleError("Error updating order notes");
+      this.notificationService.showError('PRODUCT_ORDERS._add_note_error');
       console.error('Error updating order notes:', error);
       // Remove the note if update fails
       this.selectedOrder.note.pop();

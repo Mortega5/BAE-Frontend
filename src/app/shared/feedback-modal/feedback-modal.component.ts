@@ -3,6 +3,7 @@ import { faMessagePen, faHandsHoldingHeart } from "@fortawesome/pro-solid-svg-ic
 import {EventMessageService} from "../../services/event-message.service";
 import { FeedbackServiceService } from "src/app/services/feedback-service.service"
 import {LocalStorageService} from "../../services/local-storage.service";
+import { NotificationService } from "../../services/notification.service";
 import { lastValueFrom } from 'rxjs';
 import { FeedbackInfo } from 'src/app/models/interfaces';
 import { environment } from 'src/environments/environment';
@@ -17,6 +18,7 @@ export class FeedbackModalComponent implements OnInit {
     private eventMessage: EventMessageService,
     private feedbackService: FeedbackServiceService,
     private localStorage: LocalStorageService,
+    private notificationService: NotificationService,
   ) {  }
   @Input() rateMessage: string
   @Input() writeMessage: string
@@ -73,12 +75,15 @@ export class FeedbackModalComponent implements OnInit {
         body["description"] = (document.getElementById("message") as HTMLTextAreaElement)?.value
       }
 
-      await lastValueFrom(this.feedbackService.sendFeedback(body))
-      this.showThanksMessage=true;
-      await lastValueFrom(this.feedbackService.sendFeedback(body))
-      this.showThanksMessage=true;
+      try {
+        await lastValueFrom(this.feedbackService.sendFeedback(body))
+        this.showThanksMessage=true;
+      } catch (error) {
+        console.error('There was an error while sending feedback!', error);
+        this.notificationService.showError('FEEDBACK._error');
+      }
     }
-    
+
   }
 
   hide(){

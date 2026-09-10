@@ -7,6 +7,7 @@ import {
   ContactUsSupportType
 } from 'src/app/models/contact-us.constants';
 import { FormField } from 'src/app/models/formFields/form-field.model';
+import { NotificationService } from 'src/app/services/notification.service';
 import { environment } from 'src/environments/environment';
 
 interface EmailConfig {
@@ -30,11 +31,6 @@ type ContactUsDestinationControlName =
   styleUrl: './email.component.css'
 })
 export class EmailComponent {
-
-  showError: boolean = false;
-  errorMessage: string = '';
-  showSuccess: boolean = false;
-  successMessage: string = '';
 
   private readonly contactUsDestinationControlNames: Record<ContactUsSupportType, ContactUsDestinationControlName> = {
     general: 'contactUsGeneralEmail',
@@ -85,29 +81,12 @@ export class EmailComponent {
   });
 
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
+    private notificationService: NotificationService
   ) { }
 
   ngOnInit() {
     this.getConfig();
-  }
-
-  showSuccessMessage(message: string) {
-    this.showError = false;
-    this.showSuccess = true;
-    this.successMessage = message;
-    setTimeout(() => {
-      this.showSuccess = false;
-    }, 3000);
-  }
-
-  showErrorMessage(message: string) {
-    this.showSuccess = false;
-    this.showError = true;
-    this.errorMessage = message;
-    setTimeout(() => {
-      this.showError = false;
-    }, 3000);
   }
 
   getErrorMessage(error: any, defaultMessage: string): string {
@@ -138,7 +117,7 @@ export class EmailComponent {
       },
       error: error => {
         console.error('There was an error while getting config!', error);
-        this.showErrorMessage(this.getErrorMessage(error, 'There was an error while getting the config'));
+        this.notificationService.showError(this.getErrorMessage(error, 'There was an error while getting the config'));
       }
     })
   }
@@ -162,11 +141,11 @@ export class EmailComponent {
     return this.http.post<any>(url, body).subscribe({
       next: () => {
         this.emailForm.patchValue({ emailPassword: '' });
-        this.showSuccessMessage('ADMIN._emailConfigUpdated');
+        this.notificationService.showSuccess('ADMIN._emailConfigUpdated');
       },
       error: error => {
         console.error('There was an error while updating!', error);
-        this.showErrorMessage(this.getErrorMessage(error, 'There was an error while updating the config'));
+        this.notificationService.showError(this.getErrorMessage(error, 'There was an error while updating the config'));
       }
     })
   }

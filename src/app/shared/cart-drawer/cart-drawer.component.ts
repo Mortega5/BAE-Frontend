@@ -6,6 +6,7 @@ import {components} from "../../models/product-catalog";
 import {LocalStorageService} from "../../services/local-storage.service";
 import { ShoppingCartServiceService } from 'src/app/services/shopping-cart-service.service';
 import {EventMessageService} from "../../services/event-message.service";
+import { NotificationService } from '../../services/notification.service';
 import { Drawer } from 'flowbite';
 import { PriceServiceService } from 'src/app/services/price-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
@@ -45,7 +46,8 @@ export class CartDrawerComponent implements OnInit, OnChanges, OnDestroy {
     private cartService: ShoppingCartServiceService,
     private api: ApiServiceService,
     private cdr: ChangeDetectorRef,
-    private router: Router,) {
+    private router: Router,
+    private notificationService: NotificationService,) {
 
   }
 
@@ -121,9 +123,15 @@ export class CartDrawerComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async deleteProduct(product: cartProduct){
-    await this.cartService.removeItemShoppingCart(product.id);
-    console.log('deleted');
-    this.eventMessage.emitRemovedCartItem(product as cartProduct);
+    try {
+      await this.cartService.removeItemShoppingCart(product.id);
+      console.log('deleted');
+      this.eventMessage.emitRemovedCartItem(product as cartProduct);
+      this.notificationService.showSuccess('SHOPPING_CART._remove_item_success');
+    } catch (error) {
+      console.error('There was an error while removing the item from the cart:', error);
+      this.notificationService.showError('SHOPPING_CART._remove_item_error');
+    }
   }
 
   goToProdDetails(product: cartProduct){

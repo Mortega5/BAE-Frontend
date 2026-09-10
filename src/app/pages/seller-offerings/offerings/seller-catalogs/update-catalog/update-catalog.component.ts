@@ -48,8 +48,6 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
     description: new FormControl('', Validators.maxLength(100000)),
   });
 
-  errorMessage: any = '';
-  showError = false;
   showDeleteConfirm = false;
   showPublishConfirm = false;
   private destroy$ = new Subject<void>();
@@ -163,16 +161,13 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
     this.api.updateCatalog(this.catalogToUpdate, this.cat.id).subscribe({
       next: () => {
         this.loading = false;
+        this.notificationService.showSuccess('UPDATE_CATALOG._update_success');
         this.goBack();
       },
       error: error => {
         console.error('There was an error while updating the catalog!', error);
-        this.errorMessage = error.error?.error
-          ? 'Error: ' + error.error.error
-          : 'There was an error while updating the catalog!';
         this.loading = false;
-        this.showError = true;
-        setTimeout(() => { this.showError = false; }, 3000);
+        this.notificationService.showError('UPDATE_CATALOG._update_error');
       },
     });
   }
@@ -196,16 +191,13 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
     this.api.deleteCatalog(this.cat.id).subscribe({
       next: () => {
         this.loading = false;
+        this.notificationService.showSuccess('UPDATE_CATALOG._delete_success');
         this.goBack();
       },
       error: error => {
         console.error('There was an error while deleting the catalog!', error);
-        this.errorMessage = error.error?.error
-          ? 'Error: ' + error.error.error
-          : 'There was an error while deleting the catalog!';
         this.loading = false;
-        this.showError = true;
-        setTimeout(() => { this.showError = false; }, 3000);
+        this.notificationService.showError('UPDATE_CATALOG._delete_error');
       },
     });
   }
@@ -217,15 +209,12 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.cat.lifecycleStatus = 'Launched';
         this.generalForm.patchValue({ lifecycleStatus: 'Launched' });
+        this.notificationService.showSuccess('UPDATE_CATALOG._publish_success');
       },
       error: error => {
         console.error('There was an error while publishing the catalog!', error);
-        this.errorMessage = error.error?.error
-          ? 'Error: ' + error.error.error
-          : 'There was an error while publishing the catalog!';
         this.loading = false;
-        this.showError = true;
-        setTimeout(() => { this.showError = false; }, 3000);
+        this.notificationService.showError('UPDATE_CATALOG._publish_error');
       },
     });
   }

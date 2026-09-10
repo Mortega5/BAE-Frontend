@@ -3,7 +3,7 @@
     <div class="app-toast-icon">
       <fa-icon [icon]="icon(notification.type)"></fa-icon>
     </div>
-    <p class="app-toast-message">{{ notification.message }}</p>
+    <p class="app-toast-message">{{ notification.message | translate }}</p>
     <button
       type="button"
       class="app-toast-close"

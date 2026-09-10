@@ -310,48 +310,11 @@
 }
 
 
-<!-- ADD TO CART TOAST -->
-@if (toastVisibility) {
-<div id="toast-add-cart"
-  class="flex grid grid-flow-row mr-2 items-center w-auto max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 fixed top-1/2 right-0 z-50 justify-center"
-  role="alert">
-  <div class="flex items-center justify-center">
-    <svg class="w-[18px] h-[18px] text-gray-800 dark:text-white mr-2 " xmlns="http://www.w3.org/2000/svg" fill="none"
-      viewBox="0 0 18 20">
-      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-        d="M6 15a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0h8m-8 0-1-4m9 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-9-4h10l2-7H3m2 7L3 4m0 0-.792-3H1" />
-    </svg>
-    <div class="text-sm font-normal">
-      {{ 'CARD._added_card' | translate }}.
-    </div>
-    <div class="flex items-center ms-auto space-x-2 rtl:space-x-reverse p-1.5">
-      <app-button type="button" (click)="deleteProduct(lastAddedProd)" variant="ghost" size="sm">
-        {{ 'CARD._undo' | translate }}
-      </app-button>
-      <app-button type="button" (click)="toastVisibility=false" variant="ghost" size="sm" prefixIcon="xmark" class="ms-auto">
-        <span class="sr-only">{{ 'CARD._close_toast' | translate }}</span>
-      </app-button>
-    </div>
-  </div>
-  <div class="flex w-full mt-2 rounded-full h-2.5 dark:bg-gray-700">
-    <div id="progress-bar"
-      class="z-10 flex bg-green-600 h-2.5 rounded-full dark:bg-green-500 transition-width delay-200 duration-3000 ease-out"
-      style="width: 0px;"></div>
-  </div>
-</div>
-}
-
 <!-- CART SELECTION modal -->
 @if (cartSelection){
 <cart-card [productOff]="productOff" [prodSpec]="prodSpec" [images]="images"
   [cartSelection]="cartSelection"></cart-card>
 }
-@if(showError){
-<error-message
-  class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
-  [message]="errorMessage"></error-message>
-}
-
 <!-- Main modal -->
 @if (showQuoteModal){
 <app-quote-request-modal [ngClass]="showQuoteModal ? 'backdrop-blur-sm': ''"

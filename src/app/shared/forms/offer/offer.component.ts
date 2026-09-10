@@ -13,6 +13,7 @@ import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offe
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { BadgeComponent, BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
@@ -70,8 +71,6 @@ export class OfferComponent implements OnInit, OnDestroy {
   isFormValid = false;
   selectedProdSpec: any;
   pricePlans: any = [];
-  errorMessage: any = '';
-  showError: boolean = false;
   showPublishDraftModal: boolean = false;
   showDeleteConfirm: boolean = false;
   showPublishConfirm: boolean = false;
@@ -129,7 +128,8 @@ export class OfferComponent implements OnInit, OnDestroy {
     private fb: FormBuilder,
     private router: Router,
     private accountService: AccountServiceService,
-    private localStorage: LocalStorageService) {
+    private localStorage: LocalStorageService,
+    private notificationService: NotificationService) {
 
     this.productOfferForm = this.fb.group({
       generalInfo: this.fb.group({}),
@@ -685,11 +685,9 @@ export class OfferComponent implements OnInit, OnDestroy {
 
   private handleApiError(error: any): void {
     console.error('Error while creating offer price!', error);
-    this.errorMessage = error?.error?.error ? 'Error: ' + error.error.error : 'Error creating offer price!';
     this.loading = false;
     this.showPublishDraftModal = false;
-    this.showError = true;
-    setTimeout(() => (this.showError = false), 3000);
+    this.notificationService.showError('CREATE_OFFER._price_create_error');
   }
 
   private async createPriceAlteration(component: any, currency: string): Promise<any> {
@@ -1021,11 +1019,9 @@ export class OfferComponent implements OnInit, OnDestroy {
       ? formValue.generalInfo?.catalogue?.id
       : this.autoCatalogue?.id;
     if (this.formType === 'create' && !catalogueId) {
-      this.errorMessage = 'No catalogue available for this user. Please create one first.';
       this.loading = false;
       this.showPublishDraftModal = false;
-      this.showError = true;
-      setTimeout(() => (this.showError = false), 3000);
+      this.notificationService.showError('CREATE_OFFER._no_catalogue_available');
       return;
     }
 
@@ -1039,15 +1035,14 @@ export class OfferComponent implements OnInit, OnDestroy {
         console.log(data);
         this.loading = false;
         this.showPublishDraftModal = false;
+        this.notificationService.showSuccess(this.formType === 'create' ? 'CREATE_OFFER._create_success' : 'UPDATE_OFFER._update_success');
         this.goBack();
       },
       error: (error) => {
         console.error('Error during offer save/update:', error);
-        this.errorMessage = error?.error?.error ? 'Error: ' + error.error.error : 'An error occurred while saving the offer!';
         this.loading = false;
         this.showPublishDraftModal = false;
-        this.showError = true;
-        setTimeout(() => (this.showError = false), 3000);
+        this.notificationService.showError(this.formType === 'create' ? 'CREATE_OFFER._save_error' : 'UPDATE_OFFER._update_error');
       }
     });
   }
@@ -1083,16 +1078,13 @@ export class OfferComponent implements OnInit, OnDestroy {
     this.api.deleteProductOffering(this.offer.id).subscribe({
       next: () => {
         this.loading = false;
+        this.notificationService.showSuccess('UPDATE_OFFER._delete_success');
         this.goBack();
       },
       error: (error: any) => {
         console.error('There was an error while deleting the offer!', error);
-        this.errorMessage = error.error?.error
-          ? 'Error: ' + error.error.error
-          : 'There was an error while deleting the offer!';
         this.loading = false;
-        this.showError = true;
-        setTimeout(() => { this.showError = false; }, 3000);
+        this.notificationService.showError('UPDATE_OFFER._delete_error');
       },
     });
   }
@@ -1103,15 +1095,12 @@ export class OfferComponent implements OnInit, OnDestroy {
       next: () => {
         this.loading = false;
         this.offer.lifecycleStatus = 'Launched';
+        this.notificationService.showSuccess('UPDATE_OFFER._publish_success');
       },
       error: (error: any) => {
         console.error('There was an error while publishing the offer!', error);
-        this.errorMessage = error.error?.error
-          ? 'Error: ' + error.error.error
-          : 'There was an error while publishing the offer!';
         this.loading = false;
-        this.showError = true;
-        setTimeout(() => { this.showError = false; }, 3000);
+        this.notificationService.showError('UPDATE_OFFER._publish_error');
       },
     });
   }
@@ -1368,13 +1357,12 @@ export class OfferComponent implements OnInit, OnDestroy {
       await lastValueFrom(this.api.updateProductOffering(basePayload, this.offer.id));
       console.log('✅ Offer updated successfully');
       this.loading = false;
+      this.notificationService.showSuccess('UPDATE_OFFER._update_success');
       this.goBack();
     } catch (error: any) {
       console.error('❌ Error updating offer:', error);
-      this.errorMessage = error?.error?.error ? 'Error: ' + error.error.error : 'An error occurred while updating the offer!';
       this.loading = false;
-      this.showError = true;
-      setTimeout(() => (this.showError = false), 3000);
+      this.notificationService.showError('UPDATE_OFFER._update_error');
     }
   }
 

@@ -4,6 +4,7 @@ import { ApiServiceService } from 'src/app/services/product-service.service';
 import { AdminPaths } from 'src/app/pages/admin/admin.paths';
 import {LocalStorageService} from "src/app/services/local-storage.service";
 import {EventMessageService} from "src/app/services/event-message.service";
+import { NotificationService } from 'src/app/services/notification.service';
 import { initFlowbite } from 'flowbite';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { Subject } from 'rxjs';
@@ -61,8 +62,6 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
   selected:any[];
   loading: boolean = false;
 
-  errorMessage:any='';
-  showError:boolean=false;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -71,7 +70,8 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
-    private api: ApiServiceService
+    private api: ApiServiceService,
+    private notificationService: NotificationService
   ) {
     this.eventMessage.messages$
     .pipe(takeUntil(this.destroy$))
@@ -279,20 +279,15 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
   updateCategory(){
     this.api.updateCategory(this.categoryToUpdate,this.category.id).subscribe({
       next: data => {
+        this.notificationService.showSuccess('UPDATE_CATEGORIES._update_success');
         this.goBack();
       },
       error: error => {
         console.error('There was an error while updating!', error);
-        if(error.error.error){
-          console.log(error)
-          this.errorMessage='Error: '+error.error.error;
-        } else {
-          this.errorMessage='There was an error while creating the category!';
-        }
-        this.showError=true;
-        setTimeout(() => {
-          this.showError = false;
-        }, 3000);
+        const message = error?.error?.error
+          ? 'Error: ' + error.error.error
+          : 'UPDATE_CATEGORIES._update_error';
+        this.notificationService.showError(message);
       }
     })
   }

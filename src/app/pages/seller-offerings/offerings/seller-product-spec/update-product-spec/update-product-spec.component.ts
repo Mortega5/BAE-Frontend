@@ -222,8 +222,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   //FINAL PRODUCT USING API CALL STRUCTURE
   productSpecToUpdate: ProductSpecification_Update | undefined;
 
-  errorMessage: any = '';
-  showError: boolean = false;
   showDeleteConfirm: boolean = false;
   showPublishConfirm: boolean = false;
   loading: boolean = false;
@@ -1331,22 +1329,13 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     this.prodSpecService.updateProdSpec(this.productSpecToUpdate, this.prod.id).subscribe({
       next: data => {
         this.loading = false;
+        this.notificationService.showSuccess('CREATE_PROD_SPEC._update_success');
         this.goBack();
-        console.log('actualiado producto')
       },
       error: error => {
         console.error('There was an error while updating!', error);
-        if (error.error.error) {
-          console.log(error)
-          this.errorMessage = 'Error: ' + error.error.error;
-        } else {
-          this.errorMessage = 'There was an error while uploading the product!';
-        }
         this.loading = false;
-        this.showError = true;
-        setTimeout(() => {
-          this.showError = false;
-        }, 3000);
+        this.notificationService.showError('CREATE_PROD_SPEC._save_error');
       }
     });
   }
@@ -1370,16 +1359,13 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     this.prodSpecService.deleteProdSpec(this.prod.id).subscribe({
       next: () => {
         this.loading = false;
+        this.notificationService.showSuccess('UPDATE_PROD_SPEC._delete_success');
         this.goBack();
       },
       error: error => {
         console.error('There was an error while deleting the product specification!', error);
-        this.errorMessage = error.error?.error
-          ? 'Error: ' + error.error.error
-          : 'There was an error while deleting the product specification!';
         this.loading = false;
-        this.showError = true;
-        setTimeout(() => { this.showError = false; }, 3000);
+        this.notificationService.showError('UPDATE_PROD_SPEC._delete_error');
       },
     });
   }
@@ -1391,15 +1377,12 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
         this.loading = false;
         this.prod.lifecycleStatus = 'Launched';
         this.generalForm.patchValue({ lifecycleStatus: 'Launched' });
+        this.notificationService.showSuccess('UPDATE_PROD_SPEC._publish_success');
       },
       error: error => {
         console.error('There was an error while publishing the product specification!', error);
-        this.errorMessage = error.error?.error
-          ? 'Error: ' + error.error.error
-          : 'There was an error while publishing the product specification!';
         this.loading = false;
-        this.showError = true;
-        setTimeout(() => { this.showError = false; }, 3000);
+        this.notificationService.showError('UPDATE_PROD_SPEC._publish_error');
       },
     });
   }

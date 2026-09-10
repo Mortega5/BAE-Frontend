@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { applyRuntimeSearchFiltersConfig } from 'src/app/data/availableFilters';
+import { NotificationService } from 'src/app/services/notification.service';
 import { environment } from 'src/environments/environment';
 
 type PrimaryCategoriesMode = 'catalogFirstLevel' | 'rooted';
@@ -13,15 +14,10 @@ type OfferFormPlacement = 'none' | 'generalInfo' | 'categorySection';
   templateUrl: './search-filters-config.component.html',
   styleUrl: './search-filters-config.component.css'
 })
-export class SearchFiltersConfigComponent implements OnInit, OnDestroy {
+export class SearchFiltersConfigComponent implements OnInit {
   loading = false;
   saving = false;
-  showError = false;
-  showSuccess = false;
-  errorMessage = '';
-  successMessage = '';
   providedJson = '';
-  private successTimeoutId: ReturnType<typeof setTimeout> | null = null;
 
   searchFiltersForm = new FormGroup({
     primaryCategoriesMode: new FormControl<PrimaryCategoriesMode>('catalogFirstLevel', [Validators.required]),
@@ -29,22 +25,17 @@ export class SearchFiltersConfigComponent implements OnInit, OnDestroy {
     filters: new FormArray<FormGroup>([])
   });
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private notificationService: NotificationService
+  ) {}
 
   ngOnInit(): void {
     void this.loadConfig();
   }
 
-  ngOnDestroy(): void {
-    if (this.successTimeoutId) {
-      clearTimeout(this.successTimeoutId);
-      this.successTimeoutId = null;
-    }
-  }
-
   async loadConfig(): Promise<void> {
     this.loading = true;
-    this.showError = false;
 
     try {
       await this.syncFromBackend();
@@ -60,8 +51,6 @@ export class SearchFiltersConfigComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.showError = false;
-    this.showSuccess = false;
     this.saving = true;
 
     try {
@@ -85,13 +74,9 @@ export class SearchFiltersConfigComponent implements OnInit, OnDestroy {
       applyRuntimeSearchFiltersConfig({ searchFilters: payload });
       await this.syncFromBackend();
 
-      this.successMessage = 'Search and filters configuration saved successfully.';
-      this.showSuccess = true;
-      this.successTimeoutId = setTimeout(() => {
-        this.showSuccess = false;
-      }, 3000);
+      this.notificationService.showSuccess('ADMIN._searchFiltersSaveSuccess');
     } catch (error: any) {
-      this.handleError(error, 'There was an error while saving search filters configuration.');
+      this.handleError(error, 'ADMIN._searchFiltersSaveError');
     } finally {
       this.saving = false;
     }
@@ -102,8 +87,6 @@ export class SearchFiltersConfigComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.showError = false;
-    this.showSuccess = false;
     this.saving = true;
 
     try {
@@ -115,13 +98,9 @@ export class SearchFiltersConfigComponent implements OnInit, OnDestroy {
       applyRuntimeSearchFiltersConfig({ searchFilters: payload });
       await this.syncFromBackend();
 
-      this.successMessage = 'Search filters JSON saved successfully.';
-      this.showSuccess = true;
-      this.successTimeoutId = setTimeout(() => {
-        this.showSuccess = false;
-      }, 3000);
+      this.notificationService.showSuccess('ADMIN._searchFiltersJsonSaveSuccess');
     } catch (error: any) {
-      this.handleError(error, 'There was an error while saving provided JSON.');
+      this.handleError(error, 'ADMIN._searchFiltersJsonSaveError');
     } finally {
       this.saving = false;
     }
@@ -416,18 +395,18 @@ export class SearchFiltersConfigComponent implements OnInit, OnDestroy {
     return normalized;
   }
 
-  private handleError(error: any, fallbackMessage: string): void {
+  /** `fallbackKey` is an i18n key (resolved by the toast's own `| translate` pipe),
+   * not literal text — only used when the backend gives no error detail to show instead. */
+  private handleError(error: any, fallbackKey: string): void {
+    let message: string;
     if (error?.error?.error) {
-      this.errorMessage = `Error: ${error.error.error}`;
+      message = `Error: ${error.error.error}`;
     } else if (error?.message) {
-      this.errorMessage = error.message;
+      message = error.message;
     } else {
-      this.errorMessage = fallbackMessage;
+      message = fallbackKey;
     }
 
-    this.showError = true;
-    setTimeout(() => {
-      this.showError = false;
-    }, 3000);
+    this.notificationService.showError(message);
   }
 }

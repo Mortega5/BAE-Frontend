@@ -208,12 +208,12 @@ export class UpdateSoftwareComponent implements OnInit, OnDestroy {
     }
     this.resSpecService.updateSoftwareSupportPackage(this.software.id, this.softwareToUpdate).subscribe({
       next: () => {
-        this.notificationService.showInfo('Software package resource updated');
+        this.notificationService.showSuccess('UPDATE_SOFTWARE._update_success');
         this.goBack();
       },
       error: (error) => {
         console.error('Unable to update the software package resource', error);
-        this.notificationService.showError('Unable to update software resource');
+        this.notificationService.showError('UPDATE_SOFTWARE._update_error');
       }
     });
   }

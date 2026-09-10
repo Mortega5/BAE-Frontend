@@ -314,6 +314,9 @@
       "required": "This field is required.",
       "email": "Please enter a valid email address.",
       "privacyRequired": "You must accept the Privacy Policy and Terms of Services."
+    },
+    "error": {
+      "generic": "Something went wrong while sending your message. Please try again."
     }
   },
   "LANDINGPAGE": {
@@ -720,6 +723,7 @@
     "_product_version": "Product version",
     "_id_number": "Identification number",
     "_added_card": "Added to the cart",
+    "_add_cart_error": "There was an error adding the item to the cart",
     "_undo": "Undo",
     "_close_toast": "Close",
     "_from": "From",
@@ -952,7 +956,11 @@
     "_tax": "Tax",
     "_calculated": "Calculated at checkout",
     "_fee": "Service fee*",
-    "_no_items": "Your cart is empty."
+    "_no_items": "Your cart is empty.",
+    "_order_success": "Order placed successfully",
+    "_order_error": "There was an error placing the order",
+    "_remove_item_success": "Item removed from the cart",
+    "_remove_item_error": "There was an error removing the item from the cart"
   },
   "PROFILE": {
     "_general": "General",
@@ -1019,6 +1027,7 @@
     "_invalid_contact_title": "Title is mandatory!",
     "_save": "Save",
     "_success": "Updated successfully",
+    "_update_error": "There was an error while updating the profile.",
     "_website": "Website",
     "_website_placeholder": "Enter a website URL",
     "_add_logo": "Add organization logo",
@@ -1059,6 +1068,8 @@
     "_modify_chars": "Modify characteristics",
     "_select_billing": "Select billing address",
     "_confirm_modify": "Confirm changes",
+    "_modify_success": "Product modification request sent successfully",
+    "_modify_error": "There was an error modifying the product",
     "_res_details": "Resource details",
     "_res_chars": "Resource characteristics",
     "_serv_details": "Service details",
@@ -1118,7 +1129,10 @@
     "_too_long": "This field is too long. Must be less than 250 characters.",
     "_too_long_larger": "This field is too long. Must be less than 1000 characters.",
     "_too_long_email": "Email is too long. Must be less than 320 characters.",
-    "_email_format": "Email must follow the following format: example@example.example"
+    "_email_format": "Email must follow the following format: example@example.example",
+    "_save_success": "Billing details saved successfully.",
+    "_save_error": "There was an error while saving the billing account.",
+    "_preferred_error": "There was an error while updating the preferred billing account."
   },
   "INVOICES": {
     "_invoice_id": "Invoice ID",
@@ -1139,6 +1153,8 @@
     "_as_customer": "As Customer",
     "_as_provider": "As Provider",
     "_invoice_details": "Invoice details:",
+    "_update_billno_success": "Invoice number updated successfully",
+    "_update_billno_error": "There was an error updating the invoice number",
     "_applied_billing_rates": "Applied Billing Rates",
     "_product_acbr_ref": "Product ACBR reference",
     "_no_billing_rates": "No billing rates found",
@@ -1167,6 +1183,7 @@
     "_summary": "Catalogue's summary",
     "_summary_desc": "Review the catalogue information before creating it.",
     "_finish": "Finish",
+    "_create_success": "Catalogue created successfully",
     "_create_error": "There was an error while creating the catalog!"
   },
   "CREATE_SOFTWARE": {
@@ -1194,13 +1211,17 @@
     "_unit": "Unit",
     "_from": "From",
     "_to": "To",
-    "_delete": "Delete characteristic"
+    "_delete": "Delete characteristic",
+    "_create_success": "Software resource created successfully.",
+    "_create_error": "Unable to create the software resource."
   },
   "UPDATE_SOFTWARE": {
     "_save": "Save",
     "_edit": "Update Software Resource",
     "_update": "Update Software",
-    "_wrong_org_notice": "This software resource belongs to a different organization — returning to the list."
+    "_wrong_org_notice": "This software resource belongs to a different organization — returning to the list.",
+    "_update_success": "Software resource updated successfully.",
+    "_update_error": "Unable to update the software resource."
   },
   "UPDATE_CATALOG": {
     "_back": "Back",
@@ -1225,14 +1246,17 @@
     "_launched": "Launched",
     "_retired": "Retired",
     "_obsolete": "Obsolete",
+    "_update_success": "Catalogue updated successfully",
     "_update_error": "There was an error while updating the catalog!",
     "_delete": "Delete",
     "_delete_confirm_title": "Delete catalog?",
     "_delete_confirm_message": "This will permanently delete this catalog. This action cannot be undone.",
+    "_delete_success": "Catalogue deleted successfully",
     "_delete_error": "There was an error while deleting the catalog!",
     "_publish": "Publish",
     "_publish_confirm_title": "Publish catalog?",
     "_publish_confirm_message": "This will make the catalog visible and available immediately.",
+    "_publish_success": "Catalogue published successfully",
     "_publish_error": "There was an error while publishing the catalog!",
     "_wrong_org_notice": "This catalog belongs to a different organization — returning to the list."
   },
@@ -1570,10 +1594,12 @@
     "_delete": "Delete",
     "_delete_confirm_title": "Delete product specification?",
     "_delete_confirm_message": "This will permanently delete this product specification. This action cannot be undone.",
+    "_delete_success": "Product specification successfully deleted",
     "_delete_error": "There was an error while deleting the product specification!",
     "_publish": "Publish",
     "_publish_confirm_title": "Publish product specification?",
     "_publish_confirm_message": "This will make the product specification visible and available immediately.",
+    "_publish_success": "Product specification successfully published",
     "_publish_error": "There was an error while publishing the product specification!",
     "_wrong_org_notice": "This product spec belongs to a different organization — returning to the list."
   },
@@ -1693,10 +1719,12 @@
     "_delete": "Delete",
     "_delete_confirm_title": "Delete resource specification?",
     "_delete_confirm_message": "This will permanently delete this resource specification. This action cannot be undone.",
+    "_delete_success": "Resource specification successfully deleted",
     "_delete_error": "There was an error while deleting the resource specification!",
     "_publish": "Publish",
     "_publish_confirm_title": "Publish resource specification?",
     "_publish_confirm_message": "This will make the resource specification visible and available immediately.",
+    "_publish_success": "Resource specification successfully published",
     "_publish_error": "There was an error while publishing the resource specification!",
     "_wrong_org_notice": "This resource spec belongs to a different organization — returning to the list."
   },
@@ -1830,10 +1858,12 @@
     "_delete": "Delete",
     "_delete_confirm_title": "Delete service specification?",
     "_delete_confirm_message": "This will permanently delete this service specification. This action cannot be undone.",
+    "_delete_success": "Service specification successfully deleted",
     "_delete_error": "There was an error while deleting the service specification!",
     "_publish": "Publish",
     "_publish_confirm_title": "Publish service specification?",
     "_publish_confirm_message": "This will make the service specification visible and available immediately.",
+    "_publish_success": "Service specification successfully published",
     "_publish_error": "There was an error while publishing the service specification!",
     "_wrong_org_notice": "This service spec belongs to a different organization — returning to the list."
   },
@@ -2237,10 +2267,12 @@
     "_delete": "Delete",
     "_delete_confirm_title": "Delete offer?",
     "_delete_confirm_message": "This will permanently delete this product offer. This action cannot be undone.",
+    "_delete_success": "Offer deleted successfully",
     "_delete_error": "There was an error while deleting the offer!",
     "_publish": "Publish",
     "_publish_confirm_title": "Publish offer?",
     "_publish_confirm_message": "This will make the offer visible and available immediately.",
+    "_publish_success": "Offer published successfully",
     "_publish_error": "There was an error while publishing the offer!",
     "_wrong_org_notice": "This offer belongs to a different organization — returning to the list."
   },
@@ -2418,6 +2450,8 @@
     "_group_config": "Config",
     "_productId": "Product ID",
     "_vc": "Verifiable Credential",
+    "_verificationSuccess": "Credential verified successfully.",
+    "_verificationError": "There was an error while verifying the credential.",
     "_add": "Add",
     "_revenue": "Revenue sharing",
     "_email": "Email",
@@ -2433,6 +2467,16 @@
     "_contactUsLegalEmail": "Legal support destination email",
     "_updateSuccessTitle": "Update success",
     "_emailConfigUpdated": "Email configuration updated successfully.",
+    "_defaultCatalogSaveSuccess": "Default catalog saved successfully.",
+    "_defaultCatalogSaveError": "There was an error while saving the default catalog.",
+    "_searchFiltersSaveSuccess": "Search and filters configuration saved successfully.",
+    "_searchFiltersSaveError": "There was an error while saving search filters configuration.",
+    "_searchFiltersJsonSaveSuccess": "Search filters JSON saved successfully.",
+    "_searchFiltersJsonSaveError": "There was an error while saving provided JSON.",
+    "_analyticsConfigSaveSuccess": "Analytics configuration saved successfully.",
+    "_analyticsConfigSaveError": "There was an error while saving analytics configuration.",
+    "_analyticsJsonSaveSuccess": "Analytics JSON saved successfully.",
+    "_analyticsJsonSaveError": "There was an error while saving provided JSON.",
     "_defaultCatalog": "Default catalog",
     "_defaultCatalogId": "Default catalog ID",
     "_noDefaultCatalogConfigured": "No default catalog is currently configured.",
@@ -2489,7 +2533,9 @@
     "_status": "Status",
     "_next": "Next",
     "_choose_parent": "Choose a parent category",
-    "_parent": "Parent category"
+    "_parent": "Parent category",
+    "_create_success": "Category created successfully.",
+    "_create_error": "There was an error while creating the category."
   },
   "UPDATE_CATEGORIES": {
     "_categories": "Categories",
@@ -2510,7 +2556,9 @@
     "_status": "Status",
     "_next": "Next",
     "_choose_parent": "Choose a parent category",
-    "_parent": "Parent category"
+    "_parent": "Parent category",
+    "_update_success": "Category updated successfully.",
+    "_update_error": "There was an error while updating the category."
   },
   "ORGANIZATION": {
     "_details": "Organization details",
@@ -2591,7 +2639,11 @@
     "_reject_order": "Reject the order item",
     "_start_treatment": "Start order treatment",
     "_complete_order": "Order completely treated",
-    "_fail_order": "Order completely failed"
+    "_fail_order": "Order completely failed",
+    "_update_state_error": "There was an error updating the order state",
+    "_update_state_note_error": "There was an error adding the note for the state change",
+    "_add_note_success": "Note added successfully",
+    "_add_note_error": "There was an error adding the note"
   },
   "FORMS": {
     "_required": "This field is mandatory.",
@@ -2710,7 +2762,8 @@
       "_invalid_type": "This file type isn't allowed.",
       "_too_large": "File size must be under 3MB.",
       "_invalid_name": "File names can only include letters, numbers, underscores, hyphens and periods.",
-      "_upload_error": "There was an error while uploading the file."
+      "_upload_error": "There was an error while uploading the file.",
+      "_upload_success": "File uploaded successfully."
     }
   },
   "USAGE_SPECS": {
@@ -2742,7 +2795,11 @@
     "_metric_description_placeholder": "Describe this metric",
     "_summary": "Summary",
     "_summary_desc": "Review the details before saving.",
-    "_cancel": "Cancel"
+    "_cancel": "Cancel",
+    "_create_success": "Pay per use metric created successfully.",
+    "_create_error": "Unable to create the pay per use metric.",
+    "_update_success": "Pay per use metric updated successfully.",
+    "_update_error": "Unable to update the pay per use metric."
   },
   "ABOUT_DOME": {
     "_title": "Discover DOME Marketplace",
@@ -2792,7 +2849,11 @@
     "_send": "Send",
     "_thanks": "Thank you for contacting DOME Marketplace.",
     "_footer_title": "How would you rate your overall experience with DOME?",
-    "_footer_improve": "How can we improve DOME?"
+    "_footer_improve": "How can we improve DOME?",
+    "_error": "There was an error while sending your feedback. Please try again."
+  },
+  "CHAT_MODAL": {
+    "_send_error": "Error sending message. Please try again."
   },
   "CHAR_SPEC": {
     "_step_title": "Configuration options",

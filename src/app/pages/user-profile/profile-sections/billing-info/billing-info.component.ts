@@ -13,6 +13,7 @@ import { TableColumn } from 'src/app/models/table-column.model';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
+import { NotificationService } from 'src/app/services/notification.service';
 import { ProductOrderService } from 'src/app/services/product-order-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { environment } from 'src/environments/environment';
@@ -51,9 +52,6 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
   isReadOnly: boolean = false;
   billingColumns: TableColumn[] = this.buildBillingColumns();
 
-  errorMessage: any = '';
-  showError: boolean = false;
-
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -63,7 +61,8 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
     private router: Router,
     private accountService: AccountServiceService,
     private orderService: ProductOrderService,
-    private eventMessage: EventMessageService
+    private eventMessage: EventMessageService,
+    private notificationService: NotificationService
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -282,22 +281,17 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
       relatedParty: [this.partyInfo],
       state: "Defined"
     }
+    // Note: selectBill() above calls this once per billing account (to unset the old
+    // preferred one and set the new one), so a success toast per call would spam the
+    // user for what is a single logical action from their perspective — only the
+    // failure case is surfaced here.
     this.accountService.updateBillingAccount(bill.id, bill_body).subscribe({
       next: data => {
         this.eventMessage.emitBillAccChange(false);
       },
       error: error => {
         console.error('There was an error while updating!', error);
-        if (error.error.error) {
-          console.log(error)
-          this.errorMessage = 'Error: ' + error.error.error;
-        } else {
-          this.errorMessage = 'There was an error while updating billing account!';
-        }
-        this.showError = true;
-        setTimeout(() => {
-          this.showError = false;
-        }, 3000);
+        this.notificationService.showError('BILLING._preferred_error');
       }
     });
   }
