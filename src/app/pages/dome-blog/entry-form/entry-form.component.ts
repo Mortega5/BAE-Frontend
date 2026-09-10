@@ -12,6 +12,7 @@ import { environment } from "src/environments/environment";
 import { DomeBlogContentType } from "src/app/services/dome-blog-service.service";
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { NotificationService } from 'src/app/services/notification.service';
 
 @Component({
   selector: 'app-entry-form',
@@ -32,7 +33,8 @@ export class EntryFormComponent implements OnInit {
     private router: Router,
     private localStorage: LocalStorageService,
     private domeBlogService: DomeBlogServiceService,
-    private attachmentService: AttachmentServiceService
+    private attachmentService: AttachmentServiceService,
+    private notificationService: NotificationService
   ) {
   }
 
@@ -51,8 +53,6 @@ export class EntryFormComponent implements OnInit {
 
   loading:boolean=false;
   partyId:any='';
-  showError:boolean=false;
-  errorMessage:any='';
   name:any='';
   blogId:any=undefined;
   existingEntries: any[] = [];
@@ -114,25 +114,17 @@ export class EntryFormComponent implements OnInit {
     if (dateFromForm) {
       body.date = dateFromForm;
     }
-    //await lastValueFrom(this.domeBlogService.createBlogEntry(body))
     this.domeBlogService.createBlogEntry(body).subscribe({
       next: data => {
         this.loading=false;
+        this.notificationService.showSuccess('BLOG_ENTRY._create_success');
         this.goBack();
       },
       error: error => {
         console.error('There was an error while creating!', error);
-        if(error.error.error){
-          console.log(error)
-          this.errorMessage='Error: '+error.error.error;
-        } else {
-          this.errorMessage='There was an error while creating the entry!';
-        }
         this.loading=false;
-        this.showError=true;
-        setTimeout(() => {
-          this.showError = false;
-        }, 3000);
+        const details = error?.error?.error || error?.message || undefined;
+        this.notificationService.showError('BLOG_ENTRY._create_error', { details });
       }
     });
   }
@@ -152,17 +144,14 @@ export class EntryFormComponent implements OnInit {
     if (dateFromForm) {
       body.date = dateFromForm;
     }
-    //await lastValueFrom(this.domeBlogService.createBlogEntry(body))
     try {
       await this.domeBlogService.updateBlogEntry(body,this.blogId)
       this.loading=false;
+      this.notificationService.showSuccess('BLOG_ENTRY._update_success');
       this.goBack();
-    } catch (error) {
-      this.errorMessage='There was an error while updating the entry!'
-      this.showError=true;
-      setTimeout(() => {
-        this.showError = false;
-      }, 3000);
+    } catch (error: any) {
+      const details = error?.error?.error || error?.message || undefined;
+      this.notificationService.showError('BLOG_ENTRY._update_error', { details });
     }
   }
 
@@ -190,14 +179,12 @@ export class EntryFormComponent implements OnInit {
     try {
       await this.domeBlogService.deleteBlogEntry(this.blogId);
       this.loading=false;
+      this.notificationService.showSuccess('BLOG_ENTRY._delete_success');
       this.goBack();
-    } catch (error) {
+    } catch (error: any) {
       this.loading=false;
-      this.errorMessage='There was an error while deleting the entry!'
-      this.showError=true;
-      setTimeout(() => {
-        this.showError = false;
-      }, 3000);
+      const details = error?.error?.error || error?.message || undefined;
+      this.notificationService.showError('BLOG_ENTRY._delete_error', { details });
     }
   }
 
@@ -286,13 +273,13 @@ export class EntryFormComponent implements OnInit {
     }
 
     if (!file.type.startsWith('image/')) {
-      this.showTemporaryError('File must have a valid image format!');
+      this.showTemporaryError('BLOG_ENTRY._invalid_image_format');
       inputElement.value = '';
       return;
     }
 
     if (file.size > this.maxFileSize) {
-      this.showTemporaryError('File size must be under 3MB.');
+      this.showTemporaryError('BLOG_ENTRY._image_too_large');
       inputElement.value = '';
       return;
     }
@@ -300,7 +287,7 @@ export class EntryFormComponent implements OnInit {
     const sanitizedFileName = file.name.replace(/[^A-Za-z0-9_.-]/g, '_');
     const uploadFileName = `blogcover_${Date.now()}_${sanitizedFileName}`;
     if (!this.filenameRegex.test(uploadFileName)) {
-      this.showTemporaryError('File name contains unsupported characters.');
+      this.showTemporaryError('BLOG_ENTRY._invalid_filename');
       inputElement.value = '';
       return;
     }
@@ -309,7 +296,7 @@ export class EntryFormComponent implements OnInit {
     reader.onload = (e: ProgressEvent<FileReader>) => {
       const rawResult = e.target?.result;
       if (typeof rawResult !== 'string' || !rawResult.includes(',')) {
-        this.showTemporaryError('There was an error while processing the image file.');
+        this.showTemporaryError('BLOG_ENTRY._image_process_error');
         inputElement.value = '';
         return;
       }
@@ -329,7 +316,7 @@ export class EntryFormComponent implements OnInit {
         next: (data) => {
           const uploadedUrl = (data?.content || '').toString();
           if (!uploadedUrl) {
-            this.showTemporaryError('There was an error while uploading the featured image.');
+            this.showTemporaryError('BLOG_ENTRY._image_upload_error');
             return;
           }
 
@@ -338,14 +325,10 @@ export class EntryFormComponent implements OnInit {
         error: (error) => {
           console.error('There was an error while uploading featured image!', error);
           if (error.status === 413) {
-            this.showTemporaryError('File size too large! Must be under 3MB.');
+            this.showTemporaryError('BLOG_ENTRY._image_too_large');
             return;
           }
-          if (error?.error?.error) {
-            this.showTemporaryError(`Error: ${error.error.error}`);
-            return;
-          }
-          this.showTemporaryError('There was an error while uploading the featured image.');
+          this.showTemporaryError('BLOG_ENTRY._image_upload_error', error?.error?.error || error?.message || undefined);
         },
         complete: () => {
           this.uploadingFeaturedImage = false;
@@ -355,7 +338,7 @@ export class EntryFormComponent implements OnInit {
     };
 
     reader.onerror = () => {
-      this.showTemporaryError('There was an error while reading the image file.');
+      this.showTemporaryError('BLOG_ENTRY._image_read_error');
       inputElement.value = '';
     };
 
@@ -545,13 +528,9 @@ export class EntryFormComponent implements OnInit {
     return parsedDate.format('YYYY-MM-DDTHH:mm');
   }
 
-  private showTemporaryError(message: string) {
-    this.errorMessage = message;
-    this.showError = true;
+  private showTemporaryError(key: string, details?: string) {
     this.uploadingFeaturedImage = false;
-    setTimeout(() => {
-      this.showError = false;
-    }, 3000);
+    this.notificationService.showError(key, details ? { details } : undefined);
   }
 
 }

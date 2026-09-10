@@ -15,6 +15,20 @@
   "ERRORS": {
     "_error_prefix": "Error: {{message}}"
   },
+  "BLOG_ENTRY": {
+    "_create_success": "Entry published successfully.",
+    "_create_error": "Unable to create the entry.",
+    "_update_success": "Entry updated successfully.",
+    "_update_error": "Unable to update the entry.",
+    "_delete_success": "Entry deleted successfully.",
+    "_delete_error": "Unable to delete the entry.",
+    "_invalid_image_format": "File must have a valid image format.",
+    "_image_too_large": "File size must be under 3MB.",
+    "_invalid_filename": "File name contains unsupported characters.",
+    "_image_process_error": "There was an error while processing the image file.",
+    "_image_upload_error": "There was an error while uploading the featured image.",
+    "_image_read_error": "There was an error while reading the image file."
+  },
   "europeTrademark": "Distributed Open Marketplace for Europe (DOME) Project has received funding from European Union’s Digital Europe Programme under the Grant Agreement No 101084071.",
   "DASHBOARD": {
     "whatsdome": {
@@ -2644,6 +2658,7 @@
     "_start_treatment": "Start order treatment",
     "_complete_order": "Order completely treated",
     "_fail_order": "Order completely failed",
+    "_update_state_success": "Order state updated successfully",
     "_update_state_error": "There was an error updating the order state",
     "_update_state_note_error": "There was an error adding the note for the state change",
     "_add_note_success": "Note added successfully",

@@ -10,9 +10,34 @@
   z-index: 200;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
   width: 100%;
   max-width: 24rem;
+}
+
+/* Wraps each .app-toast so the spacing between stacked toasts (previously a plain
+   flex `gap`) can itself be animated away on exit — a flex `gap` can't be. Animates
+   `max-height` (a plain px-based transition, reliably smooth in every browser)
+   rather than `grid-template-rows`/`fr` units, which some engines don't interpolate
+   continuously — that showed up as the toasts below visibly stepping/jumping into
+   place instead of sliding up smoothly. 26rem comfortably covers even a toast with
+   its details expanded (.app-toast-details below is itself capped+scrollable at
+   12rem), so nothing real ever gets clipped at rest. */
+.app-toast-item {
+  max-height: 26rem;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+  /* Delayed by 0.25s (NOTIFICATION_SLIDE_MS) so this only starts collapsing once
+     the toast inside has fully slid away and faded out — otherwise the row
+     shrinking while the card is still visible squashes its content instead of
+     a clean horizontal-only exit. Duration/easing here must match
+     NOTIFICATION_COLLAPSE_MS in notification.service.ts. */
+  transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s,
+              margin-bottom 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.25s;
+
+  &.app-toast-item--leaving {
+    max-height: 0;
+    margin-bottom: 0;
+  }
 }
 
 .app-toast {
@@ -27,6 +52,14 @@
   box-shadow: 0 10px 30px -5px rgb(0 0 0 / 25%), 0 4px 10px -4px rgb(0 0 0 / 10%);
   overflow: hidden;
   animation: app-toast-in 0.25s ease-out;
+
+  /* Slides out toward the right edge the stack is anchored to (see .app-toast-stack)
+     instead of just vanishing — plays for NOTIFICATION_EXIT_MS (notification.service.ts)
+     before the notification is actually removed from the list. */
+  &.app-toast--leaving {
+    animation: app-toast-out 0.25s ease-in forwards;
+    pointer-events: none;
+  }
 }
 
 .app-toast-icon {
@@ -103,6 +136,12 @@
   color: var(--theme-default-text);
   white-space: pre-wrap;
   word-break: break-word;
+  /* Caps how tall a single toast can ever get with details expanded, so
+     .app-toast-item's fixed 26rem exit-animation ceiling (above) is never
+     actually exceeded by real content — very long backend errors scroll
+     inside this box instead of growing the toast indefinitely. */
+  max-height: 12rem;
+  overflow-y: auto;
 }
 
 .app-toast-close {
@@ -154,14 +193,6 @@
   .app-toast[data-type="error"] & {
     background-color: var(--status-badge-danger);
   }
-
-  /* Frozen at whatever width it had reached — the JS timer behind it was
-     cleared (NotificationService.pauseTimer), so the notification itself
-     no longer auto-dismisses; freezing the bar keeps it honest instead of
-     letting the CSS animation run down to empty on its own. */
-  &.app-toast-progress--paused {
-    animation-play-state: paused;
-  }
 }
 
 @keyframes app-toast-in {
@@ -173,6 +204,18 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes app-toast-out {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateX(2rem);
   }
 }
 

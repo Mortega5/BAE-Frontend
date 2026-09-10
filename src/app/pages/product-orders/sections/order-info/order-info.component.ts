@@ -257,6 +257,7 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
       // orderToShow is a separate (enriched) object from the row cached by the orders
       // table, so its state change doesn't propagate there on its own - patch it locally.
       this.paginatedTable?.patchItem((o: any) => o.id === this.orderToShow.id, { state: stateResponse.state });
+      this.notificationService.showSuccess('PRODUCT_ORDERS._update_state_success');
     } catch (error: any) {
       this.selectedItem.productOrderItem['state'] = prevState
 

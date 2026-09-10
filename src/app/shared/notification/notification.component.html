@@ -1,37 +1,44 @@
 <div class="app-toast-stack">
   @for (notification of notificationService.notifications$ | async; track notification.id) {
-    <div class="app-toast" [attr.data-type]="notification.type" role="status">
-      <div class="app-toast-icon">
-        <fa-icon [icon]="icon(notification.type)"></fa-icon>
-      </div>
-      <div class="app-toast-body">
-        <p class="app-toast-message">{{ notification.message | translate }}</p>
-        @if (notification.details) {
-          <button
-            type="button"
-            class="app-toast-details-toggle"
-            (click)="toggleDetails(notification.id)"
-          >
-            {{ (isExpanded(notification.id) ? 'COMMON._hide_details' : 'COMMON._view_details') | translate }}
-          </button>
-          @if (isExpanded(notification.id)) {
-            <p class="app-toast-details">{{ notification.details }}</p>
-          }
-        }
-      </div>
-      <button
-        type="button"
-        class="app-toast-close"
-        (click)="notificationService.dismiss(notification.id)"
-        [attr.aria-label]="'COMMON._close' | translate"
-      >
-        <fa-icon [icon]="faXmark"></fa-icon>
-      </button>
+    <div class="app-toast-item" [class.app-toast-item--leaving]="notification.leaving">
       <div
-        class="app-toast-progress"
-        [class.app-toast-progress--paused]="isExpanded(notification.id)"
-        [style.animation-duration.ms]="notification.duration"
-      ></div>
+        class="app-toast"
+        [class.app-toast--leaving]="notification.leaving"
+        [attr.data-type]="notification.type"
+        role="status"
+      >
+        <div class="app-toast-icon">
+          <fa-icon [icon]="icon(notification.type)"></fa-icon>
+        </div>
+        <div class="app-toast-body">
+          <p class="app-toast-message">{{ notification.message | translate }}</p>
+          @if (notification.details) {
+            <button
+              type="button"
+              class="app-toast-details-toggle"
+              (click)="toggleDetails(notification.id)"
+            >
+              {{ (isExpanded(notification.id) ? 'COMMON._hide_details' : 'COMMON._view_details') | translate }}
+            </button>
+            @if (isExpanded(notification.id)) {
+              <p class="app-toast-details">{{ notification.details }}</p>
+            }
+          }
+        </div>
+        <button
+          type="button"
+          class="app-toast-close"
+          (click)="notificationService.dismiss(notification.id)"
+          [attr.aria-label]="'COMMON._close' | translate"
+        >
+          <fa-icon [icon]="faXmark"></fa-icon>
+        </button>
+        <div
+          class="app-toast-progress"
+          [hidden]="isExpanded(notification.id) || notification.leaving"
+          [style.animation-duration.ms]="notification.duration"
+        ></div>
+      </div>
     </div>
   }
 </div>
