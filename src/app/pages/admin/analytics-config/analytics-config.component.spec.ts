@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { AnalyticsConfigComponent } from './analytics-config.component';
+import { NotificationService } from 'src/app/services/notification.service';
 import { environment } from 'src/environments/environment';
 
 describe('AnalyticsConfigComponent', () => {
@@ -26,7 +27,7 @@ describe('AnalyticsConfigComponent', () => {
       imports: [HttpClientTestingModule]
     });
 
-    component = new AnalyticsConfigComponent(TestBed.inject(HttpClient));
+    component = new AnalyticsConfigComponent(TestBed.inject(HttpClient), TestBed.inject(NotificationService));
     httpMock = TestBed.inject(HttpTestingController);
   });
 

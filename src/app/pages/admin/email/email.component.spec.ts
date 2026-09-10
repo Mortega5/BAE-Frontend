@@ -5,6 +5,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 
 import { EmailComponent } from './email.component';
+import { NotificationService } from 'src/app/services/notification.service';
 import { environment } from 'src/environments/environment';
 
 describe('EmailComponent', () => {
@@ -75,6 +76,7 @@ describe('EmailComponent', () => {
   });
 
   it('should post source email and contact-us destinations as separate config fields', () => {
+    const showSuccessSpy = spyOn(TestBed.inject(NotificationService), 'showSuccess');
     component.emailForm.setValue({
       smtpServer: 'smtp.example.org',
       smtpPort: '587',
@@ -115,11 +117,11 @@ describe('EmailComponent', () => {
     expect(component.emailForm.value.contactUsTechnicalEmail).toBe('technical@example.org');
     expect(component.emailForm.value.contactUsOnboardingEmail).toBe('onboarding@example.org');
     expect(component.emailForm.value.contactUsLegalEmail).toBe('legal@example.org');
-    expect(component.showSuccess).toBeTrue();
-    expect(component.successMessage).toBe('ADMIN._emailConfigUpdated');
+    expect(showSuccessSpy).toHaveBeenCalledWith('ADMIN._emailConfigUpdated');
   });
 
   it('should show an error and keep form values when update fails', () => {
+    const showErrorSpy = spyOn(TestBed.inject(NotificationService), 'showError');
     component.emailForm.setValue({
       smtpServer: 'smtp.example.org',
       smtpPort: '587',
@@ -137,9 +139,7 @@ describe('EmailComponent', () => {
     const req = httpMock.expectOne(configUrl);
     req.flush({ error: 'Invalid config' }, { status: 400, statusText: 'Bad Request' });
 
-    expect(component.showError).toBeTrue();
-    expect(component.errorMessage).toBe('Error: Invalid config');
-    expect(component.showSuccess).toBeFalse();
+    expect(showErrorSpy).toHaveBeenCalledWith('ADMIN._emailConfigSaveError', { details: 'Invalid config' });
     expect(component.emailForm.value.emailPassword).toBe('secret');
     expect(component.emailForm.value.contactUsGeneralEmail).toBe('general@example.org');
   });

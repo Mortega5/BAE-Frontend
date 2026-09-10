@@ -10,6 +10,7 @@ import { UpdateProductSpecComponent } from './update-product-spec.component';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
@@ -670,14 +671,15 @@ describe('UpdateProductSpecComponent', () => {
       expect(goBackSpy).toHaveBeenCalled();
     });
 
-    it('updateProduct should surface an error message when the API call fails', () => {
+    it('updateProduct should surface an error notification when the API call fails', () => {
+      const notificationService = TestBed.inject(NotificationService);
+      const showErrorSpy = spyOn(notificationService, 'showError');
       component.prod = { ...baseProd };
       prodSpecServiceSpy.updateProdSpec.and.returnValue(throwError(() => ({ error: { error: 'Update failed' } })));
 
       component.updateProduct();
 
-      expect(component.showError).toBeTrue();
-      expect(component.errorMessage).toBe('Error: Update failed');
+      expect(showErrorSpy).toHaveBeenCalledWith('CREATE_PROD_SPEC._save_error', { details: 'Update failed' });
       expect(component.loading).toBeFalse();
     });
   });

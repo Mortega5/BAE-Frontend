@@ -7,6 +7,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
@@ -468,22 +469,23 @@ describe('CreateProductSpecComponent', () => {
     expect((component.productSpecToCreate as any)?.orchestrationPlan).toEqual({ steps: [{ step: 1 }] });
   });
 
-  it('createProduct should call the API and go back on success', () => {
+  it('saveDraft should call the API and go back on success', () => {
     const backSpy = spyOn(component, 'goBack');
     component.productSpecToCreate = { name: 'Prod' } as any;
-    component.createProduct();
+    component.saveDraft();
     expect(prodSpecServiceSpy.postProdSpec).toHaveBeenCalledWith(component.productSpecToCreate);
     expect(component.loading).toBeFalse();
     expect(backSpy).toHaveBeenCalled();
   });
 
-  it('createProduct should handle API errors and show a message', () => {
+  it('saveDraft should handle API errors and show a notification', () => {
+    const notificationService = TestBed.inject(NotificationService);
+    const showErrorSpy = spyOn(notificationService, 'showError');
     prodSpecServiceSpy.postProdSpec.and.returnValue(throwError(() => ({ error: { error: 'boom' } })));
     component.productSpecToCreate = { name: 'Prod' } as any;
-    component.createProduct();
+    component.saveDraft();
     expect(component.loading).toBeFalse();
-    expect(component.showError).toBeTrue();
-    expect(component.errorMessage).toBe('Error: boom');
+    expect(showErrorSpy).toHaveBeenCalledWith('CREATE_PROD_SPEC._save_error', { details: 'boom' });
   });
 
   it('hasLongWord should detect words above the threshold', () => {

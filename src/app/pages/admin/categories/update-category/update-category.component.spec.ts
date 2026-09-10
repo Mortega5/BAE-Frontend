@@ -6,6 +6,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { of, Subject, throwError } from 'rxjs';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { NotificationService } from 'src/app/services/notification.service';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { AdminPaths } from 'src/app/pages/admin/admin.paths';
 
@@ -242,7 +243,9 @@ describe('UpdateCategoryComponent', () => {
     expect(goBackSpy).toHaveBeenCalled();
   });
 
-  it('updateCategory should set error message on API error', () => {
+  it('updateCategory should show an error notification on API error', () => {
+    const notificationService = TestBed.inject(NotificationService);
+    const showErrorSpy = spyOn(notificationService, 'showError');
     component.categoryToUpdate = { name: 'Updated' } as any;
     component.category = { id: 'cat-1' };
     apiSpy.updateCategory.and.returnValue(
@@ -251,7 +254,6 @@ describe('UpdateCategoryComponent', () => {
 
     component.updateCategory();
 
-    expect(component.showError).toBeTrue();
-    expect(component.errorMessage).toBe('Error: Update failed');
+    expect(showErrorSpy).toHaveBeenCalledWith('UPDATE_CATEGORIES._update_error', { details: 'Update failed' });
   });
 });

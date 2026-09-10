@@ -35,15 +35,23 @@ describe('EntryFormComponent', () => {
       uploadFile: jasmine.createSpy('uploadFile').and.returnValue(of({ content: 'https://cdn/image.png' }))
     } as any;
 
+    const notificationService = {
+      showSuccess: jasmine.createSpy('showSuccess'),
+      showError: jasmine.createSpy('showError'),
+      showWarning: jasmine.createSpy('showWarning'),
+      showInfo: jasmine.createSpy('showInfo')
+    } as any;
+
     const component = new EntryFormComponent(
       route,
       router,
       localStorageService,
       domeBlogService,
-      attachmentService
+      attachmentService,
+      notificationService
     );
 
-    return { component, route, router, domeBlogService };
+    return { component, route, router, domeBlogService, notificationService };
   };
 
   it('should create', () => {
