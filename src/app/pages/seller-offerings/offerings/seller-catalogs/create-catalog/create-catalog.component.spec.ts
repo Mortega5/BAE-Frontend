@@ -55,9 +55,17 @@ describe('CreateCatalogComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.catalogues.list()]);
   });
 
-  it('hasLongWord should detect long words and handle undefined', () => {
-    expect(component.hasLongWord('short text', 20)).toBeFalse();
-    expect(component.hasLongWord('averyveryverylongword', 10)).toBeTrue();
-    expect(component.hasLongWord(undefined, 10)).toBeFalse();
+  it('onSubmitCatalog should populate catalogToCreate from the current form (no step change needed, since the wizard has a single step)', () => {
+    component.partyId = 'party-1';
+    component.generalForm.patchValue({
+      name: 'My Catalog',
+      description: 'Catalog description',
+    });
+
+    component.onSubmitCatalog();
+
+    expect(component.catalogToCreate?.name).toBe('My Catalog');
+    expect(component.catalogToCreate?.description).toBe('Catalog description');
+    expect(component.showPublishDraftModal).toBeTrue();
   });
 });

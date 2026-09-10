@@ -103,9 +103,6 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
 
   onStepChanged(event: StepChangedEvent): void {
     this.currentStep = event.step;
-    if (event.isLastStep) {
-      this.setCatalogData();
-    }
   }
 
   populateCatInfo() {
@@ -154,10 +151,8 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
   }
 
   updateCatalog() {
+    this.setCatalogData();
     this.loading = true;
-    if (this.catalogToUpdate == null) {
-      this.setCatalogData();
-    }
     this.api.updateCatalog(this.catalogToUpdate, this.cat.id).subscribe({
       next: () => {
         this.loading = false;
@@ -223,9 +218,5 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
         });
       },
     });
-  }
-
-  hasLongWord(str: string | undefined | null, threshold = 20) {
-    return str ? str.split(/\s+/).some(word => word.length > threshold) : false;
   }
 }

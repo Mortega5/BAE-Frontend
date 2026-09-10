@@ -54,9 +54,13 @@ describe('UpdateCatalogComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.catalogues.list()]);
   });
 
-  it('hasLongWord should detect long words and handle undefined', () => {
-    expect(component.hasLongWord('short text', 20)).toBeFalse();
-    expect(component.hasLongWord('averyveryverylongword', 10)).toBeTrue();
-    expect(component.hasLongWord(undefined, 10)).toBeFalse();
+  it('updateCatalog should refresh catalogToUpdate from the current form before submitting (no step change needed, since the wizard has a single step)', () => {
+    component.generalForm.patchValue({ name: 'Updated Catalog', description: 'New desc', lifecycleStatus: 'Launched' });
+
+    component.updateCatalog();
+
+    expect(component.catalogToUpdate?.name).toBe('Updated Catalog');
+    expect(component.catalogToUpdate?.description).toBe('New desc');
+    expect(component.catalogToUpdate?.lifecycleStatus).toBe('Launched');
   });
 });

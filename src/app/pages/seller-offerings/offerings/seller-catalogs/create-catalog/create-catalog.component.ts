@@ -29,8 +29,6 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
   currentStep = 0;
   loading = false;
 
-  steps = ['General Info', 'Summary'];
-
   generalFormFields: FormField[] = [
     { type: 'string', name: 'name', label: 'CREATE_CATALOG._name', required: true, maxLength: 100, dataCy: 'catalogName' },
     { type: 'markdownTextarea', name: 'description', label: 'CREATE_CATALOG._description', dataCy: 'catalogDsc' },
@@ -76,9 +74,6 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
 
   onStepChanged(event: StepChangedEvent): void {
     this.currentStep = event.step;
-    if (event.isLastStep) {
-      this.setCatalogData();
-    }
   }
 
   initPartyInfo() {
@@ -113,6 +108,7 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
   }
 
   onSubmitCatalog() {
+    this.setCatalogData();
     this.showPublishDraftModal = true;
   }
 
@@ -144,9 +140,5 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
         });
       },
     });
-  }
-
-  hasLongWord(str: string | undefined, threshold = 20) {
-    return str ? str.split(/\s+/).some(word => word.length > threshold) : false;
   }
 }
