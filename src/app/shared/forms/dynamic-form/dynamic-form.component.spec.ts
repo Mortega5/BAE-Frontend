@@ -109,14 +109,23 @@ describe('DynamicFormComponent', () => {
     expect(input.id).toBe('age');
   });
 
-  it('should render a select for boolean fields', () => {
+  it('should render a yes/no toggle for boolean fields', () => {
     const fields: FormField[] = [{ name: 'active', label: 'Active', type: 'boolean' }];
     component.fields = fields;
     component.formGroup = buildForm(fields);
     fixture.detectChanges();
-    const selects = fixture.nativeElement.querySelectorAll('select');
-    expect(selects.length).toBe(1);
-    expect(selects[0].id).toBe('active');
+    const toggle = fixture.nativeElement.querySelector('#active');
+    expect(toggle).toBeTruthy();
+
+    const [yesButton, noButton] = toggle.querySelectorAll('button');
+    expect(yesButton).toBeTruthy();
+    expect(noButton).toBeTruthy();
+
+    yesButton.click();
+    expect(component.formGroup.get('active')?.value).toBeTrue();
+
+    noButton.click();
+    expect(component.formGroup.get('active')?.value).toBeFalse();
   });
 
   it('should render a single select for select fields without multiple', () => {

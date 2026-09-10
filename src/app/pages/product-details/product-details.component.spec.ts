@@ -43,7 +43,7 @@ describe('ProductDetailsComponent', () => {
       'getComplianceLevel',
     ]);
     priceSpy = jasmine.createSpyObj<PriceServiceService>('PriceServiceService', ['calculatePrice']);
-    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject']);
+    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject', 'getValidLoginInfo', 'getItem', 'setItem', 'removeItem']);
     cartSpy = jasmine.createSpyObj<ShoppingCartServiceService>('ShoppingCartServiceService', [
       'addItemShoppingCart',
       'removeItemShoppingCart',
@@ -62,6 +62,8 @@ describe('ProductDetailsComponent', () => {
     (eventMessageSpy as any).messages$ = messages$.asObservable();
 
     localStorageSpy.getObject.and.returnValue({} as any);
+    localStorageSpy.getValidLoginInfo.and.returnValue(null);
+    localStorageSpy.getItem.and.returnValue(null);
     apiSpy.getComplianceLevel.and.returnValue('NL');
     cartSpy.addItemShoppingCart.and.resolveTo();
     cartSpy.removeItemShoppingCart.and.resolveTo();

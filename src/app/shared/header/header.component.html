@@ -74,6 +74,11 @@
             <fa-icon [icon]="faHandHoldingBox" class="mr-2"></fa-icon>{{ 'HEADER._offerings' | translate }}
           </button>
         </li>
+        <li>
+          <button id="usageSpecs" type="button" class="dropdown-item" (click)="goTo(sellerOfferingsPaths.usageSpecs.list())">
+            <fa-icon [icon]="faGauge" class="mr-2"></fa-icon>{{ 'HEADER._usage_specs' | translate }}
+          </button>
+        </li>
         }
 
         @if ((isAdmin && loggedAsOrg === false) || roles.includes(certifierRole)) {
@@ -402,6 +407,9 @@
     @if (roles.includes(sellerRole)) {
     <button type="button" class="mobile-nav-item" (click)="goTo(sellerOfferingsPaths.root())">
       <fa-icon [icon]="faHandHoldingBox" class="mr-2"></fa-icon>{{ 'HEADER._offerings' | translate }}
+    </button>
+    <button type="button" class="mobile-nav-item" (click)="goTo(sellerOfferingsPaths.usageSpecs.list())">
+      <fa-icon [icon]="faGauge" class="mr-2"></fa-icon>{{ 'HEADER._usage_specs' | translate }}
     </button>
     }
 

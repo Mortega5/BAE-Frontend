@@ -167,10 +167,15 @@ describe('OfferComponent', () => {
       component.currentStepId = 'general';
       component.catalogManagementEnabled = true;
       component.formType = 'create';
+      // Mirrors what GeneralInfoComponent does when catalog management is enabled:
+      // it adds a required 'catalogue' control into the shared generalInfo group.
+      (component.productOfferForm.get('generalInfo') as FormGroup).addControl(
+        'catalogue', new FormControl(null, Validators.required)
+      );
 
       expect(component.validateCurrentStep()).toBeFalse();
 
-      component.productOfferForm.patchValue({ catalogue: { id: 'cat-1' } });
+      component.productOfferForm.get('generalInfo')?.get('catalogue')?.setValue({ id: 'cat-1' });
 
       expect(component.validateCurrentStep()).toBeTrue();
     });
@@ -243,13 +248,14 @@ describe('OfferComponent', () => {
   });
 
   describe('submitForm', () => {
-    it('should create the offer in create mode', () => {
+    it('should open the publish draft modal in create mode', () => {
       const createSpy = spyOn(component, 'createOffer');
 
       component.formType = 'create';
       component.submitForm();
 
-      expect(createSpy).toHaveBeenCalled();
+      expect(component.showPublishDraftModal).toBeTrue();
+      expect(createSpy).not.toHaveBeenCalled();
     });
 
     it('should emit UpdateOffer and update the offer in update mode', () => {
@@ -346,7 +352,7 @@ describe('OfferComponent', () => {
       const result = await component.ensureCatalogue();
 
       expect(result).toEqual({ id: 'existing-cat' });
-      expect(component.productOfferForm.get('catalogue')?.value).toEqual({ id: 'existing-cat' });
+      expect((component as any).autoCatalogue).toEqual({ id: 'existing-cat' });
     });
 
     it('should only consider Launched catalogues, so it never auto-assigns a draft/retired one', async () => {

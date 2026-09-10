@@ -38,13 +38,13 @@ describe('CreateProductSpecComponent', () => {
     messagesSubject = new Subject<any>();
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
     prodSpecServiceSpy = jasmine.createSpyObj<ProductSpecServiceService>('ProductSpecServiceService', ['getProdSpecByUser', 'postProdSpec']);
-    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject']);
+    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getValidLoginInfo']);
     eventMessageSpy = jasmine.createSpyObj<EventMessageService>('EventMessageService', ['emitSellerProductSpec'], { messages$: messagesSubject.asObservable() });
     servSpecServiceSpy = jasmine.createSpyObj<ServiceSpecServiceService>('ServiceSpecServiceService', ['getServiceSpecByUserPaged']);
     resSpecServiceSpy = jasmine.createSpyObj<ResourceSpecServiceService>('ResourceSpecServiceService', ['getResourceSpecByUserPaged']);
     paginationServiceSpy = jasmine.createSpyObj<PaginationService>('PaginationService', ['getItemsPaginated']);
 
-    localStorageSpy.getObject.and.returnValue({});
+    localStorageSpy.getValidLoginInfo.and.returnValue({} as any);
     prodSpecServiceSpy.postProdSpec.and.returnValue(of({ id: 'created' }));
     paginationServiceSpy.getItemsPaginated.and.resolveTo(defaultPaginationData);
     servSpecServiceSpy.getServiceSpecByUserPaged.and.resolveTo({ items: [], total: 0 } as any);
@@ -100,32 +100,32 @@ describe('CreateProductSpecComponent', () => {
   });
 
   it('initPartyInfo should set partyId when logged directly', () => {
-    localStorageSpy.getObject.and.returnValue({
+    localStorageSpy.getValidLoginInfo.and.returnValue({
       expire: Math.floor(Date.now() / 1000) + 500,
       logged_as: 'user-1',
       id: 'user-1',
       partyId: 'party-direct',
       organizations: []
-    });
+    } as any);
     component.initPartyInfo();
     expect(component.partyId).toBe('party-direct');
   });
 
   it('initPartyInfo should set org partyId when logged as organization', () => {
-    localStorageSpy.getObject.and.returnValue({
+    localStorageSpy.getValidLoginInfo.and.returnValue({
       expire: Math.floor(Date.now() / 1000) + 500,
       logged_as: 'org-1',
       id: 'user-1',
       partyId: 'party-direct',
       organizations: [{ id: 'org-1', partyId: 'party-org' }]
-    });
+    } as any);
     component.initPartyInfo();
     expect(component.partyId).toBe('party-org');
   });
 
   it('initPartyInfo should ignore expired/empty sessions', () => {
     component.partyId = 'kept-party';
-    localStorageSpy.getObject.and.returnValue({});
+    localStorageSpy.getValidLoginInfo.and.returnValue(null);
     component.initPartyInfo();
     expect(component.partyId).toBe('kept-party');
   });

@@ -46,6 +46,7 @@ describe('SearchComponent', () => {
     paginationSpy = jasmine.createSpyObj<PaginationService>('PaginationService', ['getItemsPaginated', 'getProducts']);
     localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', [
       'getObject',
+      'getValidLoginInfo',
       'getItem',
       'removeCategoryFilter',
       'removeItem',
@@ -103,6 +104,7 @@ describe('SearchComponent', () => {
       return {};
     });
     localStorageSpy.getItem.and.returnValue(null);
+    localStorageSpy.getValidLoginInfo.and.returnValue(null);
     spyOn(window, 'scrollTo');
 
     await TestBed.configureTestingModule({

@@ -13,8 +13,7 @@ describe('BadgeComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      declarations: [BadgeComponent],
-      imports: [HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()]
+      imports: [BadgeComponent, HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()]
     })
     .compileComponents();
     

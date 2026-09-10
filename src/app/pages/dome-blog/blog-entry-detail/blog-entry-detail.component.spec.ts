@@ -24,7 +24,8 @@ describe('BlogEntryDetailComponent', () => {
     } as any;
 
     const localStorageService = {
-      getObject: jasmine.createSpy('getObject').and.returnValue({})
+      getObject: jasmine.createSpy('getObject').and.returnValue({}),
+      getValidLoginInfo: jasmine.createSpy('getValidLoginInfo').and.returnValue(null)
     } as any;
     const titleService = { setTitle: jasmine.createSpy('setTitle') } as any;
     const metaService = { updateTag: jasmine.createSpy('updateTag') } as any;

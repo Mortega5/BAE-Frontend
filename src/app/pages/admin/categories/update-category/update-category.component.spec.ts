@@ -41,14 +41,14 @@ describe('UpdateCategoryComponent', () => {
       'getCategoriesByParentId',
       'getCategoryById',
     ]);
-    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject']);
+    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getValidLoginInfo']);
     eventMessageSpy = jasmine.createSpyObj<EventMessageService>(
       'EventMessageService',
       [],
       { messages$: messages$.asObservable() }
     );
 
-    localStorageSpy.getObject.and.returnValue({
+    localStorageSpy.getValidLoginInfo.and.returnValue({
       id: 'user-1',
       logged_as: 'user-1',
       partyId: 'party-user',
@@ -128,7 +128,7 @@ describe('UpdateCategoryComponent', () => {
   });
 
   it('initPartyInfo should set partyId for organization session', () => {
-    localStorageSpy.getObject.and.returnValue({
+    localStorageSpy.getValidLoginInfo.and.returnValue({
       id: 'user-1',
       logged_as: 'org-1',
       expire: Math.floor(Date.now() / 1000) + 300,

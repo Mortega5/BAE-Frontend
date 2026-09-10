@@ -14,6 +14,7 @@ import { PriceServiceService } from '../../services/price-service.service';
 import { ShoppingCartServiceService } from '../../services/shopping-cart-service.service';
 import { PaymentService } from 'src/app/services/payment.service';
 import { ApiServiceService } from '../../services/product-service.service';
+import { NotificationService } from '../../services/notification.service';
 import { environment } from '../../../environments/environment';
 import { BillingAccountFormComponent } from 'src/app/shared/billing-account-form/billing-account-form.component';
 
@@ -34,7 +35,7 @@ describe('CheckoutComponent', () => {
   const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
   beforeEach(async () => {
-    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject']);
+    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject', 'getValidLoginInfo']);
     accountSpy = jasmine.createSpyObj<AccountServiceService>('AccountServiceService', ['getBillingAccount']);
     orderServiceSpy = jasmine.createSpyObj<ProductOrderService>('ProductOrderService', ['postProductOrder']);
     eventMessageSpy = jasmine.createSpyObj<EventMessageService>('EventMessageService', ['emitRemovedCartItem']);
@@ -57,7 +58,7 @@ describe('CheckoutComponent', () => {
 
     paramMapGetSpy = jasmine.createSpy('paramMap.get').and.returnValue(null);
 
-    localStorageSpy.getObject.and.returnValue({
+    const defaultLoginInfo = {
       id: 'user-1',
       user: 'user',
       email: 'user@example.com',
@@ -68,7 +69,9 @@ describe('CheckoutComponent', () => {
       roles: [],
       organizations: [{ id: 'org-1', partyId: 'party-org' }],
       logged_as: 'user-1',
-    } as any);
+    } as any;
+    localStorageSpy.getObject.and.returnValue(defaultLoginInfo);
+    localStorageSpy.getValidLoginInfo.and.returnValue(defaultLoginInfo);
 
     accountSpy.getBillingAccount.and.resolveTo([]);
     cartServiceSpy.getShoppingCart.and.resolveTo([]);
@@ -367,6 +370,8 @@ describe('CheckoutComponent', () => {
 
   it('orderProduct should surface API error message', async () => {
     spyOn((component as any).cdr, 'detectChanges');
+    const notificationService = TestBed.inject(NotificationService);
+    const errorSpy = spyOn(notificationService, 'showError');
     orderServiceSpy.postProductOrder.and.returnValue(
       throwError(() => ({ error: { error: 'Boom' } })),
     );
@@ -378,8 +383,7 @@ describe('CheckoutComponent', () => {
 
     await component.orderProduct();
 
-    expect(component.showError).toBeTrue();
-    expect(component.errorMessage).toContain('Boom');
+    expect(errorSpy).toHaveBeenCalledWith('SHOPPING_CART._order_error', { details: 'Boom' });
     expect(component.loading_purchase).toBeFalse();
   });
 

@@ -69,7 +69,7 @@ describe('UpdateProductSpecComponent', () => {
     prodSpecServiceSpy = jasmine.createSpyObj<ProductSpecServiceService>('ProductSpecServiceService', [
       'getProdSpecByUser', 'getResSpecById', 'updateProdSpec'
     ]);
-    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject']);
+    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getValidLoginInfo']);
     eventMessageSpy = jasmine.createSpyObj<EventMessageService>(
       'EventMessageService',
       [],
@@ -81,7 +81,7 @@ describe('UpdateProductSpecComponent', () => {
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
     activatedRouteStub = { snapshot: { paramMap: convertToParamMap({ id: 'prod-1' }) } };
 
-    localStorageSpy.getObject.and.returnValue({});
+    localStorageSpy.getValidLoginInfo.and.returnValue({} as any);
     prodSpecServiceSpy.getResSpecById.and.resolveTo({ ...baseProd });
     prodSpecServiceSpy.updateProdSpec.and.returnValue(of({ id: 'updated' }));
     paginationServiceSpy.getItemsPaginated.and.resolveTo(defaultPaginationData);
@@ -245,32 +245,32 @@ describe('UpdateProductSpecComponent', () => {
 
   describe('initPartyInfo', () => {
     it('should set partyId when logged in directly', () => {
-      localStorageSpy.getObject.and.returnValue({
+      localStorageSpy.getValidLoginInfo.and.returnValue({
         expire: Math.floor(Date.now() / 1000) + 500,
         logged_as: 'user-1',
         id: 'user-1',
         partyId: 'party-direct',
         organizations: []
-      });
+      } as any);
       component.initPartyInfo();
       expect(component.partyId).toBe('party-direct');
     });
 
     it('should set partyId from the logged organization', () => {
-      localStorageSpy.getObject.and.returnValue({
+      localStorageSpy.getValidLoginInfo.and.returnValue({
         expire: Math.floor(Date.now() / 1000) + 500,
         logged_as: 'org-1',
         id: 'user-1',
         partyId: 'party-direct',
         organizations: [{ id: 'org-1', partyId: 'party-org' }]
-      });
+      } as any);
       component.initPartyInfo();
       expect(component.partyId).toBe('party-org');
     });
 
     it('should ignore expired or empty sessions', () => {
       component.partyId = 'kept-party';
-      localStorageSpy.getObject.and.returnValue({});
+      localStorageSpy.getValidLoginInfo.and.returnValue(null);
       component.initPartyInfo();
       expect(component.partyId).toBe('kept-party');
     });

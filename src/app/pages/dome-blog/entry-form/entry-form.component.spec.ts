@@ -20,7 +20,8 @@ describe('EntryFormComponent', () => {
     } as any;
 
     const localStorageService = {
-      getObject: jasmine.createSpy('getObject').and.returnValue({})
+      getObject: jasmine.createSpy('getObject').and.returnValue({}),
+      getValidLoginInfo: jasmine.createSpy('getValidLoginInfo').and.returnValue({})
     } as any;
 
     const domeBlogService = {

@@ -23,9 +23,10 @@ describe('SellerOfferingsComponent', () => {
 
   beforeEach(async () => {
     quoteServiceSpy = jasmine.createSpyObj<QuoteService>('QuoteService', ['getQuoteById']);
-    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject']);
+    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject', 'getItem', 'setItem', 'removeItem']);
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate'], { events: of(), url: '/my-offerings/offers' });
     localStorageSpy.getObject.and.returnValue({});
+    localStorageSpy.getItem.and.returnValue(null);
 
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
@@ -77,6 +78,7 @@ describe('SellerOfferingsComponent', () => {
     httpMock.expectOne(req => req.url.includes('/productSpecification')).flush([]);
     httpMock.expectOne(req => req.url.includes('/serviceSpecification')).flush([{ id: 'serv-1' }]);
     httpMock.expectOne(req => req.url.includes('/resourceSpecification')).flush([]);
+    httpMock.expectOne(req => req.url.includes('/usage/usageSpecification')).flush([{ id: 'usage-1' }]);
 
     await loadPromise;
 
@@ -86,6 +88,7 @@ describe('SellerOfferingsComponent', () => {
     expect(component.serviceSpecsCount).toBe(1);
     expect(component.resourceSpecsCount).toBe(0);
     expect(component.softwaresCount).toBe(3);
+    expect(component.usageSpecsCount).toBe(1);
   });
 
   it('ngOnInit should navigate to the custom offer route when a quoteId is present in history state', async () => {

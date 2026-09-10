@@ -18,7 +18,7 @@ describe('AuthGuard', () => {
   const state = {} as RouterStateSnapshot;
 
   beforeEach(() => {
-    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject']);
+    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getValidLoginInfo']);
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
 
     TestBed.configureTestingModule({
@@ -38,7 +38,7 @@ describe('AuthGuard', () => {
   });
 
   it('should redirect to dashboard when login info is empty', () => {
-    localStorageSpy.getObject.and.returnValue({} as object);
+    localStorageSpy.getValidLoginInfo.and.returnValue(null);
 
     const canActivate = guard.canActivate(routeWithRoles([]), state);
 
@@ -47,13 +47,13 @@ describe('AuthGuard', () => {
   });
 
   it('should allow access for a valid individual with a required role', () => {
-    localStorageSpy.getObject.and.returnValue({
+    localStorageSpy.getValidLoginInfo.and.returnValue({
       expire: moment().unix() + 300,
       id: 'user-1',
       logged_as: 'user-1',
       roles: [{ name: 'Seller' }],
       organizations: [],
-    } as object);
+    } as any);
 
     const canActivate = guard.canActivate(routeWithRoles(['seller']), state);
 
@@ -62,13 +62,13 @@ describe('AuthGuard', () => {
   });
 
   it('should deny access when required roles are missing', () => {
-    localStorageSpy.getObject.and.returnValue({
+    localStorageSpy.getValidLoginInfo.and.returnValue({
       expire: moment().unix() + 300,
       id: 'user-1',
       logged_as: 'user-1',
       roles: [{ name: 'Buyer' }],
       organizations: [],
-    } as object);
+    } as any);
 
     const canActivate = guard.canActivate(routeWithRoles(['seller']), state);
 

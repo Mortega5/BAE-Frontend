@@ -8,11 +8,13 @@ import { Subject, of, throwError } from 'rxjs';
 
 import { AttachmentUploadComponent } from './attachment-upload.component';
 import { AttachmentServiceService } from 'src/app/services/attachment-service.service';
+import { NotificationService } from 'src/app/services/notification.service';
 
 describe('AttachmentUploadComponent', () => {
   let component: AttachmentUploadComponent;
   let fixture: ComponentFixture<AttachmentUploadComponent>;
   let attachmentService: AttachmentServiceService;
+  let notificationService: NotificationService;
 
   const makeFile = (name: string, type: string, size: number): File => {
     const file = new File(['x'.repeat(size)], name, { type });
@@ -28,6 +30,7 @@ describe('AttachmentUploadComponent', () => {
     fixture = TestBed.createComponent(AttachmentUploadComponent);
     component = fixture.componentInstance;
     attachmentService = TestBed.inject(AttachmentServiceService);
+    notificationService = TestBed.inject(NotificationService);
     fixture.detectChanges();
   });
 
@@ -117,12 +120,13 @@ describe('AttachmentUploadComponent', () => {
   });
 
   it('should surface a 413 upload error as the too-large message', (done) => {
+    const errorSpy = spyOn(notificationService, 'showError');
     spyOn(attachmentService, 'uploadFileWithProgress').and.returnValue(throwError(() => ({ status: 413 })));
 
     (component as any).handleFile(makeFile('a.pdf', 'application/pdf', 5));
 
     setTimeout(() => {
-      expect(component.errorMessage).toBe('FORMS.ATTACHMENT._too_large');
+      expect(errorSpy).toHaveBeenCalledWith('FORMS.ATTACHMENT._too_large', jasmine.any(Object));
       expect(component.uploading).toBeFalse();
       expect(component.uploadProgress).toBeNull();
       done();

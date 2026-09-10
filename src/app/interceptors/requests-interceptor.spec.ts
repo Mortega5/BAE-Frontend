@@ -31,7 +31,8 @@ describe('RequestInterceptor', () => {
         {
           provide: LocalStorageService,
           useValue: {
-            getObject: () => loginInfo,
+            getValidLoginInfo: () => loginInfo,
+            removeLoginInfo: () => {},
           },
         },
         {

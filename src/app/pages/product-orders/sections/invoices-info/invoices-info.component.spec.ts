@@ -21,7 +21,7 @@ describe('InvoiceInfoComponent', () => {
 
   beforeEach(async () => {
     messages$ = new Subject<any>();
-    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getObject']);
+    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getValidLoginInfo']);
     invoicesServiceSpy = jasmine.createSpyObj<InvoicesService>('InvoicesService', ['getInvoicesPaged', 'getAppliedCustomerBillingRates', 'updateInvoice']);
     eventMessageSpy = jasmine.createSpyObj<EventMessageService>(
       'EventMessageService',
@@ -29,7 +29,7 @@ describe('InvoiceInfoComponent', () => {
       { messages$: messages$.asObservable() }
     );
 
-    localStorageSpy.getObject.and.returnValue({
+    localStorageSpy.getValidLoginInfo.and.returnValue({
       id: 'user-1',
       logged_as: 'user-1',
       partyId: 'party-user',
@@ -83,7 +83,7 @@ describe('InvoiceInfoComponent', () => {
   });
 
   it('initPartyInfo should set partyId from logged organization', () => {
-    localStorageSpy.getObject.and.returnValue({
+    localStorageSpy.getValidLoginInfo.and.returnValue({
       id: 'user-1',
       logged_as: 'org-1',
       partyId: 'party-user',

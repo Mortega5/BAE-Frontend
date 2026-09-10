@@ -1,6 +1,14 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { DropdownPanelComponent } from './dropdown-panel.component';
+
+@Component({
+  standalone: true,
+  imports: [DropdownPanelComponent],
+  template: `<app-dropdown-panel>Item one</app-dropdown-panel>`,
+})
+class HostComponent {}
 
 describe('DropdownPanelComponent', () => {
   let fixture: ComponentFixture<DropdownPanelComponent>;
@@ -21,10 +29,10 @@ describe('DropdownPanelComponent', () => {
   });
 
   it('should project content', () => {
-    fixture.nativeElement.innerHTML = 'Item one';
-    fixture.detectChanges();
+    const hostFixture = TestBed.createComponent(HostComponent);
+    hostFixture.detectChanges();
 
-    const panel: HTMLElement = fixture.nativeElement.querySelector('.app-dropdown-panel');
+    const panel: HTMLElement = hostFixture.nativeElement.querySelector('.app-dropdown-panel');
     expect(panel.textContent).toContain('Item one');
   });
 });
