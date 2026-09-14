@@ -165,17 +165,17 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
       { type: 'string', name: 'website', label: 'PROFILE._website', readonly: this.isReadOnly, placeholder: 'PROFILE._website_placeholder' },
       {
         type: 'select', name: 'country', label: 'PROFILE._country', required: true, readonly: this.isReadOnly,
-        dataCy: 'orgCountry', searchable: true,
+        dataCy: 'orgCountry', searchable: true, placeholder: 'PROFILE._country_placeholder',
         options: countries.map(country => ({ value: country.code, label: country.name })),
       },
       ...(this.isDataspaceEnabled ? [
-        { type: 'string', name: 'contractManagementAddress', label: 'Contract Management Address', readonly: this.isReadOnly, colSpan: 2, placeholder: 'Enter the contract management address' },
-        { type: 'string', name: 'contractManagementClientId', label: 'Contract Management Client ID', readonly: this.isReadOnly, colSpan: 1, placeholder: 'Enter the client ID' },
-        { type: 'string', name: 'contractManagementScopes', label: 'Contract Management Scopes', readonly: this.isReadOnly, placeholder: 'external-marketplace, another-scope', colSpan: 1 },
+        { type: 'string', name: 'contractManagementAddress', label: 'Contract Management Address', readonly: this.isReadOnly, colSpan: 2, placeholder: 'PROFILE._contract_mgmt_address_placeholder' },
+        { type: 'string', name: 'contractManagementClientId', label: 'Contract Management Client ID', readonly: this.isReadOnly, colSpan: 1, placeholder: 'PROFILE._contract_mgmt_client_id_placeholder' },
+        { type: 'string', name: 'contractManagementScopes', label: 'Contract Management Scopes', readonly: this.isReadOnly, placeholder: 'PROFILE._contract_mgmt_scopes_placeholder', colSpan: 1 },
       ] as FormField[] : []),
       {
         type: 'markdownTextarea', name: 'description', label: 'UPDATE_OFFER._description', readonly: this.isReadOnly,
-        colSpan: 2, placeholder: 'Add product description...', rows: 8,
+        colSpan: 2, placeholder: 'PROFILE._org_description_placeholder', rows: 8,
       },
     ];
   }
