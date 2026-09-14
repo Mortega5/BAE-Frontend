@@ -6,7 +6,7 @@ import { parsePhoneNumber } from 'libphonenumber-js/max';
 import { FileSystemDirectoryEntry, FileSystemFileEntry, NgxFileDropEntry } from 'ngx-file-drop';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { countries, euCountries } from 'src/app/models/country.const';
+import { countries } from 'src/app/models/country.const';
 import { FormField, SelectOption } from 'src/app/models/formFields/form-field.model';
 import { TableColumn } from 'src/app/models/table-column.model';
 import { AccountServiceService } from 'src/app/services/account-service.service';
@@ -165,8 +165,8 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
       { type: 'string', name: 'website', label: 'PROFILE._website', readonly: this.isReadOnly, placeholder: 'PROFILE._website_placeholder' },
       {
         type: 'select', name: 'country', label: 'PROFILE._country', required: true, readonly: this.isReadOnly,
-        dataCy: 'orgCountry',
-        options: euCountries.map(country => ({ value: country.code, label: country.name })),
+        dataCy: 'orgCountry', searchable: true,
+        options: countries.map(country => ({ value: country.code, label: country.name })),
       },
       ...(this.isDataspaceEnabled ? [
         { type: 'string', name: 'contractManagementAddress', label: 'Contract Management Address', readonly: this.isReadOnly, colSpan: 2, placeholder: 'Enter the contract management address' },
