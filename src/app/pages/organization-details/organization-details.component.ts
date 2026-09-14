@@ -1,19 +1,20 @@
-import { Component, OnInit, OnDestroy, AfterViewInit, ChangeDetectorRef, ElementRef, HostListener, ViewChild, Renderer2 } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
+import { faEarthAmericas } from '@fortawesome/free-solid-svg-icons';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { AccountServiceService } from 'src/app/services/account-service.service';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import {EventMessageService} from "../../services/event-message.service";
-import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { environment } from 'src/environments/environment';
-import { Location } from '@angular/common';
 import { availableFilters, searchCategoriesConfig } from 'src/app/data/availableFilters';
-import { Category } from 'src/app/models/interfaces';
-import { faEarthAmericas } from '@fortawesome/free-solid-svg-icons';
 import { iconForCategory } from 'src/app/data/categoryIcons';
+import { Category } from 'src/app/models/interfaces';
+import { AccountServiceService } from 'src/app/services/account-service.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { PaginationService } from 'src/app/services/pagination.service';
+import { ApiServiceService } from 'src/app/services/product-service.service';
+import { environment } from 'src/environments/environment';
+import { EventMessageService } from "../../services/event-message.service";
+import { ThemeService } from '../../services/theme.service';
 
 type ToolbarFilter = {
   key: string;
@@ -35,22 +36,25 @@ type OrganizationDetailsMode = 'catalog' | 'organization';
 })
 export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  id:any;
+  id: any;
   mode: OrganizationDetailsMode = 'organization';
   notFound = false;
-  orgInfo:any;
-  logo:any=undefined;
-  readonly DEFAULT_LOGO = 'assets/images/Dome-Marketplace.svg';
-  get isDefaultLogo(): boolean { return this.logo === this.DEFAULT_LOGO; }
+  orgInfo: any;
+  logo: any = undefined;
+
+  get defaultLogo(): string | undefined {
+    return this.themeService.getCurrentThemeConfig()?.assets.defaultLogoUrl;
+  }
+
   get hasContact(): boolean { return !!(this.email || this.website || this.address || this.phone); }
   get contactCount(): number { return [this.email, this.website, this.address, this.phone].filter(Boolean).length; }
-  description:any=undefined;
-  website:any;
-  country:any;
-  email:string='';
-  phone:string='';
-  address:string='';
-  servicesCount:number=0;
+  description: any = undefined;
+  website: any;
+  country: any;
+  email: string = '';
+  phone: string = '';
+  address: string = '';
+  servicesCount: number = 0;
   protected readonly faEarthAmericas = faEarthAmericas;
   protected readonly iconForCategory = iconForCategory;
 
@@ -88,8 +92,8 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
   showServiceSort = false;
   serviceSortOptions: { value: 'relevance' | 'name' | 'date'; label: string }[] = [
     { value: 'relevance', label: 'ORGANIZATION._sort_relevance' },
-    { value: 'name',      label: 'ORGANIZATION._sort_name' },
-    { value: 'date',      label: 'ORGANIZATION._sort_date' },
+    { value: 'name', label: 'ORGANIZATION._sort_name' },
+    { value: 'date', label: 'ORGANIZATION._sort_date' },
   ];
   get serviceSortLabel() { return this.serviceSortOptions.find(o => o.value === this.serviceSort)?.label ?? ''; }
 
@@ -98,15 +102,14 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
   constructor(
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
-    private router: Router,
-    private elementRef: ElementRef,
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
     private accService: AccountServiceService,
     private location: Location,
     private api: ApiServiceService,
     private paginationService: PaginationService,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private themeService: ThemeService
   ) {
     this.eventMessage.messages$.pipe(takeUntil(this.destroy$)).subscribe(ev => {
       if (ev.type === 'FiltersCommitted') {
@@ -213,22 +216,22 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
   private loadOwnerInfo(ownerId: string, requestKey: string): Promise<void> {
     return this.accService.getOrgInfo(ownerId).then(org => {
       if (this.currentRequestKey() !== requestKey) { return; }
-      this.orgInfo=org;
+      this.orgInfo = org;
       console.log(this.orgInfo)
       const chars = this.orgInfo?.partyCharacteristic ?? [];
-      for(let i=0; i<chars.length;i++){
-        if(chars[i].name=='logo'){
-          this.logo=chars[i].value
+      for (let i = 0; i < chars.length; i++) {
+        if (chars[i].name == 'logo') {
+          this.logo = chars[i].value
         }
-        if(chars[i].name=='website'){
-          this.website=chars[i].value
+        if (chars[i].name == 'website') {
+          this.website = chars[i].value
         }
-        if(chars[i].name=='description'){
-          this.description=chars[i].value
+        if (chars[i].name == 'description') {
+          this.description = chars[i].value
         }
       }
       if (!this.logo) {
-        this.logo = this.DEFAULT_LOGO;
+        this.logo = this.defaultLogo;
       }
       this.email = ''; this.phone = ''; this.address = ''; this.country = '';
       for (const m of (org?.contactMedium ?? [])) {
@@ -275,11 +278,11 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
     this.destroy$.complete();
   }
 
-  back(){
+  back() {
     this.location.back();
   }
 
-  openDescModal(event: Event){
+  openDescModal(event: Event) {
     event.stopPropagation();
     this.showDescModal = true;
   }
@@ -319,11 +322,11 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
     this.eventMessage.emitFiltersCommitted();
   }
 
-  closeDescModal(){
+  closeDescModal() {
     this.showDescModal = false;
   }
 
-  browseServices(){
+  browseServices() {
     const target = this.servicesSection?.nativeElement;
     if (!target) { return; }
     const barHeight = this.summaryBar?.nativeElement?.offsetHeight ?? 0;
@@ -608,7 +611,7 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
-    if(str){
+    if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
