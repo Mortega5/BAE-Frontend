@@ -41,6 +41,19 @@ body.theme-dome {
   /* Header v2 tokens (scoped to avoid collisions with shared theme tokens) */
   --theme-header-v2-top-bg: #070f24;
   --theme-header-v2-glass-bg: rgba(7, 18, 40, 0.55);
+  --theme-header-v2-text: rgb(255 255 255);
+}
+
+/* Re-asserted for dark mode at the same (class + class + element) specificity as
+   styles.css's ".dark body" default — without this, that default's --theme-header-v2-top-bg
+   (var(--theme-page-bg), which DOES flip between light/dark) would win the tie on source
+   order alone and make the header change color when only the light/dark toggle changes,
+   even though dome's header is meant to stay the same color in both modes. */
+body.theme-dome.dark,
+.dark body.theme-dome {
+  --theme-header-v2-top-bg: #070f24;
+  --theme-header-v2-glass-bg: rgba(7, 18, 40, 0.55);
+  --theme-header-v2-text: rgb(255 255 255);
 }
 
 .dark body.theme-bae {
