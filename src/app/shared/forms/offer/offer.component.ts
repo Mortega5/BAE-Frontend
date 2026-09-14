@@ -5,10 +5,10 @@ import { TranslateModule } from "@ngx-translate/core";
 import moment from 'moment';
 import { lastValueFrom, Subject, Subscription } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { components } from "src/app/models/product-catalog";
 import { searchCategoriesConfig } from 'src/app/data/availableFilters';
-import { fetchAllPages } from 'src/app/models/pagination.model';
 import { SelectOption } from 'src/app/models/formFields/form-field.model';
+import { fetchAllPages } from 'src/app/models/pagination.model';
+import { components } from "src/app/models/product-catalog";
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { EventMessageService } from "src/app/services/event-message.service";
@@ -1160,7 +1160,7 @@ export class OfferComponent implements OnInit, OnDestroy {
       lifecycleStatus: this.offer.lifecycleStatus,
       version: this.offer.version,
       category: this.offer.category,
-      productOfferingPrice: this.offer.productOfferingPrice.map((price: any) => {
+      productOfferingPrice: this.offer.productOfferingPrice?.map((price: any) => {
         return { // WORKARROUND ISSUE WITH THE PRICE PLAN TO BE INCLUDED IN THE REF
           id: price.id,
           href: price.href

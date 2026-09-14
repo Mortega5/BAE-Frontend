@@ -68,13 +68,13 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
         getValue: (item: any) => item['@type'] ?? 'ProductSpecification',
         type: 'badge',
         hideOnMobile: true,
-        width: 'w-60'
+        width: 'w-[210px]'
       },
       {
         header: 'OFFERINGS._status',
         getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''),
         type: 'status-badge',
-        width: 'w-40',
+        width: 'w-[140px]',
         sortKey: 'lifecycleStatus',
         getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus ?? ''),
       },
@@ -84,7 +84,7 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
         hideOnMobile: true,
         sortKey: 'lastUpdate',
         getValue: (item: any) => item.lastUpdate,
-        width: 'w-60',
+        width: 'w-[200px]',
       },
     ];
 

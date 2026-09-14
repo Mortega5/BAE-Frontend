@@ -59,7 +59,7 @@ export class SellerServiceSpecComponent implements OnInit, OnDestroy {
       {
         header: 'OFFERINGS._name',
         getValue: (item: any) => item.name ?? '-',
-        width: 'w-1/2',
+        width: 'min-w-[120px]',
         sortKey: 'name',
         cellClass: (item: any) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
       },
@@ -67,7 +67,7 @@ export class SellerServiceSpecComponent implements OnInit, OnDestroy {
         header: 'OFFERINGS._status',
         getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''),
         type: 'status-badge',
-        width: 'w-40',
+        width: 'w-[150px]',
         sortKey: 'lifecycleStatus',
         getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus ?? ''),
       },
@@ -76,7 +76,7 @@ export class SellerServiceSpecComponent implements OnInit, OnDestroy {
         type: 'date',
         getValue: (item: any) => item.lastUpdate,
         sortKey: 'lastUpdate',
-        width: 'w-1/4',
+        width: 'w-[200px]',
       },
     ];
 

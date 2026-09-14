@@ -6,7 +6,7 @@ import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateService } from '@ngx-translate/core';
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { IconCategory, POPULAR_ICON_CATEGORIES, findIconByName } from 'src/app/config/popular-icons';
+import { findIconByName, IconCategory, POPULAR_ICON_CATEGORIES } from 'src/app/config/popular-icons';
 import { FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { HELM_DEPLOYMENT_CHARACTERISTICS } from 'src/app/models/helm-deployment-characteristics.const';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
@@ -20,10 +20,10 @@ import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
+import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
 import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
-import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
@@ -155,8 +155,8 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   selectedServiceSpecs: any[] = [];
   servColumns: TableColumn[] = [
     { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
-    { header: 'Status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-28', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
-    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52', sortKey: 'lastUpdate' },
+    { header: 'Status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
+    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-[200px]', sortKey: 'lastUpdate' },
   ];
 
   //RESOURCE INFO:
@@ -165,8 +165,8 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   resColumns: TableColumn[] = [
     { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
     { header: 'Type', getValue: (item: any) => item['@type'] ?? 'ResourceSpecification', hideOnMobile: true },
-    { header: 'Status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-28', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
-    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52', sortKey: 'lastUpdate' },
+    { header: 'Status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
+    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-[200px]', sortKey: 'lastUpdate' },
   ];
 
   //RELATIONSHIPS INFO:

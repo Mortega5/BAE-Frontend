@@ -70,7 +70,7 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
         header: 'OFFERINGS._status',
         getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''),
         type: 'status-badge',
-        width: 'w-40',
+        width: 'w-[140px]',
         sortKey: 'lifecycleStatus',
         getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus ?? ''),
       },
@@ -78,7 +78,7 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
         header: 'OFFERINGS._last_update',
         type: 'date',
         getValue: (item: any) => item.lastUpdate,
-        width: 'w-60',
+        width: 'w-[200px]',
         sortKey: 'lastUpdate',
         hideOnMobile: true,
       },
@@ -86,7 +86,7 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
         header: 'OFFERINGS._actions',
         type: 'icon-button',
         icon: faCirclePlus,
-        width: '  w-24',
+        width: '  w-[100px]',
         tooltip: 'OFFERINGS._create_custom_offer',
         showIf: (item: any) => !!this.customMap[item.id],
         onClick: (item: any) => this.goToCreateCustom(item),
@@ -121,7 +121,7 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
 
   goToCreateCustom(offer: any) {
     this.router.navigate([SellerOfferingsPaths.offers.custom()],
-      { queryParams: { offerId: offer.offer?.id, partyId: offer.partyId } })
+      { queryParams: { offerId: offer.id, partyId: this.partyId } })
   }
 
   initOffers() {
