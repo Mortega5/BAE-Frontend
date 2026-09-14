@@ -67,20 +67,19 @@ export class SellerCatalogsComponent implements OnInit, OnDestroy {
         getValue: (item: Catalog) => item.name ?? '-',
         cellClass: (item: Catalog) => this.hasLongWord(item.name, 20) ? 'break-all' : 'break-words',
         sortKey: 'name',
-        width: 'w-2/3',
       },
       {
         header: 'OFFERINGS._status',
         getValue: (item: Catalog) => lifecycleStatusLabel(item.lifecycleStatus ?? ''),
         type: 'status-badge',
-        width: 'w-28',
+        width: 'w-[150px]',
         sortKey: 'lifecycleStatus',
         getStatus: (item: Catalog) => lifecycleStatusBadgeVariant(item.lifecycleStatus ?? ''),
       },
       {
         header: 'OFFERINGS._role',
         getValue: (item: Catalog) => item.relatedParty?.at(0)?.role ?? '-',
-        width: 'w-28',
+        width: 'w-[120px]',
       },
     ];
 
