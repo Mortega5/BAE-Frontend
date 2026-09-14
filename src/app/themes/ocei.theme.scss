@@ -1,0 +1,68 @@
+/* Not theme-scoped on purpose: this is the only place these two utility
+   classes are defined app-wide (used by footer, card, search, product-details).
+   Kept active (not commented out below) even though bae.theme.scss has no
+   equivalent, because footer/card/search/product-details depend on them
+   regardless of which theme is active — commenting them out would break
+   dark mode for those components on every theme, not just OCEI. */
+.dark\:bg-tertiary-50:is(.dark *) {
+  background-color: rgb(var(--theme-tertiary-50)) !important;
+}
+
+.dark\:bg-tertiary-100:is(.dark *) {
+  background-color: rgb(var(--theme-tertiary-50));
+}
+
+body.theme-ocei {
+
+  --ocei-text-primary: #00d084;
+  --ocei-text-background-hover: #7bdcb5;
+  --ocei-text-secondary: #4AC5D9;
+  --ocei-secondary-50: #EDF9FB;
+  --ocei-bg-primary-100: #F7FAFC;
+  --ocei-text-secondary-50: var(--ocei-secondary-50);
+
+  /* HEX: #4AC5D9 (was --ocei-text-secondary) */
+  --theme-primary-50: 74 197 217;
+  /* HEX: #00D084 (was --ocei-text-primary) */
+  --theme-primary-100: 0 208 132;
+  --theme-primary-text: rgb(255 255 255);
+
+  /* HEX: #EDF9FB (== --ocei-secondary-50) */
+  --theme-secondary-50: 237 249 251;
+  /* Very light teal tint */
+  /* HEX: #1A454C */
+  --theme-secondary-100: 26 69 76;
+  /* Dark teal */
+  /* HEX: #102B30 */
+  --theme-secondary-200: 16 43 48;
+  /* Darker teal */
+  /* HEX: #25636D */
+  --theme-secondary-300: 37 99 109;
+  /* Medium teal */
+  /* HEX: #1F535B */
+  --theme-secondary-400: 31 83 91;
+  /* Muted teal */
+  /* HEX: #09181A */
+  --theme-secondary-500: 9 24 26;
+  /* Near-black teal */
+
+  /* Tertiary colors - Teal accents */
+  /* HEX: #263238 */
+  --theme-tertiary-50: 38 50 56;
+  /* Dark teal/grey accent */
+  /* HEX: #446e68 */
+  --theme-tertiary-100: 68 110 104;
+  /* Teal accent */
+
+  /* Header v2 tokens (scoped to avoid collisions with shared theme tokens) */
+  /* Was: var(--ocei-bg-primary-100) — inlined since that var is now commented out above. */
+  --theme-header-v2-top-bg: var(--ocei-bg-primary-100);
+  --theme-header-v2-glass-bg: rgba(7, 18, 40, 0.55);
+  --theme-header-v2-text: var(--ocei-text-primary);
+
+}
+
+.body.theme-ocei.dark,
+.dark body.theme-ocei {
+  --theme-header-v2-top-bg: #102b30;
+}
