@@ -154,6 +154,12 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   toggleThemeDropdown(event: Event): void {
     event.stopPropagation();
     this.themeDropdownOpen = !this.themeDropdownOpen;
+    if (this.themeDropdownOpen) {
+      // Its own stopPropagation() above keeps the document:click listener that
+      // would otherwise close both dropdowns from ever firing for this click,
+      // so the other dropdown has to be closed explicitly here instead.
+      this.providerThemeDropdownOpen = false;
+    }
   }
 
   selectProviderTheme(theme: ThemeConfig): void {
@@ -164,6 +170,9 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   toggleProviderThemeDropdown(event: Event): void {
     event.stopPropagation();
     this.providerThemeDropdownOpen = !this.providerThemeDropdownOpen;
+    if (this.providerThemeDropdownOpen) {
+      this.themeDropdownOpen = false;
+    }
   }
 
   @HostListener('window:scroll')
