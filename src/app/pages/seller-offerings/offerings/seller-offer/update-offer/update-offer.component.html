@@ -8,7 +8,7 @@
   <!-- End Breadcrumb -->
 
   @if (notFound) {
-  <app-not-found-state message="This offer could not be found." (back)="goBack()" />
+  <app-not-found-state message="UPDATE_OFFER._not_found" (back)="goBack()" />
   } @else if (loading) {
   <app-loading-spinner />
   } @else {

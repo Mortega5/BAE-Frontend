@@ -1,25 +1,17 @@
-import {AfterViewInit, ChangeDetectorRef, Component, forwardRef, Input, OnInit, OnDestroy, Output, EventEmitter} from '@angular/core';
-import {DatePipe, NgClass, NgIf, NgTemplateOutlet} from "@angular/common";
-import {TranslateModule} from "@ngx-translate/core";
-import {environment} from "../../../../../environments/environment";
-import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
-import {PaginationService} from "../../../../services/pagination.service";
-import {AccountServiceService} from "../../../../services/account-service.service";
-import {AppModule} from "../../../../app.module";
-import {initFlowbite} from "flowbite";
-import {FormChangeState} from "../../../../models/interfaces";
-import { FormsModule } from '@angular/forms';
-import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { Component, EventEmitter, Input, OnInit, Output, forwardRef } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from "@angular/forms";
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { TableColumn } from 'src/app/models/table-column.model';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
+import { FormChangeState } from "../../../../models/interfaces";
+import { AccountServiceService } from "../../../../services/account-service.service";
+
 @Component({
   selector: 'app-related-party-id',
   standalone: true,
   imports: [
-    TranslateModule,
-    NgIf,
-    NgTemplateOutlet,
-    NgClass,
-    FormsModule,
-    LoadingSpinnerComponent
+    FilteredPaginatedTableComponent
   ],
   providers: [
     {
@@ -31,96 +23,75 @@ import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-
   templateUrl: './related-party-id.component.html',
   styleUrl: './related-party-id.component.css'
 })
-export class RelatedPartyIdComponent implements OnInit {
+export class RelatedPartyIdComponent implements OnInit, ControlValueAccessor {
   constructor(
     private accService: AccountServiceService,
-    private cdr: ChangeDetectorRef,
   ) {
   }
   @Input() partyId: any;
   @Output() formChange = new EventEmitter<FormChangeState>();
 
-  //CATEGORIES
-  loading:boolean=false;
-  parties:any[]=[];
-  selectedParty:any = null;
-  searchTerm: string = '';
-  incomingValue: any = null;
+  selectedParty: any = null;
+  private incomingValue: any = null;
+  private allPartiesPromise?: Promise<any[]>;
 
-  get filteredParties() {
-    const term = this.searchTerm.toLowerCase().trim();
-    if (!term) return this.parties;
+  partyColumns: TableColumn<any>[] = [
+    { header: 'OFFERINGS._name', getValue: (item: any) => item.tradingName ?? '-' },
+  ];
 
-    return this.parties.filter(p =>
-      p.tradingName?.toLowerCase().includes(term)
-    );
-  }
+  partyFilters: FormField[] = [
+    { type: 'string', name: 'search', label: 'CREATE_OFFER._search_party', placeholder: 'CREATE_OFFER._search_party_ph' },
+  ];
 
   async ngOnInit() {
-    this.loading = true;
-    try {
-      // 1. Load default list (can be paginated/truncated by API defaults)
-      this.parties = await this.accService.getOrgList();
-      console.log("Parties loaded:", this.parties);
+    const requestedPartyId = this.incomingValue?.id ?? this.partyId;
 
-      // 2. Determine requested party id from incoming value or input
-      const requestedPartyId = this.incomingValue?.id ?? this.partyId;
-
-      if (requestedPartyId) {
-        // 3. Try selecting from current page
-        this.selectedParty = this.parties.find(p => p.id === requestedPartyId) ?? null;
-
-        // 4. Fallback: if not in list, fetch by id and inject into the options
-        if (!this.selectedParty) {
-          try {
-            const requestedParty = await this.accService.getOrgInfo(requestedPartyId);
-            if (requestedParty?.id) {
-              this.parties = [requestedParty, ...this.parties.filter(p => p.id !== requestedParty.id)];
-              this.selectedParty = requestedParty;
-            }
-          } catch (error) {
-            console.error('Unable to load requested party by id:', requestedPartyId, error);
-          }
-        }
-      } else if (this.incomingValue?.id) {
-        this.selectedParty = this.incomingValue;
+    if (requestedPartyId) {
+      try {
+        this.selectedParty = await this.accService.getOrgInfo(requestedPartyId);
+      } catch (error) {
+        console.error('Unable to load requested party by id:', requestedPartyId, error);
       }
-
-      // 5. Emit to parent form (full object)
-      this.onChange(this.selectedParty ?? null);
-      this.onTouched();
-
-      this.cdr.detectChanges();
-      console.log("Selected party after init:", this.selectedParty);
-    } finally {
-      this.loading = false;
+    } else if (this.incomingValue?.id) {
+      this.selectedParty = this.incomingValue;
     }
   }
-  
-  
-  isSelected(partyId: string): boolean {
-    return this.selectedParty?.id === partyId;
-  }  
 
-  toggleSelection(party: any): void {
-    this.selectedParty = party;
-    this.onChange(party);
+  private getAllParties(): Promise<any[]> {
+    if (!this.allPartiesPromise) {
+      this.allPartiesPromise = this.accService.getOrgList();
+    }
+    return this.allPartiesPromise;
+  }
+
+  fetchParties = async (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
+    const parties = await this.getAllParties();
+    const term = (filters['search'] ?? '').toString().toLowerCase().trim();
+    const filtered = term
+      ? parties.filter(p => p.tradingName?.toLowerCase().includes(term))
+      : parties;
+
+    return {
+      items: filtered.slice(params.offset, params.offset + params.limit),
+      total: filtered.length,
+    };
+  }
+
+  onSelectedChange(value: any): void {
+    this.selectedParty = value;
+    this.onChange(value);
     this.onTouched();
-  }  
-
-  getRowClass(partyId: string): string {
-    return partyId === this.selectedParty?.id
-      ? "bg-white dark:bg-secondary-100"
-      : "bg-white dark:bg-secondary-300";
   }
 
   // As ControlValueAccessor
-  onChange: (value: any) => void = () => {};
-  onTouched: () => void = () => {};
+  onChange: (value: any) => void = () => { };
+  onTouched: () => void = () => { };
 
   writeValue(value: any): void {
-    console.log("writeValue called with:", value);
     this.incomingValue = value;
+    if (value) {
+      this.selectedParty = value;
+    }
   }
 
   registerOnChange(fn: any): void {

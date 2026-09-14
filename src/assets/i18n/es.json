@@ -3,6 +3,8 @@
   "_no": "No",
   "_delete": "Eliminar",
   "COMMON": {
+    "_not_found_default": "No se pudo encontrar el elemento solicitado.",
+    "_back_to_list": "Volver al listado",
     "_loading": "Cargando...",
     "_save": "Guardar",
     "_close": "Cerrar",
@@ -1233,6 +1235,7 @@
     "_create_error": "No se ha podido crear el recurso software."
   },
   "UPDATE_SOFTWARE": {
+    "_not_found": "No se pudo encontrar este recurso software.",
     "_save": "Guardar",
     "_edit": "Actualizar Recurso Software",
     "_update": "Actualizar Software",
@@ -1241,6 +1244,7 @@
     "_update_error": "No se ha podido actualizar el recurso software."
   },
   "UPDATE_CATALOG": {
+    "_not_found": "No se pudo encontrar este catálogo.",
     "_back": "Atrás",
     "_create": "Actualizar catálogo",
     "_status": "Estado",
@@ -1531,6 +1535,7 @@
     "_no_config_template": "No se requiere configuración para la plantilla seleccionada."
   },
   "UPDATE_PROD_SPEC": {
+    "_not_found": "No se pudo encontrar esta especificación de producto.",
     "_back": "Atrás",
     "_update": "Actualizar especificación de producto",
     "_new": "Actualizar producto",
@@ -1699,6 +1704,7 @@
     "_configurable": "Configurable"
   },
   "UPDATE_RES_SPEC": {
+    "_not_found": "No se pudo encontrar esta especificación de recurso.",
     "_back": "Volver",
     "_status": "Estado",
     "_update": "Actualizar especificación de recurso",
@@ -1844,6 +1850,7 @@
     "_validate_error": "¡Se ha producido un error al validar el servicio!"
   },
   "UPDATE_SERV_SPEC": {
+    "_not_found": "No se pudo encontrar esta especificación de servicio.",
     "_back": "Atrás",
     "_status": "Estado",
     "_update": "Actualizar especificación de servicio",
@@ -2015,6 +2022,10 @@
     "_step_terms": "Términos y condiciones",
     "_step_price_plans": "Planes de precios",
     "_step_procurement_mode": "Modo de contratación",
+    "_step_party_info": "Información de parte",
+    "_not_found": "No se pudo encontrar esta oferta.",
+    "_search_party": "Buscar organización",
+    "_search_party_ph": "Buscar por nombre...",
     "_step1_subtitle": "Proporciona los datos básicos de identificación de tu oferta de producto, incluyendo su nombre, una breve descripción y las especificaciones de producto.",
     "_step2_subtitle": "Elige la categoría y subcategoría que mejor describan tu oferta de producto.",
     "_step3_subtitle": "Define los términos y condiciones que se aplican a esta oferta.",
@@ -2182,6 +2193,7 @@
     "_preview_placeholder_description": "Añade una descripción general del producto en el paso 1 para verla aquí."
   },
   "UPDATE_OFFER": {
+    "_not_found": "No se pudo encontrar esta oferta.",
     "_back": "Atrás",
     "_create": "Crear oferta de producto",
     "_update": "Actualizar oferta de producto",
@@ -2557,6 +2569,7 @@
     "_create_error": "Se produjo un error al crear la categoría."
   },
   "UPDATE_CATEGORIES": {
+    "_not_found": "No se pudo encontrar esta categoría.",
     "_categories": "Categorías",
     "_add_new_cat": "Añadir nueva categoría",
     "_no_cat": "No se han incluido categorías",
@@ -2787,6 +2800,7 @@
     }
   },
   "USAGE_SPECS": {
+    "_not_found": "No se pudo encontrar esta especificación de uso.",
     "_back": "Volver",
     "_delete_metric": "Eliminar métrica",
     "_edit": "Editar",

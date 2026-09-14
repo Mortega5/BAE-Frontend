@@ -32,7 +32,7 @@
   </div>
 
   @if (notFound) {
-  <app-not-found-state message="This product specification could not be found." (back)="goBack()" />
+  <app-not-found-state message="UPDATE_PROD_SPEC._not_found" (back)="goBack()" />
   } @else {
   <app-stepper [canAdvance]="canAdvance" [allUnlocked]="true" submitLabel="UPDATE_PROD_SPEC._update_prod"
     [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="updateProduct()"

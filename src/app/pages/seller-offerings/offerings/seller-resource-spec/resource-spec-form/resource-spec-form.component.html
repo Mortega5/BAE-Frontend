@@ -33,7 +33,7 @@
   </div>
 
   @if (notFound) {
-  <app-not-found-state message="This resource specification could not be found." (back)="goBack()" />
+  <app-not-found-state message="UPDATE_RES_SPEC._not_found" (back)="goBack()" />
   } @else {
   <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance"
     [submitLabel]="isUpdate ? 'UPDATE_RES_SPEC._update_res' : 'CREATE_RES_SPEC._create_res'"

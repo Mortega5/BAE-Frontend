@@ -30,7 +30,7 @@
   </div>
 
   @if (notFound) {
-  <app-not-found-state message="This catalog could not be found." (back)="goBack()" />
+  <app-not-found-state message="UPDATE_CATALOG._not_found" (back)="goBack()" />
   } @else {
   <app-stepper [allUnlocked]="true" [canAdvance]="canAdvance" submitLabel="UPDATE_CATALOG._update"
     [submitDisabled]="!generalForm.valid || loading" [submitAlwaysVisible]="true" (stepChanged)="onStepChanged($event)"

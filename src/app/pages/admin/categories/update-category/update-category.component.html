@@ -8,7 +8,7 @@
   <!-- End Breadcrumb -->
 
   @if (notFound) {
-  <app-not-found-state message="This category could not be found." (back)="goBack()" />
+  <app-not-found-state message="UPDATE_CATEGORIES._not_found" (back)="goBack()" />
   } @else {
   <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'UPDATE_CATEGORIES._update' | translate }}</h1>
 

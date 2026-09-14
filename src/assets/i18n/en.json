@@ -10,7 +10,9 @@
     "_no_results": "No results found",
     "_create_option": "Create \"{{value}}\"",
     "_view_details": "View details",
-    "_hide_details": "Hide details"
+    "_hide_details": "Hide details",
+    "_not_found_default": "The requested item could not be found.",
+    "_back_to_list": "Back to list"
   },
   "ERRORS": {
     "_error_prefix": "Error: {{message}}"
@@ -1233,6 +1235,7 @@
     "_create_error": "Unable to create the software resource."
   },
   "UPDATE_SOFTWARE": {
+    "_not_found": "This software resource could not be found.",
     "_save": "Save",
     "_edit": "Update Software Resource",
     "_update": "Update Software",
@@ -1241,6 +1244,7 @@
     "_update_error": "Unable to update the software resource."
   },
   "UPDATE_CATALOG": {
+    "_not_found": "This catalog could not be found.",
     "_back": "Back",
     "_create": "Update catalogue",
     "_status": "Status",
@@ -1531,6 +1535,7 @@
     "_dsp_endpoint_description": "Description"
   },
   "UPDATE_PROD_SPEC": {
+    "_not_found": "This product specification could not be found.",
     "_back": "Back",
     "_update": "Update product specification",
     "_new": "Update product",
@@ -1699,6 +1704,7 @@
     "_configurable": "Configurable"
   },
   "UPDATE_RES_SPEC": {
+    "_not_found": "This resource specification could not be found.",
     "_back": "Back",
     "_status": "Status",
     "_update": "Update resource specification",
@@ -1844,6 +1850,7 @@
     "_validate_error": "There was an error while validating the service!"
   },
   "UPDATE_SERV_SPEC": {
+    "_not_found": "This service specification could not be found.",
     "_back": "Back",
     "_status": "Status",
     "_update": "Update service specification",
@@ -2015,6 +2022,10 @@
     "_step_terms": "Terms & Conditions",
     "_step_price_plans": "Price plans",
     "_step_procurement_mode": "Procurement mode",
+    "_step_party_info": "Party info",
+    "_not_found": "This offer could not be found.",
+    "_search_party": "Search party",
+    "_search_party_ph": "Search by name...",
     "_step1_subtitle": "Provide the basic identification details for your product offer, including its name, a brief overview, and product specifications.",
     "_step2_subtitle": "Choose the category and subcategory that best describe your product offer.",
     "_step3_subtitle": "Define the terms and conditions that apply to this offer.",
@@ -2182,6 +2193,7 @@
     "_preview_placeholder_description": "Add a product overview in step 1 to see it here."
   },
   "UPDATE_OFFER": {
+    "_not_found": "This offer could not be found.",
     "_back": "Back",
     "_create": "Create product offer",
     "_update": "Update product offer",
@@ -2557,6 +2569,7 @@
     "_create_error": "There was an error while creating the category."
   },
   "UPDATE_CATEGORIES": {
+    "_not_found": "This category could not be found.",
     "_categories": "Categories",
     "_add_new_cat": "Add new category",
     "_no_cat": "No categories included",
@@ -2787,6 +2800,7 @@
     }
   },
   "USAGE_SPECS": {
+    "_not_found": "This usage specification could not be found.",
     "_back": "Back",
     "_delete_metric": "Delete metric",
     "_edit": "Edit",

@@ -3,7 +3,7 @@
 </h1>
 
 @if(notFound){
-    <app-not-found-state message="This offer could not be found." (back)="goBack()" />
+    <app-not-found-state message="CREATE_OFFER._not_found" (back)="goBack()" />
 } @else if(loadingData){
     <app-loading-spinner />
 } @else {
@@ -11,11 +11,11 @@
       <app-stepper [canAdvance]="canAdvance" [loading]="loading" submitLabel="CREATE_OFFER._create"
         [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="createOffer()">
 
-        <ng-template stepperStep="Party Info">
+        <ng-template stepperStep="CREATE_OFFER._step_party_info">
           <app-related-party-id formControlName="partyInfo" [partyId]="partyId"></app-related-party-id>
         </ng-template>
 
-        <ng-template stepperStep="Price Plans">
+        <ng-template stepperStep="CREATE_OFFER._step_price_plans">
           <app-price-plans-form
             [form]="productOfferForm"
             [prodSpec]="productOfferForm.get('prodSpec')?.value"
@@ -23,7 +23,7 @@
           </app-price-plans-form>
         </ng-template>
 
-        <ng-template stepperStep="Procurement Mode">
+        <ng-template stepperStep="CREATE_OFFER._step_procurement_mode">
           <app-procurement-mode [data]="offer"
             [form]="productOfferForm.controls['procurementMode']">
           </app-procurement-mode>

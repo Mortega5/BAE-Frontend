@@ -10,7 +10,7 @@
   <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'UPDATE_SOFTWARE._edit' | translate }}</h1>
 
   @if (notFound) {
-  <app-not-found-state message="This software resource could not be found." (back)="goBack()" />
+  <app-not-found-state message="UPDATE_SOFTWARE._not_found" (back)="goBack()" />
   } @else {
   <app-stepper [allUnlocked]="true" [canAdvance]="canAdvance" submitLabel="UPDATE_SOFTWARE._update"
     [submitDisabled]="!generalForm.valid || loading" (stepChanged)="onStepChanged($event)"
