@@ -1,10 +1,10 @@
-import { Component, Input, Output, OnInit, OnDestroy, EventEmitter, forwardRef, ChangeDetectorRef } from '@angular/core';
-import {DatePipe, NgClass, NgIf, NgTemplateOutlet} from "@angular/common";
-import {TranslateModule} from "@ngx-translate/core";
-import {FormBuilder, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule, Validators} from "@angular/forms";
-import { noWhitespaceValidator } from 'src/app/validators/validators';
-import {EventMessageService} from "src/app/services/event-message.service";
+import { NgClass } from "@angular/common";
+import { ChangeDetectorRef, Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, NG_VALUE_ACCESSOR, ReactiveFormsModule, Validators } from "@angular/forms";
+import { TranslateModule } from "@ngx-translate/core";
 import { FormChangeState } from 'src/app/models/interfaces';
+import { EventMessageService } from "src/app/services/event-message.service";
+import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { v4 as uuidv4 } from 'uuid';
 
 @Component({
@@ -28,15 +28,15 @@ export class UsageSpecMetricsComponent {
   @Input() partyId: any;
   @Output() formChange = new EventEmitter<FormChangeState>();
 
-  metrics:any[]=[];
-  showCreateMetric:boolean=false;
+  metrics: any[] = [];
+  showCreateMetric: boolean = false;
 
   private originalValue: any[] = [];
   private hasBeenModified: boolean = false;
   private isEditMode: boolean = false;
 
-  onChange: (value: any) => void = () => {};
-  onTouched: () => void = () => {};
+  onChange: (value: any) => void = () => { };
+  onTouched: () => void = () => { };
 
   //CHARS INFO
   metricsForm = new FormGroup({
@@ -57,7 +57,7 @@ export class UsageSpecMetricsComponent {
     console.log(this.metrics)
   }
 
-  deleteMetric(metric:any){
+  deleteMetric(metric: any) {
     const index = this.metrics.findIndex(m => m.id === metric.id);
     if (index !== -1) {
       this.metrics.splice(index, 1);
@@ -76,7 +76,7 @@ export class UsageSpecMetricsComponent {
     this.eventMessage.emitSubformChange(changeState);
   }
 
-  saveMetric(){
+  saveMetric() {
     this.metrics.push({
       id: uuidv4(),
       name: this.metricsForm.value.name,
@@ -85,7 +85,7 @@ export class UsageSpecMetricsComponent {
     })
     this.onChange([...this.metrics]);
     this.cdr.detectChanges();
-    this.showCreateMetric=false;
+    this.showCreateMetric = false;
     const currentValue = [...this.metrics];
     const dirtyFields = this.getDirtyFields(currentValue);
     const changeState: FormChangeState = {
@@ -110,12 +110,12 @@ export class UsageSpecMetricsComponent {
 
   ngOnDestroy() {
     console.log('🗑️ Destroying Usage Spec Metrics Component');
-    
+
     // Solo emitir cambios si estamos en modo edición y hay cambios reales
     if (this.isEditMode && this.hasBeenModified) {
       const currentValue = [...this.metrics];
       const dirtyFields = this.getDirtyFields(currentValue);
-      
+
       if (dirtyFields.length > 0) {
         const changeState: FormChangeState = {
           subformType: 'category',
@@ -137,12 +137,12 @@ export class UsageSpecMetricsComponent {
 
   private getDirtyFields(currentValue: any[]): string[] {
     const dirtyFields: string[] = [];
-    
+
     // Comparar arrays de categorías
     if (JSON.stringify(currentValue) !== JSON.stringify(this.originalValue)) {
       dirtyFields.push('creatingMetrics');
     }
-    
+
     return dirtyFields;
   }
 
@@ -157,11 +157,11 @@ export class UsageSpecMetricsComponent {
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
-    if(str){
+    if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
   }
 
 }
