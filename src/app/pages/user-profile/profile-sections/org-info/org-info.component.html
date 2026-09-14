@@ -36,7 +36,7 @@
                     'bg-gray-50 dark:bg-secondary-300': !isReadOnly
                 }"
                 class="mb-2 border border-gray-300 text-gray-900 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                    <option *ngFor="let country of euCountries" [value]="country.code">
+                    <option *ngFor="let country of countries" [value]="country.code">
                       {{ country.name }}
                     </option>
                 </select>
@@ -220,7 +220,7 @@
                 <button (click)="removeImg()" class="z-10 absolute top-2 right-2 p-1 font-bold text-white bg-red-500 rounded-3xl">
                     <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18 17.94 6M18 18 6.06 6"/>
-                    </svg>                                  
+                    </svg>
                 </button>
             </div>
         } @else {
@@ -234,7 +234,7 @@
                             <div class="flex w-full justify-center">
                                 <p class="text-gray-500 mr-2 w-fit">{{ 'CREATE_PROD_SPEC._drop_files' | translate }}
                                     <button (click)="openFileSelector()" class="font-medium text-primary-100 dark:text-primary-50 hover:underline">{{ 'CREATE_PROD_SPEC._select_files' | translate }}</button>
-                                </p> 
+                                </p>
                             </div>
                         </div>
                     </ng-template>
@@ -249,7 +249,7 @@
                     <!-- Tooltip Arrow -->
                     <div class="absolute left-1/2 transform -translate-x-1/2 translate-y-1 w-2 h-2 bg-gray-900 rotate-45"></div>
                 </div>
-            
+
                 <div class="flex items-center h-fit w-full justify-between">
                     <!-- Input Field -->
                     <input #imgURL type="text" id="att-name"
@@ -258,15 +258,15 @@
                         class="w-full bg-gray-50 border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
                         [ngClass]="attImageName.invalid && attImageName.touched ? 'border-red-500' : 'dark:border-secondary-200'"
                     />
-                    
+
                     <!-- Submit Button -->
                     <button (click)="saveImgFromURL()"
-                        [disabled]="!attImageName.valid" 
+                        [disabled]="!attImageName.valid"
                         [ngClass]="!attImageName.valid ? 'opacity-50' : 'hover:bg-primary-50'"
                         class="text-white bg-primary-100 rounded-3xl p-1 ml-2 h-fit">
                         <svg class="w-4 h-4 text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11.917 9.724 16.5 19 7.5"/>                                    
-                        </svg>                                  
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11.917 9.724 16.5 19 7.5"/>
+                        </svg>
                     </button>
                 </div>
             </div>
@@ -338,7 +338,7 @@
                                   {{ 'PROFILE._no_mediums' | translate }}
                               </div>
                             </div>
-                        </div>                          
+                        </div>
                     }
                 </tbody>
             </table>
@@ -365,9 +365,9 @@
             @if(emailSelected){
                 <div class="col-span-2">
                     <label class="font-bold text-lg dark:text-white">{{ 'PROFILE._email' | translate }}</label>
-                    <input formControlName="email" type="text" id="prod-name"                    
+                    <input formControlName="email" type="text" id="prod-name"
                     class="mb-2 bg-gray-50 dark:bg-secondary-300 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
-                    [ngClass]="(mediumForm.get('email')?.invalid == true && mediumForm.value.email!='') || (mediumForm.get('email')?.touched == true && mediumForm.value.email=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"/>              
+                    [ngClass]="(mediumForm.get('email')?.invalid == true && mediumForm.value.email!='') || (mediumForm.get('email')?.touched == true && mediumForm.value.email=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"/>
                 </div>
             } @else if(addressSelected){
                 <div>
@@ -399,7 +399,7 @@
                     <textarea id="address.street_address" formControlName="street" name="address.street_address"
                     class="mb-2 min-h-fit bg-gray-50 text-gray-900 dark:bg-secondary-300 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" rows="4"
                     [ngClass]="(mediumForm.get('street')?.invalid == true && mediumForm.value.street!='') || (mediumForm.get('street')?.touched && mediumForm.value.street=='') ? 'border-red-600' : 'border-gray-300 dark:border-secondary-200'"></textarea>
-                </div>   
+                </div>
             } @else {
                 <div class="col-span-2">
                     <label for="phoneNumber" class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._phone' | translate }}</label>
@@ -430,7 +430,7 @@
                             class="mb-2 bg-gray-50 border text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-secondary-300 dark:text-white">
                         </div>
                     </div>
-                </div>  
+                </div>
             }
         </form>
         <div class="flex w-full justify-items-center justify-center m-2 p-2">
@@ -490,7 +490,7 @@
                         <label class="font-bold text-lg dark:text-white">Email</label>
                         <input formControlName="email" type="text" id="prod-name"
                         [ngClass]="mediumForm.get('email')?.invalid == true && mediumForm.value.email!='' ? 'border-red-600' : 'border-gray-300'"
-                        class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />                    
+                        class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
                     </div>
                 } @else if(selectedMedium.mediumType=='PostalAddress'){
                     <div>
@@ -517,7 +517,7 @@
                         <label for="address.street_address" class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._street' | translate }}</label>
                         <textarea id="address.street_address" formControlName="street" name="address.street_address"
                         class="mb-2 min-h-fit bg-gray-50 border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" rows="4"></textarea>
-                    </div>   
+                    </div>
                 } @else {
                     <div class="col-span-2">
                         <label for="phoneNumber" class="mb-3 block text-sm font-semibold leading-none text-body-dark dark:text-white">{{ 'PROFILE._phone' | translate }}</label>
@@ -547,7 +547,7 @@
                                 class="mb-2 bg-gray-50 border text-gray-900 text-sm rounded-r-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-secondary-300 dark:text-white">
                             </div>
                         </div>
-                    </div>  
+                    </div>
                 }
             </form>
             <div class="flex w-full justify-items-center justify-center m-2 p-2">
@@ -555,8 +555,8 @@
                     {{ 'PROFILE._save' | translate }}
                     <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <path stroke="currentColor" stroke-linecap="round" stroke-width="2" d="M11 16h2m6.707-9.293-2.414-2.414A1 1 0 0 0 16.586 4H5a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V7.414a1 1 0 0 0-.293-.707ZM16 20v-6a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v6h8ZM9 4h6v3a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V4Z"/>
-                    </svg>                         
-                </button> 
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
@@ -609,7 +609,7 @@
 
 
     <!--<div id="toast-success" class="flex grid grid-flow-row mr-2 items-center w-auto max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 fixed top-1/2 right-0 z-50 justify-center" role="alert">
-      <div class="flex items-center justify-center">         
+      <div class="flex items-center justify-center">
         <div class="text-sm font-normal">
           {{ 'PROFILE._success' | translate }}.
         </div>
