@@ -67,6 +67,17 @@ body {
   --theme-input-bg: #fff;
   --theme-input-border: rgb(203 213 225);
   /* slate-300 */
+  /* Was only ever defined per-theme (bae/dome/ocei), with header.component.css's own
+     var(--x, #070f24) fallback silently covering the gap — give it a real default here
+     like every other seed token, so a theme that doesn't override it still gets a
+     sensible light-mode value instead of relying on that inline fallback. */
+  --theme-header-v2-top-bg: var(--theme-page-bg);
+  --theme-header-v2-glass-bg: rgba(255, 255, 255, 0.55);
+  /* Dedicated token for header.component's own nav text/icons, so a theme can
+     override it independently of --theme-default-text if its header surface
+     ever needs to diverge from the page's general text color. */
+  --theme-header-v2-text: var(--theme-primary-text);
+  --theme-header-v2-dropdown-text: var(--theme-default-text);
   --table-bg: #fff;
   --table-text: var(--theme-default-text);
   /* gray-500 */
@@ -231,6 +242,10 @@ body.theme-bae {
      Stitch dark mockup's neutral slate-700 border on inputs/selects. */
   --theme-input-border: rgb(51 65 85);
   /* slate-700 */
+  /* Dark counterpart of the light default above — see the comment there. */
+  --theme-header-v2-top-bg: var(--theme-page-bg);
+  --theme-header-v2-glass-bg: rgba(7, 18, 40, 0.55);
+  --theme-header-v2-text: var(--theme-default-text);
   /* Flipped vs. the light defaults above — see the comment on --md-body-bg. */
   --md-body-bg: var(--theme-page-bg);
   --md-toolbar-bg: var(--theme-input-bg);

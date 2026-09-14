@@ -1,4 +1,4 @@
-<nav class="sticky top-0 z-50 w-full text-white transition-all duration-300"
+<nav class="sticky top-0 z-50 w-full header-text transition-all duration-300"
   [class.header-top]="!scrolled && !isNavBarOpen" [class.header-glass]="scrolled || isNavBarOpen">
   <div class="mx-auto max-w-[1180px] px-6 sm:px-10">
     <div class="flex h-[88px] items-center justify-between">
@@ -23,7 +23,7 @@
         </div>
 
         <button #navbarbutton type="button"
-          class="inline-flex lg:hidden h-[44px] w-[44px] items-center justify-center rounded-[10px] text-white/90 hover:text-white hover:bg-white/10 transition"
+          class="inline-flex lg:hidden h-[44px] w-[44px] items-center justify-center rounded-[10px] header-text-muted hover:bg-white/10 transition"
           aria-controls="navbar-dropdown" [attr.aria-expanded]="isNavBarOpen"
           (click)="toggleNavBar(); $event.stopPropagation()">
           <span class="sr-only">{{ 'HEADER._open_menu' | translate }}</span>
@@ -196,7 +196,7 @@
     @if (!mobile) {
     <li class="relative">
       <button type="button"
-        class="inline-flex items-center gap-2 text-[15px] font-semibold text-white/90 hover:text-white transition-colors"
+        class="inline-flex items-center gap-2 text-[15px] font-semibold header-text-muted transition-colors"
         [id]="link.id" [attr.data-dropdown-toggle]="link.id + 'Menu'"
         [attr.data-cy]="(link.id === 'searchDropdown' || link.id === 'dropdown-marketplace') ? 'browse' : null">
         {{ link.label | translate }}
@@ -243,12 +243,12 @@
     <li>
       @if (!mobile) {
       @if (!link.isRouterLink) {
-      <a class="text-[15px] font-semibold text-white/90 hover:text-white transition-colors" target="_blank"
+      <a class="text-[15px] font-semibold header-text-muted transition-colors" target="_blank"
         [href]="link.url">
         {{ link.label | translate }}
       </a>
       } @else {
-      <a class="text-[15px] font-semibold text-white/90 hover:text-white transition-colors" [routerLink]="link.url"
+      <a class="text-[15px] font-semibold header-text-muted transition-colors" [routerLink]="link.url"
         [attr.data-cy]="link.url === '/about' ? 'about' : null">
         {{ link.label | translate }}
       </a>
@@ -292,7 +292,7 @@
     } @else {
     <div class="relative">
       <button type="button" data-cy="themeSelector" aria-label="Theme selector"
-        class="inline-flex h-[44px] w-[44px] items-center justify-center rounded-[10px] text-white/90 hover:text-white hover:bg-white/10 transition"
+        class="inline-flex h-[44px] w-[44px] items-center justify-center rounded-[10px] header-text-muted hover:bg-white/10 transition"
         (click)="toggleThemeDropdown($event)">
         <fa-icon [icon]="themeModeIcon"></fa-icon>
       </button>
@@ -335,7 +335,7 @@
     } @else {
     <div class="relative">
       <button type="button" data-cy="providerThemeSelector" aria-label="Provider theme selector (dev only)"
-        class="inline-flex h-[44px] w-[44px] items-center justify-center rounded-[10px] text-white/90 hover:text-white hover:bg-white/10 transition"
+        class="inline-flex h-[44px] w-[44px] items-center justify-center rounded-[10px] header-text-muted hover:bg-white/10 transition"
         (click)="toggleProviderThemeDropdown($event)">
         <fa-icon [icon]="paletteIcon"></fa-icon>
       </button>
@@ -376,7 +376,7 @@
     } @else {
     @if (!mobile) {
     <button data-cy="shoppingCart" id="shoppingCart" type="button" aria-label="Shopping cart"
-      class="inline-flex h-[44px] w-[44px] items-center justify-center rounded-[10px] text-white/90 hover:text-white hover:bg-white/10 transition"
+      class="inline-flex h-[44px] w-[44px] items-center justify-center rounded-[10px] header-text-muted hover:bg-white/10 transition"
       (click)="toggleCartDrawer(); $event.stopPropagation()">
       <fa-layers [fixedWidth]="true">
         <fa-icon [icon]="faCartShopping"></fa-icon>
@@ -387,7 +387,7 @@
     </button>
 
     <div data-cy="loggedAcc" id="loggedAcc" data-dropdown-toggle="userDropdown" data-dropdown-placement="bottom-end"
-      class="ml-1 inline-flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white/15 text-white cursor-pointer select-none"
+      class="ml-1 inline-flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white/15 header-text cursor-pointer select-none"
       aria-label="User menu">
       <span class="text-[14px] font-bold tracking-wide">{{ usercharacters }}</span>
     </div>

@@ -1,3 +1,26 @@
+/* The nav bar's own surface (.header-top / .header-glass, driven by
+   --theme-header-v2-top-bg/-glass-bg) isn't a fixed dark color in every theme —
+   OCEI's light-mode header is near-white — so its own text/icons can't be a
+   hardcoded white. Own classes instead of Tailwind's text-white/text-white/90/
+   hover:text-white, so the template says what it means instead of fighting
+   Tailwind-generated utility selectors. Reads --theme-header-v2-text (its own
+   dedicated token, defaulting to --theme-default-text in styles.css) rather than
+   --theme-default-text directly, so a theme can retune header text independently
+   of the page's general text color if its header surface ever needs to diverge.
+   (--theme-primary-text isn't right here: that token is pinned to white in every
+   theme/mode since it's for text on a *primary-colored* fill, not this surface.) */
+.header-text {
+  color: var(--theme-header-v2-text);
+}
+
+.header-text-muted {
+  color: color-mix(in srgb, var(--theme-header-v2-text) 90%, transparent);
+}
+
+.header-text-muted:hover {
+  color: var(--theme-header-v2-text);
+}
+
 .dropdown-item {
   width: 100%;
   display: flex;
@@ -7,7 +30,7 @@
   border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--theme-header-v2-dropdown-text);
   text-decoration: none;
   background: transparent;
   border: 0;

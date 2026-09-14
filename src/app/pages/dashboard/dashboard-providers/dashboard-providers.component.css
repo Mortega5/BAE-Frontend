@@ -128,7 +128,7 @@
   height: 120px;
   font-size: 120px;
   line-height: 1;
-  color: #2D58A7;
+  color: rgb(var(--theme-primary-100));
   opacity: 0.3;
   transform: rotate(-15deg);
   transform-origin: center;
