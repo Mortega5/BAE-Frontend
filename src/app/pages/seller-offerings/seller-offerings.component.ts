@@ -4,15 +4,7 @@ import { IconName } from '@fortawesome/fontawesome-svg-core';
 import { firstValueFrom, Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { QuoteService } from 'src/app/features/quotes/services/quote.service';
-import { LoginInfo } from 'src/app/models/interfaces';
-import { PageResult } from 'src/app/models/pagination.model';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
-import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
-import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { ThemeService } from 'src/app/services/theme.service';
-import { UsageServiceService } from 'src/app/services/usage-service.service';
 import { SideNavSection } from 'src/app/shared/side-nav/side-nav.model';
 import { WorkspaceHelpConfig } from 'src/app/themes';
 import { environment } from 'src/environments/environment';
@@ -30,14 +22,6 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
   catalogManagementEnabled: boolean = environment.CATALOG_MANAGEMENT_ENABLED;
   isListView = true;
 
-  catalogsCount = 0;
-  productOffersCount = 0;
-  softwaresCount = 0;
-  productSpecsCount = 0;
-  serviceSpecsCount = 0;
-  resourceSpecsCount = 0;
-  usageSpecsCount = 0;
-
   workspaceHelpAction?: WorkspaceHelpConfig;
 
   sections: SideNavSection[] = this.buildSections();
@@ -48,13 +32,7 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
     private router: Router,
     private route: ActivatedRoute,
     private quoteService: QuoteService,
-    private localStorage: LocalStorageService,
-    private api: ApiServiceService,
     private themeService: ThemeService,
-    private usageService: UsageServiceService,
-    private prodSpecService: ProductSpecServiceService,
-    private servSpecService: ServiceSpecServiceService,
-    private resSpecService: ResourceSpecServiceService,
   ) {
     this.router.events
       .pipe(
@@ -68,8 +46,6 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
   async ngOnInit() {
     const theme = this.themeService.getCurrentThemeConfig();
     this.workspaceHelpAction = theme?.workspace?.sellerOfferingsHelp;
-
-    this.loadCounts();
 
     const state = history.state as { quoteId?: string };
     if (state && state.quoteId) {
@@ -97,59 +73,12 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
   }
 
   private onNavigationEnd() {
-    const wasListView = this.isListView;
     this.updateIsListView();
-    // The component isn't re-created when navigating between the list and its
-    // create/update children (they share this same outlet), so ngOnInit's
-    // loadCounts() only runs once. Re-fetch whenever we land back on a list
-    // view — e.g. right after creating/updating an item — to avoid stale counts.
-    if (this.isListView && !wasListView) {
-      this.loadCounts();
-    }
   }
 
   private updateIsListView() {
     const path = this.router.url.split('?')[0];
     this.isListView = /^\/my-offerings\/[a-zA-Z]+\/?$/.test(path);
-  }
-
-  private getPartyId(): string | undefined {
-    const info = this.localStorage.getObject('login_items') as LoginInfo;
-    if (!info || JSON.stringify(info) === '{}') return undefined;
-    if (info.logged_as == info.id) {
-      return info.partyId;
-    }
-    const loggedOrg = info.organizations?.find((org: any) => org.id == info.logged_as);
-    return loggedOrg?.partyId;
-  }
-
-  private async loadCounts() {
-    const partyId = this.getPartyId();
-    if (!partyId) return;
-
-    const pageParams = { limit: 1, offset: 0 };
-    const countOf = (result: Promise<PageResult<any>>) => result.then(res => res.total).catch(() => 0);
-
-    const [offers, catalogs, prods, servs, ress, softwares, usageSpecs] = await Promise.all([
-      countOf(this.api.getProductOfferByOwnerPaged(pageParams, undefined, [], partyId, undefined)),
-      this.catalogManagementEnabled
-        ? countOf(this.api.getCatalogsByUserPaged(pageParams, undefined, [], partyId))
-        : Promise.resolve(0),
-      countOf(this.prodSpecService.getProdSpecByUserPaged(pageParams, undefined, [], partyId, undefined)),
-      countOf(this.servSpecService.getServiceSpecByUserPaged(pageParams, undefined, [], partyId)),
-      countOf(this.resSpecService.getResourceSpecByUserPaged(pageParams, undefined, [], partyId)),
-      countOf(this.api.getSoftwareResourceByUserPaged(pageParams, undefined, [], partyId)),
-      countOf(this.usageService.getUsageSpecByUserPaged(pageParams, undefined, partyId)),
-    ]);
-
-    this.productOffersCount = offers;
-    this.catalogsCount = catalogs;
-    this.productSpecsCount = prods;
-    this.serviceSpecsCount = servs;
-    this.resourceSpecsCount = ress;
-    this.softwaresCount = softwares;
-    this.usageSpecsCount = usageSpecs;
-    this.sections = this.buildSections();
   }
 
   private buildSections(): SideNavSection[] {
@@ -161,7 +90,6 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
               label: 'OFFERINGS._catalogs',
               routerLink: segments.catalogues,
               icon: 'bars' as IconName,
-              count: this.catalogsCount,
               dataCy: 'catalogSection',
             }]
             : []),
@@ -169,7 +97,6 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
             label: 'OFFERINGS._product_offers',
             routerLink: segments.offers,
             icon: 'box' as IconName,
-            count: this.productOffersCount,
             dataCy: 'offerSection',
           },
           // Software is now managed inside Resources (SoftwareSpecification / SoftwareSupportPackageSpecification baseTemplate).
@@ -177,7 +104,6 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
           //   label: 'Software',
           //   routerLink: segments.softwares,
           //   icon: 'microchip' as IconName,
-          //   count: this.softwaresCount,
           //   dataCy: 'softwareSection',
           // },
         ],
@@ -185,10 +111,10 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
       {
         label: 'OFFERINGS._specifications',
         items: [
-          { label: 'OFFERINGS._products', routerLink: segments.productSpecs, count: this.productSpecsCount, dataCy: 'prdSpecSection' },
-          { label: 'OFFERINGS._services', routerLink: segments.serviceSpecs, count: this.serviceSpecsCount, dataCy: 'servSpecSection' },
-          { label: 'OFFERINGS._resources', routerLink: segments.resourceSpecs, count: this.resourceSpecsCount, dataCy: 'resSpecSection' },
-          { label: 'USAGE_SPECS._usage_spec', routerLink: segments.usageSpecs, count: this.usageSpecsCount, dataCy: 'usageSpecSection' },
+          { label: 'OFFERINGS._products', routerLink: segments.productSpecs, dataCy: 'prdSpecSection' },
+          { label: 'OFFERINGS._services', routerLink: segments.serviceSpecs, dataCy: 'servSpecSection' },
+          { label: 'OFFERINGS._resources', routerLink: segments.resourceSpecs, dataCy: 'resSpecSection' },
+          { label: 'USAGE_SPECS._usage_spec', routerLink: segments.usageSpecs, dataCy: 'usageSpecSection' },
         ],
       },
     ];

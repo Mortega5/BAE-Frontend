@@ -96,10 +96,6 @@
     }
     {{ item.label | translate }}
   </span>
-  @if (item.count !== undefined) {
-  <span class="inline-flex items-center justify-center min-w-[36px] h-7 px-2 rounded-full text-xs font-semibold"
-    [ngClass]="active ? 'bg-primary-100 dark:bg-primary-100 text-white' : 'bg-gray-100 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">{{ item.count }}</span>
-  }
   @if (item.onClick) {
   <fa-icon [icon]="externalLinkIcon" class="w-3.5 h-3.5 opacity-60 shrink-0"></fa-icon>
   }

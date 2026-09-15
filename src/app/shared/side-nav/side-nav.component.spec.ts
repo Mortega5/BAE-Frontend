@@ -16,7 +16,7 @@ class HostComponent {
   showDesktopSidebar = true;
   onActionClick = jasmine.createSpy('onActionClick');
   sections: SideNavSection[] = [
-    { items: [{ label: 'NS._offers', routerLink: '/offers', count: 3 }, { label: 'NS._action', onClick: () => this.onActionClick() }] },
+    { items: [{ label: 'NS._offers', routerLink: '/offers' }, { label: 'NS._action', onClick: () => this.onActionClick() }] },
     { label: 'NS._specs', items: [{ label: 'NS._products', routerLink: '/products' }] },
   ];
 }
@@ -44,12 +44,6 @@ describe('SideNavComponent', () => {
     expect(desktopLinks().length).toBe(2);
   });
 
-  it('should render the count badge only for items that set one', () => {
-    const links = desktopLinks();
-    expect(links[0].textContent).toContain('3');
-    expect(links[1].textContent?.trim()).not.toMatch(/\d/);
-  });
-
   it('should render the section label divider only for sections that set one', () => {
     const dividers: NodeListOf<HTMLElement> = hostFixture.nativeElement.querySelectorAll('[data-cy="sideNavDesktop"] p.uppercase');
     expect(dividers.length).toBe(1);
@@ -67,10 +61,9 @@ describe('SideNavComponent', () => {
     expect(hostFixture.nativeElement.textContent).toContain('Body content');
   });
 
-  it('should also render the mobile drawer with the same items, icons/counts/active-state included', () => {
+  it('should also render the mobile drawer with the same items, icons/active-state included', () => {
     const mobileLinks: NodeListOf<HTMLAnchorElement> = hostFixture.nativeElement.querySelectorAll('[data-cy="sideNavMobileDrawer"] a');
     expect(mobileLinks.length).toBe(2);
-    expect(mobileLinks[0].textContent).toContain('3');
   });
 
   it('should hide the desktop sidebar (list and footer) when showDesktopSidebar is false, but keep the mobile drawer', () => {
