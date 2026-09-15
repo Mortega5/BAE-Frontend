@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { components } from "../models/product-catalog";
+import { applySort, PageRequest, PageResult } from '../models/pagination.model';
 import { LocalStorageService } from "./local-storage.service";
 type ProductOffering = components["schemas"]["ProductOffering"];
 
@@ -26,11 +27,21 @@ export class UsageServiceService {
     return lastValueFrom(this.http.get<any>(url));
   }
 
-  getUsageSpecs(page: any, partyId: any) {
+  async getUsageSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, partyId: any): Promise<PageResult<any>> {
+    const codeParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      'relatedParty.id': partyId,
+    };
+    applySort(params, codeParams);
 
-    let url = `${UsageServiceService.BASE_URL}/usage/usageSpecification?limit=${UsageServiceService.USAGE_SPEC_LIMIT}&offset=${page}&relatedParty.id=${partyId}`;
+    const queryParams = { ...filter, ...codeParams };
 
-    return lastValueFrom(this.http.get<any[]>(url));
+    const url = `${UsageServiceService.BASE_URL}/usage/usageSpecification`;
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
   }
 
   getAllUsageSpecs(partyId: any) {

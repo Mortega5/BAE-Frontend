@@ -1,33 +1,44 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateModule } from '@ngx-translate/core';
-import { TableColumn } from 'src/app/models/table-column.model';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { TableColumn, TableSort } from 'src/app/models/table-column.model';
+import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { PaginationService } from 'src/app/services/pagination.service';
 import { UsageServiceService } from 'src/app/services/usage-service.service';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
-import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
-import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
-import { environment } from 'src/environments/environment';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
 @Component({
   selector: 'seller-usage-spec',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule,
-    LoadingSpinnerComponent, ButtonComponent, ContentCardComponent, TableInputComponent
+    ButtonComponent, ContentCardComponent, FilteredPaginatedTableComponent
   ],
   templateUrl: './seller-usage-spec.component.html',
   styleUrl: './seller-usage-spec.component.css'
 })
-export class SellerUsageSpecComponent implements OnInit {
-  usageSpecColumns: TableColumn[] = [
+export class SellerUsageSpecComponent implements OnInit, OnDestroy {
+
+  @ViewChild(FilteredPaginatedTableComponent) paginatedTable?: FilteredPaginatedTableComponent<any>;
+
+  searchField = new FormControl();
+  filter: Record<string, string> | undefined = undefined;
+  partyId: any = '';
+  private destroy$ = new Subject<void>();
+
+  usageSpecColumns: TableColumn<any>[] = [
     {
       header: 'USAGE_SPECS._name',
       getValue: (usage: any) => usage.name,
+      sortKey: 'name',
       cellClass: (usage: any) => this.hasLongWord(usage.name, 20) ? 'break-all' : 'break-words',
     },
     {
@@ -37,31 +48,44 @@ export class SellerUsageSpecComponent implements OnInit {
     },
   ];
 
-  usageSpecs: any[] = [];
-  nextUsageSpecs: any[] = [];
-  loading: boolean = false;
-  loading_more: boolean = false;
-  partyId: any = '';
-  page: number = 0;
-  page_check: boolean = true;
-  USAGE_SPEC_LIMIT: number = environment.USAGE_SPEC_LIMIT;
+  defaultSort: TableSort = { key: 'name', direction: 'asc' };
 
   constructor(
     private usageService: UsageServiceService,
     private localStorage: LocalStorageService,
-    private paginationService: PaginationService,
+    private eventMessage: EventMessageService,
     private router: Router
   ) {
+    this.eventMessage.messages$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'ChangedSession') {
+          this.initUsageSpecs();
+        }
+      })
   }
 
-  async ngOnInit() {
+  ngOnInit() {
+    this.initUsageSpecs();
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  initUsageSpecs() {
     this.initPartyInfo();
-    this.loading = true;
-    /*this.usageService.getUsageSpecs(this.partyId).then(data => {
-      this.usageSpecs=data;
-      this.loading=false;
-    })*/
-    await this.getUsageSpecs(false);
+    this.paginatedTable?.refresh(true);
+    let input = document.querySelector('[type=search]')
+    if (input != undefined) {
+      input.addEventListener('input', e => {
+        if (this.searchField.value == '') {
+          this.filter = undefined;
+          this.paginatedTable?.refresh(true);
+        }
+      });
+    }
   }
 
   initPartyInfo() {
@@ -76,28 +100,8 @@ export class SellerUsageSpecComponent implements OnInit {
     }
   }
 
-  async getUsageSpecs(next: boolean) {
-    if (next == false) {
-      this.loading = true;
-    }
-
-    let options = {
-      "partyId": this.partyId
-    }
-
-    this.paginationService.getItemsPaginated(this.page, this.USAGE_SPEC_LIMIT, next, this.usageSpecs, this.nextUsageSpecs, options,
-      this.usageService.getUsageSpecs.bind(this.usageService)).then(data => {
-        this.page_check = data.page_check;
-        this.usageSpecs = data.items;
-        this.nextUsageSpecs = data.nextItems;
-        this.page = data.page;
-        this.loading = false;
-        this.loading_more = false;
-      })
-  }
-
-  async next() {
-    await this.getUsageSpecs(true);
+  fetchUsageSpecs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
+    return this.usageService.getUsageSpecByUserPaged(params, this.filter, this.partyId);
   }
 
   goToCreate() {

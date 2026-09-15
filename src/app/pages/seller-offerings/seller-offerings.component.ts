@@ -1,4 +1,3 @@
-import { HttpClient } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { IconName } from '@fortawesome/fontawesome-svg-core';
@@ -6,11 +5,16 @@ import { firstValueFrom, Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
 import { QuoteService } from 'src/app/features/quotes/services/quote.service';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { PageResult } from 'src/app/models/pagination.model';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
+import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
+import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
+import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { ThemeService } from 'src/app/services/theme.service';
-import { WorkspaceHelpConfig } from 'src/app/themes';
+import { UsageServiceService } from 'src/app/services/usage-service.service';
 import { SideNavSection } from 'src/app/shared/side-nav/side-nav.model';
+import { WorkspaceHelpConfig } from 'src/app/themes';
 import { environment } from 'src/environments/environment';
 import { SellerOfferingsPaths } from './seller-offerings.paths';
 
@@ -46,8 +50,11 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
     private quoteService: QuoteService,
     private localStorage: LocalStorageService,
     private api: ApiServiceService,
-    private http: HttpClient,
     private themeService: ThemeService,
+    private usageService: UsageServiceService,
+    private prodSpecService: ProductSpecServiceService,
+    private servSpecService: ServiceSpecServiceService,
+    private resSpecService: ResourceSpecServiceService,
   ) {
     this.router.events
       .pipe(
@@ -120,33 +127,19 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
     const partyId = this.getPartyId();
     if (!partyId) return;
 
-    const limit = 1000;
-    const base = environment.BASE_URL;
-    const partyParam = `relatedParty.id=${partyId}`;
-    const offersUrl = `${base}${environment.PRODUCT_CATALOG}/productOffering?limit=${limit}&${partyParam}`;
-    const catalogsUrl = `${base}${environment.PRODUCT_CATALOG}/catalog?limit=${limit}&${partyParam}`;
-    const prodSpecUrl = `${base}${environment.PRODUCT_CATALOG}${environment.PRODUCT_SPEC}?limit=${limit}&${partyParam}`;
-    const servSpecUrl = `${base}${environment.SERVICE}${environment.SERVICE_SPEC}?limit=${limit}&${partyParam}`;
-    const resSpecUrl = `${base}${environment.RESOURCE}${environment.RESOURCE_SPEC}?limit=${limit}&${partyParam}`;
-    const usageSpecUrl = `${base}/usage/usageSpecification?limit=${limit}&${partyParam}`;
-
-    const safeCount = async (url: string) => {
-      try {
-        const items = await firstValueFrom(this.http.get<any[]>(url));
-        return Array.isArray(items) ? items.length : 0;
-      } catch {
-        return 0;
-      }
-    };
+    const pageParams = { limit: 1, offset: 0 };
+    const countOf = (result: Promise<PageResult<any>>) => result.then(res => res.total).catch(() => 0);
 
     const [offers, catalogs, prods, servs, ress, softwares, usageSpecs] = await Promise.all([
-      safeCount(offersUrl),
-      this.catalogManagementEnabled ? safeCount(catalogsUrl) : Promise.resolve(0),
-      safeCount(prodSpecUrl),
-      safeCount(servSpecUrl),
-      safeCount(resSpecUrl),
-      this.api.getSoftwareResourceByUserPaged({ limit: 1, offset: 0 }, undefined, [], partyId).then(res => res.total).catch(() => 0),
-      safeCount(usageSpecUrl),
+      countOf(this.api.getProductOfferByOwnerPaged(pageParams, undefined, [], partyId, undefined)),
+      this.catalogManagementEnabled
+        ? countOf(this.api.getCatalogsByUserPaged(pageParams, undefined, [], partyId))
+        : Promise.resolve(0),
+      countOf(this.prodSpecService.getProdSpecByUserPaged(pageParams, undefined, [], partyId, undefined)),
+      countOf(this.servSpecService.getServiceSpecByUserPaged(pageParams, undefined, [], partyId)),
+      countOf(this.resSpecService.getResourceSpecByUserPaged(pageParams, undefined, [], partyId)),
+      countOf(this.api.getSoftwareResourceByUserPaged(pageParams, undefined, [], partyId)),
+      countOf(this.usageService.getUsageSpecByUserPaged(pageParams, undefined, partyId)),
     ]);
 
     this.productOffersCount = offers;
@@ -165,12 +158,12 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
         items: [
           ...(this.catalogManagementEnabled
             ? [{
-                label: 'OFFERINGS._catalogs',
-                routerLink: segments.catalogues,
-                icon: 'bars' as IconName,
-                count: this.catalogsCount,
-                dataCy: 'catalogSection',
-              }]
+              label: 'OFFERINGS._catalogs',
+              routerLink: segments.catalogues,
+              icon: 'bars' as IconName,
+              count: this.catalogsCount,
+              dataCy: 'catalogSection',
+            }]
             : []),
           {
             label: 'OFFERINGS._product_offers',
