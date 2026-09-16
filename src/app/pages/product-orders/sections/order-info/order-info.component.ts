@@ -3,36 +3,46 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, 
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { faCheck, faIdCard, faPlay, faSort, faStickyNote, faSwatchbook, faXmark } from "@fortawesome/pro-solid-svg-icons";
+import { faCheck, faEdit, faIdCard, faPlay, faSort, faStickyNote, faSwatchbook, faTrash, faXmark } from "@fortawesome/pro-solid-svg-icons";
 import { TranslateModule } from '@ngx-translate/core';
 import { Drawer, initFlowbite, Modal } from 'flowbite';
-import { from, Observable, Subject } from 'rxjs';
+import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { countries } from 'src/app/models/country.const';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
-import { TableColumn, TableSort } from 'src/app/models/table-column.model';
+import { TableColumn, TableColumnAction, TableSort } from 'src/app/models/table-column.model';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { NotificationService } from 'src/app/services/notification.service';
 import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductOrderService } from 'src/app/services/product-order-service.service';
-import { BadgeComponent, orderItemActionBadgeVariant, orderStateBadgeVariant } from 'src/app/shared/badge/badge.component';
+import { BadgeComponent, orderStateBadgeVariant, orderStateLabel } from 'src/app/shared/badge/badge.component';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
-import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
+import { ItemCardComponent } from 'src/app/shared/item-card/item-card.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { SharedModule } from "../../../../shared/shared.module";
 type ProductOffering = components["schemas"]["ProductOffering"];
 
+interface OrderItemAction extends TableColumnAction {
+  /** Order-item lifecycle state this action transitions to. */
+  state: string;
+  /** i18n key for the bulk ("apply to all") variant of this button, when bulkable. */
+  bulkTooltip?: string;
+  /** Whether this action can be offered as a single "do it for all items" button
+   * when every item in the order currently qualifies for it. */
+  bulkable: boolean;
+}
+
 @Component({
   selector: 'app-order-info',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule, SharedModule,
-    FilteredPaginatedTableComponent, TableInputComponent, LoadingSpinnerComponent, BadgeComponent
+    FilteredPaginatedTableComponent, ItemCardComponent, LoadingSpinnerComponent, BadgeComponent
   ],
   providers: [DatePipe],
   templateUrl: './order-info.component.html',
@@ -47,9 +57,11 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
   dateRange = new FormControl();
   countries: any[] = countries;
   preferred: boolean = false;
-  customerName$!: Observable<string>;
+  customerName: string = '';
 
-  check_custom: boolean = false;
+  priceSummary: { label: string; amount: number; unit: string }[] = [];
+  hasCustomPricing: boolean = false;
+  hasFreeItems: boolean = false;
 
   buyerRole: string = environment.BUYER_ROLE;
   sellerRole: string = environment.SELLER_ROLE;
@@ -69,57 +81,64 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     { header: 'PRODUCT_ORDERS._actions', type: 'icon-button', icon: faStickyNote, tooltip: 'PRODUCT_ORDERS._show_notes', dataCy: 'orderNotesButton', onClick: (item: any) => this.toggleDrawer(item), width: 'w-[100px]' },
   ];
 
-  orderItemColumns: TableColumn[] = [
-    { header: 'PRODUCT_ORDERS._img', type: 'image', getValue: (item: any) => this.getProductImage(item), width: 'w-24' },
-    { header: 'PRODUCT_ORDERS._name', getValue: (item: any) => item.name },
-    { header: 'PRODUCT_ORDERS._price_plan', getValue: (item: any) => this.getPricePlanLabel(item) },
+  // Acknowledge/reject/start/complete/fail are seller-only actions on a buyer's
+  // order, so the whole row of buttons is left out of each item card entirely
+  // for the buyer role rather than rendered empty (see the *role === sellerRole*
+  // guard around this array in the template).
+  protected readonly orderItemActions: OrderItemAction[] = [
     {
-      header: 'PRODUCT_ORDERS._state', type: 'status-badge', width: 'w-28',
-      getValue: (item: any) => item.productOrderItem.state ?? 'Unchecked',
-      getStatus: (item: any) => orderStateBadgeVariant(item.productOrderItem.state),
+      state: 'cancelled', icon: faXmark, tooltip: 'PRODUCT_ORDERS._reject_order', dataCy: 'rejectOrder',
+      buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
+      onClick: (item: any) => this.openModal('cancelled', item),
+      showIf: (item: any) => this.canAcknowledgeOrReject(item),
+      // Goes through the confirm modal (see onClick above), so it's excluded from
+      // bulkItemActions instead of being wired up as a second, modal-less bulk path.
+      bulkable: false,
     },
     {
-      header: 'PRODUCT_ORDERS._items_action', type: 'status-badge', width: 'w-28',
-      getValue: (item: any) => item.productOrderItem.action,
-      getStatus: (item: any) => orderItemActionBadgeVariant(item.productOrderItem.action),
+      state: 'acknowledged', icon: faCheck, tooltip: 'PRODUCT_ORDERS._acknowledge_order', dataCy: 'acknowledgeOrder',
+      bulkTooltip: 'PRODUCT_ORDERS._acknowledge_order_all',
+      buttonClass: 'bg-primary-100 hover:bg-primary-50 focus:ring-primary-300 text-white',
+      onClick: (item: any) => this.runItemAction('acknowledged', item, 'acknowledgeOrder'),
+      showIf: (item: any) => this.canAcknowledgeOrReject(item),
+      bulkable: true,
     },
     {
-      header: 'PRODUCT_ORDERS._actions', type: 'actions', width: 'w-40',
-      actions: [
-        {
-          icon: faCheck, tooltip: 'PRODUCT_ORDERS._acknowledge_order', dataCy: 'acknowledgeOrder',
-          buttonClass: '!w-7 !h-7 bg-primary-100 hover:bg-blue-800 focus:ring-blue-300',
-          onClick: (item: any) => this.openModal('acknowledged', item),
-          showIf: (item: any) => this.canAcknowledgeOrReject(item),
-        },
-        {
-          icon: faXmark, tooltip: 'PRODUCT_ORDERS._reject_order', dataCy: 'rejectOrder',
-          buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
-          onClick: (item: any) => this.openModal('cancelled', item),
-          showIf: (item: any) => this.canAcknowledgeOrReject(item),
-        },
-        {
-          icon: faPlay, tooltip: 'PRODUCT_ORDERS._start_treatment', dataCy: 'startOrderTreatment',
-          buttonClass: 'bg-green-500 hover:bg-green-600 focus:ring-green-300',
-          onClick: (item: any) => this.openModal('inProgress', item),
-          showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'acknowledged',
-        },
-        {
-          icon: faCheck, tooltip: 'PRODUCT_ORDERS._complete_order', dataCy: 'completeOrder',
-          buttonClass: '!w-7 !h-7 bg-green-500 hover:bg-green-600 focus:ring-green-300',
-          onClick: (item: any) => this.openModal('completed', item),
-          showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'inProgress',
-        },
-        {
-          icon: faXmark, tooltip: 'PRODUCT_ORDERS._fail_order', dataCy: 'failOrder',
-          buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300',
-          onClick: (item: any) => this.openModal('failed', item),
-          showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'inProgress',
-        },
-      ],
-      emptyLabel: (item: any) => this.hasProcurementAutomaticTerm(item) && this.role !== this.sellerRole ? 'n/a' : null,
+      state: 'inProgress', icon: faPlay, tooltip: 'PRODUCT_ORDERS._start_treatment', dataCy: 'startOrderTreatment',
+      bulkTooltip: 'PRODUCT_ORDERS._start_treatment_all',
+      buttonClass: 'bg-green-500 hover:bg-green-600 focus:ring-green-300 text-white',
+      onClick: (item: any) => this.runItemAction('inProgress', item, 'startOrderTreatment'),
+      showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'acknowledged',
+      bulkable: true,
+    },
+    {
+      state: 'failed', icon: faXmark, tooltip: 'PRODUCT_ORDERS._fail_order', dataCy: 'failOrder',
+      bulkTooltip: 'PRODUCT_ORDERS._fail_order_all',
+      buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
+      onClick: (item: any) => this.runItemAction('failed', item, 'failOrder'),
+      showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'inProgress',
+      bulkable: true,
+    },
+    {
+      state: 'completed', icon: faCheck, tooltip: 'PRODUCT_ORDERS._complete_order', dataCy: 'completeOrder',
+      bulkTooltip: 'PRODUCT_ORDERS._complete_order_all',
+      buttonClass: 'bg-green-500 hover:bg-green-600 focus:ring-green-300 text-white',
+      onClick: (item: any) => this.runItemAction('completed', item, 'completeOrder'),
+      showIf: (item: any) => this.isSellerTreatingManualItem(item) && item.productOrderItem.state === 'inProgress',
+      bulkable: true,
     },
   ];
+
+  /** Actions that currently apply to every item in the order at once (same state
+   * across the board) — offered as a single "do it for all" button next to the
+   * items card title instead of clicking each item's button one by one. */
+  get bulkItemActions(): OrderItemAction[] {
+    const items = this.orderToShow?.productOrderItems ?? [];
+    if (this.role !== this.sellerRole || items.length < 2) return [];
+    return this.orderItemActions.filter(action =>
+      action.bulkable && items.every((item: any) => !action.showIf || action.showIf(item))
+    );
+  }
 
   orderFilters: FormField[] = [
     {
@@ -161,6 +180,11 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
   actionType: string = '';
   selectedItem: any = null;
   private modalInstance: any;
+  // Which item-card button (if any) is mid-request, so only that one swaps its
+  // icon for a spinner while the rest of that item's buttons are disabled.
+  loadingAction: { itemId: string; actionKey: string } | null = null;
+  confirmActionLoading: boolean = false;
+  bulkActionLoading: string | null = null;
 
   // Note's drawer
   isDrawerOpen = false;
@@ -178,7 +202,10 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
 
   protected readonly faIdCard = faIdCard;
   protected readonly faSort = faSort;
+  protected readonly faEdit = faEdit;
+  protected readonly faTrash = faTrash;
   protected readonly orderStateBadgeVariant = orderStateBadgeVariant;
+  protected readonly orderStateLabel = orderStateLabel;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -227,7 +254,40 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   async confirmAction() {
-    return this.updateLifecycle(this.actionType, this.selectedItem);
+    this.confirmActionLoading = true;
+    try {
+      await this.updateLifecycle(this.actionType, this.selectedItem);
+    } finally {
+      this.confirmActionLoading = false;
+    }
+  }
+
+  /** Runs a direct (non-modal) item action, tracking which button triggered it
+   * so the template can swap its icon for a spinner and disable the rest of
+   * that item's buttons for the duration. */
+  async runItemAction(state: string, item: any, actionKey: string) {
+    this.loadingAction = { itemId: item.productOrderItem.id, actionKey };
+    try {
+      await this.updateLifecycle(state, item);
+    } finally {
+      this.loadingAction = null;
+    }
+  }
+
+  /** Applies one bulkable action to every item in the order at once, in parallel. */
+  async runBulkAction(action: OrderItemAction) {
+    const items = this.orderToShow?.productOrderItems ?? [];
+    this.bulkActionLoading = action.dataCy ?? action.state;
+    try {
+      // Sequential on purpose: each call PATCHes the *whole* shared note list
+      // (see updateLifecycle below), so running them concurrently would race —
+      // an earlier response landing after a later one could drop notes.
+      for (const item of items) {
+        await this.updateLifecycle(action.state, item);
+      }
+    } finally {
+      this.bulkActionLoading = null;
+    }
   }
 
   async updateLifecycle(state: string, item: any) {
@@ -237,12 +297,17 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     console.log('Transitioning to...', state, item);
+    // Kept for anything relying on "the last item touched" (e.g. the confirm
+    // modal's copy), but everything below reads/writes `item` directly instead —
+    // this method can run concurrently for different items (bulk actions), and
+    // `this.selectedItem` is shared component state that a concurrent call could
+    // overwrite mid-await.
     this.selectedItem = item;
 
-    const prevState = this.selectedItem.productOrderItem['state']
+    const prevState = item.productOrderItem['state']
     try {
       // Actualizar el estado en la UI antes de enviar el PATCH
-      this.selectedItem.productOrderItem['state'] = state;
+      item.productOrderItem['state'] = state;
 
       // Crear objeto PATCH para actualizar el estado
       const statePatchData = {
@@ -257,9 +322,19 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
       // orderToShow is a separate (enriched) object from the row cached by the orders
       // table, so its state change doesn't propagate there on its own - patch it locally.
       this.paginatedTable?.patchItem((o: any) => o.id === this.orderToShow.id, { state: stateResponse.state });
+
+      // Trust what the backend actually persisted for this line item over the
+      // optimistic guess set above — the two can differ (backend-side validation,
+      // auto-transitions, etc.).
+      const confirmedItem = stateResponse.productOrderItem?.find(
+        (poi: any) => poi.id === item.productOrderItem.id
+      );
+      if (confirmedItem) {
+        item.productOrderItem['state'] = confirmedItem.state;
+      }
       this.notificationService.showSuccess('PRODUCT_ORDERS._update_state_success');
     } catch (error: any) {
-      this.selectedItem.productOrderItem['state'] = prevState
+      item.productOrderItem['state'] = prevState
 
       const detail = error?.error?.error || error?.error?.message || error?.message;
       this.notificationService.showError('PRODUCT_ORDERS._update_state_error', detail ? { details: detail } : undefined);
@@ -414,7 +489,7 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
 
-  private getPricePlanLabel(item: any): string {
+  getPricePlanLabel(item: any): string {
     const price = item.productOfferingPrice;
     if (!price) return 'SHOPPING_CART._free';
 
@@ -444,53 +519,56 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
     return !this.hasProcurementAutomaticTerm(item) && this.role === this.sellerRole;
   }
 
-  getTotalPrice(items: any[]) {
-    let totalPrice = [];
-    let insertCheck = false;
-    this.check_custom = false;
-    for (let i = 0; i < items.length; i++) {
-      insertCheck = false;
-      if (totalPrice.length == 0 && items[i].productOfferingPrice != undefined) {
-        if (items[i].productOfferingPrice.priceType != 'custom') {
-          totalPrice.push(items[i].productOfferingPrice);
-        } else {
-          this.check_custom = true;
-        }
+  /** Groups the order's line-item prices by (priceType, currency, recurring period) and
+   * sums each group's amount — items with no productOfferingPrice are free, items priced
+   * 'custom' are provider-defined and excluded from the sum (flagged via hasCustomPricing
+   * instead), matching the same distinctions getPricePlanLabel already makes per item. */
+  private computePriceSummary(items: any[]): void {
+    const groups = new Map<string, { label: string; amount: number; unit: string }>();
+    this.hasCustomPricing = false;
+    this.hasFreeItems = false;
+
+    for (const item of items ?? []) {
+      const price = item.productOfferingPrice;
+      if (!price) {
+        this.hasFreeItems = true;
+        continue;
+      }
+      if (price.priceType === 'custom') {
+        this.hasCustomPricing = true;
+        continue;
+      }
+      const amount = price.price?.value ?? 0;
+      const unit = price.price?.unit ?? '';
+      const period = price.recurringChargePeriodType ? ` / ${price.recurringChargePeriodType}` : '';
+      const key = `${price.priceType ?? ''}|${unit}|${period}`;
+      const existing = groups.get(key);
+      if (existing) {
+        existing.amount += amount;
       } else {
-        for (let j = 0; j < totalPrice.length; j++) {
-          if (items[i].productOfferingPrice != undefined) {
-            if (items[i].productOfferingPrice.priceType != 'custom') {
-              if (items[i].productOfferingPrice.priceType == totalPrice[j].priceType && items[i].productOfferingPrice.unit == totalPrice[j].unit && items[i].productOfferingPrice.text == totalPrice[j].text) {
-                totalPrice[j].price = totalPrice[j].price + items[i].productOfferingPrice.price;
-                insertCheck = true;
-              }
-            } else {
-              this.check_custom = true;
-            }
-          }
-        }
-        if (insertCheck == false) {
-          if (items[i].productOfferingPrice != undefined) {
-            if (items[i].productOfferingPrice.priceType != 'custom') {
-              totalPrice.push(items[i].productOfferingPrice);
-              insertCheck = true;
-            } else {
-              this.check_custom = true;
-            }
-          }
-        }
+        groups.set(key, { label: `${price.priceType ?? ''}${period}`, amount, unit });
       }
     }
-    return totalPrice
+
+    this.priceSummary = Array.from(groups.values());
   }
 
   async toggleShowDetails(order: any) {
     this.showOrderDetails = true;
     this.orderToShow = order;
-    this.customerName$ = from(this.getCustomerName());
+    this.customerName = '';
+    this.priceSummary = [];
+    this.hasCustomPricing = false;
+    this.hasFreeItems = false;
     this.loadingOrderDetails = true;
     try {
-      this.orderToShow = await this.paginationService.enrichOrder(order);
+      const [enrichedOrder, customerName] = await Promise.all([
+        this.paginationService.enrichOrder(order),
+        this.getCustomerName(),
+      ]);
+      this.orderToShow = enrichedOrder;
+      this.customerName = customerName;
+      this.computePriceSummary(enrichedOrder.productOrderItems);
     } catch (error) {
       console.error('Error fetching order details:', error);
     } finally {

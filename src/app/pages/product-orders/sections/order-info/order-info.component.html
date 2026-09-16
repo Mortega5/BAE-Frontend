@@ -47,82 +47,182 @@
 <div id="order-details-modal" [ngClass]="showOrderDetails ? 'backdrop-blur-sm': ''" tabindex="-1" aria-hidden="true"
   class="flex justify-center overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%)] max-h-full shadow-2xl">
   <app-card variant="modal" class="w-full md:w-3/4 lg:w-1/2 max-h-[90vh]" (click)="$event.stopPropagation();">
-    <div appCardHeader class="flex items-center justify-between">
-      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 dark:text-white">
-        {{ 'PRODUCT_ORDERS._order_details' | translate }}
-      </h2>
-      <app-button (click)="showOrderDetails=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark">
-        <span class="sr-only">{{ 'CARD._close' | translate }}</span>
-      </app-button>
+    <div appCardHeader class="flex items-center justify-between gap-3">
+      <div>
+        <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 dark:text-white">
+          {{ 'PRODUCT_ORDERS._order_details' | translate }}
+        </h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{orderToShow.id}}</p>
+      </div>
+      <div class="flex items-center gap-3 shrink-0">
+        <bae-badge data-cy="globalState" variant="status" [status]="orderStateBadgeVariant(orderToShow.state)"
+          [label]="orderStateLabel(orderToShow.state) | translate"></bae-badge>
+        <app-button (click)="showOrderDetails=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark">
+          <span class="sr-only">{{ 'CARD._close' | translate }}</span>
+        </app-button>
+      </div>
     </div>
     <div data-cy="orderDetailsModal" class="w-full">
-        <div class="flex flex-row gap-2 pb-2 text-gray-600">
-          <p class="w-fit text-base font-bold shrink-0 dark:text-white">
-            {{ 'PRODUCT_INVENTORY._order_id' | translate }}
-          </p>
-          <h3 class="text-base dark:text-gray-200">
-            {{orderToShow.id}}
+      @if (loadingOrderDetails) {
+      <app-loading-spinner containerClass="w-full h-40 flex justify-center items-center" />
+      } @else {
+      <div class="rounded-2xl border border-gray-200 dark:border-gray-700 p-4 mb-4">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">
+          {{ 'PRODUCT_ORDERS._customer_info' | translate }}
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._name' | translate }}</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ customerName }}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._date' | translate }}</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white">{{orderToShow?.orderDate | date:'EEEE,
+              dd/MM/yy, HH:mm'}}</p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._billing_address' | translate }}</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white">
+              {{orderToShow.billingAccount.contact[0].contactMedium[1].characteristic.city}},
+              {{orderToShow.billingAccount.contact[0].contactMedium[1].characteristic.street1}},
+              {{orderToShow.billingAccount.contact[0].contactMedium[1].characteristic.country}}
+              ({{orderToShow.billingAccount.name}})
+            </p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._email' | translate }}</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-white">
+              {{orderToShow.billingAccount.contact[0].contactMedium[0].characteristic.emailAddress}}
+            </p>
+          </div>
+        </div>
+        <a class="mt-3 inline-block cursor-pointer text-sm text-blue-600" (click)="goToCustomerDeatils()">
+          {{ 'PRODUCT_ORDERS._show_customer_details' | translate }}
+        </a>
+      </div>
+
+      <app-item-card data-cy="financialSummary" class="mb-4" [selected]="true">
+        <div class="w-full">
+          <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">
+            {{ 'PRODUCT_ORDERS._financial_summary' | translate }}
           </h3>
-        </div>
-        <div data-cy="globalState" class="flex flex-row gap-2 pb-2 text-gray-600">
-          <p class="w-fit text-base font-bold shrink-0 dark:text-white">
-            {{ 'PRODUCT_INVENTORY._state' | translate }}
+          @if (priceSummary.length === 0 && !hasCustomPricing) {
+          <p class="text-sm font-medium text-gray-900 dark:text-white">{{ 'PRODUCT_ORDERS._order_free' | translate }}
           </p>
-          <bae-badge variant="status" [status]="orderStateBadgeVariant(orderToShow.state)"
-            [label]="orderToShow.state || 'Unchecked'"></bae-badge>
+          } @else {
+          <div class="space-y-1">
+            @for (line of priceSummary; track line.label) {
+            <div class="flex justify-between text-sm">
+              <span class="text-gray-500 dark:text-gray-400 capitalize">{{ line.label }}</span>
+              <span class="font-semibold text-gray-900 dark:text-white">{{ line.amount | number:'1.2-2' }} {{ line.unit
+                }}</span>
+            </div>
+            }
+          </div>
+          }
+          @if (hasCustomPricing) {
+          <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._includes_custom_pricing' |
+            translate }}</p>
+          }
+          @if (hasFreeItems && priceSummary.length > 0) {
+          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._includes_free_items' | translate
+            }}</p>
+          }
         </div>
-        <div class="flex flex-row gap-2 pb-2 text-gray-600">
-          <p class="w-fit text-base font-bold shrink-0 dark:text-white">
-            Date
-          </p>
-          <h3 class="text-base dark:text-gray-200">
-            {{orderToShow?.orderDate | date:'EEEE, dd/MM/yy, HH:mm'}}
-          </h3>
+      </app-item-card>
+
+      <div data-cy="orderItemsCard" class="rounded-2xl border border-gray-200 dark:border-gray-700 p-4">
+        <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
+          <div>
+            <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+              {{ 'PRODUCT_ORDERS._order_items' | translate }}
+            </h3>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {{ 'PRODUCT_ORDERS._items_count' | translate:{count: orderToShow.productOrderItems?.length ?? 0} }}
+            </p>
+          </div>
+          @if (bulkItemActions.length > 0) {
+          <div class="flex flex-wrap justify-end gap-2">
+            @for (action of bulkItemActions; track action.dataCy) {
+            <button type="button" [attr.data-cy]="(action.dataCy ?? '') + 'All'"
+              [ngClass]="action.buttonClass ?? 'table-input-action-bg'"
+              class="flex items-center gap-2 px-3 h-9 text-sm font-medium rounded-full focus:ring-4 focus:outline-none table-input-action-text disabled:opacity-60 disabled:cursor-not-allowed"
+              [disabled]="!!bulkActionLoading" (click)="runBulkAction(action)">
+              @if (bulkActionLoading === (action.dataCy ?? action.state)) {
+              <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                </path>
+              </svg>
+              } @else {
+              <fa-icon [icon]="action.icon"></fa-icon>
+              }
+              <span>{{ (action.bulkTooltip ?? action.tooltip ?? '') | translate }}</span>
+            </button>
+            }
+          </div>
+          }
         </div>
-        <div class="flex flex-row gap-2 text-gray-600">
-          <p class="w-fit text-base font-bold shrink-0 dark:text-white">
-            {{ 'PRODUCT_ORDERS._customer_info' | translate }}
-          </p>
+
+        <div data-cy="orderItems" class="space-y-3 max-h-[360px] overflow-y-auto pr-1">
+          @for (item of orderToShow.productOrderItems ?? []; track item.id) {
+          <app-item-card>
+            <div class="w-full">
+              <div class="flex gap-3">
+                <img class="rounded-xl w-16 h-16 object-cover shrink-0" [src]="getProductImage(item)" alt="">
+                <div class="min-w-0 flex-1">
+                  <div class="flex items-start justify-between gap-2">
+                    <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{ item.name }}</p>
+                    <bae-badge variant="status" [status]="orderStateBadgeVariant(item.productOrderItem.state)"
+                      [label]="orderStateLabel(item.productOrderItem.state) | translate"></bae-badge>
+                  </div>
+                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ getPricePlanLabel(item) | translate }}
+                  </p>
+                  @if (item.productOrderItem.action !== 'add') {
+                  <p class="mt-2 flex items-center gap-1.5 text-xs font-medium"
+                    [ngClass]="item.productOrderItem.action === 'delete' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'">
+                    <fa-icon [icon]="item.productOrderItem.action === 'delete' ? faTrash : faEdit"></fa-icon>
+                    {{ ('PRODUCT_ORDERS._action_' + item.productOrderItem.action + '_desc') | translate }}
+                  </p>
+                  }
+                </div>
+              </div>
+              @if (role === sellerRole) {
+              <div class="flex flex-wrap justify-end gap-2 mt-3">
+                @for (action of orderItemActions; track action.tooltip) {
+                @if (!action.showIf || action.showIf(item)) {
+                <button type="button" [attr.data-cy]="action.dataCy"
+                  [ngClass]="action.buttonClass ?? 'table-input-action-bg'"
+                  class="flex items-center gap-2 px-3 h-9 text-sm font-medium rounded-full focus:ring-4 focus:outline-none table-input-action-text disabled:opacity-60 disabled:cursor-not-allowed"
+                  [disabled]="loadingAction?.itemId === item.productOrderItem.id || !!bulkActionLoading"
+                  (click)="action.onClick(item)">
+                  @if (loadingAction?.itemId === item.productOrderItem.id && loadingAction?.actionKey === action.dataCy)
+                  {
+                  <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                  </svg>
+                  } @else {
+                  <fa-icon [icon]="action.icon"></fa-icon>
+                  }
+                  <span>{{ (action.tooltip ?? '') | translate }}</span>
+                </button>
+                }
+                }
+              </div>
+              }
+            </div>
+          </app-item-card>
+          } @empty {
+          <p class="text-sm text-gray-500 dark:text-gray-400 text-center py-6">{{ 'PRODUCT_ORDERS._no_orders' |
+            translate }}</p>
+          }
         </div>
-        <div class="flex flex-row gap-2 pb-2 pt-2 ml-2 text-gray-600">
-          <p class="w-fit text-base font-bold shrink-0 dark:text-white">
-            {{ 'PRODUCT_ORDERS._name' | translate }}
-          </p>
-          <h3 class="text-base dark:text-gray-200">
-            {{ customerName$ | async }}
-          </h3>
-        </div>
-        @if (loadingOrderDetails) {
-        <app-loading-spinner containerClass="w-full h-24 flex justify-center items-center" />
-        } @else {
-        <div class="flex flex-row gap-2 pb-2 ml-2 text-gray-600">
-          <p class="w-fit text-base font-bold shrink-0 dark:text-white">
-            {{ 'PRODUCT_ORDERS._billing_address' | translate }}
-          </p>
-          <h3 class="text-base dark:text-gray-200">
-            {{orderToShow.billingAccount.contact[0].contactMedium[1].characteristic.city}},
-            {{orderToShow.billingAccount.contact[0].contactMedium[1].characteristic.street1}},
-            {{orderToShow.billingAccount.contact[0].contactMedium[1].characteristic.country}}
-            ({{orderToShow.billingAccount.name}})
-          </h3>
-        </div>
-        <div class="flex flex-row gap-2 pb-2 ml-2 text-gray-600">
-          <p class="w-fit text-base font-bold shrink-0 dark:text-white">
-            {{ 'PRODUCT_ORDERS._email' | translate }}
-          </p>
-          <h3 class="text-base dark:text-gray-200">
-            {{orderToShow.billingAccount.contact[0].contactMedium[0].characteristic.emailAddress}}
-          </h3>
-        </div>
-        <div class="flex flex-row gap-2 pb-2 text-gray-600">
-          <a class="cursor-pointer text-blue-600" (click)="goToCustomerDeatils()">
-            {{ 'PRODUCT_ORDERS._show_customer_details' | translate }}
-          </a>
-        </div>
-        <app-table-input data-cy="orderItems" [columns]="orderItemColumns" [items]="orderToShow.productOrderItems ?? []"
-          [selectable]="false">
-        </app-table-input>
-        }
+      </div>
+      }
     </div>
   </app-card>
 </div>
@@ -142,12 +242,21 @@
     <p class="text-gray-500 dark:text-gray-300 text-center">
       Are you sure you want to update this order item to <strong>{{ actionType }}</strong> status?
     </p>
-    <div appCardFooter>
-      <app-button data-cy="confirmActionBtn" type="button" (click)="confirmAction()" size="sm">
-        Yes, Confirm
-      </app-button>
+    <div appCardFooter class="flex gap-3">
       <app-button data-cy="cancelActionBtn" type="button" (click)="closeModal()" variant="ghost" size="sm">
         Cancel
+      </app-button>
+      <app-button data-cy="confirmActionBtn" type="button" (click)="confirmAction()" variant="danger" size="sm"
+        [disabled]="confirmActionLoading">
+        @if (confirmActionLoading) {
+        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+          </path>
+        </svg>
+        }
+        Yes, Confirm
       </app-button>
     </div>
   </app-card>

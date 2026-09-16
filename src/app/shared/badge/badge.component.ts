@@ -80,6 +80,27 @@ export function orderStateBadgeVariant(state: string): BadgeStatus {
   }
 }
 
+const ORDER_STATE_LABELS: Record<string, string> = {
+  acknowledged: 'PRODUCT_ORDERS._acknowledged',
+  rejected: 'PRODUCT_ORDERS._rejected',
+  pending: 'PRODUCT_ORDERS._pending',
+  held: 'PRODUCT_ORDERS._held',
+  inProgress: 'PRODUCT_ORDERS._in_progress',
+  cancelled: 'PRODUCT_ORDERS._cancelled',
+  completed: 'PRODUCT_ORDERS._completed',
+  failed: 'PRODUCT_ORDERS._failed',
+  partial: 'PRODUCT_ORDERS._partial',
+  assessingCancellation: 'PRODUCT_ORDERS._assessing_cancellation',
+  pendingCancellation: 'PRODUCT_ORDERS._pending_cancellation',
+};
+
+/** i18n key for a TMF product order/order-item `state` wire value — always pipe
+ * the result through `| translate`. Falls back to the "Unchecked" label for an
+ * empty/unrecognized state instead of showing the raw wire value. */
+export function orderStateLabel(state: string | undefined | null): string {
+  return (state && ORDER_STATE_LABELS[state]) ?? 'PRODUCT_ORDERS._unchecked';
+}
+
 /** Maps a product order item's `action` (add/modify/delete) to a bae-badge status color. */
 export function orderItemActionBadgeVariant(action: string): BadgeStatus {
   switch (action) {
