@@ -78,6 +78,11 @@ export class PriceComponentDrawerComponent implements OnInit {
       document.body.style.overflow = 'hidden';
     }, 50);
 
+    // @Input's `= []` default only applies when the binding is omitted entirely —
+    // a caller passing an expression that resolves to undefined (e.g. the parent's
+    // product spec not being loaded yet) overrides it, so normalize defensively.
+    this.prodChars = this.prodChars ?? [];
+
     for(let i=0;i<this.prodChars.length;i++){
       if (!certifications.some(certification => certification.name === this.prodChars[i].name)
           && !this.prodChars[i].name.startsWith('Compliance:')
