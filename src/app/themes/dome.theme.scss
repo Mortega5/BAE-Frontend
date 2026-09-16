@@ -37,3 +37,7 @@ body.theme-dome .kf-watermark {
   -webkit-mask: url('/assets/logos/DOME_Icon.svg') no-repeat center / contain;
   mask: url('/assets/logos/DOME_Icon.svg') no-repeat center / contain;
 }
+
+.dark body.theme-bae {
+  --theme-header-v2-top-bg: #070f24;
+}
