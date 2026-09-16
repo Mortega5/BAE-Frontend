@@ -2348,7 +2348,7 @@
     "_on_failure_abort": "Abort",
     "_on_failure_continue": "Continue",
     "_on_failure_retry": "Retry",
-    "_helm_values_override": "Helm Values Override",
+    "_helm_values_override": "Enforced Helm Values",
     "_cycle_error": "Cyclic dependency detected. A step cannot depend on itself or on a step that transitively depends on it."
   },
   "CREATE_SERV_SPEC": {
@@ -2407,6 +2407,20 @@
     "_next": "Next",
     "_finish": "Finish",
     "_update_serv": "Update service"
+  },
+  "PACKAGE_DEPLOYMENT": {
+    "_type_helm": "Helm",
+    "_type_docker": "Docker",
+    "_type": "Type",
+    "_schema_version": "Schema version",
+    "_repository_url": "Repository URL",
+    "_chart_name": "Chart name",
+    "_chart_version": "Chart version",
+    "_enforced_helm_values": "Enforced Helm Values",
+    "_docker_image": "Docker image",
+    "_image_tag": "Image tag",
+    "_compose_file": "Compose file (YAML)",
+    "_env_file": "Env file"
   },
   "CREATE_OFFER": {
     "_back": "Back",

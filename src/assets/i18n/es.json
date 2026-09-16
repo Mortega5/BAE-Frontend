@@ -2349,7 +2349,7 @@
     "_on_failure_abort": "Abortar",
     "_on_failure_continue": "Continuar",
     "_on_failure_retry": "Reintentar",
-    "_helm_values_override": "Sobreescritura de Valores Helm",
+    "_helm_values_override": "Valores de Helm obligatorios",
     "_cycle_error": "Dependencia cíclica detectada. Un paso no puede depender de sí mismo ni de un paso que dependa transitivamente de él."
   },
   "CREATE_SERV_SPEC": {
@@ -2408,6 +2408,20 @@
     "_next": "Next",
     "_finish": "Finish",
     "_update_serv": "Update service"
+  },
+  "PACKAGE_DEPLOYMENT": {
+    "_type_helm": "Helm",
+    "_type_docker": "Docker",
+    "_type": "Tipo",
+    "_schema_version": "Versión del esquema",
+    "_repository_url": "URL del repositorio",
+    "_chart_name": "Nombre del chart",
+    "_chart_version": "Versión del chart",
+    "_enforced_helm_values": "Valores Helm forzados",
+    "_docker_image": "Imagen Docker",
+    "_image_tag": "Etiqueta de la imagen",
+    "_compose_file": "Archivo compose (YAML)",
+    "_env_file": "Archivo env"
   },
   "CREATE_OFFER": {
     "_back": "Back",

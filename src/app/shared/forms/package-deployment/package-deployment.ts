@@ -13,29 +13,29 @@ import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
 type DeploymentType = 'helm' | 'docker';
 
 const DEPLOYMENT_TYPE_OPTIONS: SelectOption[] = [
-  { value: 'helm', label: 'Helm' },
-  { value: 'docker', label: 'Docker' },
+  { value: 'helm', label: 'PACKAGE_DEPLOYMENT._type_helm' },
+  { value: 'docker', label: 'PACKAGE_DEPLOYMENT._type_docker' },
 ];
 
 const TOP_FIELDS: FormField[] = [
-  { type: 'select', name: 'type', label: 'Type', required: true, options: DEPLOYMENT_TYPE_OPTIONS, defaultValue: 'helm', colSpan: 1 },
-  { type: 'string', name: 'version', label: 'Schema version', required: true, colSpan: 1 },
+  { type: 'select', name: 'type', label: 'PACKAGE_DEPLOYMENT._type', required: true, options: DEPLOYMENT_TYPE_OPTIONS, defaultValue: 'helm', colSpan: 1 },
+  { type: 'string', name: 'version', label: 'PACKAGE_DEPLOYMENT._schema_version', required: true, colSpan: 1 },
 ];
 
 const HELM_FIELDS: FormField[] = [
-  { type: 'string', name: 'repository', label: 'Repository URL', required: true },
-  { type: 'string', name: 'chart', label: 'Chart name', required: true, colSpan: 2 },
+  { type: 'string', name: 'repository', label: 'PACKAGE_DEPLOYMENT._repository_url', required: true },
+  { type: 'string', name: 'chart', label: 'PACKAGE_DEPLOYMENT._chart_name', required: true, colSpan: 2 },
   // { type: 'string', name: 'releaseName', label: 'Release name', required: true },
-  { type: 'string', name: 'version', label: 'Chart version', required: true, colSpan: 2 },
+  { type: 'string', name: 'version', label: 'PACKAGE_DEPLOYMENT._chart_version', required: true, colSpan: 2 },
   // { type: 'string', name: 'namespace', label: 'Namespace', defaultValue: 'default', colSpan: 2 },
-  { type: 'code', language: 'yaml', name: 'values', label: 'Values (YAML)', validators: [yamlValidator] },
+  { type: 'code', language: 'yaml', name: 'values', label: 'PACKAGE_DEPLOYMENT._enforced_helm_values', validators: [yamlValidator] },
 ];
 
 const DOCKER_FIELDS: FormField[] = [
-  { type: 'string', name: 'image', label: 'Docker image', required: true, colSpan: 3 },
-  { type: 'string', name: 'tag', label: 'Image tag', defaultValue: 'latest', colSpan: 1 },
-  { type: 'code', language: 'yaml', name: 'composeFile', label: 'Compose file (YAML)', validators: [yamlValidator] },
-  { type: 'textarea', name: 'envFile', label: 'Env file' },
+  { type: 'string', name: 'image', label: 'PACKAGE_DEPLOYMENT._docker_image', required: true, colSpan: 3 },
+  { type: 'string', name: 'tag', label: 'PACKAGE_DEPLOYMENT._image_tag', defaultValue: 'latest', colSpan: 1 },
+  { type: 'code', language: 'yaml', name: 'composeFile', label: 'PACKAGE_DEPLOYMENT._compose_file', validators: [yamlValidator] },
+  { type: 'textarea', name: 'envFile', label: 'PACKAGE_DEPLOYMENT._env_file' },
 ];
 
 @Component({
