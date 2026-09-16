@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { initFlowbite } from 'flowbite';
@@ -110,6 +110,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     private resSpecService: ResourceSpecServiceService,
     private route: ActivatedRoute,
     private router: Router,
+    private cdr: ChangeDetectorRef,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -128,6 +129,10 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
         this.res = await this.fetchResSpecById(id);
         this.generalForm.get('baseTemplate')!.disable();
         this.populateResInfo();
+        // populateResInfo() flips generalForm from invalid (empty) to valid, which
+        // canAdvance (bound on app-stepper) reads live — without this, Angular's
+        // dev-mode check catches that flip a tick late and throws NG0100.
+        this.cdr.detectChanges();
         initFlowbite();
       } catch (error) {
         console.error('Error loading resource spec', error);
