@@ -234,10 +234,19 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     if (!this.requiresPackageDeployment) return chars;
 
     if (this.deploymentForm) {
+      const deployValue = this.deploymentForm.value;
+      if (deployValue.type === 'helm') {
+        const ts = Date.now();
+        const initialHelmProperties = this.deploymentInitialValue?.type === 'helm'
+          ? this.deploymentInitialValue.properties
+          : undefined;
+        deployValue.properties.namespace = initialHelmProperties?.namespace ?? `${deployValue.properties.chart}-${ts}`;
+        deployValue.properties.releaseName = initialHelmProperties?.releaseName ?? `${deployValue.properties.chart}-${ts}`;
+      }
       chars.push({
         name: 'deploymentDefinition',
         valueType: 'deployment',
-        value: this.deploymentForm.value,
+        value: deployValue,
         '@schemaLocation': environment.DEPLOYMENT_SCHEMA_LOCATION,
       });
     } else if (this.originalDeploymentChar) {
