@@ -19,13 +19,13 @@ import { LocalStorageService } from "src/app/services/local-storage.service";
 import { NotificationService } from 'src/app/services/notification.service';
 import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductOrderService } from 'src/app/services/product-order-service.service';
+import { BadgeComponent, orderItemActionBadgeVariant, orderStateBadgeVariant } from 'src/app/shared/badge/badge.component';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { SharedModule } from "../../../../shared/shared.module";
-import { BadgeComponent, orderItemActionBadgeVariant, orderStateBadgeVariant } from 'src/app/shared/badge/badge.component';
 type ProductOffering = components["schemas"]["ProductOffering"];
 
 @Component({
@@ -62,11 +62,11 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
   defaultSort: TableSort = { key: 'orderDate', direction: 'desc' };
 
   orderColumns: TableColumn[] = [
-    { header: 'PRODUCT_INVENTORY._order_id', getValue: (item: any) => `...${item.id.slice(-6)}`, width: 'w-28', hideOnMobile: true, sortKey: 'id' },
-    { header: 'PRODUCT_INVENTORY._status', type: 'status-badge', getValue: (item: any) => item.state ?? 'PRODUCT_ORDERS._unchecked', getStatus: (item: any) => orderStateBadgeVariant(item.state), width: 'w-28', sortKey: 'state' },
-    { header: 'PRODUCT_INVENTORY._bill', getValue: (item: any) => item.billingAccount?.name ?? '-', width: 'w-1/3', hideOnMobile: true },
-    { header: 'PRODUCT_ORDERS._date', type: 'date', getValue: (item: any) => item.orderDate, sortKey: 'orderDate' },
-    { header: 'PRODUCT_ORDERS._actions', type: 'icon-button', icon: faStickyNote, tooltip: 'PRODUCT_ORDERS._show_notes', dataCy: 'orderNotesButton', onClick: (item: any) => this.toggleDrawer(item), width: 'w-24' },
+    { header: 'PRODUCT_INVENTORY._order_id', getValue: (item: any) => item.id.slice(-36), hideOnMobile: true, sortKey: 'id' },
+    { header: 'PRODUCT_INVENTORY._status', type: 'status-badge', getValue: (item: any) => item.state ?? 'PRODUCT_ORDERS._unchecked', getStatus: (item: any) => orderStateBadgeVariant(item.state), width: 'w-[180px]', sortKey: 'state' },
+    { header: 'PRODUCT_INVENTORY._bill', getValue: (item: any) => item.billingAccount?.name ?? '-', hideOnMobile: true },
+    { header: 'PRODUCT_ORDERS._date', type: 'date', getValue: (item: any) => item.orderDate, sortKey: 'orderDate', width: 'w-[220px]' },
+    { header: 'PRODUCT_ORDERS._actions', type: 'icon-button', icon: faStickyNote, tooltip: 'PRODUCT_ORDERS._show_notes', dataCy: 'orderNotesButton', onClick: (item: any) => this.toggleDrawer(item), width: 'w-[100px]' },
   ];
 
   orderItemColumns: TableColumn[] = [

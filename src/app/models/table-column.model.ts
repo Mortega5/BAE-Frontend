@@ -44,6 +44,8 @@ export interface IconButtonTableColumn<T = any> extends BaseTableColumn<T> {
   /** Defaults to always visible when omitted. */
   showIf?: (item: T) => boolean;
   tooltip?: string;
+  /** Tailwind classes for the button background/focus ring. Defaults to the primary color. */
+  buttonClass?: string;
 }
 
 export interface TableColumnAction<T = any> {

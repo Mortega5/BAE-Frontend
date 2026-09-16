@@ -65,7 +65,8 @@
           @if (!col.showIf || col.showIf(item)) {
           <button type="button" [attr.data-cy]="col.dataCy"
             [attr.aria-label]="col.tooltip ? (col.tooltip | translate) : null"
-            class="w-9 h-9 flex items-center justify-center focus:ring-4 focus:outline-none font-medium rounded-full me-2 table-input-action-text table-input-action-bg"
+            [ngClass]="col.buttonClass ?? 'table-input-action-bg'"
+            class="w-9 h-9 flex items-center justify-center focus:ring-4 focus:outline-none font-medium rounded-full me-2 table-input-action-text"
             (mouseenter)="showTooltip($event, col.tooltip)" (mouseleave)="hideTooltip()"
             (click)="onColumnAction(col, item, $event)">
             <fa-icon [icon]="col.icon"></fa-icon>

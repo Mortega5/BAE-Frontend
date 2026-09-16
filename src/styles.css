@@ -92,13 +92,11 @@ body {
   --table-row-hover-bg: rgb(var(--theme-secondary-50));
   --table-row-selected-bg: rgb(var(--theme-secondary-50));
   --table-empty-text: var(--theme-default-text);
-  /* Ghost-style action buttons (Stitch redesign) — transparent by default, only
-     tinted on hover, instead of a solid filled circle. */
-  --table-action-bg: transparent;
-  --table-action-hover-bg: rgb(var(--theme-secondary-50));
-  --table-action-text: rgb(148 163 184);
-  /* slate-400 */
-  --table-action-text-hover: rgb(var(--theme-primary-100));
+  /* Solid filled action buttons — primary color by default, lightened on hover. */
+  --table-action-bg: rgb(var(--theme-primary-100));
+  --table-action-hover-bg: rgb(var(--theme-primary-50));
+  --table-action-text: rgb(255 255 255);
+  --table-action-text-hover: rgb(255 255 255);
   --table-action-focus-ring: rgb(var(--theme-primary-50) / 50%);
   --table-selection-accent: rgb(var(--theme-primary-100));
   --table-selection-bg: rgb(243 244 246);
@@ -271,10 +269,9 @@ body.theme-bae {
   /* slate-800/40 */
   --table-row-selected-bg: rgb(var(--theme-primary-100) / 20%);
   --table-empty-text: var(--theme-default-text);
-  --table-action-hover-bg: rgb(var(--theme-secondary-300) / 60%);
-  --table-action-text: rgb(148 163 184);
-  /* slate-400 */
-  --table-action-text-hover: rgb(var(--theme-primary-50));
+  --table-action-hover-bg: rgb(var(--theme-primary-50));
+  --table-action-text: rgb(255 255 255);
+  --table-action-text-hover: rgb(255 255 255);
 
   --status-badge-success-bg: color-mix(in srgb, var(--status-badge-success) 22%, transparent);
   --status-badge-success-border: color-mix(in srgb, var(--status-badge-success) 45%, transparent);
