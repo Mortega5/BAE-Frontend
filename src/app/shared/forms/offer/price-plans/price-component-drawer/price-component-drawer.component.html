@@ -2,12 +2,16 @@
   [panelClass]="'flex flex-col'" (closed)="closeDrawer()">
 
     <div class="p-6 flex-1 overflow-y-auto">
-      <!-- Título -->
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-        {{ component ? ('FORMS.PRICE_PLAN_COMPONENT._update_price_component' | translate) : ('FORMS.PRICE_PLAN_COMPONENT._new_price_component' | translate) }}
-      </h2>
+      <!-- Header -->
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+          {{ component ? ('FORMS.PRICE_PLAN_COMPONENT._update_price_component' | translate) : ('FORMS.PRICE_PLAN_COMPONENT._new_price_component' | translate) }}
+        </h2>
+        <app-button type="button" (click)="closeDrawer()" variant="ghost" size="sm" prefixIcon="xmark" />
+      </div>
 
-      <form [formGroup]="priceComponentForm" (ngSubmit)="submitForm()" class="mt-4 space-y-5 bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-4 md:p-8">
+      <app-card>
+      <form [formGroup]="priceComponentForm" (ngSubmit)="submitForm()" class="space-y-5">
 
       <!-- Nombre -->
       <div>
@@ -370,6 +374,7 @@
         <app-button data-cy="savePriceComponent" type="submit" [disabled]="priceComponentForm.invalid">{{ 'CREATE_OFFER._pc_save_component' | translate }}</app-button>
       </div>
       </form>
+      </app-card>
     </div>
 
 </app-drawer>

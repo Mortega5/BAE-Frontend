@@ -8,6 +8,7 @@ import {NgClass} from "@angular/common";
 import { initFlowbite } from 'flowbite';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
 import { DropdownPanelComponent } from 'src/app/shared/dropdown-panel/dropdown-panel.component';
 
@@ -22,6 +23,7 @@ import { DropdownPanelComponent } from 'src/app/shared/dropdown-panel/dropdown-p
     TranslateModule,
     NgClass,
     ButtonComponent,
+    ContentCardComponent,
     DrawerComponent,
     DropdownPanelComponent
   ],

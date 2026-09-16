@@ -21,6 +21,7 @@ import { lastValueFrom, Subscription } from 'rxjs';
 import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
 import { ButtonComponent } from "../button/button.component";
 import { DrawerComponent } from "../drawer/drawer.component";
+import { TranslateModule } from "@ngx-translate/core";
 
 
 @Component({
@@ -35,7 +36,8 @@ import { DrawerComponent } from "../drawer/drawer.component";
     FormsModule,
     LoadingSpinnerComponent,
     ButtonComponent,
-    DrawerComponent
+    DrawerComponent,
+    TranslateModule
 ],
   templateUrl: './price-plan-drawer.component.html',
   styleUrl: './price-plan-drawer.component.css'

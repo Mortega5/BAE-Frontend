@@ -1,245 +1,249 @@
-<app-drawer [isOpen]="isOpen" [widthClass]="width" [zIndexClass]="'z-40'"
-  [insetClass]="'top-[75px] bottom-0'" [panelClass]="'overflow-hidden flex flex-col'" (closed)="onClose()">
-<div data-cy="toCartDrawer" [id]="drawerId" class="flex-1 min-h-0 flex flex-col" tabindex="-1"
-  aria-labelledby="drawer-add-to-cart-label">
+<app-drawer [isOpen]="isOpen" [widthClass]="width" [zIndexClass]="'z-40'" [insetClass]="'top-[75px] bottom-0'"
+  [panelClass]="'overflow-hidden flex flex-col'" (closed)="onClose()">
+  <div data-cy="toCartDrawer" [id]="drawerId" class="h-full flex flex-col p-4" tabindex="-1"
+    aria-labelledby="drawer-right-label">
 
-  <!-- Scrollable content -->
-  <form [formGroup]="form" class="flex-1 min-h-0 p-4 overflow-y-auto">
-    <h5 id="drawer-right-label" [ngClass]="{
-      'break-all': hasLongWord(productOff?.name, 20),
-      'break-words': !hasLongWord(productOff?.name, 20)
-      }"
-      class="inline-flex items-center text-wrap break-words mb-4 text-base font-semibold text-primary-100 dark:text-gray-400">
-      <svg class="w-4 h-4 me-2.5 " aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
-        viewBox="0 0 20 20">
+    <div class="flex items-center">
+      <svg class="w-4 h-4 me-2.5 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+        fill="currentColor" viewBox="0 0 20 20">
         <path
           d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-      </svg>{{ mode === 'modify' ? 'Modifying' : 'Adding' }} {{productOff?.name}} {{ mode === 'modify' ? '' : 'to cart'
-      }}
-    </h5>
+      </svg>
+      <h5 id="drawer-right-label" [ngClass]="{
+      'break-all': hasLongWord(productOff?.name, 20),
+      'break-words': !hasLongWord(productOff?.name, 20)
+      }" class="text-base font-semibold text-gray-500 dark:text-gray-400 text-xl">
+        {{ (mode === 'modify' ? 'PRICE_PLAN_DRAWER._modifying' : 'PRICE_PLAN_DRAWER._adding') | translate }}
+        {{productOff?.name}}
+        {{ mode === 'modify' ? '' : ('PRICE_PLAN_DRAWER._to_cart_suffix' | translate) }}
+      </h5>
+    </div>
+
+    <hr class="h-px my-2 bg-gray-200 border-0 dark:bg-gray-700">
+
     <app-button type="button" (click)="onClose()" variant="ghost" size="sm" prefixIcon="xmark"
       class="absolute top-2.5 end-2.5">
-      <span class="sr-only">Close menu</span>
+      <span class="sr-only">{{ 'PRICE_PLAN_DRAWER._close' | translate }}</span>
     </app-button>
 
-    @if (mode === 'modify' && existingCharacteristics.length > 0) {
-    <div class="mb-4 rounded-lg border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 p-3">
-      <h6 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Current characteristics:</h6>
-      <div class="grid grid-cols-2 gap-1">
-        @for (char of existingCharacteristics; track char.name) {
-        <div class="text-xs text-gray-600 dark:text-gray-400">
-          <span class="font-medium">{{char.name}}:</span> {{char.value}}
+    <!-- Scrollable content -->
+    <form [formGroup]="form" class="flex-1 min-h-0 w-full overflow-y-auto p-2 space-y-4">
+      @if (mode === 'modify' && existingCharacteristics.length > 0) {
+      <div class="mb-4 rounded-lg border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 p-3">
+        <h6 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{{ 'PRICE_PLAN_DRAWER._current_characteristics' | translate }}</h6>
+        <div class="grid grid-cols-2 gap-1">
+          @for (char of existingCharacteristics; track char.name) {
+          <div class="text-xs text-gray-600 dark:text-gray-400">
+            <span class="font-medium">{{char.name}}:</span> {{char.value}}
+          </div>
+          }
         </div>
-        }
       </div>
-    </div>
-    }
+      }
 
-    @if (!isFree) {
-    <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 text-wrap break-words">{{ mode === 'modify' ? 'Select the
-      new price model and characteristics for' : 'In order to add' }} <b>{{productOff?.name}}</b>{{ mode === 'modify' ?
-      '.' : ' to your cart you have to select the price model and the set of characteristics you prefer.' }}</p>
-    <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 text-wrap break-words">Please, select the price plan:</p>
-    @for (pp of productOff?.productOfferingPrice; track pp.id){
-    <div [attr.data-cy]="'pricePlan-' + pp.name"
-      class="price-plan flex flex-col rounded-lg border border-dashed border-primary-100 bg-white dark:bg-gray-800 p-2 m-2 gap-1 cursor-pointer hover:bg-sky-50 transition-all duration-200"
-      [ngClass]="{
+      @if (!isFree) {
+      <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 text-wrap break-words">{{ (mode === 'modify' ?
+        'PRICE_PLAN_DRAWER._modify_intro' : 'PRICE_PLAN_DRAWER._add_intro') | translate }} <b>{{productOff?.name}}</b>{{
+        mode === 'modify' ? ('PRICE_PLAN_DRAWER._modify_intro_end' | translate) : ' ' +
+        ('PRICE_PLAN_DRAWER._add_intro_end' | translate) }}</p>
+      <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 text-wrap break-words">{{ 'PRICE_PLAN_DRAWER._select_price_plan' | translate }}</p>
+      @for (pp of productOff?.productOfferingPrice; track pp.id){
+      <div [attr.data-cy]="'pricePlan-' + pp.name"
+        class="price-plan flex flex-col rounded-lg border border-dashed border-primary-100 bg-white dark:bg-gray-800 p-2 m-2 gap-1 cursor-pointer hover:bg-sky-50 transition-all duration-200"
+        [ngClass]="{
                     'border-primary-100 text-wrap border': pp.id !== form.get('selectedPricePlan')?.value?.id,
                     'border-transparent outline outline-2 outline-teal-500 bg-teal-50 dark:bg-teal-900/40 ring-1 ring-teal-500': pp.id === form.get('selectedPricePlan')?.value?.id
               }" (click)="onPricePlanSelected(pp)">
-      <div
-        class="text-base font-semibold text-primary-100 dark:text-gray-400 flex justify-between content-center text-wrap break-words">
-        <span class="flex items-center gap-1.5">
-          @if (pp.id === form.get('selectedPricePlan')?.value?.id){
-          <svg class="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"
-            aria-hidden="true">
-            <path fill-rule="evenodd"
-              d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.42 0l-3.5-3.5a1 1 0 011.42-1.42l2.79 2.79 6.79-6.79a1 1 0 011.42 0z"
-              clip-rule="evenodd" />
-          </svg>
+        <div
+          class="text-base font-semibold text-primary-100 dark:text-gray-400 flex justify-between content-center text-wrap break-words">
+          <span class="flex items-center gap-1.5">
+            @if (pp.id === form.get('selectedPricePlan')?.value?.id){
+            <svg class="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"
+              aria-hidden="true">
+              <path fill-rule="evenodd"
+                d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.42 0l-3.5-3.5a1 1 0 011.42-1.42l2.79 2.79 6.79-6.79a1 1 0 011.42 0z"
+                clip-rule="evenodd" />
+            </svg>
+            }
+            {{pp.name}}
+          </span>
+          @if (pp.prodSpecCharValueUse){
+          <span
+            class="bg-indigo-100 text-indigo-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-indigo-900 dark:text-indigo-300">{{ 'PRICE_PLAN_DRAWER._profile_badge' | translate }}</span>
           }
-          {{pp.name}}
-        </span>
-        @if (pp.prodSpecCharValueUse){
-        <span
-          class="bg-indigo-100 text-indigo-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-indigo-900 dark:text-indigo-300">PROFILE</span>
-        }
-      </div>
-      <markdown [ngClass]="{
+        </div>
+        <markdown [ngClass]="{
             'break-all': hasLongWord(pp.description, 20),
             'break-words': !hasLongWord(pp.description, 20)
           }" class="text-gray-500 dark:text-gray-400 text-wrap" [data]="pp.description"></markdown>
-    </div>
-    } @empty {
-    <div>The offering is free</div>
-    }
-    }
+      </div>
+      } @empty {
+      <div>{{ 'PRICE_PLAN_DRAWER._offering_free' | translate }}</div>
+      }
+      }
 
-    @if (form.get('selectedPricePlan')?.value) {
-    @if (hasProfile) {
-    <p class="mt-6 text-sm text-gray-500 dark:text-gray-400">This price plan has an associate profile. That means that
-      the following characteristics are already set for you.</p>
-    <div class="rounded-lg border border-dashed border-primary-100 bg-white p-2 m-2 dark:bg-gray-800">
-      @for (ch of filteredCharacteristics ; track ch.id) {
-      @if(!ch.name?.endsWith('- enabled')){
-      <app-characteristic [characteristic]="ch" [readOnly]="true"
-        (valueChange)="onValueChange($event)"></app-characteristic>
-      }
-      }
-    </div>
-    } @else if(filteredCharacteristics.length > 0) {
-    <p class="mt-6 text-sm text-gray-500 dark:text-gray-400">Please select the characteristics you need to suit this
-      offer to you.</p>
-    <div data-cy="prdSpecMetrics"
-      class="rounded-lg border border-dashed border-primary-100 bg-white p-3 m-2 dark:bg-gray-800 space-y-4 mb-4">
-      @if (booleanCharacteristics.length > 0) {
-      <div class="space-y-2">
-        <p class="text-xs font-semibold uppercase tracking-wide text-primary-100 dark:text-gray-300">Boolean toggles</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
-          @for (ch of booleanCharacteristics ; track ch.id) {
-          <div data-cy="offerChar"
-            class="flex w-full items-start gap-2 rounded-lg border border-gray-200 bg-white dark:bg-gray-800/80 dark:border-gray-700 p-2">
-            <div class="flex-1 min-w-0">
-              <app-characteristic [characteristic]="ch" [readOnly]="false"
-                [isDisabled]="disabledCharacteristics.includes(ch.id)"
-                [canBeDisabled]="canBeDisabledChars.includes(ch.id)" (valueChange)="onValueChange($event)">
-              </app-characteristic>
-            </div>
-          </div>
-          }
-        </div>
+      @if (form.get('selectedPricePlan')?.value) {
+      @if (hasProfile) {
+      <p class="mt-6 text-sm text-gray-500 dark:text-gray-400">{{ 'PRICE_PLAN_DRAWER._profile_associated' | translate }}</p>
+      <div class="rounded-lg border border-dashed border-primary-100 bg-white p-2 m-2 dark:bg-gray-800">
+        @for (ch of filteredCharacteristics ; track ch.id) {
+        @if(!ch.name?.endsWith('- enabled')){
+        <app-characteristic [characteristic]="ch" [readOnly]="true"
+          (valueChange)="onValueChange($event)"></app-characteristic>
+        }
+        }
       </div>
-      }
-      @if (choiceCharacteristics.length > 0) {
-      <div class="space-y-2">
-        <p class="text-xs font-semibold uppercase tracking-wide text-primary-100 dark:text-gray-300">Choices</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
-          @for (ch of choiceCharacteristics ; track ch.id) {
-          <div data-cy="offerChar"
-            class="flex w-full items-start gap-2 rounded-lg border border-gray-200 bg-white dark:bg-gray-800/80 dark:border-gray-700 p-2">
-            @if(canBeDisabledChars.includes(ch.id) && !isBooleanCharacteristic(ch)){
-            <label class="inline-flex items-center cursor-pointer w-fit justify-start items-start mt-1">
-              <input type="checkbox" [checked]="!disabledCharacteristics.includes(ch.id)"
-                (change)="onToggleChange($event, ch.name)" class="sr-only peer">
-              <div
-                class="relative w-9 h-5 bg-gray-300 border border-gray-400 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 dark:border-gray-500 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:start-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:after:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
+      } @else if(filteredCharacteristics.length > 0) {
+      <p class="mt-6 text-sm text-gray-500 dark:text-gray-400">{{ 'PRICE_PLAN_DRAWER._select_characteristics' | translate }}</p>
+      <div data-cy="prdSpecMetrics"
+        class="rounded-lg border border-dashed border-primary-100 bg-white p-3 m-2 dark:bg-gray-800 space-y-4 mb-4">
+        @if (booleanCharacteristics.length > 0) {
+        <div class="space-y-2">
+          <p class="text-xs font-semibold uppercase tracking-wide text-primary-100 dark:text-gray-300">{{ 'PRICE_PLAN_DRAWER._boolean_toggles' | translate }}
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+            @for (ch of booleanCharacteristics ; track ch.id) {
+            <div data-cy="offerChar"
+              class="flex w-full items-start gap-2 rounded-lg border border-gray-200 bg-white dark:bg-gray-800/80 dark:border-gray-700 p-2">
+              <div class="flex-1 min-w-0">
+                <app-characteristic [characteristic]="ch" [readOnly]="false"
+                  [isDisabled]="disabledCharacteristics.includes(ch.id)"
+                  [canBeDisabled]="canBeDisabledChars.includes(ch.id)" (valueChange)="onValueChange($event)">
+                </app-characteristic>
               </div>
-            </label>
-            }
-            <div class="flex-1 min-w-0">
-              <app-characteristic [characteristic]="ch" [readOnly]="false"
-                [isDisabled]="disabledCharacteristics.includes(ch.id)"
-                [canBeDisabled]="canBeDisabledChars.includes(ch.id)" (valueChange)="onValueChange($event)">
-              </app-characteristic>
             </div>
+            }
           </div>
-          }
         </div>
-      </div>
-      }
-      @if (rangeCharacteristics.length > 0) {
-      <div class="space-y-2">
-        <p class="text-xs font-semibold uppercase tracking-wide text-primary-100 dark:text-gray-300">Ranges</p>
-        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
-          @for (ch of rangeCharacteristics ; track ch.id) {
-          <div data-cy="offerChar"
-            class="flex w-full items-start gap-2 rounded-lg border border-gray-200 bg-white dark:bg-gray-800/80 dark:border-gray-700 p-2">
-            @if(canBeDisabledChars.includes(ch.id) && !isBooleanCharacteristic(ch)){
-            <label class="inline-flex items-center cursor-pointer w-fit justify-start items-start mt-1">
-              <input type="checkbox" [checked]="!disabledCharacteristics.includes(ch.id)"
-                (change)="onToggleChange($event, ch.name)" class="sr-only peer">
-              <div
-                class="relative w-9 h-5 bg-gray-300 border border-gray-400 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 dark:border-gray-500 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:start-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:after:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
+        }
+        @if (choiceCharacteristics.length > 0) {
+        <div class="space-y-2">
+          <p class="text-xs font-semibold uppercase tracking-wide text-primary-100 dark:text-gray-300">{{ 'PRICE_PLAN_DRAWER._choices' | translate }}</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+            @for (ch of choiceCharacteristics ; track ch.id) {
+            <div data-cy="offerChar"
+              class="flex w-full items-start gap-2 rounded-lg border border-gray-200 bg-white dark:bg-gray-800/80 dark:border-gray-700 p-2">
+              @if(canBeDisabledChars.includes(ch.id) && !isBooleanCharacteristic(ch)){
+              <label class="inline-flex items-center cursor-pointer w-fit justify-start items-start mt-1">
+                <input type="checkbox" [checked]="!disabledCharacteristics.includes(ch.id)"
+                  (change)="onToggleChange($event, ch.name)" class="sr-only peer">
+                <div
+                  class="relative w-9 h-5 bg-gray-300 border border-gray-400 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 dark:border-gray-500 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:start-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:after:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
+                </div>
+              </label>
+              }
+              <div class="flex-1 min-w-0">
+                <app-characteristic [characteristic]="ch" [readOnly]="false"
+                  [isDisabled]="disabledCharacteristics.includes(ch.id)"
+                  [canBeDisabled]="canBeDisabledChars.includes(ch.id)" (valueChange)="onValueChange($event)">
+                </app-characteristic>
               </div>
-            </label>
-            }
-            <div class="flex-1 min-w-0">
-              <app-characteristic [characteristic]="ch" [readOnly]="false"
-                [isDisabled]="disabledCharacteristics.includes(ch.id)"
-                [canBeDisabled]="canBeDisabledChars.includes(ch.id)" (valueChange)="onValueChange($event)">
-              </app-characteristic>
             </div>
+            }
           </div>
-          }
         </div>
+        }
+        @if (rangeCharacteristics.length > 0) {
+        <div class="space-y-2">
+          <p class="text-xs font-semibold uppercase tracking-wide text-primary-100 dark:text-gray-300">{{ 'PRICE_PLAN_DRAWER._ranges' | translate }}</p>
+          <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+            @for (ch of rangeCharacteristics ; track ch.id) {
+            <div data-cy="offerChar"
+              class="flex w-full items-start gap-2 rounded-lg border border-gray-200 bg-white dark:bg-gray-800/80 dark:border-gray-700 p-2">
+              @if(canBeDisabledChars.includes(ch.id) && !isBooleanCharacteristic(ch)){
+              <label class="inline-flex items-center cursor-pointer w-fit justify-start items-start mt-1">
+                <input type="checkbox" [checked]="!disabledCharacteristics.includes(ch.id)"
+                  (change)="onToggleChange($event, ch.name)" class="sr-only peer">
+                <div
+                  class="relative w-9 h-5 bg-gray-300 border border-gray-400 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 dark:border-gray-500 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:start-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:after:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
+                </div>
+              </label>
+              }
+              <div class="flex-1 min-w-0">
+                <app-characteristic [characteristic]="ch" [readOnly]="false"
+                  [isDisabled]="disabledCharacteristics.includes(ch.id)"
+                  [canBeDisabled]="canBeDisabledChars.includes(ch.id)" (valueChange)="onValueChange($event)">
+                </app-characteristic>
+              </div>
+            </div>
+            }
+          </div>
+        </div>
+        }
       </div>
       }
-    </div>
-    }
-    }
+      }
 
-    @if(metrics.length>0){
-    <p class="mt-4  text-sm text-gray-500 dark:text-gray-400">You can change the metric values to simulate final prices
-    </p>
-    <div class="grid grid-cols-4 gap-2 mb-4">
-      @for (metric of metrics || []; track metric.unitOfMeasure) {
-      <div data-cy="offerMetric" class="flex flex-col">
-        <h5 [ngClass]="{
+      @if(metrics.length>0){
+      <p class="mt-4  text-sm text-gray-500 dark:text-gray-400">{{ 'PRICE_PLAN_DRAWER._simulate_prices' | translate }}
+      </p>
+      <div class="grid grid-cols-4 gap-2 mb-4">
+        @for (metric of metrics || []; track metric.unitOfMeasure) {
+        <div data-cy="offerMetric" class="flex flex-col">
+          <h5 [ngClass]="{
               'break-all': hasLongWord(metric.unitOfMeasure, 20),
               'break-words': !hasLongWord(metric.unitOfMeasure, 20)
               }" class="text-wrap break-words text-base text-primary-100 dark:text-gray-400">{{ metric.unitOfMeasure }}
-        </h5>
-        <input type="number" (input)="onMetricChange($event, metric)"
-          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-secondary-300 dark:text-white"
-          placeholder="{{metric.value}}" />
-      </div>
+          </h5>
+          <input type="number" (input)="onMetricChange($event, metric)"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-secondary-300 dark:text-white"
+            placeholder="{{metric.value}}" />
+        </div>
 
+        }
+        <!--}-->
+      </div>
       }
-      <!--}-->
-    </div>
-    }
-    @if (form.get('selectedPricePlan')?.value && form.get('characteristics')?.valid && tsAndCs.description!='') {
-    <div class="mb-6 text-sm text-gray-500 dark:text-gray-400">
-      <h5 class="text-wrap break-words text-base font-semibold text-primary-100 dark:text-gray-400">Terms and
-        conditions:</h5>
-      <div class="max-h-[300px] overflow-y-auto mb-2">
-        <markdown [ngClass]="{
+      @if (form.get('selectedPricePlan')?.value && form.get('characteristics')?.valid && tsAndCs.description!='') {
+      <div class="mb-6 text-sm text-gray-500 dark:text-gray-400">
+        <h5 class="text-wrap break-words text-base font-semibold text-primary-100 dark:text-gray-400">{{ 'PRICE_PLAN_DRAWER._terms_conditions' | translate }}</h5>
+        <div class="max-h-[300px] overflow-y-auto mb-2">
+          <markdown [ngClass]="{
           'break-all': hasLongWord(tsAndCs.description, 20),
           'break-words': !hasLongWord(tsAndCs.description, 20)
           }" class="text-gray-500 dark:text-gray-400 text-wrap break-words" [data]="tsAndCs.description"></markdown>
-      </div>
-      <div class="flex items-center">
-        <input type="checkbox" id="tsAccepted" data-cy="acceptTermsCheckbox" class="mr-2" formControlName="tsAccepted">
-        <label for="tsAccepted" class="text-sm">I accept the terms and conditions</label>
-      </div>
-    </div>
-    }
-  </form>
-
-  <div data-cy="bottom-banner"
-    class="shrink-0 p-4 w-full grid grid-cols-1 gap-4 bg-primary-100 text-white overflow-hidden transition-all duration-300 ease-in-out">
-    @if (isLoading) {
-    <app-loading-spinner containerClass="" label="Loading price..." />
-    } @else if (isCustom){
-    <div class="text-sm text-white">
-      <p>This offer includes a custom price plan. This implies that the service price plan has been created externally
-        to the DOME Marketplace and is entirely determined by the service provider. The final price will be calculated
-        after the product order is submitted to the service provider.</p>
-    </div>
-    } @else if (isFree){
-    <div class="text-sm text-white">
-      <p>This offer is free</p>
-    </div>
-    } @else if (price) {
-    <div class="text-sm text-white">
-      @for (item of price; track item) {
-      <div data-cy="previewPrices" class="flex justify-between mb-2">
-        <span class="font-medium capitalize">{{ item['priceType'] }}:</span>
-        <span class="font-bold">{{ formatPrice(item['price']['taxIncludedAmount']['value']) }} {{
-          item['price']['taxIncludedAmount']['unit'] }}
-          @if(hasKey(item, 'recurringChargePeriod')){
-          / {{ item['recurringChargePeriod'] }}
-          }
-        </span>
+        </div>
+        <div class="flex items-center">
+          <input type="checkbox" id="tsAccepted" data-cy="acceptTermsCheckbox" class="mr-2"
+            formControlName="tsAccepted">
+          <label for="tsAccepted" class="text-sm">{{ 'PRICE_PLAN_DRAWER._accept_terms' | translate }}</label>
+        </div>
       </div>
       }
+    </form>
+
+    <div data-cy="bottom-banner" class="shrink-0 border-t border-gray-200 dark:border-gray-700 pt-4">
+      @if (isLoading) {
+      <app-loading-spinner containerClass="" [label]="'PRICE_PLAN_DRAWER._loading_price' | translate" />
+      } @else if (isCustom){
+      <div class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        <p>{{ 'PRICE_PLAN_DRAWER._custom_price_plan' | translate }}</p>
+      </div>
+      } @else if (isFree){
+      <div class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+        <p>{{ 'PRICE_PLAN_DRAWER._offer_free' | translate }}</p>
+      </div>
+      } @else if (price) {
+      <div class="text-sm text-gray-900 dark:text-white mb-4">
+        @for (item of price; track item) {
+        <div data-cy="previewPrices" class="flex justify-between mb-2">
+          <span class="font-medium capitalize">{{ item['priceType'] }}:</span>
+          <span class="font-bold">{{ formatPrice(item['price']['taxIncludedAmount']['value']) }} {{
+            item['price']['taxIncludedAmount']['unit'] }}
+            @if(hasKey(item, 'recurringChargePeriod')){
+            / {{ item['recurringChargePeriod'] }}
+            }
+          </span>
+        </div>
+        }
+      </div>
+      } @else {
+      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ 'PRICE_PLAN_DRAWER._select_plan_price' | translate }}</p>
+      }
+      <app-button data-cy="addToCart" type="button" [disabled]="!isFormValid()" (click)="createOrder()"
+        suffixIcon="arrow-right" class="w-full">
+        {{ (mode === 'modify' ? 'PRICE_PLAN_DRAWER._modify_button' : 'PRICE_PLAN_DRAWER._add_to_cart_button') | translate }}
+      </app-button>
     </div>
-    } @else {
-    <p class="text-sm text-white dark:text-gray-400">Please, select a price plan to get its price</p>
-    }
-    <app-button data-cy="addToCart" type="button" [disabled]="!isFormValid()" (click)="createOrder()" suffixIcon="arrow-right">
-      {{ mode === 'modify' ? 'Modify Characteristics' : 'Add to cart' }}
-    </app-button>
   </div>
-</div>
 </app-drawer>
