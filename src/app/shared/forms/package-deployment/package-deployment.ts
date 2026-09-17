@@ -28,7 +28,7 @@ const HELM_FIELDS: FormField[] = [
   // { type: 'string', name: 'releaseName', label: 'Release name', required: true },
   { type: 'string', name: 'version', label: 'PACKAGE_DEPLOYMENT._chart_version', required: true, colSpan: 2 },
   // { type: 'string', name: 'namespace', label: 'Namespace', defaultValue: 'default', colSpan: 2 },
-  { type: 'code', language: 'yaml', name: 'values', label: 'PACKAGE_DEPLOYMENT._enforced_helm_values', validators: [yamlValidator] },
+  { type: 'code', language: 'yaml', name: 'values', label: 'PACKAGE_DEPLOYMENT._enforced_helm_values', placeholder: 'foo:\n  var: test', validators: [yamlValidator] },
 ];
 
 const DOCKER_FIELDS: FormField[] = [

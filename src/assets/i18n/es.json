@@ -2349,7 +2349,7 @@
     "_on_failure_abort": "Abortar",
     "_on_failure_continue": "Continuar",
     "_on_failure_retry": "Reintentar",
-    "_helm_values_override": "Valores de Helm obligatorios",
+    "_helm_values_override": "Valores Helm forzados",
     "_cycle_error": "Dependencia cíclica detectada. Un paso no puede depender de sí mismo ni de un paso que dependa transitivamente de él."
   },
   "CREATE_SERV_SPEC": {
