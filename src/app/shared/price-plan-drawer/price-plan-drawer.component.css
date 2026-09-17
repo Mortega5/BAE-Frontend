@@ -1,0 +1,3 @@
+app-item-card[data-cy="offerChar"] ::ng-deep .app-item-card {
+  height: 100%;
+}

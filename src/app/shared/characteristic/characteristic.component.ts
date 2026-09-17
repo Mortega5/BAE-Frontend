@@ -1,10 +1,9 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
-import {FormControl, ReactiveFormsModule} from '@angular/forms';
-import {NgForOf, NgClass} from "@angular/common";
-import {components} from "../../models/product-catalog";
-import {MarkdownComponent} from "ngx-markdown";
-import { certifications } from 'src/app/models/certification-standards.const';
-type  ProductSpecificationCharacteristic = components["schemas"]["ProductSpecificationCharacteristic"]
+import { JsonPipe, NgClass, NgForOf } from "@angular/common";
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { MarkdownComponent } from "ngx-markdown";
+import { components } from "../../models/product-catalog";
+type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecificationCharacteristic"]
 
 interface CharacteristicValue {
   isDefault: boolean;
@@ -28,7 +27,8 @@ interface Characteristic {
     NgForOf,
     NgClass,
     ReactiveFormsModule,
-    MarkdownComponent
+    MarkdownComponent,
+    JsonPipe
   ],
   templateUrl: './characteristic.component.html',
   styleUrl: './characteristic.component.css'
@@ -96,10 +96,10 @@ export class CharacteristicComponent implements OnInit {
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
-    if(str){
+    if (str) {
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
   }
 }

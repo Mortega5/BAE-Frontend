@@ -11,6 +11,8 @@ import { cartProduct } from 'src/app/models/interfaces';
 import { v4 as uuidv4 } from 'uuid';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { PricePlanMetricsService } from 'src/app/services/price-plan-metrics.service';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faCircleInfo } from '@fortawesome/pro-solid-svg-icons';
 type Product = components["schemas"]["ProductOffering"];
 type ProductSpecification = components["schemas"]["ProductSpecification"];
 type ProductOfferingTerm = components["schemas"]["ProductOfferingTerm"];
@@ -20,6 +22,8 @@ import { FormsModule } from '@angular/forms';
 import { lastValueFrom, Subscription } from 'rxjs';
 import { LoadingSpinnerComponent } from "../loading-spinner/loading-spinner.component";
 import { ButtonComponent } from "../button/button.component";
+import { ContentCardComponent } from "../content-card/content-card.component";
+import { ItemCardComponent } from "../item-card/item-card.component";
 import { DrawerComponent } from "../drawer/drawer.component";
 import { TranslateModule } from "@ngx-translate/core";
 
@@ -36,13 +40,18 @@ import { TranslateModule } from "@ngx-translate/core";
     FormsModule,
     LoadingSpinnerComponent,
     ButtonComponent,
+    ContentCardComponent,
+    ItemCardComponent,
     DrawerComponent,
-    TranslateModule
+    TranslateModule,
+    FaIconComponent
 ],
   templateUrl: './price-plan-drawer.component.html',
   styleUrl: './price-plan-drawer.component.css'
 })
 export class PricePlanDrawerComponent implements OnInit, OnDestroy {
+
+  protected readonly faCircleInfo = faCircleInfo;
 
   @Input() drawerId: string = 'drawer-default'; // ID
   @Input() productOff: Product | undefined;
