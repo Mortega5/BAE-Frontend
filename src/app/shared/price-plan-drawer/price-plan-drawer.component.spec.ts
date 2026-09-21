@@ -304,6 +304,59 @@ describe('PricePlanDrawerComponent', () => {
     expect(priceServiceSpy.getProductPrice).toHaveBeenCalledWith('constraint-1');
   });
 
+  it('onPricePlanSelected should remove only the values listed by a partial constraint', async () => {
+    component.prodSpec = {
+      productSpecCharacteristic: [
+        {
+          id: 'char-region',
+          name: 'Region',
+          productSpecCharacteristicValue: [
+            { value: 'EU', isDefault: true },
+            { value: 'US', isDefault: false }
+          ]
+        },
+        {
+          id: 'char-vcores',
+          name: 'vCores',
+          productSpecCharacteristicValue: [
+            { valueFrom: 1, valueTo: 386, isDefault: true }
+          ]
+        }
+      ]
+    } as any;
+    const pricePlan = {
+      id: 'pp-1',
+      priceType: 'usage',
+      popRelationship: [{ id: 'constraint-1', relationshipType: 'constraint' }]
+    };
+    priceServiceSpy.getProductPrice.and.resolveTo({
+      id: 'constraint-1',
+      priceType: 'constraint',
+      prodSpecCharValueUse: [
+        {
+          id: 'char-region',
+          name: 'Region',
+          productSpecCharacteristicValue: [{ value: 'EU' }]
+        },
+        {
+          id: 'char-vcores',
+          name: 'vCores',
+          productSpecCharacteristicValue: [{ valueFrom: 1, valueTo: 3 }]
+        }
+      ]
+    });
+    spyOn(component, 'calculatePrice').and.resolveTo();
+
+    await component.onPricePlanSelected(pricePlan);
+
+    expect(component.filteredCharacteristics[0].productSpecCharacteristicValue as any).toEqual([
+      { value: 'US', isDefault: true }
+    ]);
+    expect(component.filteredCharacteristics[1].productSpecCharacteristicValue as any).toEqual([
+      { valueFrom: 4, valueTo: 386, isDefault: true }
+    ]);
+  });
+
   it('onPricePlanSelected should load bundled usage metrics', async () => {
     component.prodSpec = { productSpecCharacteristic: [] } as any;
     const pricePlan = {
