@@ -404,7 +404,10 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     const selectableCharacteristics = this.filteredCharacteristics.filter(
       (characteristic) =>
         !this.isEnabledCharacteristic(characteristic) &&
-        characteristic.configurable !== false &&
+        // A range always lets the buyer pick a value within its bounds via the slider,
+        // regardless of `configurable` — that flag only matters for hiding fixed
+        // scalar/enum characteristics the buyer shouldn't touch at all.
+        (characteristic.configurable !== false || this.isRangeCharacteristic(characteristic)) &&
         !profileNames.has(characteristic.name)
     );
 
