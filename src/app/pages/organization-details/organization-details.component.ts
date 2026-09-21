@@ -28,6 +28,16 @@ type ToolbarFilter = {
 };
 
 type OrganizationDetailsMode = 'catalog' | 'organization';
+type ContactMediumKind = 'email' | 'phone' | 'address' | 'website';
+const CONTACT_MEDIUM_KIND_ORDER: ContactMediumKind[] = ['email', 'phone', 'address'];
+
+interface DisplayContactMedium {
+  kind: ContactMediumKind;
+  title: string;
+  titleKey: string;
+  value: string;
+  href?: string;
+}
 
 @Component({
   selector: 'app-organization-details',
@@ -46,8 +56,15 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
     return this.themeService.getCurrentThemeConfig()?.assets.defaultLogoUrl;
   }
 
-  get hasContact(): boolean { return !!(this.email || this.website || this.address || this.phone); }
-  get contactCount(): number { return [this.email, this.website, this.address, this.phone].filter(Boolean).length; }
+  get contactMediums(): DisplayContactMedium[] { return this.buildContactMediums(this.orgInfo?.contactMedium); }
+  get supportContacts(): DisplayContactMedium[] {
+    const contacts = this.contactMediums;
+    return this.website
+      ? [...contacts, { kind: 'website' as const, title: '', titleKey: 'ORGANIZATION._site', value: this.website, href: this.website }]
+      : contacts;
+  }
+  get hasContact(): boolean { return this.supportContacts.length > 0; }
+  get contactCount(): number { return this.supportContacts.length; }
   description: any = undefined;
   website: any;
   country: any;
@@ -254,6 +271,50 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
       console.warn('Organization unavailable:', err);
       this.notFound = true;
     })
+  }
+
+  private buildContactMediums(contactMedium: any[] | undefined): DisplayContactMedium[] {
+    if (!Array.isArray(contactMedium)) return [];
+
+    const grouped = new Map<ContactMediumKind, DisplayContactMedium[]>(
+      CONTACT_MEDIUM_KIND_ORDER.map(kind => [kind, []])
+    );
+
+    for (const medium of contactMedium) {
+      const displayMedium = this.toDisplayContactMedium(medium);
+      if (!displayMedium) { continue; }
+      grouped.get(displayMedium.kind)?.push(displayMedium);
+    }
+
+    return CONTACT_MEDIUM_KIND_ORDER.flatMap(kind => grouped.get(kind) ?? []);
+  }
+
+  private toDisplayContactMedium(medium: any): DisplayContactMedium | null {
+    const characteristic = medium?.characteristic ?? {};
+    const contactType = characteristic?.contactType;
+    const title = typeof contactType === 'string' ? contactType.trim() : '';
+
+    if (medium?.mediumType === 'Email') {
+      const value = characteristic?.emailAddress ?? '';
+      return value ? { kind: 'email', title, titleKey: 'ORGANIZATION._contact_mail', value, href: `mailto:${value}` } : null;
+    }
+
+    if (medium?.mediumType === 'TelephoneNumber' || medium?.mediumType === 'Phone') {
+      const value = characteristic?.phoneNumber ?? '';
+      return value ? { kind: 'phone', title, titleKey: 'ORGANIZATION._phone', value } : null;
+    }
+
+    if (medium?.mediumType === 'PostalAddress') {
+      const value = [
+        characteristic?.street1,
+        [characteristic?.postCode, characteristic?.city].filter(Boolean).join(' '),
+        characteristic?.stateOrProvince,
+        characteristic?.country
+      ].filter(Boolean).join(', ');
+      return value ? { kind: 'address', title, titleKey: 'ORGANIZATION._address', value } : null;
+    }
+
+    return null;
   }
 
   ngAfterViewInit(): void {
