@@ -29,15 +29,18 @@
           </div>
         }
       </div>
+    } @else {
+      <div class="p-4 my-2 text-sm text-center text-primary-100 dark:text-primary-50 rounded-lg bg-blue-50 dark:bg-secondary-300" role="alert">
+        <span class="font-medium">{{ 'FORMS.PRICE_PLANS._prod_spec_no_chars' | translate }}</span>
+      </div>
+    }
+
+    @if(characteristics.length>0){
       <div appCardFooter>
         <app-button data-cy="offerProfileCancel" type="button" (click)="cancel()" variant="ghost">{{ 'FORMS.PRICE_PLANS._cancel' | translate }}</app-button>
         <app-button data-cy="offerProfileSave" type="button" (click)="saveProfile()" [disabled]="form.invalid">
           {{ 'FORMS.PRICE_PLANS._save' | translate }}
         </app-button>
-      </div>
-    } @else {
-      <div class="p-4 my-2 text-sm text-center text-primary-100 dark:text-primary-50 rounded-lg bg-blue-50 dark:bg-secondary-300" role="alert">
-        <span class="font-medium">{{ 'FORMS.PRICE_PLANS._prod_spec_no_chars' | translate }}</span>
       </div>
     }
   </app-card>
