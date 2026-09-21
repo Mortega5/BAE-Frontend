@@ -72,6 +72,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   price: string = '';
   images: AttachmentRefOrValue[] = [];
   attatchments: AttachmentRefOrValue[] = [];
+  termsFileAttachments: AttachmentRefOrValue[] = [];
   prodSpec: ProductSpecification = {};
   complianceProf: any[] = [];
   additionalCerts: any[] = [];
@@ -473,9 +474,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       this.attatchments = this.productOff?.attachment?.filter(item => item.name != 'Profile Picture') ?? [];
     }
 
-    this.licenseTerm = this.productOff?.productOfferingTerm?.find(
-      element => element.name === 'License'
-    );
+    this.setOfferingTerms(this.productOff?.productOfferingTerm);
 
     //Hardcoding compliance lever for the moment
     this.complianceLevel = this.api.getComplianceLevel(this.prodSpec);
@@ -680,14 +679,10 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
 
     if (this.productOff?.productOfferingTerm != undefined) {
-      this.licenseTerm = this.productOff.productOfferingTerm.find(
-        element => element.name === 'License'
-      );
-      if (!this.licenseTerm) {
-        this.check_terms = false;
-      } else {
-        this.check_terms = true;
-      }
+      this.setOfferingTerms(this.productOff.productOfferingTerm);
+      // A license text OR an uploaded T&C file both require the buyer to accept
+      // before checking out — not just inline license text.
+      this.check_terms = !!this.licenseTerm || this.termsFileAttachments.length > 0;
     }
 
     if (this.prodSpec.productSpecCharacteristic != undefined) {
@@ -978,17 +973,38 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
   toggleTermsReadMore() {
     this.showTermsMore = !this.showTermsMore;
-
-    const el = this.termsTextRef.nativeElement;
-    if (this.showTermsMore) {
-      el.classList.remove('line-clamp-5');
-    } else {
-      el.classList.add('line-clamp-5');
-    }
   }
 
   goToLink(url: any) {
     window.open(url, "_blank");
+  }
+
+  private extractTermsFileAttachments(terms: any[] | undefined): AttachmentRefOrValue[] {
+    return (terms || [])
+      .filter(term => String(term?.name || '').toLowerCase() === 'terms-file' && term?.description)
+      .map((term, index) => ({
+        id: term.id || `terms-file-${index}`,
+        name: this.fileNameFromUrl(term.description),
+        url: term.description,
+        attachmentType: 'terms-file'
+      }));
+  }
+
+  private setOfferingTerms(terms: any[] | undefined): void {
+    this.licenseTerm = terms?.find(
+      term => term.name === 'License'
+    );
+    this.termsFileAttachments = this.extractTermsFileAttachments(terms);
+    this.showTermsMore = false;
+    this.showReadMoreButton = false;
+  }
+
+  private fileNameFromUrl(value: string): string {
+    const last = value.split('/').pop() || value;
+    let decoded = last;
+    try { decoded = decodeURIComponent(last); } catch { }
+    const underscore = decoded.indexOf('_');
+    return underscore > -1 ? decoded.slice(underscore + 1) : decoded;
   }
 
   getOwner() {

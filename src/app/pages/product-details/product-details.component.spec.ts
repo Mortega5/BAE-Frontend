@@ -320,21 +320,13 @@ describe('ProductDetailsComponent', () => {
     expect(component.getProductImage()).toBe('https://placehold.co/600x400/svg');
   });
 
-  it('toggleTermsReadMore should switch clamp class based on expanded state', () => {
-    const removeSpy = jasmine.createSpy('remove');
-    const addSpy = jasmine.createSpy('add');
-    component.termsTextRef = {
-      nativeElement: { classList: { remove: removeSpy, add: addSpy } },
-    } as any;
-
+  it('toggleTermsReadMore should switch expanded state', () => {
     component.showTermsMore = false;
     component.toggleTermsReadMore();
     expect(component.showTermsMore).toBeTrue();
-    expect(removeSpy).toHaveBeenCalledWith('line-clamp-5');
 
     component.toggleTermsReadMore();
     expect(component.showTermsMore).toBeFalse();
-    expect(addSpy).toHaveBeenCalledWith('line-clamp-5');
   });
 
   it('checkOverflow should update read-more visibility', () => {

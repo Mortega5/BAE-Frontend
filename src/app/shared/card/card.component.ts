@@ -430,12 +430,13 @@ async deleteProduct(product: Product | undefined){
       const licenseTerm = this.productOff.productOfferingTerm.find(
         element => element.name === 'License'
       );
+      // A license text OR an uploaded T&C file both require the buyer to accept
+      // before checking out — not just inline license text.
+      const hasTermsFile = this.productOff.productOfferingTerm.some(
+        (term: any) => String(term?.name || '').toLowerCase() === 'terms-file' && term?.description
+      );
 
-      if (!licenseTerm) {
-        this.check_terms=false;
-      } else {
-        this.check_terms=true;
-      }
+      this.check_terms = !!licenseTerm || hasTermsFile;
     }
     //this.prepareOffData();
 

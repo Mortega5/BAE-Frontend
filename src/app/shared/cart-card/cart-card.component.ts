@@ -310,4 +310,16 @@ export class CartCardComponent implements OnInit {
     }
   }
 
+  isTermsFile(term: any): boolean {
+    return String(term?.name || '').toLowerCase() === 'terms-file';
+  }
+
+  fileNameFromUrl(value: string): string {
+    const last = value.split('/').pop() || value;
+    let decoded = last;
+    try { decoded = decodeURIComponent(last); } catch { }
+    const underscore = decoded.indexOf('_');
+    return underscore > -1 ? decoded.slice(underscore + 1) : decoded;
+  }
+
 }

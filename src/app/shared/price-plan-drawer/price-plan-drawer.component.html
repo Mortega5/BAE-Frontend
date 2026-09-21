@@ -192,16 +192,28 @@
         <!--}-->
       </div>
       }
-      @if (form.get('selectedPricePlan')?.value && form.get('characteristics')?.valid && tsAndCs.description!='') {
+      @if (form.get('selectedPricePlan')?.value && form.get('characteristics')?.valid && (tsAndCs.description!='' || termsFileAttachments.length > 0)) {
       <div class="mb-6 text-sm text-gray-500 dark:text-gray-400">
         <h5 class="text-wrap break-words text-base font-semibold text-primary-100 dark:text-gray-400">{{
           'PRICE_PLAN_DRAWER._terms_conditions' | translate }}</h5>
+        @if (tsAndCs.description != '') {
         <div class="max-h-[300px] overflow-y-auto mb-2">
           <markdown [ngClass]="{
           'break-all': hasLongWord(tsAndCs.description, 20),
           'break-words': !hasLongWord(tsAndCs.description, 20)
           }" class="text-gray-500 dark:text-gray-400 text-wrap break-words" [data]="tsAndCs.description"></markdown>
         </div>
+        }
+        @if (termsFileAttachments.length > 0) {
+        <ul class="mb-2 space-y-1">
+          @for (file of termsFileAttachments; track file.id) {
+          <li>
+            <a [href]="file.url" target="_blank" rel="noopener"
+              class="text-primary-100 dark:text-primary-50 font-medium hover:underline">{{ file.name }}</a>
+          </li>
+          }
+        </ul>
+        }
         <div class="flex items-center">
           <input type="checkbox" id="tsAccepted" data-cy="acceptTermsCheckbox" class="mr-2"
             formControlName="tsAccepted">

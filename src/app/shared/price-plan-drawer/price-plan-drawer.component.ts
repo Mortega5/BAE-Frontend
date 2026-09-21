@@ -71,6 +71,9 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   isLoading = false; // Loading prices or not
   price: any[] = []; // Object with multiple types of prices (MOCK)
   tsAndCs: ProductOfferingTerm;
+  /** Uploaded T&C files (offer's `terms-file` productOfferingTerm entries) — reviewing
+   * and accepting either this or the license text (tsAndCs) is required to check out. */
+  termsFileAttachments: { id: string; name: string; url: string }[] = [];
   hasProfile: boolean = false;
   isCustom: boolean = false;
   isFree: boolean = false;
@@ -129,18 +132,9 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     document.addEventListener('keydown', this.boundHandleEscape);
     this.toggleBodyScroll(this.isOpen);
     // Configurar los términos y condiciones
-    this.tsAndCs = { description: '' };
     console.log('---- producto')
     console.log(this.productOff)
-
-    this.productOff?.productOfferingTerm?.forEach((term) => {
-      console.log(term.name)
-      console.log('----')
-      if (term.name != 'procurement') {
-        console.log('---- Setting the term')
-        this.tsAndCs = term;
-      }
-    });
+    this.setTermsAcceptance();
 
     this.isFree = this.productOff?.productOfferingPrice?.length === 0;
 
@@ -149,11 +143,6 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     }
     this.applyCharacteristicsSource();
 
-    if(this.tsAndCs.description == ''){
-      this.form.controls['tsAccepted'].setValue(true);
-      this.cdr.detectChanges();
-    }
-    console.log(this.tsAndCs)
     let profile = this.productOff?.attachment?.filter(item => item.name === 'Profile Picture') ?? [];
     console.log('profile...')
     console.log(profile)
@@ -174,28 +163,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
       this.updateOrderChars();
     }
     if (changes['isOpen']?.currentValue === true) {
-      this.tsAndCs = { description: '' };
-
-      /*this.productOff?.productOfferingTerm?.forEach((term) => {
-        if (term.name != 'procurement') {
-          console.log('---- Setting the term')
-          this.tsAndCs = term;
-        }
-      });*/
-      const licenseTerm = this.productOff?.productOfferingTerm?.find(
-        element => element.name === 'License'
-      );
-      if(licenseTerm){
-        this.tsAndCs={ description: licenseTerm.description };
-      }
-      if(this.tsAndCs.description == ''){
-        this.form.controls['tsAccepted'].setValue(true);
-        this.cdr.detectChanges();
-      } else {
-        this.form.controls['tsAccepted'].setValue(false);
-        this.cdr.detectChanges();
-      }
-      console.log(this.tsAndCs)
+      this.setTermsAcceptance();
     }
     if (changes['productOff'] && changes['productOff'].currentValue) {
       console.log('Changes...')
@@ -233,6 +201,38 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   private toggleBodyScroll(lockScroll: boolean): void {
     document.body.style.overflow = lockScroll ? 'hidden' : '';
     document.documentElement.style.overflow = lockScroll ? 'hidden' : '';
+  }
+
+  /** Resolves the license text and any uploaded T&C files for this offer, and
+   * auto-accepts tsAccepted only when there's genuinely nothing to review. */
+  private setTermsAcceptance(): void {
+    const licenseTerm = this.productOff?.productOfferingTerm?.find(
+      (element: any) => element.name === 'License'
+    );
+    this.tsAndCs = licenseTerm ? { description: licenseTerm.description } : { description: '' };
+    this.termsFileAttachments = this.extractTermsFileAttachments(this.productOff?.productOfferingTerm);
+
+    const hasTermsToReview = this.tsAndCs.description !== '' || this.termsFileAttachments.length > 0;
+    this.form.controls['tsAccepted'].setValue(!hasTermsToReview);
+    this.cdr.detectChanges();
+  }
+
+  private extractTermsFileAttachments(terms: any[] | undefined): { id: string; name: string; url: string }[] {
+    return (terms || [])
+      .filter((term: any) => String(term?.name || '').toLowerCase() === 'terms-file' && term?.description)
+      .map((term: any, index: number) => ({
+        id: term.id || `terms-file-${index}`,
+        name: this.fileNameFromUrl(term.description),
+        url: term.description
+      }));
+  }
+
+  private fileNameFromUrl(value: string): string {
+    const last = value.split('/').pop() || value;
+    let decoded = last;
+    try { decoded = decodeURIComponent(last); } catch { }
+    const underscore = decoded.indexOf('_');
+    return underscore > -1 ? decoded.slice(underscore + 1) : decoded;
   }
 
   disableChars(){

@@ -187,10 +187,17 @@ class="flex justify-center overflow-y-auto overflow-x-hidden fixed top-0 right-0
                   @if(check_terms == true){                 
                       <h5 class="text-3xl font-semibold tracking-tight text-primary-100">{{ 'CARD._terms' | translate }}:</h5>
                       @for (term of productOff?.productOfferingTerm; track term.name){
+                      @if(!isTermsFile(term)){
                       <p class="text-gray-900 text-bold"> <span class="font-bold">{{term.name}}:</span></p>
                       <div class="max-h-[300px] overflow-y-auto mb-4">
                         <markdown class="text-lg font-normal" [data]="term.description"></markdown>
-                      </div>                      
+                      </div>
+                      } @else {
+                      <a [href]="term.description" target="_blank" rel="noopener"
+                        class="flex items-center gap-2 text-primary-100 font-medium mb-4 hover:underline">
+                        {{ fileNameFromUrl(term.description) }}
+                      </a>
+                      }
                       }
                       <div class="flex items-center mb-4">
                           <input id="terms-checkbox" type="checkbox" (change)="selected_terms=!selected_terms" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500">

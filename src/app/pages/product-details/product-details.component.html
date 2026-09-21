@@ -673,12 +673,14 @@
       </div>
       }
 
-      @if(licenseTerm || productOff?.serviceLevelAgreement){
-      @if(licenseTerm && licenseTerm?.description != ''){
-      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'PRODUCT_DETAILS._license' |
+      @if(licenseTerm || termsFileAttachments.length > 0 || productOff?.serviceLevelAgreement){
+      @if((licenseTerm && licenseTerm?.description != '') || termsFileAttachments.length > 0){
+      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'CREATE_OFFER._terms_conditions' |
         translate }}</h2>
+      @if(licenseTerm && licenseTerm?.description != ''){
       <div
-        class="rounded-2xl bg-white dark:bg-secondary-300 border border-[#EBECEE] dark:border-secondary-200 p-8 mb-8">
+        class="rounded-2xl bg-white dark:bg-secondary-300 border border-[#EBECEE] dark:border-secondary-200 p-8"
+        [ngClass]="termsFileAttachments.length > 0 ? 'mb-4' : 'mb-8'">
         <div class="flex justify-end mb-4">
           <fa-icon [icon]="faScaleBalanced" class="text-2xl text-primary-100 dark:text-primary-50"></fa-icon>
         </div>
@@ -689,13 +691,29 @@
                   }" [data]="licenseTerm?.description"
             class="text-[16px] text-[#526179] dark:text-gray-400 break-words"></markdown>
         </div>
-        @if(showReadMoreButton){
+        @if(showReadMoreButton || isLongText(licenseTerm?.description)){
         <button class="mt-4 text-primary-100 dark:text-primary-50 font-medium text-[14px] hover:underline"
           (click)="toggleTermsReadMore()">
-          {{ showTermsMore ? 'Read less' : 'Read more' }}
+          {{ (showTermsMore ? 'PRODUCT_DETAILS._read_less' : 'PRODUCT_DETAILS._read_more') | translate }}
         </button>
         }
       </div>
+      }
+      @if(termsFileAttachments.length > 0){
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        @for (att of termsFileAttachments; track att.id) {
+        <div
+          class="rounded-2xl bg-white dark:bg-secondary-300 border border-[#EBECEE] dark:border-secondary-200 p-6 flex items-center justify-between">
+          <h3 [ngClass]="{'break-all': hasLongWord(att.name, 20), 'break-words': !hasLongWord(att.name, 20)}"
+            class="text-[18px] font-bold text-secondary-100 dark:text-white break-words">{{att.name}}</h3>
+          <button (click)="goToLink(att.url)"
+            class="flex items-center justify-center h-10 w-10 rounded-full bg-secondary-50 dark:bg-secondary-200 hover:bg-secondary-50/80 dark:hover:bg-secondary-200/80 transition-colors text-primary-100 dark:text-primary-50 shrink-0 ml-4">
+            <fa-icon [icon]="faDownload" class="text-lg"></fa-icon>
+          </button>
+        </div>
+        }
+      </div>
+      }
       }
       @if(productOff?.serviceLevelAgreement){
       <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'PRODUCT_DETAILS._sla' | translate }}
