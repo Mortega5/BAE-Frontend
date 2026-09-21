@@ -444,6 +444,12 @@ export class ApiServiceService {
     return this.http.post<any>(url, catalog);
   }
 
+  createDefaultCatalog(catalog: any) {
+    let url = `${ApiServiceService.BASE_URL}/admin/defaultcatalog/create`;
+
+    return this.http.post<any>(url, catalog);
+  }
+
   updateCatalog(catalog: any, id: any) {
     let url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog/${id}`;
 
