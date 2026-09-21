@@ -41,7 +41,7 @@
     (stepChanged)="onStepChanged($event)" (submitted)="save()">
 
     <!-- Step 1: General Info -->
-    <ng-template stepperStep="General Info" stepId="general">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._general_info' | translate }}" stepId="general">
       <div class="flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._general_info' | translate }}
@@ -54,7 +54,7 @@
     </ng-template>
 
     <!-- Step 2: Characteristics -->
-    <ng-template stepperStep="Characteristics" stepId="characteristics">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._configuration_options' | translate }}" stepId="characteristics">
       <div class="flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CHAR_SPEC._step_title' | translate }}</h2>
@@ -67,7 +67,7 @@
 
     <!-- Step 3: Package Deployment -->
     @if (requiresPackageDeployment) {
-    <ng-template stepperStep="Package Deployment" stepId="packageDeployment">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._package_deployment' | translate }}" stepId="packageDeployment">
       <div class="flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._package_deployment_title' |
@@ -81,7 +81,7 @@
     }
 
     <!-- Step 4: Configuration -->
-    <ng-template stepperStep="Configuration" stepId="configuration">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._configuration' | translate }}" stepId="configuration">
       <div class="flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._template_config_title' |

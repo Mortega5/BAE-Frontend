@@ -36,7 +36,7 @@
     [submitDisabled]="!generalForm.valid || loading" [submitAlwaysVisible]="true" (stepChanged)="onStepChanged($event)"
     (submitted)="updateCatalog()">
 
-    <ng-template stepperStep="General Info">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._general_info' | translate }}">
       <div class="flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'UPDATE_CATALOG._general' | translate }}</h2>

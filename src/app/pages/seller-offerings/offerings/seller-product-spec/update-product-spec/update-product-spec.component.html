@@ -38,7 +38,7 @@
     [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="updateProduct()"
     [submitAlwaysVisible]="true">
 
-    <ng-template stepperStep="General Info" stepId="general">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._general_info' | translate }}" stepId="general">
       <div class="flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._general_info' | translate
@@ -70,7 +70,7 @@
       </div>
     </ng-template>
 
-    <ng-template stepperStep="Product Details" stepId="productDetails">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._product_details' | translate }}" stepId="productDetails">
       <div class="flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._product_details' |
@@ -308,7 +308,7 @@
     </ng-template>
 
     @if (BUNDLE_ENABLED) {
-    <ng-template stepperStep="Bundle" stepId="bundle">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._bundle' | translate }}" stepId="bundle">
       <div class="flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._bundle_step_title' |
@@ -413,7 +413,7 @@
     </ng-template>
     }
     @if (DATA_SPACE_ENABLED && !prod?.externalId) {
-    <ng-template stepperStep="Dataspace Configuration" stepId="dataspace">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._dataspace_configuration' | translate }}" stepId="dataspace">
       <div class="flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._dataspace_configuration' |
@@ -427,7 +427,7 @@
       </div>
     </ng-template>
     }
-    <ng-template stepperStep="Resource specifications" stepId="resource">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._resource_specifications' | translate }}" stepId="resource">
       <div class="flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._resource_specs_step' |
@@ -443,7 +443,7 @@
         </div>
       </div>
     </ng-template>
-    <ng-template stepperStep="Characteristics" stepId="characteristics">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._configuration_options' | translate }}" stepId="characteristics">
       <div class="flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CHAR_SPEC._step_title' | translate }}</h2>
@@ -454,7 +454,7 @@
           (characteristicsChange)="onCharacteristicsChange($event)" />
       </div>
     </ng-template>
-    <ng-template stepperStep="Service specifications" stepId="service">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._service_specifications' | translate }}" stepId="service">
       <div class="flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._service_specs_step' |
@@ -472,7 +472,7 @@
     </ng-template>
 
     @if (showDspConfigStep) {
-    <ng-template stepperStep="DSP Config" stepId="dsp_config">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._dsp_config' | translate }}" stepId="dsp_config">
       <div class="m-4 flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_configuration' |
@@ -554,7 +554,7 @@
 
     @if(!templateName) {
 
-    <ng-template stepperStep="Relationships" stepId="relationships">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._relationships' | translate }}" stepId="relationships">
       <div class="m-4 flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._relationships_step_title' |
@@ -664,7 +664,7 @@
     </ng-template>
     }
 
-    <ng-template stepperStep="FAQs" stepId="faqs">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._faqs' | translate }}" stepId="faqs">
       <div class="flex flex-col gap-5">
         <div class="flex justify-between items-center gap-4">
           <div>
@@ -764,7 +764,7 @@
       </div>
     </ng-template>
 
-    <ng-template stepperStep="Compliance profile" stepId="compliance">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._compliance_profile' | translate }}" stepId="compliance">
       <div class="flex flex-col gap-5">
         <div>
           <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._compliance_step' |

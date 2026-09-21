@@ -13,11 +13,11 @@
     [submitDisabled]="!generalForm.valid || loading" (stepChanged)="onStepChanged($event)"
     (submitted)="createSoftware()">
 
-    <ng-template stepperStep="General Info" stepId="general">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._general_info' | translate }}" stepId="general">
       <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" />
     </ng-template>
 
-    <ng-template stepperStep="Software Specification" stepId="software">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._software_specification' | translate }}" stepId="software">
       <div class="block m-4">
         <app-paginated-table data-cy="softwareSpecTable" [columns]="softwareSpecColumns"
           [fetchPage]="fetchSoftwareSpecs" [multiple]="false" [selectable]="true"
@@ -27,7 +27,7 @@
       </div>
     </ng-template>
 
-    <ng-template stepperStep="Characteristics" stepId="characteristics">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._configuration_options' | translate }}" stepId="characteristics">
       <app-software-characteristics class="block m-4" [(characteristics)]="resourceCharacteristics" />
     </ng-template>
 

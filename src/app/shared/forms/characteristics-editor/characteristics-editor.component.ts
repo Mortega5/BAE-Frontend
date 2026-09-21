@@ -103,7 +103,7 @@ export class CharacteristicsEditorComponent {
     if (!this.currentChar?.name) return;
     const duplicate = this.characteristics.find(c => c.name === this.currentChar!.name && c !== this.editingChar);
     if (duplicate) {
-      this.errorMessage = 'Cannot save duplicated name in characteristics';
+      this.errorMessage = 'Cannot save duplicated name in configuration options';
       this.showError = true;
       setTimeout(() => { this.showError = false; }, 3000);
       return;

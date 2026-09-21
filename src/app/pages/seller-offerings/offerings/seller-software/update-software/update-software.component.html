@@ -16,15 +16,15 @@
     [submitDisabled]="!generalForm.valid || loading" (stepChanged)="onStepChanged($event)"
     (submitted)="updateSoftware()" [submitAlwaysVisible]="true">
 
-    <ng-template stepperStep="General Info" stepId="general">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._general_info' | translate }}" stepId="general">
       <app-dynamic-form class="block m-4" [fields]="generalFormFields" [formGroup]="generalForm" />
     </ng-template>
 
-    <ng-template stepperStep="Software Specification" stepId="software">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._software_specification' | translate }}" stepId="software">
       <app-dynamic-form class="block m-4" [fields]="softwareSpecFields" [formGroup]="softwareSpecForm" />
     </ng-template>
 
-    <ng-template stepperStep="Characteristics" stepId="characteristics">
+    <ng-template stepperStep="{{ 'SPEC_STEPS._configuration_options' | translate }}" stepId="characteristics">
       <app-software-characteristics [readonly]="false" class="block m-4"
         [(characteristics)]="resourceCharacteristics" />
     </ng-template>
