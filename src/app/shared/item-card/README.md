@@ -37,6 +37,7 @@ active, same as every other primary-colored accent in the app.
 |---|---|---|
 | `selected` | `false` | Swaps to `--card-selected-bg`/`--card-selected-border` |
 | `clickable` | `false` | Adds `cursor: pointer` and a hover border (`--card-hover-border`) when not selected |
+| `shadow` | `'none'` | `'none' \| 'sm' \| 'md' \| 'lg'` — maps straight to the matching Tailwind `shadow-*` utility |
 
 No `padding` or `variant` input — every current caller uses the same `p-5`.
 Add one if a real second size shows up; don't pre-add it speculatively.

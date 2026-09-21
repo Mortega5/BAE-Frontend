@@ -1,3 +1,4 @@
-<div class="app-item-card" [attr.data-selected]="selected || null" [attr.data-clickable]="clickable || null">
+<div class="app-item-card" [class]="'shadow-' + shadow" [attr.data-selected]="selected || null"
+  [attr.data-clickable]="clickable || null">
   <ng-content></ng-content>
 </div>

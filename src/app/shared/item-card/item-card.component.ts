@@ -15,4 +15,5 @@ import { Component, Input } from '@angular/core';
 export class ItemCardComponent {
   @Input() selected = false;
   @Input() clickable = false;
+  @Input() shadow: 'none' | 'sm' | 'md' | 'lg' = 'none';
 }
