@@ -1,12 +1,10 @@
-<app-drawer [isOpen]="isOpen" [widthClass]="'w-full md:w-5/6'" [zIndexClass]="'z-50'" [panelClass]="'p-6 overflow-y-auto'"
-  (closed)="closeDrawer()">
-
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-4">
+<div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4" (click)="cancel()">
+  <app-card variant="modal" class="w-full md:w-5/6 max-w-3xl" (click)="$event.stopPropagation()">
+    <div appCardHeader class="flex justify-between items-center">
       <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
         {{ 'FORMS.PRICE_PLANS._configure_profile_chars' | translate }}
       </h2>
-      <app-button type="button" (click)="closeDrawer()" variant="ghost" size="sm" prefixIcon="xmark" />
+      <app-button type="button" (click)="cancel()" variant="ghost" size="sm" prefixIcon="xmark" />
     </div>
 
     @if(characteristics.length>0){
@@ -14,36 +12,25 @@
         @for(char of characteristics.controls; track $index){
           <div class="min-h-19 pb-2">
             <h5 class="font-semibold text-base leading-none text-gray-900 dark:text-white mb-3">{{char.value.name}}:</h5>
-            @if(hasKey(char?.value.options[0], 'valueFrom')){
-              <div class="relative mb-6">
-                <label for="default-range" class="sr-only">Labels range</label>
-                <input id="default-range" type="range" (change)="changeProfileValue($index,$event)"
-                       [min]="char.value.options[0].valueFrom"
-                       [max]="char.value.options[0].valueTo"
-                       [value]="char.value.selectedValue"
-                       class="w-full h-2 bg-gray-200 dark:bg-secondary-300 rounded-lg appearance-none cursor-pointer accent-primary-100">
-                <span class="text-sm text-gray-500 dark:text-gray-400 absolute start-0 -bottom-6">Min ({{char?.value.options[0].valueFrom}})</span>
-                @if(char?.value.options?.length > 0){
-                  <span class="text-sm text-gray-500 dark:text-gray-400 absolute start-1/2 -bottom-6">{{char?.value.selectedValue}} {{char?.value.options[0].unitOfMeasure}}</span>
-                }
-                <span class="text-sm text-gray-500 dark:text-gray-400 absolute end-0 -bottom-6">Max ({{char?.value.options[0].valueTo}})</span>
-              </div>
-            }@else{
-              <!-- Dropdown Selector -->
-              <select data-cy="offerProfileSelect" *ngIf="!char.value.options?.[0]?.valueFrom"
-                      class="bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3"
-                      (change)="changeProfileValue($index, $event)">
-                <option *ngFor="let opt of char.value.options" [value]="opt.value" [selected]="opt.isDefault">
+            <!-- Dropdown Selector: one option per proposed value, range bands included -->
+            <select data-cy="offerProfileSelect"
+                    class="bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3"
+                    (change)="changeProfileValue($index, $event)">
+              <option *ngFor="let opt of char.value.options"
+                      [value]="hasKey(opt, 'valueFrom') ? opt.valueFrom : opt.value"
+                      [selected]="opt.isDefault">
+                @if(hasKey(opt, 'valueFrom')){
+                  {{ opt.valueFrom }} - {{ opt.valueTo }} <span *ngIf="opt.unitOfMeasure">({{ opt.unitOfMeasure }})</span>
+                } @else {
                   {{ opt.value }} <span *ngIf="opt.unitOfMeasure">({{ opt.unitOfMeasure }})</span>
-                </option>
-              </select>
-            }
+                }
+              </option>
+            </select>
           </div>
         }
       </div>
-      <!-- Action Buttons -->
-      <div class="flex justify-end gap-3 mt-4">
-        <app-button data-cy="offerProfileCancel" type="button" (click)="closeDrawer()" variant="ghost">{{ 'FORMS.PRICE_PLANS._cancel' | translate }}</app-button>
+      <div appCardFooter>
+        <app-button data-cy="offerProfileCancel" type="button" (click)="cancel()" variant="ghost">{{ 'FORMS.PRICE_PLANS._cancel' | translate }}</app-button>
         <app-button data-cy="offerProfileSave" type="button" (click)="saveProfile()" [disabled]="form.invalid">
           {{ 'FORMS.PRICE_PLANS._save' | translate }}
         </app-button>
@@ -53,5 +40,5 @@
         <span class="font-medium">{{ 'FORMS.PRICE_PLANS._prod_spec_no_chars' | translate }}</span>
       </div>
     }
-
-</app-drawer>
+  </app-card>
+</div>

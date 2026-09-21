@@ -4,7 +4,7 @@ import {NgForOf, NgIf} from "@angular/common";
 import { certifications } from 'src/app/models/certification-standards.const';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
-import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 
 @Component({
   selector: 'app-configuration-profile-drawer',
@@ -15,7 +15,7 @@ import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
     NgForOf,
     TranslateModule,
     ButtonComponent,
-    DrawerComponent
+    ContentCardComponent
   ],
   styleUrl: './configuration-profile-drawer.component.css'
 })
@@ -25,7 +25,6 @@ export class ConfigurationProfileDrawerComponent implements OnInit {
   @Output() save = new EventEmitter<any>();
   @Output() close = new EventEmitter<void>();
 
-  isOpen = false;
   form!: FormGroup;
 
   constructor(private fb: FormBuilder) {}
@@ -36,10 +35,6 @@ export class ConfigurationProfileDrawerComponent implements OnInit {
     this.form = this.fb.group({
       characteristics: this.fb.array(characteristicsData.map(char => this.createCharacteristicForm(char)))
     });
-
-    setTimeout(() => {
-      this.isOpen = true;
-    }, 50);
   }
 
   /** A characteristic belongs in the profile picker unless it's a certification/compliance
@@ -118,17 +113,15 @@ export class ConfigurationProfileDrawerComponent implements OnInit {
     const formattedProfile = this.mapFormToProfile();
     this.save.emit(formattedProfile);
 
-    this.closeDrawer();
+    this.cancel();
   }
 
-
-  closeDrawer() {
-    this.isOpen = false;
-    setTimeout(() => this.close.emit(), 500);
+  cancel() {
+    this.close.emit();
   }
 
   @HostListener('document:keydown.escape', ['$event'])
   handleEscapeKey(event: KeyboardEvent) {
-    this.closeDrawer();
+    this.cancel();
   }
 }

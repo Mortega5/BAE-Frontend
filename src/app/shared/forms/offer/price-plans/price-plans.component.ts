@@ -44,6 +44,8 @@ interface PricePlan {
   unitOfMeasure: string | null;
   validFor: any | null;
   priceComponents: PriceComponent[];
+  forbiddenCharacteristic: any[];
+  constraintPriceId: string | null;
 }
 
 interface PriceComponentChange {
@@ -165,6 +167,8 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
       currency: plan['currency'],
       unitOfMeasure: plan['unitOfMeasure'],
       validFor: plan['validFor'],
+      forbiddenCharacteristic: plan['forbiddenCharacteristic'] || [],
+      constraintPriceId: plan['constraintPriceId'] ?? null,
       priceComponents: plan['priceComponents']?.map((comp: PriceComponent) => ({
         id: comp['id'],
         name: comp['name'],
@@ -189,6 +193,8 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
       currency: plan['currency'],
       unitOfMeasure: plan['unitOfMeasure'],
       validFor: plan['validFor'],
+      forbiddenCharacteristic: plan['forbiddenCharacteristic'] || [],
+      constraintPriceId: plan['constraintPriceId'] ?? null,
       priceComponents: plan['priceComponents']?.map((comp: PriceComponent) => ({
         id: comp['id'],
         name: comp['name'],
@@ -284,6 +290,8 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
         currency: plan['currency'],
         unitOfMeasure: plan['unitOfMeasure'],
         validFor: plan['validFor'],
+        forbiddenCharacteristic: plan['forbiddenCharacteristic'] || [],
+        constraintPriceId: plan['constraintPriceId'] ?? null,
         priceComponents: plan['priceComponents']?.map((comp: PriceComponent) => ({
           id: comp['id'],
           name: comp['name'],
@@ -457,6 +465,8 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
         priceType: [plan?.priceType || 'custom'],
         planSubType: [plan?.planSubType ?? this.inferPlanSubType(plan)],
         prodSpecCharValueUse: [plan?.prodSpecCharValueUse || null],
+        forbiddenCharacteristic: [plan?.forbiddenCharacteristic || []],
+        constraintPriceId: [plan?.constraintPriceId || null],
         currency: [plan?.price?.unit || 'EUR'],
         unitOfMeasure: [plan?.unitOfMeasure || null],
         productProfile: plan?.productProfile ? plan.productProfile : this.mapProductProfile(plan?.prodSpecCharValueUse || []),

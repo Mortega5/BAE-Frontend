@@ -31,9 +31,13 @@ import { LicenseComponent } from "./license/license.component";
 import { PricePlansComponent } from "./price-plans/price-plans.component";
 import { ProcurementModeComponent } from "./procurement-mode/procurement-mode.component";
 import { ProdSpecComponent } from "./prod-spec/prod-spec.component";
+import { CharacteristicConstraintValueUse } from "../../price-plan-constraint.utils";
 
 type ProductOffering_Create = components["schemas"]["ProductOffering_Create"];
 type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
+
+const CONSTRAINT_PRICE_TYPE = 'constraint';
+const DISCOUNT_PRICE_TYPE = 'discount';
 
 @Component({
   selector: 'app-offer-form',
@@ -591,6 +595,8 @@ export class OfferComponent implements OnInit, OnDestroy {
           configProfileCheck = false
         }
 
+        const constraintPrice = await this.getRelatedOfferingPriceByType(pricePlan, CONSTRAINT_PRICE_TYPE);
+
         let priceInfo: any = {
           id: pricePlan.id,
           name: pricePlan.name,
@@ -598,6 +604,8 @@ export class OfferComponent implements OnInit, OnDestroy {
           lifecycleStatus: pricePlan.lifecycleStatus,
           paymentOnline: pricePlan?.paymentOnline ?? !!pricePlan?.bundledPopRelationship,
           productProfile: configProfileCheck ? this.mapProductProfile(pricePlan?.prodSpecCharValueUse || []) : [],
+          constraintPriceId: constraintPrice?.id || null,
+          forbiddenCharacteristic: this.getConstraintCharacteristics(constraintPrice),
         }
 
         //Now every pricePlan is set as bundle even with only one price component
@@ -628,20 +636,20 @@ export class OfferComponent implements OnInit, OnDestroy {
             }
 
             if (data?.popRelationship) {
-              let alter = await this.api.getOfferingPrice(data?.popRelationship[0].id)
+              const alter = await this.getRelatedOfferingPriceByType(data, DISCOUNT_PRICE_TYPE);
               console.log('----- alter')
               console.log(alter)
-              if (alter.percentage) {
+              if (alter?.percentage !== undefined && alter?.percentage !== null) {
                 priceComp.discountValue = alter?.percentage
                 priceComp.discountUnit = 'percentage'
-              } else {
+              } else if (alter?.price) {
                 priceComp.discountValue = alter?.price?.value
                 priceComp.discountUnit = 'fixed'
               }
-              priceComp.discountDuration = alter?.unitOfMeasure?.amount
-              priceComp.discountDurationUnit = alter?.unitOfMeasure?.units
-              //priceComp.discountDurationUnit=alter?.
-              //priceComp.discountDuration=this.calculateDiscountDuration(alter?.validFor,alter?.)
+              if (alter) {
+                priceComp.discountDuration = alter?.unitOfMeasure?.amount
+                priceComp.discountDurationUnit = alter?.unitOfMeasure?.units
+              }
             }
             relatedPrices.push(priceComp)
           }
@@ -681,6 +689,88 @@ export class OfferComponent implements OnInit, OnDestroy {
         )
       )
     });
+  }
+
+  /** Looks up a price plan's linked ProductOfferingPrice of a given type (e.g. the
+   * "constraint" price holding forbidden characteristics) via its popRelationship. */
+  private async getRelatedOfferingPriceByType(price: any, priceType: string): Promise<any | null> {
+    const relationships = Array.isArray(price?.popRelationship) ? price.popRelationship : [];
+    for (const relationship of relationships) {
+      if (!relationship?.id) continue;
+      const relationshipType = String(relationship.relationshipType || '').toLowerCase();
+      if (relationshipType && relationshipType !== priceType) continue;
+
+      const relatedPrice = await this.api.getOfferingPrice(relationship.id);
+      if (String(relatedPrice?.priceType || '').toLowerCase() === priceType) {
+        return relatedPrice;
+      }
+    }
+    return null;
+  }
+
+  private getConstraintCharacteristics(constraintPrice: any): CharacteristicConstraintValueUse[] {
+    const characteristicUses = Array.isArray(constraintPrice?.prodSpecCharValueUse)
+      ? constraintPrice.prodSpecCharValueUse
+      : [];
+    return this.normalizeForbiddenCharacteristics(characteristicUses);
+  }
+
+  private normalizeForbiddenCharacteristics(forbiddenCharacteristics: any): CharacteristicConstraintValueUse[] {
+    if (!Array.isArray(forbiddenCharacteristics)) return [];
+    return forbiddenCharacteristics
+      .filter((characteristic: any) => characteristic?.id && characteristic?.name)
+      .map((characteristic: any) => ({
+        id: characteristic.id,
+        name: characteristic.name,
+        ...(Array.isArray(characteristic.productSpecCharacteristicValue) &&
+          characteristic.productSpecCharacteristicValue.length > 0
+          ? {
+            productSpecCharacteristicValue: characteristic.productSpecCharacteristicValue
+              .map((value: any) => ({ ...value }))
+          }
+          : {})
+      }));
+  }
+
+  private getPlanForbiddenCharacteristics(plan: any): CharacteristicConstraintValueUse[] {
+    const forbiddenCharacteristics = plan?.forbiddenCharacteristic ?? plan?.newValue?.forbiddenCharacteristic;
+    return this.normalizeForbiddenCharacteristics(forbiddenCharacteristics);
+  }
+
+  private getConstraintPriceId(plan: any): string | null {
+    return plan?.constraintPriceId ?? plan?.newValue?.constraintPriceId ?? plan?.oldValue?.constraintPriceId ?? null;
+  }
+
+  /** Creates or updates the linked "constraint" ProductOfferingPrice holding this plan's
+   * forbidden characteristics, returning the popRelationship entry to attach to the plan
+   * (or an empty array when there's nothing to forbid, to clear a previously-set one). */
+  private async persistPricePlanConstraint(plan: any): Promise<any[]> {
+    const forbiddenCharacteristics = this.getPlanForbiddenCharacteristics(plan);
+    const constraintPriceId = this.getConstraintPriceId(plan);
+
+    if (forbiddenCharacteristics.length === 0) {
+      return [];
+    }
+
+    const constraintPrice: ProductOfferingPrice = {
+      name: 'Forbidden characteristics',
+      description: 'Product specification characteristics that cannot be used by this price plan',
+      isBundle: false,
+      lifecycleStatus: 'Active',
+      priceType: CONSTRAINT_PRICE_TYPE,
+      prodSpecCharValueUse: forbiddenCharacteristics
+    };
+
+    const persistedConstraint = constraintPriceId
+      ? await lastValueFrom(this.api.updateOfferingPrice(constraintPrice, constraintPriceId))
+      : await lastValueFrom(this.api.postOfferingPrice(constraintPrice));
+
+    return [{
+      id: persistedConstraint.id,
+      href: persistedConstraint.href || persistedConstraint.id,
+      name: persistedConstraint.name || constraintPrice.name,
+      relationshipType: CONSTRAINT_PRICE_TYPE
+    }];
   }
 
   private handleApiError(error: any): void {
@@ -839,7 +929,7 @@ export class OfferComponent implements OnInit, OnDestroy {
     return { id: updated.id, href: updated.id, name: updated.name };
   }
 
-  private createBundledPricePlan(plan: any, compRel: any[]): ProductOfferingPrice {
+  private createBundledPricePlan(plan: any, compRel: any[], constraintPopRelationship: any[] = []): ProductOfferingPrice {
     const price: ProductOfferingPrice = {
       name: plan.name ?? plan?.newValue?.name,
       isBundle: true,
@@ -847,6 +937,10 @@ export class OfferComponent implements OnInit, OnDestroy {
       lifecycleStatus: plan.lifecycleStatus ?? plan?.newValue?.lifecycleStatus,
       bundledPopRelationship: compRel
     };
+
+    if (constraintPopRelationship.length > 0) {
+      price.popRelationship = constraintPopRelationship;
+    }
 
     if (plan?.priceType) {
       if (plan?.priceType == 'custom') {
@@ -909,6 +1003,11 @@ export class OfferComponent implements OnInit, OnDestroy {
         productSpecCharacteristicValue: item.productSpecCharacteristicValue.filter((v: any) => v.isDefault)
       }));
     }
+    if (modifiedFields.includes('forbiddenCharacteristic')) {
+      // Always set popRelationship here (even to []), so removing every forbidden
+      // characteristic actually clears the stale link to the old constraint price.
+      price.popRelationship = await this.persistPricePlanConstraint(plan);
+    }
     let updatedPrice = await lastValueFrom(this.api.updateOfferingPrice(price, plan.id))
     return updatedPrice;
   }
@@ -932,7 +1031,8 @@ export class OfferComponent implements OnInit, OnDestroy {
         const compRel = await Promise.all(
           components.map((comp: any) => this.createPriceComponent(comp, plan.currency))
         );
-        const bundledPricePlan = this.createBundledPricePlan(plan, compRel);
+        const constraintPopRelationship = await this.persistPricePlanConstraint(plan);
+        const bundledPricePlan = this.createBundledPricePlan(plan, compRel, constraintPopRelationship);
         const created = await lastValueFrom(this.api.postOfferingPrice(bundledPricePlan));
         createdPriceId = created.id;
 
@@ -1276,7 +1376,8 @@ export class OfferComponent implements OnInit, OnDestroy {
               console.log('Modified price plan')
               console.log(updatedPricePlan)
             } else {
-              let createdPricePlan = await this.createBundledPricePlan(pricePlanChangeInfo[i], finalPriceComps);
+              const constraintPopRelationship = await this.persistPricePlanConstraint(pricePlanChangeInfo[i]);
+              let createdPricePlan = await this.createBundledPricePlan(pricePlanChangeInfo[i], finalPriceComps, constraintPopRelationship);
               const created = await lastValueFrom(this.api.postOfferingPrice(createdPricePlan));
               let index = basePayload.productOfferingPrice.findIndex(
                 (plan: any) => plan.id === pricePlanChangeInfo[i].id

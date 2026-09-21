@@ -53,45 +53,6 @@
             </app-button>
           </div>
 
-          <!-- Slider Visual Representation -->
-          <div class="relative w-full h-32 bg-gray-200 dark:bg-secondary-200 rounded-lg p-4 mb-4">
-            <!-- Range bar -->
-            <div class="absolute top-1/2 left-4 right-4 h-2 bg-blue-300 rounded transform -translate-y-1/2"></div>
-
-            <!-- Start marker -->
-            <div class="absolute top-1/2 left-4 transform -translate-y-1/2 -translate-x-1/2">
-              <div class="w-4 h-4 bg-blue-600 rounded-full border-2 border-white"></div>
-              <span class="absolute top-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-gray-700 dark:text-gray-300">
-                {{ rangeMin }}
-              </span>
-            </div>
-
-            <!-- User markers -->
-            <div
-              *ngFor="let marker of sliderMarkers; let i = index; trackBy: trackByIndex"
-              class="absolute top-1/2 transform -translate-y-1/2"
-              [style.left.%]="((marker - rangeMin) / (rangeMax - rangeMin)) * 100"
-            >
-              <div class="relative">
-                <div class="w-4 h-4 bg-red-500 rounded-full border-2 border-white cursor-pointer hover:bg-red-600"
-                     (click)="removeMarker(i)"
-                     title="Click to remove">
-                </div>
-                <span class="absolute top-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-gray-700 dark:text-gray-300">
-                  {{ marker }}
-                </span>
-              </div>
-            </div>
-
-            <!-- End marker -->
-            <div class="absolute top-1/2 right-4 transform -translate-y-1/2 translate-x-1/2">
-              <div class="w-4 h-4 bg-blue-600 rounded-full border-2 border-white"></div>
-              <span class="absolute top-6 left-1/2 transform -translate-x-1/2 text-xs font-semibold text-gray-700 dark:text-gray-300">
-                {{ rangeMax }}
-              </span>
-            </div>
-          </div>
-
           <!-- Marker Inputs (for precise control) -->
           <div *ngIf="sliderMarkers.length > 0" class="mb-4">
             <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">

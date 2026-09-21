@@ -17,6 +17,10 @@ import { SearchSelectComponent } from 'src/app/shared/search-select/search-selec
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import {
+  PricePlanCharacteristicsDrawerComponent
+} from "../price-plan-characteristics-drawer/price-plan-characteristics-drawer.component";
+import { applyCharacteristicConstraints, CharacteristicConstraintValueUse } from "../../../../price-plan-constraint.utils";
 
 
 @Component({
@@ -33,6 +37,7 @@ import { ContentCardComponent } from 'src/app/shared/content-card/content-card.c
     PriceComponentsTableComponent,
     ConfigurationProfileDrawerComponent,
     TierPricingDrawerComponent,
+    PricePlanCharacteristicsDrawerComponent,
     NgForOf,
     SearchSelectComponent,
     ButtonComponent,
@@ -54,6 +59,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   showPriceComponentDrawer = false;
   showConfigurationDrawer = false;
   showTierPricingDrawer = false;
+  showPricePlanCharacteristicsDrawer = false;
   editingComponent: any = null;
   protected readonly currencies = currencies;
   protected readonly currencyOptions: SelectOption[] = currencies.map((curr: any) => ({
@@ -63,6 +69,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   rangeValidationError: string | null = null;
   profileRequiredError: string | null = null;
+  constraintsConflictError: string | null = null;
 
   get planSubType(): 'standard' | 'flex' | null {
     return this.formGroup?.get('planSubType')?.value ?? null;
@@ -116,6 +123,15 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
 
   savePricePlan() {
     if (this.formGroup.invalid) return;
+
+    this.constraintsConflictError = null;
+    // Defense in depth: the UI already keeps the profile and the characteristic
+    // constraints mutually exclusive by disabling each other's button, but a plan
+    // loaded from stale/legacy data could carry both at once — never persist that.
+    if (this.hasProfilePricePlan() && this.hasPricePlanConstraints()) {
+      this.constraintsConflictError = 'CREATE_OFFER._profile_disabled_by_constraints';
+      return;
+    }
 
     this.profileRequiredError = null;
     if (this.planSubType === 'standard' && this.checkProfileData()) {
@@ -202,9 +218,9 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   }
 
   private getRangeCharacteristics(): any[] {
-    if (!this.prodSpec?.productSpecCharacteristic) return [];
-
-    return this.prodSpec.productSpecCharacteristic.filter((char: any) => {
+    // Coverage must be validated against the allowed (post-constraint) range, since
+    // that's the only range tier pricing can actually offer values within.
+    return this.prodSpecCharacteristics.filter((char: any) => {
       const firstValue = char.productSpecCharacteristicValue?.[0];
       return firstValue && 'valueFrom' in firstValue && 'valueTo' in firstValue;
     });
@@ -310,7 +326,48 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   }
 
   openConfigurationProfileDrawer() {
+    if (this.hasPricePlanConstraints()) return;
     this.showConfigurationDrawer = true;
+  }
+
+  /** Characteristics available to this plan and its price components, once the
+   * seller's forbidden-characteristic selection (if any) has been applied. */
+  get prodSpecCharacteristics(): any[] {
+    return applyCharacteristicConstraints(
+      this.prodSpec?.productSpecCharacteristic || [],
+      this.getCurrentForbiddenCharacteristics()
+    );
+  }
+
+  get allowedPricePlanCharacteristicCount(): number {
+    return this.prodSpecCharacteristics.length;
+  }
+
+  hasPricePlanConstraints(): boolean {
+    return this.getCurrentForbiddenCharacteristics().length > 0;
+  }
+
+  openPricePlanCharacteristicsDrawer() {
+    if (this.hasProfilePricePlan()) return;
+    this.showPricePlanCharacteristicsDrawer = true;
+  }
+
+  closePricePlanCharacteristicsDrawer() {
+    this.showPricePlanCharacteristicsDrawer = false;
+  }
+
+  savePricePlanCharacteristics(forbiddenCharacteristics: CharacteristicConstraintValueUse[]) {
+    this.formGroup.get('forbiddenCharacteristic')?.setValue(forbiddenCharacteristics);
+    this.showPricePlanCharacteristicsDrawer = false;
+  }
+
+  removePricePlanConstraints() {
+    this.formGroup.get('forbiddenCharacteristic')?.setValue([]);
+  }
+
+  private getCurrentForbiddenCharacteristics(): CharacteristicConstraintValueUse[] {
+    const forbiddenCharacteristics = this.formGroup?.get('forbiddenCharacteristic')?.value;
+    return Array.isArray(forbiddenCharacteristics) ? forbiddenCharacteristics : [];
   }
 
   updateConfigurationProfile(updatedProfile: any) {
@@ -434,10 +491,9 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   }
 
   hasRangeCharacteristics(): boolean {
-    // Check if there are any range characteristics available
-    if (!this.prodSpec?.productSpecCharacteristic) return false;
-
-    return this.prodSpec.productSpecCharacteristic.some((char: any) => {
+    // Check if there are any range characteristics still available once forbidden
+    // characteristics/values have been excluded.
+    return this.prodSpecCharacteristics.some((char: any) => {
       const firstValue = char.productSpecCharacteristicValue?.[0];
       return firstValue && 'valueFrom' in firstValue && 'valueTo' in firstValue;
     });

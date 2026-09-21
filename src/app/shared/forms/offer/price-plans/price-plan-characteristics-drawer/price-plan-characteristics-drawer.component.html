@@ -1,0 +1,120 @@
+<div class="fixed inset-0 z-[55] bg-black/40 dark:bg-black/60 flex items-center justify-center p-4" (click)="cancel()">
+  <app-card data-cy="pricePlanCharacteristicsModal" variant="modal" class="w-full max-w-3xl" (click)="$event.stopPropagation()">
+    <div appCardHeader class="flex justify-between items-start">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+          {{ 'CREATE_OFFER._choose_characteristics' | translate }}
+        </h2>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ 'CREATE_OFFER._choose_characteristics_subtitle' | translate }}</p>
+      </div>
+      <app-button type="button" (click)="cancel()" variant="ghost" size="sm" prefixIcon="xmark" />
+    </div>
+
+    @if(selection.length === 0){
+      <p class="rounded-lg border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-secondary-300 p-4 text-sm text-gray-600 dark:text-gray-400">
+        {{ 'CREATE_OFFER._no_price_plan_characteristics' | translate }}
+      </p>
+    } @else {
+      <div class="grid grid-cols-1 gap-3">
+        @for(characteristic of selection; track characteristic.id; let i = $index){
+          <app-item-card data-cy="pricePlanCharacteristic">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-4">
+                <div>
+                  <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ characteristic.name }}</p>
+                  @if(characteristic.allowed && isCharacteristicUsed(characteristic)){
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_OFFER._characteristic_in_use' | translate }}</p>
+                  }
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                  <span class="text-sm text-gray-600 dark:text-gray-400">
+                    {{ (characteristic.allowed ? 'CREATE_OFFER._characteristic_allowed' : 'CREATE_OFFER._characteristic_forbidden') | translate }}
+                  </span>
+                  <button
+                    [attr.data-cy]="'pricePlanCharacteristicToggle-' + i"
+                    type="button"
+                    role="switch"
+                    [attr.aria-checked]="characteristic.allowed"
+                    [disabled]="characteristic.allowed && isCharacteristicUsed(characteristic)"
+                    (click)="toggleCharacteristic(i)"
+                    [ngClass]="characteristic.allowed ? 'bg-primary-100' : 'bg-gray-300 dark:bg-secondary-200'"
+                    class="relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-primary-100 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50">
+                    <span
+                      [ngClass]="characteristic.allowed ? 'translate-x-6' : 'translate-x-1'"
+                      class="inline-block h-4 w-4 rounded-full bg-white transition-transform"></span>
+                  </button>
+                </div>
+              </div>
+
+              @if(characteristic.allowed && characteristic.sourceValues.length > 0){
+                @if(isCharacteristicRange(characteristic)){
+                  <div class="mt-4 rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-secondary-300 p-4">
+                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._allowed_range' | translate }}</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_OFFER._allowed_range_hint' | translate }}</p>
+                    <div class="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                      <div>
+                        <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._range_from' | translate }}</label>
+                        <input
+                          [attr.data-cy]="'pricePlanCharacteristicRangeFrom-' + i"
+                          type="number"
+                          [min]="getSourceRange(characteristic).valueFrom"
+                          [max]="getSourceRange(characteristic).valueTo"
+                          [value]="getAllowedRange(characteristic).valueFrom"
+                          (input)="setRangeBound(characteristic, 'valueFrom', $event)"
+                          class="block w-full rounded-lg border border-gray-300 dark:border-secondary-200 bg-white dark:bg-secondary-100 p-2.5 text-sm text-gray-900 dark:text-white focus:border-primary-100 focus:ring-primary-100"/>
+                      </div>
+                      <div>
+                        <label class="mb-1 block text-xs font-medium text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._range_to' | translate }}</label>
+                        <input
+                          [attr.data-cy]="'pricePlanCharacteristicRangeTo-' + i"
+                          type="number"
+                          [min]="getSourceRange(characteristic).valueFrom"
+                          [max]="getSourceRange(characteristic).valueTo"
+                          [value]="getAllowedRange(characteristic).valueTo"
+                          (input)="setRangeBound(characteristic, 'valueTo', $event)"
+                          class="block w-full rounded-lg border border-gray-300 dark:border-secondary-200 bg-white dark:bg-secondary-100 p-2.5 text-sm text-gray-900 dark:text-white focus:border-primary-100 focus:ring-primary-100"/>
+                      </div>
+                    </div>
+                  </div>
+                } @else {
+                  <div class="mt-4">
+                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._allowed_values' | translate }}</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_OFFER._allowed_values_hint' | translate }}</p>
+                    <div class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                      @for(value of characteristic.sourceValues; track value; let valueIndex = $index){
+                        <label class="flex items-center gap-2 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-secondary-100 px-3 py-2 text-sm text-gray-700 dark:text-gray-300"
+                          [class.opacity-50]="isValueUsed(characteristic, value)">
+                          <input
+                            [attr.data-cy]="'pricePlanCharacteristicValue-' + i + '-' + valueIndex"
+                            type="checkbox"
+                            [checked]="isValueAllowed(characteristic, value)"
+                            [disabled]="isValueUsed(characteristic, value)"
+                            (change)="toggleValue(i, valueIndex)"
+                            class="h-4 w-4 rounded border-gray-300 dark:border-secondary-200 text-primary-100 focus:ring-primary-100"/>
+                          <span>{{ value.value }}{{ value.unitOfMeasure ? ' ' + value.unitOfMeasure : '' }}</span>
+                        </label>
+                      }
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </app-item-card>
+        }
+      </div>
+    }
+
+    @if(hasSelectionError()){
+      <p class="mt-3 text-xs text-red-600">{{ 'CREATE_OFFER._constraint_selection_error' | translate }}</p>
+    }
+
+    <div appCardFooter>
+      <app-button type="button" (click)="cancel()" variant="ghost">
+        {{ 'FORMS.PRICE_PLANS._cancel' | translate }}
+      </app-button>
+      <app-button data-cy="savePricePlanCharacteristics" type="button" (click)="saveSelection()" [disabled]="hasSelectionError()">
+        {{ 'CREATE_OFFER._save_characteristics' | translate }}
+      </app-button>
+    </div>
+  </app-card>
+</div>

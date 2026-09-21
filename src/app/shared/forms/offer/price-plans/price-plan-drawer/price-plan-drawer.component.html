@@ -45,6 +45,28 @@
 
         @if (formGroup.get('paymentOnline')?.value) {
 
+          <!-- Restricción de características: qué opciones de configuración puede usar
+               este plan y sus componentes de precio (perfil fijo en Standard, elegidas
+               libremente por componente en Flex). -->
+          <app-card class="mb-4">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._price_plan_characteristics' | translate }}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  {{ 'CREATE_OFFER._price_plan_characteristics_hint' | translate:{ allowed: allowedPricePlanCharacteristicCount, total: (prodSpec?.productSpecCharacteristic || []).length } }}
+                </p>
+              </div>
+              <app-button data-cy="choosePricePlanCharacteristics" type="button" (click)="openPricePlanCharacteristicsDrawer()" variant="secondary">
+                {{ 'CREATE_OFFER._choose_characteristics' | translate }}
+              </app-button>
+            </div>
+            @if(hasPricePlanConstraints()){
+              <app-button data-cy="removePricePlanConstraints" type="button" (click)="removePricePlanConstraints()" variant="ghost" size="sm" class="mt-2">
+                {{ 'CREATE_OFFER._remove_constraints' | translate }}
+              </app-button>
+            }
+          </app-card>
+
           <!-- Selección del perfil del producto: solo para planes Standard. Flex configura
                el perfil por price-component ("Apply to Characteristic" en price-component-drawer). -->
           @if (planSubType === 'standard') {
@@ -176,6 +198,13 @@
           </div>
         }
 
+        <!-- Profile/Constraints Conflict Error Message -->
+        @if(constraintsConflictError) {
+          <div class="mb-4 p-4 text-sm text-red-800 dark:text-red-300 rounded-lg bg-red-50 dark:bg-red-950/40" role="alert">
+            <span class="font-medium">{{ constraintsConflictError | translate }}</span>
+          </div>
+        }
+
         <!-- Action Buttons -->
         <div class="flex justify-end gap-3 mt-2">
           <app-button data-cy="cancelPricePlan" type="button" (click)="closeDrawer()" variant="ghost">
@@ -200,7 +229,7 @@
     <!-- Drawer para editar Price Components -->
     <app-price-component-drawer *ngIf="showPriceComponentDrawer"
                                 [component]="editingComponent"
-                                [prodChars]="prodSpec?.productSpecCharacteristic"
+                                [prodChars]="prodSpecCharacteristics"
                                 [profileData]="planSubType !== 'standard' && checkProfileData()"
                                 (save)="closePriceComponentDrawer($event)"
                                 (close)="closePriceComponentDrawer($event)">
@@ -208,7 +237,16 @@
 
     <!-- Drawer para crear Tier Pricing -->
     <app-tier-pricing-drawer *ngIf="showTierPricingDrawer"
-                             [prodChars]="prodSpec?.productSpecCharacteristic"
+                             [prodChars]="prodSpecCharacteristics"
                              (saveTierPricing)="closeTierPricingDrawer($event)"
                              (close)="closeTierPricingDrawer(null)">
     </app-tier-pricing-drawer>
+
+    <!-- Modal para restringir características/valores permitidos en este plan -->
+    <app-price-plan-characteristics-drawer *ngIf="showPricePlanCharacteristicsDrawer"
+                             [characteristics]="prodSpec?.productSpecCharacteristic || []"
+                             [forbiddenCharacteristics]="formGroup.get('forbiddenCharacteristic')?.value || []"
+                             [priceComponents]="formGroup.get('priceComponents')?.value || []"
+                             (save)="savePricePlanCharacteristics($event)"
+                             (close)="closePricePlanCharacteristicsDrawer()">
+    </app-price-plan-characteristics-drawer>
