@@ -111,10 +111,10 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
       {
         label: 'OFFERINGS._specifications',
         items: [
-          { label: 'OFFERINGS._products', routerLink: segments.productSpecs, dataCy: 'prdSpecSection' },
-          { label: 'OFFERINGS._services', routerLink: segments.serviceSpecs, dataCy: 'servSpecSection' },
-          { label: 'OFFERINGS._resources', routerLink: segments.resourceSpecs, dataCy: 'resSpecSection' },
-          { label: 'USAGE_SPECS._usage_spec', routerLink: segments.usageSpecs, dataCy: 'usageSpecSection' },
+          { label: 'OFFERINGS._products', routerLink: segments.productSpecs, icon: 'layer-group' as IconName, dataCy: 'prdSpecSection' },
+          { label: 'OFFERINGS._services', routerLink: segments.serviceSpecs, icon: 'plug-circle-plus' as IconName, dataCy: 'servSpecSection' },
+          { label: 'OFFERINGS._resources', routerLink: segments.resourceSpecs, icon: 'server' as IconName, dataCy: 'resSpecSection' },
+          { label: 'USAGE_SPECS._usage_spec', routerLink: segments.usageSpecs, icon: 'chart-line' as IconName, dataCy: 'usageSpecSection' },
         ],
       },
     ];
