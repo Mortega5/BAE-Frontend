@@ -84,11 +84,16 @@ export class PriceComponentDrawerComponent implements OnInit {
     this.prodChars = this.prodChars ?? [];
 
     for(let i=0;i<this.prodChars.length;i++){
+      const isConfigurableWithoutValue = this.prodChars[i].configurable !== false
+          && !this.prodChars[i].productSpecCharacteristicValue?.length;
+
       if (!certifications.some(certification => certification.name === this.prodChars[i].name)
           && !this.prodChars[i].name.startsWith('Compliance:')
           && !this.prodChars[i].name.endsWith(' - enabled')
           && this.prodChars[i].valueType != 'credentialsConfiguration'
-          && this.prodChars[i].valueType != 'authorizationPolicy') {
+          && this.prodChars[i].valueType != 'authorizationPolicy'
+          // Nothing predefined to price against — the customer fills this in at order time.
+          && !isConfigurableWithoutValue) {
 
         this.filteredChars.push(this.prodChars[i]);
       }

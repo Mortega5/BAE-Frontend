@@ -31,25 +31,7 @@ export class ConfigurationProfileDrawerComponent implements OnInit {
   constructor(private fb: FormBuilder) {}
 
   ngOnInit() {
-    console.log('Profile Data:', this.profileData);
-
-    // Guard...
-    //const characteristicsData = this.profileData || [];
-    let profileChars = [];
-    for(let i=0;i<this.profileData.length;i++){
-      //if (!certifications.some(certification => certification.name === this.profileData[i].name) && this.profileData[i].name != 'Compliance:SelfAtt') {
-      const charName = (this.profileData[i]?.name ?? '').toString().trim();
-      const isOptionalToggle = charName.toLowerCase().endsWith('- enabled');
-
-      if (!certifications.some(certification => certification.name === charName)
-          && !charName.startsWith('Compliance:')
-          && !isOptionalToggle
-          && this.profileData[i].valueType != 'credentialsConfiguration'
-          && this.profileData[i].valueType != 'authorizationPolicy') {
-        profileChars.push(this.profileData[i]);
-      }
-    }
-    const characteristicsData = profileChars || [];
+    const characteristicsData = this.profileData.filter(char => this.isSelectableForProfile(char));
 
     this.form = this.fb.group({
       characteristics: this.fb.array(characteristicsData.map(char => this.createCharacteristicForm(char)))
@@ -60,6 +42,22 @@ export class ConfigurationProfileDrawerComponent implements OnInit {
     }, 50);
   }
 
+  /** A characteristic belongs in the profile picker unless it's a certification/compliance
+   * marker, an "- enabled" companion toggle, a fixed-schema config type, or a configurable
+   * characteristic with no predefined value — those are meant to be filled in by the
+   * customer at order time, not fixed into a plan's profile. */
+  private isSelectableForProfile(char: any): boolean {
+    const charName = (char?.name ?? '').toString().trim();
+    const isOptionalToggle = charName.toLowerCase().endsWith('- enabled');
+    const isConfigurableWithoutValue = char.configurable !== false && !char.productSpecCharacteristicValue?.length;
+
+    return !certifications.some(certification => certification.name === charName)
+      && !charName.startsWith('Compliance:')
+      && !isOptionalToggle
+      && char.valueType !== 'credentialsConfiguration'
+      && char.valueType !== 'authorizationPolicy'
+      && !isConfigurableWithoutValue;
+  }
 
   private createCharacteristicForm(char: any): FormGroup {
     const defaultOption = char.productSpecCharacteristicValue.find((v: any) => v.isDefault);

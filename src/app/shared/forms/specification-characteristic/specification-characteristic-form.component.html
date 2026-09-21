@@ -9,11 +9,12 @@
 
   @if (isSingleValueType) {
   <div class="flex flex-col gap-3">
-    <app-characteristic-value-spec-form [valueType]="valueType" [form]="valueForm" [readonly]="readonly" />
+    <app-characteristic-value-spec-form [valueType]="valueType" [form]="valueForm" [readonly]="readonly"
+      [configurable]="isConfigurable" />
   </div>
   } @else if (!readonly && valueType !== 'boolean') {
   <div class="flex flex-col gap-3">
-    <app-characteristic-value-spec-form [valueType]="valueType" [form]="valueForm" />
+    <app-characteristic-value-spec-form [valueType]="valueType" [form]="valueForm" [configurable]="isConfigurable" />
     <div class="flex justify-end">
       <app-button type="button"
         [attr.data-cy]="valueType === 'string' ? 'btnAddStringValue' : valueType === 'number' ? 'btnAddNumberValue' : valueType === 'range' ? 'btnAddRangeValue' : 'btnAddValue'"

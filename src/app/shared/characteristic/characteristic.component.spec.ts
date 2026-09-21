@@ -45,7 +45,7 @@ describe('CharacteristicComponent', () => {
 
     component.ngOnInit();
 
-    expect(component.isBoolean()).toBeTrue();
+    expect(component.fields[0].type).toBe('boolean');
     expect(component.control.value).toBeFalse();
   });
 
@@ -71,7 +71,7 @@ describe('CharacteristicComponent', () => {
     });
   });
 
-  it('template should render checkbox toggle for boolean characteristics', () => {
+  it('template should render a yes/no toggle for boolean characteristics', () => {
     component.characteristic = {
       id: 'bool-1',
       name: 'platinum',
@@ -84,9 +84,9 @@ describe('CharacteristicComponent', () => {
 
     fixture.detectChanges();
 
-    const checkbox = fixture.nativeElement.querySelector('input[type="checkbox"]');
+    const toggle = fixture.nativeElement.querySelector('[data-cy="characteristicBoolean-yes"]');
     const select = fixture.nativeElement.querySelector('select');
-    expect(checkbox).toBeTruthy();
+    expect(toggle).toBeTruthy();
     expect(select).toBeNull();
   });
 });

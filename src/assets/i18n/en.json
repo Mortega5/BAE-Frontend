@@ -2972,6 +2972,7 @@
     "_save_char": "Save characteristic",
     "_cancel": "Cancel",
     "_actions": "Actions",
-    "_values": "Values"
+    "_values": "Values",
+    "_free_value_banner": "No predefined values — customers will be able to enter this value themselves when ordering an offering built on this specification."
   }
 }

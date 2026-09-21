@@ -4,7 +4,7 @@ import {MarkdownComponent} from "ngx-markdown";
 import {components} from "../../models/product-catalog";
 import {CurrencyPipe, NgClass} from "@angular/common";
 import {PriceServiceService} from "../../services/price-service.service";
-import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from "@angular/forms";
+import {AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators} from "@angular/forms";
 import { ShoppingCartServiceService } from 'src/app/services/shopping-cart-service.service';
 import {EventMessageService} from "../../services/event-message.service";
 import { cartProduct } from 'src/app/models/interfaces';
@@ -84,6 +84,10 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   groupedMetrics: { [usageSpecId: string]: { usageSpecId: string; name: string; unitOfMeasure: string }[] } = {};
 
   characteristics: ProductSpecificationCharacteristic[] = []; // Características dinámicas
+  /** Fixed characteristics coming from the selected price plan's profile
+   * (prodSpecCharValueUse), if any — shown read-only, separate from the
+   * configurable ones the customer can still pick. */
+  profileCharacteristics: ProductSpecificationCharacteristic[] = [];
   filteredCharacteristics: ProductSpecificationCharacteristic[] = [];
   booleanCharacteristics: ProductSpecificationCharacteristic[] = [];
   choiceCharacteristics: ProductSpecificationCharacteristic[] = [];
@@ -138,9 +142,8 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
 
     if (this.isFree) {
       this.form.get('selectedPricePlan')?.setValue({});
-      this.characteristics = this.prodSpec.productSpecCharacteristic || [];
-      this.filterCharacteristics();
     }
+    this.applyCharacteristicsSource();
 
     if(this.tsAndCs.description == ''){
       this.form.controls['tsAccepted'].setValue(true);
@@ -162,10 +165,8 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
       this.toggleBodyScroll(!!changes['isOpen'].currentValue);
     }
 
-    if (changes['prodSpec'] && this.isFree) {
-      this.characteristics = this.prodSpec.productSpecCharacteristic || [];
-      this.filterCharacteristics();
-
+    if (changes['prodSpec']) {
+      this.applyCharacteristicsSource();
       this.updateOrderChars();
     }
     if (changes['isOpen']?.currentValue === true) {
@@ -200,9 +201,8 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
 
       if (this.isFree) {
         this.form.get('selectedPricePlan')?.setValue({});
-        this.characteristics = this.prodSpec.productSpecCharacteristic || [];
-        this.filterCharacteristics();
       }
+      this.applyCharacteristicsSource();
 
       let profile = this.productOff?.attachment?.filter(item => item.name === 'Profile Picture') ?? [];
       if(profile.length==0){
@@ -233,6 +233,19 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
 
   disableChars(){
 
+  }
+
+  /** Merges the base product spec's characteristics with the selected plan's
+   * profile (if any) — profile entries win on name clashes, since they're the
+   * plan-specific fixed values — and rebuilds the characteristics form from it. */
+  private applyCharacteristicsSource(): void {
+    const base = this.prodSpec.productSpecCharacteristic || [];
+    const profileNames = new Set(this.profileCharacteristics.map(c => c.name));
+    this.characteristics = [
+      ...this.profileCharacteristics,
+      ...base.filter(c => !profileNames.has(c.name)),
+    ];
+    this.filterCharacteristics();
   }
 
   filterCharacteristics() {
@@ -270,13 +283,32 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     const characteristicsGroup = this.fb.group({});
     this.filteredCharacteristics.forEach(characteristic => {
       if (characteristic.id != null) {
-        const defaultValue =
+        let defaultValue =
           characteristic.productSpecCharacteristicValue?.find(val => val.isDefault)?.value ??
           characteristic.productSpecCharacteristicValue?.find(val => val.isDefault)?.valueFrom;
 
+        if (defaultValue === undefined && this.hasNoChoice(characteristic)) {
+          // A single predefined value: there's nothing to pick between, so it's just the value.
+          const onlyValue = characteristic.productSpecCharacteristicValue![0];
+          defaultValue = onlyValue.value ?? onlyValue.valueFrom;
+        }
+
+        // "- enabled" companions aren't picked from a UI of their own — their value is
+        // only ever set by the toggle checkbox (onToggleChange), so they can't be
+        // required upfront or the form would stay invalid until the buyer touches a
+        // toggle that already defaults to "enabled" and may never need touching.
+        const requiresValue = characteristic.configurable !== false && !this.isEnabledCharacteristic(characteristic);
+        let validator: ValidatorFn = Validators.required;
+        if (this.isFreeRangeCharacteristic(characteristic)) {
+          validator = this.rangeValueValidator;
+        } else if (this.isFreeNumberCharacteristic(characteristic)) {
+          validator = this.numberValueValidator;
+        }
+        const validators: ValidatorFn[] = requiresValue ? [validator] : [];
+
         characteristicsGroup.addControl(
           characteristic.id,
-          this.fb.control(defaultValue ?? null, Validators.required)
+          this.fb.control(defaultValue ?? null, validators)
         );
         if(!characteristic.name?.endsWith('- enabled') && this.filteredCharacteristics.some((char => char.name === characteristic.name+' - enabled'))){
           this.canBeDisabledChars.push(characteristic.id)
@@ -315,13 +347,60 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     ) ?? false;
   }
 
+  /** A "choice"-type characteristic (not boolean, not range) with exactly one
+   * predefined value: there's nothing to pick between, so it shouldn't render
+   * its own selectable card at all — its value is applied directly instead. */
+  hasNoChoice(characteristic: ProductSpecificationCharacteristic): boolean {
+    return !this.isBooleanCharacteristic(characteristic) &&
+      !this.isRangeCharacteristic(characteristic) &&
+      (characteristic.productSpecCharacteristicValue?.length ?? 0) === 1;
+  }
+
+  /** A 'range' characteristic with no predefined bounds — app-characteristic renders it
+   * as free valueFrom/valueTo/unitOfMeasure inputs, so its control holds an object, not
+   * a scalar. */
+  isFreeRangeCharacteristic(characteristic: ProductSpecificationCharacteristic): boolean {
+    return characteristic.valueType === 'range' && (characteristic.productSpecCharacteristicValue?.length ?? 0) === 0;
+  }
+
+  /** A 'number' characteristic with no predefined values — app-characteristic renders it
+   * as free value/unitOfMeasure inputs, so its control holds an object, not a scalar. */
+  isFreeNumberCharacteristic(characteristic: ProductSpecificationCharacteristic): boolean {
+    return characteristic.valueType === 'number' && (characteristic.productSpecCharacteristicValue?.length ?? 0) === 0;
+  }
+
+  /** Validators.required treats any non-null object as "present", so a half-filled
+   * {valueFrom, valueTo, unitOfMeasure} (or the initial all-null shape) would pass it —
+   * this checks both bounds and the unit are actually set. */
+  rangeValueValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (value && typeof value === 'object') {
+      return value.valueFrom != null && value.valueTo != null && !!value.unitOfMeasure ? null : { required: true };
+    }
+    return value == null ? { required: true } : null;
+  };
+
+  /** Same reasoning as rangeValueValidator, for the {value, unitOfMeasure} shape a free
+   * number input commits. */
+  numberValueValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value;
+    if (value && typeof value === 'object') {
+      return value.value != null && !!value.unitOfMeasure ? null : { required: true };
+    }
+    return value == null ? { required: true } : null;
+  };
+
   private isEnabledCharacteristic(characteristic: ProductSpecificationCharacteristic): boolean {
     return characteristic.name?.endsWith('- enabled') ?? false;
   }
 
   private groupCharacteristics(): void {
+    const profileNames = new Set(this.profileCharacteristics.map(c => c.name));
     const selectableCharacteristics = this.filteredCharacteristics.filter(
-      (characteristic) => !this.isEnabledCharacteristic(characteristic)
+      (characteristic) =>
+        !this.isEnabledCharacteristic(characteristic) &&
+        characteristic.configurable !== false &&
+        !profileNames.has(characteristic.name)
     );
 
     this.booleanCharacteristics = selectableCharacteristics.filter((characteristic) =>
@@ -335,7 +414,8 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     this.choiceCharacteristics = selectableCharacteristics.filter(
       (characteristic) =>
         !this.isBooleanCharacteristic(characteristic) &&
-        !this.isRangeCharacteristic(characteristic)
+        !this.isRangeCharacteristic(characteristic) &&
+        !this.hasNoChoice(characteristic)
     );
   }
 
@@ -379,15 +459,17 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
 
     // Set chars based on selected price plan
     this.isCustom = pricePlan.priceType === 'custom';
-    if (pricePlan.prodSpecCharValueUse) {
-      this.characteristics = pricePlan.prodSpecCharValueUse;
-      this.hasProfile = true;
-    } else {
-      this.characteristics = this.prodSpec.productSpecCharacteristic || [];
-      this.hasProfile = false;
+    const hadProfile = this.hasProfile;
+    this.profileCharacteristics = pricePlan.prodSpecCharValueUse ?? [];
+    this.hasProfile = this.profileCharacteristics.length > 0;
+
+    // Only rebuild the characteristics form (and lose whatever the customer already
+    // picked) when the profile actually changes — switching between two plans that
+    // both have no profile keeps using the same base characteristics untouched.
+    if (hadProfile || this.hasProfile) {
+      this.applyCharacteristicsSource();
     }
 
-    this.filterCharacteristics();
     this.selectedPricePlan = pricePlan;
     await this.refreshAppliedMetrics();
     console.log(this.selectedPricePlan);
@@ -557,6 +639,25 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
       if(!this.disabledCharacteristics.includes(this.filteredCharacteristics[idx].id)){
         let value = this.getValues(selectedCharacteristics)[i]
         const characteristic = this.filteredCharacteristics[idx];
+
+        // A customer-defined range/number free input commits as {valueFrom, valueTo,
+        // unitOfMeasure} or {value, unitOfMeasure} instead of a scalar — unwrap that
+        // before the boolean/number inference below, which assumes a scalar value.
+        let valueFrom: number | undefined;
+        let valueTo: number | undefined;
+        let unitOfMeasure: string | undefined;
+        if (value && typeof value === 'object') {
+          if ('valueFrom' in value) {
+            valueFrom = value.valueFrom;
+            valueTo = value.valueTo;
+            unitOfMeasure = value.unitOfMeasure;
+            value = undefined;
+          } else if ('value' in value) {
+            unitOfMeasure = value.unitOfMeasure;
+            value = value.value;
+          }
+        }
+
         const hasBooleanValues = characteristic.productSpecCharacteristicValue?.some(
           (charValue: any) => typeof charValue?.value === 'boolean'
         ) ?? false;
@@ -588,6 +689,8 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
             "name": characteristic.name,
             "value": value,
             "valueType": valueType,
+            ...(valueFrom !== undefined ? { "valueFrom": valueFrom, "valueTo": valueTo } : {}),
+            ...(unitOfMeasure ? { "unitOfMeasure": unitOfMeasure } : {}),
           })
         }
 

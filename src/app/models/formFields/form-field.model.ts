@@ -158,6 +158,18 @@ export interface RangeValueFormField extends BaseFormField {
   setLabel?: string;
 }
 
+/** A single numeric value picked from within a fixed [min, max] band via a range
+ * slider — unlike a free number input, the spec already pins the bounds, so
+ * there's nothing else for the user to type. */
+export interface SliderFormField extends BaseFormField {
+  type: 'slider';
+  min: number;
+  max: number;
+  step?: number;
+  /** Shown next to the current value, e.g. "GB". */
+  unit?: string;
+}
+
 export interface TableFormField extends BaseFormField {
   type: 'table';
   columns: TableColumn[];
@@ -200,4 +212,4 @@ export interface AttachmentFormField extends BaseFormField {
   selectLabel?: string;
 }
 
-export type FormField = StringFormField | NumberFormField | DateFormField | PhoneNumberFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | TableFormField | PaginatedTableFormField | CodeFormField | AttachmentFormField;
+export type FormField = StringFormField | NumberFormField | DateFormField | PhoneNumberFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | SliderFormField | TableFormField | PaginatedTableFormField | CodeFormField | AttachmentFormField;

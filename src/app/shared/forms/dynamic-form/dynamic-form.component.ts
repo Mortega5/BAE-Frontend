@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { AttachmentFormField, BubbleSelectFormField, CodeFormField, FormField, MultiValueStringFormField, PaginatedTableFormField, RangeValueFormField, SelectableFormField, StatusPickerFormField, StatusPickerOption, TableFormField, UnitValueFormField } from 'src/app/models/formFields/form-field.model';
+import { AttachmentFormField, BubbleSelectFormField, CodeFormField, FormField, MultiValueStringFormField, PaginatedTableFormField, RangeValueFormField, SelectableFormField, SliderFormField, StatusPickerFormField, StatusPickerOption, TableFormField, UnitValueFormField } from 'src/app/models/formFields/form-field.model';
 import { environment } from 'src/environments/environment';
 import { AttachmentUploadComponent } from '../attachment-upload/attachment-upload.component';
 import { MarkdownTextareaComponent } from '../markdown-textarea/markdown-textarea.component';
@@ -68,6 +68,10 @@ export class DynamicFormComponent {
 
   asRangeValue(field: FormField): RangeValueFormField {
     return field as RangeValueFormField;
+  }
+
+  asSlider(field: FormField): SliderFormField {
+    return field as SliderFormField;
   }
 
   asTableField(field: FormField): TableFormField {

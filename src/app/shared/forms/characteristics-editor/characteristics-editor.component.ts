@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { faCircleInfo, faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { TableColumn } from 'src/app/models/table-column.model';
 import { TruncateValuePipe } from '../../pipes/truncate-value.pipe';
@@ -34,6 +34,8 @@ export class CharacteristicsEditorComponent {
   errorMessage = '';
   showError = false;
 
+  protected readonly faCircleInfo = faCircleInfo;
+
   private readonly truncateValuePipe = new TruncateValuePipe();
 
   @HostListener('document:keydown.escape')
@@ -42,7 +44,15 @@ export class CharacteristicsEditorComponent {
   }
 
   get canSave(): boolean {
-    return !!this.currentChar?.name?.trim() && (this.currentChar?.values?.length ?? 0) > 0;
+    return !!this.currentChar?.name?.trim() &&
+      ((this.currentChar?.values?.length ?? 0) > 0 || !!this.currentChar?.configurable);
+  }
+
+  /** Shown above Save while editing: a configurable characteristic left with no
+   * predefined values is filled in freely by whoever orders the offering, not
+   * picked from a list — worth calling out since nothing else in the form says so. */
+  get showFreeValueBanner(): boolean {
+    return !!this.currentChar?.configurable && (this.currentChar?.values?.length ?? 0) === 0;
   }
 
   get columns(): TableColumn[] {

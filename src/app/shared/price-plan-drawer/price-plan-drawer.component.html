@@ -80,19 +80,19 @@
       }
       }
 
-      @if (form.get('selectedPricePlan')?.value) {
       @if (hasProfile) {
       <p class="mt-6 text-sm text-gray-500 dark:text-gray-400">{{ 'PRICE_PLAN_DRAWER._profile_associated' | translate }}
       </p>
       <div class="rounded-lg border border-dashed border-primary-100 bg-white p-2 m-2 dark:bg-gray-800">
-        @for (ch of filteredCharacteristics ; track ch.id) {
+        @for (ch of profileCharacteristics ; track ch.id) {
         @if(!ch.name?.endsWith('- enabled')){
         <app-characteristic [characteristic]="ch" [readOnly]="true"
           (valueChange)="onValueChange($event)"></app-characteristic>
         }
         }
       </div>
-      } @else if(filteredCharacteristics.length > 0) {
+      }
+      @if(filteredCharacteristics.length > 0) {
       <app-card data-cy="prdSpecMetrics" class="mb-4">
         <p class="text-md text-primary-100 font-semibold mb-2">{{ 'PRICE_PLAN_DRAWER._select_characteristics' |
           translate }}</p>
@@ -102,9 +102,9 @@
             <p class="text-xs font-semibold uppercase tracking-wide text-primary-100 dark:text-gray-300">{{
               'PRICE_PLAN_DRAWER._boolean_toggles' | translate }}
             </p>
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+            <div class="grid grid-cols-1 gap-2">
               @for (ch of booleanCharacteristics ; track ch.id) {
-              <app-item-card data-cy="offerChar">
+              <app-item-card data-cy="offerChar" shadow="md">
                 <div class="flex-1 min-w-0 self-stretch">
                   <app-characteristic [characteristic]="ch" [readOnly]="false"
                     [isDisabled]="disabledCharacteristics.includes(ch.id)"
@@ -118,9 +118,9 @@
           }
           @if (choiceCharacteristics.length > 0) {
           <div class="space-y-2">
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+            <div class="grid grid-cols-1 gap-2">
               @for (ch of choiceCharacteristics ; track ch.id) {
-              <app-item-card data-cy="offerChar">
+              <app-item-card data-cy="offerChar" shadow="md">
                 @if(canBeDisabledChars.includes(ch.id) && !isBooleanCharacteristic(ch)){
                 <label class="inline-flex items-center cursor-pointer w-fit justify-start items-start mt-1">
                   <input type="checkbox" [checked]="!disabledCharacteristics.includes(ch.id)"
@@ -145,9 +145,9 @@
           <div class="space-y-2">
             <p class="text-xs font-semibold uppercase tracking-wide text-primary-100 dark:text-gray-300">{{
               'PRICE_PLAN_DRAWER._ranges' | translate }}</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+            <div class="grid grid-cols-1 gap-2">
               @for (ch of rangeCharacteristics ; track ch.id) {
-              <app-item-card data-cy="offerChar">
+              <app-item-card data-cy="offerChar" shadow="md">
                 @if(canBeDisabledChars.includes(ch.id) && !isBooleanCharacteristic(ch)){
                 <label class="inline-flex items-center cursor-pointer w-fit justify-start items-start mt-1">
                   <input type="checkbox" [checked]="!disabledCharacteristics.includes(ch.id)"
@@ -170,7 +170,6 @@
           }
         </div>
       </app-card>
-      }
       }
 
       @if(metrics.length>0){

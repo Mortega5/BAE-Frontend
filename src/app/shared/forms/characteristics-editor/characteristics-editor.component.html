@@ -48,6 +48,16 @@
       @if (showError) {
       <div class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</div>
       }
+
+      @if (showFreeValueBanner) {
+      <div
+        class="flex w-full items-center p-3 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
+        role="alert">
+        <fa-icon [icon]="faCircleInfo" class="flex-shrink-0 me-3" aria-hidden="true"></fa-icon>
+        <span class="sr-only">Info</span>
+        <div>{{ 'CHAR_SPEC._free_value_banner' | translate }}</div>
+      </div>
+      }
     </div>
 
     <div appCardFooter>

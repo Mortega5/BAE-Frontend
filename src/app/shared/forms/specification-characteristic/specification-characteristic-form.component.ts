@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
-import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
@@ -44,6 +44,13 @@ const EXTRA_VALUE_TYPE_OPTIONS = [
 /** Value types edited as a single JSON blob via the code editor (like 'object'), capped at
  * exactly one saved value since they represent one fixed config, not a set of alternatives. */
 const SINGLE_VALUE_JSON_TYPES: CharValueType[] = ['credentialsConfiguration', 'authorizationPolicy'];
+
+/** Value types capped at exactly one saved value, full stop — no add/list flow, edited in
+ * place. Includes the JSON types above plus 'range': the logic-proxy's own validation
+ * (tmfUtils.validateCharacteristics) rejects any characteristic whose values include a
+ * valueFrom/valueTo pair when there's more than one value, so letting the UI "add" a second
+ * range was always going to 422 on save — a single band is the only shape the backend accepts. */
+const SINGLE_VALUE_TYPES: CharValueType[] = [...SINGLE_VALUE_JSON_TYPES, 'range'];
 
 const SCHEMA_LOCATIONS: Partial<Record<CharValueType, string>> = {
   credentialsConfiguration: 'https://raw.githubusercontent.com/FIWARE/contract-management/refs/heads/main/schemas/credentials/credentialConfigCharacteristic.json',
@@ -102,14 +109,18 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
     return this.headerForm.get('valueType')!.value;
   }
 
+  get isConfigurable(): boolean {
+    return this.headerForm.get('configurable')!.value;
+  }
+
   get canAdd(): boolean {
     return this.valueForm.valid;
   }
 
-  /** Types that represent one fixed JSON config rather than a set of alternatives — capped at
-   * exactly one saved value, with no "pick a default" concept. */
+  /** Types capped at exactly one saved value (a fixed JSON config, or a range — see
+   * SINGLE_VALUE_TYPES) rather than a set of alternatives — no "pick a default" concept. */
   get isSingleValueType(): boolean {
-    return SINGLE_VALUE_JSON_TYPES.includes(this.valueType);
+    return SINGLE_VALUE_TYPES.includes(this.valueType);
   }
 
   private readonly truncateValuePipe = new TruncateValuePipe();
@@ -192,6 +203,13 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
     this.headerForm.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(() => this.emitFormChange());
+
+    // A value is only mandatory when the characteristic itself is fixed (not
+    // configurable) — toggling it updates the existing controls in place instead
+    // of rebuilding valueForm, which would wipe out whatever the user already typed.
+    this.headerForm.get('configurable')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.updateValueRequiredValidators());
   }
 
   ngOnDestroy(): void {
@@ -219,10 +237,13 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
       ? [...this.initialValues]
       : this.valueType === 'boolean' ? this.defaultBooleanValues() : [];
 
-    // Single-value JSON types have no add/list flow — the existing value (if any) loads
+    // Single-value types have no add/list flow — the existing value (if any) loads
     // straight into the editor so editing it in place is what updates it.
     if (this.isSingleValueType && this.savedValues.length > 0) {
-      this.valueForm.patchValue({ value: JSON.stringify(this.savedValues[0].value, null, 2) }, { emitEvent: false });
+      const patch = JSON_VALUE_TYPES.includes(this.valueType)
+        ? { value: JSON.stringify(this.savedValues[0].value, null, 2) }
+        : this.savedValues[0];
+      this.valueForm.patchValue(patch, { emitEvent: false });
     }
 
     // Emit right away so a consumer pre-filling this form via initialName/initialValues/etc.
@@ -255,7 +276,9 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
 
   private syncSingleValue(): void {
     if (!this.valueForm.valid) return;
-    this.savedValues = [{ isDefault: true, value: JSON.parse(this.valueForm.value.value) }];
+    this.savedValues = JSON_VALUE_TYPES.includes(this.valueType)
+      ? [{ isDefault: true, value: JSON.parse(this.valueForm.value.value) }]
+      : [{ isDefault: true, ...this.valueForm.value }];
     this.emitFormChange();
   }
 
@@ -287,24 +310,72 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
     });
   }
 
+  /** A value is only mandatory when the characteristic is fixed (not configurable) —
+   * a configurable one lets the actual value be filled in downstream. */
+  private requiredUnlessConfigurable(): ValidatorFn[] {
+    return this.isConfigurable ? [] : [Validators.required];
+  }
+
+  /** Re-applies requiredUnlessConfigurable() to the current valueForm's controls in
+   * place (rather than rebuilding the form via buildValueForm()), so toggling
+   * "configurable" doesn't wipe out whatever the user already typed. */
+  private updateValueRequiredValidators(): void {
+    const required = this.requiredUnlessConfigurable();
+    switch (this.valueType) {
+      case 'string': {
+        const value = this.valueForm.get('value');
+        value?.setValidators(required);
+        value?.updateValueAndValidity({ emitEvent: false });
+        break;
+      }
+      case 'number': {
+        const value = this.valueForm.get('value');
+        const unitOfMeasure = this.valueForm.get('unitOfMeasure');
+        value?.setValidators(required);
+        value?.updateValueAndValidity({ emitEvent: false });
+        unitOfMeasure?.setValidators(required);
+        unitOfMeasure?.updateValueAndValidity({ emitEvent: false });
+        break;
+      }
+      case 'range': {
+        const valueFrom = this.valueForm.get('valueFrom');
+        const valueTo = this.valueForm.get('valueTo');
+        valueFrom?.setValidators(required);
+        valueFrom?.updateValueAndValidity({ emitEvent: false });
+        valueTo?.setValidators(required);
+        valueTo?.updateValueAndValidity({ emitEvent: false });
+        break;
+      }
+      case 'boolean':
+        break;
+      default: {
+        const value = this.valueForm.get('value');
+        value?.setValidators([...required, jsonValidator]);
+        value?.updateValueAndValidity({ emitEvent: false });
+        break;
+      }
+    }
+  }
+
   private buildValueForm(): FormGroup {
+    const required = this.requiredUnlessConfigurable();
     switch (this.valueType) {
       case 'string':
         return new FormGroup({
           isDefault: new FormControl<boolean>(false, { nonNullable: true }),
-          value: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] })
+          value: new FormControl<string>('', { nonNullable: true, validators: required })
         });
       case 'number':
         return new FormGroup({
           isDefault: new FormControl<boolean>(false, { nonNullable: true }),
-          value: new FormControl<number | null>(null, { validators: [Validators.required] }),
-          unitOfMeasure: new FormControl<string>('', { nonNullable: true })
+          value: new FormControl<number | null>(null, { validators: required }),
+          unitOfMeasure: new FormControl<string>('', { nonNullable: true, validators: required })
         });
       case 'range':
         return new FormGroup({
           isDefault: new FormControl<boolean>(false, { nonNullable: true }),
-          valueFrom: new FormControl<number | null>(null, { validators: [Validators.required] }),
-          valueTo: new FormControl<number | null>(null, { validators: [Validators.required] }),
+          valueFrom: new FormControl<number | null>(null, { validators: required }),
+          valueTo: new FormControl<number | null>(null, { validators: required }),
           unitOfMeasure: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] })
         });
       case 'boolean':
@@ -315,7 +386,7 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
       default:
         return new FormGroup({
           isDefault: new FormControl<boolean>(false, { nonNullable: true }),
-          value: new FormControl<string>('', { nonNullable: true, validators: [Validators.required, jsonValidator] })
+          value: new FormControl<string>('', { nonNullable: true, validators: [...required, jsonValidator] })
         });
     }
   }

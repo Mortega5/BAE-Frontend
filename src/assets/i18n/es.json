@@ -2972,6 +2972,7 @@
     "_save_char": "Guardar característica",
     "_cancel": "Cancelar",
     "_actions": "Acciones",
-    "_values": "Valores"
+    "_values": "Valores",
+    "_free_value_banner": "Sin valores predefinidos — el cliente podrá indicar este valor libremente al contratar una oferta basada en esta especificación."
   }
 }

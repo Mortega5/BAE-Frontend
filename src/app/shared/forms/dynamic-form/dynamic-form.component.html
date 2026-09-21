@@ -128,6 +128,19 @@
       [isReadonly]="field.readonly ?? false" />
     }
 
+    @if (field.type === 'slider') {
+    <div class="flex items-center gap-2">
+      <input [id]="field.name" [formControlName]="field.name" type="range" [min]="asSlider(field).min"
+        [max]="asSlider(field).max" [step]="asSlider(field).step ?? 1" [attr.readonly]="field.readonly || null"
+        [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly"
+        [attr.data-cy]="field.dataCy ?? field.name"
+        class="w-full h-2 bg-gray-300 border border-gray-300 rounded-lg appearance-none cursor-pointer dark:bg-gray-600 dark:border-gray-500" />
+      <span class="min-w-24 flex justify-center text-sm text-gray-600 dark:text-gray-400">
+        {{ formGroup.get(field.name)?.value }} {{ asSlider(field).unit }}
+      </span>
+    </div>
+    }
+
     @if (field.type === 'unitValue') {
     <app-unit-value-input [formControlName]="field.name" [addLabel]="asUnitValue(field).addLabel ?? '_add'"
       [valuePlaceholder]="asUnitValue(field).valuePlaceholder ?? ''"
