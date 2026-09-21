@@ -15,7 +15,8 @@ const domeHeaderLinks: NavLink[] = [
     isRouterLink: true
   },
   {
-    label: 'HEADER._marketplaceH',
+    id: 'dropdown-marketplace',
+    label: 'HEADER._marketplace',
     children: [{
       label: 'HEADER._browse_serv',
       url: '/browse',
