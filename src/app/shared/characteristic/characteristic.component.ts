@@ -1,5 +1,5 @@
 import { NgClass } from "@angular/common";
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MarkdownComponent } from "ngx-markdown";
 import { FormField } from 'src/app/models/formFields/form-field.model';
@@ -26,7 +26,7 @@ type Mode = 'boolean' | 'slider' | 'select' | 'free';
   templateUrl: './characteristic.component.html',
   styleUrl: './characteristic.component.css'
 })
-export class CharacteristicComponent implements OnInit {
+export class CharacteristicComponent implements OnInit, OnChanges {
   @Input() characteristic!: ProductSpecificationCharacteristic;
   @Input() readOnly: boolean = false;
   @Input() isDisabled: boolean = false;
@@ -41,8 +41,26 @@ export class CharacteristicComponent implements OnInit {
   formGroup: FormGroup = new FormGroup({ value: this.control });
 
   private mode: Mode = 'free';
+  private initialized = false;
 
   ngOnInit(): void {
+    this.initialize();
+  }
+
+  /** Angular can reuse this same component instance for a *different*
+   * characteristic (e.g. a `@for` loop tracking by id, where price-plan
+   * constraints swap which values that id carries) — ngOnInit alone would
+   * never pick that up, so re-run the whole setup whenever the characteristic
+   * itself (or its readOnly-ness) changes after the first pass. */
+  ngOnChanges(changes: SimpleChanges): void {
+    if (!this.initialized) return;
+    if (changes['characteristic'] || changes['readOnly']) {
+      this.initialize();
+    }
+  }
+
+  private initialize(): void {
+    this.initialized = true;
     this.mode = this.resolveMode();
     switch (this.mode) {
       case 'boolean':

@@ -13,6 +13,7 @@ import { certifications } from 'src/app/models/certification-standards.const';
 import { PricePlanMetricsService } from 'src/app/services/price-plan-metrics.service';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faCircleInfo } from '@fortawesome/pro-solid-svg-icons';
+import { applyCharacteristicConstraints, CharacteristicConstraintValueUse } from '../price-plan-constraint.utils';
 type Product = components["schemas"]["ProductOffering"];
 type ProductSpecification = components["schemas"]["ProductSpecification"];
 type ProductOfferingTerm = components["schemas"]["ProductOfferingTerm"];
@@ -88,6 +89,9 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
    * (prodSpecCharValueUse), if any — shown read-only, separate from the
    * configurable ones the customer can still pick. */
   profileCharacteristics: ProductSpecificationCharacteristic[] = [];
+  /** Characteristics/values the selected price plan forbids — either set directly
+   * on the plan, or resolved from a linked "constraint"-type ProductOfferingPrice. */
+  constraintValueUses: CharacteristicConstraintValueUse[] = [];
   filteredCharacteristics: ProductSpecificationCharacteristic[] = [];
   booleanCharacteristics: ProductSpecificationCharacteristic[] = [];
   choiceCharacteristics: ProductSpecificationCharacteristic[] = [];
@@ -241,10 +245,11 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   private applyCharacteristicsSource(): void {
     const base = this.prodSpec.productSpecCharacteristic || [];
     const profileNames = new Set(this.profileCharacteristics.map(c => c.name));
-    this.characteristics = [
+    const merged = [
       ...this.profileCharacteristics,
       ...base.filter(c => !profileNames.has(c.name)),
     ];
+    this.characteristics = applyCharacteristicConstraints(merged, this.constraintValueUses);
     this.filterCharacteristics();
   }
 
@@ -463,10 +468,15 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     this.profileCharacteristics = pricePlan.prodSpecCharValueUse ?? [];
     this.hasProfile = this.profileCharacteristics.length > 0;
 
+    const previousConstraints = this.constraintValueUses;
+    this.constraintValueUses = await this.loadConstraintValueUses(pricePlan);
+    const constraintsChanged = JSON.stringify(previousConstraints) !== JSON.stringify(this.constraintValueUses);
+
     // Only rebuild the characteristics form (and lose whatever the customer already
-    // picked) when the profile actually changes — switching between two plans that
-    // both have no profile keeps using the same base characteristics untouched.
-    if (hadProfile || this.hasProfile) {
+    // picked) when the profile or the plan's characteristic constraints actually
+    // change — switching between two plans that are otherwise identical keeps using
+    // the same base characteristics untouched.
+    if (hadProfile || this.hasProfile || constraintsChanged) {
       this.applyCharacteristicsSource();
     }
 
@@ -474,6 +484,34 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     await this.refreshAppliedMetrics();
     console.log(this.selectedPricePlan);
     await this.calculatePrice();
+  }
+
+  /** Resolves which characteristics/values the plan forbids — either set directly
+   * on it (`forbiddenCharacteristic`), or via a linked "constraint"-type
+   * ProductOfferingPrice referenced through `popRelationship`. */
+  private async loadConstraintValueUses(pricePlan: any): Promise<CharacteristicConstraintValueUse[]> {
+    const localForbiddenCharacteristics = Array.isArray(pricePlan?.forbiddenCharacteristic)
+      ? pricePlan.forbiddenCharacteristic
+      : [];
+    if (localForbiddenCharacteristics.length > 0) {
+      return localForbiddenCharacteristics;
+    }
+
+    const constraintRefs = (Array.isArray(pricePlan?.popRelationship) ? pricePlan.popRelationship : [])
+      .filter((relationship: any) =>
+        relationship?.id && String(relationship.relationshipType || '').toLowerCase() === 'constraint'
+      );
+
+    for (const constraintRef of constraintRefs) {
+      const constraintPrice = await this.priceService.getProductPrice(constraintRef.id);
+      if (String(constraintPrice?.priceType || '').toLowerCase() !== 'constraint') continue;
+      const characteristicUses = Array.isArray(constraintPrice?.prodSpecCharValueUse)
+        ? constraintPrice.prodSpecCharValueUse
+        : [];
+      return characteristicUses;
+    }
+
+    return [];
   }
 
   onUsageSpecChange(event: Event): void {
