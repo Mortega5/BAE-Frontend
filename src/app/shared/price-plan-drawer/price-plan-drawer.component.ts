@@ -461,7 +461,6 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     console.log(pricePlan)
     this.form.get('selectedPricePlan')?.setValue(pricePlan);
 
-
     // Set chars based on selected price plan
     this.isCustom = pricePlan.priceType === 'custom';
     const hadProfile = this.hasProfile;
