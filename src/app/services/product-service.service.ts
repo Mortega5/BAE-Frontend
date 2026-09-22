@@ -450,7 +450,8 @@ export class ApiServiceService {
     filter: any,
     limit: number,
     filteredPaginationToken?: string | null,
-    relatedPartyId?: string | null
+    relatedPartyId?: string | null,
+    sort?: string | null
   ): Promise<CatalogPageResponse> {
     const tokenRequestHeader = 'X-Filtered-Pagination-Token';
     const tokenResponseHeader = 'x-filtered-pagination-token';
@@ -460,6 +461,9 @@ export class ApiServiceService {
     }
     if (relatedPartyId) {
       url = url + `&relatedParty.id=${relatedPartyId}`;
+    }
+    if (sort) {
+      url = url + `&sort=${sort}`;
     }
 
     let options: { observe: 'response', headers?: { [header: string]: string } } = { observe: 'response' };

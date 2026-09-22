@@ -188,11 +188,20 @@ export class CatalogsComponent implements OnInit, OnDestroy {
   }
 
   private async loadCatalogsPage(page: number, filteredPaginationToken: string | null): Promise<CatalogPageResponse> {
-    const response = await this.api.getLaunchedCatalogsPage(page, this.filter, this.CATALOG_LIMIT, filteredPaginationToken);
+    const response = await this.api.getLaunchedCatalogsPage(page, this.filter, this.CATALOG_LIMIT, filteredPaginationToken, null, this.sortParam);
     return {
       ...response,
       items: (response.items ?? []).filter((catalog: any) => catalog?.id !== environment.DFT_CATALOG_ID)
     };
+  }
+
+  /** TMF sort convention: bare field for ascending, `-field` for descending. */
+  private get sortParam(): string {
+    switch (this.sortOption) {
+      case 'name_asc': return 'name';
+      case 'name_desc': return '-name';
+      default: return '-lastUpdate';
+    }
   }
 
   private clearFilteredPaginationToken(): void {
@@ -248,11 +257,10 @@ export class CatalogsComponent implements OnInit, OnDestroy {
   }
 
   private applyView() {
-    let list = [...this.allProviders];
-    if (this.sortOption === 'name_asc') list.sort((a, b) => a.name.localeCompare(b.name));
-    if (this.sortOption === 'name_desc') list.sort((a, b) => b.name.localeCompare(a.name));
-    this.totalCount = list.length;
-    this.providers = list;
+    // Sorting is done backend-side (see sortParam) so it applies across the whole
+    // result set, not just whatever page happens to be loaded client-side.
+    this.totalCount = this.allProviders.length;
+    this.providers = [...this.allProviders];
   }
 
   filterProviders() {

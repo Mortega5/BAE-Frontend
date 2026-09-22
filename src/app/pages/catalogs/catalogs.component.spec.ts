@@ -103,8 +103,8 @@ describe('CatalogsComponent', () => {
     await flushPromises();
 
     expect(apiServiceSpy.getLaunchedCatalogsPage).toHaveBeenCalledTimes(2);
-    expect(apiServiceSpy.getLaunchedCatalogsPage.calls.argsFor(0)).toEqual([0, undefined, component.CATALOG_LIMIT, null]);
-    expect(apiServiceSpy.getLaunchedCatalogsPage.calls.argsFor(1)).toEqual([component.CATALOG_LIMIT, undefined, component.CATALOG_LIMIT, 'tok-1']);
+    expect(apiServiceSpy.getLaunchedCatalogsPage.calls.argsFor(0)).toEqual([0, undefined, component.CATALOG_LIMIT, null, null, '-lastUpdate']);
+    expect(apiServiceSpy.getLaunchedCatalogsPage.calls.argsFor(1)).toEqual([component.CATALOG_LIMIT, undefined, component.CATALOG_LIMIT, 'tok-1', null, '-lastUpdate']);
 
     expect(component.providers.map(p => p.id)).toEqual(['custom-cat']);
     expect(component.totalCount).toBe(1);
@@ -146,7 +146,7 @@ describe('CatalogsComponent', () => {
     await flushPromises();
 
     expect(apiServiceSpy.getLaunchedCatalogsPage).toHaveBeenCalledTimes(3);
-    expect(apiServiceSpy.getLaunchedCatalogsPage.calls.argsFor(2)).toEqual([component.CATALOG_LIMIT * 2, undefined, component.CATALOG_LIMIT, 'tok-2']);
+    expect(apiServiceSpy.getLaunchedCatalogsPage.calls.argsFor(2)).toEqual([component.CATALOG_LIMIT * 2, undefined, component.CATALOG_LIMIT, 'tok-2', null, '-lastUpdate']);
     expect(component.providers.map(p => p.id)).toEqual(['cat-1', 'cat-2']);
     expect(component.page_check).toBeTrue();
   });
@@ -181,6 +181,20 @@ describe('CatalogsComponent', () => {
     expect(component.sortOption).toBe('name_asc');
     expect(component.showSortDropdown).toBeFalse();
     expect(component.getProviders).toHaveBeenCalledWith(false);
+  });
+
+  it('getProviders should ask the backend to sort by the selected option instead of sorting client-side', async () => {
+    component.sortOption = 'name_asc';
+    await component.getProviders(false);
+    expect(apiServiceSpy.getLaunchedCatalogsPage.calls.mostRecent().args[5]).toBe('name');
+
+    component.sortOption = 'name_desc';
+    await component.getProviders(false);
+    expect(apiServiceSpy.getLaunchedCatalogsPage.calls.mostRecent().args[5]).toBe('-name');
+
+    component.sortOption = 'recent';
+    await component.getProviders(false);
+    expect(apiServiceSpy.getLaunchedCatalogsPage.calls.mostRecent().args[5]).toBe('-lastUpdate');
   });
 
   it('next should request the next page of providers', () => {

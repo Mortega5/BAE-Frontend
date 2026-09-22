@@ -100,6 +100,21 @@ describe('ApiServiceService', () => {
     });
   });
 
+  it('should append the sort param for public launched catalog requests when provided', async () => {
+    const resultPromise = service.getLaunchedCatalogsPage(0, undefined, 12, null, null, '-lastUpdate');
+
+    const req = httpMock.expectOne(request =>
+      request.method === 'GET'
+      && request.urlWithParams === `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog?limit=12&offset=0&lifecycleStatus=Launched&sort=-lastUpdate`
+    );
+    req.flush([{ id: 'catalog-1' }]);
+
+    await expectAsync(resultPromise).toBeResolvedTo({
+      items: [{ id: 'catalog-1' }],
+      filteredPaginationToken: null
+    });
+  });
+
   it('should create the default catalog through the admin default catalog endpoint', () => {
     const payload = {
       name: 'Default Catalog',
