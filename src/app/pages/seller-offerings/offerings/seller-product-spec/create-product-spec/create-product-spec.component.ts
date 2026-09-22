@@ -1,9 +1,10 @@
-import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { CommonModule, DatePipe } from '@angular/common';
+import { ChangeDetectorRef, Component, DoCheck, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faXmark } from '@fortawesome/pro-solid-svg-icons';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { findIconByName, IconCategory, POPULAR_ICON_CATEGORIES } from 'src/app/config/popular-icons';
@@ -20,15 +21,27 @@ import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
-import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
+import { BadgeComponent, BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { DropdownPanelComponent } from 'src/app/shared/dropdown-panel/dropdown-panel.component';
 import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
-import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
+import { CharacteristicItem, CharacteristicsEditorComponent } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { AttachmentUploadComponent } from 'src/app/shared/forms/attachment-upload/attachment-upload.component';
+import { MarkdownTextareaComponent } from 'src/app/shared/forms/markdown-textarea/markdown-textarea.component';
+import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/paginated-table.component';
+import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
+import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { StepperComponent } from 'src/app/shared/stepper/stepper.component';
+import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
-import { BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
+import { BlueprintProductFormComponent, BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
 type ProductSpecification_Create = components["schemas"]["ProductSpecification_Create"];
@@ -44,11 +57,40 @@ const BASE_TEMPLATE_OPTIONS = [
 ];
 @Component({
   selector: 'create-product-spec',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    ReactiveFormsModule,
+    TranslateModule,
+    FaIconComponent,
+    ButtonComponent,
+    DynamicFormComponent,
+    AttachmentUploadComponent,
+    MarkdownTextareaComponent,
+    DropdownPanelComponent,
+    LoadingSpinnerComponent,
+    BadgeComponent,
+    PaginatedTableComponent,
+    TableInputComponent,
+    CharacteristicsEditorComponent,
+    StepperComponent,
+    StepperStepDirective,
+    ContentCardComponent,
+    ConfirmModalComponent,
+    BlueprintProductFormComponent,
+  ],
   templateUrl: './create-product-spec.component.html',
   styleUrl: './create-product-spec.component.css',
   providers: [DatePipe],
 })
 export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
+  /** True when embedded inside another flow (e.g. the offer form's product spec picker)
+   * instead of routed to as its own page — swaps navigating away for emitting `created`. */
+  @Input() embedded = false;
+  @Output() created = new EventEmitter<any>();
+  /** Only emitted in embedded mode, when the seller backs out instead of creating one. */
+  @Output() cancelled = new EventEmitter<void>();
 
   //PAGE SIZES:
   PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;
@@ -509,6 +551,10 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   goBack() {
+    if (this.embedded) {
+      this.cancelled.emit();
+      return;
+    }
     this.router.navigate([SellerOfferingsPaths.productSpecs.list()]);
   }
 
@@ -995,7 +1041,11 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
         this.loading = false;
         this.showPublishDraftModal = false;
         this.notificationService.showSuccess('CREATE_PROD_SPEC._create_success');
-        this.goBack();
+        if (this.embedded) {
+          this.created.emit(data);
+        } else {
+          this.goBack();
+        }
       },
       error: error => {
         console.error('There was an error while creating!', error);

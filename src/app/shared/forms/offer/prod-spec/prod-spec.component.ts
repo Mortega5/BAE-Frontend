@@ -1,5 +1,5 @@
 import { DatePipe } from "@angular/common";
-import { Component, EventEmitter, forwardRef, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, forwardRef, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import {
   ControlValueAccessor,
   FormControl,
@@ -11,7 +11,12 @@ import { Subscription } from "rxjs";
 import { FormChangeState } from "src/app/models/interfaces";
 import { PageRequest, PageResult } from "src/app/models/pagination.model";
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
+import {
+  CreateProductSpecComponent
+} from 'src/app/pages/seller-offerings/offerings/seller-product-spec/create-product-spec/create-product-spec.component';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 import { ProductSpecServiceService } from "../../../../services/product-spec-service.service";
 import { PaginatedTableComponent } from '../../paginated-table/paginated-table.component';
 import { TableInputComponent } from '../../table-input/table-input.component';
@@ -34,6 +39,9 @@ interface ProductSpec {
     FormsModule,
     TableInputComponent,
     PaginatedTableComponent,
+    ButtonComponent,
+    ContentCardComponent,
+    CreateProductSpecComponent,
   ],
   providers: [
     {
@@ -58,6 +66,9 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
   private formSubscription: Subscription | null = null;
   private hasBeenModified: boolean = false;
   isEditMode: boolean = false;
+
+  showCreateProdSpecModal = false;
+  @ViewChild('prodSpecsTable') private prodSpecsTable?: PaginatedTableComponent;
 
   protected readonly FormControl = FormControl;
 
@@ -117,6 +128,16 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
     this.onChange(prod);
     this.onTouched();
     if (this.isEditMode) this.hasBeenModified = true;
+  }
+
+  closeCreateProdSpecModal(): void {
+    this.showCreateProdSpecModal = false;
+  }
+
+  onProdSpecCreated(created: any): void {
+    this.showCreateProdSpecModal = false;
+    this.onProdSpecChange(created);
+    this.prodSpecsTable?.refresh(true);
   }
 
   // As ControlValueAccessor

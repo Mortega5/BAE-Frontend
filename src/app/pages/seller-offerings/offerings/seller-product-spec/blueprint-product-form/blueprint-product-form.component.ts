@@ -1,12 +1,16 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { TableColumn } from 'src/app/models/table-column.model';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { jsonValidator } from 'src/app/validators/validators';
 import { v4 as uuidv4 } from 'uuid';
 import { components } from '../../../../../models/product-catalog';
@@ -39,6 +43,8 @@ const ON_FAILURE_OPTIONS = [
 
 @Component({
   selector: 'app-blueprint-product-form',
+  standalone: true,
+  imports: [TranslateModule, ButtonComponent, DynamicFormComponent, TableInputComponent],
   templateUrl: './blueprint-product-form.component.html',
 })
 export class BlueprintProductFormComponent implements OnInit, OnDestroy {

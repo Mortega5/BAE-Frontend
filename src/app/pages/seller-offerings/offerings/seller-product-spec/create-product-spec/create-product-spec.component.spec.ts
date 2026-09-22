@@ -51,8 +51,7 @@ describe('CreateProductSpecComponent', () => {
     resSpecServiceSpy.getResourceSpecByUserPaged.and.resolveTo({ items: [], total: 0 } as any);
 
     await TestBed.configureTestingModule({
-      declarations: [CreateProductSpecComponent],
-      imports: [TranslateModule.forRoot()],
+      imports: [CreateProductSpecComponent, TranslateModule.forRoot()],
       schemas: [NO_ERRORS_SCHEMA],
       providers: [
         { provide: Router, useValue: routerSpy },

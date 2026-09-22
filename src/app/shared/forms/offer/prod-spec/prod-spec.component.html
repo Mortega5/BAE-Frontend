@@ -25,10 +25,36 @@
 }
 } @else {
 <div class="w-full mt-4 mb-4">
-  <app-paginated-table data-cy="prodSpecs" [columns]="prodColumns" [fetchPage]="fetchProdSpecs" [multiple]="false"
-    [selectable]="true" [selected]="selectedProdSpecInternal" (selectedChange)="onProdSpecChange($event)"
-    [defaultSort]="defaultSort">
+  <div class="flex justify-end mb-2">
+    <app-button data-cy="createProdSpecFromOffer" type="button" size="sm" prefixIcon="plus"
+      (click)="showCreateProdSpecModal = true">
+      {{ 'CREATE_PROD_SPEC._create_prod' | translate }}
+    </app-button>
+  </div>
+
+  <app-paginated-table #prodSpecsTable data-cy="prodSpecs" [columns]="prodColumns" [fetchPage]="fetchProdSpecs"
+    [multiple]="false" [selectable]="true" [selected]="selectedProdSpecInternal"
+    (selectedChange)="onProdSpecChange($event)" [defaultSort]="defaultSort">
   </app-paginated-table>
+
+  @if (!prodSpecsTable.loading && prodSpecsTable.total === 0) {
+  <p class="text-sm text-gray-600 dark:text-gray-400 text-center mt-3">{{ 'CREATE_OFFER._no_prods' | translate }}</p>
+  }
 </div>
 }
+}
+
+@if (showCreateProdSpecModal) {
+<div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4"
+  (click)="closeCreateProdSpecModal()">
+  <app-card data-cy="createProdSpecModal" variant="modal" class="w-full max-w-7xl" (click)="$event.stopPropagation()">
+    <div appCardHeader class="flex items-center justify-between">
+      <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._new' | translate }}</h3>
+      <app-button type="button" (click)="closeCreateProdSpecModal()" variant="ghost" size="sm" prefixIcon="xmark" />
+    </div>
+
+    <create-product-spec [embedded]="true" (created)="onProdSpecCreated($event)"
+      (cancelled)="closeCreateProdSpecModal()" />
+  </app-card>
+</div>
 }
