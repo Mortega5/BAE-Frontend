@@ -275,15 +275,15 @@
       <span class="flex items-center"><fa-icon [icon]="themeModeIcon" class="mr-2"></fa-icon>{{ 'HEADER._theme' |
         translate }}</span>
       <div class="flex gap-3">
-        <button type="button" data-cy="themeLight" aria-label="Light theme"
+        <button type="button" data-cy="themeLight" [attr.aria-label]="'HEADER._aria_theme_light' | translate"
           [class.opacity-50]="themeMode !== ThemeMode.Light" (click)="setThemeMode(ThemeMode.Light)">
           <fa-icon [icon]="lightIcon"></fa-icon>
         </button>
-        <button type="button" data-cy="themeDark" aria-label="Dark theme"
+        <button type="button" data-cy="themeDark" [attr.aria-label]="'HEADER._aria_theme_dark' | translate"
           [class.opacity-50]="themeMode !== ThemeMode.Dark" (click)="setThemeMode(ThemeMode.Dark)">
           <fa-icon [icon]="darkIcon"></fa-icon>
         </button>
-        <button type="button" data-cy="themeSystem" aria-label="System theme"
+        <button type="button" data-cy="themeSystem" [attr.aria-label]="'HEADER._aria_theme_system' | translate"
           [class.opacity-50]="themeMode !== ThemeMode.System" (click)="setThemeMode(ThemeMode.System)">
           <fa-icon [icon]="systemIcon"></fa-icon>
         </button>
@@ -291,7 +291,7 @@
     </div>
     } @else {
     <div class="relative">
-      <button type="button" data-cy="themeSelector" aria-label="Theme selector"
+      <button type="button" data-cy="themeSelector" [attr.aria-label]="'HEADER._aria_theme_selector' | translate"
         class="inline-flex h-[44px] w-[44px] items-center justify-center rounded-[10px] header-text-muted hover:bg-white/10 transition"
         (click)="toggleThemeDropdown($event)">
         <fa-icon [icon]="themeModeIcon"></fa-icon>
@@ -334,7 +334,7 @@
     </div>
     } @else {
     <div class="relative">
-      <button type="button" data-cy="providerThemeSelector" aria-label="Provider theme selector (dev only)"
+      <button type="button" data-cy="providerThemeSelector" [attr.aria-label]="'HEADER._aria_provider_theme_selector' | translate"
         class="inline-flex h-[44px] w-[44px] items-center justify-center rounded-[10px] header-text-muted hover:bg-white/10 transition"
         (click)="toggleProviderThemeDropdown($event)">
         <fa-icon [icon]="paletteIcon"></fa-icon>
@@ -369,7 +369,7 @@
     </div>
     } @else {
     <div class="relative">
-      <button type="button" data-cy="languageSelector" aria-label="Language selector"
+      <button type="button" data-cy="languageSelector" [attr.aria-label]="'HEADER._aria_language_selector' | translate"
         class="inline-flex h-[44px] items-center justify-center rounded-[10px] px-3 header-text-muted hover:bg-white/10 transition text-[13px] font-semibold uppercase tracking-wide"
         (click)="toggleFlagDropdown($event)">
         {{ defaultLang }}
@@ -409,7 +409,7 @@
     </app-button>
     } @else {
     @if (!mobile) {
-    <button data-cy="shoppingCart" id="shoppingCart" type="button" aria-label="Shopping cart"
+    <button data-cy="shoppingCart" id="shoppingCart" type="button" [attr.aria-label]="'HEADER._aria_shopping_cart' | translate"
       class="inline-flex h-[44px] w-[44px] items-center justify-center rounded-[10px] header-text-muted hover:bg-white/10 transition"
       (click)="toggleCartDrawer(); $event.stopPropagation()">
       <fa-layers [fixedWidth]="true">
@@ -422,7 +422,7 @@
 
     <div data-cy="loggedAcc" id="loggedAcc" data-dropdown-toggle="userDropdown" data-dropdown-placement="bottom-end"
       class="ml-1 inline-flex h-[44px] w-[44px] items-center justify-center rounded-full bg-white/15 header-text cursor-pointer select-none"
-      aria-label="User menu">
+      [attr.aria-label]="'HEADER._aria_user_menu' | translate">
       <span class="text-[14px] font-bold tracking-wide">{{ usercharacters }}</span>
     </div>
     } @else {

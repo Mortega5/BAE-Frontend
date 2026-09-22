@@ -760,7 +760,16 @@
     "_no_chars": "Este producto no tiene características.",
     "_no_prices": "Este producto no tiene planes de precios.",
     "_owner": "Propietario",
-    "_price_plan": "Plan de precios"
+    "_price_plan": "Plan de precios",
+    "_product_image": "Imagen del producto",
+    "_owner_brand": "Propietario/Marca",
+    "_starting_from": "Desde",
+    "_technology": "Tecnología",
+    "_compliance": "Cumplimiento",
+    "_no_level": "Sin nivel",
+    "_baseline": "Básico",
+    "_professional": "Profesional",
+    "_professional_plus": "Profesional+"
   },
   "CONFIRM_MODAL": {
     "_confirm": "Confirmar",
@@ -880,6 +889,14 @@
     "_theme_system": "Sistema",
     "_theme_dev": "Tema (dev)",
     "_language": "Idioma",
+    "_aria_theme_light": "Tema claro",
+    "_aria_theme_dark": "Tema oscuro",
+    "_aria_theme_system": "Tema del sistema",
+    "_aria_theme_selector": "Selector de tema",
+    "_aria_provider_theme_selector": "Selector de tema de proveedor (solo dev)",
+    "_aria_language_selector": "Selector de idioma",
+    "_aria_shopping_cart": "Carrito de compra",
+    "_aria_user_menu": "Menú de usuario",
     "_sign_out": "Cerrar sesión",
     "_inventory": "Mi inventario",
     "_support": "Soporte",
@@ -2870,6 +2887,19 @@
       "_invalid_name": "El nombre del archivo solo puede incluir letras, números, guiones bajos, guiones y puntos.",
       "_upload_error": "Se produjo un error al subir el archivo.",
       "_upload_success": "Archivo subido correctamente."
+    },
+    "MARKDOWN_EDITOR": {
+      "_bold": "Negrita",
+      "_italic": "Cursiva",
+      "_add_list": "Añadir lista",
+      "_add_ordered_list": "Añadir lista numerada",
+      "_add_blockquote": "Añadir cita",
+      "_add_table": "Añadir tabla",
+      "_add_code": "Añadir código",
+      "_add_code_block": "Añadir bloque de código",
+      "_add_link": "Añadir enlace",
+      "_add_emoji": "Añadir emoji",
+      "_publish_post": "Publicar entrada"
     }
   },
   "USAGE_SPECS": {
@@ -2927,28 +2957,6 @@
     "_focus": "centrándose en aumentar la adopción de estos servicios entre entidades públicas y privadas, en particular en sectores que manejan datos sensibles y que pueden ir por detrás en la adopción de la nube. Este marketplace es una parte fundamental del objetivo de la UE de reforzar la autonomía digital estratégica abierta e impulsar el futuro digital de Europa.",
     "_explore": "¡Explora el sitio web del proyecto DOME si quieres saber más!",
     "_domeproject": "Proyecto DOME"
-  },
-  "CONTACTUS": {
-    "_title": "Pongámonos en contacto",
-    "_subtitle": "Nos alegra que estés interesado en DOME Marketplace. Comparte tus preguntas o comentarios con nosotros y te responderemos en breve.",
-    "_fill": "Rellena este formulario para contactar con nosotros",
-    "_email": "Correo electrónico",
-    "_firstname": "Nombre",
-    "_fieldlong": "Este campo es demasiado largo. Debe tener menos de 100 caracteres.",
-    "_mandatory": "Este campo es obligatorio.",
-    "_emaillong": "El correo electrónico es demasiado largo. Debe tener menos de 320 caracteres.",
-    "_emailpattern": "El correo electrónico debe seguir el siguiente formato: example@example.example",
-    "_lastname": "Apellidos",
-    "_organization": "Organización",
-    "_role": "Rol en la organización",
-    "_message": "Mensaje",
-    "_info": "La información sobre el tratamiento de datos personales es la siguiente:",
-    "_controller": "Responsable del tratamiento DOME",
-    "_purpose": "Finalidad: enviarte información sobre el proyecto de DOME por medios electrónicos. Base legal: consentimiento del interesado. Destinatarios: los datos personales recopilados no se comunicarán a terceros, salvo que lo solicite una administración pública o sea exigido por ley. Ejercicio de derechos: enviando un correo electrónico a",
-    "_indicating": "indicando en el asunto: 'Ejercicio de derechos'. También tienes derecho a ser asistido por una Autoridad de Protección de Datos. Encuentra más información sobre el tratamiento de datos personales en",
-    "_here": "aquí",
-    "_submit": "Enviar",
-    "_thanks": "Gracias por contactar con DOME Marketplace."
   },
   "FEEDBACK": {
     "_tap": "Toca las estrellas de abajo para valorar el servicio:",
