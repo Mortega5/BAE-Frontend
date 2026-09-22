@@ -23,10 +23,10 @@ interface AnalyticsConfigPayload {
   styleUrl: './analytics-config.component.css'
 })
 export class AnalyticsConfigComponent implements OnInit {
-  readonly dashboardSections: Array<{ key: AnalyticsDashboardKey; label: string }> = [
-    { key: 'businessInsightsNonLear', label: 'Business Insights Non-LEAR' },
-    { key: 'businessInsightsLear', label: 'Business Insights LEAR' },
-    { key: 'usageMonitor', label: 'Usage Monitor' }
+  readonly dashboardSections: Array<{ key: AnalyticsDashboardKey; labelKey: string }> = [
+    { key: 'businessInsightsNonLear', labelKey: 'ADMIN.ANALYTICS_CONFIG._dashboard_business_insights_non_lear' },
+    { key: 'businessInsightsLear', labelKey: 'ADMIN.ANALYTICS_CONFIG._dashboard_business_insights_lear' },
+    { key: 'usageMonitor', labelKey: 'ADMIN.ANALYTICS_CONFIG._dashboard_usage_monitor' }
   ];
 
   loading = false;
@@ -76,7 +76,7 @@ export class AnalyticsConfigComponent implements OnInit {
     try {
       await this.syncFromBackend();
     } catch (error: any) {
-      this.handleError(error, 'There was an error while loading analytics configuration.');
+      this.handleError(error, 'ADMIN.ANALYTICS_CONFIG._load_error');
     } finally {
       this.loading = false;
     }
@@ -130,7 +130,7 @@ export class AnalyticsConfigComponent implements OnInit {
       this.loadAnalyticsConfig(normalized);
       this.providedJson = JSON.stringify(this.normalizeAnalyticsForJson(normalized), null, 2);
     } catch (error: any) {
-      this.handleError(error, 'The provided JSON could not be loaded into the form.');
+      this.handleError(error, 'ADMIN._load_json_into_form_error');
     }
   }
 

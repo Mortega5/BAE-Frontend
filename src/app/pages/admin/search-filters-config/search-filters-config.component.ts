@@ -40,7 +40,7 @@ export class SearchFiltersConfigComponent implements OnInit {
     try {
       await this.syncFromBackend();
     } catch (error: any) {
-      this.handleError(error, 'There was an error while loading search filters configuration.');
+      this.handleError(error, 'ADMIN.SEARCH_FILTERS_CONFIG._load_error');
     } finally {
       this.loading = false;
     }
@@ -117,7 +117,7 @@ export class SearchFiltersConfigComponent implements OnInit {
       });
       this.loadFilters(normalized.filters);
     } catch (error: any) {
-      this.handleError(error, 'The provided JSON could not be loaded into the form.');
+      this.handleError(error, 'ADMIN._load_json_into_form_error');
     }
   }
 

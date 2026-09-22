@@ -10,15 +10,15 @@
   } @else {
   <div appCardContent data-cy="adminAnalyticsConfig" class="flex flex-col gap-6">
     <div>
-      <label for="analytics-provided-json" class="font-bold text-sm dark:text-white">Provide analytics JSON</label>
+      <label for="analytics-provided-json" class="font-bold text-sm dark:text-white">{{ 'ADMIN.ANALYTICS_CONFIG._provide_json' | translate }}</label>
       <textarea id="analytics-provided-json" data-cy="adminAnalyticsJson" [(ngModel)]="providedJson" [ngModelOptions]="{ standalone: true }" rows="10"
         class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 font-mono"></textarea>
       <div class="flex gap-2 justify-end mt-2">
         <app-button data-cy="adminLoadAnalyticsJson" type="button" (click)="loadProvidedJsonIntoForm()" variant="secondary">
-          Load JSON
+          {{ 'ADMIN._load_json' | translate }}
         </app-button>
         <app-button data-cy="adminSaveAnalyticsJson" type="button" (click)="saveProvidedJson()" [disabled]="saving">
-          Save JSON
+          {{ 'ADMIN._save_json' | translate }}
         </app-button>
       </div>
     </div>
@@ -27,7 +27,7 @@
       <section class="flex flex-col gap-4">
         <div class="flex items-center justify-between gap-4 p-4 border border-gray-200 dark:border-secondary-200 rounded-lg bg-gray-50 dark:bg-secondary-300">
           <div>
-            <p class="font-semibold text-gray-900 dark:text-white">Analytics enabled</p>
+            <p class="font-semibold text-gray-900 dark:text-white">{{ 'ADMIN.ANALYTICS_CONFIG._analytics_enabled' | translate }}</p>
             <p class="text-sm text-gray-500 dark:text-gray-400">analyticsEnabled</p>
           </div>
           <label class="inline-flex items-center cursor-pointer">
@@ -37,18 +37,18 @@
         </div>
 
         <div>
-          <label for="analytics-url" class="font-semibold text-sm dark:text-white">Analytics URL</label>
+          <label for="analytics-url" class="font-semibold text-sm dark:text-white">{{ 'ADMIN.ANALYTICS_CONFIG._analytics_url' | translate }}</label>
           <input id="analytics-url" formControlName="analytics" type="url"
             class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
         </div>
       </section>
 
       <section formGroupName="analyticsDashboards" class="flex flex-col gap-4">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Dashboard IDs</h3>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'ADMIN.ANALYTICS_CONFIG._dashboard_ids' | translate }}</h3>
         <div class="grid gap-4 xl:grid-cols-3">
           @for(section of dashboardSections; track section.key){
           <div>
-            <label [for]="'dashboard-' + section.key" class="font-semibold text-sm dark:text-white">{{ section.label }}</label>
+            <label [for]="'dashboard-' + section.key" class="font-semibold text-sm dark:text-white">{{ section.labelKey | translate }}</label>
             <input [id]="'dashboard-' + section.key" [formControlName]="section.key" type="text"
               class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
           </div>
@@ -57,9 +57,9 @@
       </section>
 
       <section formGroupName="analyticsSuperset" class="flex flex-col gap-4">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white">Superset guest token</h3>
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'ADMIN.ANALYTICS_CONFIG._superset_guest_token' | translate }}</h3>
         <div>
-          <label for="superset-guest-token-path" class="font-semibold text-sm dark:text-white">Guest token path</label>
+          <label for="superset-guest-token-path" class="font-semibold text-sm dark:text-white">{{ 'ADMIN.ANALYTICS_CONFIG._guest_token_path' | translate }}</label>
           <input id="superset-guest-token-path" formControlName="guestTokenPath" type="text"
             class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
         </div>
@@ -71,7 +71,7 @@
   @if(!loading){
   <div appCardFooter>
     <app-button data-cy="adminSaveAnalyticsConfig" type="button" (click)="saveConfig()" [disabled]="saving" suffixIcon="arrow-right">
-      Save
+      {{ 'COMMON._save' | translate }}
     </app-button>
   </div>
   }
