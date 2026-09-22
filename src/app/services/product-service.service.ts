@@ -47,6 +47,26 @@ export class ApiServiceService {
     return lastValueFrom(this.http.get<any[]>(url));
   }
 
+  /** Same as getProducts, but returns the real X-Total-Count instead of leaving the
+   * caller to prefetch an extra page just to find out whether there's more. */
+  async getProductsPaged(params: PageRequest, keywords?: any): Promise<PageResult<any>> {
+    const queryParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      lifecycleStatus: 'Launched',
+    };
+    applySort(params, queryParams);
+    if (keywords != undefined) {
+      queryParams['keyword'] = keywords;
+    }
+
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productOffering`;
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
+  }
+
   async getProductsDetails(offers: any[]) {
     let normalized: any[] = [];
 
@@ -135,10 +155,48 @@ export class ApiServiceService {
     return lastValueFrom(this.http.get<any[]>(url));
   }
 
+  /** Same as getProductsByCategory, but returns the real X-Total-Count. */
+  async getProductsByCategoryPaged(ids: Category[], params: PageRequest, keywords?: any): Promise<PageResult<any>> {
+    const queryParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      lifecycleStatus: 'Launched',
+    };
+    applySort(params, queryParams);
+    if (ids.length > 0) {
+      queryParams['category.id'] = ids.map(category => category.id).join(',');
+    }
+    if (keywords != undefined) {
+      queryParams['keyword'] = keywords;
+    }
+
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productOffering`;
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
+  }
+
   getProductsByCatalog(catalogId: any, page: any) {
     let url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog/${catalogId}/productOffering?lifecycleStatus=Launched&limit=${ApiServiceService.PRODUCT_LIMIT}&offset=${page}`
 
     return lastValueFrom(this.http.get<any[]>(url));
+  }
+
+  /** Same as getProductsByCatalog, but returns the real X-Total-Count. */
+  async getProductsByCatalogPaged(catalogId: any, params: PageRequest): Promise<PageResult<any>> {
+    const queryParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      lifecycleStatus: 'Launched',
+    };
+    applySort(params, queryParams);
+
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog/${catalogId}/productOffering`;
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
   }
 
   catalogHasLaunchedOffers(catalogId: any): Promise<boolean> {
@@ -161,6 +219,25 @@ export class ApiServiceService {
     let url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog/${catalogId}/productOffering?lifecycleStatus=Launched&${id_str}&limit=${ApiServiceService.PRODUCT_LIMIT}&offset=${page}`;
 
     return lastValueFrom(this.http.get<any[]>(url));
+  }
+
+  /** Same as getProductsByCategoryAndCatalog, but returns the real X-Total-Count. */
+  async getProductsByCategoryAndCatalogPaged(ids: Category[], catalogId: any, params: PageRequest): Promise<PageResult<any>> {
+    const queryParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      lifecycleStatus: 'Launched',
+    };
+    applySort(params, queryParams);
+    if (ids.length > 0) {
+      queryParams['category.id'] = ids.map(category => category.id).join(',');
+    }
+
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog/${catalogId}/productOffering`;
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
   }
 
   getProductById(id: any) {

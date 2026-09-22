@@ -7,7 +7,6 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FeedbackInfo } from 'src/app/models/interfaces';
 import { LoginServiceService } from "src/app/services/login-service.service";
-import { PaginationService } from 'src/app/services/pagination.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { environment } from 'src/environments/environment';
 import { Category } from "../../models/interfaces";
@@ -41,7 +40,6 @@ type ToolbarFilter = {
 export class SearchComponent implements OnInit, OnDestroy {
 
   products: ProductOffering[] = [];
-  nextProducts: ProductOffering[] = [];
   loading: boolean = false;
   loading_more: boolean = false;
   page_check: boolean = true;
@@ -107,7 +105,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
     private loginService: LoginServiceService,
-    private paginationService: PaginationService,
     private state: SearchStateService
     ,
     private aiSearchService: AiSearchService,
@@ -162,7 +159,6 @@ export class SearchComponent implements OnInit, OnDestroy {
       });
 
     this.products = [];
-    this.nextProducts = [];
     /*await this.api.slaCheck().then(data => {
       console.log(data)
     })*/
@@ -179,7 +175,6 @@ export class SearchComponent implements OnInit, OnDestroy {
       console.log("Restoring state…");
 
       this.products = this.state.products;
-      this.nextProducts = this.state.nextProducts;
       this.page = this.state.page;
       this.page_check = this.state.page_check;
       this.keywords = this.state.keywords;
@@ -500,54 +495,32 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.state.clear();
     }
 
-    const options: any = {
-      "keywords": this.keywords,
-      "filters": filters
-    }
-    // const sortParam = this.searchEnabled ? this.getSortParam() : undefined;
-    // if (sortParam !== undefined) {
-    //   options.sort = sortParam;
-    // }
+    const offset = next ? this.page : 0;
 
     try {
-      const data = await this.paginationService.getItemsPaginated(
-        this.page,
-        this.PRODUCT_LIMIT,
-        next,
-        this.products,
-        this.nextProducts,
-        options,
-        this.paginationService.getProducts.bind(this.paginationService)
-      );
+      const result = filters.length > 0
+        ? await this.api.getProductsByCategoryPaged(filters, { limit: this.PRODUCT_LIMIT, offset }, this.keywords)
+        : await this.api.getProductsPaged({ limit: this.PRODUCT_LIMIT, offset }, this.keywords);
 
       if (requestVersion !== this.productsRequestVersion) {
         return;
       }
 
-      // On "load more", data.items is already enriched: it's this.products merged with the
-      // previously-prefetched (and already-enriched) this.nextProducts. Only the freshly
-      // fetched data.nextItems (the next prefetch page) is still raw and needs enriching -
-      // re-enriching data.items too would redo work for every item ever loaded on each click.
-      const [products, nextProducts] = await Promise.all([
-        next ? Promise.resolve(data.items) : this.api.getProductsDetails(data.items),
-        this.api.getProductsDetails(data.nextItems)
-      ]);
+      const enriched = await this.api.getProductsDetails(result.items);
 
       if (requestVersion !== this.productsRequestVersion) {
         return;
       }
 
-      this.products = products;
-      this.nextProducts = nextProducts;
+      this.products = next ? [...this.products, ...enriched] : enriched;
       this.refreshProcurementFilter();
 
-      this.page = data.page;
-      this.page_check = data.page_check;
+      this.page = offset + result.items.length;
+      this.page_check = this.page < result.total;
 
       // SAVE STATE
       this.state.save({
         products: this.products,
-        nextProducts: this.nextProducts,
         page: this.page,
         page_check: this.page_check,
         keywords: this.keywords
@@ -825,7 +798,6 @@ export class SearchComponent implements OnInit, OnDestroy {
 
       this.products = this.mapAiSearchToProducts(searchResponse.items || []);
       this.refreshProcurementFilter();
-      this.nextProducts = [];
       this.aiTotalItems = searchResponse.total_count;
       this.page_check = false; // Disable "load more" for AI search
 
@@ -837,7 +809,6 @@ export class SearchComponent implements OnInit, OnDestroy {
       // SAVE STATE
       this.state.save({
         products: this.products,
-        nextProducts: this.nextProducts,
         page: this.page,
         page_check: this.page_check,
         keywords: this.keywords
@@ -886,14 +857,12 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.eventMessage.emitAiSearchFacets(searchResponse.facets);
       }
 
-      this.nextProducts = [];
       this.page_check = false; // Disable "load more" for AI search
       this.aiAnswer = answer;
 
       // SAVE STATE
       this.state.save({
         products: this.products,
-        nextProducts: this.nextProducts,
         page: this.page,
         page_check: this.page_check,
         keywords: this.keywords

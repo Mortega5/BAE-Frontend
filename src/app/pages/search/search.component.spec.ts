@@ -6,7 +6,6 @@ import { Subject } from 'rxjs';
 
 import { SearchComponent } from './search.component';
 import { ApiServiceService } from 'src/app/services/product-service.service';
-import { PaginationService } from 'src/app/services/pagination.service';
 import { LocalStorageService } from '../../services/local-storage.service';
 import { EventMessageService } from '../../services/event-message.service';
 import { SearchStateService } from '../../services/search-state.service';
@@ -19,14 +18,12 @@ describe('SearchComponent', () => {
   let component: SearchComponent;
   let fixture: ComponentFixture<SearchComponent>;
   let apiSpy: jasmine.SpyObj<ApiServiceService>;
-  let paginationSpy: jasmine.SpyObj<PaginationService>;
   let localStorageSpy: jasmine.SpyObj<LocalStorageService>;
   let eventMessageSpy: jasmine.SpyObj<EventMessageService>;
   let aiSearchSpy: jasmine.SpyObj<AiSearchService>;
   let priceSpy: jasmine.SpyObj<PriceServiceService>;
   let stateMock: {
     products: any[];
-    nextProducts: any[];
     page: number;
     page_check: boolean;
     keywords: string | undefined;
@@ -42,8 +39,11 @@ describe('SearchComponent', () => {
   const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
   beforeEach(async () => {
-    apiSpy = jasmine.createSpyObj<ApiServiceService>('ApiServiceService', ['getProductsDetails']);
-    paginationSpy = jasmine.createSpyObj<PaginationService>('PaginationService', ['getItemsPaginated', 'getProducts']);
+    apiSpy = jasmine.createSpyObj<ApiServiceService>('ApiServiceService', [
+      'getProductsDetails',
+      'getProductsPaged',
+      'getProductsByCategoryPaged',
+    ]);
     localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', [
       'getObject',
       'getValidLoginInfo',
@@ -75,7 +75,6 @@ describe('SearchComponent', () => {
 
     stateMock = {
       products: [],
-      nextProducts: [],
       page: 0,
       page_check: true,
       keywords: undefined,
@@ -84,12 +83,8 @@ describe('SearchComponent', () => {
       clear: jasmine.createSpy('clear'),
     };
 
-    paginationSpy.getItemsPaginated.and.resolveTo({
-      items: [],
-      nextItems: [],
-      page: 0,
-      page_check: false,
-    });
+    apiSpy.getProductsPaged.and.resolveTo({ items: [], total: 0 });
+    apiSpy.getProductsByCategoryPaged.and.resolveTo({ items: [], total: 0 });
     apiSpy.getProductsDetails.and.callFake(async (items: any[]) => items as any);
     aiSearchSpy.search.and.resolveTo({ items: [], total_count: 0, facets: {} } as any);
     aiSearchSpy.searchWithAnswer.and.resolveTo({
@@ -113,7 +108,6 @@ describe('SearchComponent', () => {
       imports: [TranslateModule.forRoot()],
       providers: [
         { provide: ApiServiceService, useValue: apiSpy },
-        { provide: PaginationService, useValue: paginationSpy },
         { provide: LocalStorageService, useValue: localStorageSpy },
         { provide: EventMessageService, useValue: eventMessageSpy },
         { provide: SearchStateService, useValue: stateMock },
@@ -170,7 +164,6 @@ describe('SearchComponent', () => {
 
   it('ngOnInit should restore state and skip loading when cached state exists', async () => {
     stateMock.products = [{ id: 'p1' }];
-    stateMock.nextProducts = [{ id: 'p2' }];
     stateMock.page = 20;
     stateMock.page_check = false;
     stateMock.keywords = 'edge';
@@ -180,34 +173,28 @@ describe('SearchComponent', () => {
     await component.ngOnInit();
 
     expect(component.products).toEqual([{ id: 'p1' }] as any);
-    expect(component.nextProducts).toEqual([{ id: 'p2' }] as any);
     expect(component.page).toBe(20);
     expect(component.page_check).toBeFalse();
     expect(component.keywords).toBe('edge');
     expect(component.searchField.value).toBe('edge');
-    expect(paginationSpy.getItemsPaginated).not.toHaveBeenCalled();
+    expect(apiSpy.getProductsPaged).not.toHaveBeenCalled();
+    expect(apiSpy.getProductsByCategoryPaged).not.toHaveBeenCalled();
   });
 
   it('ngOnInit should load products when there is no cached state', async () => {
     component.aiSearchEnabled = false;
     stateMock.hasState.and.returnValue(false);
     routeParamGetSpy.and.callFake((key: string) => (key === 'keywords' ? 'cloud' : null));
-    paginationSpy.getItemsPaginated.and.resolveTo({
-      items: [{ id: 'p1' }],
-      nextItems: [{ id: 'p2' }],
-      page: 10,
-      page_check: true,
-    });
+    apiSpy.getProductsPaged.and.resolveTo({ items: [{ id: 'p1' }], total: 11 });
 
     await component.ngOnInit();
     await flushPromises();
 
     expect(component.keywords).toBe('cloud');
     expect(component.searchField.value).toBe('cloud');
-    expect(paginationSpy.getItemsPaginated).toHaveBeenCalled();
+    expect(apiSpy.getProductsPaged).toHaveBeenCalled();
     expect(component.products).toEqual([{ id: 'p1' }] as any);
-    expect(component.nextProducts).toEqual([{ id: 'p2' }] as any);
-    expect(component.page).toBe(10);
+    expect(component.page).toBe(1);
     expect(component.page_check).toBeTrue();
     expect(stateMock.save).toHaveBeenCalled();
   });
@@ -222,49 +209,58 @@ describe('SearchComponent', () => {
     expect((component as any).navigatingToDetail).toBeFalse();
   });
 
-  it('getProducts should request paginated data and persist state', async () => {
+  it('getProducts should request paginated data by real total and persist state', async () => {
     component.page = 30;
     component.products = [{ id: 'old' }] as any;
-    component.nextProducts = [{ id: 'next-old' }] as any;
     component.keywords = 'gpu';
     localStorageSpy.getObject.and.callFake((key: string) => {
       if (key === 'selected_categories') return [{ id: 'cat-1' }];
       return {};
     });
-    paginationSpy.getItemsPaginated.and.resolveTo({
-      items: [{ id: 'p1' }],
-      nextItems: [{ id: 'p2' }],
-      page: 40,
-      page_check: true,
-    });
+    apiSpy.getProductsByCategoryPaged.and.resolveTo({ items: [{ id: 'p1' }], total: 21 });
 
     await component.getProducts(false);
     await flushPromises();
 
     expect(stateMock.clear).toHaveBeenCalled();
-    expect(paginationSpy.getItemsPaginated).toHaveBeenCalledWith(
-      30,
-      component.PRODUCT_LIMIT,
-      false,
-      [{ id: 'old' }],
-      [{ id: 'next-old' }],
-      { keywords: 'gpu', filters: [{ id: 'cat-1' }] },
-      jasmine.any(Function),
+    expect(apiSpy.getProductsByCategoryPaged).toHaveBeenCalledWith(
+      [{ id: 'cat-1' }],
+      { limit: component.PRODUCT_LIMIT, offset: 0 },
+      'gpu',
     );
-    expect(apiSpy.getProductsDetails).toHaveBeenCalledTimes(2);
+    expect(apiSpy.getProductsDetails).toHaveBeenCalledTimes(1);
     expect(component.products).toEqual([{ id: 'p1' }] as any);
-    expect(component.nextProducts).toEqual([{ id: 'p2' }] as any);
-    expect(component.page).toBe(40);
+    expect(component.page).toBe(1);
     expect(component.page_check).toBeTrue();
     expect(component.loading).toBeFalse();
     expect(component.loading_more).toBeFalse();
     expect(stateMock.save).toHaveBeenCalledWith({
       products: [{ id: 'p1' }],
-      nextProducts: [{ id: 'p2' }],
-      page: 40,
+      page: 1,
       page_check: true,
       keywords: 'gpu',
     });
+  });
+
+  it('getProducts should append to the existing list and advance the offset when loading more', async () => {
+    component.page = 10;
+    component.products = [{ id: 'old' }] as any;
+    localStorageSpy.getObject.and.callFake((key: string) => {
+      if (key === 'selected_categories') return [];
+      return {};
+    });
+    apiSpy.getProductsPaged.and.resolveTo({ items: [{ id: 'p2' }], total: 11 });
+
+    await component.getProducts(true);
+    await flushPromises();
+
+    expect(apiSpy.getProductsPaged).toHaveBeenCalledWith(
+      { limit: component.PRODUCT_LIMIT, offset: 10 },
+      undefined,
+    );
+    expect(component.products).toEqual([{ id: 'old' }, { id: 'p2' }] as any);
+    expect(component.page).toBe(11);
+    expect(component.page_check).toBeFalse();
   });
 
   it('next should delegate to getProducts with next=true', async () => {

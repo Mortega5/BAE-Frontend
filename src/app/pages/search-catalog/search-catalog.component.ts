@@ -4,7 +4,6 @@ import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AccountServiceService } from "src/app/services/account-service.service";
-import { PaginationService } from 'src/app/services/pagination.service';
 import { PriceServiceService } from 'src/app/services/price-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { environment } from 'src/environments/environment';
@@ -32,7 +31,6 @@ export class SearchCatalogComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService,
     private localStorage: LocalStorageService,
     private router: Router,
-    private paginationService: PaginationService,
     private state: SearchStateService,
     private themeService: ThemeService
   ) {
@@ -57,7 +55,6 @@ export class SearchCatalogComponent implements OnInit, OnDestroy {
   providerName: string = '';
   providerDescription: string = '';
   products: ProductOffering[] = [];
-  nextProducts: ProductOffering[] = [];
   loading: boolean = false;
   loading_more: boolean = false;
   page_check: boolean = true;
@@ -128,7 +125,6 @@ export class SearchCatalogComponent implements OnInit, OnDestroy {
       console.log("Restoring state…");
 
       this.products = this.state.products;
-      this.nextProducts = this.state.nextProducts;
       this.page = this.state.page;
       this.page_check = this.state.page_check;
 
@@ -192,36 +188,31 @@ export class SearchCatalogComponent implements OnInit, OnDestroy {
   }
 
   async getProducts(next: boolean) {
-    let filters = this.localStorage.getObject('selected_categories') as Category[] || [];
+    const filters = this.localStorage.getObject('selected_categories') as Category[] || [];
     if (next == false) {
       this.loading = true;
     }
 
-    let options = {
-      "keywords": undefined,
-      "filters": filters,
-      "catalogId": this.id
-    }
-    this.paginationService.getItemsPaginated(this.page, this.PRODUCT_LIMIT, next, this.products, this.nextProducts, options,
-      this.paginationService.getProductsByCatalog.bind(this.paginationService)).then(async data => {
-        console.log('---- pagination -----')
-        console.log(data.items)
-        console.log(data.nextItems)
-        this.products = await this.api.getProductsDetails(data.items);
-        this.page_check = data.page_check;
-        this.nextProducts = await this.api.getProductsDetails(data.nextItems);
-        this.page = data.page;
-        this.loading = false;
-        this.loading_more = false;
+    const offset = next ? this.page : 0;
 
-        // SAVE STATE
-        this.state.save({
-          products: this.products,
-          nextProducts: this.nextProducts,
-          page: this.page,
-          page_check: this.page_check
-        });
-      })
+    const result = filters.length > 0
+      ? await this.api.getProductsByCategoryAndCatalogPaged(filters, this.id, { limit: this.PRODUCT_LIMIT, offset })
+      : await this.api.getProductsByCatalogPaged(this.id, { limit: this.PRODUCT_LIMIT, offset });
+
+    const enriched = await this.api.getProductsDetails(result.items);
+
+    this.products = next ? [...this.products, ...enriched] : enriched;
+    this.page = offset + result.items.length;
+    this.page_check = this.page < result.total;
+    this.loading = false;
+    this.loading_more = false;
+
+    // SAVE STATE
+    this.state.save({
+      products: this.products,
+      page: this.page,
+      page_check: this.page_check
+    });
   }
 
   async next() {
