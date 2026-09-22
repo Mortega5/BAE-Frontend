@@ -1,7 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { initFlowbite } from 'flowbite';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -13,10 +13,16 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { belongsToParty } from 'src/app/shared/session-ownership.util';
 import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/resource-spec-service.service';
-import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
-import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
+import { BadgeComponent, BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { NotFoundStateComponent } from 'src/app/shared/not-found-state/not-found-state.component';
+import { CharacteristicItem, CharacteristicsEditorComponent } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
-import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
+import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { PackageDeploymentComponent } from 'src/app/shared/forms/package-deployment/package-deployment';
+import { StepperComponent, StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
+import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { buildResourceConfigUpdate, buildResourceConfiguration } from '../../../../../models/formFields/software-resource-fields';
@@ -50,10 +56,30 @@ const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
 
 @Component({
   selector: 'app-resource-spec-form',
+  standalone: true,
+  imports: [
+    TranslateModule,
+    ButtonComponent,
+    BadgeComponent,
+    NotFoundStateComponent,
+    StepperComponent,
+    StepperStepDirective,
+    DynamicFormComponent,
+    CharacteristicsEditorComponent,
+    PackageDeploymentComponent,
+    ConfirmModalComponent,
+  ],
   templateUrl: './resource-spec-form.component.html',
 
 })
 export class ResourceSpecFormComponent implements OnInit, OnDestroy {
+  /** True when embedded inside another flow (e.g. the product spec form's resource picker)
+   * instead of routed to as its own page — swaps navigating away for emitting `created`. */
+  @Input() embedded = false;
+  @Output() created = new EventEmitter<any>();
+  /** Only emitted in embedded mode, when the seller backs out instead of creating one. */
+  @Output() cancelled = new EventEmitter<void>();
+
   mode: 'create' | 'update' = 'create';
   res?: any;
 
@@ -215,6 +241,10 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   }
 
   goBack(): void {
+    if (this.embedded) {
+      this.cancelled.emit();
+      return;
+    }
     this.router.navigate([SellerOfferingsPaths.resourceSpecs.list()]);
   }
 
@@ -350,11 +380,15 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.resSpecService.postResSpec(this.resourceData as ResourceSpecification_Create, (this.resourceData as any)?.['@type'] as ResourceSpecType)
       .subscribe({
-        next: () => {
+        next: created => {
           this.loading = false;
           this.showPublishDraftModal = false;
           this.notificationService.showSuccess('CREATE_RES_SPEC._create_success');
-          this.goBack();
+          if (this.embedded) {
+            this.created.emit(created);
+          } else {
+            this.goBack();
+          }
         },
         error: e => this.handleError(e),
       });

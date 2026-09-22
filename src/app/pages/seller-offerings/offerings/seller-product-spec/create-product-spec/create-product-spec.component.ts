@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, DoCheck, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { ChangeDetectorRef, Component, DoCheck, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
@@ -42,6 +42,8 @@ import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 import { BlueprintProductFormComponent, BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
+import { ResourceSpecFormComponent } from '../../seller-resource-spec/resource-spec-form/resource-spec-form.component';
+import { ServiceSpecFormComponent } from '../../seller-service-spec/service-spec-form/service-spec-form.component';
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
 type ProductSpecification_Create = components["schemas"]["ProductSpecification_Create"];
@@ -79,6 +81,8 @@ const BASE_TEMPLATE_OPTIONS = [
     ContentCardComponent,
     ConfirmModalComponent,
     BlueprintProductFormComponent,
+    ResourceSpecFormComponent,
+    ServiceSpecFormComponent,
   ],
   templateUrl: './create-product-spec.component.html',
   styleUrl: './create-product-spec.component.css',
@@ -195,6 +199,8 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   defaultServSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
 
   selectedServiceSpecs: any[] = [];
+  showCreateServiceSpecModal = false;
+  @ViewChild('serviceSpecsTable') private serviceSpecsTable?: PaginatedTableComponent;
   servColumns: TableColumn[] = [
     { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
     { header: 'Status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
@@ -204,6 +210,8 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   //RESOURCE INFO:
   defaultResSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
   selectedResourceSpecs: any[] = [];
+  showCreateResourceSpecModal = false;
+  @ViewChild('resourceSpecsTable') private resourceSpecsTable?: PaginatedTableComponent;
   resColumns: TableColumn[] = [
     { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
     { header: 'Type', getValue: (item: any) => item['@type'] ?? 'ResourceSpecification', hideOnMobile: true },
@@ -800,6 +808,26 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     const needsHelmDefaults = deploymentTypes.some(type => type === 'helm');
 
     this.syncHelmDeploymentCharacteristics(needsHelmDefaults);
+  }
+
+  closeCreateResourceSpecModal(): void {
+    this.showCreateResourceSpecModal = false;
+  }
+
+  async onResourceSpecCreated(created: any): Promise<void> {
+    this.showCreateResourceSpecModal = false;
+    await this.onResourceSpecsChange([...this.selectedResourceSpecs, created]);
+    this.resourceSpecsTable?.refresh(true);
+  }
+
+  closeCreateServiceSpecModal(): void {
+    this.showCreateServiceSpecModal = false;
+  }
+
+  onServiceSpecCreated(created: any): void {
+    this.showCreateServiceSpecModal = false;
+    this.selectedServiceSpecs = [...this.selectedServiceSpecs, created];
+    this.serviceSpecsTable?.refresh(true);
   }
 
   /** Resolves a SoftwareSpecification's deployment type ('helm'/'docker') via its
