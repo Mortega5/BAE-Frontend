@@ -311,10 +311,22 @@ export class ApiServiceService {
     return { items, total };
   }
 
-  getProductSpecification(id: any) {
-    let url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productSpecification/${id}`;
+  /** Offers sharing the same product spec (e.g. several price plans/bundle members) enrich
+   * concurrently in getProductsDetails, each calling this independently — dedup concurrent
+   * calls for the same id into a single HTTP request. Cleared as soon as it settles (success
+   * or failure), so later calls always refetch fresh (e.g. after editing the spec). */
+  private pendingProductSpecRequests = new Map<string, Promise<any>>();
 
-    return lastValueFrom(this.http.get<any>(url));
+  getProductSpecification(id: any) {
+    const existing = this.pendingProductSpecRequests.get(id);
+    if (existing) return existing;
+
+    let url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productSpecification/${id}`;
+    const request = lastValueFrom(this.http.get<any>(url))
+      .finally(() => this.pendingProductSpecRequests.delete(id));
+
+    this.pendingProductSpecRequests.set(id, request);
+    return request;
   }
 
   checkOfferingLaunch(id: string): Promise<{ canBeLaunched: boolean }> {

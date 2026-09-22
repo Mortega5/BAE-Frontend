@@ -22,6 +22,34 @@ describe('ApiServiceService', () => {
     expect(service).toBeTruthy();
   });
 
+  it('getProductSpecification should dedup concurrent calls for the same id into a single HTTP request', async () => {
+    const id = 'spec-1';
+    const responseBody = { id };
+
+    const promise1 = service.getProductSpecification(id);
+    const promise2 = service.getProductSpecification(id);
+
+    const req = httpMock.expectOne(`${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productSpecification/${id}`);
+    req.flush(responseBody);
+
+    await expectAsync(promise1).toBeResolvedTo(responseBody);
+    await expectAsync(promise2).toBeResolvedTo(responseBody);
+  });
+
+  it('getProductSpecification should issue a fresh request once the previous one has settled', async () => {
+    const id = 'spec-1';
+
+    const promise1 = service.getProductSpecification(id);
+    httpMock.expectOne(`${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productSpecification/${id}`).flush({ id, name: 'First' });
+    await promise1;
+
+    const promise2 = service.getProductSpecification(id);
+    const req2 = httpMock.expectOne(`${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productSpecification/${id}`);
+    req2.flush({ id, name: 'Updated' });
+
+    await expectAsync(promise2).toBeResolvedTo({ id, name: 'Updated' });
+  });
+
   it('should expose the filtered pagination token from launched catalog responses', async () => {
     const resultPromise = service.getLaunchedCatalogsPage(0, undefined, 12);
 
