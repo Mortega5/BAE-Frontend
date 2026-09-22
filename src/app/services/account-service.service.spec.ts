@@ -157,6 +157,67 @@ describe('AccountServiceService', () => {
     await expectAsync(promise2).toBeResolvedTo({ id: partyId, name: 'Updated' });
   });
 
+  it('getOrgCountry should read the country partyCharacteristic entry', async () => {
+    const partyId = 'org-1';
+
+    const promise = service.getOrgCountry(partyId);
+    httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`).flush({
+      id: partyId,
+      partyCharacteristic: [{ name: 'logo', value: 'https://logo' }, { name: 'country', value: 'ES' }],
+    });
+
+    await expectAsync(promise).toBeResolvedTo('ES');
+  });
+
+  it('getOrgCountry should return null when no country characteristic is set', async () => {
+    const partyId = 'org-1';
+
+    const promise = service.getOrgCountry(partyId);
+    httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`).flush({
+      id: partyId,
+      partyCharacteristic: [{ name: 'logo', value: 'https://logo' }],
+    });
+
+    await expectAsync(promise).toBeResolvedTo(null);
+  });
+
+  it('updateOrgCountry should replace the existing country entry while keeping the rest of partyCharacteristic', async () => {
+    const partyId = 'org-1';
+
+    const promise = service.updateOrgCountry(partyId, 'FR');
+    httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`).flush({
+      id: partyId,
+      partyCharacteristic: [{ name: 'logo', value: 'https://logo' }, { name: 'country', value: 'ES' }],
+    });
+
+    const patchReq = httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`);
+    expect(patchReq.request.method).toBe('PATCH');
+    expect(patchReq.request.body).toEqual({
+      partyCharacteristic: [{ name: 'logo', value: 'https://logo' }, { name: 'country', value: 'FR' }],
+    });
+    patchReq.flush({});
+
+    await promise;
+  });
+
+  it('updateOrgCountry should append a new country entry when none existed', async () => {
+    const partyId = 'org-1';
+
+    const promise = service.updateOrgCountry(partyId, 'FR');
+    httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`).flush({
+      id: partyId,
+      partyCharacteristic: [{ name: 'logo', value: 'https://logo' }],
+    });
+
+    const patchReq = httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`);
+    expect(patchReq.request.body).toEqual({
+      partyCharacteristic: [{ name: 'logo', value: 'https://logo' }, { name: 'country', value: 'FR' }],
+    });
+    patchReq.flush({});
+
+    await promise;
+  });
+
   it('getOrgList should perform GET on organization collection endpoint', async () => {
     const responseBody = [{ id: 'org-1' }];
 

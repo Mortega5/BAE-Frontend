@@ -815,7 +815,11 @@
     "_select_plan_price": "Selecciona un plan de precios para ver su precio",
     "_loading_price": "Cargando precio...",
     "_modify_button": "Modificar características",
-    "_add_to_cart_button": "Añadir al carrito"
+    "_add_to_cart_button": "Añadir al carrito",
+    "_country_required_banner": "Configura el país de tu organización para calcular el precio final de esta oferta.",
+    "_set_country_button": "Configurar país",
+    "_set_country_title": "Configura tu país",
+    "_set_country_desc": "Necesitamos el país de tu organización para calcular los impuestos aplicables y mostrarte el precio final."
   },
   "FOOTER": {
     "_privacy": "Política de privacidad",

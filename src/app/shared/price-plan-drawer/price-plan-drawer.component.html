@@ -224,7 +224,15 @@
     </form>
 
     <div data-cy="bottom-banner" class="shrink-0 border-t border-gray-200 dark:border-gray-700 md:px-2 pt-4">
-      @if (isLoading) {
+      @if (missingBuyerCountry && !isCustom && !isFree) {
+      <div data-cy="missingCountryBanner"
+        class="flex items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 p-3 mb-4 text-sm text-amber-900 dark:text-amber-200">
+        <p>{{ 'PRICE_PLAN_DRAWER._country_required_banner' | translate }}</p>
+        <app-button data-cy="setBuyerCountry" type="button" size="sm" class="shrink-0" (click)="openSetCountryModal()">
+          {{ 'PRICE_PLAN_DRAWER._set_country_button' | translate }}
+        </app-button>
+      </div>
+      } @else if (isLoading) {
       <app-loading-spinner containerClass="" [label]="'PRICE_PLAN_DRAWER._loading_price' | translate" />
       } @else if (isCustom){
       <div class="text-sm text-gray-500 dark:text-gray-400 mb-4">
@@ -252,7 +260,8 @@
       <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ 'PRICE_PLAN_DRAWER._select_plan_price' | translate }}
       </p>
       }
-      <app-button data-cy="addToCart" type="button" [disabled]="!isFormValid()" (click)="createOrder()"
+      <app-button data-cy="addToCart" type="button"
+        [disabled]="!isFormValid() || (missingBuyerCountry && !isCustom && !isFree)" (click)="createOrder()"
         suffixIcon="arrow-right" class="w-full">
         {{ (mode === 'modify' ? 'PRICE_PLAN_DRAWER._modify_button' : 'PRICE_PLAN_DRAWER._add_to_cart_button') |
         translate }}
@@ -260,3 +269,6 @@
     </div>
   </div>
 </app-drawer>
+
+<app-set-country-modal [visible]="showSetCountryModal" [partyId]="buyerOrgPartyId" (saved)="onCountrySaved()"
+  (closed)="showSetCountryModal = false" />

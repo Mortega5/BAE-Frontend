@@ -13,6 +13,13 @@
   @apply rounded-2xl border;
   background-color: var(--card-bg);
   border-color: var(--card-border);
+  /* Width utilities on the host (e.g. max-w-7xl) reach this inner box for free —
+     a block box fills its parent's width by default. Height utilities (e.g.
+     min-h-[26rem], to give a searchable select's dropdown room to open without
+     the modal's own overflow-y-auto clipping it) don't get that for free, since
+     block boxes size to content height by default — inherit pulls the host's
+     computed min-height down onto the box that actually needs it. */
+  min-height: inherit;
 
   &[data-variant="panel"] {
     @apply shadow-sm;

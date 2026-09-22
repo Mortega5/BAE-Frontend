@@ -14,6 +14,9 @@ import { PricePlanMetricsService } from 'src/app/services/price-plan-metrics.ser
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faCircleInfo } from '@fortawesome/pro-solid-svg-icons';
 import { applyCharacteristicConstraints, CharacteristicConstraintValueUse } from '../price-plan-constraint.utils';
+import { AccountServiceService } from 'src/app/services/account-service.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { SetCountryModalComponent } from '../set-country-modal/set-country-modal.component';
 type Product = components["schemas"]["ProductOffering"];
 type ProductSpecification = components["schemas"]["ProductSpecification"];
 type ProductOfferingTerm = components["schemas"]["ProductOfferingTerm"];
@@ -45,7 +48,8 @@ import { TranslateModule } from "@ngx-translate/core";
     ItemCardComponent,
     DrawerComponent,
     TranslateModule,
-    FaIconComponent
+    FaIconComponent,
+    SetCountryModalComponent
 ],
   templateUrl: './price-plan-drawer.component.html',
   styleUrl: './price-plan-drawer.component.css'
@@ -103,6 +107,12 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   canBeDisabledChars: any[]=[];
   private readonly boundHandleEscape = (event: KeyboardEvent) => this.handleEscape(event);
 
+  /** True when the logged-in buyer is acting as an organization with no country set on
+   * its profile — the backend needs it to resolve VAT when calculating the final price. */
+  missingBuyerCountry = false;
+  showSetCountryModal = false;
+  buyerOrgPartyId: string | null = null;
+
   @HostListener('document:keydown.escape', ['$event'])
   handleEscape(event: KeyboardEvent): void {
     if (event.key === 'Escape' && this.isOpen) {
@@ -117,7 +127,9 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     private cartService: ShoppingCartServiceService,
     private eventMessage: EventMessageService,
     private cdr: ChangeDetectorRef,
-    private pricePlanMetricsService: PricePlanMetricsService) {
+    private pricePlanMetricsService: PricePlanMetricsService,
+    private localStorage: LocalStorageService,
+    private accountService: AccountServiceService) {
     // Crear el formulario padre
     this.form = this.fb.group({
       selectedPricePlan: [null, Validators.required], // Plan de precios seleccionado
@@ -135,6 +147,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     console.log('---- producto')
     console.log(this.productOff)
     this.setTermsAcceptance();
+    this.checkBuyerCountry();
 
     this.isFree = this.productOff?.productOfferingPrice?.length === 0;
 
@@ -164,6 +177,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     }
     if (changes['isOpen']?.currentValue === true) {
       this.setTermsAcceptance();
+      this.checkBuyerCountry();
     }
     if (changes['productOff'] && changes['productOff'].currentValue) {
       console.log('Changes...')
@@ -233,6 +247,39 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     try { decoded = decodeURIComponent(last); } catch { }
     const underscore = decoded.indexOf('_');
     return underscore > -1 ? decoded.slice(underscore + 1) : decoded;
+  }
+
+  /** The final price (VAT included) requires the buyer's organization to have a country
+   * set — the backend resolves it from the org's own profile, not from anything this
+   * request sends. Only orgs have this field today, so buyers acting as an individual
+   * are left alone. */
+  private async checkBuyerCountry(): Promise<void> {
+    const aux = this.localStorage.getValidLoginInfo();
+    this.buyerOrgPartyId = null;
+    this.missingBuyerCountry = false;
+    if (!aux || aux.logged_as === aux.id) {
+      return;
+    }
+
+    const loggedOrg = aux.organizations?.find((org: any) => org.id === aux.logged_as);
+    if (!loggedOrg?.partyId) {
+      return;
+    }
+
+    this.buyerOrgPartyId = loggedOrg.partyId;
+    const country = await this.accountService.getOrgCountry(this.buyerOrgPartyId);
+    this.missingBuyerCountry = !country;
+    this.cdr.detectChanges();
+  }
+
+  openSetCountryModal(): void {
+    this.showSetCountryModal = true;
+  }
+
+  async onCountrySaved(): Promise<void> {
+    this.showSetCountryModal = false;
+    this.missingBuyerCountry = false;
+    await this.calculatePrice();
   }
 
   disableChars(){
@@ -754,6 +801,8 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     }
 
     const selectedPricePlan = this.form.get('selectedPricePlan')?.value;
+    if (!selectedPricePlan) return;
+
     //PROD is an OrderItem
     let prod : any = {
       "id": this.productOff?.id,
@@ -804,7 +853,6 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
       productOrder: prodOrder,
       usage: usage
     }
-    if (!selectedPricePlan) return;
 
     console.log('--- prod ---')
     console.log(prod)

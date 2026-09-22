@@ -1,5 +1,5 @@
 <div class="search-select-root relative w-full" [attr.id]="id" [attr.data-cy]="dataCy">
-  <div
+  <div #inputRow
     class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] rounded-lg flex flex-wrap items-center gap-1 focus-within:ring-1 focus-within:ring-primary-100 focus-within:border-primary-100"
     [class.pointer-events-none]="isReadonly" [class.opacity-60]="isReadonly">
     @if (multiple) {
@@ -35,7 +35,9 @@
 
   @if (isOpen) {
   <div
-    class="absolute mt-1 w-full bg-[var(--theme-input-bg)] dark:text-white border border-[var(--theme-input-border)] rounded-lg shadow-lg z-10">
+    class="fixed bg-[var(--theme-input-bg)] dark:text-white border border-[var(--theme-input-border)] rounded-lg shadow-lg z-50"
+    [style.top.px]="dropdownPosition.top" [style.left.px]="dropdownPosition.left"
+    [style.width.px]="dropdownPosition.width">
     <ul class="max-h-48 overflow-y-auto">
       @for (option of filteredOptions; track option.value) {
       <li (click)="selectOption(option)"

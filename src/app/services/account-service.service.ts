@@ -77,7 +77,31 @@ export class AccountServiceService {
   }
 
   updateOrgInfo(partyId:any,profile:any){
-    let url = `${AccountServiceService.BASE_URL}/party/organization/${partyId}`;   
+    let url = `${AccountServiceService.BASE_URL}/party/organization/${partyId}`;
     return this.http.patch<any>(url, profile);
+  }
+
+  /** The org's country lives as a `partyCharacteristic` entry (see org-info.component.ts),
+   * not a top-level field. */
+  async getOrgCountry(partyId: any): Promise<string | null> {
+    const profile = await this.getOrgInfo(partyId);
+    const chars = Array.isArray(profile?.partyCharacteristic) ? profile.partyCharacteristic : [];
+    return chars.find((c: any) => c?.name === 'country')?.value || null;
+  }
+
+  /** Rebuilds the full partyCharacteristic array with the country entry set/replaced,
+   * keeping every other characteristic (logo, description, website, contractManagement)
+   * untouched — PATCHing just `{name: 'country', ...}` alone would wipe out the rest,
+   * since the backend replaces the whole array with whatever is sent. */
+  async updateOrgCountry(partyId: any, countryCode: string): Promise<any> {
+    const profile = await this.getOrgInfo(partyId);
+    const chars = Array.isArray(profile?.partyCharacteristic) ? [...profile.partyCharacteristic] : [];
+    const index = chars.findIndex((c: any) => c?.name === 'country');
+    if (index !== -1) {
+      chars[index] = { ...chars[index], value: countryCode };
+    } else {
+      chars.push({ name: 'country', value: countryCode });
+    }
+    return lastValueFrom(this.updateOrgInfo(partyId, { partyCharacteristic: chars }));
   }
 }

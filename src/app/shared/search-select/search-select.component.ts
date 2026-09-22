@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, HostListener, Input, Output, forwardRef } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, Output, ViewChild, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { SelectOption } from 'src/app/models/formFields/form-field.model';
@@ -21,7 +21,9 @@ import { SelectOption } from 'src/app/models/formFields/form-field.model';
     },
   ],
 })
-export class SearchSelectComponent implements ControlValueAccessor {
+export class SearchSelectComponent implements ControlValueAccessor, OnDestroy {
+  @ViewChild('inputRow') private inputRowRef?: ElementRef<HTMLElement>;
+
   @Input() options: SelectOption[] = [];
   @Input() multiple: boolean = false;
   @Input() readonly: boolean = false;
@@ -50,10 +52,16 @@ export class SearchSelectComponent implements ControlValueAccessor {
   isOpen = false;
   query = '';
   selectedValues: any[] = [];
+  /** Computed from the input row's own bounding rect so the dropdown can render
+   * `position: fixed` — anchored to the viewport instead of `absolute` within
+   * `.search-select-root`, which otherwise gets clipped by any scrollable
+   * ancestor (e.g. a modal's own overflow-y-auto content area). */
+  dropdownPosition = { top: 0, left: 0, width: 0 };
 
   private isDisabled: boolean = false;
   private onChange: (value: any) => void = () => { };
   private onTouched: () => void = () => { };
+  private readonly repositionDropdown = () => this.updateDropdownPosition();
 
   get isReadonly(): boolean {
     return this.readonly || this.isDisabled;
@@ -87,20 +95,48 @@ export class SearchSelectComponent implements ControlValueAccessor {
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     if (!target.closest('.search-select-root')) {
-      this.isOpen = false;
+      this.closeDropdown();
       this.query = '';
     }
   }
 
   onFocus(): void {
     if (this.isReadonly) return;
-    this.isOpen = true;
+    this.openDropdown();
     this.query = '';
   }
 
   onQueryChange(event: Event): void {
     this.query = (event.target as HTMLInputElement).value;
+    this.openDropdown();
+  }
+
+  ngOnDestroy(): void {
+    this.closeDropdown();
+  }
+
+  /** `position: fixed` (see the template) needs its coordinates recomputed whenever
+   * the input moves relative to the viewport — window resize, or any ancestor
+   * scrolling. `scroll` doesn't bubble, so this listens in the capture phase to
+   * catch it from any scrollable ancestor, not just the window itself. */
+  private openDropdown(): void {
     this.isOpen = true;
+    this.updateDropdownPosition();
+    document.addEventListener('scroll', this.repositionDropdown, true);
+    window.addEventListener('resize', this.repositionDropdown);
+  }
+
+  private closeDropdown(): void {
+    if (!this.isOpen) return;
+    this.isOpen = false;
+    document.removeEventListener('scroll', this.repositionDropdown, true);
+    window.removeEventListener('resize', this.repositionDropdown);
+  }
+
+  private updateDropdownPosition(): void {
+    const rect = this.inputRowRef?.nativeElement.getBoundingClientRect();
+    if (!rect) return;
+    this.dropdownPosition = { top: rect.bottom + 4, left: rect.left, width: rect.width };
   }
 
   /** Matches by reference, falling back to `.id` — options re-fetched from the server are
@@ -122,7 +158,7 @@ export class SearchSelectComponent implements ControlValueAccessor {
       this.query = '';
     } else {
       this.selectedValues = [option.value];
-      this.isOpen = false;
+      this.closeDropdown();
       this.query = '';
     }
     this.emitChange();
@@ -142,7 +178,7 @@ export class SearchSelectComponent implements ControlValueAccessor {
       this.options = [...this.options, created];
       this.selectOption(created);
     } catch (error) {
-      this.isOpen = true;
+      this.openDropdown();
       this.createFailed.emit({ query, error });
     } finally {
       this.isCreating = false;

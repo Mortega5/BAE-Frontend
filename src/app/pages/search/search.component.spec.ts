@@ -220,7 +220,7 @@ describe('SearchComponent', () => {
     component.products = [{ id: 'old' }] as any;
     component.keywords = 'gpu';
     localStorageSpy.getObject.and.callFake((key: string) => {
-      if (key === 'selected_categories') return [{ id: 'cat-1' }];
+      if (key === 'selected_categories') return [{ id: 'cat-1', name: 'Catalog 1' }];
       return {};
     });
     apiSpy.getProductsByCategoryPaged.and.resolveTo({ items: [{ id: 'p1' }], total: 21 });
@@ -230,7 +230,7 @@ describe('SearchComponent', () => {
 
     expect(stateMock.clear).toHaveBeenCalled();
     expect(apiSpy.getProductsByCategoryPaged).toHaveBeenCalledWith(
-      [{ id: 'cat-1' }],
+      [{ id: 'cat-1', name: 'Catalog 1' }],
       { limit: component.PRODUCT_LIMIT, offset: 0 },
       'gpu',
     );

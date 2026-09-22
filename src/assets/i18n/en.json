@@ -815,7 +815,11 @@
     "_select_plan_price": "Please, select a price plan to get its price",
     "_loading_price": "Loading price...",
     "_modify_button": "Modify Characteristics",
-    "_add_to_cart_button": "Add to cart"
+    "_add_to_cart_button": "Add to cart",
+    "_country_required_banner": "Set your organization's country to calculate the final price for this offer.",
+    "_set_country_button": "Set country",
+    "_set_country_title": "Configure your country",
+    "_set_country_desc": "We need your organization's country to calculate applicable taxes and show you the final price."
   },
   "FOOTER": {
     "_privacy": "Privacy Policy",

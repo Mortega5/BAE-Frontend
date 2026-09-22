@@ -8,6 +8,8 @@ import { PriceServiceService } from 'src/app/services/price-service.service';
 import { ShoppingCartServiceService } from 'src/app/services/shopping-cart-service.service';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { PricePlanMetricsService } from 'src/app/services/price-plan-metrics.service';
+import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { AccountServiceService } from 'src/app/services/account-service.service';
 import { MarkdownService } from 'ngx-markdown';
 
 import { PricePlanDrawerComponent } from './price-plan-drawer.component';
@@ -17,6 +19,8 @@ describe('PricePlanDrawerComponent', () => {
   let fixture: ComponentFixture<PricePlanDrawerComponent>;
   let cartServiceSpy: jasmine.SpyObj<ShoppingCartServiceService>;
   let eventMessageSpy: jasmine.SpyObj<EventMessageService>;
+  let localStorageSpy: jasmine.SpyObj<LocalStorageService>;
+  let accountServiceSpy: jasmine.SpyObj<AccountServiceService>;
 
   const priceServiceSpy = jasmine.createSpyObj<PriceServiceService>('PriceServiceService', ['calculatePrice', 'getProductPrice']);
   const pricePlanMetricsSpy = jasmine.createSpyObj<PricePlanMetricsService>('PricePlanMetricsService', ['getAppliedMetrics']);
@@ -24,11 +28,15 @@ describe('PricePlanDrawerComponent', () => {
   beforeEach(async () => {
     cartServiceSpy = jasmine.createSpyObj<ShoppingCartServiceService>('ShoppingCartServiceService', ['addItemShoppingCart']);
     eventMessageSpy = jasmine.createSpyObj<EventMessageService>('EventMessageService', ['emitAddedCartItem']);
+    localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getValidLoginInfo']);
+    accountServiceSpy = jasmine.createSpyObj<AccountServiceService>('AccountServiceService', ['getOrgCountry']);
 
     priceServiceSpy.calculatePrice.and.returnValue(of({ orderTotalPrice: [] }));
     priceServiceSpy.getProductPrice.and.resolveTo(null);
     cartServiceSpy.addItemShoppingCart.and.resolveTo();
     pricePlanMetricsSpy.getAppliedMetrics.and.resolveTo([]);
+    localStorageSpy.getValidLoginInfo.and.returnValue(null);
+    accountServiceSpy.getOrgCountry.and.resolveTo(null);
 
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
@@ -38,11 +46,13 @@ describe('PricePlanDrawerComponent', () => {
         { provide: ShoppingCartServiceService, useValue: cartServiceSpy },
         { provide: EventMessageService, useValue: eventMessageSpy },
         { provide: PricePlanMetricsService, useValue: pricePlanMetricsSpy },
+        { provide: LocalStorageService, useValue: localStorageSpy },
+        { provide: AccountServiceService, useValue: accountServiceSpy },
         { provide: MarkdownService, useValue: {} },
       ]
     })
     .compileComponents();
-    
+
     fixture = TestBed.createComponent(PricePlanDrawerComponent);
     component = fixture.componentInstance;
   });
@@ -530,5 +540,65 @@ describe('PricePlanDrawerComponent', () => {
   it('getProductImage should return first image url when available', () => {
     component.images = [{ url: 'https://example.com/img.png' }] as any;
     expect(component.getProductImage()).toBe('https://example.com/img.png');
+  });
+
+  it('checkBuyerCountry should leave missingBuyerCountry false when acting as an individual', async () => {
+    localStorageSpy.getValidLoginInfo.and.returnValue({ id: 'user-1', logged_as: 'user-1', organizations: [] } as any);
+
+    await (component as any).checkBuyerCountry();
+
+    expect(component.missingBuyerCountry).toBeFalse();
+    expect(accountServiceSpy.getOrgCountry).not.toHaveBeenCalled();
+  });
+
+  it('checkBuyerCountry should flag missingBuyerCountry when the logged-in org has no country set', async () => {
+    localStorageSpy.getValidLoginInfo.and.returnValue({
+      id: 'user-1',
+      logged_as: 'org-1',
+      organizations: [{ id: 'org-1', partyId: 'party-org-1' }],
+    } as any);
+    accountServiceSpy.getOrgCountry.and.resolveTo(null);
+
+    await (component as any).checkBuyerCountry();
+
+    expect(component.buyerOrgPartyId).toBe('party-org-1');
+    expect(accountServiceSpy.getOrgCountry).toHaveBeenCalledWith('party-org-1');
+    expect(component.missingBuyerCountry).toBeTrue();
+  });
+
+  it('checkBuyerCountry should leave missingBuyerCountry false when the logged-in org already has a country', async () => {
+    localStorageSpy.getValidLoginInfo.and.returnValue({
+      id: 'user-1',
+      logged_as: 'org-1',
+      organizations: [{ id: 'org-1', partyId: 'party-org-1' }],
+    } as any);
+    accountServiceSpy.getOrgCountry.and.resolveTo('ES');
+
+    await (component as any).checkBuyerCountry();
+
+    expect(component.missingBuyerCountry).toBeFalse();
+  });
+
+  it('onCountrySaved should close the modal, clear the flag and recalculate the price', async () => {
+    component.showSetCountryModal = true;
+    component.missingBuyerCountry = true;
+    const calcSpy = spyOn(component, 'calculatePrice').and.resolveTo();
+
+    await component.onCountrySaved();
+
+    expect(component.showSetCountryModal).toBeFalse();
+    expect(component.missingBuyerCountry).toBeFalse();
+    expect(calcSpy).toHaveBeenCalled();
+  });
+
+  it('calculatePrice should not throw when no price plan is selected yet (e.g. right after onCountrySaved opens the drawer before a plan is picked)', async () => {
+    component.isCustom = false;
+    component.isFree = false;
+    component.form.get('selectedPricePlan')?.setValue(null);
+    priceServiceSpy.calculatePrice.calls.reset();
+
+    await expectAsync(component.calculatePrice()).toBeResolved();
+
+    expect(priceServiceSpy.calculatePrice).not.toHaveBeenCalled();
   });
 });
