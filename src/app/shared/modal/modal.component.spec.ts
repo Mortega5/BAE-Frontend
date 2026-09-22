@@ -1,6 +1,20 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
 import { ModalComponent } from './modal.component';
+
+@Component({
+  standalone: true,
+  imports: [ModalComponent],
+  template: `
+    <app-modal [visible]="true">
+      <div appCardHeader class="my-header">HEADER</div>
+      <p class="my-body">BODY</p>
+      <div appCardFooter class="my-footer">FOOTER</div>
+    </app-modal>
+  `,
+})
+class ProjectionHostComponent { }
 
 describe('ModalComponent', () => {
   let component: ModalComponent;
@@ -64,5 +78,32 @@ describe('ModalComponent', () => {
     component.onEscape();
 
     expect(component.closed.emit).not.toHaveBeenCalled();
+  });
+
+});
+
+describe('ModalComponent content projection', () => {
+  let hostFixture: ComponentFixture<ProjectionHostComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [ProjectionHostComponent],
+    }).compileComponents();
+
+    hostFixture = TestBed.createComponent(ProjectionHostComponent);
+    hostFixture.detectChanges();
+  });
+
+  it('should project appCardHeader/appCardFooter content into their own app-card slots, not into the default content slot', () => {
+    const root: HTMLElement = hostFixture.nativeElement;
+
+    const header = root.querySelector('.app-card-header');
+    const content = root.querySelector('.app-card-content');
+    const footer = root.querySelector('.app-card-footer');
+
+    expect(header?.querySelector('.my-header')).withContext('header content should be inside .app-card-header').toBeTruthy();
+    expect(content?.querySelector('.my-body')).withContext('plain content should be inside .app-card-content').toBeTruthy();
+    expect(content?.querySelector('.my-footer')).withContext('footer content must NOT leak into .app-card-content').toBeFalsy();
+    expect(footer?.querySelector('.my-footer')).withContext('footer content should be inside .app-card-footer').toBeTruthy();
   });
 });

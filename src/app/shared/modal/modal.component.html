@@ -2,9 +2,9 @@
 <div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4"
   (click)="closed.emit()">
   <app-card variant="modal" class="w-full {{ width }}" (click)="$event.stopPropagation()">
-    <ng-content select="[appCardHeader]"></ng-content>
+    <ng-content select="[appCardHeader]" ngProjectAs="[appCardHeader]"></ng-content>
     <ng-content></ng-content>
-    <ng-content select="[appCardFooter]"></ng-content>
+    <ng-content select="[appCardFooter]" ngProjectAs="[appCardFooter]"></ng-content>
   </app-card>
 </div>
 }
