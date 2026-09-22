@@ -44,6 +44,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   loading_more: boolean = false;
   page_check: boolean = true;
   page: number = 0;
+  total: number = 0;
   PRODUCT_LIMIT: number = environment.PRODUCT_LIMIT;
   DFT_CATALOG: String = environment.DFT_CATALOG_ID;
   showDrawer: boolean = false;
@@ -177,6 +178,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.products = this.state.products;
       this.page = this.state.page;
       this.page_check = this.state.page_check;
+      this.total = this.state.total;
       this.keywords = this.state.keywords;
       this.refreshProcurementFilter();
 
@@ -292,6 +294,12 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.closeDropdownsExcept('none');
       this.cdr.detectChanges();
     }
+  }
+
+  /** Total matching results reported by the backend — the AI and standard search paths
+   * track it separately (aiTotalItems / total), so pick whichever mode is active. */
+  get totalResultsCount(): number {
+    return this.aiSearchEnabled ? this.aiTotalItems : this.total;
   }
 
   get visibleProducts(): ProductOffering[] {
@@ -517,12 +525,14 @@ export class SearchComponent implements OnInit, OnDestroy {
 
       this.page = offset + result.items.length;
       this.page_check = this.page < result.total;
+      this.total = result.total;
 
       // SAVE STATE
       this.state.save({
         products: this.products,
         page: this.page,
         page_check: this.page_check,
+        total: this.total,
         keywords: this.keywords
       });
     } finally {
@@ -644,10 +654,17 @@ export class SearchComponent implements OnInit, OnDestroy {
       if (cat.id) {
         const children = await this.api.getCategoriesByParentId(cat.id).catch(() => []);
         const childList: Category[] = Array.isArray(children) ? children : [];
-        for (const child of childList) {
-          if (!child?.id) continue;
-          this.localStorage.addCategoryFilter(child);
-          this.eventMessage.emitAddedFilter(child);
+        if (childList.length > 0) {
+          for (const child of childList) {
+            if (!child?.id) continue;
+            this.localStorage.addCategoryFilter(child);
+            this.eventMessage.emitAddedFilter(child);
+          }
+        } else {
+          // No children to expand into — filter by the category itself instead of
+          // silently applying no filter at all (which showed the full unfiltered list).
+          this.localStorage.addCategoryFilter(cat);
+          this.eventMessage.emitAddedFilter(cat);
         }
       }
     } else {

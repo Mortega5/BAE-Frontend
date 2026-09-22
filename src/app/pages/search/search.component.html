@@ -219,7 +219,7 @@
           <div class="flex items-center gap-4">
             <span class="text-[16px] text-[#526179] dark:text-gray-400">
               @if (!loading) {
-              {{ visibleProducts.length }} results
+              {{ 'DASHBOARD._results_of_total' | translate: { count: visibleProducts.length, total: totalResultsCount } }}
               }
             </span>
             <!--

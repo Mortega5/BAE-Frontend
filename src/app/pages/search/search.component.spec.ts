@@ -26,6 +26,7 @@ describe('SearchComponent', () => {
     products: any[];
     page: number;
     page_check: boolean;
+    total: number;
     keywords: string | undefined;
     hasState: jasmine.Spy;
     save: jasmine.Spy;
@@ -43,11 +44,13 @@ describe('SearchComponent', () => {
       'getProductsDetails',
       'getProductsPaged',
       'getProductsByCategoryPaged',
+      'getCategoriesByParentId',
     ]);
     localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', [
       'getObject',
       'getValidLoginInfo',
       'getItem',
+      'addCategoryFilter',
       'removeCategoryFilter',
       'removeItem',
       'setItem',
@@ -77,6 +80,7 @@ describe('SearchComponent', () => {
       products: [],
       page: 0,
       page_check: true,
+      total: 0,
       keywords: undefined,
       hasState: jasmine.createSpy('hasState').and.returnValue(false),
       save: jasmine.createSpy('save'),
@@ -166,6 +170,7 @@ describe('SearchComponent', () => {
     stateMock.products = [{ id: 'p1' }];
     stateMock.page = 20;
     stateMock.page_check = false;
+    stateMock.total = 45;
     stateMock.keywords = 'edge';
     stateMock.hasState.and.returnValue(true);
     routeParamGetSpy.and.callFake((key: string) => (key === 'keywords' ? 'from-route' : null));
@@ -175,6 +180,7 @@ describe('SearchComponent', () => {
     expect(component.products).toEqual([{ id: 'p1' }] as any);
     expect(component.page).toBe(20);
     expect(component.page_check).toBeFalse();
+    expect(component.total).toBe(45);
     expect(component.keywords).toBe('edge');
     expect(component.searchField.value).toBe('edge');
     expect(apiSpy.getProductsPaged).not.toHaveBeenCalled();
@@ -232,12 +238,14 @@ describe('SearchComponent', () => {
     expect(component.products).toEqual([{ id: 'p1' }] as any);
     expect(component.page).toBe(1);
     expect(component.page_check).toBeTrue();
+    expect(component.total).toBe(21);
     expect(component.loading).toBeFalse();
     expect(component.loading_more).toBeFalse();
     expect(stateMock.save).toHaveBeenCalledWith({
       products: [{ id: 'p1' }],
       page: 1,
       page_check: true,
+      total: 21,
       keywords: 'gpu',
     });
   });
@@ -261,6 +269,29 @@ describe('SearchComponent', () => {
     expect(component.products).toEqual([{ id: 'old' }, { id: 'p2' }] as any);
     expect(component.page).toBe(11);
     expect(component.page_check).toBeFalse();
+    expect(component.total).toBe(11);
+  });
+
+  it('selectCategory should filter by the child categories when the category has children', async () => {
+    localStorageSpy.getObject.and.returnValue([]);
+    apiSpy.getCategoriesByParentId.and.resolveTo([{ id: 'child-1', name: 'Child 1' }, { id: 'child-2', name: 'Child 2' }] as any);
+
+    await component.selectCategory({ id: 'catalog-1', name: 'Catalog 1' } as any);
+
+    expect(localStorageSpy.addCategoryFilter).toHaveBeenCalledWith({ id: 'child-1', name: 'Child 1' } as any);
+    expect(localStorageSpy.addCategoryFilter).toHaveBeenCalledWith({ id: 'child-2', name: 'Child 2' } as any);
+    expect(localStorageSpy.addCategoryFilter).not.toHaveBeenCalledWith({ id: 'catalog-1', name: 'Catalog 1' } as any);
+    expect(eventMessageSpy.emitFiltersCommitted).toHaveBeenCalled();
+  });
+
+  it('selectCategory should fall back to filtering by the category itself when it has no children', async () => {
+    localStorageSpy.getObject.and.returnValue([]);
+    apiSpy.getCategoriesByParentId.and.resolveTo([]);
+
+    await component.selectCategory({ id: 'catalog-1', name: 'Catalog 1' } as any);
+
+    expect(localStorageSpy.addCategoryFilter).toHaveBeenCalledWith({ id: 'catalog-1', name: 'Catalog 1' } as any);
+    expect(eventMessageSpy.emitFiltersCommitted).toHaveBeenCalled();
   });
 
   it('next should delegate to getProducts with next=true', async () => {

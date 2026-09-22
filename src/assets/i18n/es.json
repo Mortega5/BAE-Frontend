@@ -218,6 +218,7 @@
     "_ai_answer": "Respuesta de la IA",
     "_ai_thinking": "La IA está pensando...",
     "_relevant_products": "productos relevantes",
+    "_results_of_total": "{{count}} de {{total}} resultados",
     "_search": "Buscar",
     "_not_found": "No se encontraron ofertas",
     "_browse_serv": "Explorar servicios",

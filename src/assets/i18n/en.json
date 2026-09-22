@@ -218,6 +218,7 @@
     "_ai_answer": "AI Answer",
     "_ai_thinking": "AI is thinking...",
     "_relevant_products": "relevant products",
+    "_results_of_total": "{{count}} of {{total}} results",
     "_search": "Search",
     "_not_found": "No offers found",
     "_browse_serv": "Browse services",
