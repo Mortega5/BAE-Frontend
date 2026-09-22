@@ -54,7 +54,8 @@
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._step1_subtitle' | translate }}</p>
         </div>
         <app-general-info-form [data]="offer" [formType]="formType" [form]="productOfferForm.controls['generalInfo']"
-          [catalogSelectionRequired]="catalogSelectionRequired()" [availableCatalogs]="availableCatalogs" />
+          [catalogSelectionRequired]="catalogSelectionRequired()" [availableCatalogs]="availableCatalogs"
+          (catalogCreated)="onCatalogCreated($event)" />
       </div>
     </ng-template>
 

@@ -399,6 +399,16 @@ export class OfferComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** The general-info step's search-select already selected the new catalogue in its own
+   * form control — just keep our own list in sync so it's still there if fields rebuild. */
+  onCatalogCreated(catalog: any): void {
+    if (!catalog) return;
+    this.availableCatalogs = [
+      ...this.availableCatalogs,
+      { value: catalog, label: catalog.name, subtitle: catalog.description || '-' }
+    ];
+  }
+
   /** Update mode: once the offer's category array is loaded, figure out which root/subcategory it matches. */
   private async initSelectedCategoriesFromOffer(): Promise<void> {
     const offerCategories = this.offer?.category || [];

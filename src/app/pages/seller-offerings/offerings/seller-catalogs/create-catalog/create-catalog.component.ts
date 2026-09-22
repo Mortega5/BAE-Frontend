@@ -1,9 +1,10 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { TranslateModule } from '@ngx-translate/core';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
@@ -11,6 +12,11 @@ import { NotificationService } from 'src/app/services/notification.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { StepperComponent } from 'src/app/shared/stepper/stepper.component';
+import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
 
 import { components } from 'src/app/models/product-catalog';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
@@ -19,10 +25,18 @@ type Catalog_Create = components['schemas']['Catalog_Create'];
 
 @Component({
   selector: 'create-catalog',
+  standalone: true,
+  imports: [TranslateModule, ButtonComponent, ConfirmModalComponent, DynamicFormComponent, StepperComponent, StepperStepDirective],
   templateUrl: './create-catalog.component.html',
   styleUrl: './create-catalog.component.css'
 })
 export class CreateCatalogComponent implements OnInit, OnDestroy {
+  /** True when embedded inside another flow (e.g. the offer form's catalogue picker)
+   * instead of routed to as its own page — swaps navigating away for emitting `created`. */
+  @Input() embedded = false;
+  @Output() created = new EventEmitter<any>();
+  /** Only emitted in embedded mode, when the seller backs out instead of creating one. */
+  @Output() cancelled = new EventEmitter<void>();
 
   partyId: any = '';
   catalogToCreate: Catalog_Create | undefined;
@@ -89,6 +103,10 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
   }
 
   goBack() {
+    if (this.embedded) {
+      this.cancelled.emit();
+      return;
+    }
     this.router.navigate([SellerOfferingsPaths.catalogues.list()]);
   }
 
@@ -125,11 +143,15 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
     this.catalogToCreate.lifecycleStatus = lifecycleStatus;
     this.loading = true;
     this.api.postCatalog(this.catalogToCreate).subscribe({
-      next: () => {
+      next: (created) => {
         this.loading = false;
         this.showPublishDraftModal = false;
         this.notificationService.showSuccess('CREATE_CATALOG._create_success');
-        this.goBack();
+        if (this.embedded) {
+          this.created.emit(created);
+        } else {
+          this.goBack();
+        }
       },
       error: error => {
         console.error('There was an error while creating the catalog!', error);

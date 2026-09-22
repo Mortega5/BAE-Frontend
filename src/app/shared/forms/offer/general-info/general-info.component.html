@@ -2,3 +2,16 @@
   <app-dynamic-form [fields]="fields" [formGroup]="formGroup" [columns]="2"></app-dynamic-form>
   <app-dynamic-form [fields]="descriptionFields" [formGroup]="formGroup" [columns]="1"></app-dynamic-form>
 </div>
+
+@if (showCreateCatalogModal) {
+  <div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4" (click)="closeCreateCatalogModal()">
+    <app-card data-cy="createCatalogModal" variant="modal" class="w-full max-w-7xl" (click)="$event.stopPropagation()">
+      <div appCardHeader class="flex items-center justify-between">
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_CATALOG._new' | translate }}</h3>
+        <app-button type="button" (click)="closeCreateCatalogModal()" variant="ghost" size="sm" prefixIcon="xmark" />
+      </div>
+
+      <create-catalog [embedded]="true" (created)="onCatalogCreated($event)" (cancelled)="closeCreateCatalogModal()" />
+    </app-card>
+  </div>
+}

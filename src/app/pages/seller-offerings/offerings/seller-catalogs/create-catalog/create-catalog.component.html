@@ -1,4 +1,5 @@
 <div class="w-full flex-1 flex flex-col">
+  @if (!embedded) {
   <!-- Breadcrumb -->
   <div class="p-4">
     <app-button (click)="goBack()" variant="link" prefixIcon="chevron-left">
@@ -8,6 +9,7 @@
   <!-- End Breadcrumb -->
 
   <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'CREATE_CATALOG._new' | translate }}</h1>
+  }
 
   <app-stepper [canAdvance]="canAdvance" submitLabel="CREATE_CATALOG._create"
     [submitDisabled]="!generalForm.valid || loading" (stepChanged)="onStepChanged($event)"

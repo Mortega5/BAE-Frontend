@@ -17,8 +17,7 @@ describe('CreateCatalogComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()],
-      declarations: [CreateCatalogComponent]
+      imports: [HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot(), CreateCatalogComponent],
     })
       .compileComponents();
 

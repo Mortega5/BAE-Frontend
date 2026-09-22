@@ -1,9 +1,15 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, Validators } from "@angular/forms";
 import { Subject } from "rxjs";
 import { debounceTime, takeUntil } from "rxjs/operators";
+import { TranslateModule } from '@ngx-translate/core';
 import { FormField, SelectOption } from 'src/app/models/formFields/form-field.model';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import {
+  CreateCatalogComponent
+} from 'src/app/pages/seller-offerings/offerings/seller-catalogs/create-catalog/create-catalog.component';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { EventMessageService } from "../../../../services/event-message.service";
 
@@ -17,7 +23,7 @@ interface GeneralInfo {
 @Component({
   selector: 'app-general-info-form',
   standalone: true,
-  imports: [DynamicFormComponent],
+  imports: [DynamicFormComponent, ButtonComponent, ContentCardComponent, TranslateModule, CreateCatalogComponent],
   templateUrl: './general-info.component.html',
   styleUrl: './general-info.component.css'
 })
@@ -28,14 +34,23 @@ export class GeneralInfoComponent implements OnInit, OnChanges, OnDestroy {
   /** Only shown/added as a control in create mode when the org has catalog management enabled. */
   @Input() catalogSelectionRequired = false;
   @Input() availableCatalogs: SelectOption[] = [];
+  /** Emitted once the embedded create-catalogue flow actually creates one — the parent
+   * owns availableCatalogs, so it needs to know too. */
+  @Output() catalogCreated = new EventEmitter<any>();
 
   fields: FormField[] = [];
   descriptionFields: FormField[] = [];
+
+  showCreateCatalogModal = false;
 
   private originalValue!: GeneralInfo;
   private isEditMode = false;
   private controlsReady = false;
   private destroy$ = new Subject<void>();
+  /** Bridges search-select's Promise-based `onCreate` to <create-catalog>'s own
+   * (created)/(cancelled) outputs: resolved on success, rejected on cancel (re-shows
+   * the "Create…" prompt). */
+  private pendingCatalogCreate?: { resolve: (option: SelectOption) => void; reject: (reason?: any) => void };
 
   constructor(
     private eventMessage: EventMessageService,
@@ -104,6 +119,28 @@ export class GeneralInfoComponent implements OnInit, OnChanges, OnDestroy {
     this.destroy$.complete();
   }
 
+  /** search-select's `onCreate` handler: opens the embedded <create-catalog> modal and
+   * doesn't resolve until it emits (created) or (cancelled). */
+  private createCatalogueOption(): Promise<SelectOption> {
+    this.showCreateCatalogModal = true;
+    return new Promise<SelectOption>((resolve, reject) => {
+      this.pendingCatalogCreate = { resolve, reject };
+    });
+  }
+
+  onCatalogCreated(created: any): void {
+    this.showCreateCatalogModal = false;
+    this.catalogCreated.emit(created);
+    this.pendingCatalogCreate?.resolve({ value: created, label: created.name, subtitle: created.description || '-' });
+    this.pendingCatalogCreate = undefined;
+  }
+
+  closeCreateCatalogModal(): void {
+    this.showCreateCatalogModal = false;
+    this.pendingCatalogCreate?.reject(new Error('cancelled'));
+    this.pendingCatalogCreate = undefined;
+  }
+
   private buildFields(): void {
     this.fields = [
       { type: 'string', name: 'name', label: 'CREATE_OFFER._name', required: true, maxLength: 100, colSpan: 1, dataCy: 'offerName', placeholder: 'CREATE_OFFER._name_placeholder' },
@@ -118,6 +155,8 @@ export class GeneralInfoComponent implements OnInit, OnChanges, OnDestroy {
         options: this.availableCatalogs,
         placeholder: 'CREATE_OFFER._select',
         dataCy: 'offerCatalogSelect',
+        allowCreate: true,
+        onCreate: () => this.createCatalogueOption(),
       }] : []),
     ];
     this.descriptionFields = [

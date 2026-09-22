@@ -47,7 +47,6 @@ import { InventoryServicesComponent } from './pages/product-inventory/inventory-
 import { ProductInventoryComponent } from "./pages/product-inventory/product-inventory.component";
 import { SearchCatalogComponent } from "./pages/search-catalog/search-catalog.component";
 import { SearchComponent } from "./pages/search/search.component";
-import { CreateCatalogComponent } from './pages/seller-offerings/offerings/seller-catalogs/create-catalog/create-catalog.component';
 import { SellerCatalogsComponent } from './pages/seller-offerings/offerings/seller-catalogs/seller-catalogs.component';
 import { UpdateCatalogComponent } from './pages/seller-offerings/offerings/seller-catalogs/update-catalog/update-catalog.component';
 import { CreateOfferComponent } from './pages/seller-offerings/offerings/seller-offer/create-offer/create-offer.component';
@@ -167,7 +166,6 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     CategoriesRecursionComponent,
     UpdateProductSpecComponent,
     UpdateOfferComponent,
-    CreateCatalogComponent,
     UpdateCatalogComponent,
     ErrorMessageComponent,
     CartCardComponent,
