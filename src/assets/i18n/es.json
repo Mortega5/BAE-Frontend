@@ -5,6 +5,15 @@
   "COMMON": {
     "_not_found_default": "No se pudo encontrar el elemento solicitado.",
     "_back_to_list": "Volver al listado",
+    "_close_menu": "Cerrar menú",
+    "_close_modal": "Cerrar modal",
+    "_close_drawer": "Cerrar panel",
+    "_aria_breadcrumb": "Ruta de navegación",
+    "_scroll_up": "Desplazar hacia arriba",
+    "_scroll_down": "Desplazar hacia abajo",
+    "_previous": "Anterior",
+    "_next": "Siguiente",
+    "_remove": "Eliminar",
     "_loading": "Cargando...",
     "_save": "Guardar",
     "_close": "Cerrar",
@@ -29,7 +38,100 @@
     "_invalid_filename": "El nombre del archivo contiene caracteres no admitidos.",
     "_image_process_error": "Se ha producido un error al procesar la imagen.",
     "_image_upload_error": "Se ha producido un error al subir la imagen destacada.",
-    "_image_read_error": "Se ha producido un error al leer el archivo de imagen."
+    "_image_read_error": "Se ha producido un error al leer el archivo de imagen.",
+    "_back": "Volver",
+    "_create_blog_entry": "Crear entrada de blog",
+    "_update_cms_entry": "Actualizar entrada del CMS",
+    "_create_cms_entry": "Crear entrada del CMS",
+    "_content_type": "Tipo de contenido",
+    "_url_slug": "Slug de la URL",
+    "_url_preview": "Vista previa de la URL:",
+    "_slug_hint": "Usa solo letras minúsculas, números y guiones.",
+    "_slug_taken": "Este slug ya está en uso. Elige uno diferente.",
+    "_meta_description": "Meta descripción (extracto)",
+    "_meta_description_placeholder": "Resumen SEO breve (se recomiendan hasta 160 caracteres)",
+    "_meta_description_max": "La meta descripción no puede superar los 160 caracteres.",
+    "_excerpt": "Extracto",
+    "_excerpt_placeholder": "Texto breve usado en las tarjetas y vistas previas del blog",
+    "_excerpt_max": "El extracto no puede superar los 300 caracteres.",
+    "_tags": "Etiquetas",
+    "_tags_hint": "Separa las etiquetas con comas.",
+    "_author": "Autor",
+    "_author_placeholder": "Opcional. Si se deja vacío al crear, se usa el usuario de la sesión actual",
+    "_date": "Fecha",
+    "_date_hint": "Opcional. Déjalo vacío para no enviar ninguna fecha.",
+    "_featured_image": "Imagen destacada",
+    "_featured_image_preview": "Vista previa de la imagen destacada",
+    "_upload_hint": "Subir al gestor de archivos multimedia (máx. 3 MB)",
+    "_uploading_featured_image": "Subiendo imagen destacada...",
+    "_delete_entry": "Eliminar entrada",
+    "_update_entry": "Actualizar entrada",
+    "_create_entry": "Crear entrada",
+    "_delete": "Eliminar",
+    "_this_post": "esta entrada",
+    "_confirm_delete": "¿Seguro que quieres eliminar \"{{title}}\"? Esta acción no se puede deshacer.",
+    "_content_type_blog": "Blog",
+    "_content_type_news": "Noticia / Evento",
+    "_content_type_faq": "FAQ",
+    "_question": "Pregunta",
+    "_title": "Título",
+    "_answer": "Respuesta",
+    "_content": "Contenido",
+    "_created_by": "Creado por",
+    "_on": "el",
+    "_entry_details": "Detalles de la entrada",
+    "_edit_entry": "Editar entrada",
+    "_page_title_blog": "Blog",
+    "_page_title_news": "Noticias y eventos",
+    "_add_new_entry": "Añadir una nueva entrada",
+    "_add_news_event": "Añadir noticia/evento"
+  },
+  "FAQ": {
+    "_title": "Preguntas frecuentes",
+    "_add_faq": "Añadir pregunta frecuente",
+    "_edit_faq": "Editar pregunta frecuente",
+    "_delete_faq": "Eliminar pregunta frecuente",
+    "_no_faqs": "Todavía no se ha publicado ninguna pregunta frecuente."
+  },
+  "REQUEST_VALIDATION": {
+    "_title": "Solicitar validación",
+    "_intro": "Al solicitar una validación se enviarán tus certificados y tu autodeclaración al servicio de cumplimiento para su validación.",
+    "_evidence_title": "Evidencias a presentar",
+    "_type": "Tipo",
+    "_name": "Nombre",
+    "_document": "Documento",
+    "_not_provided": "No proporcionado",
+    "_no_evidence": "No hay evidencias de cumplimiento disponibles.",
+    "_org_info_title": "Información de la organización",
+    "_org_name": "Nombre de la organización",
+    "_org_vat": "NIF/CIF de la organización",
+    "_org_address": "Dirección de la organización",
+    "_org_country": "País de la organización",
+    "_org_website": "Sitio web de la organización",
+    "_org_email": "Correo electrónico de la organización",
+    "_missing_org_info": "Falta información de tu organización necesaria para el proceso de validación. Por favor, actualiza el perfil de tu organización."
+  },
+  "REPLICATION_VISIBILITY": {
+    "_intro": "Define en qué mercados del ecosistema DOME podría aparecer tu oferta de producto (los operadores de mercado podrían no publicar tu oferta, según sus propias políticas de negocio):",
+    "_all_marketplaces": "Todos los mercados",
+    "_selected_marketplaces": "Mercados seleccionados",
+    "_this_marketplace_only": "Solo este mercado",
+    "_exceptions": "Excepciones",
+    "_exceptions_desc": "Dentro de la selección anterior, no publiques nunca en los siguientes mercados:",
+    "_publish_only_dome": "Publicar solo en este mercado: DOME",
+    "_visibility_title": "Visibilidad para los clientes",
+    "_visibility_desc": "Define qué clientes, dentro del ecosistema DOME, verán tus ofertas de producto:",
+    "_any_customer": "Cualquier cliente (incluidos los invitados)",
+    "_auth_any_country": "Clientes autenticados de cualquier país",
+    "_auth_specific_countries": "Clientes autenticados de empresas constituidas en países específicos:"
+  },
+  "CHATBOT": {
+    "_dome_support": "Soporte de DOME",
+    "_greeting": "Hola. Me llamo DomeGPT. ¿En qué puedo ayudarte?",
+    "_send": "Enviar",
+    "_placeholder": "Escribe un mensaje...",
+    "_chat": "Chat",
+    "_image": "imagen"
   },
   "europeTrademark": "El proyecto Distributed Open Marketplace for Europe (DOME) ha recibido financiación del programa Europa Digital de la Unión Europea en virtud del Acuerdo de subvención n.º 101084071.",
   "DASHBOARD": {
@@ -228,6 +330,10 @@
     "_categories_single": "Categorías",
     "_prev": "Anterior",
     "_next": "Siguiente",
+    "_clear_all": "Borrar todo",
+    "_filters": "Filtros",
+    "_aria_pagination": "Paginación",
+    "_load_more": "Cargar más",
     "footer": {
       "aboutTitle": "Acerca de DOME",
       "about": "Acerca de DOME",
@@ -849,7 +955,10 @@
     "faqs": "Preguntas frecuentes",
     "follow-us": "Síguenos",
     "forCustomers": "Para clientes",
-    "forProviders": "Para proveedores"
+    "forProviders": "Para proveedores",
+    "_tagline": "DOME — el mercado de confianza de Europa para servicios verificados de nube, edge e IA.",
+    "_feedback": "Comentarios",
+    "_logo_alt": "Logo de DOME"
   },
   "BROWSE": {
     "heroTitle1": "Descubre ",
@@ -950,6 +1059,7 @@
     "_read_less": "Leer menos",
     "_product_image": "Imagen del producto",
     "_tab_overview": "Resumen",
+    "_tab_features": "Funcionalidades",
     "_tab_pricing": "Precios",
     "_tab_compliance": "Cumplimiento",
     "_offer_version": "Versión de la oferta",
@@ -978,7 +1088,12 @@
     "_additional_certifications": "Certificaciones adicionales",
     "_ready_to_get_started": "¿Listo para empezar?",
     "_join_companies_using": "Únete a miles de empresas que usan {{ productName }}",
-    "_join_marketplace": "Únete a DOME Marketplace"
+    "_join_marketplace": "Únete a DOME Marketplace",
+    "_optional": "Opcional",
+    "_default": "Por defecto",
+    "_enabled": "Activado",
+    "_disabled": "Desactivado",
+    "_no_features": "No hay funcionalidades disponibles para este producto."
   },
   "CATALOGS": {
     "_all_catalogs": "Todos los catálogos",
@@ -997,7 +1112,8 @@
     "_sort_recent": "Añadidos recientemente",
     "_sort_name_asc": "Nombre (A-Z)",
     "_sort_name_desc": "Nombre (Z-A)",
-    "_load_more": "Cargar más"
+    "_load_more": "Cargar más",
+    "_search": "Buscar"
   },
   "SHOPPING_CART": {
     "_buy": "Comprar",
@@ -1030,7 +1146,9 @@
     "_order_success": "Pedido realizado correctamente",
     "_order_error": "Hubo un error al realizar el pedido",
     "_remove_item_success": "Producto eliminado del carrito",
-    "_remove_item_error": "Hubo un error al eliminar el producto del carrito"
+    "_remove_item_error": "Hubo un error al eliminar el producto del carrito",
+    "_selected_price_plan": "Plan de precios seleccionado:",
+    "_selected_characteristics": "Características seleccionadas:"
   },
   "PROFILE": {
     "_general": "General",
@@ -1106,6 +1224,8 @@
     "_org_description_placeholder": "Añade una descripción...",
     "_add_logo": "Añadir logo de la organización",
     "_add_logo_url": "Añadir logo de la organización mediante una URL",
+    "_logo_requirements": "Requisitos del logo",
+    "_logo_requirements_desc": "Los formatos admitidos son SVG y PNG. El tamaño del logo debe seguir una proporción 1:1 (por ejemplo, resolución de 160x160px) y tener fondo transparente.",
     "_acknowledged": "Confirmado",
     "_in_progress": "En progreso",
     "_partial": "Parcial",
@@ -1198,6 +1318,9 @@
     "_invalid_phone": "El número de teléfono no es válido.",
     "_invalid_email": "El correo electrónico no es válido.",
     "_no_billing": "No hay información de facturación.",
+    "_need_valid_address": "Debes crear al menos una dirección de facturación válida.",
+    "_confirm_delete_named": "¿Seguro que quieres eliminar la dirección de facturación llamada {{name}}?",
+    "_yes_sure": "Sí, estoy seguro",
     "_close_modal": "Cerrar modal",
     "_mandatory": "Este campo es obligatorio.",
     "_too_long": "Este campo es demasiado largo. Debe tener menos de 250 caracteres.",
@@ -2700,7 +2823,8 @@
     "_no_options": "Sin opciones",
     "_not_found": "Proveedor no encontrado",
     "_not_found_desc": "Esta página de proveedor no está disponible o ya no existe.",
-    "_back_to_providers": "Volver a proveedores"
+    "_back_to_providers": "Volver a proveedores",
+    "_search": "Buscar"
   },
   "PRODUCT_ORDERS": {
     "_orders": "Pedidos de producto",
@@ -2766,7 +2890,17 @@
     "_update_state_error": "Hubo un error al actualizar el estado del pedido",
     "_update_state_note_error": "Hubo un error al añadir la nota del cambio de estado",
     "_add_note_success": "Nota añadida correctamente",
-    "_add_note_error": "Hubo un error al añadir la nota"
+    "_add_note_error": "Hubo un error al añadir la nota",
+    "_confirm_action": "Confirmar acción",
+    "_confirm_update_prefix": "¿Seguro que quieres actualizar este artículo del pedido al estado",
+    "_confirm_update_suffix": "?",
+    "_yes_confirm": "Sí, confirmar",
+    "_order_notes": "Notas del pedido",
+    "_loading_notes": "Cargando notas...",
+    "_no_notes": "No hay notas en este pedido.",
+    "_write_note_placeholder": "Escribe una nueva nota...",
+    "_saving": "Guardando...",
+    "_send": "Enviar"
   },
   "FORMS": {
     "_required": "Este campo es obligatorio.",
@@ -2819,7 +2953,20 @@
       "_configure_profile_chars": "Configurar las características del perfil",
       "_prod_spec_no_chars": "La especificación de producto seleccionada no tiene características relacionadas.",
       "_mandatory": "Este campo es obligatorio.",
-      "_unique": "El nombre debe ser único."
+      "_unique": "El nombre debe ser único.",
+      "_labels_range": "Rango de etiquetas",
+      "_min": "Mín",
+      "_max": "Máx",
+      "_create": "Crear",
+      "_description_placeholder": "Añade una descripción del producto...",
+      "_currency_label": "Moneda",
+      "_configuring_profile": "Configurando el perfil",
+      "_configured_price_profile": "Perfil de precios configurado",
+      "_price_profile_title": "Perfil de precios",
+      "_price_profile_popover": "Puedes seleccionar y configurar las características de tu producto para definir un perfil de precios.",
+      "_no_price_components_included": "No se han incluido componentes de precio.",
+      "_info": "Información",
+      "_price_components_popover": "Configura diferentes componentes de precio para tu plan de precios."
     },
     "PRICE_PLAN_COMPONENT": {
       "_new_price_component": "Nuevo componente de precio",
@@ -2863,7 +3010,18 @@
       "_price_type": "Tipo de precio",
       "_actions": "Acciones",
       "_delete_price_comp": "¿Seguro que quieres eliminar este componente de precio?",
-      "_unable_undone": "Esta acción no se puede deshacer."
+      "_unable_undone": "Esta acción no se puede deshacer.",
+      "_select_characteristic": "Selecciona una característica",
+      "_select_value": "Selecciona un valor",
+      "_recurring_every": "Se repite cada",
+      "_day": "Día",
+      "_week": "Semana",
+      "_month": "Mes",
+      "_year": "Año",
+      "_amount": "Importe",
+      "_is_percentage": "¿Este descuento es un porcentaje?",
+      "_period": "Periodo",
+      "_price": "Precio"
     },
     "PAGINATED_TABLE": {
       "_rows_per_page": "Filas por página",
@@ -2965,7 +3123,8 @@
     "_thanks": "Gracias por contactar con DOME Marketplace.",
     "_footer_title": "¿Cómo valorarías tu experiencia general con DOME?",
     "_footer_improve": "¿Cómo podemos mejorar DOME?",
-    "_error": "Se produjo un error al enviar tu comentario. Inténtalo de nuevo."
+    "_error": "Se produjo un error al enviar tu comentario. Inténtalo de nuevo.",
+    "_search_rate": "Según tu experiencia reciente, ¿qué probabilidad hay de que recomiendes DOME a un compañero o socio?"
   },
   "CHAT_MODAL": {
     "_send_error": "Error al enviar el mensaje. Inténtalo de nuevo."

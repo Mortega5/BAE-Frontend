@@ -8,11 +8,12 @@ import { ConfirmModalComponent } from "src/app/shared/confirm-modal/confirm-moda
 import { Meta, Title } from "@angular/platform-browser";
 import { DomeBlogContentType } from "src/app/services/dome-blog-service.service";
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-blog-entry-detail',
   standalone: true,
-  imports: [CommonModule, MarkdownComponent, ConfirmModalComponent, ButtonComponent],
+  imports: [CommonModule, MarkdownComponent, ConfirmModalComponent, ButtonComponent, TranslateModule],
   templateUrl: './blog-entry-detail.component.html',
   styleUrl: './blog-entry-detail.component.css'
 })
@@ -23,7 +24,8 @@ export class BlogEntryDetailComponent implements OnInit {
     private domeBlogService: DomeBlogServiceService,
     private localStorage: LocalStorageService,
     private titleService: Title,
-    private metaService: Meta
+    private metaService: Meta,
+    private translate: TranslateService
   ) {
   }
   entry:any={};
@@ -34,9 +36,9 @@ export class BlogEntryDetailComponent implements OnInit {
   routeBase = '/blog';
   deleting:boolean=false;
   showDeleteConfirm = false;
-  deleteConfirmTitle = 'Delete entry';
+  deleteConfirmTitle = 'BLOG_ENTRY._delete_entry';
   deleteConfirmMessage = '';
-  deleteConfirmButtonText = 'Delete';
+  deleteConfirmButtonText = 'BLOG_ENTRY._delete';
 
   async ngOnInit(): Promise<void> {
     this.applyRouteConfiguration();
@@ -69,7 +71,8 @@ export class BlogEntryDetailComponent implements OnInit {
       return;
     }
 
-    this.deleteConfirmMessage = `Are you sure you want to delete "${this.entry?.title || 'this post'}"? This action cannot be undone.`;
+    const title = this.entry?.title || this.translate.instant('BLOG_ENTRY._this_post');
+    this.deleteConfirmMessage = this.translate.instant('BLOG_ENTRY._confirm_delete', { title });
     this.showDeleteConfirm = true;
   }
 

@@ -13,12 +13,13 @@ import { DomeBlogContentType } from "src/app/services/dome-blog-service.service"
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { NotificationService } from 'src/app/services/notification.service';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-entry-form',
   standalone: true,
   imports: [MarkdownTextareaComponent, ReactiveFormsModule, ConfirmModalComponent,
-    LoadingSpinnerComponent, ButtonComponent
+    LoadingSpinnerComponent, ButtonComponent, TranslateModule
   ],
   templateUrl: './entry-form.component.html',
   styleUrl: './entry-form.component.css'
@@ -34,7 +35,8 @@ export class EntryFormComponent implements OnInit {
     private localStorage: LocalStorageService,
     private domeBlogService: DomeBlogServiceService,
     private attachmentService: AttachmentServiceService,
-    private notificationService: NotificationService
+    private notificationService: NotificationService,
+    private translate: TranslateService
   ) {
   }
 
@@ -58,14 +60,14 @@ export class EntryFormComponent implements OnInit {
   existingEntries: any[] = [];
   slugManuallyEdited = false;
   showDeleteConfirm = false;
-  deleteConfirmTitle = 'Delete entry';
+  deleteConfirmTitle = 'BLOG_ENTRY._delete_entry';
   deleteConfirmMessage = '';
-  deleteConfirmButtonText = 'Delete';
+  deleteConfirmButtonText = 'BLOG_ENTRY._delete';
   uploadingFeaturedImage = false;
   contentTypes: { value: DomeBlogContentType; label: string }[] = [
-    { value: 'blog', label: 'Blog' },
-    { value: 'news', label: 'News / Event' },
-    { value: 'faq', label: 'FAQ' }
+    { value: 'blog', label: 'BLOG_ENTRY._content_type_blog' },
+    { value: 'news', label: 'BLOG_ENTRY._content_type_news' },
+    { value: 'faq', label: 'BLOG_ENTRY._content_type_faq' }
   ];
 
   async ngOnInit(): Promise<void> {
@@ -160,7 +162,8 @@ export class EntryFormComponent implements OnInit {
       return;
     }
 
-    this.deleteConfirmMessage = `Are you sure you want to delete "${this.entryForm.controls['title'].value || 'this post'}"? This action cannot be undone.`;
+    const title = this.entryForm.controls['title'].value || this.translate.instant('BLOG_ENTRY._this_post');
+    this.deleteConfirmMessage = this.translate.instant('BLOG_ENTRY._confirm_delete', { title });
     this.showDeleteConfirm = true;
   }
 
@@ -354,11 +357,11 @@ export class EntryFormComponent implements OnInit {
   }
 
   getTitleLabel(): string {
-    return this.isFaqEntry() ? 'Question' : 'Title';
+    return this.isFaqEntry() ? 'BLOG_ENTRY._question' : 'BLOG_ENTRY._title';
   }
 
   getContentLabel(): string {
-    return this.isFaqEntry() ? 'Answer' : 'Content';
+    return this.isFaqEntry() ? 'BLOG_ENTRY._answer' : 'BLOG_ENTRY._content';
   }
 
   getUrlPreviewBase(): string {

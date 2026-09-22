@@ -8,25 +8,25 @@
              [style.transform]="showModal ? 'translateX(0)' : 'translateX(100%)'"
              (click)="$event.stopPropagation();">
             <div class="flex justify-between items-center">
-                <h3 class="text-2xl font-semibold text-primary-100 dark:text-white">Request Validation</h3>
+                <h3 class="text-2xl font-semibold text-primary-100 dark:text-white">{{ 'REQUEST_VALIDATION._title' | translate }}</h3>
                 <app-button type="button" (click)="closeModal.emit()" variant="ghost" size="sm" prefixIcon="xmark">
-                    <span class="sr-only">Close drawer</span>
+                    <span class="sr-only">{{ 'COMMON._close_drawer' | translate }}</span>
                 </app-button>
             </div>
 
             <p class="mt-2 mb-5 text-sm text-gray-500 dark:text-gray-400">
-                Requesting a validation will submit your certificates and self attestation to the compliance service for validation.
+                {{ 'REQUEST_VALIDATION._intro' | translate }}
             </p>
 
             <div class="mb-6">
-                <h4 class="mb-2 font-semibold text-gray-900 dark:text-white">Evidence to be submitted</h4>
+                <h4 class="mb-2 font-semibold text-gray-900 dark:text-white">{{ 'REQUEST_VALIDATION._evidence_title' | translate }}</h4>
                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300">
                     <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
                         <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
                             <tr>
-                                <th scope="col" class="px-6 py-3">Type</th>
-                                <th scope="col" class="px-6 py-3">Name</th>
-                                <th scope="col" class="px-6 py-3">Document</th>
+                                <th scope="col" class="px-6 py-3">{{ 'REQUEST_VALIDATION._type' | translate }}</th>
+                                <th scope="col" class="px-6 py-3">{{ 'REQUEST_VALIDATION._name' | translate }}</th>
+                                <th scope="col" class="px-6 py-3">{{ 'REQUEST_VALIDATION._document' | translate }}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -36,7 +36,7 @@
                                     <td class="px-6 py-4">{{ evidence.name }}</td>
                                     <td class="px-6 py-4 break-all">
                                         @if (evidence.missing) {
-                                            <span class="font-medium text-red-600">Not provided</span>
+                                            <span class="font-medium text-red-600">{{ 'REQUEST_VALIDATION._not_provided' | translate }}</span>
                                         } @else if (isHttpUrl(evidence.value)) {
                                             <a [href]="evidence.value" target="_blank" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
                                                 {{ evidence.value }}
@@ -49,7 +49,7 @@
                             } @empty {
                                 <tr>
                                     <td colspan="3" class="px-6 py-4 text-center text-gray-500 dark:text-gray-300">
-                                        No compliance evidence available.
+                                        {{ 'REQUEST_VALIDATION._no_evidence' | translate }}
                                     </td>
                                 </tr>
                             }
@@ -59,36 +59,36 @@
             </div>
 
             <div class="mb-6">
-                <h4 class="mb-2 font-semibold text-gray-900 dark:text-white">Organization info</h4>
+                <h4 class="mb-2 font-semibold text-gray-900 dark:text-white">{{ 'REQUEST_VALIDATION._org_info_title' | translate }}</h4>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div class="p-4 bg-white border rounded-lg dark:bg-secondary-300"
                         [ngClass]="isMissing(organizationInfo.organizationName) ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'">
-                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">Organization name</p>
+                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">{{ 'REQUEST_VALIDATION._org_name' | translate }}</p>
                         <p class="mt-1 text-sm text-gray-900 dark:text-white break-all">{{ organizationInfo.organizationName || '-' }}</p>
                     </div>
                     <div class="p-4 bg-white border rounded-lg dark:bg-secondary-300"
                         [ngClass]="isMissing(organizationInfo.organizationVat) ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'">
-                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">Organization VAT</p>
+                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">{{ 'REQUEST_VALIDATION._org_vat' | translate }}</p>
                         <p class="mt-1 text-sm text-gray-900 dark:text-white break-all">{{ organizationInfo.organizationVat || '-' }}</p>
                     </div>
                     <div class="p-4 bg-white border rounded-lg dark:bg-secondary-300"
                         [ngClass]="isMissing(organizationInfo.organizationAddress) ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'">
-                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">Organization address</p>
+                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">{{ 'REQUEST_VALIDATION._org_address' | translate }}</p>
                         <p class="mt-1 text-sm text-gray-900 dark:text-white break-all">{{ organizationInfo.organizationAddress || '-' }}</p>
                     </div>
                     <div class="p-4 bg-white border rounded-lg dark:bg-secondary-300"
                         [ngClass]="isMissing(organizationInfo.organizationCountry) ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'">
-                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">Organization country</p>
+                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">{{ 'REQUEST_VALIDATION._org_country' | translate }}</p>
                         <p class="mt-1 text-sm text-gray-900 dark:text-white break-all">{{ organizationInfo.organizationCountry || '-' }}</p>
                     </div>
                     <div class="p-4 bg-white border rounded-lg dark:bg-secondary-300"
                         [ngClass]="isMissing(organizationInfo.organizationWebsite) ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'">
-                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">Organization website</p>
+                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">{{ 'REQUEST_VALIDATION._org_website' | translate }}</p>
                         <p class="mt-1 text-sm text-gray-900 dark:text-white break-all">{{ organizationInfo.organizationWebsite || '-' }}</p>
                     </div>
                     <div class="p-4 bg-white border rounded-lg dark:bg-secondary-300"
                         [ngClass]="isMissing(organizationInfo.organizationEmail) ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'">
-                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">Organization email</p>
+                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">{{ 'REQUEST_VALIDATION._org_email' | translate }}</p>
                         <p class="mt-1 text-sm text-gray-900 dark:text-white break-all">{{ organizationInfo.organizationEmail || '-' }}</p>
                     </div>
                 </div>
@@ -96,7 +96,7 @@
 
             @if (hasMissingOrganizationInfo()) {
                 <div class="mb-6 p-4 text-sm text-amber-800 rounded-lg bg-amber-100 dark:bg-amber-900 dark:text-amber-200" role="alert">
-                    Some information of your organization required for the validation process is missing. Please update you organization profile.
+                    {{ 'REQUEST_VALIDATION._missing_org_info' | translate }}
                 </div>
             }
             @if (requestValidationError) {
@@ -107,12 +107,12 @@
 
             <div class="flex justify-end items-center space-x-4">
                 <app-button (click)="closeModal.emit()" type="button" variant="ghost" size="sm">
-                    Cancel
+                    {{ 'CONFIRM_MODAL._cancel' | translate }}
                 </app-button>
                 <app-button (click)="submitRequestValidation()"
                     [disabled]="hasMissingOrganizationInfo() || requestValidationLoading || !productSpec"
                     type="button">
-                    Request Validation
+                    {{ 'REQUEST_VALIDATION._title' | translate }}
                 </app-button>
             </div>
         </div>

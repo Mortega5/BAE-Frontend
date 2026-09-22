@@ -1,7 +1,7 @@
 <div class="vertical-snap-scroll-outer">
   <div class="vertical-snap-scroll-arrow-slot">
     @if (canScrollUp) {
-    <button type="button" class="vertical-snap-scroll-arrow" (click)="scrollPrev()" aria-label="Scroll up">
+    <button type="button" class="vertical-snap-scroll-arrow" (click)="scrollPrev()" [attr.aria-label]="'COMMON._scroll_up' | translate">
       <fa-icon [icon]="faChevronUp"></fa-icon>
     </button>
     }
@@ -34,7 +34,7 @@
 
   <div class="vertical-snap-scroll-arrow-slot">
     @if (canScrollDown) {
-    <button type="button" class="vertical-snap-scroll-arrow" (click)="scrollNext()" aria-label="Scroll down">
+    <button type="button" class="vertical-snap-scroll-arrow" (click)="scrollNext()" [attr.aria-label]="'COMMON._scroll_down' | translate">
       <fa-icon [icon]="faChevronDown"></fa-icon>
     </button>
     }

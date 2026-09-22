@@ -14,7 +14,7 @@
             'break-words': !hasLongWord(category?.name, 20)
             }" class="line-clamp-1 min-w-fit text-wrap break-words"><fa-icon [icon]="faTag" class="mr-2"></fa-icon>{{category?.name}}</span>
           <button type="button" (click)="notifyDismiss(category)"
-          class="inline-flex items-center p-1 ms-2 text-sm text-primary-100 dark:text-secondary-50 bg-transparent rounded-sm hover:bg-primary-100 hover:text-secondary-50 dark:hover:bg-primary-50 dark:hover:text-primary-100" [attr.data-dismiss-target]="'#badge-dismiss-'+idx" aria-label="Remove">
+          class="inline-flex items-center p-1 ms-2 text-sm text-primary-100 dark:text-secondary-50 bg-transparent rounded-sm hover:bg-primary-100 hover:text-secondary-50 dark:hover:bg-primary-50 dark:hover:text-primary-100" [attr.data-dismiss-target]="'#badge-dismiss-'+idx" [attr.aria-label]="'CATEGORIES_FILTER._remove_badge' | translate">
           <svg class="w-2 h-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
           </svg>

@@ -23,7 +23,7 @@
       <form (ngSubmit)="filterProviders()" class="w-full sm:w-auto">
         <div class="flex h-[56px] w-full sm:w-[443px] max-w-full items-center gap-[16px] rounded-[16px] border border-gray-200 bg-white px-[16px]">
           <input type="search" [formControl]="searchField" class="flex-1 border-0 bg-transparent text-[16px] leading-[24px] text-secondary-500 outline-none focus:border-0 focus:ring-0 focus:shadow-none placeholder:text-gray-400" placeholder="{{ 'CATALOGS._search_placeholder' | translate }}" />
-          <button type="submit" aria-label="Search">
+          <button type="submit" [attr.aria-label]="'CATALOGS._search' | translate">
             <svg class="h-6 w-6 text-secondary-500" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" /></svg>
           </button>
         </div>

@@ -14,11 +14,12 @@ import {
 import { FontAwesomeModule } from "@fortawesome/angular-fontawesome";
 import { faChevronDown, faChevronUp } from "@fortawesome/pro-solid-svg-icons";
 import { VerticalScrollCardsDirective } from './vertical-scroll-cards-directive';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: "app-vertical-scroll-cards",
   standalone: true,
-  imports: [FontAwesomeModule],
+  imports: [FontAwesomeModule, TranslateModule],
   templateUrl: "./vertical-scroll-cards.component.html",
   styleUrl: "./vertical-scroll-cards.component.css"
 })

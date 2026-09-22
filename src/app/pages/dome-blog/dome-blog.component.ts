@@ -7,11 +7,12 @@ import { DomeBlogContentType, DomeBlogServiceService } from "src/app/services/do
 import { Subject } from 'rxjs';
 import { ConfirmModalComponent } from "src/app/shared/confirm-modal/confirm-modal.component";
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-dome-blog',
   standalone: true,
-  imports: [CommonModule, ConfirmModalComponent, ButtonComponent],
+  imports: [CommonModule, ConfirmModalComponent, ButtonComponent, TranslateModule],
   templateUrl: './dome-blog.component.html',
   styleUrl: './dome-blog.component.css'
 })
@@ -23,6 +24,7 @@ export class DomeBlogComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService,
     private localStorage: LocalStorageService,
     private domeBlogService: DomeBlogServiceService,
+    private translate: TranslateService,
     private route?: ActivatedRoute,
   ) {
     this.eventMessage.messages$.subscribe(ev => {
@@ -38,14 +40,14 @@ export class DomeBlogComponent implements OnInit, OnDestroy {
   deletingEntryId: string | null = null;
   showDeleteConfirm = false;
   pendingDeleteEntry: any = null;
-  deleteConfirmTitle = 'Delete entry';
+  deleteConfirmTitle = 'BLOG_ENTRY._delete_entry';
   deleteConfirmMessage = '';
-  deleteConfirmButtonText = 'Delete';
+  deleteConfirmButtonText = 'BLOG_ENTRY._delete';
 
   entries:any[]=[ ]
   contentType: DomeBlogContentType = 'blog';
-  pageTitle = 'Blog';
-  createButtonLabel = 'Add a new entry';
+  pageTitle = 'BLOG_ENTRY._page_title_blog';
+  createButtonLabel = 'BLOG_ENTRY._add_new_entry';
   routeBase = '/blog';
   isNewsLayout = false;
   currentPage = 1;
@@ -107,7 +109,7 @@ export class DomeBlogComponent implements OnInit, OnDestroy {
     }
 
     this.pendingDeleteEntry = entry;
-    this.deleteConfirmMessage = `Are you sure you want to delete "${entry.title}"? This action cannot be undone.`;
+    this.deleteConfirmMessage = this.translate.instant('BLOG_ENTRY._confirm_delete', { title: entry.title });
     this.showDeleteConfirm = true;
   }
 
@@ -245,8 +247,8 @@ export class DomeBlogComponent implements OnInit, OnDestroy {
     this.contentType = routeContentType || 'blog';
     this.isNewsLayout = this.contentType === 'news';
     this.routeBase = this.isNewsLayout ? '/news' : '/blog';
-    this.pageTitle = this.isNewsLayout ? 'News & Events' : 'Blog';
-    this.createButtonLabel = this.isNewsLayout ? 'Add news/event' : 'Add a new entry';
+    this.pageTitle = this.isNewsLayout ? 'BLOG_ENTRY._page_title_news' : 'BLOG_ENTRY._page_title_blog';
+    this.createButtonLabel = this.isNewsLayout ? 'BLOG_ENTRY._add_news_event' : 'BLOG_ENTRY._add_new_entry';
   }
 
   private normalizeEntryResponse(response: any, page: number): { entries: any[]; hasMore: boolean } {

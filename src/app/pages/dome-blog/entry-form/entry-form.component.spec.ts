@@ -43,13 +43,18 @@ describe('EntryFormComponent', () => {
       showInfo: jasmine.createSpy('showInfo')
     } as any;
 
+    const translateService = {
+      instant: jasmine.createSpy('instant').and.callFake((key: string) => key)
+    } as any;
+
     const component = new EntryFormComponent(
       route,
       router,
       localStorageService,
       domeBlogService,
       attachmentService,
-      notificationService
+      notificationService,
+      translateService
     );
 
     return { component, route, router, domeBlogService, notificationService };

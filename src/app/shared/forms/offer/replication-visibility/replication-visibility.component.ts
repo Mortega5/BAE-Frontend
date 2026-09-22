@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
 import {MultipleSelectComponent} from "src/app/shared/multiple-select/multiple-select.component"
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-replication-visibility',
   standalone: true,
-  imports: [MultipleSelectComponent],
+  imports: [MultipleSelectComponent, TranslateModule],
   templateUrl: './replication-visibility.component.html',
   styleUrl: './replication-visibility.component.css'
 })

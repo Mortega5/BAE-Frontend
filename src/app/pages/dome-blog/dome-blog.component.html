@@ -7,12 +7,12 @@
                 <div class="flex flex-col">
                     <h1
                         class="text-[clamp(2.75rem,2.1rem+2.1vw,3.75rem)] font-extrabold leading-[0.95] tracking-[0.02em] text-secondary-200 dark:text-white">
-                        {{ pageTitle }}
+                        {{ pageTitle | translate }}
                     </h1>
                 </div>
                 @if(checkAdmin){
                     <app-button type="button" data-cy="newBlogEntry" (click)="goToCreate()" suffixIcon="plus">
-                        {{ createButtonLabel }}
+                        {{ createButtonLabel | translate }}
                     </app-button>
                 }
             </div>    
@@ -27,20 +27,20 @@
                     <h2 class="font-bold mb-4 dark:text-white break-words" [ngClass]="getCardTitleClass()">{{ entry.title }}</h2>
                     @if(canManageEntry(entry)){
                         <div class="flex items-center gap-2">
-                            <app-button type="button" (click)="goToUpdate(entry._id)" shape="pill" prefixIcon="pen-to-square" title="Edit entry">
-                              <span class="sr-only">Edit entry</span>
+                            <app-button type="button" (click)="goToUpdate(entry._id)" shape="pill" prefixIcon="pen-to-square" [title]="'BLOG_ENTRY._edit_entry' | translate">
+                              <span class="sr-only">{{ 'BLOG_ENTRY._edit_entry' | translate }}</span>
                             </app-button>
                             <app-button type="button" (click)="openDeleteDialog(entry)" [disabled]="isDeletingEntry(entry)"
-                                    variant="danger" prefixIcon="trash" title="Delete entry">
-                              <span class="sr-only">Delete entry</span>
+                                    variant="danger" prefixIcon="trash" [title]="'BLOG_ENTRY._delete_entry' | translate">
+                              <span class="sr-only">{{ 'BLOG_ENTRY._delete_entry' | translate }}</span>
                             </app-button>
                         </div>
                     }
-                </div>                
+                </div>
                 <h4 class="mb-4 text-lg italic text-secondary-200 dark:text-secondary-50">
-                    Created by 
-                    <b class="text-secondary-100 dark:text-primary-50">{{entry.author}}</b> 
-                    on {{entry.date | date:'EEEE, dd/MM/yy, HH:mm'}}.
+                    {{ 'BLOG_ENTRY._created_by' | translate }}
+                    <b class="text-secondary-100 dark:text-primary-50">{{entry.author}}</b>
+                    {{ 'BLOG_ENTRY._on' | translate }} {{entry.date | date:'EEEE, dd/MM/yy, HH:mm'}}.
                 </h4>
                 @if(getEntryTags(entry); as tags){
                     @if(tags.length > 0){
@@ -55,7 +55,7 @@
                 }
                 <div class="mt-2 flex flex-col gap-5 md:flex-row md:items-start">
                     @if(getFeaturedImage(entry); as featuredImage){
-                      <img [src]="featuredImage" [alt]="entry.title + ' featured image'"
+                      <img [src]="featuredImage" [alt]="entry.title + ' ' + ('BLOG_ENTRY._featured_image' | translate)"
                            [ngClass]="getImageClass()">
                     }
                     <div class="flex min-w-0 flex-1 flex-col">
@@ -63,7 +63,7 @@
                             {{ getEntryExcerpt(entry) }}
                         </p>
                         <app-button type="button" (click)="goToDetails(entry)" class="mt-4 w-fit">
-                            View details
+                            {{ 'COMMON._view_details' | translate }}
                         </app-button>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
         @if(hasMoreEntries){
             <div class="flex justify-center pt-2">
                 <app-button type="button" (click)="loadMoreEntries()" [disabled]="loadingMore">
-                    {{ loadingMore ? 'Loading...' : 'Load more' }}
+                    {{ loadingMore ? ('COMMON._loading' | translate) : ('DASHBOARD._load_more' | translate) }}
                 </app-button>
             </div>
         }
@@ -84,7 +84,7 @@
   [title]="deleteConfirmTitle"
   [message]="deleteConfirmMessage"
   [confirmLabel]="deleteConfirmButtonText"
-  cancelLabel="Cancel"
+  cancelLabel="CONFIRM_MODAL._cancel"
   confirmVariant="danger"
   (resolved)="$event ? confirmDeleteEntry() : closeDeleteDialog()"
   (closed)="closeDeleteDialog()"

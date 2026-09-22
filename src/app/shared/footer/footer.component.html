@@ -6,11 +6,11 @@
 
         <div class="md:col-span-5">
           <div class="flex items-start">
-            <img src="assets/logos/DOME_Logo_White_Name.svg" alt="DOME logo" class="h-[60px]" />
+            <img src="assets/logos/DOME_Logo_White_Name.svg" [attr.alt]="'FOOTER._logo_alt' | translate" class="h-[60px]" />
           </div>
 
           <p class="mt-10 max-w-[460px] text-[19px] leading-[1.58] text-white/80">
-            DOME — Europe's trusted marketplace for verified cloud, edge &amp; AI services.
+            {{ 'FOOTER._tagline' | translate }}
           </p>
 
           @if (socialLinks.length) {
@@ -86,7 +86,7 @@
       @if (checkLogged) {
       <li>
         <button (click)="feedback = !feedback; $event.stopPropagation()" class="mr-4 hover:underline md:mr-6">
-          Feedback
+          {{ 'FOOTER._feedback' | translate }}
         </button>
       </li>
       }

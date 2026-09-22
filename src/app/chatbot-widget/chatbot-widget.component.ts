@@ -3,11 +3,12 @@ import {NgClass} from "@angular/common";
 import { LocalStorageService } from '../services/local-storage.service';
 import { LoginInfo } from '../models/interfaces';
 import { environment } from 'src/environments/environment';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-chatbot-widget',
   standalone: true,
-  imports: [NgClass],
+  imports: [NgClass, TranslateModule],
   templateUrl: './chatbot-widget.component.html',
   styleUrl: './chatbot-widget.component.css',
   encapsulation: ViewEncapsulation.None

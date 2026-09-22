@@ -29,6 +29,10 @@ describe('BlogEntryDetailComponent', () => {
     } as any;
     const titleService = { setTitle: jasmine.createSpy('setTitle') } as any;
     const metaService = { updateTag: jasmine.createSpy('updateTag') } as any;
+    const translateService = {
+      instant: jasmine.createSpy('instant').and.callFake((key: string, params?: Record<string, any>) =>
+        params ? `${key} ${Object.values(params).join(' ')}` : key)
+    } as any;
 
     const component = new BlogEntryDetailComponent(
       route,
@@ -36,7 +40,8 @@ describe('BlogEntryDetailComponent', () => {
       domeBlogService,
       localStorageService,
       titleService,
-      metaService
+      metaService,
+      translateService
     );
 
     return { component, router, domeBlogService, titleService, metaService };

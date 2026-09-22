@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DomeBlogServiceService } from 'src/app/services/dome-blog-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-faq',
@@ -15,14 +16,15 @@ export class FaqComponent implements OnInit {
   deletingEntryId: string | null = null;
   showDeleteConfirm = false;
   pendingDeleteEntry: any = null;
-  deleteConfirmTitle = 'Delete FAQ';
+  deleteConfirmTitle = 'FAQ._delete_faq';
   deleteConfirmMessage = '';
-  deleteConfirmButtonText = 'Delete';
+  deleteConfirmButtonText = 'BLOG_ENTRY._delete';
 
   constructor(
     private router: Router,
     private domeBlogService: DomeBlogServiceService,
-    private localStorage: LocalStorageService
+    private localStorage: LocalStorageService,
+    private translate: TranslateService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -79,7 +81,7 @@ export class FaqComponent implements OnInit {
     }
 
     this.pendingDeleteEntry = entry;
-    this.deleteConfirmMessage = `Are you sure you want to delete "${entry.title}"? This action cannot be undone.`;
+    this.deleteConfirmMessage = this.translate.instant('BLOG_ENTRY._confirm_delete', { title: entry.title });
     this.showDeleteConfirm = true;
   }
 

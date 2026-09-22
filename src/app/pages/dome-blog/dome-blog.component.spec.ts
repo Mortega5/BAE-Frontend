@@ -15,8 +15,12 @@ describe('DomeBlogComponent', () => {
       getBlogEntries: jasmine.createSpy('getBlogEntries').and.resolveTo(entries),
       deleteBlogEntry: jasmine.createSpy('deleteBlogEntry').and.resolveTo({ ok: true })
     } as any;
+    const translateService = {
+      instant: jasmine.createSpy('instant').and.callFake((key: string, params?: Record<string, any>) =>
+        params ? `${key} ${Object.values(params).join(' ')}` : key)
+    } as any;
 
-    const component = new DomeBlogComponent(router, eventMessage, localStorageService, domeBlogService);
+    const component = new DomeBlogComponent(router, eventMessage, localStorageService, domeBlogService, translateService);
     return { component, router, domeBlogService, messages$ };
   };
 

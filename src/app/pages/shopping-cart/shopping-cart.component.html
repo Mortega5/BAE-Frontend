@@ -3,7 +3,7 @@
   <div class="p-4">
     <nav
       class="flex px-5 py-3 text-gray-700 border border-gray-200 rounded-lg bg-gray-50 dark:bg-gray-800 dark:border-gray-700"
-      aria-label="Breadcrumb">
+      [attr.aria-label]="'COMMON._aria_breadcrumb' | translate">
       <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
         <li class="inline-flex items-center">
           <a (click)="goTo('/search')"
@@ -120,13 +120,13 @@
             <h5 class="md:text-xl lg:text-2xl font-semibold tracking-tight text-primary-100 dark:text-primary-100">
               {{item.name}}</h5>
             <div class="h-[50px]">
-              <img class="rounded-r-lg h-[50px] dark:text-white" src="{{item.image}}" alt="Product image" />
+              <img class="rounded-r-lg h-[50px] dark:text-white" src="{{item.image}}" [attr.alt]="'CARD._product_image' | translate" />
             </div>
           </div>
           <hr class="h-px mr-4 ml-4 bg-primary-100 border-0">
           <h5
             class="md:text-lg lg:text-xl font-semibold tracking-tight text-primary-100 dark:text-primary-100 m-2 mb-4">
-            Selected price plan:</h5>
+            {{ 'SHOPPING_CART._selected_price_plan' | translate }}</h5>
           <div class="flex justify-center m-2">
             @if (item.options.pricing?.priceType == 'recurring') {
             <div class="max-w-sm bg-white border border-gray-200 rounded-lg shadow w-full">
@@ -170,7 +170,7 @@
           @if(item.options.characteristics && item.options.characteristics.length > 0){
           <h5
             class="md:text-lg lg:text-xl font-semibold tracking-tight text-primary-100 dark:text-primary-100 m-2 mb-4">
-            Selected characteristics:</h5>
+            {{ 'SHOPPING_CART._selected_characteristics' | translate }}</h5>
           <div class="flex justify-center mb-2">
             <div class="grid grid-flow-row grid-cols-3 gap-4 w-3/4">
               @for (char of item.options.characteristics; track char.value) {

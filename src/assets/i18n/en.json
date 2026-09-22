@@ -12,7 +12,16 @@
     "_view_details": "View details",
     "_hide_details": "Hide details",
     "_not_found_default": "The requested item could not be found.",
-    "_back_to_list": "Back to list"
+    "_back_to_list": "Back to list",
+    "_close_menu": "Close menu",
+    "_close_modal": "Close modal",
+    "_close_drawer": "Close drawer",
+    "_aria_breadcrumb": "Breadcrumb",
+    "_scroll_up": "Scroll up",
+    "_scroll_down": "Scroll down",
+    "_previous": "Previous",
+    "_next": "Next",
+    "_remove": "Remove"
   },
   "ERRORS": {
     "_error_prefix": "Error: {{message}}"
@@ -29,7 +38,100 @@
     "_invalid_filename": "File name contains unsupported characters.",
     "_image_process_error": "There was an error while processing the image file.",
     "_image_upload_error": "There was an error while uploading the featured image.",
-    "_image_read_error": "There was an error while reading the image file."
+    "_image_read_error": "There was an error while reading the image file.",
+    "_back": "Back",
+    "_create_blog_entry": "Create blog entry",
+    "_update_cms_entry": "Update CMS entry",
+    "_create_cms_entry": "Create CMS entry",
+    "_content_type": "Content type",
+    "_url_slug": "URL slug",
+    "_url_preview": "URL preview:",
+    "_slug_hint": "Use only lowercase letters, numbers and hyphens.",
+    "_slug_taken": "This slug is already in use. Pick a different one.",
+    "_meta_description": "Meta description (extract)",
+    "_meta_description_placeholder": "Short SEO summary (recommended up to 160 characters)",
+    "_meta_description_max": "Meta description cannot exceed 160 characters.",
+    "_excerpt": "Excerpt",
+    "_excerpt_placeholder": "Short text used in blog cards and previews",
+    "_excerpt_max": "Excerpt cannot exceed 300 characters.",
+    "_tags": "Tags",
+    "_tags_hint": "Separate tags with commas.",
+    "_author": "Author",
+    "_author_placeholder": "Optional. If empty on create, current session user is used",
+    "_date": "Date",
+    "_date_hint": "Optional. Leave empty to avoid sending a date.",
+    "_featured_image": "Featured image",
+    "_featured_image_preview": "Featured image preview",
+    "_upload_hint": "Upload to media manager (max 3MB)",
+    "_uploading_featured_image": "Uploading featured image...",
+    "_delete_entry": "Delete entry",
+    "_update_entry": "Update entry",
+    "_create_entry": "Create entry",
+    "_delete": "Delete",
+    "_this_post": "this post",
+    "_confirm_delete": "Are you sure you want to delete \"{{title}}\"? This action cannot be undone.",
+    "_content_type_blog": "Blog",
+    "_content_type_news": "News / Event",
+    "_content_type_faq": "FAQ",
+    "_question": "Question",
+    "_title": "Title",
+    "_answer": "Answer",
+    "_content": "Content",
+    "_created_by": "Created by",
+    "_on": "on",
+    "_entry_details": "Entry details",
+    "_edit_entry": "Edit entry",
+    "_page_title_blog": "Blog",
+    "_page_title_news": "News & Events",
+    "_add_new_entry": "Add a new entry",
+    "_add_news_event": "Add news/event"
+  },
+  "FAQ": {
+    "_title": "FAQ",
+    "_add_faq": "Add FAQ",
+    "_edit_faq": "Edit FAQ",
+    "_delete_faq": "Delete FAQ",
+    "_no_faqs": "No FAQs have been published yet."
+  },
+  "REQUEST_VALIDATION": {
+    "_title": "Request Validation",
+    "_intro": "Requesting a validation will submit your certificates and self attestation to the compliance service for validation.",
+    "_evidence_title": "Evidence to be submitted",
+    "_type": "Type",
+    "_name": "Name",
+    "_document": "Document",
+    "_not_provided": "Not provided",
+    "_no_evidence": "No compliance evidence available.",
+    "_org_info_title": "Organization info",
+    "_org_name": "Organization name",
+    "_org_vat": "Organization VAT",
+    "_org_address": "Organization address",
+    "_org_country": "Organization country",
+    "_org_website": "Organization website",
+    "_org_email": "Organization email",
+    "_missing_org_info": "Some information of your organization required for the validation process is missing. Please update you organization profile."
+  },
+  "REPLICATION_VISIBILITY": {
+    "_intro": "Define in which marketplaces of the DOME Ecosystem your Product Offering might appear (marketplace operators might not publish your offering, depending on their business choices):",
+    "_all_marketplaces": "All marketplaces",
+    "_selected_marketplaces": "Selected marketplaces",
+    "_this_marketplace_only": "This marketplace only",
+    "_exceptions": "Exceptions",
+    "_exceptions_desc": "Within the above selection, never publish in the following marketplaces:",
+    "_publish_only_dome": "Publish only in this marketplace: DOME",
+    "_visibility_title": "Visibility to customers",
+    "_visibility_desc": "Define which customers, in the the DOME Ecosystem, will see your Product Offerings:",
+    "_any_customer": "Any customer (including guests)",
+    "_auth_any_country": "Authenticated customers from any country",
+    "_auth_specific_countries": "Authenticated customers from companies incorporated in specific countries:"
+  },
+  "CHATBOT": {
+    "_dome_support": "DOME support",
+    "_greeting": "Hi. My name is DomeGPT. How can I help you?",
+    "_send": "Send",
+    "_placeholder": "Write a message...",
+    "_chat": "Chat",
+    "_image": "image"
   },
   "europeTrademark": "Distributed Open Marketplace for Europe (DOME) Project has received funding from European Union’s Digital Europe Programme under the Grant Agreement No 101084071.",
   "DASHBOARD": {
@@ -228,6 +330,10 @@
     "_categories_single": "Categories",
     "_prev": "Previous",
     "_next": "Next",
+    "_clear_all": "Clear all",
+    "_filters": "Filters",
+    "_aria_pagination": "Pagination",
+    "_load_more": "Load more",
     "footer": {
       "aboutTitle": "About DOME",
       "about": "About DOME",
@@ -849,7 +955,10 @@
     "faqs": "FAQs",
     "follow-us": "Follow us",
     "forCustomers": "For Customers",
-    "forProviders": "For Providers"
+    "forProviders": "For Providers",
+    "_tagline": "DOME — Europe's trusted marketplace for verified cloud, edge & AI services.",
+    "_feedback": "Feedback",
+    "_logo_alt": "DOME logo"
   },
   "BROWSE": {
     "heroTitle1": "Discover ",
@@ -950,6 +1059,7 @@
     "_read_less": "Read less",
     "_product_image": "Product image",
     "_tab_overview": "Overview",
+    "_tab_features": "Features",
     "_tab_pricing": "Pricing",
     "_tab_compliance": "Compliance",
     "_offer_version": "Offer version",
@@ -978,7 +1088,12 @@
     "_additional_certifications": "Additional certifications",
     "_ready_to_get_started": "Ready to get started?",
     "_join_companies_using": "Join thousands of companies using {{ productName }}",
-    "_join_marketplace": "Join DOME Marketplace"
+    "_join_marketplace": "Join DOME Marketplace",
+    "_optional": "Optional",
+    "_default": "Default",
+    "_enabled": "Enabled",
+    "_disabled": "Disabled",
+    "_no_features": "No features available for this product."
   },
   "CATALOGS": {
     "_all_catalogs": "All catalogues",
@@ -997,7 +1112,8 @@
     "_sort_recent": "Recently added",
     "_sort_name_asc": "Name (A–Z)",
     "_sort_name_desc": "Name (Z–A)",
-    "_load_more": "Load more"
+    "_load_more": "Load more",
+    "_search": "Search"
   },
   "SHOPPING_CART": {
     "_buy": "Buy",
@@ -1030,7 +1146,9 @@
     "_order_success": "Order placed successfully",
     "_order_error": "There was an error placing the order",
     "_remove_item_success": "Item removed from the cart",
-    "_remove_item_error": "There was an error removing the item from the cart"
+    "_remove_item_error": "There was an error removing the item from the cart",
+    "_selected_price_plan": "Selected price plan:",
+    "_selected_characteristics": "Selected characteristics:"
   },
   "PROFILE": {
     "_general": "General",
@@ -1106,6 +1224,8 @@
     "_org_description_placeholder": "Add a description...",
     "_add_logo": "Add organization logo",
     "_add_logo_url": "Add organization logo using a URL",
+    "_logo_requirements": "Logo requirements",
+    "_logo_requirements_desc": "The supported formats are SVG and PNG. The logo size should follow an 1:1 aspect ratio (e.g. 160x160px resolution) and transparent background.",
     "_acknowledged": "Acknowledged",
     "_in_progress": "In Progress",
     "_partial": "Partial",
@@ -1198,6 +1318,9 @@
     "_invalid_phone": "Phone number is invalid.",
     "_invalid_email": "Email is invalid.",
     "_no_billing": "There's no billing information.",
+    "_need_valid_address": "You need to create at least one valid billing address.",
+    "_confirm_delete_named": "Are you sure you want to delete the billing address called {{name}}?",
+    "_yes_sure": "Yes, I'm sure",
     "_close_modal": "Close modal",
     "_mandatory": "This field is mandatory.",
     "_too_long": "This field is too long. Must be less than 250 characters.",
@@ -2700,7 +2823,8 @@
     "_no_options": "No options",
     "_not_found": "Provider not found",
     "_not_found_desc": "This provider page is unavailable or no longer exists.",
-    "_back_to_providers": "Back to providers"
+    "_back_to_providers": "Back to providers",
+    "_search": "Search"
   },
   "PRODUCT_ORDERS": {
     "_orders": "Product Orders",
@@ -2766,7 +2890,17 @@
     "_update_state_error": "There was an error updating the order state",
     "_update_state_note_error": "There was an error adding the note for the state change",
     "_add_note_success": "Note added successfully",
-    "_add_note_error": "There was an error adding the note"
+    "_add_note_error": "There was an error adding the note",
+    "_confirm_action": "Confirm Action",
+    "_confirm_update_prefix": "Are you sure you want to update this order item to the",
+    "_confirm_update_suffix": " status?",
+    "_yes_confirm": "Yes, Confirm",
+    "_order_notes": "Order Notes",
+    "_loading_notes": "Loading notes...",
+    "_no_notes": "No notes in this order.",
+    "_write_note_placeholder": "Write a new note...",
+    "_saving": "Saving...",
+    "_send": "Send"
   },
   "FORMS": {
     "_required": "This field is mandatory.",
@@ -2819,7 +2953,20 @@
       "_configure_profile_chars": "Configure profile's characteristics",
       "_prod_spec_no_chars": "The selected product specification has no characteristics related.",
       "_mandatory": "This field is mandatory.",
-      "_unique": "Name must be unique."
+      "_unique": "Name must be unique.",
+      "_labels_range": "Labels range",
+      "_min": "Min",
+      "_max": "Max",
+      "_create": "Create",
+      "_description_placeholder": "Add product description...",
+      "_currency_label": "Currency",
+      "_configuring_profile": "Configuring profile",
+      "_configured_price_profile": "Configured price profile",
+      "_price_profile_title": "Price profile",
+      "_price_profile_popover": "You can select and configure your product's characteristics in order to define a price profile.",
+      "_no_price_components_included": "No price components included.",
+      "_info": "Info",
+      "_price_components_popover": "Configure different price components for your price plan."
     },
     "PRICE_PLAN_COMPONENT": {
       "_new_price_component": "New Price Component",
@@ -2863,7 +3010,18 @@
       "_price_type": "Price Type",
       "_actions": "Actions",
       "_delete_price_comp": "Are you sure you want to delete this Price Component?",
-      "_unable_undone": "This action can't be undone."
+      "_unable_undone": "This action can't be undone.",
+      "_select_characteristic": "Select a characteristic",
+      "_select_value": "Select a value",
+      "_recurring_every": "Recurring every",
+      "_day": "Day",
+      "_week": "Week",
+      "_month": "Month",
+      "_year": "Year",
+      "_amount": "Amount",
+      "_is_percentage": "Is this discount a percentage?",
+      "_period": "Period",
+      "_price": "Price"
     },
     "PAGINATED_TABLE": {
       "_rows_per_page": "Rows per page",
@@ -2965,7 +3123,8 @@
     "_thanks": "Thank you for contacting DOME Marketplace.",
     "_footer_title": "How would you rate your overall experience with DOME?",
     "_footer_improve": "How can we improve DOME?",
-    "_error": "There was an error while sending your feedback. Please try again."
+    "_error": "There was an error while sending your feedback. Please try again.",
+    "_search_rate": "Based on your recent experience, how likely are you to recommend DOME to a colleague or a partner?"
   },
   "CHAT_MODAL": {
     "_send_error": "Error sending message. Please try again."

@@ -99,7 +99,7 @@
                 type="button"
                 (click)="prevPopularPage()"
                 class="popular-arrow popular-arrow-left"
-                aria-label="Previous"
+                [attr.aria-label]="'COMMON._previous' | translate"
               >
                 <fa-icon [icon]="faChevronLeft"></fa-icon>
               </button>
@@ -137,7 +137,7 @@
                 type="button"
                 (click)="nextPopularPage()"
                 class="popular-arrow popular-arrow-right"
-                aria-label="Next"
+                [attr.aria-label]="'COMMON._next' | translate"
               >
                 <fa-icon [icon]="faChevronRight"></fa-icon>
               </button>
