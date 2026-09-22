@@ -47,9 +47,23 @@ export class AccountServiceService {
     return lastValueFrom(this.http.get<any>(url));
   }
 
+  /** Sibling bae-off-card instances in the same offer list often share a seller
+   * org and mount within the same tick, each calling this independently — dedup
+   * concurrent calls for the same partyId into a single HTTP request. Cleared as
+   * soon as it settles (success or failure), so later calls always refetch fresh
+   * (e.g. after editing the org's own profile). */
+  private pendingOrgInfoRequests = new Map<string, Promise<any>>();
+
   getOrgInfo(partyId:any){
+    const existing = this.pendingOrgInfoRequests.get(partyId);
+    if (existing) return existing;
+
     let url = `${AccountServiceService.BASE_URL}/party/organization/${partyId}`;
-    return lastValueFrom(this.http.get<any>(url));
+    const request = lastValueFrom(this.http.get<any>(url))
+      .finally(() => this.pendingOrgInfoRequests.delete(partyId));
+
+    this.pendingOrgInfoRequests.set(partyId, request);
+    return request;
   }
 
   getOrgList(){

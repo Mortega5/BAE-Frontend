@@ -129,6 +129,34 @@ describe('AccountServiceService', () => {
     await expectAsync(promise).toBeResolvedTo(responseBody);
   });
 
+  it('getOrgInfo should dedup concurrent calls for the same partyId into a single HTTP request', async () => {
+    const partyId = 'org-1';
+    const responseBody = { id: partyId };
+
+    const promise1 = service.getOrgInfo(partyId);
+    const promise2 = service.getOrgInfo(partyId);
+
+    const req = httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`);
+    req.flush(responseBody);
+
+    await expectAsync(promise1).toBeResolvedTo(responseBody);
+    await expectAsync(promise2).toBeResolvedTo(responseBody);
+  });
+
+  it('getOrgInfo should issue a fresh request once the previous one has settled', async () => {
+    const partyId = 'org-1';
+
+    const promise1 = service.getOrgInfo(partyId);
+    httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`).flush({ id: partyId, name: 'First' });
+    await promise1;
+
+    const promise2 = service.getOrgInfo(partyId);
+    const req2 = httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`);
+    req2.flush({ id: partyId, name: 'Updated' });
+
+    await expectAsync(promise2).toBeResolvedTo({ id: partyId, name: 'Updated' });
+  });
+
   it('getOrgList should perform GET on organization collection endpoint', async () => {
     const responseBody = [{ id: 'org-1' }];
 
