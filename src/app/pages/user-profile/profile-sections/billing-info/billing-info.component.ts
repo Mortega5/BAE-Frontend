@@ -77,15 +77,6 @@ export class BillingInfoComponent implements OnInit, OnDestroy {
       })
   }
 
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    if (this.showDiscardConfirm) {
-      this.showDiscardConfirm = false;
-      return;
-    }
-    if (this.showBillingModal) this.requestCloseBillingModal();
-  }
-
   @HostListener('document:click')
   onClick() {
     if (this.deleteBill == true) {

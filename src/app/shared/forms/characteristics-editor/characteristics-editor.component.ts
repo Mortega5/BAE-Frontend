@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faCircleInfo, faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
@@ -9,7 +9,7 @@ import { CharValueType } from '../characteristic-value-spec/characteristic-value
 import { CharacteristicFormValue, SpecificationCharacteristicFormComponent } from '../specification-characteristic/specification-characteristic-form.component';
 import { TableInputComponent } from '../table-input/table-input.component';
 import { ButtonComponent } from '../../button/button.component';
-import { ContentCardComponent } from '../../content-card/content-card.component';
+import { ModalComponent } from '../../modal/modal.component';
 import { BadgeStatus } from '../../badge/badge.component';
 
 export interface CharacteristicItem extends CharacteristicFormValue {
@@ -19,7 +19,7 @@ export interface CharacteristicItem extends CharacteristicFormValue {
 @Component({
   selector: 'app-characteristics-editor',
   standalone: true,
-  imports: [CommonModule, TranslateModule, FaIconComponent, TableInputComponent, SpecificationCharacteristicFormComponent, ButtonComponent, ContentCardComponent],
+  imports: [CommonModule, TranslateModule, FaIconComponent, TableInputComponent, SpecificationCharacteristicFormComponent, ButtonComponent, ModalComponent],
   templateUrl: './characteristics-editor.component.html',
 })
 export class CharacteristicsEditorComponent {
@@ -37,11 +37,6 @@ export class CharacteristicsEditorComponent {
   protected readonly faCircleInfo = faCircleInfo;
 
   private readonly truncateValuePipe = new TruncateValuePipe();
-
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    if (this.showForm) this.cancel();
-  }
 
   get canSave(): boolean {
     return !!this.currentChar?.name?.trim() &&

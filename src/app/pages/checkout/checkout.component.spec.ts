@@ -176,14 +176,6 @@ describe('CheckoutComponent', () => {
     expect(detectSpy).toHaveBeenCalled();
   });
 
-  it('Escape key should close the add-billing modal when it is open', () => {
-    component.addBill = true;
-
-    component.onEscape();
-
-    expect(component.addBill).toBeFalse();
-  });
-
   it('should render an extra billing form for the add-billing modal only when addBill is true', () => {
     fixture.detectChanges();
     const initialCount = fixture.nativeElement.querySelectorAll('app-billing-account-form').length;

@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, DoCheck, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -27,6 +27,7 @@ import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from '
 import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
 import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/paginated-table.component';
 import { belongsToParty } from 'src/app/shared/session-ownership.util';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
@@ -159,6 +160,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   //SERVICE INFO:
   defaultServSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
   selectedServiceSpecs: any[] = [];
+  showCreateServiceSpecModal = false;
+  @ViewChild('serviceSpecsTable') private serviceSpecsTable?: PaginatedTableComponent;
   servColumns: TableColumn[] = [
     { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
     { header: 'Status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
@@ -168,6 +171,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   //RESOURCE INFO:
   defaultResSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
   selectedResourceSpecs: any[] = [];
+  showCreateResourceSpecModal = false;
+  @ViewChild('resourceSpecsTable') private resourceSpecsTable?: PaginatedTableComponent;
   resColumns: TableColumn[] = [
     { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
     { header: 'Type', getValue: (item: any) => item['@type'] ?? 'ResourceSpecification', hideOnMobile: true },
@@ -1060,6 +1065,26 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     const needsHelmDefaults = deploymentTypes.some(type => type === 'helm');
 
     this.syncHelmDeploymentCharacteristics(needsHelmDefaults);
+  }
+
+  closeCreateResourceSpecModal(): void {
+    this.showCreateResourceSpecModal = false;
+  }
+
+  async onResourceSpecCreated(created: any): Promise<void> {
+    this.showCreateResourceSpecModal = false;
+    await this.onResourceSpecsChange([...this.selectedResourceSpecs, created]);
+    this.resourceSpecsTable?.refresh(true);
+  }
+
+  closeCreateServiceSpecModal(): void {
+    this.showCreateServiceSpecModal = false;
+  }
+
+  onServiceSpecCreated(created: any): void {
+    this.showCreateServiceSpecModal = false;
+    this.selectedServiceSpecs = [...this.selectedServiceSpecs, created];
+    this.serviceSpecsTable?.refresh(true);
   }
 
   /** Resolves a SoftwareSpecification's deployment type ('helm'/'docker') via its

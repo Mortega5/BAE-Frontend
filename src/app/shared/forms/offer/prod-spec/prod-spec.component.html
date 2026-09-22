@@ -44,17 +44,13 @@
 }
 }
 
-@if (showCreateProdSpecModal) {
-<div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4"
-  (click)="closeCreateProdSpecModal()">
-  <app-card data-cy="createProdSpecModal" variant="modal" class="w-full max-w-7xl" (click)="$event.stopPropagation()">
-    <div appCardHeader class="flex items-center justify-between">
-      <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._new' | translate }}</h3>
-      <app-button type="button" (click)="closeCreateProdSpecModal()" variant="ghost" size="sm" prefixIcon="xmark" />
-    </div>
+<app-modal data-cy="createProdSpecModal" [visible]="showCreateProdSpecModal" width="max-w-7xl"
+  (closed)="closeCreateProdSpecModal()">
+  <div appCardHeader class="flex items-center justify-between">
+    <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._new' | translate }}</h3>
+    <app-button type="button" (click)="closeCreateProdSpecModal()" variant="ghost" size="sm" prefixIcon="xmark" />
+  </div>
 
-    <create-product-spec [embedded]="true" (created)="onProdSpecCreated($event)"
-      (cancelled)="closeCreateProdSpecModal()" />
-  </app-card>
-</div>
-}
+  <create-product-spec [embedded]="true" (created)="onProdSpecCreated($event)"
+    (cancelled)="closeCreateProdSpecModal()" />
+</app-modal>

@@ -19,6 +19,7 @@ import { EuropeTrademarkComponent } from './europe-trademark/europe-trademark.co
 import { FeedbackModalComponent } from './feedback-modal/feedback-modal.component';
 import { FooterComponent } from './footer/footer.component';
 import { HeaderComponent } from './header/header.component';
+import { ModalComponent } from './modal/modal.component';
 import { QuoteRequestModalComponent } from './quote-request-modal/quote-request-modal.component';
 
 // Lista de componentes que pertenecen a este módulo.
@@ -47,6 +48,7 @@ const STANDALONE_IMPORTS = [
   LoadingSpinnerComponent,
   ButtonComponent,
   ContentCardComponent,
+  ModalComponent,
   DropdownPanelComponent,
   DrawerComponent,
   SideNavComponent

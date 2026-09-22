@@ -139,35 +139,30 @@
   class="flex justify-center items-center fixed w-fit top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50"
   [message]="errorMessage"></error-message>
 }
-@if (showMediumModal) {
-<div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4"
-  (click)="cancelMedium()">
-  <app-card variant="modal" class="w-full max-w-2xl max-h-[90vh]" (click)="$event.stopPropagation()">
-    <div appCardHeader class="flex items-center justify-between">
-      <h3 class="text-xl font-bold text-gray-900 dark:text-white">
-        {{ (selectedMedium ? 'PROFILE._edit' : 'PROFILE._add_new_contact') | translate }}
-      </h3>
-      <app-button type="button" (click)="cancelMedium()" variant="ghost" size="sm" prefixIcon="xmark" />
-    </div>
+<app-modal [visible]="showMediumModal" width="max-w-2xl" (closed)="cancelMedium()">
+  <div appCardHeader class="flex items-center justify-between">
+    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+      {{ (selectedMedium ? 'PROFILE._edit' : 'PROFILE._add_new_contact') | translate }}
+    </h3>
+    <app-button type="button" (click)="cancelMedium()" variant="ghost" size="sm" prefixIcon="xmark" />
+  </div>
 
-    <div class="flex flex-col gap-4">
-      <app-dynamic-form [fields]="mediumHeaderFields" [formGroup]="mediumForm" [columns]="2" />
-      <app-dynamic-form [fields]="mediumBodyFields" [formGroup]="mediumForm" [columns]="2" />
-    </div>
+  <div class="flex flex-col gap-4">
+    <app-dynamic-form [fields]="mediumHeaderFields" [formGroup]="mediumForm" [columns]="2" />
+    <app-dynamic-form [fields]="mediumBodyFields" [formGroup]="mediumForm" [columns]="2" />
+  </div>
 
-    <div appCardFooter class="flex gap-3">
-      <app-button type="button" (click)="cancelMedium()" variant="ghost" size="sm">
-        {{ 'PROFILE._cancel' | translate }}
-      </app-button>
-      <app-button type="button" (click)="saveMediumModal()"
-        [disabled]="selectedMedium ? !!mediumForm.get('contactTitle')?.invalid : !mediumForm.valid"
-        suffixIcon="floppy-disk">
-        {{ 'PROFILE._save' | translate }}
-      </app-button>
-    </div>
-  </app-card>
-</div>
-}
+  <div appCardFooter class="flex gap-3">
+    <app-button type="button" (click)="cancelMedium()" variant="ghost" size="sm">
+      {{ 'PROFILE._cancel' | translate }}
+    </app-button>
+    <app-button type="button" (click)="saveMediumModal()"
+      [disabled]="selectedMedium ? !!mediumForm.get('contactTitle')?.invalid : !mediumForm.valid"
+      suffixIcon="floppy-disk">
+      {{ 'PROFILE._save' | translate }}
+    </app-button>
+  </div>
+</app-modal>
 
 <!-- INFO (CREATED/UPDATED/ERROR) TOAST -->
 @if (toastVisibility) {

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 
 @Component({
   selector: 'app-offer-preview-modal',
@@ -10,11 +10,6 @@ export class OfferPreviewModalComponent {
   @Output() closed = new EventEmitter<void>();
 
   activeTab: 'details' | 'card' = 'details';
-
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    this.close();
-  }
 
   close(): void {
     this.activeTab = 'details';

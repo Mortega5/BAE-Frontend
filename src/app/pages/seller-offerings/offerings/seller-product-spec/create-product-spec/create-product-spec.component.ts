@@ -25,6 +25,7 @@ import { BadgeComponent, BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStat
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { DropdownPanelComponent } from 'src/app/shared/dropdown-panel/dropdown-panel.component';
 import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
 import { CharacteristicItem, CharacteristicsEditorComponent } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
@@ -79,6 +80,7 @@ const BASE_TEMPLATE_OPTIONS = [
     StepperComponent,
     StepperStepDirective,
     ContentCardComponent,
+    ModalComponent,
     ConfirmModalComponent,
     BlueprintProductFormComponent,
     ResourceSpecFormComponent,

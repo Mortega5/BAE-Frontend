@@ -168,32 +168,29 @@
 </div>
 
 <!-- BILL ADDRESS ADD modal -->
-@if (addBill){
-  <div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4">
-    <app-card variant="modal" class="w-full max-w-2xl max-h-[90vh]" (click)="$event.stopPropagation()">
-      <div appCardHeader class="flex items-center justify-between">
-        <h3 class="text-xl font-bold text-gray-900 dark:text-white">
-          {{ 'BILLING._add' | translate }}
-        </h3>
-        <app-button (click)="requestCloseAddBill()" type="button" variant="ghost" size="sm" prefixIcon="xmark">
-          <span class="sr-only">{{ 'CARD._close' | translate }}</span>
-        </app-button>
-      </div>
-
-      <app-billing-account-form #billingAccountForm [preferred]="preferred" [showActions]="false"></app-billing-account-form>
-
-      <div appCardFooter class="flex gap-3">
-        <app-button type="button" (click)="requestCloseAddBill()" variant="ghost" size="sm">
-          {{ 'BILLING._cancel' | translate }}
-        </app-button>
-        <app-button type="button" (click)="billingAccountForm.createBilling()"
-          [disabled]="billingAccountForm.billingForm.invalid" suffixIcon="floppy-disk">
-          {{ 'BILLING._add' | translate }}
-        </app-button>
-      </div>
-    </app-card>
+<app-modal [visible]="addBill" width="max-w-2xl" [closeOnEscape]="!showDiscardConfirm"
+  (closed)="requestCloseAddBill()">
+  <div appCardHeader class="flex items-center justify-between">
+    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+      {{ 'BILLING._add' | translate }}
+    </h3>
+    <app-button (click)="requestCloseAddBill()" type="button" variant="ghost" size="sm" prefixIcon="xmark">
+      <span class="sr-only">{{ 'CARD._close' | translate }}</span>
+    </app-button>
   </div>
-}
+
+  <app-billing-account-form #billingAccountForm [preferred]="preferred" [showActions]="false"></app-billing-account-form>
+
+  <div appCardFooter class="flex gap-3">
+    <app-button type="button" (click)="requestCloseAddBill()" variant="ghost" size="sm">
+      {{ 'BILLING._cancel' | translate }}
+    </app-button>
+    <app-button type="button" (click)="billingAccountForm.createBilling()"
+      [disabled]="billingAccountForm.billingForm.invalid" suffixIcon="floppy-disk">
+      {{ 'BILLING._add' | translate }}
+    </app-button>
+  </div>
+</app-modal>
 <app-confirm-modal [visible]="showDiscardConfirm" [title]="'CONFIRM_MODAL._discard_title'"
   message="CONFIRM_MODAL._discard_message" confirmLabel="CONFIRM_MODAL._discard" cancelLabel="CONFIRM_MODAL._keep_editing"
   (resolved)="$event ? confirmDiscardAddBill() : cancelDiscardAddBill()" (closed)="cancelDiscardAddBill()" />

@@ -6,7 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { FormField, SelectOption } from 'src/app/models/formFields/form-field.model';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
-import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import {
   CreateCatalogComponent
 } from 'src/app/pages/seller-offerings/offerings/seller-catalogs/create-catalog/create-catalog.component';
@@ -23,7 +23,7 @@ interface GeneralInfo {
 @Component({
   selector: 'app-general-info-form',
   standalone: true,
-  imports: [DynamicFormComponent, ButtonComponent, ContentCardComponent, TranslateModule, CreateCatalogComponent],
+  imports: [DynamicFormComponent, ButtonComponent, ModalComponent, TranslateModule, CreateCatalogComponent],
   templateUrl: './general-info.component.html',
   styleUrl: './general-info.component.css'
 })

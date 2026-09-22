@@ -161,35 +161,31 @@
     (closeDrawer)="isModifyDrawerOpen = false" (modifySubmit)="onModifySubmit($event)">
   </app-price-plan-drawer>
 
-  @if(showBillingSelector) {
-  <div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4">
-    <app-card variant="modal" class="w-full max-w-2xl max-h-[80vh] overflow-y-auto" (click)="$event.stopPropagation()">
-      <div appCardHeader class="flex items-center justify-between">
-        <h3 class="text-xl font-semibold text-primary-100 dark:text-white">{{ 'PRODUCT_INVENTORY._select_billing' |
-          translate }}</h3>
-        <app-button type="button" (click)="showBillingSelector = false" variant="ghost" size="sm" prefixIcon="xmark">
-          <span class="sr-only">{{ 'PRODUCT_INVENTORY._close_modal' | translate }}</span>
-        </app-button>
-      </div>
+  <app-modal [visible]="showBillingSelector" width="max-w-2xl" (closed)="showBillingSelector = false">
+    <div appCardHeader class="flex items-center justify-between">
+      <h3 class="text-xl font-semibold text-primary-100 dark:text-white">{{ 'PRODUCT_INVENTORY._select_billing' |
+        translate }}</h3>
+      <app-button type="button" (click)="showBillingSelector = false" variant="ghost" size="sm" prefixIcon="xmark">
+        <span class="sr-only">{{ 'PRODUCT_INVENTORY._close_modal' | translate }}</span>
+      </app-button>
+    </div>
 
-      <div class="grid grid-cols-1 gap-4">
-        @for (baddr of billingAddresses; track baddr.id; let i = $index) {
-        <app-billing-address [data]="baddr" [position]="i"
-          (selectedEvent)="onBillingSelected($event)"></app-billing-address>
-        } @empty {
-        <p class="text-gray-500 dark:text-gray-400 text-center">{{ 'BILLING._no_billing' | translate }}</p>
-        }
-      </div>
+    <div class="grid grid-cols-1 gap-4">
+      @for (baddr of billingAddresses; track baddr.id; let i = $index) {
+      <app-billing-address [data]="baddr" [position]="i"
+        (selectedEvent)="onBillingSelected($event)"></app-billing-address>
+      } @empty {
+      <p class="text-gray-500 dark:text-gray-400 text-center">{{ 'BILLING._no_billing' | translate }}</p>
+      }
+    </div>
 
-      <div appCardFooter class="flex justify-end gap-3">
-        <app-button type="button" (click)="showBillingSelector = false" variant="ghost" size="sm">
-          {{ 'PRODUCT_INVENTORY._cancel' | translate }}
-        </app-button>
-        <app-button type="button" [disabled]="!selectedBillingAddress" (click)="confirmModify()" size="sm">
-          {{ 'PRODUCT_INVENTORY._confirm_modify' | translate }}
-        </app-button>
-      </div>
-    </app-card>
-  </div>
-  }
+    <div appCardFooter class="flex justify-end gap-3">
+      <app-button type="button" (click)="showBillingSelector = false" variant="ghost" size="sm">
+        {{ 'PRODUCT_INVENTORY._cancel' | translate }}
+      </app-button>
+      <app-button type="button" [disabled]="!selectedBillingAddress" (click)="confirmModify()" size="sm">
+        {{ 'PRODUCT_INVENTORY._confirm_modify' | translate }}
+      </app-button>
+    </div>
+  </app-modal>
 </div>

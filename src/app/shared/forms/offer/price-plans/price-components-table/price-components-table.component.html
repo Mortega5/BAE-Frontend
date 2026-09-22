@@ -45,13 +45,11 @@
 }
 
 <!-- Modal de Confirmación de Eliminación -->
-<div *ngIf="showDeleteModal" class="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center p-4">
-  <app-card variant="modal" class="w-full max-w-lg">
-    <h2 appCardHeader class="text-xl font-extrabold text-gray-900 dark:text-white">{{ 'FORMS.PRICE_PLAN_COMPONENT._delete_price_comp' | translate }}</h2>
-    <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'FORMS.PRICE_PLAN_COMPONENT._unable_undone' | translate }}</p>
-    <div appCardFooter>
-      <app-button (click)="showDeleteModal = false" variant="secondary">{{ 'FORMS.PRICE_PLAN_COMPONENT._cancel' | translate }}</app-button>
-      <app-button (click)="deletePriceComponent()" variant="danger">{{ 'FORMS.PRICE_PLAN_COMPONENT._delete' | translate }}</app-button>
-    </div>
-  </app-card>
-</div>
+<app-modal [visible]="showDeleteModal" width="max-w-lg" (closed)="showDeleteModal = false">
+  <h2 appCardHeader class="text-xl font-extrabold text-gray-900 dark:text-white">{{ 'FORMS.PRICE_PLAN_COMPONENT._delete_price_comp' | translate }}</h2>
+  <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'FORMS.PRICE_PLAN_COMPONENT._unable_undone' | translate }}</p>
+  <div appCardFooter>
+    <app-button (click)="showDeleteModal = false" variant="secondary">{{ 'FORMS.PRICE_PLAN_COMPONENT._cancel' | translate }}</app-button>
+    <app-button (click)="deletePriceComponent()" variant="danger">{{ 'FORMS.PRICE_PLAN_COMPONENT._delete' | translate }}</app-button>
+  </div>
+</app-modal>

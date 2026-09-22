@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormControl, ValidatorFn, Validators } from '@angular/forms';
 import { faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { initFlowbite } from 'flowbite';
@@ -28,11 +28,6 @@ type OrganizationUpdate = components["schemas"]["Organization_Update"];
   styleUrl: './org-info.component.css'
 })
 export class OrgInfoComponent implements OnInit, OnDestroy {
-
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    if (this.showMediumModal) this.cancelMedium();
-  }
 
   readonly isDataspaceEnabled: boolean = environment.DATA_SPACE_ENABLED;
 

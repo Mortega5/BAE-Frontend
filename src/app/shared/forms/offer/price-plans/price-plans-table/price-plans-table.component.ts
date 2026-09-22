@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, Output} from '@angular/core';
 import {NgIf} from "@angular/common";
 import {TranslateModule} from "@ngx-translate/core";
 import { ButtonComponent } from 'src/app/shared/button/button.component';
-import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { ModalComponent } from 'src/app/shared/modal/modal.component';
 
 @Component({
   selector: 'app-price-plans-table',
@@ -11,7 +11,7 @@ import { ContentCardComponent } from 'src/app/shared/content-card/content-card.c
     NgIf,
     TranslateModule,
     ButtonComponent,
-    ContentCardComponent
+    ModalComponent
   ],
   templateUrl: './price-plans-table.component.html',
   styleUrl: './price-plans-table.component.css'

@@ -1,11 +1,10 @@
-<div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4" (click)="cancel()">
-  <app-card variant="modal" class="w-full md:w-5/6 max-w-3xl" (click)="$event.stopPropagation()">
-    <div appCardHeader class="flex justify-between items-center">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-        {{ 'FORMS.PRICE_PLANS._configure_profile_chars' | translate }}
-      </h2>
-      <app-button type="button" (click)="cancel()" variant="ghost" size="sm" prefixIcon="xmark" />
-    </div>
+<app-modal [visible]="true" width="md:w-5/6 max-w-3xl" (closed)="cancel()">
+  <div appCardHeader class="flex justify-between items-center">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+      {{ 'FORMS.PRICE_PLANS._configure_profile_chars' | translate }}
+    </h2>
+    <app-button type="button" (click)="cancel()" variant="ghost" size="sm" prefixIcon="xmark" />
+  </div>
 
     @if(characteristics.length>0){
       <div class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -43,5 +42,4 @@
         </app-button>
       </div>
     }
-  </app-card>
-</div>
+</app-modal>

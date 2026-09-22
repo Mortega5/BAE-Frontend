@@ -1,7 +1,5 @@
-@if (previewProductOff) {
-<div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4" (click)="close()">
-  <app-card variant="modal" class="w-full max-w-6xl max-h-[90vh]" (click)="$event.stopPropagation()">
-    <div appCardHeader class="flex flex-col gap-4">
+<app-modal [visible]="!!previewProductOff" width="max-w-6xl" (closed)="close()">
+  <div appCardHeader class="flex flex-col gap-4">
       <div class="flex items-center justify-between">
         <h2 class="text-xl font-extrabold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._preview' | translate }}</h2>
         <app-button type="button" (click)="close()" variant="ghost" size="sm" prefixIcon="xmark" />
@@ -131,6 +129,4 @@
       </div>
       }
     </div>
-  </app-card>
-</div>
-}
+</app-modal>

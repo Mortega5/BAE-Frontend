@@ -29,45 +29,41 @@
 
 </div>
 
-@if (showForm) {
-<div class="fixed inset-0 z-50 bg-black/40 dark:bg-black/60 flex items-center justify-center p-4" (click)="cancel()">
-  <app-card variant="modal" class="w-full max-w-2xl max-h-[90vh]" (click)="$event.stopPropagation()">
-    <div appCardHeader class="flex items-center justify-between">
-      <h3 class="text-xl font-bold text-gray-900 dark:text-white">
-        {{ (editingChar ? 'CHAR_SPEC._edit_char' : 'CHAR_SPEC._new_char') | translate }}
-      </h3>
-      <app-button type="button" (click)="cancel()" variant="ghost" size="sm" prefixIcon="xmark" />
+<app-modal [visible]="showForm" width="max-w-2xl" (closed)="cancel()">
+  <div appCardHeader class="flex items-center justify-between">
+    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+      {{ (editingChar ? 'CHAR_SPEC._edit_char' : 'CHAR_SPEC._new_char') | translate }}
+    </h3>
+    <app-button type="button" (click)="cancel()" variant="ghost" size="sm" prefixIcon="xmark" />
+  </div>
+
+  <div class="flex flex-col gap-4">
+    <app-specification-characteristic-form [supportedTypes]="supportedTypes" [editingKey]="editingChar"
+      [initialName]="editingChar?.name ?? ''" [initialDescription]="editingChar?.description ?? ''"
+      [initialConfigurable]="editingChar?.configurable ?? false" [initialValueType]="editingChar?.valueType ?? 'string'"
+      [initialValues]="editingChar?.values ?? []" (formChange)="onFormChange($event)" />
+
+    @if (showError) {
+    <div class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</div>
+    }
+
+    @if (showFreeValueBanner) {
+    <div
+      class="flex w-full items-center p-3 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
+      role="alert">
+      <fa-icon [icon]="faCircleInfo" class="flex-shrink-0 me-3" aria-hidden="true"></fa-icon>
+      <span class="sr-only">Info</span>
+      <div>{{ 'CHAR_SPEC._free_value_banner' | translate }}</div>
     </div>
+    }
+  </div>
 
-    <div class="flex flex-col gap-4">
-      <app-specification-characteristic-form [supportedTypes]="supportedTypes" [editingKey]="editingChar"
-        [initialName]="editingChar?.name ?? ''" [initialDescription]="editingChar?.description ?? ''"
-        [initialConfigurable]="editingChar?.configurable ?? false" [initialValueType]="editingChar?.valueType ?? 'string'"
-        [initialValues]="editingChar?.values ?? []" (formChange)="onFormChange($event)" />
-
-      @if (showError) {
-      <div class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</div>
-      }
-
-      @if (showFreeValueBanner) {
-      <div
-        class="flex w-full items-center p-3 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
-        role="alert">
-        <fa-icon [icon]="faCircleInfo" class="flex-shrink-0 me-3" aria-hidden="true"></fa-icon>
-        <span class="sr-only">Info</span>
-        <div>{{ 'CHAR_SPEC._free_value_banner' | translate }}</div>
-      </div>
-      }
-    </div>
-
-    <div appCardFooter>
-      <app-button type="button" (click)="cancel()" variant="ghost" size="sm">
-        {{ 'CHAR_SPEC._cancel' | translate }}
-      </app-button>
-      <app-button type="button" (click)="save()" [disabled]="!canSave">
-        {{ 'CHAR_SPEC._save_char' | translate }}
-      </app-button>
-    </div>
-  </app-card>
-</div>
-}
+  <div appCardFooter>
+    <app-button type="button" (click)="cancel()" variant="ghost" size="sm">
+      {{ 'CHAR_SPEC._cancel' | translate }}
+    </app-button>
+    <app-button type="button" (click)="save()" [disabled]="!canSave">
+      {{ 'CHAR_SPEC._save_char' | translate }}
+    </app-button>
+  </div>
+</app-modal>

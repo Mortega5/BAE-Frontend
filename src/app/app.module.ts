@@ -57,6 +57,8 @@ import { UpdatePricePlanComponent } from './pages/seller-offerings/offerings/sel
 import { BlueprintProductFormComponent } from './pages/seller-offerings/offerings/seller-product-spec/blueprint-product-form/blueprint-product-form.component';
 import { SellerProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/seller-product-spec.component';
 import { UpdateProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/update-product-spec.component';
+import { ResourceSpecFormComponent } from './pages/seller-offerings/offerings/seller-resource-spec/resource-spec-form/resource-spec-form.component';
+import { ServiceSpecFormComponent } from './pages/seller-offerings/offerings/seller-service-spec/service-spec-form/service-spec-form.component';
 import { TableInputComponent } from './shared/forms/table-input/table-input.component';
 import { TileCardComponent } from './shared/tile-card/tile-card.component';
 import { PaginatedTableComponent } from './shared/forms/paginated-table/paginated-table.component';
@@ -247,6 +249,8 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     LoadingSpinnerComponent,
     NotFoundStateComponent,
     BlueprintProductFormComponent,
+    ResourceSpecFormComponent,
+    ServiceSpecFormComponent,
   ],
   providers: [
     AppInitService,

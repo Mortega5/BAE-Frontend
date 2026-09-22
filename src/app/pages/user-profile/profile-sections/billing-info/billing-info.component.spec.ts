@@ -109,23 +109,6 @@ describe('BillingInfoComponent', () => {
     expect(component.showBillingModal).toBeFalse();
   });
 
-  it('Escape key should close the modal when it is open', () => {
-    component.showBillingModal = true;
-
-    component.onEscape();
-
-    expect(component.showBillingModal).toBeFalse();
-  });
-
-  it('Escape key should do nothing when the modal is already closed', () => {
-    component.showBillingModal = false;
-    component.billToUpdate = sampleBill as any;
-
-    component.onEscape();
-
-    expect(component.billToUpdate).toEqual(sampleBill as any);
-  });
-
   it('should render the billing modal only when showBillingModal is true', () => {
     component.showBillingModal = false;
     fixture.detectChanges();

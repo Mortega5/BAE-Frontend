@@ -28,14 +28,6 @@ describe('BillingAddressComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('Escape key should close the edit modal when it is open', () => {
-    component.editBill = true;
-
-    component.onEscape();
-
-    expect(component.editBill).toBeFalse();
-  });
-
   it('should render the edit modal with the billing form only when editBill is true', () => {
     fixture.detectChanges();
     expect(fixture.nativeElement.querySelector('app-billing-account-form')).toBeNull();

@@ -16,7 +16,7 @@ import {
 } from 'src/app/pages/seller-offerings/offerings/seller-product-spec/create-product-spec/create-product-spec.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
-import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { ProductSpecServiceService } from "../../../../services/product-spec-service.service";
 import { PaginatedTableComponent } from '../../paginated-table/paginated-table.component';
 import { TableInputComponent } from '../../table-input/table-input.component';
@@ -40,7 +40,7 @@ interface ProductSpec {
     TableInputComponent,
     PaginatedTableComponent,
     ButtonComponent,
-    ContentCardComponent,
+    ModalComponent,
     CreateProductSpecComponent,
   ],
   providers: [

@@ -1,10 +1,10 @@
-import { Component, EventEmitter, Input, Output, OnInit, HostListener } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import {NgForOf, NgIf} from "@angular/common";
 import { certifications } from 'src/app/models/certification-standards.const';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
-import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { ModalComponent } from 'src/app/shared/modal/modal.component';
 
 @Component({
   selector: 'app-configuration-profile-drawer',
@@ -15,7 +15,7 @@ import { ContentCardComponent } from 'src/app/shared/content-card/content-card.c
     NgForOf,
     TranslateModule,
     ButtonComponent,
-    ContentCardComponent
+    ModalComponent
   ],
   styleUrl: './configuration-profile-drawer.component.css'
 })
@@ -118,10 +118,5 @@ export class ConfigurationProfileDrawerComponent implements OnInit {
 
   cancel() {
     this.close.emit();
-  }
-
-  @HostListener('document:keydown.escape', ['$event'])
-  handleEscapeKey(event: KeyboardEvent) {
-    this.cancel();
   }
 }

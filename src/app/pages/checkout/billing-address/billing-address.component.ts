@@ -54,15 +54,6 @@ export class BillingAddressComponent implements OnDestroy {
     })
   }
 
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    if (this.showDiscardConfirm) {
-      this.showDiscardConfirm = false;
-      return;
-    }
-    if (this.editBill) this.requestCloseEditBill();
-  }
-
   @HostListener('document:click')
   onClick() {
     if(this.editBill==true){
