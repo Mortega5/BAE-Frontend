@@ -1,5 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, DoCheck, ElementRef, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import {
   faAddressCard,
   faAnglesLeft,
@@ -14,6 +14,7 @@ import {
   faDisplay,
   faGauge,
   faHandHoldingBox,
+  faLanguage,
   faMoon,
   faPalette,
   faPieChart,
@@ -31,8 +32,8 @@ import * as uuid from 'uuid';
 
 import { LoginInfo } from 'src/app/models/interfaces';
 import { LoginServiceService } from 'src/app/services/login-service.service';
-import { ApiServiceService } from 'src/app/services/product-service.service';
 import { QrVerifierService } from 'src/app/services/qr-verifier.service';
+import { LocaleService } from 'src/app/services/locale.service';
 import { AdminPaths } from 'src/app/pages/admin/admin.paths';
 import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
 import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.paths';
@@ -62,11 +63,10 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
 
   constructor(
     private translate: TranslateService,
+    private localeService: LocaleService,
     private localStorage: LocalStorageService,
-    private api: ApiServiceService,
     private loginService: LoginServiceService,
     private cdr: ChangeDetectorRef,
-    private route: ActivatedRoute,
     private eventMessage: EventMessageService,
     private router: Router,
     private qrVerifier: QrVerifierService,
@@ -159,6 +159,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
       // would otherwise close both dropdowns from ever firing for this click,
       // so the other dropdown has to be closed explicitly here instead.
       this.providerThemeDropdownOpen = false;
+      this.flagDropdownOpen = false;
     }
   }
 
@@ -172,6 +173,16 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
     this.providerThemeDropdownOpen = !this.providerThemeDropdownOpen;
     if (this.providerThemeDropdownOpen) {
       this.themeDropdownOpen = false;
+      this.flagDropdownOpen = false;
+    }
+  }
+
+  toggleFlagDropdown(event: Event): void {
+    event.stopPropagation();
+    this.flagDropdownOpen = !this.flagDropdownOpen;
+    if (this.flagDropdownOpen) {
+      this.themeDropdownOpen = false;
+      this.providerThemeDropdownOpen = false;
     }
   }
 
@@ -195,6 +206,9 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
     if (this.providerThemeDropdownOpen) {
       this.providerThemeDropdownOpen = false;
     }
+    if (this.flagDropdownOpen) {
+      this.flagDropdownOpen = false;
+    }
   }
 
   @HostListener('window:resize')
@@ -213,9 +227,11 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   }
 
   ngOnInit(): void {
-    this.langs = this.translate.getLangs();
-    const currLang = this.localStorage.getItem('current_language');
-    this.defaultLang = currLang ?? this.translate.getDefaultLang();
+    this.langs = this.localeService.availableLangs;
+    this.defaultLang = this.localeService.currentLang;
+    this.localeService.currentLang$.pipe(takeUntil(this.destroy$)).subscribe(lang => {
+      this.defaultLang = lang;
+    });
 
     if (!this.isProduction) {
       this.availableProviderThemes = this.themeService.getAvailableThemes();
@@ -358,9 +374,8 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   }
 
   switchLanguage(language: string) {
-    this.translate.use(language);
-    this.localStorage.setItem('current_language', language);
-    this.defaultLang = language;
+    this.localeService.setLanguage(language);
+    this.flagDropdownOpen = false;
   }
 
   async logout() {
@@ -511,4 +526,5 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   protected readonly darkIcon = faMoon;
   protected readonly systemIcon = faDisplay;
   protected readonly paletteIcon = faPalette;
+  protected readonly languageIcon = faLanguage;
 }

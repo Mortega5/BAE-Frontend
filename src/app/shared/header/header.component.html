@@ -355,6 +355,40 @@
     }
 
     @if (mobile) {
+    <div class="mobile-nav-item flex items-center justify-between">
+      <span class="flex items-center"><fa-icon [icon]="languageIcon" class="mr-2"></fa-icon>{{ 'HEADER._language' |
+        translate }}</span>
+      <div class="flex gap-3">
+        @for (lang of langs; track lang) {
+        <button type="button" [attr.data-cy]="'lang-' + lang" [attr.aria-label]="lang"
+          [class.opacity-50]="lang !== defaultLang" (click)="switchLanguage(lang)">
+          {{ lang | uppercase }}
+        </button>
+        }
+      </div>
+    </div>
+    } @else {
+    <div class="relative">
+      <button type="button" data-cy="languageSelector" aria-label="Language selector"
+        class="inline-flex h-[44px] items-center justify-center rounded-[10px] px-3 header-text-muted hover:bg-white/10 transition text-[13px] font-semibold uppercase tracking-wide"
+        (click)="toggleFlagDropdown($event)">
+        {{ defaultLang }}
+      </button>
+      @if (flagDropdownOpen) {
+      <app-dropdown-panel class="absolute right-0 mt-2 w-32 z-50" (click)="$event.stopPropagation()">
+        @for (lang of langs; track lang) {
+        <button type="button" [attr.data-cy]="'lang-' + lang"
+          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          [class.font-semibold]="lang === defaultLang" (click)="switchLanguage(lang)">
+          {{ lang === 'es' ? 'Español' : 'English' }}
+        </button>
+        }
+      </app-dropdown-panel>
+      }
+    </div>
+    }
+
+    @if (mobile) {
     <div class="h-px mx-2 my-1 bg-white/10"></div>
     } @else {
     <div class="w-px h-6 bg-white/20"></div>

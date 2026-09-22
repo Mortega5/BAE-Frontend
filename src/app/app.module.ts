@@ -7,7 +7,6 @@ import { BrowserModule } from '@angular/platform-browser';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
 import { FaIconComponent, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
-import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { NgxFileDropModule } from 'ngx-file-drop';
 import { MarkdownModule } from 'ngx-markdown';
 import { MatomoInitializationMode, MatomoInitializerService, MatomoModule, MatomoRouterModule } from 'ngx-matomo-client';
@@ -209,7 +208,6 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     QuotesModule,
     MarkdownModule.forRoot(),
     TranslateModule.forRoot({
-      defaultLanguage: 'en',
       loader: {
         provide: TranslateLoader,
         useFactory: (createThemeAwareLoader),
@@ -272,7 +270,3 @@ import { StepperComponent } from './shared/stepper/stepper.component';
   bootstrap: [AppComponent]
 })
 export class AppModule { }
-
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http, './assets/i18n/');
-}

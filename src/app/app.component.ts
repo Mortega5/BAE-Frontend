@@ -1,18 +1,17 @@
 import {Component, OnInit} from '@angular/core';
 import { initFlowbite } from 'flowbite';
-import { TranslateService } from '@ngx-translate/core';
 import {LocalStorageService} from "./services/local-storage.service";
 import {Category} from "./models/interfaces";
 import {EventMessageService} from "./services/event-message.service";
-import { ActivatedRoute, NavigationEnd } from '@angular/router';
+import { NavigationEnd } from '@angular/router';
 import { Router } from '@angular/router';
 import { LoginInfo } from 'src/app/models/interfaces';
-import { ApiServiceService } from 'src/app/services/product-service.service';
 import { RefreshLoginServiceService } from "src/app/services/refresh-login-service.service";
 import moment from 'moment';
 import {ThemeService} from "./services/theme.service";
+import { LocaleService } from './services/locale.service';
 import {environment} from "../environments/environment";
-import { filter } from 'rxjs'; 
+import { filter } from 'rxjs';
 
 
 @Component({
@@ -29,23 +28,13 @@ export class AppComponent implements OnInit {
   isWorkspaceRoute = false;
   private workspaceRoutes = ['/my-offerings'];
 
-  constructor(private translate: TranslateService,
+  constructor(private localeService: LocaleService,
               private localStorage: LocalStorageService,
               private eventMessage: EventMessageService,
-              private route: ActivatedRoute,
               private router: Router,
-              private api: ApiServiceService,
               private themeService: ThemeService,
               private refreshApi: RefreshLoginServiceService) {
-    this.translate.addLangs(['en', 'es']);
-    this.translate.setDefaultLang('es');
-    let currLang = this.localStorage.getItem('current_language')
-    if(!currLang || currLang == null) {
-      this.localStorage.setItem('current_language', '');
-      this.translate.use('es');
-    } else {
-      this.translate.use(currLang);
-    }
+    this.localeService.init().subscribe();
     if(!this.localStorage.getObject('selected_categories'))
       this.localStorage.setObject('selected_categories', []);
 
