@@ -209,8 +209,11 @@ describe('SearchComponent', () => {
       expect(component.selectedCatalogId).toBe('catalog-1');
       expect(component.activeCategoryName).toBe('Cat 1');
       expect(component.privateOpen).toBeFalse();
-      expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith(jasmine.objectContaining({ offset: 12, visibility: 'public' }));
-      expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith(jasmine.objectContaining({ offset: 24, visibility: 'private' }));
+      // Restoring saved state re-fetches every item up to the saved page in one
+      // request (offset 0, limit = page * pageSize), not just that page's slice —
+      // "load more" appends, so coming back needs the whole accumulated list.
+      expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith(jasmine.objectContaining({ offset: 0, limit: 2 * component.PUBLIC_LIMIT, visibility: 'public' }));
+      expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith(jasmine.objectContaining({ offset: 0, limit: 3 * component.PRIVATE_LIMIT, visibility: 'private' }));
     });
 
     it('loadPublicOfferings should request the right offset/limit and save state', async () => {
@@ -219,8 +222,8 @@ describe('SearchComponent', () => {
       await component.loadPublicOfferings(2);
 
       expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith({
-        limit: component.PUBLIC_LIMIT,
-        offset: 12,
+        limit: 2 * component.PUBLIC_LIMIT,
+        offset: 0,
         categoryIds: undefined,
         catalogId: undefined,
         keywords: undefined,
@@ -262,27 +265,30 @@ describe('SearchComponent', () => {
       expect(component.privateTotal).toBe(0);
     });
 
-    it('goToPublicPage should ignore out-of-range pages', async () => {
-      component.publicTotal = component.PUBLIC_LIMIT; // exactly 1 page
-      component.publicPage = 1;
+    it('loadMorePublicOfferings should do nothing once every item is already loaded', async () => {
+      component.publicItems = [{ id: 'p1' }] as any;
+      component.publicTotal = component.publicItems.length; // nothing left to load
       apiSpy.getOfferingsPaged.calls.reset();
 
-      await component.goToPublicPage(0);
-      await component.goToPublicPage(2);
-      await component.goToPublicPage(1);
+      await component.loadMorePublicOfferings();
 
       expect(apiSpy.getOfferingsPaged).not.toHaveBeenCalled();
     });
 
-    it('goToPublicPage should load a valid target page', async () => {
+    it('loadMorePublicOfferings should append the next chunk after what is already shown', async () => {
+      component.publicItems = [{ id: 'p1' }] as any;
       component.publicTotal = component.PUBLIC_LIMIT * 3;
       component.publicPage = 1;
       apiSpy.getOfferingsPaged.and.resolveTo({ items: [{ id: 'p2' }], total: component.PUBLIC_LIMIT * 3 });
 
-      await component.goToPublicPage(2);
+      await component.loadMorePublicOfferings();
 
+      expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith(jasmine.objectContaining({
+        limit: component.PUBLIC_LIMIT,
+        offset: 1, // one item already loaded
+      }));
       expect(component.publicPage).toBe(2);
-      expect(component.publicItems).toEqual([{ id: 'p2' }] as any);
+      expect(component.publicItems).toEqual([{ id: 'p1' }, { id: 'p2' }] as any);
     });
 
     it('onCategoryChange should set the filter and refresh both sections', async () => {

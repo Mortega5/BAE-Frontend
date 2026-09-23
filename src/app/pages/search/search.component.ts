@@ -59,22 +59,24 @@ export class SearchComponent implements OnInit, OnDestroy {
   privatePage = 1;
   privateTotal = 0;
   privateLoading = true;
+  privateLoadingMore = false;
   privateOpen = true;
-  readonly PRIVATE_LIMIT = 12;
+  readonly PRIVATE_LIMIT = 6;
 
   // Public offerings section (non-AI mode)
   publicItems: ProductOffering[] = [];
   publicPage = 1;
   publicTotal = 0;
   publicLoading = true;
-  readonly PUBLIC_LIMIT = 12;
+  publicLoadingMore = false;
+  readonly PUBLIC_LIMIT = 6;
 
-  get publicTotalPages(): number {
-    return Math.max(1, Math.ceil(this.publicTotal / this.PUBLIC_LIMIT));
+  get publicHasMore(): boolean {
+    return this.publicItems.length < this.publicTotal;
   }
 
-  get privateTotalPages(): number {
-    return Math.max(1, Math.ceil(this.privateTotal / this.PRIVATE_LIMIT));
+  get privateHasMore(): boolean {
+    return this.privateItems.length < this.privateTotal;
   }
 
   get hasPrivateOfferings(): boolean {
@@ -329,28 +331,41 @@ export class SearchComponent implements OnInit, OnDestroy {
     }
   }
 
-  async loadPublicOfferings(page: number): Promise<void> {
-    this.publicLoading = true;
+  /** `append: true` (a "load more" click) fetches just the next chunk and appends it;
+   * otherwise (initial load, filter change, or restoring saved state) it fetches every
+   * item from the start up to `page` in one request and replaces the list. */
+  async loadPublicOfferings(page: number, options?: { append?: boolean }): Promise<void> {
+    const append = options?.append ?? false;
+    if (append) {
+      this.publicLoadingMore = true;
+    } else {
+      this.publicLoading = true;
+    }
     try {
-      const offset = (page - 1) * this.PUBLIC_LIMIT;
       const result = await this.api.getOfferingsPaged({
-        limit: this.PUBLIC_LIMIT,
-        offset,
+        limit: append ? this.PUBLIC_LIMIT : page * this.PUBLIC_LIMIT,
+        offset: append ? this.publicItems.length : 0,
         categoryIds: this.selectedCategoryId ? [this.selectedCategoryId] : undefined,
         catalogId: this.selectedCatalogId ?? undefined,
         keywords: this.keywords,
         visibility: 'public',
       });
-      this.publicItems = await this.api.getProductsDetails(result.items);
+      const enriched = await this.api.getProductsDetails(result.items);
+      this.publicItems = append ? [...this.publicItems, ...enriched] : enriched;
       this.publicTotal = result.total;
       this.publicPage = page;
       this.saveStandardState();
     } finally {
-      this.publicLoading = false;
+      if (append) {
+        this.publicLoadingMore = false;
+      } else {
+        this.publicLoading = false;
+      }
     }
   }
 
-  async loadPrivateOfferings(page: number): Promise<void> {
+  async loadPrivateOfferings(page: number, options?: { append?: boolean }): Promise<void> {
+    const append = options?.append ?? false;
     // Logged-out visitors can't have any private/ad-hoc offers targeted at them —
     // skip the request entirely rather than querying with no resolvable partyId.
     if (!this.localStorage.getValidLoginInfo()) {
@@ -359,36 +374,44 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.privatePage = 1;
       return;
     }
-    this.privateLoading = true;
+    if (append) {
+      this.privateLoadingMore = true;
+    } else {
+      this.privateLoading = true;
+    }
     try {
-      const offset = (page - 1) * this.PRIVATE_LIMIT;
       const result = await this.api.getOfferingsPaged({
-        limit: this.PRIVATE_LIMIT,
-        offset,
+        limit: append ? this.PRIVATE_LIMIT : page * this.PRIVATE_LIMIT,
+        offset: append ? this.privateItems.length : 0,
         categoryIds: this.selectedCategoryId ? [this.selectedCategoryId] : undefined,
         catalogId: this.selectedCatalogId ?? undefined,
         keywords: this.keywords,
         visibility: 'private',
       });
-      this.privateItems = await this.api.getProductsDetails(result.items);
+      const enriched = await this.api.getProductsDetails(result.items);
+      this.privateItems = append ? [...this.privateItems, ...enriched] : enriched;
       this.privateTotal = result.total;
       this.privatePage = page;
       this.saveStandardState();
     } finally {
-      this.privateLoading = false;
+      if (append) {
+        this.privateLoadingMore = false;
+      } else {
+        this.privateLoading = false;
+      }
     }
   }
 
-  // Arrow-function class fields (not methods) so they can be passed as bare function
-  // references into the shared `#pager` ng-template context without losing `this`.
-  goToPublicPage = async (page: number): Promise<void> => {
-    if (page < 1 || page > this.publicTotalPages || page === this.publicPage) return;
-    await this.loadPublicOfferings(page);
+  // Arrow-function class fields (not methods) so they keep `this` bound when used as
+  // bare event-handler references from the template.
+  loadMorePublicOfferings = async (): Promise<void> => {
+    if (this.publicLoadingMore || !this.publicHasMore) return;
+    await this.loadPublicOfferings(this.publicPage + 1, { append: true });
   }
 
-  goToPrivatePage = async (page: number): Promise<void> => {
-    if (page < 1 || page > this.privateTotalPages || page === this.privatePage) return;
-    await this.loadPrivateOfferings(page);
+  loadMorePrivateOfferings = async (): Promise<void> => {
+    if (this.privateLoadingMore || !this.privateHasMore) return;
+    await this.loadPrivateOfferings(this.privatePage + 1, { append: true });
   }
 
   private saveStandardState(): void {
