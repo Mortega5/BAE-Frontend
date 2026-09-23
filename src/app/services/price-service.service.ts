@@ -121,10 +121,15 @@ export class PriceServiceService {
 
   async isCustomOffering(offering: ProductOffering | undefined): Promise<boolean> {
     let isCustom: boolean  = false;
-    // Download the first POP if exists
+    // Check if the first POP is a custom one
     if (offering?.productOfferingPrice && offering?.productOfferingPrice.length > 0) {
-      // Check if the first POP is a custom one
-      const pop = await this.getProductPrice(offering.productOfferingPrice[0].id);
+      let pop: any = offering.productOfferingPrice[0];
+      // A bare {id, href} reference (not enriched yet) has no `isBundle` key - a fully
+      // fetched POP always does, even when the field itself is false - so its presence
+      // tells us whether we can skip the network round trip entirely.
+      if (!('isBundle' in pop)) {
+        pop = await this.getProductPrice(pop.id);
+      }
       if (pop?.isBundle) {
         await this.api.resolveBundledPrices([pop]);
       }

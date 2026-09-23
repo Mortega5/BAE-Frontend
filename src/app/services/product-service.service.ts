@@ -370,6 +370,13 @@ export class ApiServiceService {
     if (!ids || ids.length === 0) {
       return Promise.resolve([]);
     }
+    if (ids.length === 1) {
+      // A single id is a direct lookup, not a search - cheaper for the backend than the
+      // filtered list endpoint below.
+      return this.getProductPrice(ids[0])
+        .then(price => price ? [price] : [])
+        .catch(() => []);
+    }
     const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productOfferingPrice?id=${ids.join(',')}&limit=${ids.length}`;
     return lastValueFrom(this.http.get<any[]>(url)).then(prices => {
       const byId = new Map((prices ?? []).map((p: any) => [p.id, p]));
@@ -392,7 +399,9 @@ export class ApiServiceService {
     const componentIdToWrapper = new Map<string, any>();
 
     for (const pop of pops ?? []) {
-      if (!pop?.isBundle) continue;
+      // Already resolved (e.g. a previous call already merged the component's price
+      // onto this same wrapper) - skip it, no need to fetch its component again.
+      if (!pop?.isBundle || pop.priceType !== undefined) continue;
       const rel = pop.bundledPopRelationship;
       const components = Array.isArray(rel) ? rel : rel ? [rel] : [];
       if (components.length === 1 && components[0]?.id) {

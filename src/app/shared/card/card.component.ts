@@ -146,28 +146,6 @@ export class CardComponent implements OnInit, OnDestroy, AfterViewInit {
             }
           })
         }
-        if(ev.type === 'CloseQuoteRequest'){
-          this.showQuoteModal=false;
-          this.cdr.detectChanges();
-        } else if (ev.type == 'RemovedCartItem'){
-          this.cartService.getShoppingCart().then(data => {
-            const exists = data.some((item: any) => item.id === this.productOff?.id);
-            if (exists) {
-              this.productAlreadyInCart=true;
-            } else {
-              this.productAlreadyInCart=false;
-            }
-          })
-        } else if (ev.type == 'AddedCartItem'){
-          this.cartService.getShoppingCart().then(data => {
-            const exists = data.some((item: any) => item.id === this.productOff?.id);
-            if (exists) {
-              this.productAlreadyInCart=true;
-            } else {
-              this.productAlreadyInCart=false;
-            }
-          })
-        }
       })
     }
 

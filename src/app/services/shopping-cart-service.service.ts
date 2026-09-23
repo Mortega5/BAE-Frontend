@@ -21,12 +21,24 @@ export class ShoppingCartServiceService {
 
   constructor(private http: HttpClient) { }
 
+  /** Every bae-off-card on a listing page checks the cart independently on mount/on
+   * every cart event, all within the same tick - dedup concurrent calls into a single
+   * HTTP request. Cleared as soon as it settles, so the next call (e.g. after an add/
+   * remove) always refetches fresh. */
+  private pendingCartRequest: Promise<any[]> | null = null;
 
   async getShoppingCart(){
+    if (this.pendingCartRequest) return this.pendingCartRequest;
+
     let url = `${ShoppingCartServiceService.BASE_URL}${ShoppingCartServiceService.API_CART}/item/`;
-    const cart = await lastValueFrom(this.http.get<any[]>(url));
-    this.cartSubject.next(cart); // updates the Subject with the received cart
-    return cart;
+    this.pendingCartRequest = lastValueFrom(this.http.get<any[]>(url))
+      .then(cart => {
+        this.cartSubject.next(cart); // updates the Subject with the received cart
+        return cart;
+      })
+      .finally(() => this.pendingCartRequest = null);
+
+    return this.pendingCartRequest;
   }
   async addItemShoppingCart(item:any){
     console.log('adding to cart')
