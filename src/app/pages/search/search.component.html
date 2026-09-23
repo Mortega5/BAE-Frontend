@@ -13,62 +13,7 @@
         }}</span>
     </nav>
 
-    <div class="flex flex-wrap items-center justify-between gap-4 pb-4">
-      <div class="relative flex items-center gap-3 min-w-0">
-        <div
-          class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50">
-          <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
-          </svg>
-        </div>
-        <button data-cy="searchCategoryDropdown" (click)="toggleCategoryDropdown($event)"
-          class="flex items-center gap-2 min-w-0">
-          <h1 class="text-[24px] font-bold text-[#0b1220] dark:text-white sm:text-[30px] truncate">
-            {{ activeCategoryName || ('DASHBOARD._categories' | translate) }}
-          </h1>
-          <svg class="h-5 w-5 text-[#526179] dark:text-gray-400 shrink-0 transition-transform"
-            [ngClass]="showCategoryDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" fill="none"
-            viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-          </svg>
-        </button>
-
-        @if (showCategoryDropdown) {
-        <app-dropdown-panel (click)="$event.stopPropagation()"
-          class="absolute top-full left-0 mt-2 z-50 w-[420px] max-h-[520px]">
-          <div class="p-2 flex flex-col gap-2 max-h-[520px] overflow-y-auto overscroll-contain">
-            <button data-cy="searchAllCategories" (mousedown)="selectCategory(null)"
-              [ngClass]="!activeCategoryName ? 'bg-[#DDE6F6] dark:bg-secondary-200' : 'hover:bg-[#EBF0F7] dark:hover:bg-secondary-200'"
-              class="flex w-full items-center gap-4 rounded-lg px-4 h-14 text-[16px] text-[#0b1220] dark:text-white transition-colors">
-              <svg class="h-6 w-6 text-primary-100 dark:text-primary-50 shrink-0" xmlns="http://www.w3.org/2000/svg"
-                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
-              </svg>
-              <span class="font-medium">{{ 'DASHBOARD._categories' | translate }}</span>
-              @if (!activeCategoryName) {
-              <svg class="h-5 w-5 ml-auto text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg"
-                fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-              </svg>
-              }
-            </button>
-            @for (cat of rootCategories; track cat.id) {
-            <button data-cy="searchCategoryItem" (mousedown)="selectCategory(cat)"
-              [ngClass]="activeCategoryName === cat.name ? 'bg-[#DDE6F6] dark:bg-secondary-200' : 'hover:bg-[#EBF0F7] dark:hover:bg-secondary-200'"
-              class="flex w-full items-center gap-4 rounded-lg px-4 h-14 text-[16px] text-[#0b1220] dark:text-white transition-colors">
-              <fa-icon [icon]="iconForCategory(cat.name)"
-                class="text-[20px] text-[#526179] dark:text-gray-400 shrink-0"></fa-icon>
-              <span>{{ cat.name }}</span>
-            </button>
-            }
-          </div>
-        </app-dropdown-panel>
-        }
-      </div>
-
+    <div class="flex flex-wrap items-center justify-end gap-4 pb-4">
       @if (searchEnabled) {
       <form class="w-full sm:w-auto sm:min-w-[440px]" (ngSubmit)="onUnifiedSearch($event)">
         <div class="relative">
@@ -108,82 +53,66 @@
       }
     </div>
 
-    @if (toolbarFilters.length > 0) {
-    <div
-      class="flex items-center justify-between rounded-2xl bg-white dark:bg-secondary-300 border border-[#EBECEE] dark:border-secondary-200 shadow-sm p-3 flex-wrap gap-y-2">
-      <div class="flex items-center gap-2">
-        @for (filter of toolbarFilters; track filter.key) {
-        <div class="relative shrink-0">
-          <button data-cy="searchToolbarFilter" [attr.data-filter-key]="filter.key"
-            (click)="toggleToolbarFilterDropdown(filter, $event)"
-            [ngClass]="filter.selectedIds.length > 0 ? 'border-primary-100 dark:border-primary-50 bg-[#EBF0F7] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'border-gray-200 dark:border-secondary-200 text-[#324153] dark:text-gray-300 hover:border-primary-100 dark:hover:border-primary-50 hover:text-primary-100 dark:hover:text-primary-50'"
-            class="flex items-center gap-2 h-10 rounded-lg border pl-4 pr-3 text-[16px] font-normal transition-colors">
-            {{ filter.label }}
-            @if (filter.selectedIds.length > 0) {
-            <span
-              class="inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-[#B6CAEC] dark:bg-secondary-100 px-1.5 text-[12px] font-semibold text-primary-100 dark:text-primary-50">{{
-              filter.selectedIds.length }}</span>
-            <span (click)="clearToolbarFilterSelection(filter, $event)"
-              class="inline-flex h-5 w-5 items-center justify-center rounded-full hover:bg-[#DDE6F6] dark:hover:bg-secondary-100 cursor-pointer">
-              <svg class="h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-              </svg>
-            </span>
-            } @else {
-            <svg class="h-4 w-4 transition-transform" [ngClass]="filter.open ? 'rotate-180' : ''"
-              xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5"
-              stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-            </svg>
-            }
-          </button>
-          @if (filter.open) {
-          <app-dropdown-panel (click)="$event.stopPropagation()"
-            class="absolute top-full left-0 mt-2 z-[60] w-[260px]">
-            <div class="p-2 flex flex-col gap-1 max-h-[360px] overflow-y-auto">
-              @for (option of filter.options; track option.id) {
-              <button data-cy="searchToolbarFilterOption" [attr.data-option-id]="option.id"
-                (click)="toggleToolbarOption(filter, option, $event)"
-                [ngClass]="isToolbarOptionSelected(filter, option) ? 'bg-[#DDE6F6] dark:bg-secondary-200' : 'hover:bg-[#EBF0F7] dark:hover:bg-secondary-200'"
-                class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] text-[#0b1220] dark:text-white transition-colors">
-                <div class="flex h-4 w-4 shrink-0 items-center justify-center rounded border"
-                  [ngClass]="isToolbarOptionSelected(filter, option) ? 'bg-primary-100 dark:bg-primary-50 border-primary-100 dark:border-primary-50 text-white' : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-secondary-300'">
-                  @if (isToolbarOptionSelected(filter, option)) {
-                  <svg class="h-2.5 w-2.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke-width="3" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                  </svg>
-                  }
-                </div>
-                <span class="text-left">{{ option.name }}</span>
-              </button>
-              }
-            </div>
-          </app-dropdown-panel>
-          }
-        </div>
-        }
-      </div>
-      <div class="shrink-0">
-        <button (click)="clearFilters()"
-          class="flex items-center gap-2 text-[16px] font-normal text-primary-100 dark:text-primary-50 hover:text-primary-50 dark:hover:text-primary-100 transition-colors">
-          <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
-            stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182" />
-          </svg>
-          {{ 'DASHBOARD._clear_all' | translate }}
-        </button>
-      </div>
-    </div>
-    }
-
   </div>
 
-  <div class="mx-auto max-w-[1440px] px-8 pt-4 pb-6 flex-1">
-    <div class="flex gap-6 items-stretch min-h-[calc(100vh-280px)]">
+  <ng-template #pager let-page="page" let-totalPages="totalPages" let-onPage="onPage">
+    @if (totalPages > 1) {
+    <nav class="flex justify-center pt-4" [attr.aria-label]="'DASHBOARD._aria_pagination' | translate">
+      <ul class="inline-flex -space-x-px text-sm">
+        <li>
+          <button (click)="onPage(page - 1)" [disabled]="page === 1"
+            class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border border-e-0 border-gray-300 dark:border-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-200 hover:text-gray-700 dark:hover:text-white rounded-s-lg disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ 'DASHBOARD._prev' | translate }}
+          </button>
+        </li>
+        @for (p of [].constructor(totalPages); track $index) {
+        @if ($index + 1 === page || $index + 1 === 1 || $index + 1 === totalPages || ($index + 1 >= page - 2 &&
+        $index + 1 <= page + 2)) { <li>
+          <button (click)="onPage($index + 1)"
+            [ngClass]="$index + 1 === page ? 'text-primary-100 dark:text-primary-50 border-primary-100 dark:border-primary-50 bg-[#eef2fb] dark:bg-secondary-200' : 'text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border-gray-300 dark:border-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-200 hover:text-gray-700 dark:hover:text-white'"
+            class="flex items-center justify-center px-3 h-8 leading-tight border">
+            {{ $index + 1 }}
+          </button>
+          </li>
+          } @else if ($index + 1 === page - 3 || $index + 1 === page + 3) {
+          <li>
+            <span
+              class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200">...</span>
+          </li>
+          }
+          }
+          <li>
+            <button (click)="onPage(page + 1)" [disabled]="page === totalPages"
+              class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-200 hover:text-gray-700 dark:hover:text-white rounded-e-lg disabled:opacity-50 disabled:cursor-not-allowed">
+              {{ 'DASHBOARD._next' | translate }}
+            </button>
+          </li>
+      </ul>
+    </nav>
+    }
+  </ng-template>
 
+  <ng-template #sidebarFilters>
+    <div>
+      <label class="block text-[14px] font-medium text-[#0b1220] dark:text-white mb-1.5">{{ 'DASHBOARD._category_label' |
+        translate }}</label>
+      <app-search-select data-cy="searchCategoryFilter" [options]="categoryOptions" [multiple]="false"
+        [placeholder]="'DASHBOARD._categories' | translate" [selected]="selectedCategoryId"
+        (selectionChange)="onCategoryChange($event)" />
+    </div>
+    <div class="mt-4">
+      <label class="block text-[14px] font-medium text-[#0b1220] dark:text-white mb-1.5">{{ 'DASHBOARD._catalog_label' |
+        translate }}</label>
+      <app-search-select data-cy="searchCatalogFilter" [options]="catalogOptions" [multiple]="false"
+        [placeholder]="'DASHBOARD._all_catalogs' | translate" [selected]="selectedCatalogId"
+        (selectionChange)="onCatalogChange($event)" />
+    </div>
+  </ng-template>
+
+  <div class="mx-auto max-w-[1440px] px-8 pt-4 pb-6 flex-1">
+    <div class="flex gap-6 items-start">
+
+      @if (!aiSearchEnabled) {
       @if (showDrawer) {
       <div (click)="$event.stopPropagation();"
         class="fixed h-screen w-3/4 top-0 left-0 z-50 p-4 overflow-y-auto bg-white dark:bg-secondary-300" tabindex="-1">
@@ -191,92 +120,60 @@
           class="absolute top-2.5 end-2.5">
           <span class="sr-only">{{ 'DASHBOARD._close_menu' | translate }}</span>
         </app-button>
-        <bae-categories-filter [catalogId]="DFT_CATALOG"></bae-categories-filter>
+        <h3 class="text-[18px] font-semibold text-[#0b1220] dark:text-white mb-4">{{ 'DASHBOARD._filters' | translate
+          }}</h3>
+        <ng-container *ngTemplateOutlet="sidebarFilters"></ng-container>
       </div>
-      } @else if (activeCategoryName) {
-      <aside class="hidden md:block w-[260px] lg:w-[300px] shrink-0 self-stretch">
+      } @else {
+      <aside class="hidden md:block w-[260px] lg:w-[300px] shrink-0">
         <div
-          class="rounded-xl border border-gray-200 dark:border-secondary-200 bg-white dark:bg-secondary-300 p-5 min-h-full">
-          <div class="mb-4 flex items-center justify-between">
-            <h3 class="text-[18px] font-semibold text-[#0b1220] dark:text-white">{{ 'DASHBOARD._filters' | translate }}</h3>
-            <button (click)="clearSubcategoryFilters()"
-              class="text-[14px] font-medium text-primary-100 dark:text-primary-50 hover:text-primary-50 dark:hover:text-primary-100 transition-colors">{{ 'DASHBOARD._clear_all' | translate }}</button>
-          </div>
-          <bae-categories-filter [showTitle]="false" [simpleMode]="true" [catalogId]="DFT_CATALOG"
-            [selectedRootId]="activeCategoryId" [selectedRootName]="activeCategoryName"></bae-categories-filter>
+          class="rounded-xl border border-gray-200 dark:border-secondary-200 bg-white dark:bg-secondary-300 p-5">
+          <h3 class="text-[18px] font-semibold text-[#0b1220] dark:text-white mb-4">{{ 'DASHBOARD._filters' |
+            translate }}</h3>
+          <ng-container *ngTemplateOutlet="sidebarFilters"></ng-container>
         </div>
       </aside>
+      }
       }
 
       <div class="min-w-0 flex-1">
 
-        <app-button (click)="showDrawer=!showDrawer; $event.stopPropagation();" type="button" variant="secondary" prefixIcon="bars" class="mb-4 md:hidden">
-          {{ 'DASHBOARD._categories_single' | translate }}
+        @if (!aiSearchEnabled) {
+        <app-button (click)="showDrawer=!showDrawer; $event.stopPropagation();" type="button" variant="secondary"
+          prefixIcon="bars" class="mb-4 md:hidden">
+          {{ 'DASHBOARD._filters' | translate }}
         </app-button>
+        }
+
+        @if (aiSearchEnabled) {
+        <!-- ================= AI SEARCH MODE ================= -->
 
         <div class="mb-5 flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <span class="text-[16px] text-[#526179] dark:text-gray-400">
-              @if (!loading) {
-              {{ 'DASHBOARD._results_of_total' | translate: { count: visibleProducts.length, total: totalResultsCount } }}
-              }
-            </span>
-            <!--
-            @if (searchEnabled) {
-              <div class="flex items-center gap-1.5 text-[16px]">
-                <span class="text-[#526179] dark:text-gray-400">Sort by:</span>
-                <div class="relative">
-                  <button (click)="toggleSortDropdown($event)" class="flex items-center gap-1 font-semibold text-primary-100 dark:text-primary-50">
-                    {{ sortLabel }}
-                    <svg class="h-4 w-4 transition-transform" [ngClass]="showSortDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                    </svg>
-                  </button>
-                  @if (showSortDropdown) {
-                    <div (click)="$event.stopPropagation()" class="absolute top-full left-0 mt-2 z-50 w-[200px] rounded-xl bg-white dark:bg-secondary-300 shadow-[0_4px_12px_rgba(0,0,0,0.15)] overflow-hidden">
-                      <div class="p-2 flex flex-col gap-1">
-                        @for (opt of sortOptions; track opt.value) {
-                          <button (click)="selectSort(opt.value, $event)"
-                            [ngClass]="sortOption === opt.value ? 'bg-[#DDE6F6] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'hover:bg-[#EBF0F7] dark:hover:bg-secondary-200 text-[#0b1220] dark:text-white'"
-                            class="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-[14px] transition-colors">
-                            <span>{{ opt.label }}</span>
-                            @if (sortOption === opt.value) {
-                              <svg class="h-4 w-4 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                              </svg>
-                            }
-                          </button>
-                        }
-                      </div>
-                    </div>
-                  }
-                </div>
-              </div>
+          <span class="text-[16px] text-[#526179] dark:text-gray-400">
+            @if (!loading) {
+            {{ 'DASHBOARD._results_of_total' | translate: { count: products.length, total: totalResultsCount } }}
             }
-            -->
-          </div>
-          <div class="flex items-center gap-4">
-            <div
-              class="flex items-center gap-0.5 rounded-lg border border-gray-200 dark:border-secondary-200 bg-white dark:bg-secondary-300 p-1">
-              <button (click)="viewMode='grid'"
-                [ngClass]="viewMode==='grid' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
-                class="rounded p-2 transition-colors">
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                  stroke-width="1.5" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
-                </svg>
-              </button>
-              <button (click)="viewMode='list'"
-                [ngClass]="viewMode==='list' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
-                class="rounded p-2 transition-colors">
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                  stroke-width="1.5" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                </svg>
-              </button>
-            </div>
+          </span>
+          <div
+            class="flex items-center gap-0.5 rounded-lg border border-gray-200 dark:border-secondary-200 bg-white dark:bg-secondary-300 p-1">
+            <button (click)="viewMode='grid'"
+              [ngClass]="viewMode==='grid' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
+              class="rounded p-2 transition-colors">
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
+              </svg>
+            </button>
+            <button (click)="viewMode='list'"
+              [ngClass]="viewMode==='list' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
+              class="rounded p-2 transition-colors">
+              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+              </svg>
+            </button>
           </div>
         </div>
 
@@ -284,7 +181,7 @@
         <app-loading-spinner />
         } @else {
 
-        @if (aiSearchEnabled && aiAnswer) {
+        @if (aiAnswer) {
         <div
           class="w-full mb-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-700 rounded-lg shadow-sm">
           <div class="flex items-start gap-3">
@@ -316,7 +213,7 @@
         </div>
         }
 
-        @if (aiSearchEnabled && aiSearchLoading) {
+        @if (aiSearchLoading) {
         <div class="w-full mb-4 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
           <div class="flex items-center gap-3">
             <svg class="w-5 h-5 text-purple-500 animate-spin" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
@@ -331,44 +228,9 @@
         </div>
         }
 
-        @if (aiSearchEnabled && aiTotalPages > 1) {
-        <nav class="flex justify-center pb-4" [attr.aria-label]="'DASHBOARD._aria_pagination' | translate">
-          <ul class="inline-flex -space-x-px text-sm">
-            <li>
-              <button (click)="changeAiPage(aiCurrentPage - 1)" [disabled]="aiCurrentPage === 1"
-                class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border border-e-0 border-gray-300 dark:border-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-200 hover:text-gray-700 dark:hover:text-white rounded-s-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                {{ 'DASHBOARD._prev' | translate }}
-              </button>
-            </li>
-            @for (p of [].constructor(aiTotalPages); track $index) {
-            @if ($index + 1 === aiCurrentPage || $index + 1 === 1 || $index + 1 === aiTotalPages || ($index + 1 >=
-            aiCurrentPage - 2 && $index + 1 <= aiCurrentPage + 2)) { <li>
-              <button (click)="changeAiPage($index + 1)"
-                [ngClass]="$index + 1 === aiCurrentPage ? 'text-primary-100 dark:text-primary-50 border-primary-100 dark:border-primary-50 bg-[#eef2fb] dark:bg-secondary-200' : 'text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border-gray-300 dark:border-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-200 hover:text-gray-700 dark:hover:text-white'"
-                class="flex items-center justify-center px-3 h-8 leading-tight border">
-                {{ $index + 1 }}
-              </button>
-              </li>
-              } @else if ($index + 1 === aiCurrentPage - 3 || $index + 1 === aiCurrentPage + 3) {
-              <li>
-                <span
-                  class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200">...</span>
-              </li>
-              }
-              }
-              <li>
-                <button (click)="changeAiPage(aiCurrentPage + 1)" [disabled]="aiCurrentPage === aiTotalPages"
-                  class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-200 hover:text-gray-700 dark:hover:text-white rounded-e-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                  {{ 'DASHBOARD._next' | translate }}
-                </button>
-              </li>
-          </ul>
-        </nav>
-        }
-
         <div
-          [ngClass]="viewMode === 'list' ? 'flex flex-col gap-4' : (activeCategoryName ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4' : 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4')">
-          @for (prod of visibleProducts; track prod.id; let index = $index) {
+          [ngClass]="viewMode === 'list' ? 'flex flex-col gap-4' : 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4'">
+          @for (prod of products; track prod.id; let index = $index) {
           <bae-off-card data-cy="baeCard" [productOff]="prod" [cardId]="index" [viewMode]="viewMode"
             class="w-full h-full"></bae-off-card>
           } @empty {
@@ -378,66 +240,126 @@
           }
         </div>
 
-        @if (aiSearchEnabled && aiTotalPages > 1) {
-        <nav class="flex justify-center pt-4 pb-12" [attr.aria-label]="'DASHBOARD._aria_pagination' | translate">
-          <ul class="inline-flex -space-x-px text-sm">
-            <li>
-              <button (click)="changeAiPage(aiCurrentPage - 1)" [disabled]="aiCurrentPage === 1"
-                class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border border-e-0 border-gray-300 dark:border-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-200 hover:text-gray-700 dark:hover:text-white rounded-s-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                {{ 'DASHBOARD._prev' | translate }}
-              </button>
-            </li>
-            @for (p of [].constructor(aiTotalPages); track $index) {
-            @if ($index + 1 === aiCurrentPage || $index + 1 === 1 || $index + 1 === aiTotalPages || ($index + 1 >=
-            aiCurrentPage - 2 && $index + 1 <= aiCurrentPage + 2)) { <li>
-              <button (click)="changeAiPage($index + 1)"
-                [ngClass]="$index + 1 === aiCurrentPage ? 'text-primary-100 dark:text-primary-50 border-primary-100 dark:border-primary-50 bg-[#eef2fb] dark:bg-secondary-200' : 'text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border-gray-300 dark:border-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-200 hover:text-gray-700 dark:hover:text-white'"
-                class="flex items-center justify-center px-3 h-8 leading-tight border">
-                {{ $index + 1 }}
-              </button>
-              </li>
-              } @else if ($index + 1 === aiCurrentPage - 3 || $index + 1 === aiCurrentPage + 3) {
-              <li>
-                <span
-                  class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200">...</span>
-              </li>
-              }
-              }
-              <li>
-                <button (click)="changeAiPage(aiCurrentPage + 1)" [disabled]="aiCurrentPage === aiTotalPages"
-                  class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-200 hover:text-gray-700 dark:hover:text-white rounded-e-lg disabled:opacity-50 disabled:cursor-not-allowed">
-                  {{ 'DASHBOARD._next' | translate }}
-                </button>
-              </li>
-          </ul>
-        </nav>
-        }
+        <ng-container
+          *ngTemplateOutlet="pager; context: { page: aiCurrentPage, totalPages: aiTotalPages, onPage: changeAiPage }"></ng-container>
 
-        @if (!aiSearchEnabled) {
-        @if (!loading_more) {
-        @if (page_check) {
-        <div class="flex pb-12 justify-center mt-6">
-          <app-button data-cy="loadMore" (click)="next()" variant="secondary" suffixIcon="arrow-down">
-            {{ 'DASHBOARD._load_more' | translate }}
-          </app-button>
-        </div>
         }
+        <!-- ================= END AI SEARCH MODE ================= -->
         } @else {
-        <div class="flex justify-center mt-6" data-cy="loadMoreLoading">
-          <svg aria-hidden="true"
-            class="w-8 h-8 text-gray-200 dark:text-secondary-200 animate-spin fill-primary-100 dark:fill-primary-50"
-            viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path
-              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
-              fill="currentColor" />
-            <path
-              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
-              fill="currentFill" />
-          </svg>
-        </div>
-        }
-        }
+        <!-- ================= STANDARD SEARCH MODE ================= -->
 
+        <div class="grid transition-[grid-template-rows] duration-500 ease-in-out"
+          [ngClass]="hasPrivateOfferings ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
+          <div class="overflow-hidden">
+            <div class="transition-opacity duration-300"
+              [ngClass]="hasPrivateOfferings ? 'opacity-100 delay-150' : 'opacity-0'">
+        <app-card class="mb-6 block rounded-xl overflow-hidden"
+          [contentPadding]="privateOpen">
+          <div appCardHeader
+            class="flex items-center justify-between cursor-pointer py-3"
+            (click)="togglePrivateAccordion()">
+            <div class="flex items-center gap-2">
+              <svg class="h-5 w-5 text-[var(--offer-card-muted-text)]" xmlns="http://www.w3.org/2000/svg" fill="none"
+                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+              </svg>
+              <div>
+                <h2 class="text-[18px] font-semibold text-[#0b1220] dark:text-white">{{ 'DASHBOARD._private_offers' |
+                  translate }}</h2>
+                <p class="text-[13px] text-[var(--offer-card-muted-text)]">{{ 'DASHBOARD._private_offers_desc' |
+                  translate }}</p>
+              </div>
+            </div>
+            <svg class="h-5 w-5 text-[var(--offer-card-muted-text)] shrink-0 transition-transform"
+              [ngClass]="privateOpen ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+            </svg>
+          </div>
+          <div class="grid transition-[grid-template-rows] duration-300 ease-in-out"
+            [ngClass]="privateOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
+            <div class="overflow-hidden">
+              <div appCardContent class="transition-opacity duration-200"
+                [ngClass]="privateOpen ? 'opacity-100 delay-100' : 'opacity-0'">
+                <span class="text-[14px] text-[#526179] dark:text-gray-400 block mb-4">
+                  {{ 'DASHBOARD._results_of_total' | translate: { count: privateItems.length, total: privateTotal } }}
+                </span>
+                @if (privateLoading) {
+                <app-loading-spinner />
+                } @else {
+                <div
+                  [ngClass]="viewMode === 'list' ? 'flex flex-col gap-4' : 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4'">
+                  @for (prod of privateItems; track prod.id; let index = $index) {
+                  <bae-off-card data-cy="basePrivateCard" [productOff]="prod" [cardId]="index" [viewMode]="viewMode"
+                    class="w-full h-full"></bae-off-card>
+                  }
+                </div>
+                <ng-container
+                  *ngTemplateOutlet="pager; context: { page: privatePage, totalPages: privateTotalPages, onPage: goToPrivatePage }"></ng-container>
+                }
+              </div>
+            </div>
+          </div>
+        </app-card>
+            </div>
+          </div>
+        </div>
+
+        <app-card class="block rounded-xl overflow-hidden">
+          <div appCardHeader>
+            <h2 class="text-[18px] font-semibold text-[#0b1220] dark:text-white">{{ 'DASHBOARD._public_catalog' |
+              translate }}</h2>
+          </div>
+          <div appCardContent>
+            <div class="mb-4 flex items-center justify-between">
+              <span class="text-[14px] text-[#526179] dark:text-gray-400">
+                {{ 'DASHBOARD._results_of_total' | translate: { count: publicItems.length, total: publicTotal } }}
+              </span>
+              <div
+                class="flex items-center gap-0.5 rounded-lg border border-gray-200 dark:border-secondary-200 bg-white dark:bg-secondary-300 p-1">
+                <button (click)="viewMode='grid'"
+                  [ngClass]="viewMode==='grid' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
+                  class="rounded p-2 transition-colors">
+                  <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
+                  </svg>
+                </button>
+                <button (click)="viewMode='list'"
+                  [ngClass]="viewMode==='list' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
+                  class="rounded p-2 transition-colors">
+                  <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                    stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                      d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            @if (publicLoading) {
+            <app-loading-spinner />
+            } @else {
+            <div
+              [ngClass]="viewMode === 'list' ? 'flex flex-col gap-4' : 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4'">
+              @for (prod of publicItems; track prod.id; let index = $index) {
+              <bae-off-card data-cy="baeCard" [productOff]="prod" [cardId]="index" [viewMode]="viewMode"
+                class="w-full h-full"></bae-off-card>
+              } @empty {
+              <div data-cy="searchNoOffersFound" class="col-span-3 py-16 text-center text-gray-500 dark:text-gray-400">
+                {{ 'DASHBOARD._not_found' | translate }}
+              </div>
+              }
+            </div>
+            <ng-container
+              *ngTemplateOutlet="pager; context: { page: publicPage, totalPages: publicTotalPages, onPage: goToPublicPage }"></ng-container>
+            }
+          </div>
+        </app-card>
+
+        <!-- ================= END STANDARD SEARCH MODE ================= -->
         }
       </div>
     </div>

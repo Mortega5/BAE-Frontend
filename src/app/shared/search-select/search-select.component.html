@@ -46,7 +46,7 @@
     <ul class="max-h-48 overflow-y-auto">
       @for (option of filteredOptions; track option.value) {
       <li (click)="selectOption(option)"
-        class="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-secondary-200 flex items-center gap-2">
+        class="cursor-pointer px-3 py-2 hover:bg-gray-100 dark:hover:bg-secondary-200 flex items-center gap-2">
         @if (multiple) {
         <input type="checkbox" [checked]="isSelected(option)"
           class="w-4 h-4 flex-shrink-0 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded text-primary-600 focus:ring-primary-100" />
@@ -65,7 +65,7 @@
       }
       @if (showCreateOption) {
       <li (click)="requestCreate()" [class.pointer-events-none]="isCreating" [class.opacity-60]="isCreating"
-        class="cursor-pointer p-2 text-primary-100 dark:text-primary-50 font-medium hover:bg-gray-100 dark:hover:bg-secondary-200">
+        class="cursor-pointer px-3 py-2 text-primary-100 dark:text-primary-50 font-medium hover:bg-gray-100 dark:hover:bg-secondary-200">
         @if (isCreating) {
         {{ 'COMMON._loading' | translate }}
         } @else {

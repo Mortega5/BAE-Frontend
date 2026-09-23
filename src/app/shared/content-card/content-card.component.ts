@@ -14,4 +14,8 @@ export type ContentCardVariant = 'panel' | 'modal';
 })
 export class ContentCardComponent {
   @Input() variant: ContentCardVariant = 'panel';
+  /** Set to false to drop the content slot's default padding — e.g. a collapsible
+   * section that animates its own body to zero height still has this padding
+   * around it otherwise, showing as a stray gap while collapsed. */
+  @Input() contentPadding: boolean = true;
 }

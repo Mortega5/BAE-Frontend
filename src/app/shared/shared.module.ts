@@ -21,6 +21,7 @@ import { FooterComponent } from './footer/footer.component';
 import { HeaderComponent } from './header/header.component';
 import { ModalComponent } from './modal/modal.component';
 import { QuoteRequestModalComponent } from './quote-request-modal/quote-request-modal.component';
+import { SearchSelectComponent } from './search-select/search-select.component';
 
 // Lista de componentes que pertenecen a este módulo.
 const SHARED_COMPONENTS = [
@@ -51,7 +52,8 @@ const STANDALONE_IMPORTS = [
   ModalComponent,
   DropdownPanelComponent,
   DrawerComponent,
-  SideNavComponent
+  SideNavComponent,
+  SearchSelectComponent
 ];
 
 

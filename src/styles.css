@@ -198,6 +198,17 @@ body {
      (it's visually just a small elevated card); this is its only extra token, for the
      hover state on its items. */
   --dropdown-item-hover-bg: rgb(243 244 246);
+
+  /* bae-off-card (marketplace offer card, grid + list view) — its own border tone
+     (#D8DADE) is a hair darker than --card-border/#EBECEE, which the image
+     placeholder reuses as-is since it already matches. */
+  --offer-card-border: #D8DADE;
+  --offer-card-image-bg: var(--card-border);
+  --offer-card-heading-text: #0b1220;
+  --offer-card-body-text: #0B1528;
+  --offer-card-muted-text: #526179;
+  --offer-card-label-text: #8896A8;
+  --offer-card-chip-bg: rgb(var(--theme-secondary-50));
   /* gray-100 */
 
   /* bae-badge status-dot variant — semantic colors, same across themes since they're
@@ -318,6 +329,19 @@ body.theme-bae {
 
   --dropdown-item-hover-bg: rgb(55 65 81);
   /* gray-700 */
+
+  /* bae-off-card dark-mode tones — matches the secondary-200/gray-300/gray-400/white
+     pairing the card previously spelled out as individual dark: utility classes. */
+  --offer-card-border: rgb(var(--theme-secondary-200));
+  --offer-card-image-bg: rgb(var(--theme-secondary-200));
+  --offer-card-heading-text: #fff;
+  --offer-card-body-text: rgb(209 213 219);
+  /* gray-300 */
+  --offer-card-muted-text: rgb(156 163 175);
+  /* gray-400 */
+  --offer-card-label-text: rgb(156 163 175);
+  /* gray-400 */
+  --offer-card-chip-bg: rgb(var(--theme-secondary-200));
 }
 
 /* Default styles for Markdown elements */

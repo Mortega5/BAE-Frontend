@@ -12,7 +12,6 @@ import { SearchStateService } from '../../services/search-state.service';
 import { LoginServiceService } from 'src/app/services/login-service.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { AiSearchService } from 'src/app/services/ai-search.service';
-import { PriceServiceService } from 'src/app/services/price-service.service';
 
 describe('SearchComponent', () => {
   let component: SearchComponent;
@@ -21,13 +20,18 @@ describe('SearchComponent', () => {
   let localStorageSpy: jasmine.SpyObj<LocalStorageService>;
   let eventMessageSpy: jasmine.SpyObj<EventMessageService>;
   let aiSearchSpy: jasmine.SpyObj<AiSearchService>;
-  let priceSpy: jasmine.SpyObj<PriceServiceService>;
   let stateMock: {
     products: any[];
     page: number;
     page_check: boolean;
     total: number;
     keywords: string | undefined;
+    selectedCategoryId: string | null;
+    selectedCatalogId: string | null;
+    activeCategoryName: string | null;
+    privateOpen: boolean;
+    publicPage: number;
+    privatePage: number;
     hasState: jasmine.Spy;
     save: jasmine.Spy;
     clear: jasmine.Spy;
@@ -42,29 +46,23 @@ describe('SearchComponent', () => {
   beforeEach(async () => {
     apiSpy = jasmine.createSpyObj<ApiServiceService>('ApiServiceService', [
       'getProductsDetails',
-      'getProductsPaged',
-      'getProductsByCategoryPaged',
+      'getOfferingsPaged',
       'getCategoriesByParentId',
+      'getDefaultCategories',
+      'getCatalogsPaged',
     ]);
     localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', [
       'getObject',
       'getValidLoginInfo',
       'getItem',
-      'addCategoryFilter',
-      'removeCategoryFilter',
       'removeItem',
       'setItem',
       'setObject',
     ]);
     eventMessageSpy = jasmine.createSpyObj<EventMessageService>('EventMessageService', [
-      'emitAddedFilter',
       'emitAiSearchCleared',
-      'emitAiSearchFacets',
-      'emitFiltersCommitted',
-      'emitRemovedFilter',
     ]);
     aiSearchSpy = jasmine.createSpyObj<AiSearchService>('AiSearchService', ['search', 'searchWithAnswer']);
-    priceSpy = jasmine.createSpyObj<PriceServiceService>('PriceServiceService', ['isCustomOffering']);
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate'], {
       events: undefined,
     });
@@ -82,22 +80,28 @@ describe('SearchComponent', () => {
       page_check: true,
       total: 0,
       keywords: undefined,
+      selectedCategoryId: null,
+      selectedCatalogId: null,
+      activeCategoryName: null,
+      privateOpen: true,
+      publicPage: 1,
+      privatePage: 1,
       hasState: jasmine.createSpy('hasState').and.returnValue(false),
       save: jasmine.createSpy('save'),
       clear: jasmine.createSpy('clear'),
     };
 
-    apiSpy.getProductsPaged.and.resolveTo({ items: [], total: 0 });
-    apiSpy.getProductsByCategoryPaged.and.resolveTo({ items: [], total: 0 });
+    apiSpy.getOfferingsPaged.and.resolveTo({ items: [], total: 0 });
     apiSpy.getProductsDetails.and.callFake(async (items: any[]) => items as any);
+    apiSpy.getDefaultCategories.and.resolveTo([]);
+    apiSpy.getCategoriesByParentId.and.resolveTo([]);
+    apiSpy.getCatalogsPaged.and.resolveTo({ items: [], total: 0 });
     aiSearchSpy.search.and.resolveTo({ items: [], total_count: 0, facets: {} } as any);
     aiSearchSpy.searchWithAnswer.and.resolveTo({
       searchResponse: { items: [], total_count: 0, facets: {} },
       answer: '',
     } as any);
-    priceSpy.isCustomOffering.and.resolveTo(false);
     localStorageSpy.getObject.and.callFake((key: string) => {
-      if (key === 'selected_categories') return [];
       if (key === 'login_items') return {};
       if (key === 'feedback') return {};
       return {};
@@ -117,7 +121,6 @@ describe('SearchComponent', () => {
         { provide: SearchStateService, useValue: stateMock },
         { provide: LoginServiceService, useValue: {} },
         { provide: AiSearchService, useValue: aiSearchSpy },
-        { provide: PriceServiceService, useValue: priceSpy },
         { provide: ThemeService, useValue: { currentTheme$: new Subject<any>().asObservable() } },
         { provide: Router, useValue: routerSpy },
         {
@@ -145,64 +148,12 @@ describe('SearchComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('constructor should refresh selections for AddedFilter and RemovedFilter events', async () => {
-    component.aiSearchEnabled = false;
-    const getProductsSpy = spyOn(component, 'getProducts').and.resolveTo();
-    const checkPanelSpy = spyOn(component, 'checkPanel').and.stub();
-
-    messages$.next({ type: 'AddedFilter' });
-    messages$.next({ type: 'RemovedFilter' });
-    await flushPromises();
-
-    expect(getProductsSpy).not.toHaveBeenCalled();
-    expect(checkPanelSpy).toHaveBeenCalledTimes(2);
-  });
-
   it('constructor should close feedback when CloseFeedback event arrives', () => {
     component.feedback = true;
 
     messages$.next({ type: 'CloseFeedback' });
 
     expect(component.feedback).toBeFalse();
-  });
-
-  it('ngOnInit should restore state and skip loading when cached state exists', async () => {
-    stateMock.products = [{ id: 'p1' }];
-    stateMock.page = 20;
-    stateMock.page_check = false;
-    stateMock.total = 45;
-    stateMock.keywords = 'edge';
-    stateMock.hasState.and.returnValue(true);
-    routeParamGetSpy.and.callFake((key: string) => (key === 'keywords' ? 'from-route' : null));
-
-    await component.ngOnInit();
-
-    expect(component.products).toEqual([{ id: 'p1' }] as any);
-    expect(component.page).toBe(20);
-    expect(component.page_check).toBeFalse();
-    expect(component.total).toBe(45);
-    expect(component.keywords).toBe('edge');
-    expect(component.searchField.value).toBe('edge');
-    expect(apiSpy.getProductsPaged).not.toHaveBeenCalled();
-    expect(apiSpy.getProductsByCategoryPaged).not.toHaveBeenCalled();
-  });
-
-  it('ngOnInit should load products when there is no cached state', async () => {
-    component.aiSearchEnabled = false;
-    stateMock.hasState.and.returnValue(false);
-    routeParamGetSpy.and.callFake((key: string) => (key === 'keywords' ? 'cloud' : null));
-    apiSpy.getProductsPaged.and.resolveTo({ items: [{ id: 'p1' }], total: 11 });
-
-    await component.ngOnInit();
-    await flushPromises();
-
-    expect(component.keywords).toBe('cloud');
-    expect(component.searchField.value).toBe('cloud');
-    expect(apiSpy.getProductsPaged).toHaveBeenCalled();
-    expect(component.products).toEqual([{ id: 'p1' }] as any);
-    expect(component.page).toBe(1);
-    expect(component.page_check).toBeTrue();
-    expect(stateMock.save).toHaveBeenCalled();
   });
 
   it('ngOnInit should mark navigation target on router navigation events', async () => {
@@ -215,118 +166,187 @@ describe('SearchComponent', () => {
     expect((component as any).navigatingToDetail).toBeFalse();
   });
 
-  it('getProducts should request paginated data by real total and persist state', async () => {
-    component.page = 30;
-    component.products = [{ id: 'old' }] as any;
-    component.keywords = 'gpu';
-    localStorageSpy.getObject.and.callFake((key: string) => {
-      if (key === 'selected_categories') return [{ id: 'cat-1', name: 'Catalog 1' }];
-      return {};
+  describe('non-AI mode', () => {
+    beforeEach(() => {
+      component.aiSearchEnabled = false;
     });
-    apiSpy.getProductsByCategoryPaged.and.resolveTo({ items: [{ id: 'p1' }], total: 21 });
 
-    await component.getProducts(false);
-    await flushPromises();
+    it('ngOnInit should load category/catalog options and both offering sections', async () => {
+      localStorageSpy.getValidLoginInfo.and.returnValue({ id: 'u1', logged_as: 'u1', partyId: 'party-1', organizations: [] } as any);
+      apiSpy.getDefaultCategories.and.resolveTo([{ id: 'cat-1', name: 'Cat 1' }] as any);
+      apiSpy.getCatalogsPaged.and.resolveTo({ items: [{ id: 'catalog-1', name: 'Catalog 1' }], total: 1 });
+      apiSpy.getOfferingsPaged.and.callFake(async (opts: any) => {
+        return opts.visibility === 'private'
+          ? { items: [{ id: 'priv-1' }], total: 1 }
+          : { items: [{ id: 'pub-1' }], total: 1 };
+      });
 
-    expect(stateMock.clear).toHaveBeenCalled();
-    expect(apiSpy.getProductsByCategoryPaged).toHaveBeenCalledWith(
-      [{ id: 'cat-1', name: 'Catalog 1' }],
-      { limit: component.PRODUCT_LIMIT, offset: 0 },
-      'gpu',
-    );
-    expect(apiSpy.getProductsDetails).toHaveBeenCalledTimes(1);
-    expect(component.products).toEqual([{ id: 'p1' }] as any);
-    expect(component.page).toBe(1);
-    expect(component.page_check).toBeTrue();
-    expect(component.total).toBe(21);
-    expect(component.loading).toBeFalse();
-    expect(component.loading_more).toBeFalse();
-    expect(stateMock.save).toHaveBeenCalledWith({
-      products: [{ id: 'p1' }],
-      page: 1,
-      page_check: true,
-      total: 21,
-      keywords: 'gpu',
+      await component.ngOnInit();
+      await flushPromises();
+
+      expect(component.categoryOptions).toEqual([{ value: 'cat-1', label: 'Cat 1' }]);
+      expect(component.catalogOptions).toEqual([{ value: 'catalog-1', label: 'Catalog 1' }]);
+      expect(component.publicItems).toEqual([{ id: 'pub-1' }] as any);
+      expect(component.privateItems).toEqual([{ id: 'priv-1' }] as any);
+      expect(component.publicTotal).toBe(1);
+      expect(component.privateTotal).toBe(1);
     });
-  });
 
-  it('getProducts should append to the existing list and advance the offset when loading more', async () => {
-    component.page = 10;
-    component.products = [{ id: 'old' }] as any;
-    localStorageSpy.getObject.and.callFake((key: string) => {
-      if (key === 'selected_categories') return [];
-      return {};
+    it('ngOnInit should restore standard-mode state and refetch the saved pages', async () => {
+      localStorageSpy.getValidLoginInfo.and.returnValue({ id: 'u1', logged_as: 'u1', partyId: 'party-1', organizations: [] } as any);
+      stateMock.hasState.and.returnValue(true);
+      stateMock.selectedCategoryId = 'cat-1';
+      stateMock.selectedCatalogId = 'catalog-1';
+      stateMock.activeCategoryName = 'Cat 1';
+      stateMock.privateOpen = false;
+      stateMock.publicPage = 2;
+      stateMock.privatePage = 3;
+
+      await component.ngOnInit();
+      await flushPromises();
+
+      expect(component.selectedCategoryId).toBe('cat-1');
+      expect(component.selectedCatalogId).toBe('catalog-1');
+      expect(component.activeCategoryName).toBe('Cat 1');
+      expect(component.privateOpen).toBeFalse();
+      expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith(jasmine.objectContaining({ offset: 12, visibility: 'public' }));
+      expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith(jasmine.objectContaining({ offset: 24, visibility: 'private' }));
     });
-    apiSpy.getProductsPaged.and.resolveTo({ items: [{ id: 'p2' }], total: 11 });
 
-    await component.getProducts(true);
-    await flushPromises();
+    it('loadPublicOfferings should request the right offset/limit and save state', async () => {
+      apiSpy.getOfferingsPaged.and.resolveTo({ items: [{ id: 'p1' }], total: 25 });
 
-    expect(apiSpy.getProductsPaged).toHaveBeenCalledWith(
-      { limit: component.PRODUCT_LIMIT, offset: 10 },
-      undefined,
-    );
-    expect(component.products).toEqual([{ id: 'old' }, { id: 'p2' }] as any);
-    expect(component.page).toBe(11);
-    expect(component.page_check).toBeFalse();
-    expect(component.total).toBe(11);
-  });
+      await component.loadPublicOfferings(2);
 
-  it('selectCategory should filter by the child categories when the category has children', async () => {
-    localStorageSpy.getObject.and.returnValue([]);
-    apiSpy.getCategoriesByParentId.and.resolveTo([{ id: 'child-1', name: 'Child 1' }, { id: 'child-2', name: 'Child 2' }] as any);
+      expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith({
+        limit: component.PUBLIC_LIMIT,
+        offset: 12,
+        categoryIds: undefined,
+        catalogId: undefined,
+        keywords: undefined,
+        visibility: 'public',
+      });
+      expect(component.publicItems).toEqual([{ id: 'p1' }] as any);
+      expect(component.publicTotal).toBe(25);
+      expect(component.publicPage).toBe(2);
+      expect(stateMock.save).toHaveBeenCalled();
+    });
 
-    await component.selectCategory({ id: 'catalog-1', name: 'Catalog 1' } as any);
+    it('loadPrivateOfferings should request the right offset/limit when logged in', async () => {
+      localStorageSpy.getValidLoginInfo.and.returnValue({ id: 'u1', logged_as: 'u1', partyId: 'party-1', organizations: [] } as any);
+      apiSpy.getOfferingsPaged.and.resolveTo({ items: [{ id: 'p1' }], total: 3 });
 
-    expect(localStorageSpy.addCategoryFilter).toHaveBeenCalledWith({ id: 'child-1', name: 'Child 1' } as any);
-    expect(localStorageSpy.addCategoryFilter).toHaveBeenCalledWith({ id: 'child-2', name: 'Child 2' } as any);
-    expect(localStorageSpy.addCategoryFilter).not.toHaveBeenCalledWith({ id: 'catalog-1', name: 'Catalog 1' } as any);
-    expect(eventMessageSpy.emitFiltersCommitted).toHaveBeenCalled();
-  });
+      await component.loadPrivateOfferings(1);
 
-  it('selectCategory should fall back to filtering by the category itself when it has no children', async () => {
-    localStorageSpy.getObject.and.returnValue([]);
-    apiSpy.getCategoriesByParentId.and.resolveTo([]);
+      expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith({
+        limit: component.PRIVATE_LIMIT,
+        offset: 0,
+        categoryIds: undefined,
+        catalogId: undefined,
+        keywords: undefined,
+        visibility: 'private',
+      });
+      expect(component.privateItems).toEqual([{ id: 'p1' }] as any);
+      expect(component.privateTotal).toBe(3);
+    });
 
-    await component.selectCategory({ id: 'catalog-1', name: 'Catalog 1' } as any);
+    it('loadPrivateOfferings should skip the request entirely when logged out', async () => {
+      localStorageSpy.getValidLoginInfo.and.returnValue(null);
+      component.privateItems = [{ id: 'stale' }] as any;
+      component.privateTotal = 5;
 
-    expect(localStorageSpy.addCategoryFilter).toHaveBeenCalledWith({ id: 'catalog-1', name: 'Catalog 1' } as any);
-    expect(eventMessageSpy.emitFiltersCommitted).toHaveBeenCalled();
-  });
+      await component.loadPrivateOfferings(1);
 
-  it('next should delegate to getProducts with next=true', async () => {
-    const getProductsSpy = spyOn(component, 'getProducts').and.resolveTo();
+      expect(apiSpy.getOfferingsPaged).not.toHaveBeenCalled();
+      expect(component.privateItems).toEqual([]);
+      expect(component.privateTotal).toBe(0);
+    });
 
-    await component.next();
+    it('goToPublicPage should ignore out-of-range pages', async () => {
+      component.publicTotal = component.PUBLIC_LIMIT; // exactly 1 page
+      component.publicPage = 1;
+      apiSpy.getOfferingsPaged.calls.reset();
 
-    expect(getProductsSpy).toHaveBeenCalledWith(true);
-  });
+      await component.goToPublicPage(0);
+      await component.goToPublicPage(2);
+      await component.goToPublicPage(1);
 
-  it('filterSearch should use search text when provided', async () => {
-    const event = { preventDefault: jasmine.createSpy('preventDefault') };
-    component.searchField.setValue('kubernetes');
-    const updateSpy = spyOn(component, 'updateQueryParams').and.stub();
-    const getProductsSpy = spyOn(component, 'getProducts').and.resolveTo();
+      expect(apiSpy.getOfferingsPaged).not.toHaveBeenCalled();
+    });
 
-    await component.filterSearch(event);
+    it('goToPublicPage should load a valid target page', async () => {
+      component.publicTotal = component.PUBLIC_LIMIT * 3;
+      component.publicPage = 1;
+      apiSpy.getOfferingsPaged.and.resolveTo({ items: [{ id: 'p2' }], total: component.PUBLIC_LIMIT * 3 });
 
-    expect(event.preventDefault).toHaveBeenCalled();
-    expect(component.keywords).toBe('kubernetes');
-    expect(updateSpy).toHaveBeenCalledWith('kubernetes');
-    expect(getProductsSpy).toHaveBeenCalledWith(false);
-  });
+      await component.goToPublicPage(2);
 
-  it('filterSearch should clear keywords when search field is empty', async () => {
-    const event = { preventDefault: jasmine.createSpy('preventDefault') };
-    component.searchField.setValue('');
-    const updateSpy = spyOn(component, 'updateQueryParams').and.stub();
-    const getProductsSpy = spyOn(component, 'getProducts').and.resolveTo();
+      expect(component.publicPage).toBe(2);
+      expect(component.publicItems).toEqual([{ id: 'p2' }] as any);
+    });
 
-    await component.filterSearch(event);
+    it('onCategoryChange should set the filter and refresh both sections', async () => {
+      component.categoryOptions = [{ value: 'cat-1', label: 'Cat 1' }];
+      apiSpy.getOfferingsPaged.calls.reset();
+      apiSpy.getOfferingsPaged.and.resolveTo({ items: [], total: 0 });
 
-    expect(component.keywords).toBeUndefined();
-    expect(updateSpy).toHaveBeenCalledWith(undefined as any);
-    expect(getProductsSpy).toHaveBeenCalledWith(false);
+      await component.onCategoryChange('cat-1');
+
+      expect(component.selectedCategoryId).toBe('cat-1');
+      expect(component.activeCategoryName).toBe('Cat 1');
+      expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith(jasmine.objectContaining({ categoryIds: ['cat-1'], offset: 0 }));
+    });
+
+    it('onCatalogChange should set the filter and refresh both sections', async () => {
+      apiSpy.getOfferingsPaged.calls.reset();
+      apiSpy.getOfferingsPaged.and.resolveTo({ items: [], total: 0 });
+
+      await component.onCatalogChange('catalog-1');
+
+      expect(component.selectedCatalogId).toBe('catalog-1');
+      expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith(jasmine.objectContaining({ catalogId: 'catalog-1' }));
+    });
+
+    it('togglePrivateAccordion should flip privateOpen and persist state', () => {
+      component.privateOpen = true;
+
+      component.togglePrivateAccordion();
+
+      expect(component.privateOpen).toBeFalse();
+      expect(stateMock.save).toHaveBeenCalledWith(jasmine.objectContaining({ privateOpen: false }));
+    });
+
+    it('hasPrivateOfferings should reflect privateTotal', () => {
+      component.privateTotal = 0;
+      expect(component.hasPrivateOfferings).toBeFalse();
+      component.privateTotal = 2;
+      expect(component.hasPrivateOfferings).toBeTrue();
+    });
+
+    it('filterSearch should set keywords and refresh both sections', async () => {
+      const event = { preventDefault: jasmine.createSpy('preventDefault') };
+      component.searchField.setValue('kubernetes');
+      const updateSpy = spyOn(component, 'updateQueryParams').and.stub();
+      apiSpy.getOfferingsPaged.and.resolveTo({ items: [], total: 0 });
+
+      await component.filterSearch(event);
+
+      expect(event.preventDefault).toHaveBeenCalled();
+      expect(component.keywords).toBe('kubernetes');
+      expect(updateSpy).toHaveBeenCalledWith('kubernetes');
+      expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith(jasmine.objectContaining({ keywords: 'kubernetes' }));
+    });
+
+    it('filterSearch should clear keywords when search field is empty', async () => {
+      const event = { preventDefault: jasmine.createSpy('preventDefault') };
+      component.searchField.setValue('');
+      const updateSpy = spyOn(component, 'updateQueryParams').and.stub();
+
+      await component.filterSearch(event);
+
+      expect(component.keywords).toBeUndefined();
+      expect(updateSpy).toHaveBeenCalledWith(undefined as any);
+    });
   });
 
   it('updateQueryParams should navigate with and without keywords', () => {
@@ -337,46 +357,19 @@ describe('SearchComponent', () => {
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/search'], { replaceUrl: true });
   });
 
-  it('checkPanel should toggle panel visibility and persist only on state change', () => {
-    localStorageSpy.getObject.and.returnValue([{ id: 'cat-1' }] as any);
-    component.showPanel = false;
-
-    component.checkPanel();
-
-    expect(component.showPanel).toBeTrue();
-    expect(localStorageSpy.setItem).toHaveBeenCalledWith('is_filter_panel_shown', 'true');
-
-    localStorageSpy.setItem.calls.reset();
-    component.checkPanel();
-
-    expect(localStorageSpy.setItem).not.toHaveBeenCalled();
-  });
-
   it('onClick should close drawer when open', () => {
     component.showDrawer = true;
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
 
     component.onClick();
 
     expect(component.showDrawer).toBeFalse();
-    expect(detectSpy).not.toHaveBeenCalled();
   });
 
-  it('ngOnDestroy should clear selected filters and state when not navigating to detail', () => {
-    const catA = { id: 'c1' };
-    const catB = { id: 'c2' };
-    localStorageSpy.getObject.and.callFake((key: string) => {
-      if (key === 'selected_categories') return [catA, catB];
-      return {};
-    });
+  it('ngOnDestroy should clear state when not navigating to detail', () => {
     (component as any).navigatingToDetail = false;
 
     component.ngOnDestroy();
 
-    expect(localStorageSpy.removeCategoryFilter).toHaveBeenCalledWith(catA as any);
-    expect(localStorageSpy.removeCategoryFilter).toHaveBeenCalledWith(catB as any);
-    expect(eventMessageSpy.emitRemovedFilter).toHaveBeenCalledWith(catA as any);
-    expect(eventMessageSpy.emitRemovedFilter).toHaveBeenCalledWith(catB as any);
     expect(stateMock.clear).toHaveBeenCalled();
   });
 
@@ -385,8 +378,6 @@ describe('SearchComponent', () => {
 
     component.ngOnDestroy();
 
-    expect(localStorageSpy.removeCategoryFilter).not.toHaveBeenCalled();
-    expect(eventMessageSpy.emitRemovedFilter).not.toHaveBeenCalled();
     expect(stateMock.clear).not.toHaveBeenCalled();
   });
 });

@@ -16,6 +16,10 @@ export interface CatalogPageResponse {
   filteredPaginationToken: string | null;
 }
 
+/** 'public' excludes ad-hoc offers (those with a customer-restricted relatedParty) via a
+ * regex filter; 'private' returns only the ad-hoc offers targeted at the current user. */
+export type ProductVisibility = 'public' | 'private';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -28,6 +32,33 @@ export class ApiServiceService {
   public static CATEGORY_LIMIT: number = environment.CATEGORY_LIMIT;
 
   constructor(private http: HttpClient, private localStorage: LocalStorageService) { }
+
+  private getCurrentPartyId(): string | undefined {
+    const aux = this.localStorage.getValidLoginInfo();
+    if (!aux) {
+      return undefined;
+    }
+    if (aux.logged_as == aux.id) {
+      return aux.partyId;
+    }
+    const loggedOrg = aux.organizations?.find((org: any) => org.id == aux.logged_as);
+    return loggedOrg?.partyId;
+  }
+
+  /** 'private' needs the current user's partyId to scope the results to their own
+   * ad-hoc offers. If it can't be resolved (e.g. logged out, session not loaded yet),
+   * we must still constrain the query to something that can never match a real offer —
+   * omitting the filter entirely would silently turn "my private offers" into "every
+   * offer, public and private". */
+  private applyVisibilityFilter(queryParams: Record<string, any>, visibility?: ProductVisibility): void {
+    if (visibility === 'private') {
+      const partyId = this.getCurrentPartyId();
+      queryParams['relatedParty.id'] = partyId ?? 'urn:ngsi-ld:organization:no-current-user';
+      queryParams['relatedParty.role'] = 'customer';
+    } else if (visibility === 'public') {
+      queryParams['relatedParty.role*'] = '^(?!customer$).*$';
+    }
+  }
 
   getAllProducts(): Observable<ProductOfferingModel[]> {
     const productsLimit = 100;
@@ -47,20 +78,36 @@ export class ApiServiceService {
     return lastValueFrom(this.http.get<any[]>(url));
   }
 
-  /** Same as getProducts, but returns the real X-Total-Count instead of leaving the
-   * caller to prefetch an extra page just to find out whether there's more. */
-  async getProductsPaged(params: PageRequest, keywords?: any): Promise<PageResult<any>> {
+  /** Unified replacement for the old getProductsPaged/getProductsByCategoryPaged: one
+   * offering listing call with every optional facet the search page needs, instead of
+   * near-duplicate methods per combination of filters. */
+  async getOfferingsPaged(options: {
+    limit: number;
+    offset: number;
+    categoryIds?: string[];
+    catalogId?: string;
+    keywords?: string;
+    visibility?: ProductVisibility;
+    orderBy?: string;
+    orderDirection?: 'asc' | 'desc';
+  }): Promise<PageResult<any>> {
     const queryParams: Record<string, any> = {
-      limit: params.limit,
-      offset: params.offset,
+      limit: options.limit,
+      offset: options.offset,
       lifecycleStatus: 'Launched',
     };
-    applySort(params, queryParams);
-    if (keywords != undefined) {
-      queryParams['keyword'] = keywords;
+    applySort({ limit: options.limit, offset: options.offset, orderBy: options.orderBy, orderDirection: options.orderDirection }, queryParams);
+    if (options.categoryIds && options.categoryIds.length > 0) {
+      queryParams['category.id'] = options.categoryIds.join(',');
     }
+    if (options.keywords != undefined) {
+      queryParams['keyword'] = options.keywords;
+    }
+    this.applyVisibilityFilter(queryParams, options.visibility);
 
-    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productOffering`;
+    const url = options.catalogId
+      ? `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog/${options.catalogId}/productOffering`
+      : `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productOffering`;
     const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
     const items = response.body ?? [];
     const total = Number(response.headers.get('X-Total-Count') ?? items.length);
@@ -153,28 +200,6 @@ export class ApiServiceService {
       url = url + '&sort=' + sort;
     }
     return lastValueFrom(this.http.get<any[]>(url));
-  }
-
-  /** Same as getProductsByCategory, but returns the real X-Total-Count. */
-  async getProductsByCategoryPaged(ids: Category[], params: PageRequest, keywords?: any): Promise<PageResult<any>> {
-    const queryParams: Record<string, any> = {
-      limit: params.limit,
-      offset: params.offset,
-      lifecycleStatus: 'Launched',
-    };
-    applySort(params, queryParams);
-    if (ids.length > 0) {
-      queryParams['category.id'] = ids.map(category => category.id).join(',');
-    }
-    if (keywords != undefined) {
-      queryParams['keyword'] = keywords;
-    }
-
-    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productOffering`;
-    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
-    const items = response.body ?? [];
-    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
-    return { items, total };
   }
 
   getProductsByCatalog(catalogId: any, page: any) {
@@ -443,6 +468,23 @@ export class ApiServiceService {
     console.log(this)
 
     return lastValueFrom(this.http.get<any>(url));
+  }
+
+  /** Launched catalogs with the real X-Total-Count, meant for use with `fetchAllPages` to
+   * populate a catalog picker (e.g. the search page's "filter by catalog" select). */
+  async getCatalogsPaged(params: PageRequest): Promise<PageResult<any>> {
+    const queryParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+      lifecycleStatus: 'Launched',
+    };
+    applySort(params, queryParams);
+
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog`;
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
   }
 
   getLaunchedCatalogsPage(
