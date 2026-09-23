@@ -4,13 +4,14 @@ import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faCircleInfo, faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { TableColumn } from 'src/app/models/table-column.model';
+import { v4 as uuidv4 } from 'uuid';
+import { BadgeStatus } from '../../badge/badge.component';
+import { ButtonComponent } from '../../button/button.component';
+import { ModalComponent } from '../../modal/modal.component';
 import { TruncateValuePipe } from '../../pipes/truncate-value.pipe';
 import { CharValueType } from '../characteristic-value-spec/characteristic-value-spec-form.component';
 import { CharacteristicFormValue, SpecificationCharacteristicFormComponent } from '../specification-characteristic/specification-characteristic-form.component';
 import { TableInputComponent } from '../table-input/table-input.component';
-import { ButtonComponent } from '../../button/button.component';
-import { ModalComponent } from '../../modal/modal.component';
-import { BadgeStatus } from '../../badge/badge.component';
 
 export interface CharacteristicItem extends CharacteristicFormValue {
   id?: string;
@@ -105,7 +106,9 @@ export class CharacteristicsEditorComponent {
     }
 
     const item: CharacteristicItem = {
-      id: this.editingChar?.id,
+      // The charging backend matches price-plan profiles against characteristic ids,
+      // so every characteristic needs one from the moment it's created.
+      id: this.editingChar?.id ?? `urn:ngsi-ld:characteristic:${uuidv4()}`,
       name: this.currentChar.name,
       description: this.currentChar.description ?? '',
       configurable: this.currentChar.configurable,
