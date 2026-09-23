@@ -122,18 +122,29 @@ export class ApiServiceService {
     } else if (offers && typeof offers === 'object') {
       normalized = [offers]; // wrap single object into array
     }
-    return await Promise.all(normalized.map(async (offer: any): Promise<ProductOffering> => {
+
+    // Collect every distinct id up front so specs and prices for the WHOLE page are
+    // fetched with one request each, instead of one request per offer.
+    const specIds = [...new Set(normalized.map(o => o.productSpecification?.id).filter(Boolean))];
+    const priceIds = [...new Set(
+      normalized.flatMap(o => (o.productOfferingPrice ?? []).map((p: { id: any; }) => p.id))
+    )];
+
+    const [specs, prices] = await Promise.all([
+      this.getProductSpecifications(specIds),
+      this.getProductPrices(priceIds),
+    ]);
+    await this.resolveBundledPrices(prices);
+
+    const specById = new Map(specs.map((s: any) => [s.id, s]));
+    const priceById = new Map(prices.map((p: any) => [p.id, p]));
+
+    return normalized.map((offer: any): ProductOffering => {
       try {
-        // Getting specs and prices in parallel
-        const [spec, prodPrices] = await Promise.all([
-          offer.productSpecification?.id
-            ? this.getProductSpecification(offer.productSpecification.id)
-            : Promise.resolve(undefined),
-          offer.productOfferingPrice?.length
-            ? this.getProductPrices(offer.productOfferingPrice.map((p: { id: any; }) => p.id))
-            : Promise.resolve([])
-        ]);
-        await this.resolveBundledPrices(prodPrices);
+        const spec = offer.productSpecification?.id ? specById.get(offer.productSpecification.id) : undefined;
+        const prodPrices = (offer.productOfferingPrice ?? [])
+          .map((p: { id: any; }) => priceById.get(p.id))
+          .filter((p: any) => p != null);
 
         // Building `ProductOffering` object
         return {
@@ -155,7 +166,7 @@ export class ApiServiceService {
           marketSegment: offer.marketSegment ?? [],
           place: offer.place ?? [],
           prodSpecCharValueUse: offer.prodSpecCharValueUse ?? [],
-          productOfferingPrice: prodPrices ?? [],
+          productOfferingPrice: prodPrices,
           productOfferingRelationship: offer.productOfferingRelationship ?? [],
           productOfferingTerm: offer.productOfferingTerm ?? [],
           productSpecification: spec ?? offer.productSpecification,
@@ -171,7 +182,7 @@ export class ApiServiceService {
         console.error(`Error processing product ${offer.id}:`, error);
         return offer; // If error returns the original offer
       }
-    }));
+    });
   }
 
   getProductsByCategory(ids: Category[], page: any, keywords: any, sort?: any) {
@@ -353,6 +364,24 @@ export class ApiServiceService {
 
     this.pendingProductSpecRequests.set(id, request);
     return request;
+  }
+
+  getProductSpecifications(ids: any[]): Promise<any[]> {
+    if (!ids || ids.length === 0) {
+      return Promise.resolve([]);
+    }
+    if (ids.length === 1) {
+      // A single id is a direct lookup, not a search - cheaper for the backend than the
+      // filtered list endpoint below.
+      return this.getProductSpecification(ids[0])
+        .then(spec => spec ? [spec] : [])
+        .catch(() => []);
+    }
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/productSpecification?id=${ids.join(',')}&limit=${ids.length}`;
+    return lastValueFrom(this.http.get<any[]>(url)).then(specs => {
+      const byId = new Map((specs ?? []).map((s: any) => [s.id, s]));
+      return ids.map(id => byId.get(id)).filter((s: any) => s != null);
+    });
   }
 
   checkOfferingLaunch(id: string): Promise<{ canBeLaunched: boolean }> {
