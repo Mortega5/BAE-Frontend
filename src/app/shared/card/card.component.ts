@@ -274,7 +274,7 @@ export class CardComponent implements OnInit, OnDestroy, AfterViewInit {
     }
 
     this.isCustomPrice = await this.priceService.isCustomOffering(this.productOff)
-    this.cheapestPrice = this.priceService.formatCheapestPricePlan(this.productOff);
+    this.cheapestPrice = await this.priceService.formatCheapestPricePlan(this.productOff);
 
     this.prepareOffData();
 

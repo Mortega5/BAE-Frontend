@@ -133,6 +133,7 @@ export class ApiServiceService {
             ? this.getProductPrices(offer.productOfferingPrice.map((p: { id: any; }) => p.id))
             : Promise.resolve([])
         ]);
+        await this.resolveBundledPrices(prodPrices);
 
         // Building `ProductOffering` object
         return {
@@ -374,6 +375,49 @@ export class ApiServiceService {
       const byId = new Map((prices ?? []).map((p: any) => [p.id, p]));
       return ids.map(id => byId.get(id)).filter((p: any) => p != null);
     });
+  }
+
+  /**
+   * A "bundle" productOfferingPrice (isBundle: true) carries no price/priceType of its
+   * own - the real value lives in the productOfferingPrice referenced by its
+   * bundledPopRelationship. Resolves every such wrapper found in `pops` with a single
+   * batched request, no matter how many wrappers/offers are involved, merging the
+   * referenced price directly onto the wrapper so callers keep reading `priceType`/
+   * `price` as they would for any other price plan. A wrapper bundling more than one
+   * price component is left untouched - there's no single price to surface for it.
+   * Mutates and returns the same array, so it can be chained after the fetch that
+   * produced it.
+   */
+  async resolveBundledPrices(pops: any[]): Promise<any[]> {
+    const componentIdToWrapper = new Map<string, any>();
+
+    for (const pop of pops ?? []) {
+      if (!pop?.isBundle) continue;
+      const rel = pop.bundledPopRelationship;
+      const components = Array.isArray(rel) ? rel : rel ? [rel] : [];
+      if (components.length === 1 && components[0]?.id) {
+        componentIdToWrapper.set(components[0].id, pop);
+      }
+    }
+
+    if (componentIdToWrapper.size === 0) {
+      return pops;
+    }
+
+    const resolvedComponents = await this.getProductPrices([...componentIdToWrapper.keys()]);
+    const byId = new Map(resolvedComponents.map((c: any) => [c.id, c]));
+
+    for (const [componentId, wrapper] of componentIdToWrapper) {
+      const component = byId.get(componentId);
+      if (component) {
+        wrapper.priceType = component.priceType;
+        wrapper.price = component.price;
+        wrapper.recurringChargePeriodType = component.recurringChargePeriodType;
+        wrapper.unitOfMeasure = component.unitOfMeasure;
+      }
+    }
+
+    return pops;
   }
 
   getLaunchedCategories() {

@@ -6,6 +6,7 @@ import {HttpClient} from "@angular/common/http";
 import { lastValueFrom, map } from 'rxjs';
 import { v4 as uuidv4 } from 'uuid';
 import { environment } from 'src/environments/environment';
+import { ApiServiceService } from './product-service.service';
 
 type ProductOffering = components["schemas"]["ProductOffering"];
 
@@ -16,14 +17,15 @@ export class PriceServiceService {
   public static BASE_URL: String = environment.BASE_URL;
   public static API_CATALOG: String = environment.PRODUCT_CATALOG;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private api: ApiServiceService) {}
 
-  formatCheapestPricePlan(prod:ProductOffering|undefined) {
+  async formatCheapestPricePlan(prod:ProductOffering|undefined) {
     var result = {},
     pricePlan = null,
     pricePlans = [];
     if(prod!= undefined){
       if(prod.productOfferingPrice){
+        await this.api.resolveBundledPrices(prod.productOfferingPrice);
         if(prod.productOfferingPrice.length==1 && prod.productOfferingPrice[0].name?.toLocaleLowerCase() == 'open' && prod.productOfferingPrice[0].price?.value == 0){
           result = {
             'priceType': prod.productOfferingPrice[0].priceType,
@@ -39,7 +41,7 @@ export class PriceServiceService {
             //One time price plans
               for (var i = 0; i < pricePlans.length; i++) {
                   if (pricePlan == null || Number(pricePlan.price?.value) > Number(pricePlans[i].price?.value)){
-                    pricePlan = prod.productOfferingPrice[i];
+                    pricePlan = pricePlans[i];
                   }
               }
               result = {
@@ -60,11 +62,27 @@ export class PriceServiceService {
                   return ''
                 }
               });
-              result = {
-                'priceType': pricePlans[0]?.priceType,
-                'price': pricePlans[0]?.price?.value,
-                'unit': pricePlans[0]?.price?.unit,
-                'text': pricePlans[0]?.priceType?.toLocaleLowerCase() == TYPES.PRICE.RECURRING ? pricePlans[0]?.recurringChargePeriodType : pricePlans[0]?.priceType?.toLocaleLowerCase() == TYPES.PRICE.USAGE ? '/ '+ pricePlans[0]?.unitOfMeasure?.units : ''
+              if (pricePlans.length > 0) {
+                // Recurring/usage plans (online plans: flex or standard-with-profiles)
+                // can have several price points, and the cheapest one isn't necessarily
+                // representative (each profile targets a different need) - point the
+                // user at the plan list instead of a single "from" price.
+                result = {
+                  'priceType': pricePlans[0]?.priceType,
+                  'price': undefined,
+                  'unit': undefined,
+                  'text': 'consult_plans'
+                }
+              } else if (prod.productOfferingPrice.some(p => p.isBundle)) {
+                // A bundle wrapper that resolveBundledPrices() above couldn't resolve
+                // (it bundles more than one price component, so there's no single price
+                // to surface) still has no priceType/price of its own.
+                result = {
+                  'priceType': undefined,
+                  'price': undefined,
+                  'unit': undefined,
+                  'text': 'consult_plans'
+                }
               }
           }
         } else {
@@ -107,6 +125,9 @@ export class PriceServiceService {
     if (offering?.productOfferingPrice && offering?.productOfferingPrice.length > 0) {
       // Check if the first POP is a custom one
       const pop = await this.getProductPrice(offering.productOfferingPrice[0].id);
+      if (pop?.isBundle) {
+        await this.api.resolveBundledPrices([pop]);
+      }
       isCustom = pop.priceType?.toLowerCase() === 'custom';
     }
 
