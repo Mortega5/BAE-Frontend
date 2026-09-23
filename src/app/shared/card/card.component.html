@@ -52,6 +52,9 @@
       } @else if (cheapestPrice?.price === 0) {
       <span class="text-[15px] font-semibold text-[var(--status-badge-success)] uppercase tracking-wide">{{
         'CARD._free' | translate }}</span>
+      } @else if (isCustom()) {
+      <span class="text-[15px] font-semibold text-[var(--offer-card-heading-text)] uppercase tracking-wide">{{
+        'CARD._quote_required' | translate }}</span>
       } @else {
       <span></span>
       }
@@ -139,6 +142,9 @@
         } @else if (cheapestPrice?.price === 0) {
         <span class="font-semibold text-[var(--status-badge-success)] uppercase tracking-wide">{{ 'CARD._free' |
           translate }}</span>
+        } @else if (isCustom()) {
+        <span class="font-semibold text-[var(--offer-card-heading-text)] uppercase tracking-wide">{{
+          'CARD._quote_required' | translate }}</span>
         }
         @if (prodSpec.brand) {
         <div class="border-l border-gray-200 dark:border-secondary-200 pl-6">
