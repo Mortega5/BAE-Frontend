@@ -39,6 +39,7 @@
 
   <div class="flex flex-col gap-4">
     <app-specification-characteristic-form [supportedTypes]="supportedTypes" [editingKey]="editingChar"
+      [isOpen]="showForm"
       [initialName]="editingChar?.name ?? ''" [initialDescription]="editingChar?.description ?? ''"
       [initialConfigurable]="editingChar?.configurable ?? false" [initialValueType]="editingChar?.valueType ?? 'string'"
       [initialValues]="editingChar?.values ?? []" (formChange)="onFormChange($event)" />

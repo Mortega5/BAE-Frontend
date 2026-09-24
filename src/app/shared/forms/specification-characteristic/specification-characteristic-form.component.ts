@@ -66,6 +66,12 @@ const SCHEMA_LOCATIONS: Partial<Record<CharValueType, string>> = {
 export class SpecificationCharacteristicFormComponent implements OnInit, OnChanges, OnDestroy {
 
   @Input() editingKey: any = null;
+  /** True while the parent's modal/drawer hosting this form is visible. Needed
+   * alongside editingKey: creating a new characteristic twice in a row (save, then
+   * "add new" again) keeps editingKey at null both times, so Angular never reports
+   * it as changed - watching this transitioning to true instead catches that reopen
+   * and resets the form to blank rather than leaving the previous entry's data. */
+  @Input() isOpen: boolean = false;
   @Input() initialName: string = '';
   @Input() initialDescription: string = '';
   @Input() initialConfigurable: boolean = false;
@@ -186,7 +192,11 @@ export class SpecificationCharacteristicFormComponent implements OnInit, OnChang
     // editingId specifically (instead of the initial* values) avoids re-applying
     // — and clobbering in-progress edits — every time an unrelated change-detection
     // pass happens to produce a new array/object reference for those bindings.
-    if (changes['editingKey']) {
+    //
+    // editingKey alone misses one case: creating a new characteristic, saving it,
+    // then opening "add new" again - editingKey is null both times, so Angular never
+    // reports it as changed. isOpen transitioning to true catches that reopen too.
+    if (changes['editingKey'] || (changes['isOpen'] && this.isOpen)) {
       this.applyInitialValue();
     }
   }
