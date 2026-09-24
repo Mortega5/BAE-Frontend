@@ -108,9 +108,12 @@ export class GeneralInfoComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges) {
     // availableCatalogs loads asynchronously in the parent, after this component has
-    // already built its fields — rebuild so the catalogue field picks up the real options.
+    // already built its fields - update just the catalogue field's options in place
+    // (not a full buildFields() rebuild, which replaced every field's object identity
+    // and was wiping whatever the user had already typed into name/version while the
+    // catalogue list was still loading).
     if (changes['availableCatalogs'] && this.controlsReady) {
-      this.buildFields();
+      this.updateCatalogueOptions();
     }
   }
 
@@ -162,6 +165,14 @@ export class GeneralInfoComponent implements OnInit, OnChanges, OnDestroy {
     this.descriptionFields = [
       { type: 'markdownTextarea', name: 'description', label: 'CREATE_OFFER._description', placeholder: 'CREATE_OFFER._overview_placeholder' },
     ];
+  }
+
+  /** Refreshes just the catalogue field's `options` in place, keeping every other
+   * field's object identity untouched - unlike a full buildFields() rebuild. */
+  private updateCatalogueOptions(): void {
+    this.fields = this.fields.map(field =>
+      field.name === 'catalogue' ? ({ ...field, options: this.availableCatalogs } as FormField) : field
+    );
   }
 
   private getDirtyFields(currentValue: GeneralInfo): string[] {
