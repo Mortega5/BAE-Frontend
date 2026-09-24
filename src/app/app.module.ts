@@ -80,6 +80,8 @@ import { GoogleTagManagerService } from './services/google-tag-manager.service';
 import { ThemeAwareTranslateLoader } from './services/theme-aware-translate.loader';
 import { ThemeService } from './services/theme.service';
 import { BadgeComponent } from "./shared/badge/badge.component";
+import { ContentCardComponent } from "./shared/content-card/content-card.component";
+import { ModalComponent } from "./shared/modal/modal.component";
 import { BillingAccountFormComponent } from "./shared/billing-account-form/billing-account-form.component";
 import { CardComponent } from "./shared/card/card.component";
 import { CategoriesFilterComponent } from "./shared/categories-filter/categories-filter.component";
@@ -241,6 +243,8 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     CharacteristicsEditorComponent,
     StatusSelectorComponent,
     BadgeComponent,
+    ContentCardComponent,
+    ModalComponent,
     StepperComponent,
     StepperStepDirective,
     StatusFieldComponent,

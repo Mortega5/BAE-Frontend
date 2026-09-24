@@ -21,6 +21,7 @@ import { environment } from 'src/environments/environment';
 import { cartProduct, productSpecCharacteristicValueCart } from '../../models/interfaces';
 import { EventMessageService } from "../../services/event-message.service";
 import { ThemeService } from '../../services/theme.service';
+import { lifecycleStatusBadgeVariant, lifecycleStatusLabel } from '../../shared/badge/badge.component';
 
 interface UsageMetricCard {
   id: string;
@@ -63,6 +64,9 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   @ViewChild('charsScrollAnchor') charsScrollAnchor!: ElementRef;
   @ViewChild('detailsScrollAnchor') detailsScrollAnchor!: ElementRef;
 
+  protected readonly lifecycleStatusBadgeVariant = lifecycleStatusBadgeVariant;
+  protected readonly lifecycleStatusLabel = lifecycleStatusLabel;
+
   providerThemeName = environment.providerThemeName;
   quotesEnabled = environment.QUOTES_ENABLED;
   id: any;
@@ -94,8 +98,28 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   checkCustom: boolean = false;
   textDivHeight: any;
   prodChars: any[] = [];
+  /** prodChars split by `configurable` — the buyer can pick a value for these at
+   * checkout (price-plan-drawer only offers characteristics with configurable !==
+   * false, so this mirrors exactly what ends up pickable there). */
+  configurableChars: any[] = [];
+  /** prodChars the buyer can't change — fixed as-is on the spec. These never show
+   * up in price-plan-drawer's selectable groups, so this page is the only place a
+   * buyer can see their value at all. */
+  fixedChars: any[] = [];
   usageMetrics: UsageMetricCard[] = [];
   selfAtt: any = '';
+
+  /** Resolved contents of a bundle offer (productOff.isBundle), one entry per
+   * productOff.bundledProductOffering ref — each fetched (offering + its spec)
+   * since the ref only carries {id, href, name}. Empty for a non-bundle offer. */
+  bundledProducts: {
+    id: string;
+    name: string;
+    version?: string;
+    lifecycleStatus?: string;
+    configurableChars: any[];
+    fixedChars: any[];
+  }[] = [];
 
   // Structured product description, parsed out of a hidden <!--dome:details:start-->...<--end-->
   // fragment appended to prodSpec.description by the create/update-product-spec wizard.
@@ -122,6 +146,12 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   customerId: string = '';
 
   orgInfo: any = undefined;
+  /** True until every piece of data the page renders (offer, spec, prices, owner,
+   * linked specs, bundle contents...) has resolved. The whole template stays behind
+   * a single spinner while this is true, instead of each section popping in as its
+   * own fetch happens to land — trades a slightly later first paint for one clean
+   * reveal instead of a staggered one. */
+  pageLoading: boolean = true;
   showQuoteModal: boolean = false;
   productAlreadyInCart: boolean = false;
   activeTab: string = 'overview';
@@ -254,7 +284,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     let spec = await this.api.getProductSpecification(prod.productSpecification.id);
     this.prodSpec = spec;
     this.parseProductDetails(this.prodSpec.description);
-    this.getOwner();
+    await this.getOwner();
     let prodPrices: any[] | undefined = prod.productOfferingPrice;
     let prices: any[] = [];
     if (prodPrices !== undefined) {
@@ -281,19 +311,25 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       productSpecification: prod.productSpecification,
       productOfferingTerm: prod.productOfferingTerm,
       serviceLevelAgreement: prod.serviceLevelAgreement,
-      version: prod.version
+      version: prod.version,
+      lifecycleStatus: prod.lifecycleStatus,
+      isBundle: prod.isBundle,
+      bundledProductOffering: prod.bundledProductOffering
     }
     console.log('-------- producto')
     console.log(this.productOff)
     this.cdr.detectChanges();
     this.applyProductOffDerivedState();
+    await this.loadBundledProducts();
 
     if (this.check_logged) {
       let cart = await this.cartService.getShoppingCart();
       const exists = cart.some((item: any) => item.id === this.productOff?.id);
       this.productAlreadyInCart = exists;
-      this.cdr.detectChanges();
     }
+
+    this.pageLoading = false;
+    this.cdr.detectChanges();
   }
 
   /** Preview mode: render the offer being built in the seller wizard directly, with no
@@ -305,12 +341,14 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     this.prodSpec = (offer as any).productSpecification || {};
     this.parseProductDetails(this.prodSpec.description);
 
-    this.getOwner();
+    await this.getOwner();
     this.deriveCharacteristicsAndCompliance();
     await this.loadLinkedSpecs();
     await this.loadUsageMetrics(offer.productOfferingPrice);
     this.applyProductOffDerivedState();
+    await this.loadBundledProducts();
 
+    this.pageLoading = false;
     this.cdr.detectChanges();
   }
 
@@ -318,6 +356,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
    * Shared by the real API-driven load and the preview path. */
   private deriveCharacteristicsAndCompliance(): void {
     this.prodChars = [];
+    this.configurableChars = [];
+    this.fixedChars = [];
     this.additionalCerts = [];
     this.complianceProf = [];
     this.selfAtt = '';
@@ -327,9 +367,9 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     }
 
     // Avoid displaying the compliance credential && Avoid showing "- enabled" chars
-    this.prodChars = this.prodSpec.productSpecCharacteristic.filter((char: any) => {
-      return !char.name.startsWith('Compliance:') && !char.name?.endsWith(' - enabled')
-    })
+    this.prodChars = this.filterDisplayableCharacteristics(this.prodSpec.productSpecCharacteristic);
+    this.configurableChars = this.prodChars.filter((char: any) => char.configurable !== false);
+    this.fixedChars = this.prodChars.filter((char: any) => char.configurable === false);
 
     this.additionalCerts = this.prodSpec.productSpecCharacteristic.filter((char: any) => {
       const cleanedName = char.name.replace('Compliance:', '').trim();
@@ -453,6 +493,47 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       for (let j = 0; j < this.prodSpec.resourceSpecification.length; j++) {
         let res = await this.api.getResourceSpec(this.prodSpec.resourceSpecification[j].id);
         this.resourceSpecs.push(res);
+      }
+    }
+  }
+
+  /** Same filtering deriveCharacteristicsAndCompliance applies to the top-level
+   * prodChars — pulled out so loadBundledProducts can apply it per bundled item too. */
+  private filterDisplayableCharacteristics(chars: any[] | undefined): any[] {
+    return (chars ?? []).filter((char: any) =>
+      !char.name?.startsWith('Compliance:') && !char.name?.endsWith(' - enabled')
+    );
+  }
+
+  /** Resolves this.productOff.bundledProductOffering (just {id, href, name} refs)
+   * into full bundledProducts entries, one fetch of the offering + its spec per
+   * item — same two-hop pattern price-plan-drawer's loadBundleChoiceCharacteristics
+   * uses for bundled price plans. No-op for a non-bundle offer. */
+  private async loadBundledProducts(): Promise<void> {
+    this.bundledProducts = [];
+    const refs = this.productOff?.bundledProductOffering;
+    if (!refs || refs.length === 0) {
+      return;
+    }
+
+    for (const ref of refs) {
+      try {
+        const offering = await this.api.getProductById(ref.id);
+        const spec = offering?.productSpecification?.id
+          ? await this.api.getProductSpecification(offering.productSpecification.id)
+          : undefined;
+        const chars = this.filterDisplayableCharacteristics(spec?.productSpecCharacteristic);
+
+        this.bundledProducts.push({
+          id: offering?.id ?? ref.id,
+          name: offering?.name ?? ref.name ?? '',
+          version: offering?.version,
+          lifecycleStatus: offering?.lifecycleStatus,
+          configurableChars: chars.filter((char: any) => char.configurable !== false),
+          fixedChars: chars.filter((char: any) => char.configurable === false),
+        });
+      } catch (error) {
+        console.error('Error loading bundled product', ref.id, error);
       }
     }
   }
@@ -936,6 +1017,23 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     return this.images.length > 0 ? this.images?.at(0)?.url : 'https://placehold.co/600x400/svg';
   }
 
+  selectedImageIndex = 0;
+
+  /** The gallery's hero image — the selected thumbnail when there's more than one
+   * picture, otherwise the same single image getProductImage() returns. Kept
+   * separate from getProductImage() since that one is also used to snapshot the
+   * offer's cover image into the cart payload, which should stay the first/profile
+   * picture regardless of what the buyer is currently browsing in the gallery. */
+  getSelectedImage() {
+    return this.images.length > 0
+      ? (this.images.at(this.selectedImageIndex) ?? this.images.at(0))?.url
+      : 'https://placehold.co/600x400/svg';
+  }
+
+  selectImage(index: number) {
+    this.selectedImageIndex = index;
+  }
+
   removeClass(elem: HTMLElement, cls: string) {
     var str = " " + elem.className + " ";
     elem.className = str.replace(" " + cls + " ", " ").replace(/^\s+|\s+$/g, "");
@@ -967,8 +1065,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
   tabClass(name: string): string {
     return this.activeTab === name
-      ? 'text-white bg-primary-100 dark:bg-secondary-500/50 text-secondary-100 dark:text-white font-semibold'
-      : 'text-[#526179] dark:text-gray-400 font-medium hover:text-secondary-100 dark:hover:text-white hover:bg-primary-50/50 dark:hover:bg-secondary-300/50';
+      ? 'bg-primary-100 text-white font-semibold shadow-sm'
+      : 'text-[#526179] dark:text-gray-400 font-medium hover:bg-primary-100/10 hover:text-primary-100 dark:hover:bg-primary-50/10 dark:hover:text-primary-50';
   }
 
   toggleTermsReadMore() {
@@ -1007,19 +1105,17 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     return underscore > -1 ? decoded.slice(underscore + 1) : decoded;
   }
 
-  getOwner() {
-    let parties = this.prodSpec?.relatedParty;
-    if (parties)
-      for (let i = 0; i < parties.length; i++) {
-        if (parties[i].role == environment.SELLER_ROLE) {
-          if (parties[i].id.includes('organization')) {
-            this.accService.getOrgInfo(parties[i].id).then(org => {
-              this.orgInfo = org;
-              console.log(this.orgInfo)
-            })
-          }
-        }
-      }
+  /** Awaited from ngOnInit/applyPreviewOffer so it's covered by pageLoading like
+   * every other fetch — no more standalone loading flag needed for it. */
+  async getOwner(): Promise<void> {
+    const sellerParty = this.prodSpec?.relatedParty?.find(
+      (party: any) => party.role == environment.SELLER_ROLE && party.id?.includes('organization')
+    );
+    if (!sellerParty) {
+      return;
+    }
+
+    this.orgInfo = await this.accService.getOrgInfo(sellerParty.id);
   }
 
   goToOrgDetails(id: any) {
@@ -1066,6 +1162,32 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
   getCharacteristicRangePreview(valueSpec: any): string {
     return this.truncateCharacteristicLabel(this.getCharacteristicRangeLabel(valueSpec));
+  }
+
+  /** Picks the scalar-value or range preview/title depending on the value spec's
+   * shape, so the template doesn't need to branch on it just to style the
+   * default-value badge differently from the rest. */
+  getCharacteristicValueDisplay(valueSpec: any): string {
+    return valueSpec?.value !== undefined && valueSpec?.value !== null
+      ? this.getCharacteristicValuePreview(valueSpec)
+      : this.getCharacteristicRangePreview(valueSpec);
+  }
+
+  getCharacteristicValueTitle(valueSpec: any): string {
+    return valueSpec?.value !== undefined && valueSpec?.value !== null
+      ? this.getCharacteristicValueLabel(valueSpec)
+      : this.getCharacteristicRangeLabel(valueSpec);
+  }
+
+  /** A price plan's own prodSpecCharValueUse — the fixed characteristics that come
+   * with picking THIS plan specifically (e.g. "Storage: 200GB" on the plan that
+   * includes more storage), fetched already but never shown on this page before.
+   * Same shape price-plan-drawer reads as the plan's "profile". */
+  getIncludedCharacteristics(price: any): { name: string; value: string }[] {
+    return (price?.prodSpecCharValueUse ?? []).map((charUse: any) => ({
+      name: charUse.name,
+      value: this.getCharacteristicValueDisplay(charUse.productSpecCharacteristicValue?.[0]),
+    }));
   }
 
   isOptionalCharacteristic(characteristic: any): boolean {

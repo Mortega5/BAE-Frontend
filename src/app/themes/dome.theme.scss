@@ -31,13 +31,6 @@ body.theme-dome {
   --theme-header-v2-glass-bg: rgba(7, 18, 40, 0.55);
 }
 
-body.theme-dome .kf-watermark {
-  border-radius: 0;
-  background-color: rgb(var(--theme-secondary-50) / 0.7);
-  -webkit-mask: url('/assets/logos/DOME_Icon.svg') no-repeat center / contain;
-  mask: url('/assets/logos/DOME_Icon.svg') no-repeat center / contain;
-}
-
 .dark body.theme-bae {
   --theme-header-v2-top-bg: #070f24;
 }
