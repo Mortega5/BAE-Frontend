@@ -35,6 +35,13 @@
     @apply shadow-xl flex flex-col;
     max-height: min(90vh, 100%);
   }
+
+  /* For a card nested inside another card (e.g. a characteristics picker inside
+     a modal) — a tinted background reads as "belongs to the surface above it"
+     without competing for attention the way a second shadow/border would. */
+  &[data-variant="inset"] {
+    background-color: var(--card-inset-bg);
+  }
 }
 
 .app-card-header {

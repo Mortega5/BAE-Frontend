@@ -7,27 +7,29 @@
   </div>
 
     @if(characteristics.length>0){
-      <div class="bg-white dark:bg-secondary-100 rounded-2xl border border-[#EBECEE] dark:border-gray-800 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        @for(char of characteristics.controls; track $index){
-          <div class="min-h-19 pb-2">
-            <h5 class="font-semibold text-base leading-none text-gray-900 dark:text-white mb-3">{{char.value.name}}:</h5>
-            <!-- Dropdown Selector: one option per proposed value, range bands included -->
-            <select data-cy="offerProfileSelect"
-                    class="bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3"
-                    (change)="changeProfileValue($index, $event)">
-              <option *ngFor="let opt of char.value.options"
-                      [value]="hasKey(opt, 'valueFrom') ? opt.valueFrom : opt.value"
-                      [selected]="opt.isDefault">
-                @if(hasKey(opt, 'valueFrom')){
-                  {{ opt.valueFrom }} - {{ opt.valueTo }} <span *ngIf="opt.unitOfMeasure">({{ opt.unitOfMeasure }})</span>
-                } @else {
-                  {{ opt.value }} <span *ngIf="opt.unitOfMeasure">({{ opt.unitOfMeasure }})</span>
-                }
-              </option>
-            </select>
-          </div>
-        }
-      </div>
+      <app-card variant="inset">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          @for(char of characteristics.controls; track $index){
+            <div class="min-h-19 pb-2">
+              <h5 class="font-semibold text-base leading-none text-gray-900 dark:text-white mb-3">{{char.value.name}}:</h5>
+              <!-- Dropdown Selector: one option per proposed value, range bands included -->
+              <select data-cy="offerProfileSelect"
+                      class="bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-3"
+                      (change)="changeProfileValue($index, $event)">
+                <option *ngFor="let opt of char.value.options"
+                        [value]="hasKey(opt, 'valueFrom') ? opt.valueFrom : opt.value"
+                        [selected]="opt.isDefault">
+                  @if(hasKey(opt, 'valueFrom')){
+                    {{ opt.valueFrom }} - {{ opt.valueTo }} <span *ngIf="opt.unitOfMeasure">({{ opt.unitOfMeasure }})</span>
+                  } @else {
+                    {{ opt.value }} <span *ngIf="opt.unitOfMeasure">({{ opt.unitOfMeasure }})</span>
+                  }
+                </option>
+              </select>
+            </div>
+          }
+        </div>
+      </app-card>
     } @else {
       <div class="p-4 my-2 text-sm text-center text-primary-100 dark:text-primary-50 rounded-lg bg-blue-50 dark:bg-secondary-300" role="alert">
         <span class="font-medium">{{ 'FORMS.PRICE_PLANS._prod_spec_no_chars' | translate }}</span>

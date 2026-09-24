@@ -83,11 +83,13 @@
       @if (hasProfile) {
       <p class="mt-6 text-sm text-gray-500 dark:text-gray-400">{{ 'PRICE_PLAN_DRAWER._profile_associated' | translate }}
       </p>
-      <div class="rounded-lg border border-dashed border-primary-100 bg-white p-2 m-2 dark:bg-gray-800">
+      <div class="grid grid-cols-3 gap-2 m-2">
         @for (ch of profileCharacteristics ; track ch.id) {
         @if(!ch.name?.endsWith('- enabled')){
-        <app-characteristic [characteristic]="ch" [readOnly]="true"
-          (valueChange)="onValueChange($event)"></app-characteristic>
+        <app-item-card data-cy="profileChar" shadow="none">
+          <app-characteristic [characteristic]="ch" [readOnly]="true"
+            (valueChange)="onValueChange($event)"></app-characteristic>
+        </app-item-card>
         }
         }
       </div>
@@ -224,26 +226,28 @@
     </form>
 
     <div data-cy="bottom-banner" class="shrink-0 border-t border-gray-200 dark:border-gray-700 md:px-2 pt-4">
+      <div class="min-h-16 flex flex-col justify-center mb-4">
       @if (missingBuyerCountry && !isCustom && !isFree) {
       <div data-cy="missingCountryBanner"
-        class="flex items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 p-3 mb-4 text-sm text-amber-900 dark:text-amber-200">
+        class="flex items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 p-3 text-sm text-amber-900 dark:text-amber-200">
         <p>{{ 'PRICE_PLAN_DRAWER._country_required_banner' | translate }}</p>
         <app-button data-cy="setBuyerCountry" type="button" size="sm" class="shrink-0" (click)="openSetCountryModal()">
           {{ 'PRICE_PLAN_DRAWER._set_country_button' | translate }}
         </app-button>
       </div>
       } @else if (isLoading) {
-      <app-loading-spinner containerClass="" [label]="'PRICE_PLAN_DRAWER._loading_price' | translate" />
+      <app-loading-spinner containerClass="w-full flex justify-center items-center"
+        [label]="'PRICE_PLAN_DRAWER._loading_price' | translate" />
       } @else if (isCustom){
-      <div class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+      <div class="text-sm text-gray-500 dark:text-gray-400">
         <p>{{ 'PRICE_PLAN_DRAWER._custom_price_plan' | translate }}</p>
       </div>
       } @else if (isFree){
-      <div class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+      <div class="text-sm text-gray-500 dark:text-gray-400">
         <p>{{ 'PRICE_PLAN_DRAWER._offer_free' | translate }}</p>
       </div>
       } @else if (price) {
-      <div class="text-sm text-gray-900 dark:text-white mb-4">
+      <div class="text-sm text-gray-900 dark:text-white">
         @for (item of price; track item) {
         <div data-cy="previewPrices" class="flex justify-between mb-2">
           <span class="font-medium capitalize">{{ item['priceType'] }}:</span>
@@ -257,9 +261,10 @@
         }
       </div>
       } @else {
-      <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">{{ 'PRICE_PLAN_DRAWER._select_plan_price' | translate }}
+      <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'PRICE_PLAN_DRAWER._select_plan_price' | translate }}
       </p>
       }
+      </div>
       <app-button data-cy="addToCart" type="button"
         [disabled]="!isFormValid() || (missingBuyerCountry && !isCustom && !isFree)" (click)="createOrder()"
         suffixIcon="arrow-right" class="w-full">

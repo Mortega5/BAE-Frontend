@@ -188,6 +188,11 @@ body {
 
   --card-bg: #fff;
   --card-border: #EBECEE;
+  /* Material 3 "tonal surface" style — a card nested inside another card tints
+     --card-bg with the theme's primary color instead of a flat gray, so it stays
+     legible (and on-brand) across every theme without a hand-picked color per
+     theme.scss. 6% mirrors Material's lowest elevation-overlay opacity. */
+  --card-inset-bg: color-mix(in srgb, var(--card-bg), rgb(var(--theme-primary-100)) 6%);
   /* app-item-card theme tokens — border colors use primary-100 in light / primary-50
      in dark, the same pairing --card-hover-border and most button/link states use. */
   --card-selected-bg: rgb(var(--theme-secondary-50));
@@ -323,6 +328,9 @@ body.theme-bae {
   --card-bg: #131c24;
   --card-border: rgb(30 41 59);
   /* slate-800 */
+  /* Stronger tint than light mode's 6% — a subtle overlay reads as noise against
+     a dark base, so this needs to be more saturated to stay perceivable. */
+  --card-inset-bg: color-mix(in srgb, var(--card-bg), rgb(var(--theme-primary-100)) 12%);
   --card-selected-bg: rgb(var(--theme-primary-100) / 20%);
   --card-selected-border: rgb(var(--theme-primary-50));
   --card-hover-border: rgb(var(--theme-primary-50));

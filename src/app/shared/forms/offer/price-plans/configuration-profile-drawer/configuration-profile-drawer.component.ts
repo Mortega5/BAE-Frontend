@@ -5,6 +5,7 @@ import { certifications } from 'src/app/models/certification-standards.const';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ModalComponent } from 'src/app/shared/modal/modal.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 
 @Component({
   selector: 'app-configuration-profile-drawer',
@@ -15,7 +16,8 @@ import { ModalComponent } from 'src/app/shared/modal/modal.component';
     NgForOf,
     TranslateModule,
     ButtonComponent,
-    ModalComponent
+    ModalComponent,
+    ContentCardComponent
   ],
   styleUrl: './configuration-profile-drawer.component.css'
 })

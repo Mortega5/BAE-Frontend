@@ -5,6 +5,8 @@ import { MarkdownComponent } from "ngx-markdown";
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { components } from "../../models/product-catalog";
 import { DynamicFormComponent } from '../forms/dynamic-form/dynamic-form.component';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faLock } from '@fortawesome/pro-solid-svg-icons';
 
 type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecificationCharacteristic"];
 type CharacteristicValue = NonNullable<ProductSpecificationCharacteristic["productSpecCharacteristicValue"]>[number];
@@ -22,11 +24,14 @@ type Mode = 'boolean' | 'slider' | 'select' | 'free';
     ReactiveFormsModule,
     MarkdownComponent,
     DynamicFormComponent,
+    FaIconComponent,
   ],
   templateUrl: './characteristic.component.html',
   styleUrl: './characteristic.component.css'
 })
 export class CharacteristicComponent implements OnInit, OnChanges {
+  protected readonly faLock = faLock;
+
   @Input() characteristic!: ProductSpecificationCharacteristic;
   @Input() readOnly: boolean = false;
   @Input() isDisabled: boolean = false;

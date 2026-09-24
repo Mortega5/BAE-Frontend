@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 
-export type ContentCardVariant = 'panel' | 'modal';
+export type ContentCardVariant = 'panel' | 'modal' | 'inset';
 
 /** Shared white/dark box used to consolidate the many near-duplicate
  * `bg-white dark:bg-secondary-100 rounded-2xl border ... shadow-*` boxes scattered

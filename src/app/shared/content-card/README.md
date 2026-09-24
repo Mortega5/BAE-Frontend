@@ -17,15 +17,26 @@ README's "one-off color overrides" section for the exact mechanism).
 
 ## Variants
 
-| Variant | Shadow | Typical use |
-|---|---|---|
-| `panel` (default) | `shadow-sm` | In-page content boxes — stepper step content, drawer forms |
-| `modal` | `shadow-xl` | Dialog-style overlays |
+| Variant | Shadow | Background | Typical use |
+|---|---|---|---|
+| `panel` (default) | `shadow-sm` | `--card-bg` | In-page content boxes — stepper step content, drawer forms |
+| `modal` | `shadow-xl` | `--card-bg` | Dialog-style overlays |
+| `inset` | none | `--card-inset-bg` | A card nested inside another `<app-card>` (e.g. a picker inside a modal) |
 
-Both variants share the same background/border/radius tokens — only the shadow
-depth changes. This is a deliberate simplification: a few existing modals had no
-border at all before this component existed; migrating them to `modal` adds one,
-unifying the look rather than preserving every one-off variation.
+`panel` and `modal` share the same background/border/radius tokens — only the
+shadow depth changes. This is a deliberate simplification: a few existing
+modals had no border at all before this component existed; migrating them to
+`modal` adds one, unifying the look rather than preserving every one-off
+variation.
+
+`inset` exists for card-on-card nesting: two `panel`/`modal` cards stacked
+directly would render with the identical background, so the inner one reads as
+a stray box rather than "content that belongs to the outer card." Instead of a
+second shadow or a flat gray, `--card-inset-bg` tints `--card-bg` with the
+theme's own primary color via `color-mix()` (Material 3's "tonal surface"
+approach) — stronger in dark mode (12%) than light (6%) since a subtle tint
+reads as noise against a dark base. This means it re-themes for free with
+`theme.scss` instead of needing a hand-picked color per theme.
 
 ## Content projection
 
