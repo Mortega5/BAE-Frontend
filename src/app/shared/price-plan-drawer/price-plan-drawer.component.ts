@@ -586,6 +586,9 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
 
   // Handle price plan selection
   async onPricePlanSelected(pricePlan: any) {
+    if (this.selectedPricePlan && pricePlan?.id === this.selectedPricePlan?.id) {
+      return;
+    }
     this.metrics=[];
     console.log('precio')
     console.log(pricePlan)
@@ -668,7 +671,11 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   // Handle characteristic value changes
   async onValueChange(event: { characteristicId: string; selectedValue: any }): Promise<void> {
     const characteristicsGroup = this.form.get('characteristics') as FormGroup;
-    characteristicsGroup.get(event.characteristicId)?.setValue(event.selectedValue);
+    const control = characteristicsGroup.get(event.characteristicId);
+    if (control && control.value === event.selectedValue) {
+      return;
+    }
+    control?.setValue(event.selectedValue);
 
     // Picking a value for a bundle-derived characteristic actually means picking one of
     // the bundle's components - swap it in as the real selected price plan so checkout

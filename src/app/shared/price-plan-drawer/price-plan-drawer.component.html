@@ -92,7 +92,7 @@
         }
       </div>
       }
-      @if(booleanCharacteristics.length > 0 || choiceCharacteristics.length > 0 || rangeCharacteristics.length > 0) {
+      @if (form.get('selectedPricePlan')?.value && (booleanCharacteristics.length > 0 || choiceCharacteristics.length > 0 || rangeCharacteristics.length > 0)) {
       <app-card data-cy="prdSpecMetrics" class="mb-4">
         <p class="text-md text-primary-100 font-semibold mb-2">{{ 'PRICE_PLAN_DRAWER._select_characteristics' |
           translate }}</p>
