@@ -20,7 +20,7 @@
     </div>
 
     <div>
-      @if (activeTab === 'details') {
+      @if (activeTab === 'details' && previewProductOff) {
       <app-product-details [previewProductOff]="previewProductOff" />
       } @else {
       <div style="zoom: 0.72; pointer-events: none;">
