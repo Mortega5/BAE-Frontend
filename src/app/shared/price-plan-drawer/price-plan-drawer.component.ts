@@ -92,6 +92,16 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   groupedMetrics: { [usageSpecId: string]: { usageSpecId: string; name: string; unitOfMeasure: string }[] } = {};
 
   characteristics: ProductSpecificationCharacteristic[] = []; // Características dinámicas
+  /** A "flexible" price plan can be a bundle wrapper (isBundle: true) whose
+   * bundledPopRelationship holds several purchase options - each an actual price plan
+   * with its own prodSpecCharValueUse (the characteristic/value that option represents).
+   * Resolved when the plan is selected and surfaced as regular selectable
+   * characteristics (below, alongside the base spec's own ones) rather than as a
+   * separate list nested under the plan itself. */
+  bundleChoiceCharacteristics: ProductSpecificationCharacteristic[] = [];
+  /** `"<characteristic name>::<value>" -> the bundled component that value maps to`,
+   * so picking a value can swap in that component as the real selected price plan. */
+  private bundleOptionByValue: Record<string, any> = {};
   /** Fixed characteristics coming from the selected price plan's profile
    * (prodSpecCharValueUse), if any — shown read-only, separate from the
    * configurable ones the customer can still pick. */
@@ -294,6 +304,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     const profileNames = new Set(this.profileCharacteristics.map(c => c.name));
     const merged = [
       ...this.profileCharacteristics,
+      ...this.bundleChoiceCharacteristics,
       ...base.filter(c => !profileNames.has(c.name)),
     ];
     this.characteristics = applyCharacteristicConstraints(merged, this.constraintValueUses);
@@ -504,6 +515,75 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     await this.calculatePrice();
   }
 
+  /** A bundle wrapper (isBundle: true) with more than one bundled component isn't a
+   * single price plan with a value of its own - it's a group of purchase options (e.g.
+   * one per value of a characteristic), each with its own prodSpecCharValueUse. */
+  private isBundleWithOptions(pp: any): boolean {
+    return !!pp?.isBundle && (pp?.bundledPopRelationship?.length ?? 0) > 1;
+  }
+
+  /** Resolves a selected bundle wrapper's components (they only carry {id, href, name}
+   * refs until fetched) and turns them into regular selectable characteristics - one per
+   * distinct characteristic name across the bundle, with every component's value as an
+   * option - so they render in the normal "select characteristics" section below instead
+   * of a list nested under the plan itself. */
+  private async loadBundleChoiceCharacteristics(pricePlan: any): Promise<void> {
+    this.bundleChoiceCharacteristics = [];
+    this.bundleOptionByValue = {};
+    if (!this.isBundleWithOptions(pricePlan)) {
+      return;
+    }
+
+    const components = await Promise.all(
+      (pricePlan.bundledPopRelationship || []).map((ref: any) => this.priceService.getProductPrice(ref.id))
+    );
+
+    // Each bundled component can carry more than one characteristic (a profile isn't
+    // limited to a single configurable characteristic) - collect every entry across
+    // every component, grouped by characteristic name.
+    const byName = new Map<string, { id: string; values: { value: any; isDefault: boolean }[] }>();
+    for (const component of components) {
+      for (const charUse of component?.prodSpecCharValueUse ?? []) {
+        const value = charUse?.productSpecCharacteristicValue?.[0];
+        if (!charUse?.name || value == null) continue;
+
+        if (!byName.has(charUse.name)) {
+          byName.set(charUse.name, { id: charUse.id || `bundle-choice-${charUse.name}`, values: [] });
+        }
+        byName.get(charUse.name)!.values.push({ value: value.value, isDefault: !!value.isDefault });
+        this.bundleOptionByValue[`${charUse.name}::${value.value}`] = component;
+      }
+    }
+
+    this.bundleChoiceCharacteristics = Array.from(byName.entries()).map(([name, entry]) => ({
+      id: entry.id,
+      name,
+      valueType: 'string',
+      configurable: true,
+      productSpecCharacteristicValue: entry.values,
+    })) as any;
+  }
+
+  /** Re-marks every bundle-derived characteristic's default value to match the given
+   * component, and replaces each affected characteristic with a new object (never
+   * mutated in place) so downstream consumers - <app-characteristic> in particular -
+   * see a changed input and re-render with the new default. */
+  private applyComponentAsDefaults(component: any): void {
+    this.bundleChoiceCharacteristics = this.bundleChoiceCharacteristics.map(bundleChar => {
+      const matchingValue = component.prodSpecCharValueUse?.find((c: any) => c.name === bundleChar.name)
+        ?.productSpecCharacteristicValue?.[0]?.value;
+      if (matchingValue === undefined) return bundleChar;
+
+      return {
+        ...bundleChar,
+        productSpecCharacteristicValue: bundleChar.productSpecCharacteristicValue?.map((v: any) => ({
+          ...v,
+          isDefault: v.value === matchingValue,
+        })),
+      };
+    });
+  }
+
   // Handle price plan selection
   async onPricePlanSelected(pricePlan: any) {
     this.metrics=[];
@@ -517,6 +597,9 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     this.profileCharacteristics = pricePlan.prodSpecCharValueUse ?? [];
     this.hasProfile = this.profileCharacteristics.length > 0;
 
+    const hadBundleChoices = this.bundleChoiceCharacteristics.length > 0;
+    await this.loadBundleChoiceCharacteristics(pricePlan);
+
     const previousConstraints = this.constraintValueUses;
     this.constraintValueUses = await this.loadConstraintValueUses(pricePlan);
     const constraintsChanged = JSON.stringify(previousConstraints) !== JSON.stringify(this.constraintValueUses);
@@ -525,7 +608,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     // picked) when the profile or the plan's characteristic constraints actually
     // change — switching between two plans that are otherwise identical keeps using
     // the same base characteristics untouched.
-    if (hadProfile || this.hasProfile || constraintsChanged) {
+    if (hadProfile || this.hasProfile || hadBundleChoices || this.bundleChoiceCharacteristics.length > 0 || constraintsChanged) {
       this.applyCharacteristicsSource();
     }
 
@@ -586,6 +669,30 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
   async onValueChange(event: { characteristicId: string; selectedValue: any }): Promise<void> {
     const characteristicsGroup = this.form.get('characteristics') as FormGroup;
     characteristicsGroup.get(event.characteristicId)?.setValue(event.selectedValue);
+
+    // Picking a value for a bundle-derived characteristic actually means picking one of
+    // the bundle's components - swap it in as the real selected price plan so checkout
+    // references the one the buyer configured, exactly as if they'd selected it directly.
+    const bundleChar = this.bundleChoiceCharacteristics.find(c => c.id === event.characteristicId);
+    if (bundleChar) {
+      const component = this.bundleOptionByValue[`${bundleChar.name}::${event.selectedValue}`];
+      if (component) {
+        this.selectedPricePlan = component;
+        this.form.get('selectedPricePlan')?.setValue(component);
+
+        // A component can carry several characteristics at once (a full combo, e.g.
+        // Region+Soporte) - when one of them changes, the others must follow the SAME
+        // component instead of staying independently selected, or the buyer could end
+        // up with a combination (e.g. Region: US + Soporte: Basico) that doesn't match
+        // any real component, silently breaking the price calculation. Rebuilding
+        // (rather than just patching the form controls) also gives <app-characteristic>
+        // a fresh object reference for every affected characteristic, which is the only
+        // thing that makes it re-render - it owns its own internal FormControl and
+        // ignores value changes made directly on the parent's form.
+        this.applyComponentAsDefaults(component);
+        this.applyCharacteristicsSource();
+      }
+    }
 
     /*let char = this.filteredCharacteristics.find(item => item.id === event.characteristicId);
     if (char?.name?.endsWith('- enabled')) {

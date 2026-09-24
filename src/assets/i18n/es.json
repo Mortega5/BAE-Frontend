@@ -927,6 +927,7 @@
     "_offering_free": "La oferta es gratuita",
     "_profile_badge": "PERFIL",
     "_profile_associated": "Este plan de precios tiene un perfil asociado. Esto significa que las siguientes características ya están configuradas para ti.",
+    "_select_bundle_option": "Elige una de las opciones disponibles:",
     "_select_characteristics": "Selecciona las características que necesitas para adaptar esta oferta a ti.",
     "_boolean_toggles": "Interruptores booleanos",
     "_choices": "Opciones",
