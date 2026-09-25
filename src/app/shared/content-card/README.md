@@ -22,6 +22,7 @@ README's "one-off color overrides" section for the exact mechanism).
 | `panel` (default) | `shadow-sm` | `--card-bg` | In-page content boxes — stepper step content, drawer forms |
 | `modal` | `shadow-xl` | `--card-bg` | Dialog-style overlays |
 | `inset` | none | `--card-inset-bg` | A card nested inside another `<app-card>` (e.g. a picker inside a modal) |
+| `accent` | `shadow-sm` | `--card-selected-bg` | A card that should stand out — a highlighted/featured item among plain ones |
 
 `panel` and `modal` share the same background/border/radius tokens — only the
 shadow depth changes. This is a deliberate simplification: a few existing
@@ -37,6 +38,12 @@ theme's own primary color via `color-mix()` (Material 3's "tonal surface"
 approach) — stronger in dark mode (12%) than light (6%) since a subtle tint
 reads as noise against a dark base. This means it re-themes for free with
 `theme.scss` instead of needing a hand-picked color per theme.
+
+`accent` reuses the exact `--card-selected-bg`/`--card-selected-border` pair
+`app-item-card` already uses for its own `[selected]` state, rather than
+inventing a fourth color — so an accented `<app-card>` and a selected
+`<app-item-card>` read as the same "highlighted" treatment wherever a page
+uses both, without either component needing to know about the other.
 
 ## Content projection
 

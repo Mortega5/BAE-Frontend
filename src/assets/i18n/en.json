@@ -1069,6 +1069,7 @@
     "_product_rels": "Product relationships",
     "_all_categories": "All categories",
     "_includes": "Includes",
+    "_prices_exclude_tax": "* Prices exclude tax.",
     "_loading": "Loading offer details...",
     "_bundle": "Bundle",
     "_read_more": "Read more",

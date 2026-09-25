@@ -1069,6 +1069,7 @@
     "_product_rels": "Relaciones del producto",
     "_all_categories": "Todas las categorías",
     "_includes": "Incluye",
+    "_prices_exclude_tax": "* Precios sin impuestos.",
     "_loading": "Cargando la oferta...",
     "_bundle": "Paquete",
     "_read_more": "Leer más",

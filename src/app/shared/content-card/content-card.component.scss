@@ -42,6 +42,17 @@
   &[data-variant="inset"] {
     background-color: var(--card-inset-bg);
   }
+
+  /* An alternate background for a card that should stand out from the plain
+     panel/inset look — reuses app-item-card's own "selected" tokens (same
+     --card-selected-bg/border pair) instead of inventing a third color, so an
+     accented app-card and a selected app-item-card read as the same "highlighted"
+     state wherever they appear. */
+  &[data-variant="accent"] {
+    @apply shadow-sm;
+    background-color: var(--card-selected-bg);
+    border-color: var(--card-selected-border);
+  }
 }
 
 .app-card-header {

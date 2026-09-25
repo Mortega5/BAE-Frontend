@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faArrowProgress, faArrowRightArrowLeft, faAtom, faBook, faDownload, faGlobe, faMinus, faObjectExclude, faPlus, faScaleBalanced, faShieldHalved, faSwap } from "@fortawesome/pro-solid-svg-icons";
 import { initFlowbite } from 'flowbite';
@@ -35,7 +35,7 @@ interface UsageMetricCard {
   templateUrl: './product-details.component.html',
   styleUrl: './product-details.component.css'
 })
-export class ProductDetailsComponent implements OnInit, OnDestroy {
+export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit {
 
   /** When set, the page renders this offer directly instead of fetching by route id —
    * used to preview an in-progress offer from the seller wizard before it's saved. */
@@ -155,6 +155,14 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
   showQuoteModal: boolean = false;
   productAlreadyInCart: boolean = false;
   activeTab: string = 'overview';
+
+  /** The 4 tab buttons, queried so the sliding indicator below can measure the
+   * active one's actual offsetLeft/offsetWidth — computed in JS rather than pure
+   * CSS since the gap between flex-1 buttons makes percentage math not line up
+   * with each button's real edges. */
+  @ViewChildren('tabButton') private tabButtonEls!: QueryList<ElementRef<HTMLButtonElement>>;
+  private readonly TAB_ORDER = ['overview', 'features', 'pricing', 'compliance'];
+  tabIndicatorStyle: { left: string; width: string } = { left: '0px', width: '0px' };
 
   protected readonly faScaleBalanced = faScaleBalanced;
   protected readonly faArrowProgress = faArrowProgress;
@@ -291,6 +299,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       // Fetch all prices in one bulk request instead of one-by-one
       // (the sequential await loop was the bottleneck on /search/:id).
       prices = await this.api.getProductPrices(prodPrices.map(p => p.id));
+      await this.resolveBundlePrices(prices);
       if (prices.some(price => price?.priceType == 'custom')) {
         this.checkCustom = true;
       }
@@ -330,6 +339,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
     this.pageLoading = false;
     this.cdr.detectChanges();
+    setTimeout(() => this.updateTabIndicator());
   }
 
   /** Preview mode: render the offer being built in the seller wizard directly, with no
@@ -350,6 +360,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
 
     this.pageLoading = false;
     this.cdr.detectChanges();
+    setTimeout(() => this.updateTabIndicator());
   }
 
   /** Derives prodChars/additionalCerts/complianceProf/selfAtt from this.prodSpec.
@@ -495,6 +506,50 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
         this.resourceSpecs.push(res);
       }
     }
+  }
+
+  /** A bundle price plan (isBundle: true) carries no `price` of its own — it's a
+   * wrapper pointing at the real priced component(s) via bundledPopRelationship
+   * (confirmed against a live offer: the wrapper has no `price` field at all,
+   * only the referenced component does). The Pricing tab read productOfferingPrice
+   * as-is and just showed a blank price for these; resolve them in place here so
+   * the card can show the real amount. Mirrors what price-plan-drawer's
+   * loadBundleChoiceCharacteristics does for the cart flow, simplified to "use the
+   * first bundled component's price" since this tab is a read-only summary, not
+   * an interactive picker between multiple bundle options. */
+  private async resolveBundlePrices(prices: any[]): Promise<void> {
+    for (const price of prices) {
+      if (!price?.isBundle) {
+        continue;
+      }
+      for (const ref of this.asArray(price.bundledPopRelationship)) {
+        if (!ref?.id) {
+          continue;
+        }
+        try {
+          const component = await this.api.getProductPrice(ref.id);
+          if (component?.price?.value != null) {
+            price.price = component.price;
+            price.priceType = component.priceType;
+            price.recurringChargePeriodType = component.recurringChargePeriodType;
+            price.recurringChargePeriodLength = component.recurringChargePeriodLength;
+            break;
+          }
+        } catch (error) {
+          console.error('Error resolving bundle price component', ref.id, error);
+        }
+      }
+    }
+  }
+
+  /** bundledPopRelationship/popRelationship come back as a single object (not an
+   * array) when a price plan only has one relationship — seen directly on a live
+   * offer despite the generated type saying array. Normalizes either shape. */
+  private asArray<T>(value: T | T[] | null | undefined): T[] {
+    if (!value) {
+      return [];
+    }
+    return Array.isArray(value) ? value : [value];
   }
 
   /** Same filtering deriveCharacteristicsAndCompliance applies to the top-level
@@ -1063,9 +1118,38 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
     this.activeTab = 'overview';
   }
 
+  ngAfterViewInit(): void {
+    // Buttons aren't in the DOM yet on the first pass (pageLoading gates the whole
+    // template) — the real placement happens once pageLoading flips, see the
+    // setTimeout after it in ngOnInit/applyPreviewOffer.
+    this.updateTabIndicator();
+  }
+
+  setActiveTab(tab: string): void {
+    this.activeTab = tab;
+    // Let the click's own change detection pass render first, then measure.
+    setTimeout(() => this.updateTabIndicator());
+  }
+
+  @HostListener('window:resize')
+  updateTabIndicator(): void {
+    const buttons = this.tabButtonEls?.toArray();
+    if (!buttons || buttons.length === 0) {
+      return;
+    }
+    const activeButton = buttons[this.TAB_ORDER.indexOf(this.activeTab)]?.nativeElement;
+    if (!activeButton) {
+      return;
+    }
+    this.tabIndicatorStyle = {
+      left: `${activeButton.offsetLeft}px`,
+      width: `${activeButton.offsetWidth}px`,
+    };
+  }
+
   tabClass(name: string): string {
     return this.activeTab === name
-      ? 'bg-primary-100 text-white font-semibold shadow-sm'
+      ? 'text-white font-semibold'
       : 'text-[#526179] dark:text-gray-400 font-medium hover:bg-primary-100/10 hover:text-primary-100 dark:hover:bg-primary-50/10 dark:hover:text-primary-50';
   }
 
@@ -1189,6 +1273,7 @@ export class ProductDetailsComponent implements OnInit, OnDestroy {
       value: this.getCharacteristicValueDisplay(charUse.productSpecCharacteristicValue?.[0]),
     }));
   }
+
 
   isOptionalCharacteristic(characteristic: any): boolean {
     const baseName = (characteristic?.name ?? '').toString().trim();
