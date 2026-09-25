@@ -145,6 +145,37 @@
           class="rounded-xl border border-gray-200 dark:border-secondary-200 bg-white dark:bg-secondary-300 p-5">
           <h3 class="text-[18px] font-semibold text-[#0b1220] dark:text-white mb-4">{{ 'DASHBOARD._filters' |
             translate }}</h3>
+
+          <!-- Shared by both Private Offers and Public Catalog in the results column
+               (same viewMode drives both grids) — lives here, inside the filters box,
+               instead of nested inside either section's own card header, since a
+               control nested in one section shouldn't silently control the other. -->
+          <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-secondary-200">
+            <span class="text-[14px] font-medium text-[#0b1220] dark:text-white">{{ 'DASHBOARD._view' | translate
+              }}</span>
+            <div
+              class="flex items-center gap-0.5 rounded-lg border border-gray-200 dark:border-secondary-200 bg-white dark:bg-secondary-300 p-1">
+              <button (click)="viewMode='grid'"
+                [ngClass]="viewMode==='grid' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
+                class="rounded p-2 transition-colors">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
+                </svg>
+              </button>
+              <button (click)="viewMode='list'"
+                [ngClass]="viewMode==='list' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
+                class="rounded p-2 transition-colors">
+                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                  stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
           <ng-container *ngTemplateOutlet="sidebarFilters"></ng-container>
         </div>
       </aside>
@@ -152,6 +183,23 @@
       }
 
       <div class="min-w-0 flex-1">
+
+        <ng-template #noResults>
+          <div class="col-span-full flex flex-col items-center justify-center text-center py-16 px-4">
+            <div
+              class="flex h-16 w-16 items-center justify-center rounded-full bg-[#eef2fb] dark:bg-secondary-300 mb-4">
+              <svg class="h-8 w-8 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg"
+                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m-3-3h6" />
+              </svg>
+            </div>
+            <p class="text-base font-semibold text-gray-700 dark:text-white mb-1">{{ 'DASHBOARD._not_found' |
+              translate }}</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 max-w-xs">{{ 'DASHBOARD._not_found_desc' | translate
+              }}</p>
+          </div>
+        </ng-template>
 
         @if (!aiSearchEnabled) {
         <app-button (click)="showDrawer=!showDrawer; $event.stopPropagation();" type="button" variant="secondary"
@@ -249,8 +297,8 @@
           <bae-off-card data-cy="baeCard" [productOff]="prod" [cardId]="index" [viewMode]="viewMode"
             class="w-full h-full"></bae-off-card>
           } @empty {
-          <div data-cy="searchNoOffersFound" class="col-span-3 py-16 text-center text-gray-500 dark:text-gray-400">
-            {{ 'DASHBOARD._not_found' | translate }}
+          <div data-cy="searchNoOffersFound" class="col-span-full">
+            <ng-container *ngTemplateOutlet="noResults"></ng-container>
           </div>
           }
         </div>
@@ -297,9 +345,11 @@
             <div class="overflow-hidden">
               <div appCardContent class="transition-opacity duration-200"
                 [ngClass]="privateOpen ? 'opacity-100 delay-100' : 'opacity-0'">
+                @if (!privateLoading) {
                 <span class="text-[14px] text-[#526179] dark:text-gray-400 block mb-4">
                   {{ 'DASHBOARD._results_of_total' | translate: { count: privateItems.length, total: privateTotal } }}
                 </span>
+                }
                 @if (privateLoading) {
                 <app-loading-spinner />
                 } @else {
@@ -308,9 +358,13 @@
                   @for (prod of privateItems; track prod.id; let index = $index) {
                   <bae-off-card data-cy="basePrivateCard" [productOff]="prod" [cardId]="index" [viewMode]="viewMode"
                     class="w-full h-full"></bae-off-card>
+                  } @empty {
+                  <div class="col-span-full">
+                    <ng-container *ngTemplateOutlet="noResults"></ng-container>
+                  </div>
                   }
                 </div>
-                @if (!privateLoadingMore) {
+                @if (!privateLoadingMore && privateItems.length > 0) {
                 @if (privateHasMore) {
                 <div class="flex pb-6 justify-center mt-6">
                   <app-button data-cy="loadMorePrivate" (click)="loadMorePrivateOfferings()" variant="secondary"
@@ -337,32 +391,13 @@
               translate }}</h2>
           </div>
           <div appCardContent>
+            @if (!publicLoading) {
             <div class="mb-4 flex items-center justify-between">
               <span class="text-[14px] text-[#526179] dark:text-gray-400">
                 {{ 'DASHBOARD._results_of_total' | translate: { count: publicItems.length, total: publicTotal } }}
               </span>
-              <div
-                class="flex items-center gap-0.5 rounded-lg border border-gray-200 dark:border-secondary-200 bg-white dark:bg-secondary-300 p-1">
-                <button (click)="viewMode='grid'"
-                  [ngClass]="viewMode==='grid' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
-                  class="rounded p-2 transition-colors">
-                  <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
-                  </svg>
-                </button>
-                <button (click)="viewMode='list'"
-                  [ngClass]="viewMode==='list' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
-                  class="rounded p-2 transition-colors">
-                  <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke-width="1.5" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                  </svg>
-                </button>
-              </div>
             </div>
+            }
 
             @if (publicLoading) {
             <app-loading-spinner />
@@ -373,12 +408,12 @@
               <bae-off-card data-cy="baeCard" [productOff]="prod" [cardId]="index" [viewMode]="viewMode"
                 class="w-full h-full"></bae-off-card>
               } @empty {
-              <div data-cy="searchNoOffersFound" class="col-span-3 py-16 text-center text-gray-500 dark:text-gray-400">
-                {{ 'DASHBOARD._not_found' | translate }}
+              <div data-cy="searchNoOffersFound" class="col-span-full">
+                <ng-container *ngTemplateOutlet="noResults"></ng-container>
               </div>
               }
             </div>
-            @if (!publicLoadingMore) {
+            @if (!publicLoadingMore && publicItems.length > 0) {
             @if (publicHasMore) {
             <div class="flex pb-6 justify-center mt-6">
               <app-button data-cy="loadMore" (click)="loadMorePublicOfferings()" variant="secondary"

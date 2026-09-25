@@ -131,6 +131,23 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   useCases: { name: string, description: string, icon: string | null }[] = [];
   faqs: { question: string, answer: string }[] = [];
   openFaqIdx: number | null = null;
+
+  /** Gates the Overview tab's second app-card (everything below the quick-facts
+   * summary). Every one of these sections is optional — an offer authored without
+   * the seller wizard's structured-details editor has none of them — so without
+   * this check the card would still render, just empty (visible border/padding,
+   * nothing inside). True if at least one section has something to show. */
+  get hasStructuredOverviewContent(): boolean {
+    return !!this.specOverview
+      || !!this.howItWorks
+      || this.keyFeatures.length > 0
+      || this.businessBenefits.length > 0
+      || this.useCases.length > 0
+      || this.serviceSpecs.length > 0
+      || this.resourceSpecs.length > 0
+      || (this.prodSpec.productSpecificationRelationship?.length ?? 0) > 0
+      || this.faqs.length > 0;
+  }
   descMoreOpen: boolean = false;
   howItWorksMoreOpen: boolean = false;
   private readonly DETAILS_START = '<!--dome:details:start-->';

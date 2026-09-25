@@ -323,6 +323,7 @@
     "_results_of_total": "{{count}} de {{total}} resultados",
     "_search": "Buscar",
     "_not_found": "No se encontraron ofertas",
+    "_not_found_desc": "Prueba a ajustar la búsqueda o los filtros para encontrar lo que buscas.",
     "_browse_serv": "Explorar servicios",
     "_view_serv": "Ver servicios",
     "_close_menu": "Cerrar menú",
@@ -337,6 +338,7 @@
     "_next": "Siguiente",
     "_clear_all": "Borrar todo",
     "_filters": "Filtros",
+    "_view": "Vista",
     "_aria_pagination": "Paginación",
     "_load_more": "Cargar más",
     "footer": {

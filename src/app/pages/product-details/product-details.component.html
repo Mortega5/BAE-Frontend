@@ -266,6 +266,7 @@
         }
       </div>
     </app-card>
+    @if (hasStructuredOverviewContent) {
     <app-card class="mt-6 mb-8">
 
       @if(specOverview){
@@ -486,12 +487,13 @@
       }
     </app-card>
     }
+    }
 
     @if (activeTab === 'features') {
     <app-card class="mt-8">
 
       <ng-template #charCard let-char>
-        <app-card>
+        <app-card [variant]="'accent'">
           <div class="flex items-start justify-between gap-2 mb-2">
             <h3 [ngClass]="{'break-all': hasLongWord(char.name, 20), 'break-words': !hasLongWord(char.name, 20)}"
               class="text-[18px] font-bold text-secondary-100 dark:text-white break-words">{{char.name}}</h3>
@@ -618,7 +620,7 @@
       <div class="grid gap-4 mb-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         @for (price of productOff?.productOfferingPrice; track price.id) {
         @if (price.priceType == 'custom') {
-        <app-card>
+        <app-card [variant]="'accent'">
           <h3 [ngClass]="{'break-all': hasLongWord(price.name, 20), 'break-words': !hasLongWord(price.name, 20)}"
             class="text-[20px] font-bold text-secondary-100 dark:text-white mb-2 break-words">{{price.name}}</h3>
           <markdown
@@ -657,42 +659,38 @@
       } @else {
       <div class="grid gap-4 mb-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
         @for (price of productOff?.productOfferingPrice; track price.id) {
-        <div
-          class="rounded-2xl bg-[color:var(--card-bg)] border border-[color:var(--card-border)] border-t-[3px] border-t-[color:rgb(var(--theme-primary-50))] overflow-hidden">
-          <div class="p-6">
-            <h3 [ngClass]="{'break-all': hasLongWord(price.name, 20), 'break-words': !hasLongWord(price.name, 20)}"
-              class="text-[18px] font-bold text-secondary-100 dark:text-white break-words mb-2">{{price.name}}</h3>
-            @if (price.price?.value != null) {
-            <div class="text-[24px] font-bold text-secondary-100 dark:text-white mb-2">
-              {{ price.price!.value | currency: price.price!.unit }}<span
-                class="align-top text-[14px]">*</span>
-              @if (price.priceType === 'recurring' && price.recurringChargePeriodType) {
-              <span class="text-[14px] font-normal text-[#526179] dark:text-gray-400">/ {{
-                price.recurringChargePeriodType }}</span>
-              }
-            </div>
-            }
-            <markdown
-              [ngClass]="{'break-all': hasLongWord(price?.description, 20), 'break-words': !hasLongWord(price?.description, 20)}"
-              class="text-[14px] text-[#526179] dark:text-gray-400" [data]="price?.description"></markdown>
-            @if (getIncludedCharacteristics(price); as included) {
-            @if (included.length > 0) {
-            <div class="mt-3 pt-3 border-t border-[color:var(--card-border)]">
-              <p class="text-xs font-semibold uppercase tracking-wide text-[#8896A8] dark:text-gray-400 mb-1.5">{{
-                'PRODUCT_DETAILS._includes' | translate }}</p>
-              <ul class="space-y-1">
-                @for (item of included; track item.name) {
-                <li class="flex items-baseline justify-between gap-3 text-sm text-[#526179] dark:text-gray-400">
-                  <span class="font-medium text-secondary-100 dark:text-white">{{item.name}}</span>
-                  <span class="text-right">{{item.value}}</span>
-                </li>
-                }
-              </ul>
-            </div>
-            }
+        <app-card variant="accent">
+          <h3 [ngClass]="{'break-all': hasLongWord(price.name, 20), 'break-words': !hasLongWord(price.name, 20)}"
+            class="text-[18px] font-bold text-secondary-100 dark:text-white break-words mb-2">{{price.name}}</h3>
+          @if (price.price?.value != null) {
+          <div class="text-[24px] font-bold text-secondary-100 dark:text-white mb-2">
+            {{ price.price!.value | currency: price.price!.unit }}<span class="align-top text-[14px]">*</span>
+            @if (price.priceType === 'recurring' && price.recurringChargePeriodType) {
+            <span class="text-[14px] font-normal text-[#526179] dark:text-gray-400">/ {{
+              price.recurringChargePeriodType }}</span>
             }
           </div>
-        </div>
+          }
+          <markdown
+            [ngClass]="{'break-all': hasLongWord(price?.description, 20), 'break-words': !hasLongWord(price?.description, 20)}"
+            class="text-[14px] text-[#526179] dark:text-gray-400" [data]="price?.description"></markdown>
+          @if (getIncludedCharacteristics(price); as included) {
+          @if (included.length > 0) {
+          <div class="mt-3 pt-3 border-t border-[color:var(--card-border)]">
+            <p class="text-xs font-semibold uppercase tracking-wide text-[#8896A8] dark:text-gray-400 mb-1.5">{{
+              'PRODUCT_DETAILS._includes' | translate }}</p>
+            <ul class="space-y-1">
+              @for (item of included; track item.name) {
+              <li class="flex items-baseline justify-between gap-3 text-sm text-[#526179] dark:text-gray-400">
+                <span class="font-medium text-secondary-100 dark:text-white">{{item.name}}</span>
+                <span class="text-right">{{item.value}}</span>
+              </li>
+              }
+            </ul>
+          </div>
+          }
+          }
+        </app-card>
         }
         @if(productOff?.productOfferingPrice?.length==0){
         <div
