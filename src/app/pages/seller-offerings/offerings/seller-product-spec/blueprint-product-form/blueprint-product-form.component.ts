@@ -11,10 +11,10 @@ import { ProductSpecServiceService } from 'src/app/services/product-spec-service
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
-import { jsonValidator } from 'src/app/validators/validators';
+import { yamlValidator } from 'src/app/validators/validators';
 import { v4 as uuidv4 } from 'uuid';
 import { components } from '../../../../../models/product-catalog';
-
+import * as yaml from 'js-yaml';
 
 export interface OrchestrationStep {
   id: string;
@@ -73,7 +73,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     waitForHealthy: new FormControl(true),
     timeoutSeconds: new FormControl<number | string>(1),
     onFailure: new FormControl<string>('abort'),
-    helmValuesOverride: new FormControl('', [jsonValidator]),
+    helmValuesOverride: new FormControl('', [yamlValidator]),
   });
 
   get stepFormFields(): FormField[] {
@@ -102,7 +102,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
       { type: 'boolean', name: 'waitForHealthy', label: 'BLUEPRINT_PROD._step_wait_healthy', colSpan: 2 },
       { type: 'number', name: 'timeoutSeconds', label: 'BLUEPRINT_PROD._step_timeout', min: 1, max: 600, colSpan: 2 },
       { type: 'select', name: 'onFailure', label: 'BLUEPRINT_PROD._step_on_failure', options: ON_FAILURE_OPTIONS, colSpan: 2 },
-      { type: 'textarea', name: 'helmValuesOverride', label: 'BLUEPRINT_PROD._helm_values_override', colSpan: 6, rows: 5, placeholder: '{\n  "key": "value"\n}' },
+      { type: 'code', language: 'yaml', name: 'helmValuesOverride', label: 'BLUEPRINT_PROD._helm_values_override', colSpan: 6, placeholder: 'foo:\n  var: test' },
     ];
   }
 
@@ -204,7 +204,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     const step: OrchestrationStep = {
       ...raw,
       componentProductSpec: raw.componentProductSpec?.id ?? raw.componentProductSpec ?? '',
-      helmValuesOverride: raw.helmValuesOverride?.trim() ? JSON.parse(raw.helmValuesOverride) : null,
+      helmValuesOverride: raw.helmValuesOverride?.trim() ? yaml.load(raw.helmValuesOverride) as Record<string, any> : null,
     };
 
     const candidate = this.editingIndex !== null
@@ -268,7 +268,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
       ...step,
       componentProductSpec: this.findSpec(step.componentProductSpec) ?? null,
       helmValuesOverride: step.helmValuesOverride
-        ? JSON.stringify(step.helmValuesOverride, null, 2)
+        ? yaml.dump(step.helmValuesOverride)
         : '',
     });
   }

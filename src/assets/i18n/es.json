@@ -2046,6 +2046,24 @@
     "_update_error": "¡Se ha producido un error al actualizar el servicio!",
     "_validate_error": "¡Se ha producido un error al validar el servicio!"
   },
+  "PACKAGE_DEPLOYMENT": {
+    "_type_helm": "Helm",
+    "_type_docker": "Docker",
+    "_type": "Tipo",
+    "_schema_version": "Versión del esquema",
+    "_helm_properties": "Propiedades de Helm",
+    "_docker_properties": "Propiedades de Docker",
+    "_repository_url": "URL del repositorio",
+    "_chart_name": "Nombre del chart",
+    "_release_name": "Nombre de la release",
+    "_chart_version": "Versión del chart",
+    "_namespace": "Namespace",
+    "_helm_values": "Valores (YAML)",
+    "_docker_image": "Imagen Docker",
+    "_image_tag": "Etiqueta de la imagen",
+    "_compose_file": "Archivo compose (YAML)",
+    "_env_file": "Archivo env"
+  },
   "UPDATE_SERV_SPEC": {
     "_not_found": "No se pudo encontrar esta especificación de servicio.",
     "_back": "Atrás",

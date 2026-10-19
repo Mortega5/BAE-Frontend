@@ -2046,6 +2046,24 @@
     "_update_error": "There was an error while updating the service!",
     "_validate_error": "There was an error while validating the service!"
   },
+  "PACKAGE_DEPLOYMENT": {
+    "_type_helm": "Helm",
+    "_type_docker": "Docker",
+    "_type": "Type",
+    "_schema_version": "Schema version",
+    "_helm_properties": "Helm Properties",
+    "_docker_properties": "Docker Properties",
+    "_repository_url": "Repository URL",
+    "_chart_name": "Chart name",
+    "_release_name": "Release name",
+    "_chart_version": "Chart version",
+    "_namespace": "Namespace",
+    "_helm_values": "Values (YAML)",
+    "_docker_image": "Docker image",
+    "_image_tag": "Image tag",
+    "_compose_file": "Compose file (YAML)",
+    "_env_file": "Env file"
+  },
   "UPDATE_SERV_SPEC": {
     "_not_found": "This service specification could not be found.",
     "_back": "Back",
