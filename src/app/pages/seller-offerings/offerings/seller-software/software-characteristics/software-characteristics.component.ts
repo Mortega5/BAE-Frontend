@@ -8,12 +8,12 @@ import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { components } from 'src/app/models/software-catalog';
 import { TableColumn } from 'src/app/models/table-column.model';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { PackageDeploymentComponent } from '../../../../../shared/forms/package-deployment/package-deployment';
-import { ButtonComponent } from 'src/app/shared/button/button.component';
 
 type Characteristic = components['schemas']['Characteristic'];
 type CharType = 'string' | 'number' | 'range' | 'deployment';
@@ -73,7 +73,7 @@ export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
         actions: [
           {
             icon: faXmark, tooltip: 'CREATE_SOFTWARE._delete', dataCy: 'deleteChar',
-            buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
+            buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
             onClick: (c: any) => this.deleteChar(this.characteristics.findIndex(item => item.id === c.id)),
           },
         ],

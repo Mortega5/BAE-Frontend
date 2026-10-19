@@ -186,7 +186,7 @@ export class OrgInfoComponent implements OnInit, OnDestroy {
           { icon: faEdit, onClick: (medium: any) => this.showEdit(medium), dataCy: 'editContact' },
           {
             icon: faTrash, onClick: (medium: any) => this.removeMedium(medium), dataCy: 'deleteContact',
-            buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
+            buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
           },
         ],
       } as TableColumn] : []),

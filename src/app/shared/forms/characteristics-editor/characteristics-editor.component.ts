@@ -77,7 +77,7 @@ export class CharacteristicsEditorComponent {
         header: 'CHAR_SPEC._actions', type: 'actions', width: 'w-24',
         actions: [{
           icon: faXmark, tooltip: '_delete', dataCy: 'deleteChar',
-          buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
+          buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
           onClick: (c: CharacteristicItem) => this.deleteChar(c),
         }],
       });

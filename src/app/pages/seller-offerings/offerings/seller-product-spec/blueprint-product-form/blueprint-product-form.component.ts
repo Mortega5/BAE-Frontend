@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Completion, CompletionContext, CompletionResult } from '@codemirror/autocomplete';
 import { faCopy, faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
+import * as yaml from 'js-yaml';
 import { Subject } from 'rxjs';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
@@ -15,7 +16,6 @@ import { TableInputComponent } from 'src/app/shared/forms/table-input/table-inpu
 import { yamlValidator } from 'src/app/validators/validators';
 import { v4 as uuidv4 } from 'uuid';
 import { components } from '../../../../../models/product-catalog';
-import * as yaml from 'js-yaml';
 
 /** A TMF Characteristic as the orchestration plan carries it. The `name` discriminates the deployment
  * type, the same convention installedSoftwareTemplate.resourceCharacteristic uses, so a docker step
@@ -141,7 +141,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
       },
       { header: 'BLUEPRINT_PROD._step_depends_on', cellClass: 'font-mono text-xs', getValue: (s: OrchestrationStep) => (s.dependsOn ?? []).map(d => d.id).join(', ') },
       {
-        header: 'BLUEPRINT_PROD._actions', type: 'actions', width: 'w-36 text-center',
+        header: 'BLUEPRINT_PROD._actions', type: 'actions', width: 'w-48',
         actions: [
           {
             icon: faCopy, tooltip: 'BLUEPRINT_PROD._copy_step_id', dataCy: 'copyStepId',
@@ -155,7 +155,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
           },
           {
             icon: faTrash, tooltip: 'BLUEPRINT_PROD._delete_step', dataCy: 'deleteStep',
-            buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
+            buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
             onClick: (s: OrchestrationStep) => this.deleteStep(this.orchestrationSteps.indexOf(s)),
           },
         ],

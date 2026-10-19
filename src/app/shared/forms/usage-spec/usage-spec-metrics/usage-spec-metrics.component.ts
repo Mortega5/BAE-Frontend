@@ -72,7 +72,7 @@ export class UsageSpecMetricsComponent {
         {
           icon: faTrash, onClick: (metric: any) => this.deleteMetric(metric), dataCy: 'deleteMetric',
           tooltip: 'USAGE_SPECS._delete_metric',
-          buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
+          buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
         },
       ],
     },

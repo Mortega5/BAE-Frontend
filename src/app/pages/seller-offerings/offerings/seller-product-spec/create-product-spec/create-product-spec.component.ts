@@ -25,26 +25,26 @@ import { BadgeComponent, BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStat
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
-import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { DropdownPanelComponent } from 'src/app/shared/dropdown-panel/dropdown-panel.component';
+import { AttachmentUploadComponent } from 'src/app/shared/forms/attachment-upload/attachment-upload.component';
 import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
 import { CharacteristicItem, CharacteristicsEditorComponent } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
-import { AttachmentUploadComponent } from 'src/app/shared/forms/attachment-upload/attachment-upload.component';
 import { MarkdownTextareaComponent } from 'src/app/shared/forms/markdown-textarea/markdown-textarea.component';
 import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/paginated-table.component';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
-import { StepperComponent } from 'src/app/shared/stepper/stepper.component';
+import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
+import { StepperComponent } from 'src/app/shared/stepper/stepper.component';
 import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
-import { BlueprintProductFormComponent, BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
 import { ResourceSpecFormComponent } from '../../seller-resource-spec/resource-spec-form/resource-spec-form.component';
 import { ServiceSpecFormComponent } from '../../seller-service-spec/service-spec-form/service-spec-form.component';
+import { BlueprintProductFormComponent, BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
 type ProductSpecification_Create = components["schemas"]["ProductSpecification_Create"];
@@ -158,7 +158,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
       header: 'Actions', type: 'actions', width: 'w-48',
       actions: [{
         icon: faXmark, tooltip: '_delete', dataCy: 'removeEndpointUrl',
-        buttonClass: '!w-7 !h-7 bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
+        buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
         onClick: (item: any) => this.removeEndpointUrl(this.endpointUrls.indexOf(item)),
       }],
     },
