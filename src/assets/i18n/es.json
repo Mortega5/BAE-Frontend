@@ -1977,7 +1977,8 @@
     "_step_default_values_hint": "Recomendados para esta composición. El consumidor puede cambiar cualquiera de ellos.",
     "_step_enforced_values": "Valores forzados (conexiones)",
     "_step_enforced_values_hint": "Se aplican al final y no se pueden sobrescribir. Referencia a otro paso con <<steps.STEP_ID.service.host>>, <<steps.STEP_ID.namespace>> o <<steps.STEP_ID.deploymentName>>.",
-    "_reference_error": "Este paso referencia a otro paso del que no depende. Añade la dependencia, con \"Esperar Estado Healthy\" desactivado si no necesitas esperarlo."
+    "_reference_error": "Este paso referencia a otro paso del que no depende. Añade la dependencia, con \"Esperar Estado Healthy\" desactivado si no necesitas esperarlo.",
+    "_copy_step_id": "Copiar ID del paso"
   },
   "CREATE_SERV_SPEC": {
     "_back": "Volver",

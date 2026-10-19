@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
+import { faCopy, faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { FormField } from 'src/app/models/formFields/form-field.model';
@@ -133,10 +133,19 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   get stepsTableColumns(): TableColumn[] {
     return [
       { header: 'Product', getValue: (s: OrchestrationStep) => this.findSpec(s.componentProductSpec)?.name ?? s.componentProductSpec },
-      { header: 'Depends On', getValue: (s: OrchestrationStep) => (s.dependsOn ?? []).map(d => d.id).join(', ') },
+      {
+        header: 'BLUEPRINT_PROD._step_id', cellClass: 'font-mono text-xs',
+        getValue: (s: OrchestrationStep) => s.id,
+      },
+      { header: 'Depends On', cellClass: 'font-mono text-xs', getValue: (s: OrchestrationStep) => (s.dependsOn ?? []).map(d => d.id).join(', ') },
       {
         header: 'BLUEPRINT_PROD._actions', type: 'actions', width: 'w-36 text-center',
         actions: [
+          {
+            icon: faCopy, tooltip: 'BLUEPRINT_PROD._copy_step_id', dataCy: 'copyStepId',
+            buttonClass: 'bg-gray-500 hover:bg-gray-600 focus:ring-gray-300',
+            onClick: (s: OrchestrationStep) => this.copyStepId(s),
+          },
           {
             icon: faEdit, tooltip: 'BLUEPRINT_PROD._edit_step', dataCy: 'editStep',
             buttonClass: 'bg-blue-500 hover:bg-blue-600 focus:ring-blue-300',
@@ -221,8 +230,11 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
 
   addOrUpdateStep(): void {
     if (this.stepForm.invalid) return;
+    // Generated once and never again. The id is what dependsOn entries and <<steps....>> references
+    // point at, so regenerating it when the author changes the component would leave every reference
+    // to this step dangling, with nothing to report it.
     if (!this.stepForm.value.id) {
-      this.stepForm.controls['id'].setValue(uuidv4())
+      this.stepForm.controls['id'].setValue(this.buildStepId(this.stepForm.value.componentProductSpec));
     }
     const raw = this.stepForm.value as any;
     const { defaultValues, enforcedValues, ...rest } = raw;
@@ -265,6 +277,32 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   /** Only `<<steps.` is reserved, so anything else in a value — a Go template, an Argo workflow
    * reference, a shell heredoc — passes through untouched and must not be flagged here. */
   private static readonly REFERENCE = /<<\s*steps\.([a-z0-9-]+)((?:\.[A-Za-z0-9_-]+)+)\s*>>/g;
+
+  /** Step ids end up in dependsOn, in <<steps....>> references and in every error the marketplace and
+   * the BPO produce, so they are derived from the component name rather than opaque. The schema accepts
+   * [a-z0-9-]+, which both this and the uuid fallback satisfy, so older plans keep validating. */
+  private buildStepId(spec: any): string {
+    const slug = (spec?.name ?? '')
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 40)
+      .replace(/-+$/, '');
+
+    const base = slug ? `step-${slug}` : `step-${uuidv4()}`;
+    const taken = new Set(this.orchestrationSteps.map(s => s.id));
+    if (!taken.has(base)) return base;
+
+    // Deploying the same component twice in one Blueprint is a real case, so collisions are expected.
+    let suffix = 2;
+    while (taken.has(`${base}-${suffix}`)) suffix++;
+    return `${base}-${suffix}`;
+  }
+
+  copyStepId(step: OrchestrationStep): void {
+    navigator.clipboard?.writeText(step.id);
+  }
 
   private toCharacteristics(value: string | null | undefined): StepCharacteristic[] | null {
     if (!value?.trim()) return null;

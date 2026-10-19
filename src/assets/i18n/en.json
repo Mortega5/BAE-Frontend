@@ -1977,7 +1977,8 @@
     "_step_default_values_hint": "Recommended for this composition. The consumer may change any of these.",
     "_step_enforced_values": "Enforced values (wiring)",
     "_step_enforced_values_hint": "Applied last and not overridable. Reference a sibling with <<steps.STEP_ID.service.host>>, <<steps.STEP_ID.namespace>> or <<steps.STEP_ID.deploymentName>>.",
-    "_reference_error": "This step references another step it does not depend on. Add the dependency, with \"wait for healthy\" off if you do not need to wait for it."
+    "_reference_error": "This step references another step it does not depend on. Add the dependency, with \"wait for healthy\" off if you do not need to wait for it.",
+    "_copy_step_id": "Copy step ID"
   },
   "CREATE_SERV_SPEC": {
     "_back": "Back",
