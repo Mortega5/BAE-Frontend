@@ -5,6 +5,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { Router } from '@angular/router';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 
+import { LocaleService } from 'src/app/services/locale.service';
 import { HeaderComponent } from './header.component';
 
 describe('HeaderComponent', () => {
@@ -59,7 +60,10 @@ describe('HeaderComponent', () => {
   it('switchLanguage should update the translation service and persist the choice', () => {
     const translate = (component as any).translate;
     const localStorage = (component as any).localStorage;
-    spyOn(translate, 'use');
+    // init() is normally run by AppComponent; it wires onLangChange into currentLang$, which is what
+    // the header's defaultLang follows. callThrough so use() actually fires that change.
+    TestBed.inject(LocaleService).init().subscribe();
+    spyOn(translate, 'use').and.callThrough();
     spyOn(localStorage, 'setItem');
 
     component.switchLanguage('es');

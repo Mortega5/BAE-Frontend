@@ -5,9 +5,10 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { LocalStorageService } from './local-storage.service';
 
 const LANG_KEY = 'current_language';
-// Matches the app's previous hardcoded default (always Spanish when nothing else
-// applies) — browser-language detection below only overrides it for en/es visitors.
-const DEFAULT_LANG = 'es';
+// Used when neither a stored choice nor the browser language is available, and as the
+// fallback for a key a translation is missing — browser-language detection below only
+// overrides it for en/es visitors.
+const DEFAULT_LANG = 'en';
 const AVAILABLE_LANGS = ['en', 'es'];
 
 @Injectable({
@@ -33,7 +34,9 @@ export class LocaleService {
 
     const stored = this.localStorage.getItem(LANG_KEY);
     const browserLang = this.translate.getBrowserLang() ?? DEFAULT_LANG;
-    const lang = stored && stored.length > 0
+    // A stored value that isn't a registered language (an old '' or anything stale) is ignored
+    // rather than passed to use(), which would leave every key untranslated.
+    const lang = stored && AVAILABLE_LANGS.includes(stored)
       ? stored
       : AVAILABLE_LANGS.includes(browserLang) ? browserLang : DEFAULT_LANG;
 
