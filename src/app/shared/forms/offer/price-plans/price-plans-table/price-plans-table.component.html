@@ -10,44 +10,7 @@
   <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._no_price_plans_yet_subtitle' | translate }}</p>
 </div>
 } @else {
-<div class="rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800">
-  <table class="w-full text-left border-collapse">
-    <thead>
-      <tr class="bg-gray-50 dark:bg-secondary-300">
-        <th class="px-4 py-4 text-base font-semibold text-gray-900 dark:text-white">{{ 'FORMS.PRICE_PLANS._name' | translate }}</th>
-        <th class="px-4 py-4 text-base font-semibold text-gray-900 dark:text-white">{{ 'FORMS.PRICE_PLANS._description' | translate }}
-        </th>
-        <th class="px-4 py-4 text-base font-semibold text-gray-900 dark:text-white text-center">{{ 'FORMS.PRICE_PLANS._online_payment'
-          | translate }}</th>
-        <th class="px-4 py-4 text-base font-semibold text-gray-900 dark:text-white text-center">{{ 'FORMS.PRICE_PLANS._actions' |
-          translate }}</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Mostrar los Price Plans -->
-      @for (plan of pricePlans; track i; let i = $index) {
-      <tr class="hover:bg-gray-50 dark:hover:bg-secondary-300 transition-colors border-t border-gray-200 dark:border-gray-800">
-        <td class="px-4 py-4 text-base text-gray-900 dark:text-white">{{ plan.name }}</td>
-        <td class="px-4 py-4 text-base text-gray-900 dark:text-white">{{ plan.description }}</td>
-        <td class="px-4 py-4 text-center">
-          <span *ngIf="plan.paymentOnline" class="text-emerald-600 dark:text-emerald-400 font-semibold">{{ '_yes' | translate }}</span>
-          <span *ngIf="!plan.paymentOnline" class="text-red-500 dark:text-red-400 font-semibold">{{ '_no' | translate }}</span>
-        </td>
-        <td class="px-4 py-4 text-center">
-          <div class="flex justify-center gap-2">
-          <app-button type="button" (click)="editPricePlan(plan)" shape="pill" prefixIcon="pen-to-square">
-            <span class="sr-only">{{ 'FORMS.PRICE_PLANS._edit' | translate }}</span>
-          </app-button>
-          <app-button type="button" (click)="confirmDelete(plan, i)" variant="danger" shape="pill" prefixIcon="trash">
-            <span class="sr-only">{{ 'FORMS.PRICE_PLANS._delete' | translate }}</span>
-          </app-button>
-          </div>
-        </td>
-      </tr>
-      }
-    </tbody>
-  </table>
-</div>
+<app-table-input [columns]="columns" [items]="pricePlans" [selectable]="false" />
 }
 
 <!-- Modal de Confirmación de Eliminación -->
