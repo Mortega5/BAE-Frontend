@@ -13,6 +13,9 @@ interface BaseFormField {
   colSpan?: number;
   defaultValue?: any;
   dataCy?: string;
+  /** Translation key for a short line under the control explaining what the field does. Use it when
+   * the label alone cannot carry the meaning — two adjacent editors whose difference is semantic, say. */
+  hint?: string;
   /** Extra validators merged with the ones `buildFormGroup` derives automatically (e.g. required, code-language checks). */
   validators?: ValidatorFn[];
   /** Maps a validator error key (e.g. 'email', 'maxlength', or a custom key set via `setErrors`)

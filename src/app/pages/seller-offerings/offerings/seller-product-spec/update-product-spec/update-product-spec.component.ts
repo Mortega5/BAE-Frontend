@@ -1056,7 +1056,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
   /** For every selected SoftwareSpecification, fetches its softwareSupportPackage and checks
    * whether its DeploymentDefinition characteristic is of type 'helm'. If any is, the Helm
-   * default characteristics (namespace, helmValuesOverride) are added to this product spec. */
+   * default characteristic (helmValuesOverride) is added to this product spec. */
   async onResourceSpecsChange(specs: any[]): Promise<void> {
     this.selectedResourceSpecs = specs;
 

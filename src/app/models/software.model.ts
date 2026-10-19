@@ -11,9 +11,10 @@ export interface HelmDeploymentProperties {
   repository: string;
   chart: string;
   version: string;
-  releaseName: string;
-  namespace?: string;
+  /** Provider defaults — applied below everything the consumer sets, so the consumer can override them. */
   values?: string | string[];
+  /** Provider locks — applied last; an order that sets one of these keys is rejected. */
+  enforcedValues?: string | string[];
 }
 
 export interface DockerDeploymentProperties {

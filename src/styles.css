@@ -67,6 +67,9 @@ body {
   --theme-input-bg: #fff;
   --theme-input-border: rgb(203 213 225);
   /* slate-300 */
+  /* Helper line under a dynamic-form field (FormField.hint). */
+  --form-hint-text: rgb(107 114 128);
+  /* gray-500 */
   /* Was only ever defined per-theme (bae/dome/ocei), with header.component.css's own
      var(--x, #070f24) fallback silently covering the gap — give it a real default here
      like every other seed token, so a theme that doesn't override it still gets a
@@ -256,6 +259,8 @@ body.theme-bae {
      Stitch dark mockup's neutral slate-700 border on inputs/selects. */
   --theme-input-border: rgb(51 65 85);
   /* slate-700 */
+  --form-hint-text: rgb(156 163 175);
+  /* gray-400 */
   /* Dark counterpart of the light default above — see the comment there. */
   --theme-header-v2-top-bg: var(--theme-page-bg);
   --theme-header-v2-glass-bg: rgba(7, 18, 40, 0.55);

@@ -293,6 +293,8 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
 
     const chars: any[] = [];
     if (this.deploymentForm) {
+      // The package describes WHAT is deployed, never WHERE or under WHICH NAME: the release identity
+      // (deploymentName, namespace) is chosen per deployment and lives on the InstalledSoftware.
       chars.push({
         name: 'deploymentDefinition',
         valueType: 'deployment',
