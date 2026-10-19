@@ -231,7 +231,6 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
       if (packageId) {
         this.resSpecService.getSoftwareSupportPackage(packageId)
           .subscribe(pkg => {
-            this.templateConfigForm.patchValue({ softwareSupportPackage: pkg });
             const pkgChars = (pkg.resourceCharacteristic ?? []) as SoftwareCharacteristic[];
             this.originalDeploymentChar = pkgChars.find(c => c.valueType === 'deployment') ?? null;
             this.deploymentInitialValue = this.originalDeploymentChar?.value as SoftwareDeploymentDefinition | undefined;
