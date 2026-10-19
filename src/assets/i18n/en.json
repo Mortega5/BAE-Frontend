@@ -1972,8 +1972,12 @@
     "_on_failure_abort": "Abort",
     "_on_failure_continue": "Continue",
     "_on_failure_retry": "Retry",
-    "_helm_values_override": "Helm Values Override",
-    "_cycle_error": "Cyclic dependency detected. A step cannot depend on itself or on a step that transitively depends on it."
+    "_cycle_error": "Cyclic dependency detected. A step cannot depend on itself or on a step that transitively depends on it.",
+    "_step_default_values": "Default values for this component",
+    "_step_default_values_hint": "Recommended for this composition. The consumer may change any of these.",
+    "_step_enforced_values": "Enforced values (wiring)",
+    "_step_enforced_values_hint": "Applied last and not overridable. Reference a sibling with <<steps.STEP_ID.service.host>>, <<steps.STEP_ID.namespace>> or <<steps.STEP_ID.deploymentName>>.",
+    "_reference_error": "This step references another step it does not depend on. Add the dependency, with \"wait for healthy\" off if you do not need to wait for it."
   },
   "CREATE_SERV_SPEC": {
     "_back": "Back",
@@ -2063,7 +2067,8 @@
     "_docker_image": "Docker image",
     "_image_tag": "Image tag",
     "_compose_file": "Compose file (YAML)",
-    "_env_file": "Env file"
+    "_env_file": "Env file",
+    "_shadowed_keys": "These keys are in both channels. A default that is also enforced can never take effect — keep each key in one of the two."
   },
   "UPDATE_SERV_SPEC": {
     "_not_found": "This service specification could not be found.",

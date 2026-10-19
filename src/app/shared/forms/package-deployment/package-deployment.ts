@@ -5,7 +5,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { FormField, SelectOption } from '../../../models/formFields/form-field.model';
-import { yamlValidator } from '../../../validators/validators';
+import { disjointValueChannelsValidator, yamlValidator } from '../../../validators/validators';
 import { buildFormGroup } from '../dynamic-form/build-form-group.util';
 import { DynamicFormComponent } from '../dynamic-form/dynamic-form.component';
 
@@ -68,7 +68,7 @@ export class PackageDeploymentComponent implements OnInit, OnDestroy {
 
   form = new FormGroup({
     ...buildFormGroup(TOP_FIELDS).controls,
-    properties: buildFormGroup(HELM_FIELDS),
+    properties: buildFormGroup(HELM_FIELDS, [disjointValueChannelsValidator]),
   });
 
   get propertiesForm(): FormGroup {
@@ -87,7 +87,7 @@ export class PackageDeploymentComponent implements OnInit, OnDestroy {
         if (Array.isArray(helmProps.enforcedValues)) helmProps.enforcedValues = helmProps.enforcedValues[0];
       }
       this.propertiesFields = type === 'docker' ? DOCKER_FIELDS : HELM_FIELDS;
-      this.form.setControl('properties', buildFormGroup(this.propertiesFields));
+      this.form.setControl('properties', this.buildPropertiesGroup());
       this.form.patchValue(this.initialValue);
     }
 
@@ -105,6 +105,16 @@ export class PackageDeploymentComponent implements OnInit, OnDestroy {
 
   private onTypeChange(type: DeploymentType) {
     this.propertiesFields = type === 'docker' ? DOCKER_FIELDS : HELM_FIELDS;
-    this.form.setControl('properties', buildFormGroup(this.propertiesFields));
+    this.form.setControl('properties', this.buildPropertiesGroup());
+  }
+
+  /** Only the helm branch has two value channels, so only it carries the cross-field check. */
+  private buildPropertiesGroup(): FormGroup {
+    const isHelm = this.propertiesFields === HELM_FIELDS;
+    return buildFormGroup(this.propertiesFields, isHelm ? [disjointValueChannelsValidator] : []);
+  }
+
+  get shadowedKeys(): string[] {
+    return this.propertiesForm.errors?.['shadowedKeys'] ?? [];
   }
 }

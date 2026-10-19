@@ -16,6 +16,15 @@ import { v4 as uuidv4 } from 'uuid';
 import { components } from '../../../../../models/product-catalog';
 import * as yaml from 'js-yaml';
 
+/** A TMF Characteristic as the orchestration plan carries it. The `name` discriminates the deployment
+ * type, the same convention installedSoftwareTemplate.resourceCharacteristic uses, so a docker step
+ * would carry `dockerEnv` here instead of `helmValuesOverride`. */
+export interface StepCharacteristic {
+  name: string;
+  valueType: string;
+  value: Record<string, any>;
+}
+
 export interface OrchestrationStep {
   id: string;
   componentProductSpec: string;
@@ -23,7 +32,11 @@ export interface OrchestrationStep {
   waitForHealthy: boolean;
   timeoutSeconds: number | string;
   onFailure: 'abort' | 'nothing' | '';
-  helmValuesOverride?: Record<string, any> | null;
+  /** Curated defaults for this component in this composition. The consumer may override them. */
+  installedSoftwareTemplate?: { '@type': string; '@baseType': string; resourceCharacteristic: StepCharacteristic[] } | null;
+  /** Locks. Applied after everything the consumer sets, and below the component provider's own
+   * enforcedValues, which have the last word. This is where the wiring lives. */
+  enforcedCharacteristic?: StepCharacteristic[] | null;
 }
 
 export type ProductSpecificationRelationship = components["schemas"]["ProductSpecificationRelationship"]
@@ -65,6 +78,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   editingIndex: number | null = null;
   showStepForm = false;
   cycleError: string[] | null = null;
+  referenceError: string | null = null;
 
   stepForm = new FormGroup({
     id: new FormControl(''),
@@ -73,7 +87,8 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     waitForHealthy: new FormControl(true),
     timeoutSeconds: new FormControl<number | string>(1),
     onFailure: new FormControl<string>('abort'),
-    helmValuesOverride: new FormControl('', [yamlValidator]),
+    defaultValues: new FormControl('', [yamlValidator]),
+    enforcedValues: new FormControl('', [yamlValidator]),
   });
 
   get stepFormFields(): FormField[] {
@@ -102,7 +117,16 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
       { type: 'boolean', name: 'waitForHealthy', label: 'BLUEPRINT_PROD._step_wait_healthy', colSpan: 2 },
       { type: 'number', name: 'timeoutSeconds', label: 'BLUEPRINT_PROD._step_timeout', min: 1, max: 600, colSpan: 2 },
       { type: 'select', name: 'onFailure', label: 'BLUEPRINT_PROD._step_on_failure', options: ON_FAILURE_OPTIONS, colSpan: 2 },
-      { type: 'code', language: 'yaml', name: 'helmValuesOverride', label: 'BLUEPRINT_PROD._helm_values_override', colSpan: 6, placeholder: 'foo:\n  var: test' },
+      {
+        type: 'code', language: 'yaml', name: 'defaultValues',
+        label: 'BLUEPRINT_PROD._step_default_values', hint: 'BLUEPRINT_PROD._step_default_values_hint',
+        colSpan: 6, placeholder: 'replicaCount: 2',
+      },
+      {
+        type: 'code', language: 'yaml', name: 'enforcedValues',
+        label: 'BLUEPRINT_PROD._step_enforced_values', hint: 'BLUEPRINT_PROD._step_enforced_values_hint',
+        colSpan: 6, placeholder: 'redis:\n  host: <<steps.step-cache.service.host>>',
+      },
     ];
   }
 
@@ -200,11 +224,13 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     if (!this.stepForm.value.id) {
       this.stepForm.controls['id'].setValue(uuidv4())
     }
-    const raw = this.stepForm.value as unknown as OrchestrationStep & { helmValuesOverride: string; componentProductSpec: any };
+    const raw = this.stepForm.value as any;
+    const { defaultValues, enforcedValues, ...rest } = raw;
     const step: OrchestrationStep = {
-      ...raw,
+      ...rest,
       componentProductSpec: raw.componentProductSpec?.id ?? raw.componentProductSpec ?? '',
-      helmValuesOverride: raw.helmValuesOverride?.trim() ? yaml.load(raw.helmValuesOverride) as Record<string, any> : null,
+      installedSoftwareTemplate: this.toTemplate(defaultValues),
+      enforcedCharacteristic: this.toCharacteristics(enforcedValues),
     };
 
     const candidate = this.editingIndex !== null
@@ -214,15 +240,67 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     const cycle = this.hasCyclicDependency(candidate);
     if (cycle) {
       this.cycleError = cycle;
+      this.referenceError = null;
       return;
     }
 
+    // Same rule the marketplace enforces at publish time, checked here so the author sees it in the
+    // step form rather than as a rejected save.
+    const badReference = this.findUnresolvableReference(step);
+    if (badReference) {
+      this.referenceError = badReference;
+      this.cycleError = null;
+      return;
+    }
+
+    this.referenceError = null;
     this.cycleError = null;
     this.orchestrationSteps = candidate;
     this.editingIndex = null;
     this.showStepForm = false;
     this.resetStepForm();
     this.emitFormChange();
+  }
+
+  /** Only `<<steps.` is reserved, so anything else in a value — a Go template, an Argo workflow
+   * reference, a shell heredoc — passes through untouched and must not be flagged here. */
+  private static readonly REFERENCE = /<<\s*steps\.([a-z0-9-]+)((?:\.[A-Za-z0-9_-]+)+)\s*>>/g;
+
+  private toCharacteristics(value: string | null | undefined): StepCharacteristic[] | null {
+    if (!value?.trim()) return null;
+    return [{ name: 'helmValuesOverride', valueType: 'object', value: yaml.load(value) as Record<string, any> }];
+  }
+
+  private toTemplate(value: string | null | undefined): OrchestrationStep['installedSoftwareTemplate'] {
+    const characteristics = this.toCharacteristics(value);
+    if (!characteristics) return null;
+    return { '@type': 'InstalledSoftware', '@baseType': 'Resource', resourceCharacteristic: characteristics };
+  }
+
+  private fromCharacteristics(characteristics: StepCharacteristic[] | null | undefined): string {
+    const value = characteristics?.[0]?.value;
+    return value ? yaml.dump(value) : '';
+  }
+
+  /**
+   * A step may only reference a sibling it declares in dependsOn, and the edge must be direct. Without
+   * the edge the referenced step may not have deployed when this one is rendered, so the wiring either
+   * fails mid-DAG or resolves to nothing — and nothing about that is visible in the plan.
+   * @returns the offending step id, or null when every reference is satisfied
+   */
+  private findUnresolvableReference(step: OrchestrationStep): string | null {
+    const declared = new Set((step.dependsOn ?? []).map(d => d.id));
+    const serialised = JSON.stringify(step.enforcedCharacteristic ?? []);
+
+    BlueprintProductFormComponent.REFERENCE.lastIndex = 0;
+    let match: RegExpExecArray | null;
+    while ((match = BlueprintProductFormComponent.REFERENCE.exec(serialised)) !== null) {
+      const target = match[1];
+      if (target !== step.id && !declared.has(target)) {
+        return target;
+      }
+    }
+    return null;
   }
 
   hasCyclicDependency(steps: OrchestrationStep[]): string[] | null {
@@ -267,21 +345,21 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     this.stepForm.patchValue({
       ...step,
       componentProductSpec: this.findSpec(step.componentProductSpec) ?? null,
-      helmValuesOverride: step.helmValuesOverride
-        ? yaml.dump(step.helmValuesOverride)
-        : '',
-    });
+      defaultValues: this.fromCharacteristics(step.installedSoftwareTemplate?.resourceCharacteristic),
+      enforcedValues: this.fromCharacteristics(step.enforcedCharacteristic),
+    } as any);
   }
 
   cancelEdit(): void {
     this.editingIndex = null;
     this.showStepForm = false;
     this.cycleError = null;
+    this.referenceError = null;
     this.resetStepForm();
   }
 
   private resetStepForm(): void {
-    this.stepForm.reset({ id: '', componentProductSpec: null, dependsOn: [], waitForHealthy: true, timeoutSeconds: 1, onFailure: 'abort', helmValuesOverride: '' });
+    this.stepForm.reset({ id: '', componentProductSpec: null, dependsOn: [], waitForHealthy: true, timeoutSeconds: 1, onFailure: 'abort', defaultValues: '', enforcedValues: '' });
   }
 
   deleteStep(index: number): void {
@@ -297,11 +375,17 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
 
     this.formChange.emit({
       selectedItems,
-      orchestrationSteps: this.orchestrationSteps.map(s => ({
-        ...s,
-        dependsOn: s.dependsOn.map(d => d.id),
-        helmValuesOverride: s.helmValuesOverride || {}
-      })),
+      // Both value channels are optional: a step that curates nothing and locks nothing should not
+      // publish empty containers for them.
+      orchestrationSteps: this.orchestrationSteps.map(s => {
+        const { installedSoftwareTemplate, enforcedCharacteristic, ...rest } = s;
+        return {
+          ...rest,
+          dependsOn: s.dependsOn.map(d => d.id),
+          ...(installedSoftwareTemplate ? { installedSoftwareTemplate } : {}),
+          ...(enforcedCharacteristic ? { enforcedCharacteristic } : {}),
+        };
+      }),
       valid: this.isValid
     });
   }

@@ -2,7 +2,11 @@ import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms'
 import { CodeFormField, FormField, PaginatedTableFormField, SelectableFormField, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { phoneNumberValidator, yamlValidator } from 'src/app/validators/validators';
 
-export function buildFormGroup(fields: FormField[]): FormGroup {
+/**
+ * @param fields - Field descriptors; per-control validators are derived from them
+ * @param groupValidators - Cross-field validators that need to see more than one control at once
+ */
+export function buildFormGroup(fields: FormField[], groupValidators: ValidatorFn[] = []): FormGroup {
   const controls: Record<string, FormControl> = {};
   for (const field of fields) {
     const isTableType = field.type === 'table' || field.type === 'paginatedTable';
@@ -22,5 +26,5 @@ export function buildFormGroup(fields: FormField[]): FormGroup {
 
     controls[field.name] = new FormControl(defaultValue, validators);
   }
-  return new FormGroup(controls);
+  return new FormGroup(controls, groupValidators);
 }

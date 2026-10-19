@@ -72,3 +72,37 @@ export function phoneNumberValidator(control: AbstractControl): ValidationErrors
     return { invalidPhoneNumber: true };
   }
 }
+
+/** Every leaf path of a parsed YAML/JSON tree, dotted. `{a: {b: 1}}` yields `['a.b']`. */
+export function leafPaths(value: unknown, prefix = ''): string[] {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    return prefix ? [prefix] : [];
+  }
+  return Object.entries(value as Record<string, unknown>)
+    .flatMap(([key, child]) => leafPaths(child, prefix ? `${prefix}.${key}` : key));
+}
+
+/**
+ * A provider has two value channels and a key belongs to exactly one of them: `values` is applied
+ * below everything the consumer sets, `enforcedValues` above it. Writing a key in both is never what
+ * the author meant — the default can never take effect — and nothing downstream would report it, so
+ * it is caught here rather than left to surface as a deployment that ignores half the configuration.
+ *
+ * @returns the shadowed keys under `shadowedKeys`, or null when the two channels are disjoint
+ */
+export const disjointValueChannelsValidator: ValidatorFn = (group: AbstractControl): ValidationErrors | null => {
+  const parse = (raw: unknown): unknown => {
+    const text = Array.isArray(raw) ? raw[0] : raw;
+    if (typeof text !== 'string' || !text.trim()) return null;
+    try {
+      return yaml.load(text);
+    } catch {
+      return null; // shape errors belong to yamlValidator, not here
+    }
+  };
+
+  const defaults = new Set(leafPaths(parse(group.get('values')?.value)));
+  const shadowed = leafPaths(parse(group.get('enforcedValues')?.value)).filter(path => defaults.has(path));
+
+  return shadowed.length > 0 ? { shadowedKeys: shadowed } : null;
+};

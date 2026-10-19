@@ -7,6 +7,22 @@
       {{ (form.get('type')?.value === 'docker' ? 'PACKAGE_DEPLOYMENT._docker_properties' : 'PACKAGE_DEPLOYMENT._helm_properties') | translate }}
     </h3>
     <app-dynamic-form [fields]="propertiesFields" [formGroup]="propertiesForm" [columns]="4"></app-dynamic-form>
+
+    @if (shadowedKeys.length > 0) {
+    <div
+      class="flex items-start gap-2 mt-3 p-3 text-sm text-red-700 bg-red-50 rounded-lg dark:bg-secondary-200 dark:text-red-400"
+      role="alert">
+      <svg class="w-4 h-4 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+        viewBox="0 0 20 20">
+        <path
+          d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+      </svg>
+      <span class="flex flex-col gap-1">
+        {{ 'PACKAGE_DEPLOYMENT._shadowed_keys' | translate }}
+        <span class="font-mono font-semibold">{{ shadowedKeys.join(', ') }}</span>
+      </span>
+    </div>
+    }
   </div>
 
 </div>

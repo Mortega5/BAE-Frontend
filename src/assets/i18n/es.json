@@ -1972,8 +1972,12 @@
     "_on_failure_abort": "Abortar",
     "_on_failure_continue": "Continuar",
     "_on_failure_retry": "Reintentar",
-    "_helm_values_override": "Sobreescritura de Valores Helm",
-    "_cycle_error": "Dependencia cíclica detectada. Un paso no puede depender de sí mismo ni de un paso que dependa transitivamente de él."
+    "_cycle_error": "Dependencia cíclica detectada. Un paso no puede depender de sí mismo ni de un paso que dependa transitivamente de él.",
+    "_step_default_values": "Valores por defecto de este componente",
+    "_step_default_values_hint": "Recomendados para esta composición. El consumidor puede cambiar cualquiera de ellos.",
+    "_step_enforced_values": "Valores forzados (conexiones)",
+    "_step_enforced_values_hint": "Se aplican al final y no se pueden sobrescribir. Referencia a otro paso con <<steps.STEP_ID.service.host>>, <<steps.STEP_ID.namespace>> o <<steps.STEP_ID.deploymentName>>.",
+    "_reference_error": "Este paso referencia a otro paso del que no depende. Añade la dependencia, con \"Esperar Estado Healthy\" desactivado si no necesitas esperarlo."
   },
   "CREATE_SERV_SPEC": {
     "_back": "Volver",
@@ -2063,7 +2067,8 @@
     "_docker_image": "Imagen Docker",
     "_image_tag": "Etiqueta de la imagen",
     "_compose_file": "Archivo compose (YAML)",
-    "_env_file": "Archivo env"
+    "_env_file": "Archivo env",
+    "_shadowed_keys": "Estas claves están en ambos canales. Un valor por defecto que también está forzado nunca tendrá efecto: deja cada clave solo en uno de los dos."
   },
   "UPDATE_SERV_SPEC": {
     "_not_found": "No se pudo encontrar esta especificación de servicio.",
