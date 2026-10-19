@@ -1956,13 +1956,13 @@
     "_orchestration_plan": "Plan de Orquestación",
     "_orchestration_plan_subtitle": "Define el plano de despliegue para este producto.",
     "_step_id": "ID del Paso",
-    "_step_service": "Servicio",
+    "_step_product_spec": "Especificación de producto",
     "_step_depends_on": "Depende De",
     "_step_wait_healthy": "Esperar Estado Healthy",
     "_step_timeout": "Tiempo de Espera (seg)",
     "_step_on_failure": "En Caso de Fallo",
     "_add_step": "Añadir Paso",
-    "_update_step": "Actualizar Paso",
+    "_save_step": "Guardar paso",
     "_cancel": "Cancelar",
     "_no_steps": "No se han añadido pasos.",
     "_actions": "Acciones",
@@ -1978,7 +1978,9 @@
     "_step_enforced_values": "Valores forzados (conexiones)",
     "_step_enforced_values_hint": "Se aplican al final y no se pueden sobrescribir. Referencia a otro paso con <<steps.STEP_ID.service.host>>, <<steps.STEP_ID.namespace>> o <<steps.STEP_ID.deploymentName>>.",
     "_reference_error": "Este paso referencia a otro paso del que no depende. Añade la dependencia, con \"Esperar Estado Healthy\" desactivado si no necesitas esperarlo.",
-    "_copy_step_id": "Copiar ID del paso"
+    "_copy_step_id": "Copiar ID del paso",
+    "_col_name": "Nombre",
+    "_col_type": "Tipo"
   },
   "CREATE_SERV_SPEC": {
     "_back": "Volver",

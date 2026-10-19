@@ -97,21 +97,21 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
 
     return [
       {
-        type: 'paginatedTable', name: 'componentProductSpec', label: 'BLUEPRINT_PROD._step_service',
+        type: 'paginatedTable', name: 'componentProductSpec', label: 'BLUEPRINT_PROD._step_product_spec',
         required: true, multiple: false, colSpan: 6,
         fetchPage: this.fetchProdSpecsPaged,
         isSelectable: this.isProdSpecSelectable,
         defaultSort: { key: 'name', direction: 'asc' },
         columns: [
-          { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
-          { header: 'Type', getValue: (item: any) => item.isBundle ? 'Bundle' : 'Simple', width: 'w-28' },
+          { header: 'BLUEPRINT_PROD._col_name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
+          { header: 'BLUEPRINT_PROD._col_type', getValue: (item: any) => item.isBundle ? 'Bundle' : 'Simple', width: 'w-28' },
         ],
       } as FormField,
       {
         type: 'table', name: 'dependsOn', label: 'BLUEPRINT_PROD._step_depends_on', multiple: true, colSpan: 6,
         columns: [
-          { header: 'ID', getValue: (s: OrchestrationStep) => s.id, width: 'w-1/3' },
-          { header: 'Product', getValue: (s: OrchestrationStep) => this.findSpec(s.componentProductSpec)?.name ?? s.componentProductSpec },
+          { header: 'BLUEPRINT_PROD._step_id', getValue: (s: OrchestrationStep) => s.id, width: 'w-1/3' },
+          { header: 'BLUEPRINT_PROD._step_product_spec', getValue: (s: OrchestrationStep) => this.findSpec(s.componentProductSpec)?.name ?? s.componentProductSpec },
         ],
         items: dependsOnItems,
       },
@@ -134,12 +134,12 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
 
   get stepsTableColumns(): TableColumn[] {
     return [
-      { header: 'Product', getValue: (s: OrchestrationStep) => this.findSpec(s.componentProductSpec)?.name ?? s.componentProductSpec },
+      { header: 'BLUEPRINT_PROD._step_product_spec', getValue: (s: OrchestrationStep) => this.findSpec(s.componentProductSpec)?.name ?? s.componentProductSpec },
       {
         header: 'BLUEPRINT_PROD._step_id', cellClass: 'font-mono text-xs',
         getValue: (s: OrchestrationStep) => s.id,
       },
-      { header: 'Depends On', cellClass: 'font-mono text-xs', getValue: (s: OrchestrationStep) => (s.dependsOn ?? []).map(d => d.id).join(', ') },
+      { header: 'BLUEPRINT_PROD._step_depends_on', cellClass: 'font-mono text-xs', getValue: (s: OrchestrationStep) => (s.dependsOn ?? []).map(d => d.id).join(', ') },
       {
         header: 'BLUEPRINT_PROD._actions', type: 'actions', width: 'w-36 text-center',
         actions: [

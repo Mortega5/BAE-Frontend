@@ -1956,13 +1956,13 @@
     "_orchestration_plan": "Orchestration Plan",
     "_orchestration_plan_subtitle": "Define the deployment blueprint for this product.",
     "_step_id": "Step ID",
-    "_step_service": "Service",
+    "_step_product_spec": "Product Specification",
     "_step_depends_on": "Depends On",
     "_step_wait_healthy": "Wait for Healthy",
     "_step_timeout": "Timeout (seconds)",
     "_step_on_failure": "On Failure",
     "_add_step": "Add Step",
-    "_update_step": "Update Step",
+    "_save_step": "Save step",
     "_cancel": "Cancel",
     "_no_steps": "No steps added yet.",
     "_actions": "Actions",
@@ -1978,7 +1978,9 @@
     "_step_enforced_values": "Enforced values (wiring)",
     "_step_enforced_values_hint": "Applied last and not overridable. Reference a sibling with <<steps.STEP_ID.service.host>>, <<steps.STEP_ID.namespace>> or <<steps.STEP_ID.deploymentName>>.",
     "_reference_error": "This step references another step it does not depend on. Add the dependency, with \"wait for healthy\" off if you do not need to wait for it.",
-    "_copy_step_id": "Copy step ID"
+    "_copy_step_id": "Copy step ID",
+    "_col_name": "Name",
+    "_col_type": "Type"
   },
   "CREATE_SERV_SPEC": {
     "_back": "Back",

@@ -62,13 +62,8 @@
         <app-button type="button" (click)="cancelEdit()" variant="ghost" size="sm">
           {{ 'BLUEPRINT_PROD._cancel' | translate }}
         </app-button>
-        <app-button type="button" (click)="addOrUpdateStep()" [disabled]="stepForm.invalid"
-          [prefixIcon]="editingIndex === null ? 'plus' : undefined">
-          @if (editingIndex !== null) {
-          {{ 'BLUEPRINT_PROD._update_step' | translate }}
-          } @else {
-          {{ 'BLUEPRINT_PROD._add_step' | translate }}
-          }
+        <app-button type="button" (click)="addOrUpdateStep()" [disabled]="stepForm.invalid">
+          {{ 'BLUEPRINT_PROD._save_step' | translate }}
         </app-button>
       </div>
     </div>
