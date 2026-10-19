@@ -39,9 +39,9 @@ body.theme-ocei {
   /* HEX: #25636D */
   --theme-secondary-300: 37 99 109;
   /* Medium teal */
-  /* HEX: #1F535B */
-  --theme-secondary-400: 31 83 91;
-  /* Muted teal */
+  /* HEX: #2D7884 */
+  --theme-secondary-400: 45 120 132;
+  /* Lighter teal — above 300, like bae/dome, so hover:bg-secondary-400 over 300 lightens */
   /* HEX: #09181A */
   --theme-secondary-500: 9 24 26;
   /* Near-black teal */
@@ -59,6 +59,16 @@ body.theme-ocei {
   --theme-header-v2-top-bg: var(--ocei-bg-primary-100);
   --theme-header-v2-glass-bg: rgba(7, 18, 40, 0.55);
   --theme-header-v2-text: var(--ocei-text-primary);
+
+  /* Tables (light mode; .dark body in styles.css still wins in dark mode). The shared
+     defaults mix three hues here — secondary-400 teal header, primary-100 mint border,
+     primary-50 cyan row lines — so they're pinned to one green family instead, the way
+     bae's header and border already match. #0E7C54 is primary-100's hue (158°) darkened
+     enough for 5.2:1 against the white header text. */
+  --table-header-bg: rgb(var(--theme-primary-100));
+  --table-header-hover-bg: rgb(var(--theme-primary-100) / 30%);
+  --table-border-color: rgb(var(--theme-primary-100));
+  --table-row-border-color: rgb(var(--theme-primary-100) / 30%);
 
 }
 
