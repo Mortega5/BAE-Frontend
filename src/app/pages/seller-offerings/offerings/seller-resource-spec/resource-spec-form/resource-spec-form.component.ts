@@ -284,6 +284,27 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Drops the release identity from a stored deploymentDefinition. Packages published before the
+   * identity moved to the InstalledSoftware still carry `releaseName` and `namespace` under
+   * `properties`, and the API now rejects a deploymentDefinition that declares either. The original
+   * characteristic is left untouched — only the copy sent to the API is migrated.
+   */
+  private stripReleaseIdentity(char: SoftwareCharacteristic): any {
+    const definition = (char as any).value as SoftwareDeploymentDefinition | undefined;
+    const properties = definition?.properties as Record<string, any> | undefined;
+    if (!properties || !('releaseName' in properties || 'namespace' in properties)) return char;
+
+    const { releaseName, namespace, ...rest } = properties;
+    return {
+      ...(char as any),
+      value: { ...definition, properties: rest },
+      // The stored pin still points at the gist revision that required releaseName; the migrated
+      // value only validates against the current one.
+      '@schemaLocation': environment.DEPLOYMENT_SCHEMA_LOCATION,
+    };
+  }
+
   /** "Package Deployment" step characteristics — deploymentDefinition + artifactType.
    * These go under `resourceCharacteristic` (the Resource-instance field), not the
    * spec's own `resourceSpecCharacteristic`: the proxy moves them onto the software
@@ -292,24 +313,33 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     if (!this.requiresPackageDeployment) return [];
 
     const chars: any[] = [];
+    let deployValue: SoftwareDeploymentDefinition | undefined;
+
     if (this.deploymentForm) {
       // The package describes WHAT is deployed, never WHERE or under WHICH NAME: the release identity
       // (deploymentName, namespace) is chosen per deployment and lives on the InstalledSoftware.
+      deployValue = this.deploymentForm.value;
       chars.push({
         name: 'deploymentDefinition',
         valueType: 'deployment',
-        value: this.deploymentForm.value,
+        value: deployValue,
         '@schemaLocation': environment.DEPLOYMENT_SCHEMA_LOCATION,
       });
     } else if (this.originalDeploymentChar) {
-      chars.push(this.originalDeploymentChar);
+      // The deployment step renders lazily, so editing a spec without opening it leaves no form to
+      // read. Resend what was stored — migrated, or the save fails on a field the user never saw.
+      const migrated = this.stripReleaseIdentity(this.originalDeploymentChar);
+      deployValue = migrated.value as SoftwareDeploymentDefinition;
+      chars.push(migrated);
     }
 
-    chars.push({
-      name: 'artifactType',
-      valueType: 'string',
-      value: this.getArtifactType(this.deploymentForm?.value || this.originalDeploymentChar),
-    });
+    if (deployValue) {
+      chars.push({
+        name: 'artifactType',
+        valueType: 'string',
+        value: this.getArtifactType(deployValue),
+      });
+    }
 
     return chars;
   }
