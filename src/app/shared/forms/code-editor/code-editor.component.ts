@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, forwardRef, Input, OnDestroy, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { CompletionSource } from '@codemirror/autocomplete';
 import { javascript } from '@codemirror/lang-javascript';
 import { json, jsonParseLinter } from '@codemirror/lang-json';
 import { yaml } from '@codemirror/lang-yaml';
@@ -77,6 +78,9 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy, ControlVal
   @Input() lineNumbers = true;
   @Input() theme: CodeTheme = 'auto';
   @Input() placeholder = '';
+  /** Extra completion source, merged with whatever the language already provides rather than
+   * replacing it, so YAML keeps its own completions. */
+  @Input() completions?: CompletionSource;
 
   @ViewChild('container') private container!: ElementRef<HTMLElement>;
 
@@ -106,6 +110,7 @@ export class CodeEditorComponent implements AfterViewInit, OnDestroy, ControlVal
           this.lineNumbersCompartment.of(this.lineNumbers ? [] : HIDE_LINE_NUMBERS),
           INPUT_THEME,
           this.placeholder ? placeholderExtension(this.placeholder) : [],
+          this.completions ? EditorState.languageData.of(() => [{ autocomplete: this.completions }]) : [],
           EditorView.updateListener.of(update => {
             if (!update.docChanged || this.skipNextEmit) {
               this.skipNextEmit = false;

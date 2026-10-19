@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Completion, CompletionContext, CompletionResult } from '@codemirror/autocomplete';
 import { faCopy, faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
@@ -126,6 +127,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
         type: 'code', language: 'yaml', name: 'enforcedValues',
         label: 'BLUEPRINT_PROD._step_enforced_values', hint: 'BLUEPRINT_PROD._step_enforced_values_hint',
         colSpan: 6, placeholder: 'redis:\n  host: <<steps.step-cache.service.host>>',
+        completions: this.stepReferenceCompletions,
       },
     ];
   }
@@ -272,6 +274,72 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     this.showStepForm = false;
     this.resetStepForm();
     this.emitFormChange();
+  }
+
+  /** What a reference may address after the step id. `service` resolves against the Service the step
+   * publishes, which does not exist until it has deployed — so a step cannot use it on itself. */
+  private static readonly REFERENCE_FIELDS: Completion[] = [
+    { label: 'deploymentName', type: 'property', detail: 'release name of that step' },
+    { label: 'namespace', type: 'property', detail: 'namespace it landed in' },
+    { label: 'service.', type: 'property', detail: 'a characteristic its Service publishes' },
+  ];
+
+  /**
+   * Completes `<<steps....>>` references inside the wiring editor. The step list offered is exactly the
+   * set a reference is allowed to target — the steps this one declares in dependsOn, plus itself for
+   * its own identity — so the rule is visible while typing instead of arriving later as a validation
+   * error. If a step is missing from the list, the dependency is missing from the DAG.
+   */
+  stepReferenceCompletions = (context: CompletionContext): CompletionResult | null => {
+    const opener = context.matchBefore(/<<\s*$/);
+    if (opener) {
+      return {
+        from: opener.from,
+        options: [{ label: '<<steps.', type: 'keyword', detail: 'reference another step' }],
+      };
+    }
+
+    const reference = context.matchBefore(/<<\s*steps\.[A-Za-z0-9._-]*$/);
+    if (!reference) {
+      return null;
+    }
+
+    const typed = reference.text.replace(/^<<\s*steps\./, '');
+    const typedStart = reference.to - typed.length;
+    const separator = typed.indexOf('.');
+
+    if (separator === -1) {
+      const self = this.stepForm.value.id;
+      const options: Completion[] = this.referenceableSteps().map(step => ({
+        label: step.id,
+        type: 'variable',
+        detail: step.id === self
+          ? 'this step'
+          : (this.findSpec(step.componentProductSpec)?.name ?? 'dependency'),
+        apply: step.id + '.',
+      }));
+      return options.length > 0 ? { from: typedStart, options } : null;
+    }
+
+    // Past the field — inside `service.<name>` — the characteristic names belong to the component and
+    // are not known here, so offering anything would only overwrite what the author typed.
+    if (typed.slice(separator + 1).includes('.')) {
+      return null;
+    }
+
+    const targetId = typed.slice(0, separator);
+    const isSelf = targetId === this.stepForm.value.id;
+    const fields = BlueprintProductFormComponent.REFERENCE_FIELDS
+      .filter(field => !(isSelf && field.label === 'service.'));
+
+    return { from: typedStart + separator + 1, options: fields };
+  };
+
+  /** The steps a reference from the one being edited may target. */
+  private referenceableSteps(): OrchestrationStep[] {
+    const dependencies = (this.stepForm.value.dependsOn ?? []) as OrchestrationStep[];
+    const self = this.orchestrationSteps.find(step => step.id === this.stepForm.value.id);
+    return self ? [...dependencies, self] : dependencies;
   }
 
   /** Only `<<steps.` is reserved, so anything else in a value — a Go template, an Argo workflow

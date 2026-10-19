@@ -1,5 +1,6 @@
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { ValidatorFn } from '@angular/forms';
+import { CompletionSource } from '@codemirror/autocomplete';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
@@ -199,6 +200,8 @@ export type CodeTheme = 'auto' | 'oneDark';
 export interface CodeFormField extends BaseFormField {
   type: 'code';
   language: CodeLanguage;
+  /** Completion source for this editor, e.g. the sibling steps a Blueprint reference may target. */
+  completions?: CompletionSource;
   minHeight?: string;
   placeholder?: string;
   lineNumbers?: boolean;
