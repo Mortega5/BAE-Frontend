@@ -616,10 +616,6 @@ export class QuoteListComponent implements OnInit {
     ];
   }
 
-  createQuote() {
-    this.router.navigate(['/quotes/new']);
-  }
-
   viewDetails(quote: Quote) {
     this.selectedQuoteId = quote.id!;
     this.showQuoteDetailsModal = true;

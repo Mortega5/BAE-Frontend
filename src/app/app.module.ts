@@ -100,7 +100,6 @@ export function createThemeAwareLoader(http: HttpClient, themeService: ThemeServ
   return new ThemeAwareTranslateLoader(http, themeService);
 }
 
-import { QuotesModule } from "src/app/features/quotes/quotes.module";
 import { AboutDomeComponent } from "src/app/pages/about-dome/about-dome.component";
 import { OperatorRevenueSharingComponent } from "src/app/pages/admin/operator-revenue-sharing/operator-revenue-sharing.component";
 import { ProviderRevenueSharingComponent } from "src/app/pages/user-profile/profile-sections/provider-revenue-sharing/provider-revenue-sharing.component";
@@ -201,7 +200,6 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     NgxFileDropModule,
     ChatbotWidgetComponent,
     NotificationComponent,
-    QuotesModule,
     MarkdownModule.forRoot(),
     TranslateModule.forRoot({
       loader: {
