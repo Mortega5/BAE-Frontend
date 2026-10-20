@@ -45,6 +45,7 @@ import { StepChangedEvent } from '../../../../../shared/stepper/stepper.componen
 import { ResourceSpecFormComponent } from '../../seller-resource-spec/resource-spec-form/resource-spec-form.component';
 import { ServiceSpecFormComponent } from '../../seller-service-spec/service-spec-form/service-spec-form.component';
 import { BlueprintProductFormComponent, BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
+import { buildBundleProductColumns } from '../bundle-product-columns';
 import { buildSpecContentItemColumns, SpecContentItem, SpecContentItemType } from '../spec-content-item-columns';
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
@@ -207,14 +208,11 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
   //BUNDLE INFO:
   bundleChecked: boolean = false;
-  bundlePage = 0;
-  bundlePageCheck: boolean = false;
-  loadingBundle: boolean = false;
-  loadingBundle_more: boolean = false;
-  prodSpecs: any[] = [];
-  nextProdSpecs: any[] = [];
   //final selected products inside bundle
   prodSpecsBundle: BundledProductSpecification[] = [];
+  readonly bundleColumns = buildBundleProductColumns();
+  fetchBundleProdSpecs = (params: PageRequest): Promise<PageResult<any>> =>
+    this.prodSpecService.getProdSpecByUserPaged(params, undefined, ['Active', 'Launched'], this.partyId, undefined);
 
   //COMPLIANCE PROFILE INFO:
   additionalISOS: any[] = [];
@@ -587,69 +585,20 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   toggleBundleCheck() {
-    this.prodSpecs = [];
-    this.bundlePage = 0;
     this.bundleChecked = !this.bundleChecked;
-    if (this.bundleChecked == true) {
-      this.loadingBundle = true;
-      this.getProdSpecs(false);
-    } else {
+    if (!this.bundleChecked) {
       this.prodSpecsBundle = [];
     }
   }
 
-  async getProdSpecs(next: boolean) {
-    if (next == false) {
-      this.loadingBundle = true;
-    }
-
-    let options = {
-      "filters": ['Active', 'Launched'],
-      "partyId": this.partyId,
-      //"sort": undefined,
-      //"isBundle": false
-    }
-
-    this.paginationService.getItemsPaginated(this.bundlePage, this.PROD_SPEC_LIMIT, next, this.prodSpecs, this.nextProdSpecs, options,
-      this.prodSpecService.getProdSpecByUser.bind(this.prodSpecService)).then(data => {
-        this.bundlePageCheck = data.page_check;
-        this.prodSpecs = data.items;
-        this.nextProdSpecs = data.nextItems;
-        this.bundlePage = data.page;
-        this.loadingBundle = false;
-        this.loadingBundle_more = false;
-      })
-  }
-
-  async nextBundle() {
-    await this.getProdSpecs(true);
-  }
-
-  addProdToBundle(prod: any) {
-    const index = this.prodSpecsBundle.findIndex(item => item.id === prod.id);
-    if (index !== -1) {
-      console.log('eliminar')
-      this.prodSpecsBundle.splice(index, 1);
-    } else {
-      console.log('añadir')
-      this.prodSpecsBundle.push({
-        id: prod.id,
-        href: prod.href,
-        lifecycleStatus: prod.lifecycleStatus,
-        name: prod.name
-      });
-    }
-    this.cdr.detectChanges();
-    console.log(this.prodSpecsBundle)
-  }
-
-  isProdInBundle(prod: any) {
-    const index = this.prodSpecsBundle.findIndex(item => item.id === prod.id);
-    if (index !== -1) {
-      return true
-    } else {
-      return false;
-    }
+  /** Keeps only what bundledProductSpecification needs from each selected product spec. */
+  onBundleSelectionChange(items: any[]): void {
+    this.prodSpecsBundle = items.map(prod => ({
+      id: prod.id,
+      href: prod.href,
+      lifecycleStatus: prod.lifecycleStatus,
+      name: prod.name
+    }));
   }
 
   private hasSelfAttestation(): boolean {

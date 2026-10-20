@@ -427,13 +427,10 @@ describe('UpdateProductSpecComponent', () => {
   });
 
   describe('bundle handling', () => {
-    it('toggleBundleCheck should load products when bundle is enabled', () => {
-      const getSpy = spyOn(component, 'getProdSpecs');
+    it('toggleBundleCheck should enable the bundle', () => {
       component.bundleChecked = false;
       component.toggleBundleCheck();
       expect(component.bundleChecked).toBeTrue();
-      expect(component.loadingBundle).toBeTrue();
-      expect(getSpy).toHaveBeenCalledWith(false);
     });
 
     it('toggleBundleCheck should clear selected bundled products when disabled', () => {
@@ -442,32 +439,6 @@ describe('UpdateProductSpecComponent', () => {
       component.toggleBundleCheck();
       expect(component.bundleChecked).toBeFalse();
       expect(component.prodSpecsBundle).toEqual([]);
-    });
-
-    it('getProdSpecs should update bundle pagination state', async () => {
-      await component.getProdSpecs(false);
-      expect(paginationServiceSpy.getItemsPaginated).toHaveBeenCalled();
-      expect(component.bundlePageCheck).toBeTrue();
-      expect(component.prodSpecs.length).toBe(1);
-      expect(component.nextProdSpecs.length).toBe(1);
-      expect(component.bundlePage).toBe(10);
-      expect(component.loadingBundle).toBeFalse();
-    });
-
-    it('nextBundle should request the next products page', async () => {
-      const spy = spyOn(component, 'getProdSpecs').and.resolveTo();
-      await component.nextBundle();
-      expect(spy).toHaveBeenCalledWith(true);
-    });
-
-    it('addProdToBundle and isProdInBundle should toggle bundle products', () => {
-      const detectSpy = spyOn((component as any).cdr, 'detectChanges');
-      const prod = { id: 'p1', href: 'h', lifecycleStatus: 'Active', name: 'Prod' };
-      component.addProdToBundle(prod);
-      expect(component.isProdInBundle(prod)).toBeTrue();
-      component.addProdToBundle(prod);
-      expect(component.isProdInBundle(prod)).toBeFalse();
-      expect(detectSpy).toHaveBeenCalledTimes(2);
     });
   });
 

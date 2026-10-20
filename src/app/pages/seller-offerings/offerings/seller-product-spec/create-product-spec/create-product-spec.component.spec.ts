@@ -37,7 +37,7 @@ describe('CreateProductSpecComponent', () => {
   beforeEach(async () => {
     messagesSubject = new Subject<any>();
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
-    prodSpecServiceSpy = jasmine.createSpyObj<ProductSpecServiceService>('ProductSpecServiceService', ['getProdSpecByUser', 'postProdSpec']);
+    prodSpecServiceSpy = jasmine.createSpyObj<ProductSpecServiceService>('ProductSpecServiceService', ['getProdSpecByUser', 'getProdSpecByUserPaged', 'postProdSpec']);
     localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getValidLoginInfo']);
     eventMessageSpy = jasmine.createSpyObj<EventMessageService>('EventMessageService', ['emitSellerProductSpec'], { messages$: messagesSubject.asObservable() });
     servSpecServiceSpy = jasmine.createSpyObj<ServiceSpecServiceService>('ServiceSpecServiceService', ['getServiceSpecByUserPaged']);
@@ -220,13 +220,10 @@ describe('CreateProductSpecComponent', () => {
     expect(component.templateName).toBe('BlueprintProductSpecification');
   });
 
-  it('toggleBundleCheck should load products when bundle is enabled', () => {
-    const getSpy = spyOn(component, 'getProdSpecs');
+  it('toggleBundleCheck should enable the bundle', () => {
     component.bundleChecked = false;
     component.toggleBundleCheck();
     expect(component.bundleChecked).toBeTrue();
-    expect(component.loadingBundle).toBeTrue();
-    expect(getSpy).toHaveBeenCalledWith(false);
   });
 
   it('toggleBundleCheck should clear selected bundled products when disabled', () => {
@@ -237,30 +234,20 @@ describe('CreateProductSpecComponent', () => {
     expect(component.prodSpecsBundle).toEqual([]);
   });
 
-  it('getProdSpecs should update bundle pagination state', async () => {
-    await component.getProdSpecs(false);
-    expect(paginationServiceSpy.getItemsPaginated).toHaveBeenCalled();
-    expect(component.bundlePageCheck).toBeTrue();
-    expect(component.prodSpecs.length).toBe(1);
-    expect(component.nextProdSpecs.length).toBe(1);
-    expect(component.bundlePage).toBe(10);
-    expect(component.loadingBundle).toBeFalse();
+  it('fetchBundleProdSpecs should page the party\'s active and launched product specs', async () => {
+    prodSpecServiceSpy.getProdSpecByUserPaged.and.resolveTo({ items: [{ id: 'p1' }], total: 1 });
+    component.partyId = 'party-1';
+    const page = await component.fetchBundleProdSpecs({ limit: 5, offset: 0 } as any);
+    expect(prodSpecServiceSpy.getProdSpecByUserPaged).toHaveBeenCalledWith(
+      jasmine.objectContaining({ limit: 5, offset: 0 }), undefined, ['Active', 'Launched'], 'party-1', undefined);
+    expect(page.items.length).toBe(1);
   });
 
-  it('nextBundle should request next products page', async () => {
-    const spy = spyOn(component, 'getProdSpecs').and.resolveTo();
-    await component.nextBundle();
-    expect(spy).toHaveBeenCalledWith(true);
-  });
-
-  it('addProdToBundle and isProdInBundle should toggle bundle products', () => {
-    const detectSpy = spyOn((component as any).cdr, 'detectChanges');
-    const prod = { id: 'p1', href: 'h', lifecycleStatus: 'Active', name: 'Prod' };
-    component.addProdToBundle(prod);
-    expect(component.isProdInBundle(prod)).toBeTrue();
-    component.addProdToBundle(prod);
-    expect(component.isProdInBundle(prod)).toBeFalse();
-    expect(detectSpy).toHaveBeenCalledTimes(2);
+  it('onBundleSelectionChange should keep only the bundledProductSpecification fields', () => {
+    component.onBundleSelectionChange([
+      { id: 'p1', href: 'h', lifecycleStatus: 'Active', name: 'Prod', isBundle: false, lastUpdate: 'x' }
+    ]);
+    expect(component.prodSpecsBundle).toEqual([{ id: 'p1', href: 'h', lifecycleStatus: 'Active', name: 'Prod' } as any]);
   });
 
   it('selfAttFile should derive the display file from selfAtt, stripping the uuid prefix', () => {
