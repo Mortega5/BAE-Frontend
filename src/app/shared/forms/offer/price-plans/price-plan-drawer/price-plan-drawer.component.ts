@@ -2,7 +2,7 @@ import {Component, EventEmitter, Input, Output, OnInit, HostListener, SimpleChan
 import {FormBuilder, FormGroup, ReactiveFormsModule, Validators} from '@angular/forms';
 import {MarkdownTextareaComponent} from "../../../markdown-textarea/markdown-textarea.component";
 import {TranslateModule} from "@ngx-translate/core";
-import {NgClass, NgForOf, NgIf} from "@angular/common";
+import {NgClass, NgIf} from "@angular/common";
 import {PriceComponentsTableComponent} from "../price-components-table/price-components-table.component";
 import {PriceComponentDrawerComponent} from "../price-component-drawer/price-component-drawer.component";
 import {currencies} from "currencies.json";
@@ -22,6 +22,9 @@ import {
 } from "../price-plan-characteristics-drawer/price-plan-characteristics-drawer.component";
 import { applyCharacteristicConstraints, CharacteristicConstraintValueUse } from "../../../../price-plan-constraint.utils";
 import { formatSelectedProfileValue, sameProfileValue } from '../profile-value.util';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { TableColumn } from 'src/app/models/table-column.model';
+import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/paginated-table.component';
 
 
 @Component({
@@ -39,11 +42,11 @@ import { formatSelectedProfileValue, sameProfileValue } from '../profile-value.u
     ConfigurationProfileDrawerComponent,
     TierPricingDrawerComponent,
     PricePlanCharacteristicsDrawerComponent,
-    NgForOf,
     SearchSelectComponent,
     ButtonComponent,
     DrawerComponent,
-    ContentCardComponent
+    ContentCardComponent,
+    PaginatedTableComponent
   ],
   styleUrl: './price-plan-drawer.component.css'
 })
@@ -373,6 +376,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
 
   updateConfigurationProfile(updatedProfile: any) {
     this.formGroup.get('prodSpecCharValueUse')?.setValue(updatedProfile);
+    this.fetchProfilePage = this.buildProfilePageFetcher();
     this.showConfigurationDrawer = false;
   }
 
@@ -382,38 +386,31 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
       : 'FORMS.PRICE_PLANS._add_profile';
   }
 
-  // Profile table with pagination
-  currentPage = 0;
-  pageSize = 5;
+  readonly profileColumns: TableColumn[] = [
+    { header: 'FORMS.PRICE_PLANS._char_name', getValue: (char: any) => char.name },
+    {
+      header: 'FORMS.PRICE_PLANS._char_value', cellClass: 'break-words',
+      getValue: (char: any) => char.selectedValue !== null && char.selectedValue !== undefined
+        ? formatSelectedProfileValue(char.selectedValue)
+        : 'FORMS.PRICE_PLANS._no_value_selected',
+    },
+  ];
+
+  // Client-side pages over the plan's profile. Swapped for a fresh function whenever the profile
+  // is saved, which is what makes app-paginated-table reload (it refetches on a new fetchPage).
+  fetchProfilePage = this.buildProfilePageFetcher();
+
+  private buildProfilePageFetcher() {
+    return async (params: PageRequest): Promise<PageResult<any>> => {
+      const data = this.getProcessedProfileData();
+      return { items: data.slice(params.offset, params.offset + params.limit), total: data.length };
+    };
+  }
 
   private isOptionalToggleCharacteristicName(name: any): boolean {
     return (name ?? '').toString().trim().toLowerCase().endsWith('- enabled');
   }
 
-  get paginatedProfileData() {
-    const data = this.getProcessedProfileData();
-    const startIndex = this.currentPage * this.pageSize;
-    return data.slice(startIndex, startIndex + this.pageSize);
-  }
-
-  get totalPages() {
-    const data = this.getProcessedProfileData();
-    return Math.ceil(data.length / this.pageSize);
-  }
-
-  nextPage() {
-    if (this.currentPage < this.totalPages - 1) {
-      this.currentPage++;
-    }
-  }
-
-  prevPage() {
-    if (this.currentPage > 0) {
-      this.currentPage--;
-    }
-  }
-
-  readonly formatSelectedProfileValue = formatSelectedProfileValue;
 
   getProcessedProfileData() {
     if(this.formGroup?.get('prodSpecCharValueUse')?.value){

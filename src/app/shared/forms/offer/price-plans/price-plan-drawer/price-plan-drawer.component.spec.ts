@@ -47,7 +47,7 @@ describe('PricePlanDrawerComponent', () => {
     expect(updated[0].productSpecCharacteristicValue[1].isDefault).toBeTrue();
   });
 
-  it('should ignore - enabled characteristics in processed and paginated profile data', () => {
+  it('should ignore - enabled characteristics in processed and paginated profile data', async () => {
     const fb = TestBed.inject(FormBuilder);
     component.formGroup = fb.group({
       prodSpecCharValueUse: [[
@@ -62,13 +62,12 @@ describe('PricePlanDrawerComponent', () => {
       paymentOnline: [true],
       priceComponents: [[]]
     });
-    component.pageSize = 5;
-
     const processed = component.getProcessedProfileData();
 
     expect(processed.length).toBe(5);
     expect(processed.some((char: any) => char.name === 'Char 1 - enabled')).toBeFalse();
-    expect(component.totalPages).toBe(1);
-    expect(component.paginatedProfileData.length).toBe(5);
+    const page = await component.fetchProfilePage({ limit: 5, offset: 0 } as any);
+    expect(page.total).toBe(5);
+    expect(page.items.length).toBe(5);
   });
 });
