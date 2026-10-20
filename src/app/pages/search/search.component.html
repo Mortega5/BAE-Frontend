@@ -115,6 +115,7 @@
         [placeholder]="'DASHBOARD._categories' | translate" [selected]="selectedCategoryId"
         (selectionChange)="onCategoryChange($event)" />
     </div>
+    @if (catalogFilterEnabled) {
     <div class="mt-4">
       <label class="block text-[14px] font-medium text-[#0b1220] dark:text-white mb-1.5">{{ 'DASHBOARD._catalog_label' |
         translate }}</label>
@@ -122,6 +123,7 @@
         [placeholder]="'DASHBOARD._all_catalogs' | translate" [selected]="selectedCatalogId"
         (selectionChange)="onCatalogChange($event)" />
     </div>
+    }
   </ng-template>
 
   <div class="mx-auto max-w-[1440px] px-8 pt-4 pb-6 flex-1">

@@ -51,6 +51,9 @@ export class SearchComponent implements OnInit, OnDestroy {
   activeCategoryName: string | null = null;
   catalogOptions: SelectOption[] = [];
   selectedCatalogId: string | null = null;
+  // With catalog management off, catalogs aren't something buyers browse by — hide the filter
+  // and never send a catalogId (a stale one could still be sitting in the saved search state).
+  readonly catalogFilterEnabled: boolean = environment.CATALOG_MANAGEMENT_ENABLED;
   primaryCategoriesMode = searchCategoriesConfig.primaryCategoriesMode;
   primaryRootName = searchCategoriesConfig.primaryRootName;
 
@@ -161,12 +164,14 @@ export class SearchComponent implements OnInit, OnDestroy {
       }
     } else {
       await this.loadCategoryOptions();
-      await this.loadCatalogOptions();
+      if (this.catalogFilterEnabled) {
+        await this.loadCatalogOptions();
+      }
 
       // 1. Restaurar estado (modo estándar)
       if (this.state.hasState()) {
         this.selectedCategoryId = this.state.selectedCategoryId;
-        this.selectedCatalogId = this.state.selectedCatalogId;
+        this.selectedCatalogId = this.catalogFilterEnabled ? this.state.selectedCatalogId : null;
         this.activeCategoryName = this.state.activeCategoryName;
         this.privateOpen = this.state.privateOpen;
         await Promise.all([
