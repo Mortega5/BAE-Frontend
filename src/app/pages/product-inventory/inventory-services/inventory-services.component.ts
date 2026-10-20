@@ -1,16 +1,28 @@
-import { Component, OnInit, ChangeDetectorRef, ElementRef, ViewChild, AfterViewInit, HostListener, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { ProductInventoryServiceService } from 'src/app/services/product-inventory-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
-import { PaginationService } from 'src/app/services/pagination.service';
 import {EventMessageService} from "src/app/services/event-message.service";
-import {faIdCard, faSort, faSwatchbook} from "@fortawesome/pro-solid-svg-icons";
-import { environment } from 'src/environments/environment';
+import {faSwatchbook} from "@fortawesome/pro-solid-svg-icons";
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TableColumn } from 'src/app/models/table-column.model';
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { BadgeStatus } from 'src/app/shared/badge/badge.component';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
+
+/** TMF638 service `state` values, with their label key and badge color. */
+const SERVICE_STATES: { value: string; label: string; badge: BadgeStatus }[] = [
+  { value: 'feasibilityChecked', label: 'PRODUCT_INVENTORY._feasibility', badge: 'info' },
+  { value: 'designed', label: 'PRODUCT_INVENTORY._designed', badge: 'info' },
+  { value: 'reserved', label: 'PRODUCT_INVENTORY._reserved', badge: 'info' },
+  { value: 'inactive', label: 'PRODUCT_INVENTORY._inactive', badge: 'warning' },
+  { value: 'active', label: 'PRODUCT_INVENTORY._active', badge: 'success' },
+  { value: 'terminated', label: 'PRODUCT_INVENTORY._terminated', badge: 'danger' },
+];
 
 @Component({
   selector: 'inventory-services',
@@ -19,53 +31,59 @@ import { TableColumn } from 'src/app/models/table-column.model';
 })
 export class InventoryServicesComponent implements OnInit, OnDestroy {
 
-  protected readonly faIdCard = faIdCard;
-  protected readonly faSort = faSort;
-  protected readonly faSwatchbook = faSwatchbook;
+  @ViewChild(FilteredPaginatedTableComponent) paginatedTable?: FilteredPaginatedTableComponent<any>;
 
   serviceId: any = undefined;
   prodId: any = undefined;
 
   partyId:any='';
-  loading: boolean = false;
-  services:any[]=[];
-  nextServices:any[]=[];
-  status:any[]=[];
-  loading_more: boolean = false;
-  page_check:boolean = true;
-  page: number=0;
-  INVENTORY_LIMIT: number = environment.INVENTORY_SERV_LIMIT;
   showDetails:boolean=false;
-  filterOpen:boolean=false;
   selectedServ:any;
   private destroy$ = new Subject<void>();
 
+  serviceFilters: FormField[] = [
+    {
+      name: 'status',
+      label: 'OFFERINGS._filter_state',
+      type: 'select',
+      icon: faSwatchbook,
+      multiple: true,
+      defaultValue: [],
+      options: SERVICE_STATES.map(s => ({ value: s.value, label: s.label })),
+    },
+  ];
+
   serviceColumns: TableColumn[] = [
-    { header: 'PRODUCT_INVENTORY._id', getValue: (serv: any) => serv.id, cellClass: 'text-primary-100 dark:text-primary-50 font-medium break-all' },
     {
       header: 'OFFERINGS._name',
-      getValue: (serv: any) => serv.name,
+      getValue: (serv: any) => serv.name ?? '-',
+      width: 'min-w-[120px]',
       cellClass: (serv: any) => this.hasLongWord(serv.name, 20) ? 'break-all' : 'break-words',
     },
-    { header: 'OFFERINGS._status', hideOnMobile: true, getValue: (serv: any) => serv.state },
-    { header: 'PRODUCT_INVENTORY._start_date', hideOnMobile: true, type: 'date', getValue: (serv: any) => serv.startDate },
+    {
+      header: 'OFFERINGS._status',
+      type: 'status-badge',
+      width: 'w-[150px]',
+      getValue: (serv: any) => SERVICE_STATES.find(s => s.value === serv.state)?.label ?? serv.state ?? '-',
+      getStatus: (serv: any) => SERVICE_STATES.find(s => s.value === serv.state)?.badge ?? 'neutral',
+    },
+    { header: 'PRODUCT_INVENTORY._start_date', hideOnMobile: true, type: 'date', width: 'w-[200px]', getValue: (serv: any) => serv.startDate },
   ];
 
   constructor(
     private inventoryService: ProductInventoryServiceService,
     private localStorage: LocalStorageService,
     private api: ApiServiceService,
-    private cdr: ChangeDetectorRef,
     private router: Router,
     private route: ActivatedRoute,
     private eventMessage: EventMessageService,
-    private paginationService: PaginationService
   ) {
     this.eventMessage.messages$
     .pipe(takeUntil(this.destroy$))
     .subscribe(ev => {
       if(ev.type === 'ChangedSession') {
         this.initInventory();
+        this.paginatedTable?.refresh(true);
       }
     })
   }
@@ -87,8 +105,6 @@ export class InventoryServicesComponent implements OnInit, OnDestroy {
   }
 
   initInventory(){
-    this.loading=true;
-
     const aux = this.localStorage.getValidLoginInfo();
     if (aux) {
       if(aux.logged_as==aux.id){
@@ -97,35 +113,11 @@ export class InventoryServicesComponent implements OnInit, OnDestroy {
         let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
         this.partyId = loggedOrg.partyId
       }
-      this.getInventory(false);
     }
   }
 
-  async getInventory(next:boolean){
-    if(next==false){
-      this.loading=true;
-    }
-
-    let options = {
-      "partyId": this.partyId,
-      "filters": this.status
-    }
-    
-    try {
-      const data = await this.paginationService.getItemsPaginated(this.page, this.INVENTORY_LIMIT, next, this.services, this.nextServices, options,
-        this.inventoryService.getServiceInventory.bind(this.inventoryService));
-      this.page_check=data.page_check;
-      this.services=data.items;
-      this.nextServices=data.nextItems;
-      this.page=data.page;
-    } finally {
-      this.loading=false;
-      this.loading_more=false;
-    }
-  }
-  async next(){
-    this.loading_more = true;
-    await this.getInventory(true);
+  fetchServices = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
+    return this.inventoryService.getServiceInventoryPaged(params, (filters['status'] ?? []) as string[], this.partyId);
   }
 
   selectService(serv:any){
@@ -141,32 +133,12 @@ export class InventoryServicesComponent implements OnInit, OnDestroy {
     }
   }
 
-  toggleFilterDropdown(event: Event){
-    event.stopPropagation();
-    this.filterOpen = !this.filterOpen;
-  }
-
-  @HostListener('document:click')
-  closeFilterDropdown(){
-    this.filterOpen = false;
-  }
-
-  onStateFilterChange(filter:string){
-    const index = this.status.findIndex(item => item === filter);
-    if (index !== -1) {
-      this.status.splice(index, 1);
-    } else {
-      this.status.push(filter)
-    }
-    this.getInventory(false);
-  }
-
   hasLongWord(str: string | undefined, threshold = 20) {
     if(str){
       return str.split(/\s+/).some(word => word.length > threshold);
     } else {
       return false
-    }   
+    }
   }
 
 }

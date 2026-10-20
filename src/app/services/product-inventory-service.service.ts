@@ -16,8 +16,6 @@ export class ProductInventoryServiceService {
   public static BASE_URL: String = environment.BASE_URL;
   public static API_INVENTORY: String = environment.INVENTORY;
   public static INVENTORY_LIMIT: number = environment.INVENTORY_LIMIT;
-  public static INVENTORY_RES_LIMIT: number = environment.INVENTORY_RES_LIMIT;
-  public static INVENTORY_SERV_LIMIT: number = environment.INVENTORY_SERV_LIMIT;
 
   constructor(private http: HttpClient,private localStorage: LocalStorageService) { }
 
@@ -71,38 +69,27 @@ export class ProductInventoryServiceService {
   }
 
 
-  getResourceInventory(page:any,filters:any[],id:any){
-    let url = `${ProductInventoryServiceService.BASE_URL}/resourceInventory/resource?limit=${ProductInventoryServiceService.INVENTORY_RES_LIMIT}&offset=${page}&relatedParty.id=${id}`
-    let status=''
-    if(filters.length>0){
-      for(let i=0; i < filters.length; i++){
-        if(i==filters.length-1){
-          status=status+filters[i]
-        } else {
-          status=status+filters[i]+','
-        }    
-      }
-      url=url+'&resourceStatus='+status;
-      console.log(url)
-    }
-    return lastValueFrom(this.http.get<any[]>(url));
+  getResourceInventoryPaged(params: PageRequest, status: string[], partyId: any): Promise<PageResult<any>> {
+    const url = `${ProductInventoryServiceService.BASE_URL}/resourceInventory/resource`;
+    return this.getInventoryPage(url, params, partyId, status.length > 0 ? { resourceStatus: status.join(',') } : {});
   }
 
-  getServiceInventory(page:any,filters:any[],id:any){
-    let url = `${ProductInventoryServiceService.BASE_URL}/serviceInventory/service?limit=${ProductInventoryServiceService.INVENTORY_SERV_LIMIT}&offset=${page}&relatedParty.id=${id}`
-    let status=''
-    if(filters.length>0){
-      for(let i=0; i < filters.length; i++){
-        if(i==filters.length-1){
-          status=status+filters[i]
-        } else {
-          status=status+filters[i]+','
-        }    
-      }
-      url=url+'&state='+status;
-      console.log(url)
-    }
-    return lastValueFrom(this.http.get<any[]>(url));
+  getServiceInventoryPaged(params: PageRequest, status: string[], partyId: any): Promise<PageResult<any>> {
+    const url = `${ProductInventoryServiceService.BASE_URL}/serviceInventory/service`;
+    return this.getInventoryPage(url, params, partyId, status.length > 0 ? { state: status.join(',') } : {});
   }
-  
+
+  /** The service inventory API doesn't send X-Total-Count; without it, a full page is
+   * assumed to have at least one more item after it so the table keeps "next" enabled. */
+  private async getInventoryPage(url: string, params: PageRequest, partyId: any, filters: Record<string, string>): Promise<PageResult<any>> {
+    const queryParams = { limit: params.limit, offset: params.offset, 'relatedParty.id': partyId, ...filters };
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const header = response.headers.get('X-Total-Count');
+    const total = header != null
+      ? Number(header)
+      : params.offset + items.length + (items.length === params.limit ? 1 : 0);
+    return { items, total };
+  }
+
 }

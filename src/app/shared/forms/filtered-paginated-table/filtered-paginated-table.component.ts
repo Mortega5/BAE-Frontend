@@ -30,6 +30,8 @@ export class FilteredPaginatedTableComponent<T = any> implements OnInit {
   @Input() selected: any;
   @Input() isSelectable?: (item: T) => boolean;
   @Input() defaultSort?: TableSort;
+  /** Translation key shown when a page comes back empty (forwarded to app-paginated-table). */
+  @Input() emptyMessage?: string;
   @Output() selectedChange = new EventEmitter<any>();
   @Output() rowClick = new EventEmitter<T>();
 

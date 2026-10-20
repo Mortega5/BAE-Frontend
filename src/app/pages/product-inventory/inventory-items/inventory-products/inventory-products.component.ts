@@ -2,10 +2,10 @@ import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@
 import { Router } from '@angular/router';
 import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { TranslateService } from '@ngx-translate/core';
-import { initFlowbite } from 'flowbite';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { billingAccountCart } from 'src/app/models/interfaces';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { components } from "src/app/models/product-catalog";
 import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
 import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.paths';
@@ -27,14 +27,30 @@ type ProductOffering = components["schemas"]["ProductOffering"];
 })
 export class InventoryProductsComponent implements OnInit, OnDestroy {
 
-  protected readonly faSwatchbook = faSwatchbook;
 
   inventory: any[] = [];
   partyId: any = '';
   loading: boolean = false;
   unsubscribeModal: boolean = false;
   prodToUnsubscribe: any;
-  filters: any[] = ['active', 'created'];
+  filters: string[] = ['active', 'created'];
+
+  productFilters: FormField[] = [
+    {
+      name: 'status',
+      label: 'OFFERINGS._filter_state',
+      type: 'select',
+      icon: faSwatchbook,
+      multiple: true,
+      defaultValue: [...this.filters],
+      options: [
+        { value: 'created', label: 'PRODUCT_INVENTORY._created' },
+        { value: 'active', label: 'PRODUCT_INVENTORY._active' },
+        { value: 'suspended', label: 'PRODUCT_INVENTORY._suspended' },
+        { value: 'terminated', label: 'PRODUCT_INVENTORY._terminated' },
+      ],
+    },
+  ];
   loading_more: boolean = false;
   /** 5 per page, not 6, so a 6th grid cell is free for the "load more" tile when there's more. */
   pageSize: number = 5;
@@ -100,7 +116,6 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
       }
       this.getInventory(false);
     }
-    initFlowbite();
   }
 
   @HostListener('document:click')
@@ -193,20 +208,13 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     this.total = data.total;
     this.loading = false;
     this.loading_more = false;
-    initFlowbite();
   }
 
-  onStateFilterChange(filter: string) {
-    const index = this.filters.findIndex(item => item === filter);
-    if (index !== -1) {
-      this.filters.splice(index, 1);
-      console.log('elimina filtro')
-      console.log(this.filters)
-    } else {
-      console.log('añade filtro')
-      console.log(this.filters)
-      this.filters.push(filter)
-    }
+  onFiltersChange(filters: Record<string, any>) {
+    const status: string[] = filters['status'] ?? [];
+    // filter-bar also emits its defaults on init, which initInventory() already loaded.
+    if (status.length === this.filters.length && status.every(s => this.filters.includes(s))) return;
+    this.filters = [...status];
     this.getInventory(false);
   }
 

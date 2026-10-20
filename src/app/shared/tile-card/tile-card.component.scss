@@ -4,6 +4,10 @@
 :host {
   display: block;
   height: 100%;
+  /* Fill the grid cell instead of sizing to content, so a long unbreakable
+     title truncates instead of stretching the card past its column. */
+  width: 100%;
+  min-width: 0;
 }
 
 .app-tile-card {

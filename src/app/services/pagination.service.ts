@@ -688,7 +688,7 @@ export class PaginationService {
     }
   }
 
-  async getInventoryPaged(params: PageRequest, keywords: any, filters: Category[], partyId: any): Promise<PageResult<any>> {
+  async getInventoryPaged(params: PageRequest, keywords: any, filters: string[], partyId: any): Promise<PageResult<any>> {
     const data = await this.inventoryService.getInventoryPaged(params, partyId, filters, keywords);
     return { items: await this.getOffers(data.items), total: data.total };
   }
