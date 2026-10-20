@@ -10,45 +10,14 @@
   <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._no_price_plans_yet_subtitle' | translate }}</p>
 </div>
 } @else {
-<div class="rounded-2xl overflow-hidden border border-gray-200 dark:border-gray-800">
-  <table class="w-full text-left border-collapse">
-    <thead>
-    <tr class="bg-gray-50 dark:bg-secondary-300">
-      <th class="px-4 py-4 text-base font-semibold text-gray-900 dark:text-white">{{ 'FORMS.PRICE_PLAN_COMPONENT._name' | translate }}</th>
-      <th class="px-4 py-4 text-base font-semibold text-gray-900 dark:text-white">{{ 'FORMS.PRICE_PLAN_COMPONENT._description' | translate }}</th>
-      <th class="px-4 py-4 text-base font-semibold text-gray-900 dark:text-white">{{ 'FORMS.PRICE_PLAN_COMPONENT._price_type' | translate }}</th>
-      <th class="px-4 py-4 text-base font-semibold text-gray-900 dark:text-white text-center">{{ 'FORMS.PRICE_PLAN_COMPONENT._actions' | translate }}</th>
-    </tr>
-    </thead>
-    <tbody>
-    <!-- Mostrar los Price Components -->
-      @for (component of priceComponents; track component.id) {
-        <tr class="hover:bg-gray-50 dark:hover:bg-secondary-300 transition-colors border-t border-gray-200 dark:border-gray-800">
-          <td class="px-4 py-4 text-base text-gray-900 dark:text-white">{{ component.name }}</td>
-          <td class="px-4 py-4 text-base text-gray-900 dark:text-white">{{ component.description }}</td>
-          <td class="px-4 py-4 text-base text-gray-900 dark:text-white">{{ getPriceTypeLabelKey(component.priceType) | translate }}</td>
-          <td class="px-4 py-4 text-center">
-            <div class="flex justify-center gap-2">
-              <app-button data-cy="ppEditPriceComponent" type="button" (click)="editPriceComponent(component)" shape="pill" prefixIcon="pen-to-square">
-                <span class="sr-only">{{ 'FORMS.PRICE_PLAN_COMPONENT._edit' | translate }}</span>
-              </app-button>
-              <app-button data-cy="ppDeletePriceComponent" type="button" (click)="confirmDelete(component)" variant="danger" shape="pill" prefixIcon="trash">
-                <span class="sr-only">{{ 'FORMS.PRICE_PLAN_COMPONENT._delete' | translate }}</span>
-              </app-button>
-            </div>
-          </td>
-        </tr>
-      }
-    </tbody>
-  </table>
-</div>
+<app-table-input [columns]="columns" [items]="priceComponents" [selectable]="false" />
 }
 
 <!-- Modal de Confirmación de Eliminación -->
 <app-modal [visible]="showDeleteModal" width="max-w-lg" (closed)="showDeleteModal = false">
   <h2 appCardHeader class="text-xl font-extrabold text-gray-900 dark:text-white">{{ 'FORMS.PRICE_PLAN_COMPONENT._delete_price_comp' | translate }}</h2>
   <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'FORMS.PRICE_PLAN_COMPONENT._unable_undone' | translate }}</p>
-  <div appCardFooter>
+  <div appCardFooter class="flex justify-end gap-3">
     <app-button (click)="showDeleteModal = false" variant="secondary">{{ 'FORMS.PRICE_PLAN_COMPONENT._cancel' | translate }}</app-button>
     <app-button (click)="deletePriceComponent()" variant="danger">{{ 'FORMS.PRICE_PLAN_COMPONENT._delete' | translate }}</app-button>
   </div>

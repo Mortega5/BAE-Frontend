@@ -1,6 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import {TranslateModule} from "@ngx-translate/core";
+import { faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
+import { TableColumn } from 'src/app/models/table-column.model';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { ModalComponent } from 'src/app/shared/modal/modal.component';
 
 @Component({
@@ -10,9 +13,9 @@ import { ModalComponent } from 'src/app/shared/modal/modal.component';
   imports: [
     TranslateModule,
     ButtonComponent,
-    ModalComponent
-  ],
-  styleUrl: './price-components-table.component.css'
+    ModalComponent,
+    TableInputComponent
+  ]
 })
 export class PriceComponentsTableComponent {
   @Input() priceComponents: any[] = []; // Lista de price components
@@ -21,6 +24,26 @@ export class PriceComponentsTableComponent {
 
   showDeleteModal = false;
   componentToDelete: any | null = null;
+
+  readonly columns: TableColumn[] = [
+    { header: 'FORMS.PRICE_PLAN_COMPONENT._name', getValue: (component: any) => component.name },
+    { header: 'FORMS.PRICE_PLAN_COMPONENT._description', cellClass: 'break-words', getValue: (component: any) => component.description },
+    { header: 'FORMS.PRICE_PLAN_COMPONENT._price_type', getValue: (component: any) => this.getPriceTypeLabelKey(component.priceType) },
+    {
+      header: 'FORMS.PRICE_PLAN_COMPONENT._actions', type: 'actions', width: 'w-36',
+      actions: [
+        {
+          icon: faEdit, tooltip: 'FORMS.PRICE_PLAN_COMPONENT._edit', dataCy: 'ppEditPriceComponent',
+          onClick: (component: any) => this.editPriceComponent(component),
+        },
+        {
+          icon: faTrash, tooltip: 'FORMS.PRICE_PLAN_COMPONENT._delete', dataCy: 'ppDeletePriceComponent',
+          buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
+          onClick: (component: any) => this.confirmDelete(component),
+        },
+      ],
+    },
+  ];
 
   editPriceComponent(component: any) {
     this.edit.emit(component); // Emitir evento con el componente a editar
@@ -33,7 +56,6 @@ export class PriceComponentsTableComponent {
 
   deletePriceComponent() {
     if (this.componentToDelete) {
-      console.log('delete')
       this.delete.emit(this.componentToDelete.id);
       this.showDeleteModal = false;
       this.componentToDelete = null;
