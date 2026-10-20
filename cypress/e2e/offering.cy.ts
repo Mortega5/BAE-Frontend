@@ -455,8 +455,7 @@ const step6 = (online: boolean=false, pricePlan:any = null, priceComponent:Price
             cy.getBySel('priceComponentName').type(priceComponent.name)
             cy.getBySel('priceComponentDescription').find('[data-cy="textArea"]').type(priceComponent.description)
             cy.getBySel('price').type(String(priceComponent.price))
-            cy.getBySel('priceType').click()
-            cy.getBySel('priceType-' + priceComponent.type.replace(' ', '-')).click()
+            cy.getBySel('priceType').select(priceComponent.type)
             if (priceComponent.recurringType){
                 cy.getBySel('recurringType-' + priceComponent.recurringType).click()
             }

@@ -4,13 +4,14 @@ import {MarkdownTextareaComponent} from "../../../markdown-textarea/markdown-tex
 import { UsageServiceService } from 'src/app/services/usage-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import {TranslateModule} from "@ngx-translate/core";
-import {NgClass} from "@angular/common";
 import { initFlowbite } from 'flowbite';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
 import { DropdownPanelComponent } from 'src/app/shared/dropdown-panel/dropdown-panel.component';
+import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 
 @Component({
   selector: 'app-price-component-drawer',
@@ -21,11 +22,11 @@ import { DropdownPanelComponent } from 'src/app/shared/dropdown-panel/dropdown-p
     ReactiveFormsModule,
     MarkdownTextareaComponent,
     TranslateModule,
-    NgClass,
     ButtonComponent,
     ContentCardComponent,
     DrawerComponent,
-    DropdownPanelComponent
+    DropdownPanelComponent,
+    DynamicFormComponent
   ],
   styleUrl: './price-component-drawer.component.css'
 })
@@ -39,7 +40,6 @@ export class PriceComponentDrawerComponent implements OnInit {
   isOpen = false;
 
   priceComponentForm!: FormGroup;
-  showPriceTypeDropdown = false;
   readonly priceTypeOptions: { id: string, labelKey: string }[] = [
     { id: 'one time', labelKey: 'CREATE_OFFER._pc_price_type_one_time' },
     { id: 'recurring', labelKey: 'CREATE_OFFER._pc_price_type_recurring' },
@@ -60,9 +60,59 @@ export class PriceComponentDrawerComponent implements OnInit {
   filteredChars:any[]=[];
   usageSpecs:any[]=[];
   selectedUsageSpec:any;
-  selectedMetric:any;
-  showMetricSelect:boolean=false;
   partyId:any='';
+
+  readonly priceFields: FormField[] = [
+    {
+      type: 'number', name: 'price', label: 'CREATE_OFFER._pc_base_price', required: true, colSpan: 1,
+      min: 0.01, max: 1000000000, step: 0.1, placeholder: 'CREATE_OFFER._pc_base_price_placeholder', dataCy: 'price',
+      errorMessages: { min: 'FORMS.PRICE_PLAN_COMPONENT._price_positive', max: 'FORMS.PRICE_PLAN_COMPONENT._price_limit' },
+    },
+    {
+      type: 'select', name: 'priceType', label: 'CREATE_OFFER._pc_price_type', required: true, colSpan: 1, dataCy: 'priceType',
+      options: this.priceTypeOptions.map(o => ({ value: o.id, label: o.labelKey })),
+    },
+  ];
+
+  readonly recurringFields: FormField[] = [
+    {
+      type: 'bubbleSelect', name: 'recurringPeriod', label: 'CREATE_OFFER._pc_recurring_period', dataCy: 'recurringType',
+      options: this.recurringPeriodOptions.map(o => ({ value: o.id, label: o.labelKey })),
+    },
+  ];
+
+  // Rebuilt by refreshUsageFields(): the options depend on the loaded usage specs and on
+  // which one is selected, so they can't be a static list like the other field groups.
+  usageFields: FormField[] = [];
+
+  readonly discountFields: FormField[] = [
+    {
+      type: 'number', name: 'discountValue', label: 'CREATE_OFFER._pc_amount', colSpan: 1, min: 0, max: 100,
+      placeholder: 'CREATE_OFFER._pc_amount_placeholder', dataCy: 'offerDiscountAmount',
+      errorMessages: { min: 'FORMS.PRICE_PLAN_COMPONENT._discount_positive', max: 'FORMS.PRICE_PLAN_COMPONENT._discount_limit' },
+    },
+    {
+      type: 'select', name: 'discountUnit', label: 'CREATE_OFFER._pc_amount_unit', colSpan: 1, dataCy: 'offerDiscountUnit',
+      options: [
+        { value: 'percentage', label: 'CREATE_OFFER._pc_discount_percentage' },
+        { value: 'fixed', label: 'CREATE_OFFER._pc_discount_fixed' },
+      ],
+    },
+    {
+      type: 'number', name: 'discountDuration', label: 'CREATE_OFFER._pc_duration', colSpan: 1, min: 1,
+      placeholder: 'CREATE_OFFER._pc_duration_placeholder', dataCy: 'offerDiscountDuration',
+      errorMessages: { min: 'FORMS.PRICE_PLAN_COMPONENT._duration_positive' },
+    },
+    {
+      type: 'select', name: 'discountDurationUnit', label: 'CREATE_OFFER._pc_duration_unit', colSpan: 1, dataCy: 'offerDiscountDurationUnit',
+      options: [
+        { value: 'days', label: 'CREATE_OFFER._pc_duration_days' },
+        { value: 'weeks', label: 'CREATE_OFFER._pc_duration_weeks' },
+        { value: 'months', label: 'CREATE_OFFER._pc_duration_months' },
+        { value: 'years', label: 'CREATE_OFFER._pc_duration_years' },
+      ],
+    },
+  ];
   showPopover = false;
 
   constructor(
@@ -149,15 +199,40 @@ export class PriceComponentDrawerComponent implements OnInit {
         console.log(this.selectedCharacteristic)
       }
     }
+    // Subscribed after the edit-mode patchValue above, so loading an existing component keeps
+    // its stored usageUnit instead of resetting it to the spec's first metric.
+    this.priceComponentForm.get('usageSpecId')!.valueChanges.subscribe(id => {
+      this.selectedUsageSpec = this.usageSpecs.find(spec => spec.id == id);
+      this.priceComponentForm.patchValue({ usageUnit: this.selectedUsageSpec?.specCharacteristic?.[0]?.name ?? '' });
+      this.refreshUsageFields();
+    });
+
     this.initPartyInfo();
+    this.refreshUsageFields();
     this.usageService.getAllUsageSpecs(this.partyId).then(data => {
       this.usageSpecs=data;
-      if(this.priceComponentForm.get('usageSpecId')){
-        this.selectedUsageSpec = this.usageSpecs.find((element: { id: any; }) => element.id == this.priceComponentForm.get('usageSpecId')?.value)
-        this.selectedMetric = this.priceComponentForm.get('usageUnit')?.value
-        this.showMetricSelect=true;
-      }
+      this.selectedUsageSpec = this.usageSpecs.find(spec => spec.id == this.priceComponentForm.get('usageSpecId')?.value);
+      this.refreshUsageFields();
     })
+  }
+
+  private refreshUsageFields(): void {
+    const fields: FormField[] = [
+      {
+        type: 'select', name: 'usageSpecId', label: 'CREATE_OFFER._pc_usage_spec', colSpan: 1, dataCy: 'usageInput',
+        options: [
+          { value: '', label: 'CREATE_OFFER._select' },
+          ...this.usageSpecs.map(spec => ({ value: spec.id, label: spec.name })),
+        ],
+      },
+    ];
+    if (this.selectedUsageSpec) {
+      fields.push({
+        type: 'select', name: 'usageUnit', label: 'CREATE_OFFER._pc_metric', colSpan: 1, dataCy: 'usageMetric',
+        options: (this.selectedUsageSpec.specCharacteristic ?? []).map((metric: any) => ({ value: metric.name, label: metric.name })),
+      });
+    }
+    this.usageFields = fields;
   }
 
 
@@ -247,38 +322,6 @@ export class PriceComponentDrawerComponent implements OnInit {
     });
   }
 
-  changePriceComponentUsageSpec(event: any){    
-    if(event.target.value == ''){
-      this.showValueSelect = false;
-      return
-    }
-    this.selectedUsageSpec= this.usageSpecs.find((element: { id: any; }) => element.id == event.target.value)
-    if(this.selectedUsageSpec.specCharacteristic.length>0){
-      this.selectedMetric=this.selectedUsageSpec.specCharacteristic[0].name;
-    } else {
-      this.selectedMetric='';
-    }
-    this.priceComponentForm.patchValue({
-      usageUnit: this.selectedMetric
-    });
-    
-    this.showMetricSelect=true;
-    this.priceComponentForm.patchValue({
-      usageSpecId: this.selectedUsageSpec.id
-    })
-    console.log(this.selectedUsageSpec)
-    console.log(this.priceComponentForm)
-  }
-
-  changePriceComponentMetric(event: any){
-    //this.selectedMetric= this.selectedUsageSpec.specCharacteristic.find((element: { name: any; }) => element.name == event.target.value)
-    this.selectedMetric = event.target.value
-    console.log(this.selectedMetric)
-    this.priceComponentForm.patchValue({
-      usageUnit: this.selectedMetric
-    });
-  }
-
   closeDrawer() {
     this.isOpen = false;
     document.body.style.overflow = '';
@@ -294,16 +337,5 @@ export class PriceComponentDrawerComponent implements OnInit {
 
   hasKey(obj: any, key: string): boolean {
     return key in obj;
-  }
-
-  selectPriceType(id: string): void {
-    const control = this.priceComponentForm.get('priceType');
-    control?.setValue(id);
-    control?.markAsTouched();
-    this.showPriceTypeDropdown = false;
-  }
-
-  priceTypeLabelKey(id: string): string {
-    return this.priceTypeOptions.find(o => o.id === id)?.labelKey || '';
   }
 }
