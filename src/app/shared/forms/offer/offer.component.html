@@ -44,7 +44,7 @@
 
   <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance" [loading]="loading"
     [submitLabel]="isUpdate ? 'Update Offer' : 'Create Offer'" [submitAlwaysVisible]="isUpdate"
-    [submitDisabled]="!isFormValid || loading" (stepChanged)="onStepChanged($event)" (submitted)="submitForm()">
+    [submitDisabled]="!canSubmit || loading" (stepChanged)="onStepChanged($event)" (submitted)="submitForm()">
 
     <ng-template stepperStep="CREATE_OFFER._step_general_info" stepId="general">
       <div class="flex flex-col gap-5">

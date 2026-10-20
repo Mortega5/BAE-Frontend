@@ -248,6 +248,11 @@ describe('OfferComponent', () => {
   });
 
   describe('submitForm', () => {
+    beforeEach(() => {
+      component.isFormValid = true;
+      component.selectedRootCategory = { id: 'cat-root' };
+    });
+
     it('should open the publish draft modal in create mode', () => {
       const createSpy = spyOn(component, 'createOffer');
 
@@ -267,6 +272,19 @@ describe('OfferComponent', () => {
 
       expect(emitSpy).toHaveBeenCalledWith(true);
       expect(updateSpy).toHaveBeenCalled();
+    });
+
+    it('should not update an offer whose root category was cleared', () => {
+      const updateSpy = spyOn(component, 'updateOffer');
+      const emitSpy = spyOn(eventMessage, 'emitUpdateOffer');
+
+      component.formType = 'update';
+      component.selectedRootCategory = null;
+      component.submitForm();
+
+      expect(component.canSubmit).toBeFalse();
+      expect(emitSpy).not.toHaveBeenCalled();
+      expect(updateSpy).not.toHaveBeenCalled();
     });
   });
 

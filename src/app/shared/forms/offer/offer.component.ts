@@ -207,6 +207,17 @@ export class OfferComponent implements OnInit, OnDestroy {
     this.currentStepId = event.stepId!;
   }
 
+  /** An offer must always carry a root category. It isn't a form control (the pick lives in
+   * selectedRootCategory), so the form's own validity can't see it — checked here explicitly
+   * so update mode, where every step is unlocked, can't submit with it cleared. */
+  get hasRootCategory(): boolean {
+    return !!this.selectedRootCategory?.id;
+  }
+
+  get canSubmit(): boolean {
+    return this.isFormValid && this.hasRootCategory;
+  }
+
   validateCurrentStep(): boolean {
     switch (this.currentStepId) {
       case 'general':
@@ -214,7 +225,7 @@ export class OfferComponent implements OnInit, OnDestroy {
       case 'productSpec':
         return !!this.productOfferForm.get('prodSpec')?.value;
       case 'category':
-        return !!this.selectedRootCategory?.id;
+        return this.hasRootCategory;
       case 'license':
         return this.productOfferForm.get('license')?.valid || false;
       case 'contractDefinition':
@@ -231,6 +242,7 @@ export class OfferComponent implements OnInit, OnDestroy {
   }
 
   submitForm() {
+    if (!this.canSubmit) return;
     if (this.formType === 'update') {
       this.eventMessage.emitUpdateOffer(true);
       console.log('🔄 Starting offer update process...');
