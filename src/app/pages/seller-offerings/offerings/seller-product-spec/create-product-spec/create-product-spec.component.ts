@@ -3,7 +3,7 @@ import { ChangeDetectorRef, Component, DoCheck, EventEmitter, Input, OnDestroy, 
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -178,9 +178,9 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     { header: 'CREATE_PROD_SPEC._dsp_endpoint_url', getValue: (item: any) => item.url, width: 'w-96', cellClass: () => 'break-all' },
     { header: 'CREATE_PROD_SPEC._dsp_endpoint_description', getValue: (item: any) => item.description, cellClass: () => 'break-words' },
     {
-      header: 'CREATE_PROD_SPEC._actions', type: 'actions', width: 'w-48',
+      header: 'CREATE_PROD_SPEC._actions', type: 'actions', width: 'w-24',
       actions: [{
-        icon: faXmark, tooltip: '_delete', dataCy: 'removeEndpointUrl',
+        icon: faTrash, tooltip: '_delete', dataCy: 'removeEndpointUrl',
         buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
         onClick: (item: any) => this.removeEndpointUrl(this.endpointUrls.indexOf(item)),
       }],

@@ -123,6 +123,19 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     },
   ];
 
+  readonly endpointUrlColumns: TableColumn[] = [
+    { header: 'CREATE_PROD_SPEC._dsp_endpoint_url', getValue: (item: any) => item.url, width: 'w-96', cellClass: () => 'break-all' },
+    { header: 'CREATE_PROD_SPEC._dsp_endpoint_description', getValue: (item: any) => item.description, cellClass: () => 'break-words' },
+    {
+      header: 'CREATE_PROD_SPEC._actions', type: 'actions', width: 'w-24',
+      actions: [{
+        icon: faTrash, tooltip: '_delete', dataCy: 'removeEndpointUrl',
+        buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
+        onClick: (item: any) => this.removeEndpointUrl(this.endpointUrls.indexOf(item)),
+      }],
+    },
+  ];
+
   //FAQS INFO:
   faqs: { question: string, answer: string, expanded: boolean }[] = [];
   draggingFaqIdx: number | null = null;
