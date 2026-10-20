@@ -364,17 +364,15 @@
                   </div>
                   }
                 </div>
-                @if (!privateLoadingMore && privateItems.length > 0) {
-                @if (privateHasMore) {
+                @if (privateLoadingMore) {
+                <ng-container *ngTemplateOutlet="loadMoreSpinner"></ng-container>
+                } @else if (privateHasMore) {
                 <div class="flex pb-6 justify-center mt-6">
                   <app-button data-cy="loadMorePrivate" (click)="loadMorePrivateOfferings()" variant="secondary"
                     suffixIcon="arrow-down">
                     {{ 'DASHBOARD._load_more' | translate }}
                   </app-button>
                 </div>
-                }
-                } @else {
-                <ng-container *ngTemplateOutlet="loadMoreSpinner"></ng-container>
                 }
                 }
               </div>
@@ -413,17 +411,15 @@
               </div>
               }
             </div>
-            @if (!publicLoadingMore && publicItems.length > 0) {
-            @if (publicHasMore) {
+            @if (publicLoadingMore) {
+            <ng-container *ngTemplateOutlet="loadMoreSpinner"></ng-container>
+            } @else if (publicHasMore) {
             <div class="flex pb-6 justify-center mt-6">
               <app-button data-cy="loadMore" (click)="loadMorePublicOfferings()" variant="secondary"
                 suffixIcon="arrow-down">
                 {{ 'DASHBOARD._load_more' | translate }}
               </app-button>
             </div>
-            }
-            } @else {
-            <ng-container *ngTemplateOutlet="loadMoreSpinner"></ng-container>
             }
             }
           </div>
