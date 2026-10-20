@@ -26,6 +26,8 @@ export class PaginatedTableComponent<T = any> implements OnInit, OnChanges {
   @Input() selected: any;
   @Input() isSelectable?: (item: T) => boolean;
   @Input() defaultSort?: TableSort;
+  /** Translation key shown when a page comes back empty (forwarded to app-table-input). */
+  @Input() emptyMessage?: string;
   @Output() selectedChange = new EventEmitter<any>();
   @Output() rowClick = new EventEmitter<T>();
 

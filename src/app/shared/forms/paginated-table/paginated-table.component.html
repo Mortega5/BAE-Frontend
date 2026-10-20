@@ -2,7 +2,7 @@
   <div class="relative">
     <app-table-input [columns]="columns" [items]="items" [multiple]="multiple" [selectable]="selectable"
       [clickable]="clickable" [readonly]="readonly || loading" [isSelectable]="isSelectable" [ngModel]="selected"
-      [sort]="sort" [selectedCount]="selectedCount"
+      [sort]="sort" [selectedCount]="selectedCount" [emptyMessage]="emptyMessage"
       [selectedCountLabel]="'FORMS.PAGINATED_TABLE._selected_count' | translate: { count: selectedCount }"
       (ngModelChange)="onSelectionChange($event)" (rowClick)="onRowClick($event)"
       (sortChange)="onSortChange($event)">
