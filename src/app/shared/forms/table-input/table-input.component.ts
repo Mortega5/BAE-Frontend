@@ -1,5 +1,6 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, EventEmitter, forwardRef, Input, Output } from '@angular/core';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faChevronDown } from '@fortawesome/pro-solid-svg-icons';
@@ -160,7 +161,7 @@ export class TableInputComponent implements ControlValueAccessor {
   }
 
   getCellValue(column: TableColumn, item: any): string {
-    if (column.type === 'icon-button' || column.type === 'date' || column.type === 'actions' || column.type === 'image') return '';
+    if (column.type === 'icon-button' || column.type === 'date' || column.type === 'actions' || column.type === 'image' || column.type === 'icon') return '';
     const value = column.getValue ? column.getValue(item) : null;
     return value == null ? '' : String(value);
   }
@@ -173,6 +174,11 @@ export class TableInputComponent implements ControlValueAccessor {
   getDateValue(column: TableColumn, item: any): string {
     if (column.type !== 'date') return '';
     return this.datePipe.transform(column.getValue(item), column.format ?? DEFAULT_DATE_FORMAT) ?? '-';
+  }
+
+  getIconValue(column: TableColumn, item: any): IconDefinition | null {
+    if (column.type !== 'icon') return null;
+    return column.getValue(item) ?? null;
   }
 
   getImageValue(column: TableColumn, item: any): string {

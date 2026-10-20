@@ -73,10 +73,17 @@ export interface DateTableColumn<T = any> extends BaseTableColumn<T> {
   format?: string;
 }
 
+/** Display-only icon (not clickable — use `icon-button` / `actions` for that). A null value
+ * leaves the cell empty, so items without an icon don't need a placeholder. */
+export interface IconTableColumn<T = any> extends BaseTableColumn<T> {
+  type: 'icon';
+  getValue: (item: T) => IconDefinition | null | undefined;
+}
+
 export interface ImageTableColumn<T = any> extends BaseTableColumn<T> {
   type: 'image';
   getValue: (item: T) => string | null | undefined;
   alt?: string;
 }
 
-export type TableColumn<T = any> = TextTableColumn<T> | BadgeTableColumn<T> | StatusBadgeTableColumn<T> | IconButtonTableColumn<T> | DateTableColumn<T> | ActionsTableColumn<T> | ImageTableColumn<T>;
+export type TableColumn<T = any> = TextTableColumn<T> | BadgeTableColumn<T> | StatusBadgeTableColumn<T> | IconButtonTableColumn<T> | DateTableColumn<T> | ActionsTableColumn<T> | IconTableColumn<T> | ImageTableColumn<T>;

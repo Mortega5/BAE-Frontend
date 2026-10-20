@@ -64,6 +64,10 @@
   --tw-ring-color: var(--table-action-focus-ring);
 }
 
+.table-input-icon {
+  color: var(--table-icon-color);
+}
+
 .table-input-empty-text {
   color: var(--table-empty-text);
 }

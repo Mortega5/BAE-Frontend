@@ -92,6 +92,10 @@
           </div>
           } @else if (col.type === 'date') {
           {{ getDateValue(col, item) }}
+          } @else if (col.type === 'icon') {
+          @if (getIconValue(col, item); as icon) {
+          <fa-icon [icon]="icon" class="table-input-icon"></fa-icon>
+          }
           } @else if (col.type === 'image') {
           <div class="flex items-center justify-center">
             <img class="w-16 object-contain" [src]="getImageValue(col, item)" [alt]="col.alt ?? ''">

@@ -97,6 +97,8 @@ body {
   --table-empty-text: var(--theme-default-text);
   /* Solid filled action buttons — primary color by default, lightened on hover. */
   --table-action-bg: rgb(var(--theme-primary-100));
+  /* Display-only `icon` column (e.g. a product spec key feature's icon). */
+  --table-icon-color: rgb(var(--theme-primary-100));
   --table-action-hover-bg: rgb(var(--theme-primary-50));
   --table-action-text: rgb(255 255 255);
   --table-action-text-hover: rgb(255 255 255);
@@ -293,6 +295,7 @@ body.theme-bae {
   --table-action-hover-bg: rgb(var(--theme-primary-50));
   --table-action-text: rgb(255 255 255);
   --table-action-text-hover: rgb(255 255 255);
+  --table-icon-color: rgb(var(--theme-primary-50));
 
   --status-badge-success-bg: color-mix(in srgb, var(--status-badge-success) 22%, transparent);
   --status-badge-success-border: color-mix(in srgb, var(--status-badge-success) 45%, transparent);
