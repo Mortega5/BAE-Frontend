@@ -2888,14 +2888,11 @@
     "_cancel": "Cancelar",
     "_apply": "Aplicar",
     "_services": "Servicios",
-    "_browse_services": "Explorar servicios",
     "_support_contact": "Soporte y contacto",
     "_contact_mail": "Correo de contacto",
     "_site": "Sitio web",
     "_address": "Dirección",
     "_phone": "Número de teléfono",
-    "_key_numbers": "Cifras clave",
-    "_active_services": "Servicios activos",
     "_region": "Región",
     "_all_services": "Todos los servicios del proveedor",
     "_search_keywords": "Buscar palabras clave",
@@ -2912,7 +2909,8 @@
     "_not_found": "Proveedor no encontrado",
     "_not_found_desc": "Esta página de proveedor no está disponible o ya no existe.",
     "_back_to_providers": "Volver a proveedores",
-    "_search": "Buscar"
+    "_search": "Buscar",
+    "_clear_search": "Borrar búsqueda"
   },
   "PRODUCT_ORDERS": {
     "_orders": "Pedidos de producto",

@@ -2888,14 +2888,11 @@
     "_cancel": "Cancel",
     "_apply": "Apply",
     "_services": "Services",
-    "_browse_services": "Browse services",
     "_support_contact": "Support & Contact",
     "_contact_mail": "Contact mail",
     "_site": "Site",
     "_address": "Address",
     "_phone": "Phone number",
-    "_key_numbers": "Key numbers",
-    "_active_services": "Active services",
     "_region": "Region",
     "_all_services": "All Provider's services",
     "_search_keywords": "Search keywords",
@@ -2912,7 +2909,8 @@
     "_not_found": "Provider not found",
     "_not_found_desc": "This provider page is unavailable or no longer exists.",
     "_back_to_providers": "Back to providers",
-    "_search": "Search"
+    "_search": "Search",
+    "_clear_search": "Clear search"
   },
   "PRODUCT_ORDERS": {
     "_orders": "Product Orders",

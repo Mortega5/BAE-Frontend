@@ -10,7 +10,6 @@ import { iconForCategory } from 'src/app/data/categoryIcons';
 import { Category } from 'src/app/models/interfaces';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { PaginationService } from 'src/app/services/pagination.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { environment } from 'src/environments/environment';
 import { EventMessageService } from "../../services/event-message.service";
@@ -79,14 +78,14 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
   serviceKeywords: string | undefined;
   toolbarFilters: ToolbarFilter[] = [];
 
-  private allServices: any[] = [];
-  private nextServices: any[] = [];
   services: any[] = [];
-  serviceCount = 0;
+  /** Total matching offerings for the current filters/keywords, from X-Total-Count. */
+  serviceTotal = 0;
   servicesLoading = false;
   loading_more = false;
-  page_check = false;
-  private servicesPage = 0;
+  get page_check(): boolean {
+    return this.services.length < this.serviceTotal;
+  }
   rootCategories: Category[] = [];
   activeCategoryName: string | null = null;
   activeCategoryId: string | null = null;
@@ -94,7 +93,6 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
   showSummaryBar = false;
   @ViewChild('providerHero') providerHero?: ElementRef<HTMLElement>;
   @ViewChild('summaryBar') summaryBar?: ElementRef<HTMLElement>;
-  @ViewChild('servicesSection') servicesSection?: ElementRef<HTMLElement>;
   @ViewChild('descPara') descPara?: ElementRef<HTMLElement>;
   descTruncated = false;
   showDescModal = false;
@@ -124,7 +122,6 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
     private accService: AccountServiceService,
     private location: Location,
     private api: ApiServiceService,
-    private paginationService: PaginationService,
     private renderer: Renderer2,
     private themeService: ThemeService
   ) {
@@ -157,13 +154,9 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
     this.phone = '';
     this.address = '';
     this.servicesCount = 0;
-    this.allServices = [];
-    this.nextServices = [];
     this.services = [];
-    this.serviceCount = 0;
+    this.serviceTotal = 0;
     this.loading_more = false;
-    this.page_check = false;
-    this.servicesPage = 0;
     this.activeCategoryName = null;
     this.activeCategoryId = null;
     this.showCategoryDropdown = false;
@@ -387,14 +380,6 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
     this.showDescModal = false;
   }
 
-  browseServices() {
-    const target = this.servicesSection?.nativeElement;
-    if (!target) { return; }
-    const barHeight = this.summaryBar?.nativeElement?.offsetHeight ?? 0;
-    const offset = this.HEADER_HEIGHT + barHeight;
-    const y = target.getBoundingClientRect().top + window.scrollY - offset;
-    window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
-  }
 
   private initToolbarFilters(): void {
     this.toolbarFilters = availableFilters.map(filter => ({
@@ -418,6 +403,10 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
       ? Math.round((event.currentTarget as HTMLElement).getBoundingClientRect().bottom)
       : null;
     filter.open = willOpen;
+  }
+
+  get hasActiveToolbarFilters(): boolean {
+    return this.toolbarFilters.some(f => f.selectedIds.length > 0);
   }
 
   filterServices(): void {
@@ -534,40 +523,43 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
     } else {
       this.servicesLoading = true;
       this.loading_more = false;
-      this.page_check = false;
-      this.allServices = [];
-      this.nextServices = [];
-      this.servicesPage = 0;
-      this.applyServiceView();
+      this.services = [];
+      this.serviceTotal = 0;
     }
 
+    const filters = this.getSelectedServiceFilters();
+    const keywords = this.serviceKeywords?.trim() || undefined;
+    const sort = this.getServiceSortParams();
     try {
-      const data = await this.paginationService.getItemsPaginated(
-        this.servicesPage,
-        environment.PRODUCT_LIMIT,
-        next,
-        this.allServices,
-        this.nextServices,
-        this.getServicePaginationOptions(),
-        this.getServicePaginationHandler()
-      );
+      const result = await this.api.getOfferingsPaged({
+        limit: environment.PRODUCT_LIMIT,
+        offset: next ? this.services.length : 0,
+        categoryIds: filters.map(f => f.id!).filter(Boolean),
+        catalogId: this.mode === 'catalog' ? this.id ?? undefined : undefined,
+        partyId: this.mode === 'organization' ? this.id ?? undefined : undefined,
+        keywords,
+        orderBy: sort?.orderBy,
+        orderDirection: sort?.orderDirection,
+      });
       if (this.currentRequestKey() !== requestKey) { return; }
 
-      this.allServices = await this.api.getProductsDetails(data.items ?? []);
-      this.nextServices = await this.api.getProductsDetails(data.nextItems ?? []);
-      this.servicesPage = data.page;
-      this.page_check = data.page_check;
+      const enriched = await this.api.getProductsDetails(result.items);
+      this.services = next ? [...this.services, ...enriched] : enriched;
+      this.serviceTotal = result.total;
+      // The header/"active services" figure is the provider's whole offer, so only
+      // take it from an unfiltered request.
+      if (!keywords && !filters.length) {
+        this.servicesCount = result.total;
+      }
     } catch (err) {
       if (this.currentRequestKey() !== requestKey) { return; }
       console.warn('Offers unavailable:', err);
       if (!next) {
-        this.allServices = [];
-        this.nextServices = [];
-        this.page_check = false;
+        this.services = [];
+        this.serviceTotal = 0;
       }
     } finally {
       if (this.currentRequestKey() !== requestKey) { return; }
-      this.applyServiceView();
       this.servicesLoading = false;
       this.loading_more = false;
       this.cdr.detectChanges();
@@ -599,47 +591,11 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
     return selected;
   }
 
-  private getServicePaginationOptions(): any {
-    if (this.mode === 'catalog') {
-      return {
-        keywords: this.serviceKeywords,
-        filters: this.getSelectedServiceFilters(),
-        catalogId: this.id
-      };
-    }
-
-    return {
-      keywords: this.serviceKeywords,
-      filters: this.getSelectedServiceFilters(),
-      partyId: this.id
-    };
-  }
-
-  private getServicePaginationHandler(): (...params: any[]) => Promise<any> {
-    return this.mode === 'catalog'
-      ? this.paginationService.getProductsByCatalog.bind(this.paginationService)
-      : this.api.getLaunchedProductOffersByOwnerAndCategory.bind(this.api);
-  }
-
-  private applyServiceView(): void {
-    let list = [...this.allServices];
-    const q = (this.serviceKeywords ?? '').toLowerCase();
-    if (q) {
-      list = list.filter(o => (o?.name ?? '').toLowerCase().includes(q) || (o?.description ?? '').toLowerCase().includes(q));
-    }
-    if (this.serviceSort === 'name') {
-      list.sort((a, b) => (a?.name ?? '').localeCompare(b?.name ?? ''));
-    } else if (this.serviceSort === 'date') {
-      list.sort((a, b) => this.serviceDate(b) - this.serviceDate(a));
-    }
-    this.services = list;
-    this.serviceCount = list.length;
-    this.servicesCount = this.allServices.length;
-  }
-
-  private serviceDate(o: any): number {
-    const d = o?.validFor?.startDateTime || o?.lastUpdate;
-    return d ? new Date(d).getTime() : 0;
+  /** Sorting is done by the API so it applies across every page, not just the loaded ones. */
+  private getServiceSortParams(): { orderBy: string; orderDirection: 'asc' | 'desc' } | undefined {
+    if (this.serviceSort === 'name') return { orderBy: 'name', orderDirection: 'asc' };
+    if (this.serviceSort === 'date') return { orderBy: 'lastUpdate', orderDirection: 'desc' };
+    return undefined;
   }
 
   toggleServiceSort(event: Event): void {
@@ -651,7 +607,7 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
     event.stopPropagation();
     this.serviceSort = v;
     this.showServiceSort = false;
-    this.applyServiceView();
+    this.reloadServices();
   }
 
   @HostListener('window:scroll') onScroll(): void {

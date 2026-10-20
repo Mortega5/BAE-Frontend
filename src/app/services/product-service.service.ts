@@ -86,6 +86,8 @@ export class ApiServiceService {
     offset: number;
     categoryIds?: string[];
     catalogId?: string;
+    /** Only offerings where this party is a related party (e.g. a provider's own offerings). */
+    partyId?: string;
     keywords?: string;
     visibility?: ProductVisibility;
     orderBy?: string;
@@ -96,6 +98,9 @@ export class ApiServiceService {
       offset: options.offset,
       lifecycleStatus: 'Launched',
     };
+    if (options.partyId) {
+      queryParams['relatedParty.id'] = options.partyId;
+    }
     applySort({ limit: options.limit, offset: options.offset, orderBy: options.orderBy, orderDirection: options.orderDirection }, queryParams);
     if (options.categoryIds && options.categoryIds.length > 0) {
       queryParams['category.id'] = options.categoryIds.join(',');
