@@ -43,6 +43,5 @@ export const OCEI_THEME_CONFIG: ThemeConfig = {
   },
   dashboard: {
     showFeaturedOfferings: true,
-    showPlatformBenefits: false,
   }
 };
