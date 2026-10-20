@@ -353,41 +353,23 @@
         }
 
         <div class="flex flex-col gap-2">
-          <div class="flex gap-4">
-            <div class="flex flex-col w-1/2">
-              <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_endpoint_name' | translate
-                }}</label>
-              <input [value]="newEndpointName" (input)="newEndpointName = $any($event.target).value" type="text"
-                [placeholder]="'CREATE_PROD_SPEC._dsp_endpoint_name_placeholder' | translate"
-                class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-            </div>
-            <div class="flex flex-col w-1/2">
-              <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_endpoint_url' | translate
-                }}</label>
-              <input [value]="newEndpointUrl" (input)="newEndpointUrl = $any($event.target).value" type="url"
-                [placeholder]="'CREATE_PROD_SPEC._dsp_endpoint_url_placeholder' | translate"
-                class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
-            </div>
-          </div>
-          <div>
-            <label class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_endpoint_description' |
-              translate }}</label>
-            <textarea [value]="newEndpointDescription" (input)="newEndpointDescription = $any($event.target).value"
-              rows="3" [placeholder]="'CREATE_PROD_SPEC._dsp_endpoint_description_placeholder' | translate"
-              maxlength="100000"
-              class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"></textarea>
-          </div>
+          <app-dynamic-form [fields]="newEndpointFormFields" [formGroup]="newEndpointForm" [columns]="2" />
           <div class="flex justify-center">
-            <app-button type="button" (click)="addEndpointUrl()"
-              [disabled]="!newEndpointUrl.trim() || !newEndpointDescription.trim()"
-              suffixIcon="plus">
+            <app-button data-cy="dspAddEndpoint" type="button" (click)="addEndpointUrl()"
+              [disabled]="!newEndpointForm.valid" suffixIcon="plus">
               {{ 'CREATE_PROD_SPEC._dsp_add_endpoint' | translate }}
             </app-button>
           </div>
         </div>
 
         @if (endpointUrls.length === 0) {
-        <p class="mt-2 text-sm text-red-500">At least one endpoint URL is required.</p>
+        <div data-cy="dspEndpointRequired" role="alert"
+          class="flex items-center gap-3 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900">
+          <svg class="w-5 h-5 shrink-0 text-red-600 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+            <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm9.75-4.5a.75.75 0 0 0-.75.75v3.75a.75.75 0 0 0 1.5 0V8.25a.75.75 0 0 0-.75-.75Zm0 8.25a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z" clip-rule="evenodd"/>
+          </svg>
+          <p class="text-sm text-red-700 dark:text-red-300">{{ 'CREATE_PROD_SPEC._dsp_endpoint_required' | translate }}</p>
+        </div>
         }
 
         <hr class="my-6 border-gray-200 dark:border-gray-700" />

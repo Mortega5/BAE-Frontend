@@ -142,9 +142,12 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   faqDeleteIdx: number | null = null;
 
   //DSP CONFIG INFO:
-  newEndpointUrl: string = '';
-  newEndpointDescription: string = '';
-  newEndpointName: string = '';
+  newEndpointFormFields: FormField[] = [
+    { type: 'string', name: 'name', label: 'CREATE_PROD_SPEC._dsp_endpoint_name', placeholder: 'CREATE_PROD_SPEC._dsp_endpoint_name_placeholder', colSpan: 1, dataCy: 'dspEndpointName' },
+    { type: 'string', name: 'url', label: 'CREATE_PROD_SPEC._dsp_endpoint_url', required: true, placeholder: 'CREATE_PROD_SPEC._dsp_endpoint_url_placeholder', colSpan: 1, dataCy: 'dspEndpointUrl' },
+    { type: 'textarea', name: 'description', label: 'CREATE_PROD_SPEC._dsp_endpoint_description', required: true, placeholder: 'CREATE_PROD_SPEC._dsp_endpoint_description_placeholder', rows: 3, maxLength: 100000, colSpan: 2, dataCy: 'dspEndpointDescription' },
+  ];
+  newEndpointForm = buildFormGroup(this.newEndpointFormFields);
   endpointUrls: { url: string; description: string; name: string, id?: string }[] = [];
   readonly transferTypes: SelectOption[] = [
     { value: 'HttpData-PULL', label: 'HttpData-PULL' },
@@ -1530,14 +1533,10 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   addEndpointUrl(): void {
-    const url = this.newEndpointUrl.trim();
-    const description = this.newEndpointDescription.trim();
-    const name = this.newEndpointName.trim();
-    if (!url || !description) return;
-    this.endpointUrls = [...this.endpointUrls, { url, description, name, id: uuidv4() }];
-    this.newEndpointUrl = '';
-    this.newEndpointDescription = '';
-    this.newEndpointName = '';
+    if (!this.newEndpointForm.valid) return;
+    const { name, url, description } = this.newEndpointForm.value;
+    this.endpointUrls = [...this.endpointUrls, { url: url.trim(), description: description.trim(), name: (name ?? '').trim(), id: uuidv4() }];
+    this.newEndpointForm.reset();
   }
 
   removeEndpointUrl(idx: number): void {
