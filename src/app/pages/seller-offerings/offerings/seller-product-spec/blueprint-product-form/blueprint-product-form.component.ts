@@ -104,7 +104,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
         defaultSort: { key: 'name', direction: 'asc' },
         columns: [
           { header: 'BLUEPRINT_PROD._col_name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
-          { header: 'BLUEPRINT_PROD._col_type', getValue: (item: any) => item.isBundle ? 'Bundle' : 'Simple', width: 'w-28' },
+          { header: 'BLUEPRINT_PROD._col_type', getValue: (item: any) => item.isBundle ? 'CREATE_PROD_SPEC._bundle' : 'CREATE_PROD_SPEC._simple', width: 'w-28' },
         ],
       } as FormField,
       {

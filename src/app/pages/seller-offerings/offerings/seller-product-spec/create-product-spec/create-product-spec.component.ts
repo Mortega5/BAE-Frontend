@@ -227,9 +227,9 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   showCreateServiceSpecModal = false;
   @ViewChild('serviceSpecsTable') private serviceSpecsTable?: PaginatedTableComponent;
   servColumns: TableColumn[] = [
-    { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
-    { header: 'Status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
-    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-[200px]', sortKey: 'lastUpdate' },
+    { header: 'CREATE_PROD_SPEC._name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
+    { header: 'CREATE_PROD_SPEC._status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
+    { header: 'CREATE_PROD_SPEC._last_update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-[200px]', sortKey: 'lastUpdate' },
   ];
 
   //RESOURCE INFO:
@@ -238,10 +238,10 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   showCreateResourceSpecModal = false;
   @ViewChild('resourceSpecsTable') private resourceSpecsTable?: PaginatedTableComponent;
   resColumns: TableColumn[] = [
-    { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
-    { header: 'Type', getValue: (item: any) => item['@type'] ?? 'ResourceSpecification', hideOnMobile: true },
-    { header: 'Status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
-    { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-[200px]', sortKey: 'lastUpdate' },
+    { header: 'CREATE_PROD_SPEC._name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
+    { header: 'CREATE_PROD_SPEC._type', getValue: (item: any) => item['@type'] ?? 'ResourceSpecification', hideOnMobile: true },
+    { header: 'CREATE_PROD_SPEC._status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
+    { header: 'CREATE_PROD_SPEC._last_update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-[200px]', sortKey: 'lastUpdate' },
   ];
 
   //RELATIONSHIPS INFO:
@@ -275,9 +275,9 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
       multiple: false,
       items: [],
       columns: [
-        { header: 'Name', getValue: (item: any) => item.name ?? '-' },
-        { header: 'Type', getValue: (item: any) => item.isBundle ? 'Bundle' : 'Simple', width: 'w-28' },
-        { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52' },
+        { header: 'CREATE_PROD_SPEC._name', getValue: (item: any) => item.name ?? '-' },
+        { header: 'CREATE_PROD_SPEC._type', getValue: (item: any) => item.isBundle ? 'CREATE_PROD_SPEC._bundle' : 'CREATE_PROD_SPEC._simple', width: 'w-28' },
+        { header: 'CREATE_PROD_SPEC._last_update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52' },
       ],
     } as FormField,
   ];
