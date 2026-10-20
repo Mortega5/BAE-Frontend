@@ -96,6 +96,13 @@
           @if (getIconValue(col, item); as icon) {
           <fa-icon [icon]="icon" class="table-input-icon"></fa-icon>
           }
+          } @else if (col.type === 'link') {
+          @if (getLinkHref(col, item); as href) {
+          <a [href]="href" target="_blank" rel="noopener noreferrer" class="table-input-link font-medium hover:underline"
+            (click)="$event.stopPropagation()">{{ getCellValue(col, item) | translate }}</a>
+          } @else {
+          {{ getCellValue(col, item) | translate }}
+          }
           } @else if (col.type === 'image') {
           <div class="flex items-center justify-center">
             <img class="w-16 object-contain" [src]="getImageValue(col, item)" [alt]="col.alt ?? ''">

@@ -68,6 +68,10 @@
   color: var(--table-icon-color);
 }
 
+.table-input-link {
+  color: var(--table-link-color);
+}
+
 .table-input-empty-text {
   color: var(--table-empty-text);
 }

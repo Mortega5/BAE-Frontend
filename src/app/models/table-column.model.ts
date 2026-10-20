@@ -80,10 +80,17 @@ export interface IconTableColumn<T = any> extends BaseTableColumn<T> {
   getValue: (item: T) => IconDefinition | null | undefined;
 }
 
+/** Text that links out when `getHref` returns a URL (opened in a new tab), and renders as plain
+ * text otherwise — e.g. a document column where some rows have no URL yet. */
+export interface LinkTableColumn<T = any> extends BaseTableColumn<T> {
+  type: 'link';
+  getHref: (item: T) => string | null | undefined;
+}
+
 export interface ImageTableColumn<T = any> extends BaseTableColumn<T> {
   type: 'image';
   getValue: (item: T) => string | null | undefined;
   alt?: string;
 }
 
-export type TableColumn<T = any> = TextTableColumn<T> | BadgeTableColumn<T> | StatusBadgeTableColumn<T> | IconButtonTableColumn<T> | DateTableColumn<T> | ActionsTableColumn<T> | IconTableColumn<T> | ImageTableColumn<T>;
+export type TableColumn<T = any> = TextTableColumn<T> | BadgeTableColumn<T> | StatusBadgeTableColumn<T> | IconButtonTableColumn<T> | DateTableColumn<T> | ActionsTableColumn<T> | IconTableColumn<T> | LinkTableColumn<T> | ImageTableColumn<T>;

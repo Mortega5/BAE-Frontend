@@ -181,6 +181,11 @@ export class TableInputComponent implements ControlValueAccessor {
     return column.getValue(item) ?? null;
   }
 
+  getLinkHref(column: TableColumn, item: any): string | null {
+    if (column.type !== 'link') return null;
+    return column.getHref(item) || null;
+  }
+
   getImageValue(column: TableColumn, item: any): string {
     if (column.type !== 'image') return '';
     return column.getValue(item) ?? '';
