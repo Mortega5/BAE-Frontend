@@ -2910,7 +2910,8 @@
     "_not_found_desc": "This provider page is unavailable or no longer exists.",
     "_back_to_providers": "Back to providers",
     "_search": "Search",
-    "_clear_search": "Clear search"
+    "_clear_search": "Clear search",
+    "_private_offers": "Private offers"
   },
   "PRODUCT_ORDERS": {
     "_orders": "Product Orders",

@@ -29,7 +29,7 @@ describe('SearchComponent', () => {
     selectedCategoryId: string | null;
     selectedCatalogId: string | null;
     activeCategoryName: string | null;
-    privateOpen: boolean;
+    offerTab: 'public' | 'private';
     publicPage: number;
     privatePage: number;
     hasState: jasmine.Spy;
@@ -83,7 +83,7 @@ describe('SearchComponent', () => {
       selectedCategoryId: null,
       selectedCatalogId: null,
       activeCategoryName: null,
-      privateOpen: true,
+      offerTab: 'public',
       publicPage: 1,
       privatePage: 1,
       hasState: jasmine.createSpy('hasState').and.returnValue(false),
@@ -198,7 +198,7 @@ describe('SearchComponent', () => {
       stateMock.selectedCategoryId = 'cat-1';
       stateMock.selectedCatalogId = 'catalog-1';
       stateMock.activeCategoryName = 'Cat 1';
-      stateMock.privateOpen = false;
+      stateMock.offerTab = 'private';
       stateMock.publicPage = 2;
       stateMock.privatePage = 3;
 
@@ -208,7 +208,7 @@ describe('SearchComponent', () => {
       expect(component.selectedCategoryId).toBe('cat-1');
       expect(component.selectedCatalogId).toBe('catalog-1');
       expect(component.activeCategoryName).toBe('Cat 1');
-      expect(component.privateOpen).toBeFalse();
+      expect(component.offerTab).toBe('private');
       // Restoring saved state re-fetches every item up to the saved page in one
       // request (offset 0, limit = page * pageSize), not just that page's slice —
       // "load more" appends, so coming back needs the whole accumulated list.
@@ -313,13 +313,21 @@ describe('SearchComponent', () => {
       expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith(jasmine.objectContaining({ catalogId: 'catalog-1' }));
     });
 
-    it('togglePrivateAccordion should flip privateOpen and persist state', () => {
-      component.privateOpen = true;
+    it('selectOfferTab should switch the active tab and persist state', () => {
+      component.offerTab = 'public';
 
-      component.togglePrivateAccordion();
+      component.selectOfferTab('private');
 
-      expect(component.privateOpen).toBeFalse();
-      expect(stateMock.save).toHaveBeenCalledWith(jasmine.objectContaining({ privateOpen: false }));
+      expect(component.offerTab).toBe('private');
+      expect(stateMock.save).toHaveBeenCalledWith(jasmine.objectContaining({ offerTab: 'private' }));
+    });
+
+    it('showOfferTabs should stay visible on the private tab even when it has no results', () => {
+      component.privateTotal = 0;
+      component.offerTab = 'public';
+      expect(component.showOfferTabs).toBeFalse();
+      component.offerTab = 'private';
+      expect(component.showOfferTabs).toBeTrue();
     });
 
     it('hasPrivateOfferings should reflect privateTotal', () => {

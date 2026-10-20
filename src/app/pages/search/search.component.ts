@@ -63,7 +63,6 @@ export class SearchComponent implements OnInit, OnDestroy {
   privateTotal = 0;
   privateLoading = true;
   privateLoadingMore = false;
-  privateOpen = true;
   readonly PRIVATE_LIMIT = 6;
 
   // Public offerings section (non-AI mode)
@@ -84,6 +83,18 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   get hasPrivateOfferings(): boolean {
     return this.privateTotal > 0;
+  }
+
+  /** Public catalogue / private offers tabs, same as the catalogue details page. */
+  offerTab: 'public' | 'private' = 'public';
+  readonly offerTabs: { value: 'public' | 'private'; label: string }[] = [
+    { value: 'public', label: 'DASHBOARD._public_catalog' },
+    { value: 'private', label: 'ORGANIZATION._private_offers' },
+  ];
+  /** Stays visible while the private tab is open even if a filter empties it, so the
+   * user isn't stranded on a tab bar that just disappeared. */
+  get showOfferTabs(): boolean {
+    return this.hasPrivateOfferings || this.offerTab === 'private';
   }
 
   // AI Search properties (untouched — a separate, independent mode)
@@ -173,7 +184,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         this.selectedCategoryId = this.state.selectedCategoryId;
         this.selectedCatalogId = this.catalogFilterEnabled ? this.state.selectedCatalogId : null;
         this.activeCategoryName = this.state.activeCategoryName;
-        this.privateOpen = this.state.privateOpen;
+        this.offerTab = this.state.offerTab;
         await Promise.all([
           this.loadPublicOfferings(this.state.publicPage || 1),
           this.loadPrivateOfferings(this.state.privatePage || 1),
@@ -314,8 +325,9 @@ export class SearchComponent implements OnInit, OnDestroy {
     await this.refreshOfferings();
   }
 
-  togglePrivateAccordion(): void {
-    this.privateOpen = !this.privateOpen;
+  selectOfferTab(tab: 'public' | 'private'): void {
+    if (tab === this.offerTab) return;
+    this.offerTab = tab;
     this.saveStandardState();
   }
 
@@ -377,6 +389,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.privateItems = [];
       this.privateTotal = 0;
       this.privatePage = 1;
+      this.offerTab = 'public';
       return;
     }
     if (append) {
@@ -424,7 +437,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       selectedCategoryId: this.selectedCategoryId,
       selectedCatalogId: this.selectedCatalogId,
       activeCategoryName: this.activeCategoryName,
-      privateOpen: this.privateOpen,
+      offerTab: this.offerTab,
       publicPage: this.publicPage,
       privatePage: this.privatePage,
     });

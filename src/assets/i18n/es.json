@@ -2910,7 +2910,8 @@
     "_not_found_desc": "Esta página de proveedor no está disponible o ya no existe.",
     "_back_to_providers": "Volver a proveedores",
     "_search": "Buscar",
-    "_clear_search": "Borrar búsqueda"
+    "_clear_search": "Borrar búsqueda",
+    "_private_offers": "Ofertas privadas"
   },
   "PRODUCT_ORDERS": {
     "_orders": "Pedidos de producto",

@@ -86,6 +86,22 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
   get page_check(): boolean {
     return this.services.length < this.serviceTotal;
   }
+  /** Catalogue view only, logged-in only: private (ad-hoc) offers targeted at the current
+   * party live in their own tab, so the public list's pagination isn't broken by the
+   * proxy dropping other buyers' private offers after the TMForum has paged. */
+  offerTab: 'public' | 'private' = 'public';
+  publicTotal = 0;
+  privateTotal = 0;
+  /** Whether the party has any private offer here at all (from an unfiltered request),
+   * so the tabs don't disappear just because a filter leaves the private tab empty. */
+  private hasPrivateOffers = false;
+  readonly offerTabs: { value: 'public' | 'private'; label: string }[] = [
+    { value: 'public', label: 'DASHBOARD._public_catalog' },
+    { value: 'private', label: 'ORGANIZATION._private_offers' },
+  ];
+  get showOfferTabs(): boolean {
+    return this.mode === 'catalog' && this.hasPrivateOffers;
+  }
   rootCategories: Category[] = [];
   activeCategoryName: string | null = null;
   activeCategoryId: string | null = null;
@@ -129,6 +145,11 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
       if (ev.type === 'FiltersCommitted') {
         this.reloadServices();
         this.cdr.detectChanges();
+      } else if (ev.type === 'ChangedSession') {
+        // Private offers depend on who is logged in
+        this.offerTab = 'public';
+        this.hasPrivateOffers = false;
+        this.reloadServices();
       }
     });
   }
@@ -156,6 +177,10 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
     this.servicesCount = 0;
     this.services = [];
     this.serviceTotal = 0;
+    this.offerTab = 'public';
+    this.publicTotal = 0;
+    this.privateTotal = 0;
+    this.hasPrivateOffers = false;
     this.loading_more = false;
     this.activeCategoryName = null;
     this.activeCategoryId = null;
@@ -511,6 +536,12 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
     await this.loadServicesPage(true, this.currentRequestKey());
   }
 
+  selectOfferTab(tab: 'public' | 'private'): void {
+    if (tab === this.offerTab) { return; }
+    this.offerTab = tab;
+    this.reloadServices();
+  }
+
   private reloadServices(): void {
     if (!this.id) { return; }
     this.loadServicesPage(false, this.currentRequestKey());
@@ -530,26 +561,46 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
     const filters = this.getSelectedServiceFilters();
     const keywords = this.serviceKeywords?.trim() || undefined;
     const sort = this.getServiceSortParams();
+    // A provider's own private offers can't be scoped to that provider and to the current
+    // buyer in one query (both are relatedParty.id), so the organization view is public-only.
+    const canSeePrivate = this.mode === 'catalog' && !!this.localStorage.getValidLoginInfo();
+    if (!canSeePrivate) { this.offerTab = 'public'; }
+    const query = {
+      categoryIds: filters.map(f => f.id!).filter(Boolean),
+      catalogId: this.mode === 'catalog' ? this.id ?? undefined : undefined,
+      partyId: this.mode === 'organization' ? this.id ?? undefined : undefined,
+      keywords,
+    };
+    const otherTab = this.offerTab === 'public' ? 'private' : 'public';
     try {
-      const result = await this.api.getOfferingsPaged({
-        limit: environment.PRODUCT_LIMIT,
-        offset: next ? this.services.length : 0,
-        categoryIds: filters.map(f => f.id!).filter(Boolean),
-        catalogId: this.mode === 'catalog' ? this.id ?? undefined : undefined,
-        partyId: this.mode === 'organization' ? this.id ?? undefined : undefined,
-        keywords,
-        orderBy: sort?.orderBy,
-        orderDirection: sort?.orderDirection,
-      });
+      const [result, other] = await Promise.all([
+        this.api.getOfferingsPaged({
+          ...query,
+          limit: environment.PRODUCT_LIMIT,
+          offset: next ? this.services.length : 0,
+          orderBy: sort?.orderBy,
+          orderDirection: sort?.orderDirection,
+          visibility: this.offerTab,
+        }),
+        // Only the other tab's total is needed, for its label
+        !next && canSeePrivate
+          ? this.api.getOfferingsPaged({ ...query, limit: 1, offset: 0, visibility: otherTab })
+          : Promise.resolve(null),
+      ]);
       if (this.currentRequestKey() !== requestKey) { return; }
 
       const enriched = await this.api.getProductsDetails(result.items);
       this.services = next ? [...this.services, ...enriched] : enriched;
       this.serviceTotal = result.total;
-      // The header/"active services" figure is the provider's whole offer, so only
-      // take it from an unfiltered request.
-      if (!keywords && !filters.length) {
-        this.servicesCount = result.total;
+      if (this.offerTab === 'public') { this.publicTotal = result.total; } else { this.privateTotal = result.total; }
+      if (other) {
+        if (otherTab === 'public') { this.publicTotal = other.total; } else { this.privateTotal = other.total; }
+      }
+      if (!canSeePrivate) { this.privateTotal = 0; }
+      // The header figure and whether the tabs show at all come from an unfiltered request.
+      if (!next && !keywords && !filters.length) {
+        this.servicesCount = this.publicTotal;
+        this.hasPrivateOffers = canSeePrivate && this.privateTotal > 0;
       }
     } catch (err) {
       if (this.currentRequestKey() !== requestKey) { return; }

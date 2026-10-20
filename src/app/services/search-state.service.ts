@@ -13,7 +13,7 @@ export class SearchStateService {
   selectedCategoryId: string | null = null;
   selectedCatalogId: string | null = null;
   activeCategoryName: string | null = null;
-  privateOpen: boolean = true;
+  offerTab: 'public' | 'private' = 'public';
   publicPage: number = 1;
   privatePage: number = 1;
 
@@ -44,7 +44,7 @@ export class SearchStateService {
     this.selectedCategoryId = null;
     this.selectedCatalogId = null;
     this.activeCategoryName = null;
-    this.privateOpen = true;
+    this.offerTab = 'public';
     this.publicPage = 1;
     this.privatePage = 1;
     this.hasStandardState = false;

@@ -313,87 +313,66 @@
         } @else {
         <!-- ================= STANDARD SEARCH MODE ================= -->
 
-        <div class="grid transition-[grid-template-rows] duration-500 ease-in-out"
-          [ngClass]="hasPrivateOfferings ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
-          <div class="overflow-hidden">
-            <div class="transition-opacity duration-300"
-              [ngClass]="hasPrivateOfferings ? 'opacity-100 delay-150' : 'opacity-0'">
-        <app-card class="mb-6 block rounded-xl overflow-hidden"
-          [contentPadding]="privateOpen">
-          <div appCardHeader
-            class="flex items-center justify-between cursor-pointer py-3"
-            (click)="togglePrivateAccordion()">
-            <div class="flex items-center gap-2">
-              <svg class="h-5 w-5 text-[var(--offer-card-muted-text)]" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-              </svg>
-              <div>
-                <h2 class="text-[18px] font-semibold text-[#0b1220] dark:text-white">{{ 'DASHBOARD._private_offers' |
-                  translate }}</h2>
-                <p class="text-[13px] text-[var(--offer-card-muted-text)]">{{ 'DASHBOARD._private_offers_desc' |
-                  translate }}</p>
-              </div>
-            </div>
-            <svg class="h-5 w-5 text-[var(--offer-card-muted-text)] shrink-0 transition-transform"
-              [ngClass]="privateOpen ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-            </svg>
-          </div>
-          <div class="grid transition-[grid-template-rows] duration-300 ease-in-out"
-            [ngClass]="privateOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
-            <div class="overflow-hidden">
-              <div appCardContent class="transition-opacity duration-200"
-                [ngClass]="privateOpen ? 'opacity-100 delay-100' : 'opacity-0'">
-                @if (!privateLoading) {
-                <span class="text-[14px] text-[#526179] dark:text-gray-400 block mb-4">
-                  {{ 'DASHBOARD._results_of_total' | translate: { count: privateItems.length, total: privateTotal } }}
-                </span>
-                }
-                @if (privateLoading) {
-                <app-loading-spinner />
-                } @else {
-                <div
-                  [ngClass]="viewMode === 'list' ? 'flex flex-col gap-4' : 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4'">
-                  @for (prod of privateItems; track prod.id; let index = $index) {
-                  <bae-off-card data-cy="basePrivateCard" [productOff]="prod" [cardId]="index" [viewMode]="viewMode"
-                    class="w-full h-full"></bae-off-card>
-                  } @empty {
-                  <div class="col-span-full">
-                    <ng-container *ngTemplateOutlet="noResults"></ng-container>
-                  </div>
-                  }
-                </div>
-                @if (privateLoadingMore) {
-                <ng-container *ngTemplateOutlet="loadMoreSpinner"></ng-container>
-                } @else if (privateHasMore) {
-                <div class="flex pb-6 justify-center mt-6">
-                  <app-button data-cy="loadMorePrivate" (click)="loadMorePrivateOfferings()" variant="secondary"
-                    suffixIcon="arrow-down">
-                    {{ 'DASHBOARD._load_more' | translate }}
-                  </app-button>
-                </div>
-                }
-                }
-              </div>
-            </div>
-          </div>
-        </app-card>
-            </div>
-          </div>
-        </div>
-
         <app-card class="block rounded-xl overflow-hidden">
           <div appCardHeader>
-            <h2 class="text-[18px] font-semibold text-[#0b1220] dark:text-white">{{ 'DASHBOARD._public_catalog' |
+            @if (showOfferTabs) {
+            <div role="tablist" class="-mb-4 flex border-b border-[var(--card-border)]">
+              @for (tab of offerTabs; track tab.value) {
+              <button type="button" role="tab" [attr.aria-selected]="offerTab === tab.value"
+                [attr.data-cy]="tab.value === 'private' ? 'privateOffersTab' : 'publicOffersTab'"
+                (click)="selectOfferTab(tab.value)"
+                [ngClass]="offerTab === tab.value
+                  ? 'border-[var(--button-link-text)] text-[var(--button-link-text)]'
+                  : 'border-transparent text-[var(--form-hint-text)] hover:text-[var(--theme-default-text)]'"
+                class="-mb-px flex flex-1 items-center justify-center gap-[10px] border-b-2 pb-[16px] text-[16px] font-semibold leading-[24px] transition-colors">
+                {{ tab.label | translate }}
+                <span class="inline-flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-[var(--card-inset-bg)] px-1.5 text-[12px] font-semibold">{{
+                  tab.value === 'public' ? publicTotal : privateTotal }}</span>
+              </button>
+              }
+            </div>
+            } @else {
+            <h2 class="text-[18px] font-semibold text-[var(--theme-default-text)]">{{ 'DASHBOARD._public_catalog' |
               translate }}</h2>
+            }
           </div>
           <div appCardContent>
+            @if (offerTab === 'private') {
+            <p class="mb-2 text-[14px] text-[var(--form-hint-text)]">{{ 'DASHBOARD._private_offers_desc' | translate }}</p>
+            @if (!privateLoading) {
+            <span class="mb-4 block text-[14px] text-[var(--form-hint-text)]">
+              {{ 'DASHBOARD._results_of_total' | translate: { count: privateItems.length, total: privateTotal } }}
+            </span>
+            }
+            @if (privateLoading) {
+            <app-loading-spinner />
+            } @else {
+            <div
+              [ngClass]="viewMode === 'list' ? 'flex flex-col gap-4' : 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4'">
+              @for (prod of privateItems; track prod.id; let index = $index) {
+              <bae-off-card data-cy="basePrivateCard" [productOff]="prod" [cardId]="index" [viewMode]="viewMode"
+                class="w-full h-full"></bae-off-card>
+              } @empty {
+              <div class="col-span-full">
+                <ng-container *ngTemplateOutlet="noResults"></ng-container>
+              </div>
+              }
+            </div>
+            @if (privateLoadingMore) {
+            <ng-container *ngTemplateOutlet="loadMoreSpinner"></ng-container>
+            } @else if (privateHasMore) {
+            <div class="flex pb-6 justify-center mt-6">
+              <app-button data-cy="loadMorePrivate" (click)="loadMorePrivateOfferings()" variant="secondary"
+                suffixIcon="arrow-down">
+                {{ 'DASHBOARD._load_more' | translate }}
+              </app-button>
+            </div>
+            }
+            }
+            } @else {
             @if (!publicLoading) {
             <div class="mb-4 flex items-center justify-between">
-              <span class="text-[14px] text-[#526179] dark:text-gray-400">
+              <span class="text-[14px] text-[var(--form-hint-text)]">
                 {{ 'DASHBOARD._results_of_total' | translate: { count: publicItems.length, total: publicTotal } }}
               </span>
             </div>
@@ -422,6 +401,7 @@
                 {{ 'DASHBOARD._load_more' | translate }}
               </app-button>
             </div>
+            }
             }
             }
           </div>
