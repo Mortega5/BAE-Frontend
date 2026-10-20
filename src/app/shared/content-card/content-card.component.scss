@@ -34,6 +34,9 @@
        markup needs to cooperate for this to work. */
     @apply shadow-xl flex flex-col;
     max-height: min(90vh, 100%);
+    /* Same surface as app-drawer's panel, so a card placed inside a modal reads as a card
+       on a page — exactly as it does inside a drawer — instead of white-on-white. */
+    background-color: var(--theme-page-bg);
   }
 
   /* For a card nested inside another card (e.g. a characteristics picker inside
