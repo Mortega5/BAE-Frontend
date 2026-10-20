@@ -27,7 +27,6 @@ import { productInventoryRoutes } from './pages/product-inventory/product-invent
 import { ProductOrdersComponent } from './pages/product-orders/product-orders.component';
 import { ProductOrdersPaths } from './pages/product-orders/product-orders.paths';
 import { productOrdersRoutes } from './pages/product-orders/product-orders.routes';
-import { SearchCatalogComponent } from "./pages/search-catalog/search-catalog.component";
 import { SearchComponent } from "./pages/search/search.component";
 import { SellerOfferingsComponent } from "./pages/seller-offerings/seller-offerings.component";
 import { SellerOfferingsPaths } from "./pages/seller-offerings/seller-offerings.paths";

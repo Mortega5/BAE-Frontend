@@ -154,7 +154,6 @@ export const DOME_THEME_CONFIG: ThemeConfig = {
   },
   dashboard: {
     showFeaturedOfferings: true,
-    showPlatformBenefits: true,
   },
   catalogs: {
     sections: {

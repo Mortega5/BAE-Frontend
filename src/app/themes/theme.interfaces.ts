@@ -62,7 +62,6 @@ export interface ThemeAuthUrlsConfig {
 
 export interface DashboardConfig {
   showFeaturedOfferings?: boolean;
-  showPlatformBenefits?: boolean;
   // Add more sections
 }
 

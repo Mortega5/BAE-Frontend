@@ -17,12 +17,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ChatbotWidgetComponent } from './chatbot-widget/chatbot-widget.component';
 import { RequestInterceptor } from './interceptors/requests-interceptor';
-import { ContactUsComponent } from './offerings/contact-us/contact-us.component';
-import { ExploreDomeComponent } from "./offerings/explore-dome/explore-dome.component";
 import { FaqComponent } from './offerings/faq/faq.component';
-import { GalleryComponent } from "./offerings/gallery/gallery.component";
-import { HowItWorksComponent } from "./offerings/how-it-works/how-it-works.component";
-import { PlatformBenefitsComponent } from "./offerings/platform-benefits/platform-benefits.component";
 import { AdminComponent } from './pages/admin/admin.component';
 import { AnalyticsConfigComponent } from './pages/admin/analytics-config/analytics-config.component';
 import { CategoriesComponent } from './pages/admin/categories/categories.component';
@@ -44,7 +39,6 @@ import { ProductInvDetailComponent } from './pages/product-inventory/inventory-i
 import { InventoryResourcesComponent } from './pages/product-inventory/inventory-resources/inventory-resources.component';
 import { InventoryServicesComponent } from './pages/product-inventory/inventory-services/inventory-services.component';
 import { ProductInventoryComponent } from "./pages/product-inventory/product-inventory.component";
-import { SearchCatalogComponent } from "./pages/search-catalog/search-catalog.component";
 import { SearchComponent } from "./pages/search/search.component";
 import { SellerCatalogsComponent } from './pages/seller-offerings/offerings/seller-catalogs/seller-catalogs.component';
 import { UpdateCatalogComponent } from './pages/seller-offerings/offerings/seller-catalogs/update-catalog/update-catalog.component';
@@ -115,7 +109,6 @@ import { SoftwareCharacteristicsComponent } from './pages/seller-offerings/offer
 import { PackageDeploymentComponent } from './shared/forms/package-deployment/package-deployment';
 import { SpecificationCharacteristicFormComponent } from './shared/forms/specification-characteristic/specification-characteristic-form.component';
 import { CharacteristicsEditorComponent } from './shared/forms/characteristics-editor/characteristics-editor.component';
-import { StatusSelectorComponent } from './shared/forms/status-selector/status-selector.component';
 import { UpdateSoftwareComponent } from './pages/seller-offerings/offerings/seller-software/update-software/update-software.component';
 import { StatusFieldComponent } from './shared/status-field/status-field.component';
 import { StepperStepDirective } from './shared/stepper/stepper-step.directive';
@@ -125,10 +118,6 @@ import { StepperComponent } from './shared/stepper/stepper.component';
   declarations: [
     AppComponent,
     SearchComponent,
-    GalleryComponent,
-    PlatformBenefitsComponent,
-    HowItWorksComponent,
-    ExploreDomeComponent,
     CategoriesFilterComponent,
     CategoryItemComponent,
     CardComponent,
@@ -137,7 +126,6 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     CheckoutComponent,
     ProductDetailsComponent,
     OfferPreviewModalComponent,
-    SearchCatalogComponent,
     CatalogsComponent,
     ProductInventoryComponent,
     BillingAccountFormComponent,
@@ -165,7 +153,6 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     CategoriesComponent,
     CreateCategoryComponent,
     UpdateCategoryComponent,
-    ContactUsComponent,
     VerificationComponent,
     EmailComponent,
     FeaturesConfigComponent,
@@ -233,7 +220,6 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     PackageDeploymentComponent,
     SpecificationCharacteristicFormComponent,
     CharacteristicsEditorComponent,
-    StatusSelectorComponent,
     BadgeComponent,
     ContentCardComponent,
     ModalComponent,
