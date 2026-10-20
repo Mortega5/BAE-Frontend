@@ -107,60 +107,7 @@
             </p>
           </div>
           } @else {
-          <div class="border border-gray-200 dark:border-secondary-200 rounded-2xl overflow-visible">
-            <table class="w-full text-sm text-left text-gray-700 dark:text-gray-300">
-              <thead class="text-xs text-gray-500 dark:text-gray-400 uppercase bg-[#EBECEE] dark:bg-secondary-300">
-                <tr>
-                  <th class="px-6 py-3 font-semibold w-20 rounded-tl-2xl">{{ 'CREATE_PROD_SPEC._icon' | translate }}
-                  </th>
-                  <th class="px-6 py-3 font-semibold">{{ 'CREATE_PROD_SPEC._item_name' | translate }}</th>
-                  <th class="px-6 py-3 font-semibold">{{ 'CREATE_PROD_SPEC._description' | translate }}</th>
-                  <th class="px-6 py-3 font-semibold text-right w-20 rounded-tr-2xl">{{ 'CREATE_PROD_SPEC._actions' |
-                    translate }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for(feat of keyFeatures; track feat; let idx = $index; let last = $last) {
-                <tr class="group border-t border-gray-100 dark:border-secondary-200">
-                  <td
-                    class="px-6 py-3 text-primary-100 dark:text-primary-50 group-hover:bg-gray-50 dark:group-hover:bg-secondary-200"
-                    [ngClass]="{'rounded-bl-2xl': last}">
-                    @if(resolveIcon(feat.icon)){ <fa-icon [icon]="resolveIcon(feat.icon)!"></fa-icon> }
-                  </td>
-                  <td
-                    class="px-6 py-3 text-gray-900 dark:text-white group-hover:bg-gray-50 dark:group-hover:bg-secondary-200">
-                    {{ feat.name }}</td>
-                  <td
-                    class="px-6 py-3 text-gray-600 dark:text-gray-300 group-hover:bg-gray-50 dark:group-hover:bg-secondary-200">
-                    {{ feat.description || '-' }}</td>
-                  <td class="px-6 py-3 text-right relative group-hover:bg-gray-50 dark:group-hover:bg-secondary-200"
-                    [ngClass]="{'rounded-br-2xl': last}">
-                    <button type="button" (click)="toggleItemMenu('feature', idx, $event)"
-                      class="p-1 hover:bg-gray-100 dark:hover:bg-secondary-300 rounded text-gray-500 dark:text-gray-400">
-                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="5" r="2" />
-                        <circle cx="12" cy="12" r="2" />
-                        <circle cx="12" cy="19" r="2" />
-                      </svg>
-                    </button>
-                    @if(isItemMenuOpen('feature', idx)){
-                    <app-dropdown-panel
-                      class="absolute right-6 top-12 z-20 w-36 text-left"
-                      (click)="$event.stopPropagation()">
-                      <button type="button" (click)="openItemModal('feature', idx); openItemMenuIdx=null"
-                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
-                        'CREATE_PROD_SPEC._edit' | translate }}</button>
-                      <button type="button" (click)="removeItem('feature', idx)"
-                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
-                        'CREATE_PROD_SPEC._delete' | translate }}</button>
-                    </app-dropdown-panel>
-                    }
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+          <app-table-input [columns]="featureColumns" [items]="keyFeatures" [selectable]="false" />
           }
         </div>
 
@@ -184,54 +131,7 @@
               }}</p>
           </div>
           } @else {
-          <div class="border border-gray-200 dark:border-secondary-200 rounded-2xl overflow-visible">
-            <table class="w-full text-sm text-left text-gray-700 dark:text-gray-300">
-              <thead class="text-xs text-gray-500 dark:text-gray-400 uppercase bg-[#EBECEE] dark:bg-secondary-300">
-                <tr>
-                  <th class="px-6 py-3 font-semibold rounded-tl-2xl">{{ 'CREATE_PROD_SPEC._item_name' | translate }}
-                  </th>
-                  <th class="px-6 py-3 font-semibold">{{ 'CREATE_PROD_SPEC._description' | translate }}</th>
-                  <th class="px-6 py-3 font-semibold text-right w-20 rounded-tr-2xl">{{ 'CREATE_PROD_SPEC._actions' |
-                    translate }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for(b of businessBenefits; track b; let idx = $index; let last = $last) {
-                <tr class="group border-t border-gray-100 dark:border-secondary-200">
-                  <td
-                    class="px-6 py-3 text-gray-900 dark:text-white group-hover:bg-gray-50 dark:group-hover:bg-secondary-200"
-                    [ngClass]="{'rounded-bl-2xl': last}">{{ b.name }}</td>
-                  <td
-                    class="px-6 py-3 text-gray-600 dark:text-gray-300 group-hover:bg-gray-50 dark:group-hover:bg-secondary-200">
-                    {{ b.description || '-' }}</td>
-                  <td class="px-6 py-3 text-right relative group-hover:bg-gray-50 dark:group-hover:bg-secondary-200"
-                    [ngClass]="{'rounded-br-2xl': last}">
-                    <button type="button" (click)="toggleItemMenu('benefit', idx, $event)"
-                      class="p-1 hover:bg-gray-100 dark:hover:bg-secondary-300 rounded text-gray-500 dark:text-gray-400">
-                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="5" r="2" />
-                        <circle cx="12" cy="12" r="2" />
-                        <circle cx="12" cy="19" r="2" />
-                      </svg>
-                    </button>
-                    @if(isItemMenuOpen('benefit', idx)){
-                    <app-dropdown-panel
-                      class="absolute right-6 top-12 z-20 w-36 text-left"
-                      (click)="$event.stopPropagation()">
-                      <button type="button" (click)="openItemModal('benefit', idx); openItemMenuIdx=null"
-                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
-                        'CREATE_PROD_SPEC._edit' | translate }}</button>
-                      <button type="button" (click)="removeItem('benefit', idx)"
-                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
-                        'CREATE_PROD_SPEC._delete' | translate }}</button>
-                    </app-dropdown-panel>
-                    }
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+          <app-table-input [columns]="benefitColumns" [items]="businessBenefits" [selectable]="false" />
           }
         </div>
 
@@ -254,54 +154,7 @@
             <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'CREATE_PROD_SPEC._no_use_cases' | translate }}</p>
           </div>
           } @else {
-          <div class="border border-gray-200 dark:border-secondary-200 rounded-2xl overflow-visible">
-            <table class="w-full text-sm text-left text-gray-700 dark:text-gray-300">
-              <thead class="text-xs text-gray-500 dark:text-gray-400 uppercase bg-[#EBECEE] dark:bg-secondary-300">
-                <tr>
-                  <th class="px-6 py-3 font-semibold rounded-tl-2xl">{{ 'CREATE_PROD_SPEC._item_name' | translate }}
-                  </th>
-                  <th class="px-6 py-3 font-semibold">{{ 'CREATE_PROD_SPEC._description' | translate }}</th>
-                  <th class="px-6 py-3 font-semibold text-right w-20 rounded-tr-2xl">{{ 'CREATE_PROD_SPEC._actions' |
-                    translate }}</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for(uc of useCases; track uc; let idx = $index; let last = $last) {
-                <tr class="group border-t border-gray-100 dark:border-secondary-200">
-                  <td
-                    class="px-6 py-3 text-gray-900 dark:text-white group-hover:bg-gray-50 dark:group-hover:bg-secondary-200"
-                    [ngClass]="{'rounded-bl-2xl': last}">{{ uc.name }}</td>
-                  <td
-                    class="px-6 py-3 text-gray-600 dark:text-gray-300 group-hover:bg-gray-50 dark:group-hover:bg-secondary-200">
-                    {{ uc.description || '-' }}</td>
-                  <td class="px-6 py-3 text-right relative group-hover:bg-gray-50 dark:group-hover:bg-secondary-200"
-                    [ngClass]="{'rounded-br-2xl': last}">
-                    <button type="button" (click)="toggleItemMenu('usecase', idx, $event)"
-                      class="p-1 hover:bg-gray-100 dark:hover:bg-secondary-300 rounded text-gray-500 dark:text-gray-400">
-                      <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
-                        <circle cx="12" cy="5" r="2" />
-                        <circle cx="12" cy="12" r="2" />
-                        <circle cx="12" cy="19" r="2" />
-                      </svg>
-                    </button>
-                    @if(isItemMenuOpen('usecase', idx)){
-                    <app-dropdown-panel
-                      class="absolute right-6 top-12 z-20 w-36 text-left"
-                      (click)="$event.stopPropagation()">
-                      <button type="button" (click)="openItemModal('usecase', idx); openItemMenuIdx=null"
-                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
-                        'CREATE_PROD_SPEC._edit' | translate }}</button>
-                      <button type="button" (click)="removeItem('usecase', idx)"
-                        class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">{{
-                        'CREATE_PROD_SPEC._delete' | translate }}</button>
-                    </app-dropdown-panel>
-                    }
-                  </td>
-                </tr>
-                }
-              </tbody>
-            </table>
-          </div>
+          <app-table-input [columns]="useCaseColumns" [items]="useCases" [selectable]="false" />
           }
         </div>
       </div>
@@ -591,42 +444,7 @@
           </div>
         </div>
         } @else {
-        <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white m-4">
-          <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-              <tr>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'UPDATE_PROD_SPEC._relationship_type' | translate }}
-                </th>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'UPDATE_PROD_SPEC._product_name' | translate }}
-                </th>
-                <th scope="col" class="px-6 py-3">
-                  {{ 'UPDATE_PROD_SPEC._actions' | translate }}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (rel of prodRelationships; track rel) {
-              <tr
-                class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                <td class="px-6 py-4">
-                  {{rel.relationshipType}}
-                </td>
-                <td [ngClass]="{
-                                                    'break-all': hasLongWord(rel.name, 20),
-                                                    'break-words': !hasLongWord(rel.name, 20)
-                                                    }" class="px-6 py-4 text-wrap break-words">
-                  {{rel.name}}
-                </td>
-                <td class="px-6 py-4">
-                  <app-button (click)="deleteRel(rel)" variant="danger" size="sm" prefixIcon="xmark" />
-                </td>
-              </tr>
-              }
-            </tbody>
-          </table>
-        </div>
+        <app-table-input class="block mb-4" [columns]="relationshipColumns" [items]="prodRelationships" [selectable]="false" />
         }
         @if(!showCreateRel){
         <div class="flex w-full justify-items-center justify-center">

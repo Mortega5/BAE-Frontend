@@ -3,11 +3,11 @@ import { ChangeDetectorRef, Component, DoCheck, EventEmitter, Input, OnDestroy, 
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { findIconByName, IconCategory, POPULAR_ICON_CATEGORIES } from 'src/app/config/popular-icons';
+import { IconCategory, POPULAR_ICON_CATEGORIES } from 'src/app/config/popular-icons';
 import { FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { HELM_DEPLOYMENT_CHARACTERISTICS } from 'src/app/models/helm-deployment-characteristics.const';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
@@ -45,6 +45,7 @@ import { StepChangedEvent } from '../../../../../shared/stepper/stepper.componen
 import { ResourceSpecFormComponent } from '../../seller-resource-spec/resource-spec-form/resource-spec-form.component';
 import { ServiceSpecFormComponent } from '../../seller-service-spec/service-spec-form/service-spec-form.component';
 import { BlueprintProductFormComponent, BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
+import { buildSpecContentItemColumns, SpecContentItem, SpecContentItemType } from '../spec-content-item-columns';
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
 type ProductSpecification_Create = components["schemas"]["ProductSpecification_Create"];
@@ -128,7 +129,6 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   businessBenefits: { name: string, description: string }[] = [];
   useCases: { name: string, description: string, icon: string | null }[] = [];
   iconCategories: IconCategory[] = POPULAR_ICON_CATEGORIES;
-  resolveIcon = findIconByName;
   itemModal: {
     type: 'feature' | 'benefit' | 'usecase' | null,
     name: string,
@@ -136,7 +136,30 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     icon: string | null,
     editIdx: number | null
   } = { type: null, name: '', description: '', icon: null, editIdx: null };
-  openItemMenuIdx: { type: string, idx: number } | null = null;
+
+  readonly featureColumns = this.buildItemColumns('feature');
+  readonly benefitColumns = this.buildItemColumns('benefit');
+  readonly useCaseColumns = this.buildItemColumns('usecase');
+
+  readonly relationshipColumns: TableColumn[] = [
+    { header: 'CREATE_PROD_SPEC._relationship_type', getValue: (rel: any) => rel.relationshipType },
+    {
+      header: 'CREATE_PROD_SPEC._product_name', getValue: (rel: any) => rel.productSpec?.name,
+      cellClass: (rel: any) => this.hasLongWord(rel.productSpec?.name, 20) ? 'break-all' : 'break-words',
+    },
+    {
+      header: 'CREATE_PROD_SPEC._type', hideOnMobile: true, width: 'w-28',
+      getValue: (rel: any) => rel.productSpec?.isBundle ? 'CREATE_PROD_SPEC._bundle' : 'CREATE_PROD_SPEC._simple',
+    },
+    { header: 'CREATE_PROD_SPEC._last_update', type: 'date', hideOnMobile: true, getValue: (rel: any) => rel.productSpec?.lastUpdate },
+    {
+      header: 'CREATE_PROD_SPEC._actions', type: 'actions', width: 'w-24',
+      actions: [{
+        icon: faTrash, tooltip: 'CREATE_PROD_SPEC._delete', dataCy: 'productSpecDeleteRelationship',
+        buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white', onClick: (rel: any) => this.deleteRel(rel),
+      }],
+    },
+  ];
 
   //FAQS INFO:
   faqs: { question: string, answer: string, expanded: boolean }[] = [];
@@ -152,10 +175,10 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   newEndpointForm = buildFormGroup(this.newEndpointFormFields);
   endpointUrls: { url: string; description: string, name: string }[] = [];
   endpointUrlColumns: TableColumn[] = [
-    { header: 'Endpoint URL', getValue: (item: any) => item.url, width: 'w-96', cellClass: () => 'break-all' },
-    { header: 'Description', getValue: (item: any) => item.description, cellClass: () => 'break-words' },
+    { header: 'CREATE_PROD_SPEC._dsp_endpoint_url', getValue: (item: any) => item.url, width: 'w-96', cellClass: () => 'break-all' },
+    { header: 'CREATE_PROD_SPEC._dsp_endpoint_description', getValue: (item: any) => item.description, cellClass: () => 'break-words' },
     {
-      header: 'Actions', type: 'actions', width: 'w-48',
+      header: 'CREATE_PROD_SPEC._actions', type: 'actions', width: 'w-48',
       actions: [{
         icon: faXmark, tooltip: '_delete', dataCy: 'removeEndpointUrl',
         buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white',
@@ -467,20 +490,15 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
   removeItem(type: 'feature' | 'benefit' | 'usecase', idx: number): void {
     this.itemListFor(type).splice(idx, 1);
-    this.openItemMenuIdx = null;
   }
 
-  toggleItemMenu(type: string, idx: number, event: Event): void {
-    event.stopPropagation();
-    if (this.openItemMenuIdx && this.openItemMenuIdx.type === type && this.openItemMenuIdx.idx === idx) {
-      this.openItemMenuIdx = null;
-    } else {
-      this.openItemMenuIdx = { type, idx };
-    }
-  }
-
-  isItemMenuOpen(type: string, idx: number): boolean {
-    return this.openItemMenuIdx?.type === type && this.openItemMenuIdx.idx === idx;
+  private buildItemColumns(type: SpecContentItemType) {
+    const indexOf = (item: SpecContentItem) => (this.itemListFor(type) as SpecContentItem[]).indexOf(item);
+    return buildSpecContentItemColumns(
+      type,
+      item => this.openItemModal(type, indexOf(item)),
+      item => this.removeItem(type, indexOf(item)),
+    );
   }
 
   addFaq(): void {

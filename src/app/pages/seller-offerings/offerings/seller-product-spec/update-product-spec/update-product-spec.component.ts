@@ -7,12 +7,13 @@ import { initFlowbite } from 'flowbite';
 import { jwtDecode } from "jwt-decode";
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
-import { findIconByName, IconCategory, POPULAR_ICON_CATEGORIES } from 'src/app/config/popular-icons';
+import { IconCategory, POPULAR_ICON_CATEGORIES } from 'src/app/config/popular-icons';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
 import { HELM_DEPLOYMENT_CHARACTERISTICS } from 'src/app/models/helm-deployment-characteristics.const';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
+import { faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { EventMessageService } from "src/app/services/event-message.service";
@@ -34,6 +35,7 @@ import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 import { BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
+import { buildSpecContentItemColumns, SpecContentItem, SpecContentItemType } from '../spec-content-item-columns';
 
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
@@ -94,7 +96,6 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   businessBenefits: { name: string, description: string }[] = [];
   useCases: { name: string, description: string, icon: string | null }[] = [];
   iconCategories: IconCategory[] = POPULAR_ICON_CATEGORIES;
-  resolveIcon = findIconByName;
   itemModal: {
     type: 'feature' | 'benefit' | 'usecase' | null,
     name: string,
@@ -102,7 +103,25 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     icon: string | null,
     editIdx: number | null
   } = { type: null, name: '', description: '', icon: null, editIdx: null };
-  openItemMenuIdx: { type: string, idx: number } | null = null;
+
+  readonly featureColumns = this.buildItemColumns('feature');
+  readonly benefitColumns = this.buildItemColumns('benefit');
+  readonly useCaseColumns = this.buildItemColumns('usecase');
+
+  readonly relationshipColumns: TableColumn[] = [
+    { header: 'UPDATE_PROD_SPEC._relationship_type', getValue: (rel: any) => rel.relationshipType },
+    {
+      header: 'UPDATE_PROD_SPEC._product_name', getValue: (rel: any) => rel.name,
+      cellClass: (rel: any) => this.hasLongWord(rel.name, 20) ? 'break-all' : 'break-words',
+    },
+    {
+      header: 'UPDATE_PROD_SPEC._actions', type: 'actions', width: 'w-24',
+      actions: [{
+        icon: faTrash, tooltip: 'CREATE_PROD_SPEC._delete', dataCy: 'productSpecDeleteRelationship',
+        buttonClass: 'bg-red-500 hover:bg-red-600 focus:ring-red-300 text-white', onClick: (rel: any) => this.deleteRel(rel),
+      }],
+    },
+  ];
 
   //FAQS INFO:
   faqs: { question: string, answer: string, expanded: boolean }[] = [];
@@ -455,20 +474,15 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
   removeItem(type: 'feature' | 'benefit' | 'usecase', idx: number): void {
     this.itemListFor(type).splice(idx, 1);
-    this.openItemMenuIdx = null;
   }
 
-  toggleItemMenu(type: string, idx: number, event: Event): void {
-    event.stopPropagation();
-    if (this.openItemMenuIdx && this.openItemMenuIdx.type === type && this.openItemMenuIdx.idx === idx) {
-      this.openItemMenuIdx = null;
-    } else {
-      this.openItemMenuIdx = { type, idx };
-    }
-  }
-
-  isItemMenuOpen(type: string, idx: number): boolean {
-    return this.openItemMenuIdx?.type === type && this.openItemMenuIdx.idx === idx;
+  private buildItemColumns(type: SpecContentItemType) {
+    const indexOf = (item: SpecContentItem) => (this.itemListFor(type) as SpecContentItem[]).indexOf(item);
+    return buildSpecContentItemColumns(
+      type,
+      item => this.openItemModal(type, indexOf(item)),
+      item => this.removeItem(type, indexOf(item)),
+    );
   }
 
   addFaq(): void {
