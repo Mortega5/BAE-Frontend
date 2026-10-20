@@ -1,25 +1,25 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import {NgForOf, NgIf} from "@angular/common";
+import { FormControl, FormGroup } from '@angular/forms';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { TranslateModule } from '@ngx-translate/core';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { formatProfileValue } from '../profile-value.util';
 
 @Component({
   selector: 'app-configuration-profile-drawer',
   standalone: true,
   templateUrl: './configuration-profile-drawer.component.html',
   imports: [
-    NgIf,
-    NgForOf,
     TranslateModule,
     ButtonComponent,
     ModalComponent,
-    ContentCardComponent
-  ],
-  styleUrl: './configuration-profile-drawer.component.css'
+    ContentCardComponent,
+    DynamicFormComponent
+  ]
 })
 export class ConfigurationProfileDrawerComponent implements OnInit {
 
@@ -27,16 +27,32 @@ export class ConfigurationProfileDrawerComponent implements OnInit {
   @Output() save = new EventEmitter<any>();
   @Output() close = new EventEmitter<void>();
 
-  form!: FormGroup;
-
-  constructor(private fb: FormBuilder) {}
+  form = new FormGroup<Record<string, FormControl<string>>>({});
+  fields: FormField[] = [];
+  private characteristics: any[] = [];
 
   ngOnInit() {
-    const characteristicsData = this.profileData.filter(char => this.isSelectableForProfile(char));
+    this.characteristics = this.profileData.filter(char => this.isSelectableForProfile(char));
 
-    this.form = this.fb.group({
-      characteristics: this.fb.array(characteristicsData.map(char => this.createCharacteristicForm(char)))
+    // One select per characteristic. The control holds the *index* of the chosen option rather
+    // than its value: 'object' values are JSON objects and ranges have no `value` at all, and
+    // neither survives a round-trip through a native <select> as a string.
+    this.characteristics.forEach((char, i) => {
+      const options: any[] = char.productSpecCharacteristicValue ?? [];
+      const defaultIndex = Math.max(options.findIndex(opt => opt.isDefault), 0);
+      const controlName = this.controlName(i);
+
+      this.form.addControl(controlName, new FormControl(String(defaultIndex), { nonNullable: true }));
+      this.fields.push({
+        type: 'select', name: controlName, label: char.name, colSpan: 1, dataCy: 'offerProfileSelect',
+        options: options.map((opt, optIndex) => ({ value: String(optIndex), label: formatProfileValue(opt) })),
+      });
     });
+  }
+
+  /** Characteristic ids are URNs and may contain dots, which FormGroup.get() treats as a path. */
+  private controlName(index: number): string {
+    return `char_${index}`;
   }
 
   /** A characteristic belongs in the profile picker unless it's a certification/compliance
@@ -56,65 +72,32 @@ export class ConfigurationProfileDrawerComponent implements OnInit {
       && !isConfigurableWithoutValue;
   }
 
-  private createCharacteristicForm(char: any): FormGroup {
-    const defaultOption = char.productSpecCharacteristicValue.find((v: any) => v.isDefault);
-    const defaultValue = defaultOption?.value ?? defaultOption?.valueFrom ?? '';
-
-    return this.fb.group({
-      id: new FormControl(char.id),
-      name: new FormControl(char.name),
-      selectedValue: new FormControl(defaultValue),
-      options: new FormControl(char.productSpecCharacteristicValue || [])
-    });
-  }
-
-  get characteristics(): FormArray {
-    return this.form.get('characteristics') as FormArray;
-  }
-
-  changeProfileValue(index: number, event: any) {
-    const rawValue = event.target.value;
-    let parsedValue: any = rawValue;
-
-    if (rawValue === 'true') {
-      parsedValue = true;
-    } else if (rawValue === 'false') {
-      parsedValue = false;
-    }
-
-    this.characteristics.at(index).patchValue({ selectedValue: parsedValue });
-    console.log(this.characteristics.at(index))
-  }
-
   private mapFormToProfile(): any[] {
-    const profileArray = this.characteristics.value;  
-    return profileArray.map((char: any) => ({
-      id: char.id,
-      name: char.name,
-      description: char.description || '',
-      productSpecCharacteristicValue: char.options.map((opt: any) => {
-        if (!("value" in opt) || "valueFrom" in opt) {
-          opt.value = "unitOfMeasure" in opt ? Number(char.selectedValue) : char.selectedValue;
-        }
-        return {
-          ...opt,
-          isDefault: String(opt.value) === String(char.selectedValue),
-        };
-      })
-    }));
-  }
-  
-
-  hasKey(obj: any, key: string): boolean {
-    return obj?.hasOwnProperty(key);
+    return this.characteristics.map((char, i) => {
+      const selectedIndex = Number(this.form.get(this.controlName(i))!.value);
+      return {
+        id: char.id,
+        name: char.name,
+        description: char.description || '',
+        // Copies, never the caller's option objects — those belong to the product spec.
+        productSpecCharacteristicValue: (char.productSpecCharacteristicValue ?? []).map((opt: any, optIndex: number) => {
+          const isDefault = optIndex === selectedIndex;
+          const copy = { ...opt, isDefault };
+          // A range has no `value`; the chosen band carries its lower bound as one, which is what
+          // the price plan's profile summary (and the stored prodSpecCharValueUse) read back.
+          if (isDefault && !('value' in opt) && 'valueFrom' in opt) {
+            copy.value = 'unitOfMeasure' in opt ? Number(opt.valueFrom) : opt.valueFrom;
+          }
+          return copy;
+        }),
+      };
+    });
   }
 
   saveProfile() {
     if (this.form.invalid) return;
 
-    const formattedProfile = this.mapFormToProfile();
-    this.save.emit(formattedProfile);
-
+    this.save.emit(this.mapFormToProfile());
     this.cancel();
   }
 

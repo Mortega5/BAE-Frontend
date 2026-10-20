@@ -21,6 +21,7 @@ import {
   PricePlanCharacteristicsDrawerComponent
 } from "../price-plan-characteristics-drawer/price-plan-characteristics-drawer.component";
 import { applyCharacteristicConstraints, CharacteristicConstraintValueUse } from "../../../../price-plan-constraint.utils";
+import { formatSelectedProfileValue, sameProfileValue } from '../profile-value.util';
 
 
 @Component({
@@ -412,6 +413,8 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
     }
   }
 
+  readonly formatSelectedProfileValue = formatSelectedProfileValue;
+
   getProcessedProfileData() {
     if(this.formGroup?.get('prodSpecCharValueUse')?.value){
       return this.formGroup?.get('prodSpecCharValueUse')?.value
@@ -437,7 +440,7 @@ export class PricePlanDrawerComponent implements OnInit, OnDestroy {
           ...char,
           productSpecCharacteristicValue: char.productSpecCharacteristicValue.map((opt: any) => ({
             ...opt,
-            isDefault: String(opt.value) === String(selectedChar.selectedValue), // Keep matching stable for boolean values from select controls
+            isDefault: sameProfileValue(opt.value, selectedChar.selectedValue),
           })),
         };
       }

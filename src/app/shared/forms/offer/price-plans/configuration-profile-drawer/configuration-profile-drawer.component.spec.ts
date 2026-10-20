@@ -45,7 +45,7 @@ describe('ConfigurationProfileDrawerComponent', () => {
 
     testComponent.ngOnInit();
 
-    const names = testComponent.characteristics.value.map((char: any) => char.name);
+    const names = testComponent.fields.map(field => field.label);
     expect(names).toEqual(['Storage']);
   });
 
@@ -80,7 +80,7 @@ describe('ConfigurationProfileDrawerComponent', () => {
 
     testComponent.ngOnInit();
 
-    const names = testComponent.characteristics.value.map((char: any) => char.name);
+    const names = testComponent.fields.map(field => field.label);
     expect(names).toEqual(['Region']);
   });
 
@@ -100,7 +100,60 @@ describe('ConfigurationProfileDrawerComponent', () => {
     ];
 
     testComponent.ngOnInit();
+    const saveSpy = spyOn(testComponent.save, 'emit');
+    testComponent.saveProfile();
 
-    expect(testComponent.characteristics.at(0).value.selectedValue).toBeFalse();
+    const values = (saveSpy.calls.mostRecent().args[0] as any)[0].productSpecCharacteristicValue;
+    expect(values.map((v: any) => v.isDefault)).toEqual([false, true]);
+    expect(values[1].value).toBeFalse();
+  });
+
+  it('should label object values as JSON and mark only the chosen one as default', () => {
+    const testFixture = TestBed.createComponent(ConfigurationProfileDrawerComponent);
+    const testComponent = testFixture.componentInstance;
+
+    testComponent.profileData = [
+      {
+        id: 'char-1',
+        name: 'Limits',
+        valueType: 'object',
+        productSpecCharacteristicValue: [
+          { value: { cpu: 1 }, isDefault: true },
+          { value: { cpu: 2 }, isDefault: false }
+        ]
+      }
+    ];
+
+    testComponent.ngOnInit();
+    expect((testComponent.fields[0] as any).options.map((o: any) => o.label)).toEqual(['{"cpu":1}', '{"cpu":2}']);
+
+    testComponent.form.get('char_0')!.setValue('1');
+    const saveSpy = spyOn(testComponent.save, 'emit');
+    testComponent.saveProfile();
+
+    const values = (saveSpy.calls.mostRecent().args[0] as any)[0].productSpecCharacteristicValue;
+    expect(values.map((v: any) => v.isDefault)).toEqual([false, true]);
+    expect(values[1].value).toEqual({ cpu: 2 });
+  });
+
+  it('should give only the chosen range band a value, without mutating the input', () => {
+    const testFixture = TestBed.createComponent(ConfigurationProfileDrawerComponent);
+    const testComponent = testFixture.componentInstance;
+    const bands = [
+      { valueFrom: 1, valueTo: 10, unitOfMeasure: 'GB', isDefault: true },
+      { valueFrom: 11, valueTo: 20, unitOfMeasure: 'GB', isDefault: false }
+    ];
+
+    testComponent.profileData = [{ id: 'char-1', name: 'Disk', productSpecCharacteristicValue: bands }];
+    testComponent.ngOnInit();
+    testComponent.form.get('char_0')!.setValue('1');
+    const saveSpy = spyOn(testComponent.save, 'emit');
+    testComponent.saveProfile();
+
+    const values = (saveSpy.calls.mostRecent().args[0] as any)[0].productSpecCharacteristicValue;
+    expect(values.map((v: any) => v.isDefault)).toEqual([false, true]);
+    expect(values[1].value).toBe(11);
+    expect('value' in values[0]).toBeFalse();
+    expect('value' in bands[1]).toBeFalse();
   });
 });

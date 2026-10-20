@@ -88,12 +88,7 @@
                   <td class="px-4 py-3 text-base text-gray-900 dark:text-white">{{ char.name }}</td>
                   <td class="px-4 py-3 text-base text-gray-900 dark:text-white">
                     @if (char.selectedValue !== null && char.selectedValue !== undefined) {
-                      @if(char.selectedValue?.value !== undefined){
-                        {{ char.selectedValue.value }}
-                        {{ char.selectedValue.unitOfMeasure || '' }}
-                      } @else {
-                        {{ char.selectedValue }}
-                      }
+                      {{ formatSelectedProfileValue(char.selectedValue) }}
                     } @else {
                       {{ 'FORMS.PRICE_PLANS._no_value_selected' | translate }}
                     }
