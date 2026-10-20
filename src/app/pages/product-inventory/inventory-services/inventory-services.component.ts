@@ -7,7 +7,6 @@ import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-i
 import { PaginationService } from 'src/app/services/pagination.service';
 import {EventMessageService} from "src/app/services/event-message.service";
 import {faIdCard, faSort, faSwatchbook} from "@fortawesome/pro-solid-svg-icons";
-import { initFlowbite } from 'flowbite';
 import { environment } from 'src/environments/environment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -37,6 +36,7 @@ export class InventoryServicesComponent implements OnInit, OnDestroy {
   page: number=0;
   INVENTORY_LIMIT: number = environment.INVENTORY_SERV_LIMIT;
   showDetails:boolean=false;
+  filterOpen:boolean=false;
   selectedServ:any;
   private destroy$ = new Subject<void>();
 
@@ -99,7 +99,6 @@ export class InventoryServicesComponent implements OnInit, OnDestroy {
       }
       this.getInventory(false);
     }
-    initFlowbite();
   }
 
   async getInventory(next:boolean){
@@ -142,15 +141,21 @@ export class InventoryServicesComponent implements OnInit, OnDestroy {
     }
   }
 
+  toggleFilterDropdown(event: Event){
+    event.stopPropagation();
+    this.filterOpen = !this.filterOpen;
+  }
+
+  @HostListener('document:click')
+  closeFilterDropdown(){
+    this.filterOpen = false;
+  }
+
   onStateFilterChange(filter:string){
     const index = this.status.findIndex(item => item === filter);
     if (index !== -1) {
       this.status.splice(index, 1);
-      console.log('elimina filtro')
-      console.log(this.status)
     } else {
-      console.log('añade filtro')
-      console.log(this.status)
       this.status.push(filter)
     }
     this.getInventory(false);

@@ -4,14 +4,13 @@
     <h2 appCardHeader class="text-xl font-bold dark:text-white">{{ 'PRODUCT_INVENTORY._search_criteria' | translate }}</h2>
     <div class="flex w-full flex-col items-center lg:flex-row justify-between">
 
-      <div class="w-full">
+      <div class="w-full relative">
         <div class="flex flex-row mb-1">
           <fa-icon [icon]="faSwatchbook" class="fa-base text-primary-100 align-middle mr-2"></fa-icon>
           <h2 class="text-base dark:text-white font-bold">{{ 'OFFERINGS._filter_state' | translate }}</h2>
         </div>
-        <button id="dropdownDefault" data-dropdown-toggle="dropdown"
-          class="text-black dark:text-white w-full justify-between shadow bg-white dark:bg-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-300 focus:ring-4 focus:outline-none focus:ring-primary-100 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center shadow-lg"
-          type="button">
+        <button id="dropdownDefault" type="button" (click)="toggleFilterDropdown($event)"
+          class="text-black dark:text-white w-full justify-between shadow bg-white dark:bg-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-300 focus:ring-4 focus:outline-none focus:ring-primary-100 font-medium rounded-lg text-sm p-2.5 text-center inline-flex items-center shadow-lg">
           {{ 'OFFERINGS._filter_state' | translate }}
           <svg class="w-4 h-4 ml-2" aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"
             xmlns="http://www.w3.org/2000/svg">
@@ -19,15 +18,15 @@
           </svg>
         </button>
 
-        <div id="dropdown" class="z-20 hidden w-fit md:w-1/5 p-3 bg-white rounded-lg shadow dark:bg-secondary-200">
+        <app-dropdown-panel id="dropdown" class="absolute left-0 top-full mt-1 z-20 min-w-[12rem] p-3"
+          [class.hidden]="!filterOpen" (click)="$event.stopPropagation()">
           <h6 class="mb-3 text-sm font-medium text-gray-900 dark:text-white">
             {{ 'OFFERINGS._status' | translate }}
           </h6>
           <ul class="space-y-2 text-sm" aria-labelledby="dropdownDefault">
 
             <li class="flex items-center">
-              <input id="feasibilityChecked" type="checkbox" value=""
-                (change)="onStateFilterChange('feasibilityChecked')"
+              <input id="feasibilityChecked" type="checkbox" [checked]="status.includes('feasibilityChecked')" (change)="onStateFilterChange('feasibilityChecked')"
                 class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded focus:ring-primary-100" />
 
               <label for="feasibilityChecked" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-200">
@@ -36,7 +35,7 @@
             </li>
 
             <li class="flex items-center">
-              <input id="designed" type="checkbox" value="" (change)="onStateFilterChange('designed')"
+              <input id="designed" type="checkbox" [checked]="status.includes('designed')" (change)="onStateFilterChange('designed')"
                 class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded focus:ring-primary-100" />
 
               <label for="designed" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-200">
@@ -45,7 +44,7 @@
             </li>
 
             <li class="flex items-center">
-              <input id="reserved" type="checkbox" value="" (change)="onStateFilterChange('reserved')"
+              <input id="reserved" type="checkbox" [checked]="status.includes('reserved')" (change)="onStateFilterChange('reserved')"
                 class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded focus:ring-primary-100" />
 
               <label for="reserved" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-200">
@@ -54,7 +53,7 @@
             </li>
 
             <li class="flex items-center">
-              <input id="inactive" type="checkbox" value="" (change)="onStateFilterChange('inactive')"
+              <input id="inactive" type="checkbox" [checked]="status.includes('inactive')" (change)="onStateFilterChange('inactive')"
                 class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded focus:ring-primary-100" />
 
               <label for="inactive" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-200">
@@ -63,7 +62,7 @@
             </li>
 
             <li class="flex items-center">
-              <input id="active" type="checkbox" value="" (change)="onStateFilterChange('active')"
+              <input id="active" type="checkbox" [checked]="status.includes('active')" (change)="onStateFilterChange('active')"
                 class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded focus:ring-primary-100" />
 
               <label for="active" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-200">
@@ -72,7 +71,7 @@
             </li>
 
             <li class="flex items-center">
-              <input id="terminated" type="checkbox" value="" (change)="onStateFilterChange('terminated')"
+              <input id="terminated" type="checkbox" [checked]="status.includes('terminated')" (change)="onStateFilterChange('terminated')"
                 class="w-4 h-4 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded focus:ring-primary-100" />
 
               <label for="terminated" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-200">
@@ -80,7 +79,7 @@
               </label>
             </li>
           </ul>
-        </div>
+        </app-dropdown-panel>
       </div>
     </div>
 

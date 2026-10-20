@@ -155,11 +155,13 @@
     (closed)="onUnsubscribeConfirmResolved(false)" />
 
 
+  @if (selectedProdSpec && productOff) {
   <app-price-plan-drawer [mode]="'modify'" [productOff]="productOff" [prodSpec]="selectedProdSpec"
     [isOpen]="isModifyDrawerOpen" [inventoryProductId]="selectedProduct?.id"
     [existingCharacteristics]="selectedProduct?.productCharacteristic || []" [width]="'w-2/3'"
     (closeDrawer)="isModifyDrawerOpen = false" (modifySubmit)="onModifySubmit($event)">
   </app-price-plan-drawer>
+  }
 
   <app-modal [visible]="showBillingSelector" width="max-w-2xl" (closed)="showBillingSelector = false">
     <div appCardHeader class="flex items-center justify-between">
