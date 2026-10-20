@@ -183,12 +183,12 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     FaqComponent,
     NewPricePlanComponent,
     UpdatePricePlanComponent,
-    RequestValidationModalComponent,
     SellerSoftware,
     CreateSoftwareComponent,
     UpdateSoftwareComponent
   ],
   imports: [
+    RequestValidationModalComponent,
     TruncateValuePipe,
     BrowserModule,
     FontAwesomeModule,

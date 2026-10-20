@@ -109,7 +109,12 @@
     "_org_country": "País de la organización",
     "_org_website": "Sitio web de la organización",
     "_org_email": "Correo electrónico de la organización",
-    "_missing_org_info": "Falta información de tu organización necesaria para el proceso de validación. Por favor, actualiza el perfil de tu organización."
+    "_missing_org_info": "Falta información de tu organización necesaria para el proceso de validación. Por favor, actualiza el perfil de tu organización.",
+    "_type_self_attestation": "Autodeclaración",
+    "_type_third_party": "Certificación de terceros",
+    "_type_additional": "Certificación adicional",
+    "_field": "Campo",
+    "_value": "Valor"
   },
   "REPLICATION_VISIBILITY": {
     "_intro": "Define en qué mercados del ecosistema DOME podría aparecer tu oferta de producto (los operadores de mercado podrían no publicar tu oferta, según sus propias políticas de negocio):",

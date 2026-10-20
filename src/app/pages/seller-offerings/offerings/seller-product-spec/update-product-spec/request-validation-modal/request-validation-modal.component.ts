@@ -1,12 +1,23 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { LoginInfo } from 'src/app/models/interfaces';
+import { TableColumn } from 'src/app/models/table-column.model';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { DrawerComponent } from 'src/app/shared/drawer/drawer.component';
+import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 
 type ValidationEvidenceRow = {
   type: string;
   name: string;
+  value: string;
+  missing: boolean;
+};
+type OrganizationInfoRow = {
+  label: string;
   value: string;
   missing: boolean;
 };
@@ -21,8 +32,9 @@ type OrganizationInfo = {
 
 @Component({
   selector: 'request-validation-modal',
-  templateUrl: './request-validation-modal.component.html',
-  styleUrl: './request-validation-modal.component.css'
+  standalone: true,
+  imports: [TranslateModule, ButtonComponent, ContentCardComponent, DrawerComponent, TableInputComponent],
+  templateUrl: './request-validation-modal.component.html'
 })
 export class RequestValidationModalComponent implements OnChanges {
   @Input() showModal: boolean = false;
@@ -35,6 +47,29 @@ export class RequestValidationModalComponent implements OnChanges {
   organizationInfo: OrganizationInfo = this.getEmptyOrganizationInfo();
 
   @Output() closeModal = new EventEmitter<void>();
+
+  /** Shared by both tables: a missing value reads "Not provided" in red instead of an empty cell. */
+  private static readonly MISSING_CELL = 'font-medium text-red-600 dark:text-red-400';
+
+  readonly evidenceColumns: TableColumn<ValidationEvidenceRow>[] = [
+    { header: 'REQUEST_VALIDATION._type', getValue: row => row.type, width: 'w-56' },
+    { header: 'REQUEST_VALIDATION._name', getValue: row => row.name, cellClass: 'break-words' },
+    {
+      header: 'REQUEST_VALIDATION._document', type: 'link',
+      getValue: row => row.missing ? 'REQUEST_VALIDATION._not_provided' : row.value,
+      getHref: row => !row.missing && this.isHttpUrl(row.value) ? row.value : null,
+      cellClass: row => row.missing ? RequestValidationModalComponent.MISSING_CELL : 'break-all',
+    },
+  ];
+
+  readonly organizationColumns: TableColumn<OrganizationInfoRow>[] = [
+    { header: 'REQUEST_VALIDATION._field', getValue: row => row.label, width: 'w-56' },
+    {
+      header: 'REQUEST_VALIDATION._value',
+      getValue: row => row.missing ? 'REQUEST_VALIDATION._not_provided' : row.value,
+      cellClass: row => row.missing ? RequestValidationModalComponent.MISSING_CELL : 'break-all',
+    },
+  ];
 
   constructor(
     private localStorage: LocalStorageService,
@@ -54,8 +89,8 @@ export class RequestValidationModalComponent implements OnChanges {
     const selfAttestationValue = this.selfAtt?.productSpecCharacteristicValue?.[0]?.value ?? '';
 
     rows.push({
-      type: 'Self attestation',
-      name: 'Self attestation',
+      type: 'REQUEST_VALIDATION._type_self_attestation',
+      name: 'REQUEST_VALIDATION._type_self_attestation',
       value: selfAttestationValue,
       missing: !selfAttestationValue
     });
@@ -63,7 +98,7 @@ export class RequestValidationModalComponent implements OnChanges {
     for (const certification of this.selectedISOS) {
       const value = certification?.url ?? '';
       rows.push({
-        type: 'Third-party certification',
+        type: 'REQUEST_VALIDATION._type_third_party',
         name: this.normalizeName(certification?.name),
         value,
         missing: !value
@@ -73,7 +108,7 @@ export class RequestValidationModalComponent implements OnChanges {
     for (const certification of this.additionalISOS) {
       const value = certification?.url ?? '';
       rows.push({
-        type: 'Additional certification',
+        type: 'REQUEST_VALIDATION._type_additional',
         name: this.normalizeName(certification?.name),
         value,
         missing: !value
@@ -81,6 +116,18 @@ export class RequestValidationModalComponent implements OnChanges {
     }
 
     return rows;
+  }
+
+  get organizationRows(): OrganizationInfoRow[] {
+    const info = this.organizationInfo;
+    return [
+      { label: 'REQUEST_VALIDATION._org_name', value: info.organizationName },
+      { label: 'REQUEST_VALIDATION._org_vat', value: info.organizationVat },
+      { label: 'REQUEST_VALIDATION._org_address', value: info.organizationAddress },
+      { label: 'REQUEST_VALIDATION._org_country', value: info.organizationCountry },
+      { label: 'REQUEST_VALIDATION._org_website', value: info.organizationWebsite },
+      { label: 'REQUEST_VALIDATION._org_email', value: info.organizationEmail },
+    ].map(row => ({ ...row, missing: this.isMissing(row.value) }));
   }
 
   normalizeName(name?: string): string {

@@ -1,119 +1,58 @@
-<div class="fixed inset-0 bg-black bg-opacity-50 flex justify-end transition-opacity duration-500 z-50"
-     style="opacity: 0; pointer-events: none;"
-     [style.opacity]="showModal ? '1' : '0'"
-     [style.pointer-events]="showModal ? 'auto' : 'none'"
-     (click)="closeModal.emit()">
-        <div class="w-full md:w-5/6 lg:w-3/4 xl:w-2/3 h-full bg-secondary-50 dark:bg-gray-800 p-6 overflow-y-auto transform transition-transform duration-500"
-             style="transform: translateX(100%);"
-             [style.transform]="showModal ? 'translateX(0)' : 'translateX(100%)'"
-             (click)="$event.stopPropagation();">
-            <div class="flex justify-between items-center">
-                <h3 class="text-2xl font-semibold text-primary-100 dark:text-white">{{ 'REQUEST_VALIDATION._title' | translate }}</h3>
-                <app-button type="button" (click)="closeModal.emit()" variant="ghost" size="sm" prefixIcon="xmark">
-                    <span class="sr-only">{{ 'COMMON._close_drawer' | translate }}</span>
-                </app-button>
-            </div>
+<app-drawer [isOpen]="showModal" [widthClass]="'w-full md:w-5/6 lg:w-3/4 xl:w-2/3'" [zIndexClass]="'z-50'"
+  [panelClass]="'p-6 overflow-y-auto'" (closed)="closeModal.emit()">
 
-            <p class="mt-2 mb-5 text-sm text-gray-500 dark:text-gray-400">
-                {{ 'REQUEST_VALIDATION._intro' | translate }}
-            </p>
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-2">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'REQUEST_VALIDATION._title' | translate }}</h2>
+    <app-button type="button" (click)="closeModal.emit()" variant="ghost" size="sm" prefixIcon="xmark">
+      <span class="sr-only">{{ 'COMMON._close_drawer' | translate }}</span>
+    </app-button>
+  </div>
+  <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">{{ 'REQUEST_VALIDATION._intro' | translate }}</p>
 
-            <div class="mb-6">
-                <h4 class="mb-2 font-semibold text-gray-900 dark:text-white">{{ 'REQUEST_VALIDATION._evidence_title' | translate }}</h4>
-                <div class="relative overflow-x-auto shadow-md sm:rounded-lg w-full bg-white dark:bg-secondary-300">
-                    <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-                        <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
-                            <tr>
-                                <th scope="col" class="px-6 py-3">{{ 'REQUEST_VALIDATION._type' | translate }}</th>
-                                <th scope="col" class="px-6 py-3">{{ 'REQUEST_VALIDATION._name' | translate }}</th>
-                                <th scope="col" class="px-6 py-3">{{ 'REQUEST_VALIDATION._document' | translate }}</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (evidence of validationEvidenceRows; track evidence.type + evidence.name + evidence.value) {
-                                <tr class="border-b hover:bg-gray-200 dark:bg-secondary-300 dark:border-gray-700 dark:hover:bg-secondary-200">
-                                    <td class="px-6 py-4">{{ evidence.type }}</td>
-                                    <td class="px-6 py-4">{{ evidence.name }}</td>
-                                    <td class="px-6 py-4 break-all">
-                                        @if (evidence.missing) {
-                                            <span class="font-medium text-red-600">{{ 'REQUEST_VALIDATION._not_provided' | translate }}</span>
-                                        } @else if (isHttpUrl(evidence.value)) {
-                                            <a [href]="evidence.value" target="_blank" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">
-                                                {{ evidence.value }}
-                                            </a>
-                                        } @else {
-                                            {{ evidence.value }}
-                                        }
-                                    </td>
-                                </tr>
-                            } @empty {
-                                <tr>
-                                    <td colspan="3" class="px-6 py-4 text-center text-gray-500 dark:text-gray-300">
-                                        {{ 'REQUEST_VALIDATION._no_evidence' | translate }}
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+  <div class="flex flex-col gap-4">
+    <app-card>
+      <h3 appCardHeader class="text-lg font-semibold text-gray-900 dark:text-white">
+        {{ 'REQUEST_VALIDATION._evidence_title' | translate }}
+      </h3>
+      <app-table-input [columns]="evidenceColumns" [items]="validationEvidenceRows" [selectable]="false"
+        emptyMessage="REQUEST_VALIDATION._no_evidence" />
+    </app-card>
 
-            <div class="mb-6">
-                <h4 class="mb-2 font-semibold text-gray-900 dark:text-white">{{ 'REQUEST_VALIDATION._org_info_title' | translate }}</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="p-4 bg-white border rounded-lg dark:bg-secondary-300"
-                        [ngClass]="isMissing(organizationInfo.organizationName) ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'">
-                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">{{ 'REQUEST_VALIDATION._org_name' | translate }}</p>
-                        <p class="mt-1 text-sm text-gray-900 dark:text-white break-all">{{ organizationInfo.organizationName || '-' }}</p>
-                    </div>
-                    <div class="p-4 bg-white border rounded-lg dark:bg-secondary-300"
-                        [ngClass]="isMissing(organizationInfo.organizationVat) ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'">
-                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">{{ 'REQUEST_VALIDATION._org_vat' | translate }}</p>
-                        <p class="mt-1 text-sm text-gray-900 dark:text-white break-all">{{ organizationInfo.organizationVat || '-' }}</p>
-                    </div>
-                    <div class="p-4 bg-white border rounded-lg dark:bg-secondary-300"
-                        [ngClass]="isMissing(organizationInfo.organizationAddress) ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'">
-                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">{{ 'REQUEST_VALIDATION._org_address' | translate }}</p>
-                        <p class="mt-1 text-sm text-gray-900 dark:text-white break-all">{{ organizationInfo.organizationAddress || '-' }}</p>
-                    </div>
-                    <div class="p-4 bg-white border rounded-lg dark:bg-secondary-300"
-                        [ngClass]="isMissing(organizationInfo.organizationCountry) ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'">
-                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">{{ 'REQUEST_VALIDATION._org_country' | translate }}</p>
-                        <p class="mt-1 text-sm text-gray-900 dark:text-white break-all">{{ organizationInfo.organizationCountry || '-' }}</p>
-                    </div>
-                    <div class="p-4 bg-white border rounded-lg dark:bg-secondary-300"
-                        [ngClass]="isMissing(organizationInfo.organizationWebsite) ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'">
-                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">{{ 'REQUEST_VALIDATION._org_website' | translate }}</p>
-                        <p class="mt-1 text-sm text-gray-900 dark:text-white break-all">{{ organizationInfo.organizationWebsite || '-' }}</p>
-                    </div>
-                    <div class="p-4 bg-white border rounded-lg dark:bg-secondary-300"
-                        [ngClass]="isMissing(organizationInfo.organizationEmail) ? 'border-red-500 dark:border-red-500' : 'border-gray-200 dark:border-gray-700'">
-                        <p class="text-xs uppercase text-gray-500 dark:text-gray-300">{{ 'REQUEST_VALIDATION._org_email' | translate }}</p>
-                        <p class="mt-1 text-sm text-gray-900 dark:text-white break-all">{{ organizationInfo.organizationEmail || '-' }}</p>
-                    </div>
-                </div>
-            </div>
+    <app-card>
+      <h3 appCardHeader class="text-lg font-semibold text-gray-900 dark:text-white">
+        {{ 'REQUEST_VALIDATION._org_info_title' | translate }}
+      </h3>
+      <app-table-input [columns]="organizationColumns" [items]="organizationRows" [selectable]="false" />
+    </app-card>
 
-            @if (hasMissingOrganizationInfo()) {
-                <div class="mb-6 p-4 text-sm text-amber-800 rounded-lg bg-amber-100 dark:bg-amber-900 dark:text-amber-200" role="alert">
-                    {{ 'REQUEST_VALIDATION._missing_org_info' | translate }}
-                </div>
-            }
-            @if (requestValidationError) {
-                <div class="mb-6 p-4 text-sm text-red-800 rounded-lg bg-red-100 dark:bg-red-900 dark:text-red-200" role="alert">
-                    {{ requestValidationError }}
-                </div>
-            }
-
-            <div class="flex justify-end items-center space-x-4">
-                <app-button (click)="closeModal.emit()" type="button" variant="ghost" size="sm">
-                    {{ 'CONFIRM_MODAL._cancel' | translate }}
-                </app-button>
-                <app-button (click)="submitRequestValidation()"
-                    [disabled]="hasMissingOrganizationInfo() || requestValidationLoading || !productSpec"
-                    type="button">
-                    {{ 'REQUEST_VALIDATION._title' | translate }}
-                </app-button>
-            </div>
-        </div>
+    @if (hasMissingOrganizationInfo()) {
+    <div role="alert"
+      class="flex items-center gap-3 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900">
+      <svg class="w-5 h-5 shrink-0 text-amber-600 dark:text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm9.75-4.5a.75.75 0 0 0-.75.75v3.75a.75.75 0 0 0 1.5 0V8.25a.75.75 0 0 0-.75-.75Zm0 8.25a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z" clip-rule="evenodd"/>
+      </svg>
+      <p class="text-sm text-amber-800 dark:text-amber-200">{{ 'REQUEST_VALIDATION._missing_org_info' | translate }}</p>
     </div>
+    }
+    @if (requestValidationError) {
+    <div role="alert"
+      class="flex items-center gap-3 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900">
+      <svg class="w-5 h-5 shrink-0 text-red-600 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+        <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm9.75-4.5a.75.75 0 0 0-.75.75v3.75a.75.75 0 0 0 1.5 0V8.25a.75.75 0 0 0-.75-.75Zm0 8.25a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z" clip-rule="evenodd"/>
+      </svg>
+      <p class="text-sm text-red-700 dark:text-red-300">{{ requestValidationError }}</p>
+    </div>
+    }
+
+    <div class="flex justify-end gap-3">
+      <app-button (click)="closeModal.emit()" type="button" variant="ghost">
+        {{ 'CONFIRM_MODAL._cancel' | translate }}
+      </app-button>
+      <app-button (click)="submitRequestValidation()"
+        [disabled]="hasMissingOrganizationInfo() || requestValidationLoading || !productSpec" type="button">
+        {{ 'REQUEST_VALIDATION._title' | translate }}
+      </app-button>
+    </div>
+  </div>
+</app-drawer>

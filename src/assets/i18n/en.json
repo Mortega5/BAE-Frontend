@@ -109,7 +109,12 @@
     "_org_country": "Organization country",
     "_org_website": "Organization website",
     "_org_email": "Organization email",
-    "_missing_org_info": "Some information of your organization required for the validation process is missing. Please update you organization profile."
+    "_missing_org_info": "Some information of your organization required for the validation process is missing. Please update you organization profile.",
+    "_type_self_attestation": "Self attestation",
+    "_type_third_party": "Third-party certification",
+    "_type_additional": "Additional certification",
+    "_field": "Field",
+    "_value": "Value"
   },
   "REPLICATION_VISIBILITY": {
     "_intro": "Define in which marketplaces of the DOME Ecosystem your Product Offering might appear (marketplace operators might not publish your offering, depending on their business choices):",
