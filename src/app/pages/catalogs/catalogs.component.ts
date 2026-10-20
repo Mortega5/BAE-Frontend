@@ -9,7 +9,9 @@ import { ThemeService } from 'src/app/services/theme.service';
 import { CatalogsPageConfig } from 'src/app/themes';
 import { environment } from 'src/environments/environment';
 
-interface ProviderCard { id: string; name: string; description: string; logo: string; }
+interface ProviderCard { id: string; name: string; description: string; logo: string; owner: string; }
+/** What a catalogue card shows about its owning organization (null = not set). */
+interface OwnerInfo { logo: string | null; name: string | null; }
 
 @Component({
   selector: 'app-catalogs',
@@ -21,12 +23,19 @@ export class CatalogsComponent implements OnInit, OnDestroy {
   private catalogs: any[] = [];
   private nextCatalogs: any[] = [];
   private allProviders: ProviderCard[] = [];
-  private catalogLogoCache = new Map<string, string>();
-  private ownerLogoCache = new Map<string, string | null>();
+  /** Per owner organization, so each one is fetched once across pages, sorts and searches. */
+  private ownerInfoCache = new Map<string, OwnerInfo>();
   private providersRequestSeq = 0;
   private filteredPaginationToken: string | null = null;
   providers: ProviderCard[] = [];
   totalCount = 0;
+  /** Real total for the "x of n" line. Only known when the proxy pages with plain
+   * limit/offset; null when it pages with a filtered-pagination token (the proxy hides
+   * catalogues without launched offers, so no total exists), and the line falls back
+   * to just the loaded count. */
+  catalogTotal: number | null = null;
+  /** Default catalogues dropped client-side so far, subtracted from X-Total-Count. */
+  private excludedCount = 0;
   page = 0;
   readonly CATALOG_LIMIT: number = environment.CATALOG_LIMIT;
   loading = false;
@@ -37,7 +46,6 @@ export class CatalogsComponent implements OnInit, OnDestroy {
 
   viewMode: 'grid' | 'list' = 'grid';
   defaultCatalogLogoUrl = '';
-  isDefaultLogo(logo: string | undefined): boolean { return !!logo && logo === this.defaultCatalogLogoUrl; }
   sortOption: 'recent' | 'name_asc' | 'name_desc' = 'recent';
   showSortDropdown = false;
   sortOptions: { value: 'recent' | 'name_asc' | 'name_desc'; label: string }[] = [
@@ -63,7 +71,7 @@ export class CatalogsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(theme => {
         this.marketplaceHomeUrl = theme?.links?.marketplaceHomeUrl || '/search';
-        this.applyCatalogsTheme(theme?.catalogs);
+        this.applyCatalogsTheme(theme?.catalogs, theme?.assets?.defaultLogoUrl);
       });
 
     this.getProviders(false);
@@ -82,10 +90,12 @@ export class CatalogsComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private applyCatalogsTheme(catalogsConfig: CatalogsPageConfig | undefined) {
+  private applyCatalogsTheme(catalogsConfig: CatalogsPageConfig | undefined, themeLogoUrl?: string) {
     this.catalogsHeaderComponent = catalogsConfig?.sections?.header || null;
     const previousDefaultLogoUrl = this.defaultCatalogLogoUrl;
-    this.defaultCatalogLogoUrl = catalogsConfig?.cards?.fallbackLogoUrl || '';
+    // A theme without its own catalogs fallback (e.g. BAE) falls back to its generic logo,
+    // same as the catalogue details page does for an organization with no logo.
+    this.defaultCatalogLogoUrl = catalogsConfig?.cards?.fallbackLogoUrl || themeLogoUrl || '';
 
     if (previousDefaultLogoUrl !== this.defaultCatalogLogoUrl) {
       this.updateDefaultLogos(previousDefaultLogoUrl, this.defaultCatalogLogoUrl);
@@ -109,7 +119,6 @@ export class CatalogsComponent implements OnInit, OnDestroy {
     }
 
     const requestSeq = ++this.providersRequestSeq;
-    const catalogsToLoadLogos = next ? [...this.nextCatalogs] : [];
 
     if (next) {
       this.loading_more = true;
@@ -121,6 +130,8 @@ export class CatalogsComponent implements OnInit, OnDestroy {
       this.allProviders = [];
       this.providers = [];
       this.page_check = true;
+      this.catalogTotal = null;
+      this.excludedCount = 0;
       this.clearFilteredPaginationToken();
     }
 
@@ -142,6 +153,16 @@ export class CatalogsComponent implements OnInit, OnDestroy {
             return;
           }
           bufferedCatalogs = Array.isArray(prefetched.items) ? prefetched.items : [];
+        } else if (this.catalogTotal !== null) {
+          // Plain limit/offset paging: fetch the next page now
+          const more = await this.loadCatalogsPage(page, null);
+          page += this.CATALOG_LIMIT;
+          if (requestSeq !== this.providersRequestSeq) {
+            return;
+          }
+          loadedCatalogs = more.items;
+          visibleCatalogs.push(...more.items);
+          this.updateCatalogTotal(more);
         }
 
         this.catalogs = visibleCatalogs;
@@ -158,6 +179,9 @@ export class CatalogsComponent implements OnInit, OnDestroy {
 
         loadedCatalogs = Array.isArray(current.items) ? current.items : [];
         this.catalogs = loadedCatalogs;
+        if (!filteredPaginationToken) {
+          this.updateCatalogTotal(current);
+        }
 
         if (filteredPaginationToken) {
           const prefetched = await this.loadCatalogsPage(page, filteredPaginationToken);
@@ -172,10 +196,12 @@ export class CatalogsComponent implements OnInit, OnDestroy {
 
       this.page = page;
       this.filteredPaginationToken = filteredPaginationToken;
-      this.page_check = this.nextCatalogs.some(item => item != null);
+      this.page_check = this.catalogTotal !== null
+        ? this.catalogs.length < this.catalogTotal
+        : this.nextCatalogs.some(item => item != null);
       this.allProviders = this.catalogs.map(c => this.mapCatalog(c));
       this.applyView();
-      this.fillOwnerLogos(next ? catalogsToLoadLogos : loadedCatalogs);
+      this.fillOwnerInfo(loadedCatalogs);
     } catch (err) {
       console.error('Error loading catalogs:', err);
     } finally {
@@ -187,12 +213,17 @@ export class CatalogsComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async loadCatalogsPage(page: number, filteredPaginationToken: string | null): Promise<CatalogPageResponse> {
+  private async loadCatalogsPage(page: number, filteredPaginationToken: string | null): Promise<CatalogPageResponse & { excluded: number }> {
     const response = await this.api.getLaunchedCatalogsPage(page, this.filter, this.CATALOG_LIMIT, filteredPaginationToken, null, this.sortParam);
-    return {
-      ...response,
-      items: (response.items ?? []).filter((catalog: any) => catalog?.id !== environment.DFT_CATALOG_ID)
-    };
+    const all = response.items ?? [];
+    const items = all.filter((catalog: any) => catalog?.id !== environment.DFT_CATALOG_ID);
+    return { ...response, items, excluded: all.length - items.length };
+  }
+
+  /** Offset mode only: X-Total-Count minus the default catalogues hidden so far. */
+  private updateCatalogTotal(page: { total?: number | null; excluded: number }): void {
+    this.excludedCount += page.excluded;
+    this.catalogTotal = page.total != null ? Math.max(0, page.total - this.excludedCount) : null;
   }
 
   /** TMF sort convention: bare field for ascending, `-field` for descending. */
@@ -209,49 +240,49 @@ export class CatalogsComponent implements OnInit, OnDestroy {
   }
 
   private mapCatalog(c: any): ProviderCard {
-    const id = c?.id ?? '';
+    const owner = this.findOwner(c);
+    const cached = owner ? this.ownerInfoCache.get(owner.id) : undefined;
     return {
-      id,
+      id: c?.id ?? '',
       name: c?.name ?? '',
       description: c?.description ?? '',
-      logo: this.catalogLogoCache.get(id) ?? this.defaultCatalogLogoUrl
+      logo: cached?.logo || this.defaultCatalogLogoUrl,
+      // The catalogue's relatedParty already carries the owner's name, so it shows
+      // straight away; the organization record (if fetched) is the source of truth.
+      owner: cached?.name || owner?.name || '',
     };
   }
 
-  private fillOwnerLogos(catalogs: any[]) {
+  private findOwner(catalog: any): any | undefined {
+    const parties: any[] = catalog?.relatedParty ?? [];
+    const owner = parties.find((p: any) => p?.role === environment.SELLER_ROLE)
+      ?? parties.find((p: any) => p?.id && String(p.id).includes('organization'));
+    return owner?.id && String(owner.id).includes('organization') ? owner : undefined;
+  }
+
+  /** Fetches each not-yet-seen owner organization once, for its logo and name. */
+  private fillOwnerInfo(catalogs: any[]) {
     const cardsByOwner = new Map<string, ProviderCard[]>();
     for (const c of catalogs) {
-      const parties: any[] = c?.relatedParty ?? [];
-      const owner = parties.find((p: any) => p?.role === environment.SELLER_ROLE)
-        ?? parties.find((p: any) => p?.id && String(p.id).includes('organization'));
+      const owner = this.findOwner(c);
       const card = this.allProviders.find(p => p.id === c?.id);
-      if (!owner?.id || !card || !String(owner.id).includes('organization')) continue;
-
-      const cachedLogo = this.ownerLogoCache.get(owner.id);
-      if (cachedLogo !== undefined) {
-        if (cachedLogo) {
-          card.logo = cachedLogo;
-          this.catalogLogoCache.set(card.id, cachedLogo);
-        }
-        continue;
-      }
-
+      if (!owner || !card || this.ownerInfoCache.has(owner.id)) continue;
       cardsByOwner.set(owner.id, [...(cardsByOwner.get(owner.id) ?? []), card]);
     }
     for (const [ownerId, cards] of cardsByOwner) {
       this.accService.getOrgInfo(ownerId).then(org => {
-        const logo = (org?.partyCharacteristic ?? []).find((ch: any) => ch?.name === 'logo')?.value;
-        this.ownerLogoCache.set(ownerId, logo ?? null);
-        if (!logo) {
-          return;
-        }
+        const info: OwnerInfo = {
+          logo: (org?.partyCharacteristic ?? []).find((ch: any) => ch?.name === 'logo')?.value || null,
+          name: org?.tradingName || null,
+        };
+        this.ownerInfoCache.set(ownerId, info);
         for (const card of cards) {
-          card.logo = logo;
-          this.catalogLogoCache.set(card.id, logo);
+          if (info.logo) card.logo = info.logo;
+          if (info.name) card.owner = info.name;
         }
         this.cdr.detectChanges();
       }).catch(() => {
-        this.ownerLogoCache.set(ownerId, null);
+        this.ownerInfoCache.set(ownerId, { logo: null, name: null });
       });
     }
   }
@@ -293,14 +324,6 @@ export class CatalogsComponent implements OnInit, OnDestroy {
     if (this.showSortDropdown) {
       this.showSortDropdown = false;
       this.cdr.detectChanges();
-    }
-  }
-
-  hasLongWord(str: string | undefined, threshold = 20) {
-    if (str) {
-      return str.split(/\s+/).some(word => word.length > threshold);
-    } else {
-      return false
     }
   }
 }

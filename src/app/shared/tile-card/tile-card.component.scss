@@ -51,6 +51,18 @@
   [data-view-mode="list"] & {
     @apply w-28 h-28 m-3 rounded-xl;
   }
+
+  &[data-image-fit="contain"] {
+    background-color: var(--card-inset-bg);
+
+    img {
+      @apply object-contain p-6;
+    }
+
+    [data-view-mode="list"] & img {
+      @apply p-2;
+    }
+  }
 }
 
 .app-tile-card-body {

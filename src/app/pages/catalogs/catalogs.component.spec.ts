@@ -75,6 +75,17 @@ describe('CatalogsComponent', () => {
     expect(component.defaultCatalogLogoUrl).toBe('assets/fallback.svg');
   });
 
+  it('ngOnInit should fall back to the theme logo when the theme has no catalogs fallback logo', () => {
+    themeServiceStub.currentTheme$ = of({
+      name: 'bae',
+      assets: { defaultLogoUrl: 'assets/themes/bae/bae-logo.svg' },
+    } as any);
+
+    component.ngOnInit();
+
+    expect(component.defaultCatalogLogoUrl).toBe('assets/themes/bae/bae-logo.svg');
+  });
+
   it('ngOnInit should reset filter and reload providers when the search field is cleared', () => {
     spyOn(component, 'getProviders');
     component.searchField.setValue('seed');
@@ -112,6 +123,77 @@ describe('CatalogsComponent', () => {
     expect(component.page_check).toBeTrue();
     expect(component.loading).toBeFalse();
     expect(component.loading_more).toBeFalse();
+  });
+
+  it('getProviders should show the owner from relatedParty and then fill name and logo from the organization once per owner', async () => {
+    const owner = { id: 'urn:ngsi-ld:organization:o1', role: 'Seller', name: 'Owner (relatedParty)' };
+    apiServiceSpy.getLaunchedCatalogsPage.and.returnValue(Promise.resolve({
+      items: [
+        { id: 'c1', name: 'Cat 1', relatedParty: [owner] },
+        { id: 'c2', name: 'Cat 2', relatedParty: [owner] },
+      ],
+      filteredPaginationToken: null,
+    }));
+    let resolveOrg!: (org: any) => void;
+    accServiceSpy.getOrgInfo.and.returnValue(new Promise(resolve => { resolveOrg = resolve; }));
+
+    await component.getProviders(false);
+
+    expect(component.providers.map(p => p.owner)).toEqual(['Owner (relatedParty)', 'Owner (relatedParty)']);
+    expect(accServiceSpy.getOrgInfo).toHaveBeenCalledTimes(1);
+
+    resolveOrg({
+      tradingName: 'Owner Org',
+      partyCharacteristic: [{ name: 'logo', value: 'logo.png' }],
+    });
+    await flushPromises();
+
+    expect(component.providers.map(p => [p.owner, p.logo])).toEqual([
+      ['Owner Org', 'logo.png'],
+      ['Owner Org', 'logo.png'],
+    ]);
+  });
+
+  it('getProviders should page with limit/offset and expose the total when the proxy returns X-Total-Count and no token', async () => {
+    const limit = component.CATALOG_LIMIT;
+    const page = (from: number, n: number) => Array.from({ length: n }, (_, i) => ({ id: `c${from + i}`, name: `Cat ${from + i}` }));
+    apiServiceSpy.getLaunchedCatalogsPage.and.returnValues(
+      Promise.resolve({ items: page(0, limit), filteredPaginationToken: null, total: limit + 1 }),
+      Promise.resolve({ items: page(limit, 1), filteredPaginationToken: null, total: limit + 1 }),
+    );
+
+    await component.getProviders(false);
+
+    expect(component.catalogTotal).toBe(limit + 1);
+    expect(component.totalCount).toBe(limit);
+    expect(component.page_check).toBeTrue();
+
+    await component.next();
+
+    expect(apiServiceSpy.getLaunchedCatalogsPage.calls.argsFor(1)).toEqual([limit, undefined, limit, null, null, '-lastUpdate']);
+    expect(component.totalCount).toBe(limit + 1);
+    expect(component.page_check).toBeFalse();
+  });
+
+  it('getProviders should not count the hidden default catalog in the total', async () => {
+    apiServiceSpy.getLaunchedCatalogsPage.and.returnValue(Promise.resolve({
+      items: [{ id: environment.DFT_CATALOG_ID, name: 'Default' }, { id: 'c1', name: 'Cat 1' }],
+      filteredPaginationToken: null,
+      total: 2,
+    }));
+
+    await component.getProviders(false);
+
+    expect(component.totalCount).toBe(1);
+    expect(component.catalogTotal).toBe(1);
+  });
+
+  it('getProviders should keep the total unknown when the proxy pages with a filtered-pagination token', async () => {
+    apiServiceSpy.getLaunchedCatalogsPage.and.returnValue(Promise.resolve({ items: [{ id: 'c1' }], filteredPaginationToken: 'tok', total: 40 }));
+
+    await component.getProviders(false);
+
+    expect(component.catalogTotal).toBeNull();
   });
 
   it('getProviders should skip requesting the next page while already loading more', async () => {
@@ -230,17 +312,4 @@ describe('CatalogsComponent', () => {
     expect(cdrSpy).not.toHaveBeenCalled();
   });
 
-  it('isDefaultLogo should compare against the theme-provided fallback logo', () => {
-    component.defaultCatalogLogoUrl = 'assets/fallback.svg';
-
-    expect(component.isDefaultLogo('assets/fallback.svg')).toBeTrue();
-    expect(component.isDefaultLogo('assets/other.svg')).toBeFalse();
-    expect(component.isDefaultLogo(undefined)).toBeFalse();
-  });
-
-  it('hasLongWord should detect words over threshold and handle undefined values', () => {
-    expect(component.hasLongWord('short words only', 20)).toBeFalse();
-    expect(component.hasLongWord('this_contains_a_reallyreallyreallylongtoken', 10)).toBeTrue();
-    expect(component.hasLongWord(undefined, 10)).toBeFalse();
-  });
 });

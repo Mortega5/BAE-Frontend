@@ -1,7 +1,10 @@
 <div class="app-tile-card" [attr.data-view-mode]="viewMode" [attr.data-clickable]="clickable || null"
   (click)="onCardClick()">
-  <div class="app-tile-card-media">
-    <img [src]="image ?? 'https://placehold.co/600x400/svg'" [alt]="imageAlt">
+  <div class="app-tile-card-media" [attr.data-image-fit]="imageFit">
+    <!-- A missing logo just leaves the tinted box; only cover photos get a placeholder -->
+    @if (image || imageFit === 'cover') {
+    <img [src]="image || 'https://placehold.co/600x400/svg'" [alt]="imageAlt">
+    }
     <ng-content select="[tileCardMediaOverlay]"></ng-content>
   </div>
   <div class="app-tile-card-body">

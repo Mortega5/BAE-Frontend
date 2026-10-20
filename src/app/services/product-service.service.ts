@@ -14,6 +14,8 @@ type ProductOffering = components["schemas"]["ProductOffering"];
 export interface CatalogPageResponse {
   items: any[];
   filteredPaginationToken: string | null;
+  /** X-Total-Count, when the response carries it (null otherwise). */
+  total?: number | null;
 }
 
 /** 'public' excludes ad-hoc offers (those with a customer-restricted relatedParty) via a
@@ -600,11 +602,15 @@ export class ApiServiceService {
       options.headers = { [tokenRequestHeader]: filteredPaginationToken };
     }
 
-    return lastValueFrom(this.http.get<any[]>(url, options)).then(response => ({
-      items: response.body ?? [],
-      filteredPaginationToken: response.headers.get(tokenResponseHeader)
-        || response.headers.get(tokenRequestHeader)
-    }));
+    return lastValueFrom(this.http.get<any[]>(url, options)).then(response => {
+      const totalHeader = response.headers.get('X-Total-Count');
+      return {
+        items: response.body ?? [],
+        filteredPaginationToken: response.headers.get(tokenResponseHeader)
+          || response.headers.get(tokenRequestHeader),
+        total: totalHeader != null ? Number(totalHeader) : null,
+      };
+    });
   }
 
   getCatalogsByUser(page: any, filter: any, status: any[], partyId: any) {

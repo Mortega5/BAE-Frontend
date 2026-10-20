@@ -18,6 +18,9 @@ export class TileCardComponent {
   @Input() viewMode: 'grid' | 'list' = 'grid';
   @Input() image?: string;
   @Input() imageAlt = '';
+  /** 'cover' crops a photo to fill the media box; 'contain' fits the whole image
+   * inside it with some padding (logos, which must never be cropped). */
+  @Input() imageFit: 'cover' | 'contain' = 'cover';
   @Input() clickable = false;
   @Output() cardClick = new EventEmitter<void>();
 
