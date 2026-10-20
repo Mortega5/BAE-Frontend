@@ -32,7 +32,6 @@ import { SearchComponent } from "./pages/search/search.component";
 import { SellerOfferingsComponent } from "./pages/seller-offerings/seller-offerings.component";
 import { SellerOfferingsPaths } from "./pages/seller-offerings/seller-offerings.paths";
 import { sellerOfferingsRoutes } from "./pages/seller-offerings/seller-offerrings.routes";
-import { ShoppingCartComponent } from "./pages/shopping-cart/shopping-cart.component";
 import { UserProfileComponent } from "./pages/user-profile/user-profile.component";
 import { UserProfilePaths } from "./pages/user-profile/user-profile.paths";
 import { userProfileRoutes } from "./pages/user-profile/user-profile.routes";
@@ -69,11 +68,6 @@ const routes: Routes = [
   {
     path: 'catalogues',
     component: CatalogsComponent
-  },
-  {
-    path: 'shopping-cart',
-    component: ShoppingCartComponent,
-    canActivate: [AuthGuard], data: { roles: [] }
   },
   {
     path: 'checkout',

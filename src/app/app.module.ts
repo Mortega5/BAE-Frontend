@@ -69,7 +69,6 @@ import { SellerUsageSpecComponent } from './pages/seller-offerings/offerings/sel
 import { UpdateUsageSpecComponent } from './pages/seller-offerings/offerings/seller-usage-spec/update-usage-spec/update-usage-spec.component';
 import { SellerServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/seller-service-spec.component';
 import { SellerOfferingsComponent } from "./pages/seller-offerings/seller-offerings.component";
-import { ShoppingCartComponent } from "./pages/shopping-cart/shopping-cart.component";
 import { BillingInfoComponent } from './pages/user-profile/profile-sections/billing-info/billing-info.component';
 import { OrgInfoComponent } from './pages/user-profile/profile-sections/org-info/org-info.component';
 import { ProfileGeneralComponent } from './pages/user-profile/profile-sections/profile-general/profile-general.component';
@@ -143,7 +142,6 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     OfferPreviewModalComponent,
     SearchCatalogComponent,
     CatalogsComponent,
-    ShoppingCartComponent,
     ProductInventoryComponent,
     BillingAccountFormComponent,
     UserProfileComponent,
