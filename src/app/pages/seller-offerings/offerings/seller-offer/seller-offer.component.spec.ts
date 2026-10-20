@@ -177,7 +177,8 @@ describe('SellerOfferComponent', () => {
   });
 
   it('goToCreateCustom should navigate to the custom offer route with offer id and party id', () => {
-    component.goToCreateCustom({ offer: { id: 'off-2' }, partyId: 'party-9' });
+    component.partyId = 'party-9';
+    component.goToCreateCustom({ id: 'off-2' });
 
     expect(routerSpy.navigate).toHaveBeenCalledWith(
       [SellerOfferingsPaths.offers.custom()],

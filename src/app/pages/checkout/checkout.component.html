@@ -168,7 +168,10 @@
 </div>
 
 <!-- BILL ADDRESS ADD modal -->
-<app-modal [visible]="addBill" width="max-w-2xl" [closeOnEscape]="!showDiscardConfirm"
+<!-- Rendered only while open: app-modal projects its content eagerly, so a permanently-mounted
+     modal would keep the billing form (and any discarded edits) alive between openings. -->
+@if (addBill) {
+<app-modal [visible]="true" width="max-w-2xl" [closeOnEscape]="!showDiscardConfirm"
   (closed)="requestCloseAddBill()">
   <div appCardHeader class="flex items-center justify-between">
     <h3 class="text-xl font-bold text-gray-900 dark:text-white">
@@ -191,6 +194,7 @@
     </app-button>
   </div>
 </app-modal>
+}
 <app-confirm-modal [visible]="showDiscardConfirm" [title]="'CONFIRM_MODAL._discard_title'"
   message="CONFIRM_MODAL._discard_message" confirmLabel="CONFIRM_MODAL._discard" cancelLabel="CONFIRM_MODAL._keep_editing"
   (resolved)="$event ? confirmDiscardAddBill() : cancelDiscardAddBill()" (closed)="cancelDiscardAddBill()" />

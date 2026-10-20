@@ -143,13 +143,21 @@ describe('AccountServiceService', () => {
     await expectAsync(promise2).toBeResolvedTo(responseBody);
   });
 
-  it('getOrgInfo should issue a fresh request once the previous one has settled', async () => {
+  it('getOrgInfo should serve a settled result from cache, then refetch once the cache expires', async () => {
     const partyId = 'org-1';
+    let now = 1_000_000;
+    spyOn(Date, 'now').and.callFake(() => now);
 
     const promise1 = service.getOrgInfo(partyId);
     httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`).flush({ id: partyId, name: 'First' });
     await promise1;
 
+    // Within the TTL: answered from cache, no new request.
+    await expectAsync(service.getOrgInfo(partyId)).toBeResolvedTo({ id: partyId, name: 'First' });
+    httpMock.expectNone(`${environment.BASE_URL}/party/organization/${partyId}`);
+
+    // Past the TTL: a fresh request goes out.
+    now += 10_001;
     const promise2 = service.getOrgInfo(partyId);
     const req2 = httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`);
     req2.flush({ id: partyId, name: 'Updated' });
@@ -189,6 +197,8 @@ describe('AccountServiceService', () => {
       id: partyId,
       partyCharacteristic: [{ name: 'logo', value: 'https://logo' }, { name: 'country', value: 'ES' }],
     });
+    // The PATCH goes out after getOrgInfo's promise chain settles, a few microtasks later.
+    await new Promise(resolve => setTimeout(resolve));
 
     const patchReq = httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`);
     expect(patchReq.request.method).toBe('PATCH');
@@ -208,6 +218,8 @@ describe('AccountServiceService', () => {
       id: partyId,
       partyCharacteristic: [{ name: 'logo', value: 'https://logo' }],
     });
+    // The PATCH goes out after getOrgInfo's promise chain settles, a few microtasks later.
+    await new Promise(resolve => setTimeout(resolve));
 
     const patchReq = httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`);
     expect(patchReq.request.body).toEqual({

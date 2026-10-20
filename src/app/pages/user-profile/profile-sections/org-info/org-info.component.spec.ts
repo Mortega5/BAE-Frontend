@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
@@ -16,7 +17,8 @@ describe('OrgInfoComponent', () => {
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
       declarations: [OrgInfoComponent],
-      imports: [HttpClientTestingModule, ReactiveFormsModule, RouterTestingModule, TranslateModule.forRoot(), TableInputComponent]
+      // ModalComponent is real (not stubbed by NO_ERRORS_SCHEMA): it owns the Escape-to-close listener.
+      imports: [HttpClientTestingModule, ReactiveFormsModule, RouterTestingModule, TranslateModule.forRoot(), TableInputComponent, ModalComponent]
     })
     .compileComponents();
     
