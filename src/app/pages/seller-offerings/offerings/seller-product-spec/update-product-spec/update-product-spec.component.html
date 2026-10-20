@@ -572,19 +572,25 @@
             </div>
 
             @if(faq.expanded){
-            <div
-              class="border-t border-gray-200 dark:border-secondary-200 px-4 py-4 grid grid-cols-[120px_1fr] gap-x-4 gap-y-4 items-start">
-              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase pt-2.5">{{
-                'CREATE_PROD_SPEC._question' | translate }}</span>
-              <input type="text" [(ngModel)]="faq.question" [ngModelOptions]="{standalone: true}" maxLength="200"
-                placeholder="{{ 'CREATE_PROD_SPEC._enter_question' | translate }}"
-                class="bg-white dark:bg-secondary-100 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
-
-              <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase pt-2.5">{{
-                'CREATE_PROD_SPEC._answer' | translate }}</span>
-              <textarea [(ngModel)]="faq.answer" [ngModelOptions]="{standalone: true}" rows="5" maxLength="2000"
-                placeholder="{{ 'CREATE_PROD_SPEC._write_answer' | translate }}"
-                class="bg-white dark:bg-secondary-100 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 resize-none"></textarea>
+            <!-- Same label/input look as app-dynamic-form; kept on ngModel since each FAQ is a plain
+                 object in a drag-reorderable list, not a reactive form control. -->
+            <div class="border-t border-gray-200 dark:border-secondary-200 px-4 py-4 flex flex-col gap-4">
+              <div>
+                <label [for]="'faqQuestion' + idx" class="font-bold text-sm dark:text-white flex items-center gap-2 pb-2">
+                  {{ 'CREATE_PROD_SPEC._question' | translate }}
+                </label>
+                <input [id]="'faqQuestion' + idx" type="text" [(ngModel)]="faq.question" [ngModelOptions]="{standalone: true}"
+                  maxLength="200" placeholder="{{ 'CREATE_PROD_SPEC._enter_question' | translate }}"
+                  class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+              </div>
+              <div>
+                <label [for]="'faqAnswer' + idx" class="font-bold text-sm dark:text-white flex items-center gap-2 pb-2">
+                  {{ 'CREATE_PROD_SPEC._answer' | translate }}
+                </label>
+                <textarea [id]="'faqAnswer' + idx" [(ngModel)]="faq.answer" [ngModelOptions]="{standalone: true}" rows="5"
+                  maxLength="2000" placeholder="{{ 'CREATE_PROD_SPEC._write_answer' | translate }}"
+                  class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 resize-y"></textarea>
+              </div>
             </div>
             }
           </div>
