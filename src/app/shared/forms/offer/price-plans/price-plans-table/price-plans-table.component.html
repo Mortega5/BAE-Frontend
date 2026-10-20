@@ -17,7 +17,7 @@
 <app-modal [visible]="showDeleteModal" width="max-w-lg" (closed)="showDeleteModal = false">
   <h2 appCardHeader class="text-xl font-extrabold text-gray-900 dark:text-white">{{ 'FORMS.PRICE_PLANS._sure_delete' | translate }}</h2>
   <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'FORMS.PRICE_PLANS._cant_be_undone' | translate }}</p>
-  <div appCardFooter>
+  <div appCardFooter class="flex justify-end gap-3">
     <app-button (click)="showDeleteModal = false" variant="secondary">{{ 'FORMS.PRICE_PLANS._cancel' | translate }}</app-button>
     <app-button (click)="deletePricePlan()" variant="danger">{{ 'FORMS.PRICE_PLANS._delete' | translate }}</app-button>
   </div>
