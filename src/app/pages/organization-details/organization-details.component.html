@@ -221,29 +221,8 @@
           </app-dropdown-panel>
           }
         </div>
-        <form (ngSubmit)="filterServices()">
-          <div
-            class="flex h-[56px] w-full sm:w-[443px] max-w-full items-center gap-[16px] rounded-[16px] border border-[var(--theme-input-border)] bg-[var(--theme-input-bg)] px-[16px]">
-            <input type="text" enterkeyhint="search" [formControl]="serviceSearch"
-              class="min-w-0 flex-1 border-0 bg-transparent text-[16px] leading-[24px] text-[var(--theme-default-text)] outline-none focus:border-0 focus:ring-0 focus:shadow-none placeholder:text-[var(--form-hint-text)]"
-              placeholder="{{ 'ORGANIZATION._search_keywords' | translate }}" />
-            @if (serviceSearch.value) {
-            <button type="button" (click)="serviceSearch.reset()"
-              [attr.aria-label]="'ORGANIZATION._clear_search' | translate"
-              class="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-[var(--button-danger-bg)] text-[var(--button-danger-text)] hover:bg-[var(--button-danger-bg-hover)] focus:outline-none focus:ring-2 focus:ring-[var(--button-danger-ring)]">
-              <svg class="h-2.5 w-2.5" fill="none" viewBox="0 0 24 24" stroke-width="3.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
-              </svg>
-            </button>
-            }
-            <button type="submit" [attr.aria-label]="'ORGANIZATION._search' | translate"><svg
-                class="h-6 w-6 text-[var(--form-hint-text)]" fill="none" viewBox="0 0 24 24" stroke-width="2"
-                stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
-              </svg></button>
-          </div>
-        </form>
+        <app-search-input [control]="serviceSearch" [placeholder]="'ORGANIZATION._search_keywords' | translate"
+          (search)="filterServices()"></app-search-input>
       </div>
 
       <!-- Configured search facets (Admin > Search filters); nothing to show when none are configured -->

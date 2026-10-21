@@ -193,10 +193,12 @@ export class SearchComponent implements OnInit, OnDestroy {
       }
     }
 
-    let input = document.querySelector('[type=search]')
-    if (input != undefined) {
-      input.addEventListener('input', async e => {
-        if (this.searchField.value == '') {
+    // Emptying the field (typing it away or the clear button) drops the active search. Only
+    // when one is active, so runInitialAiSearch's own searchField.reset() doesn't loop back here.
+    this.searchField.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(async v => {
+        if (!v && this.keywords !== undefined) {
           this.keywords = undefined;
           this.updateQueryParams(this.keywords)
           this.aiAnswer = '';
@@ -208,7 +210,6 @@ export class SearchComponent implements OnInit, OnDestroy {
           }
         }
       });
-    }
     setTimeout(() => {
       const userInfo = this.localStorage.getValidLoginInfo();
 
@@ -465,9 +466,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   // Unified Search - triggers both standard search and AI answer
-  async onUnifiedSearch(event: any): Promise<void> {
-    event.preventDefault();
-
+  async onUnifiedSearch(): Promise<void> {
     if (this.aiSearchEnabled && this.searchField.value?.trim()) {
       this.keywords = this.searchField.value;
       this.updateQueryParams(this.keywords);

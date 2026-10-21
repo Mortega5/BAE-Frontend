@@ -211,6 +211,13 @@ body {
      hover state on its items. */
   --dropdown-item-hover-bg: rgb(243 244 246);
 
+  /* app-search-input — AI search mode accent (border + sparkles icon); the rest of the
+     box reuses --theme-input-* and --button-danger-*. */
+  --search-input-ai-border: rgb(216 180 254);
+  /* purple-300 */
+  --search-input-ai-icon: rgb(168 85 247);
+  /* purple-500 */
+
   /* bae-off-card (marketplace offer card, grid + list view) — its own border tone
      (#D8DADE) is a hair darker than --card-border/#EBECEE, which the image
      placeholder reuses as-is since it already matches. */
@@ -348,6 +355,11 @@ body.theme-bae {
 
   --dropdown-item-hover-bg: rgb(55 65 81);
   /* gray-700 */
+
+  --search-input-ai-border: rgb(147 51 234);
+  /* purple-600 */
+  --search-input-ai-icon: rgb(192 132 252);
+  /* purple-400 */
 
   /* bae-off-card dark-mode tones — matches the secondary-200/gray-300/gray-400/white
      pairing the card previously spelled out as individual dark: utility classes. */

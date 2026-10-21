@@ -1,0 +1,22 @@
+<form (submit)="onSubmit($event)">
+  <div class="app-search-input" [attr.data-ai]="ai || null">
+    @if (ai) {
+    <fa-icon class="app-search-input__ai-icon" [icon]="faSparkles" aria-hidden="true"></fa-icon>
+    }
+    <input type="text" enterkeyhint="search" [formControl]="control" class="app-search-input__field"
+      [placeholder]="placeholder" />
+    @if (control.value) {
+    <button type="button" class="app-search-input__clear" (click)="clear()"
+      [attr.aria-label]="'ORGANIZATION._clear_search' | translate">
+      <fa-icon [icon]="faXmark"></fa-icon>
+    </button>
+    }
+    <button type="submit" class="app-search-input__submit" [attr.aria-label]="'DASHBOARD._search' | translate">
+      @if (loading) {
+      <fa-icon [icon]="faSpinnerThird" animation="spin"></fa-icon>
+      } @else {
+      <fa-icon [icon]="faMagnifyingGlass"></fa-icon>
+      }
+    </button>
+  </div>
+</form>

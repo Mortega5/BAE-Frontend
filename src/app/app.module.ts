@@ -52,6 +52,7 @@ import { ResourceSpecFormComponent } from './pages/seller-offerings/offerings/se
 import { ServiceSpecFormComponent } from './pages/seller-offerings/offerings/seller-service-spec/service-spec-form/service-spec-form.component';
 import { TableInputComponent } from './shared/forms/table-input/table-input.component';
 import { TileCardComponent } from './shared/tile-card/tile-card.component';
+import { SearchInputComponent } from './shared/search-input/search-input.component';
 import { PaginatedTableComponent } from './shared/forms/paginated-table/paginated-table.component';
 import { FilterBarComponent } from './shared/forms/filter-bar/filter-bar.component';
 import { FilteredPaginatedTableComponent } from './shared/forms/filtered-paginated-table/filtered-paginated-table.component';
@@ -183,6 +184,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     FilterBarComponent,
     FilteredPaginatedTableComponent,
     TileCardComponent,
+    SearchInputComponent,
     PickerComponent,
     NgxFileDropModule,
     ChatbotWidgetComponent,
