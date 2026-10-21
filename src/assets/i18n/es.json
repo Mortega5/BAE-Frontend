@@ -1080,6 +1080,8 @@
     "_includes": "Incluye",
     "_prices_exclude_tax": "* Precios sin impuestos.",
     "_loading": "Cargando la oferta...",
+    "_not_found": "Esta oferta no existe o ya no está disponible.",
+    "_back_to_search": "Volver a la búsqueda",
     "_bundle": "Paquete",
     "_read_more": "Leer más",
     "_read_less": "Leer menos",

@@ -10,6 +10,7 @@ type ProductSpecification = components["schemas"]["ProductSpecification"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
 //type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
 import { Location } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Subject } from "rxjs";
 import { takeUntil } from 'rxjs/operators';
 import { certifications } from 'src/app/models/certification-standards.const';
@@ -169,6 +170,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
    * own fetch happens to land — trades a slightly later first paint for one clean
    * reveal instead of a staggered one. */
   pageLoading: boolean = true;
+  /** The offering in the URL doesn't exist (or couldn't be loaded). */
+  notFound = false;
   showQuoteModal: boolean = false;
   productAlreadyInCart: boolean = false;
   activeTab: string = 'overview';
@@ -305,7 +308,19 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     this.id = this.route.snapshot.paramMap.get('id');
     console.log('--- Details ID:')
     console.log(this.id)
-    let prod = await this.api.getProductById(this.id);
+    let prod;
+    try {
+      prod = await this.api.getProductById(this.id);
+    } catch (error) {
+      // 404 for an unknown/removed id; anything else is just as unrecoverable here. Either
+      // way show the not-found state instead of leaving the page spinner up forever.
+      if ((error as HttpErrorResponse)?.status !== 404) {
+        console.error('Error loading product offering', this.id, error);
+      }
+      this.notFound = true;
+      this.pageLoading = false;
+      return;
+    }
     let spec = await this.api.getProductSpecification(prod.productSpecification.id);
     this.prodSpec = spec;
     this.parseProductDetails(this.prodSpec.description);

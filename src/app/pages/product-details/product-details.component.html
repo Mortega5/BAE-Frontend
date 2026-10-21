@@ -4,6 +4,11 @@
   <app-loading-spinner containerClass="flex flex-col items-center gap-3"
     [label]="'PRODUCT_DETAILS._loading' | translate" />
 </div>
+} @else if (notFound) {
+<div class="mx-auto max-w-[1200px] px-8 py-16 font-[Blinker]">
+  <app-not-found-state message="PRODUCT_DETAILS._not_found" backLabel="PRODUCT_DETAILS._back_to_search"
+    (back)="goTo('/search')" />
+</div>
 } @else {
 <div class="bg-white dark:bg-tertiary-50 font-[Blinker]" [class.min-h-screen]="!isPreviewMode">
   <div class="mx-auto max-w-[1200px] px-8">

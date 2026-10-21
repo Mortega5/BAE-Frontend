@@ -1080,6 +1080,8 @@
     "_includes": "Includes",
     "_prices_exclude_tax": "* Prices exclude tax.",
     "_loading": "Loading offer details...",
+    "_not_found": "This offering doesn't exist or is no longer available.",
+    "_back_to_search": "Back to search",
     "_bundle": "Bundle",
     "_read_more": "Read more",
     "_read_less": "Read less",
