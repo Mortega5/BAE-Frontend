@@ -2,7 +2,10 @@ import { Component, OnDestroy } from '@angular/core';
 import { NavigationEnd, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { filter, takeUntil } from 'rxjs/operators';
-import { SideNavSection } from 'src/app/shared/side-nav/side-nav.model';
+import { AuthGuard } from 'src/app/guard/auth.guard';
+import { EventMessageService } from 'src/app/services/event-message.service';
+import { SideNavItem, SideNavSection } from 'src/app/shared/side-nav/side-nav.model';
+import { ADMIN_SECTION_ORDER, AdminSection, adminSectionUrl, canOpenAdminSection } from './admin.access';
 import { AdminPaths } from './admin.paths';
 
 @Component({
@@ -15,9 +18,11 @@ export class AdminComponent implements OnDestroy {
 
   isListView = true;
 
+  sections: SideNavSection[] = [];
+
   private destroy$ = new Subject<void>();
 
-  constructor(private router: Router) {
+  constructor(private router: Router, private auth: AuthGuard, private eventMessage: EventMessageService) {
     this.router.events
       .pipe(
         filter((ev): ev is NavigationEnd => ev instanceof NavigationEnd),
@@ -25,6 +30,21 @@ export class AdminComponent implements OnDestroy {
       )
       .subscribe(() => this.updateIsListView());
     this.updateIsListView();
+
+    this.sections = this.buildSections();
+    // Switching session (personal <-> org) changes the active roles without a navigation,
+    // so the route guards don't re-run: rebuild the nav and leave a section that's no longer allowed.
+    this.eventMessage.messages$
+      .pipe(
+        filter(ev => ev.type === 'ChangedSession'),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => {
+        this.sections = this.buildSections();
+        if (!this.canOpenCurrentSection()) {
+          this.router.navigateByUrl(this.paths.root());
+        }
+      });
   }
 
   ngOnDestroy() {
@@ -37,29 +57,45 @@ export class AdminComponent implements OnDestroy {
     this.isListView = /^\/admin\/[a-zA-Z-]+\/?$/.test(path);
   }
 
-  readonly sections: SideNavSection[] = [
-    {
-      label: 'ADMIN._group_catalog',
-      items: [
-        { label: 'ADMIN._defaultCatalog', routerLink: this.paths.defaultCatalog(), dataCy: 'adminDefaultCatalogSection' },
-        { label: 'ADMIN._categories', routerLink: this.paths.categories.list(), dataCy: 'adminCategoriesSection' },
-      ],
-    },
-    {
-      label: 'ADMIN._group_business',
-      items: [
-        { label: 'ADMIN._verification', routerLink: this.paths.verification() },
-        { label: 'ADMIN._revenue', routerLink: this.paths.revenue() },
-      ],
-    },
-    {
-      label: 'ADMIN._group_config',
-      items: [
-        { label: 'ADMIN._email', routerLink: this.paths.email() },
-        { label: 'ADMIN._analytics', routerLink: this.paths.analytics(), dataCy: 'adminAnalyticsSection' },
-        { label: 'ADMIN._searchFilters', routerLink: this.paths.searchFilters(), dataCy: 'adminSearchFiltersSection' },
-        { label: 'ADMIN._features', routerLink: this.paths.features(), dataCy: 'adminFeaturesSection' },
-      ],
-    },
-  ];
+  private canOpenCurrentSection(): boolean {
+    const path = this.router.url.split('?')[0];
+    const current = ADMIN_SECTION_ORDER.find(section => path.startsWith(adminSectionUrl(section)));
+    return !current || canOpenAdminSection(this.auth, current);
+  }
+
+  /** Side-nav sections, minus the items (and then empty groups) the active session can't open. */
+  private buildSections(): SideNavSection[] {
+    const item = (section: AdminSection, label: string, dataCy?: string): SideNavItem[] =>
+      canOpenAdminSection(this.auth, section)
+        ? [{ label, routerLink: adminSectionUrl(section), ...(dataCy ? { dataCy } : {}) }]
+        : [];
+
+    const sections: SideNavSection[] = [
+      {
+        label: 'ADMIN._group_catalog',
+        items: [
+          ...item('defaultCatalog', 'ADMIN._defaultCatalog', 'adminDefaultCatalogSection'),
+          ...item('categories', 'ADMIN._categories', 'adminCategoriesSection'),
+        ],
+      },
+      {
+        label: 'ADMIN._group_business',
+        items: [
+          ...item('verification', 'ADMIN._verification'),
+          ...item('revenue', 'ADMIN._revenue'),
+        ],
+      },
+      {
+        label: 'ADMIN._group_config',
+        items: [
+          ...item('email', 'ADMIN._email'),
+          ...item('analytics', 'ADMIN._analytics', 'adminAnalyticsSection'),
+          ...item('searchFilters', 'ADMIN._searchFilters', 'adminSearchFiltersSection'),
+          ...item('features', 'ADMIN._features', 'adminFeaturesSection'),
+        ],
+      },
+    ];
+
+    return sections.filter(section => section.items.length > 0);
+  }
 }

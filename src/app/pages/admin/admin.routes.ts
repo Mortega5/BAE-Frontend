@@ -1,4 +1,7 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { CanActivateFn, Router, Routes } from '@angular/router';
+import { AuthGuard } from 'src/app/guard/auth.guard';
+import { ADMIN_SECTION_ORDER, AdminSection, adminSectionUrl, canOpenAdminSection } from './admin.access';
 import { AdminPaths } from './admin.paths';
 import { AnalyticsConfigComponent } from './analytics-config/analytics-config.component';
 import { CategoriesComponent } from './categories/categories.component';
@@ -13,21 +16,33 @@ import { VerificationComponent } from './verification/verification.component';
 
 const { segments } = AdminPaths;
 
+/** /admin lands on the first section the session can open (e.g. a certifier only gets verification). */
+const adminLandingGuard: CanActivateFn = () => {
+  const auth = inject(AuthGuard);
+  const section = ADMIN_SECTION_ORDER.find(s => canOpenAdminSection(auth, s));
+  return inject(Router).parseUrl(section ? adminSectionUrl(section) : '/dashboard');
+};
+
+/** A section the session can't open bounces back to /admin, which lands on an allowed one. */
+const adminSectionGuard = (section: AdminSection): CanActivateFn => () =>
+  canOpenAdminSection(inject(AuthGuard), section) || inject(Router).parseUrl(AdminPaths.root());
+
 export const adminRoutes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: segments.categories },
+  { path: '', pathMatch: 'full', canActivate: [adminLandingGuard], children: [] },
   {
     path: segments.categories,
+    canActivate: [adminSectionGuard('categories')],
     children: [
       { path: '', component: CategoriesComponent },
       { path: segments.new, component: CreateCategoryComponent },
       { path: segments.id, component: UpdateCategoryComponent },
     ],
   },
-  { path: segments.verification, component: VerificationComponent },
-  { path: segments.revenue, component: OperatorRevenueSharingComponent },
-  { path: segments.email, component: EmailComponent },
-  { path: segments.searchFilters, component: SearchFiltersConfigComponent },
-  { path: segments.defaultCatalog, component: DefaultCatalogComponent },
-  { path: segments.analytics, component: AnalyticsConfigComponent },
-  { path: segments.features, component: FeaturesConfigComponent },
+  { path: segments.verification, component: VerificationComponent, canActivate: [adminSectionGuard('verification')] },
+  { path: segments.revenue, component: OperatorRevenueSharingComponent, canActivate: [adminSectionGuard('revenue')] },
+  { path: segments.email, component: EmailComponent, canActivate: [adminSectionGuard('email')] },
+  { path: segments.searchFilters, component: SearchFiltersConfigComponent, canActivate: [adminSectionGuard('searchFilters')] },
+  { path: segments.defaultCatalog, component: DefaultCatalogComponent, canActivate: [adminSectionGuard('defaultCatalog')] },
+  { path: segments.analytics, component: AnalyticsConfigComponent, canActivate: [adminSectionGuard('analytics')] },
+  { path: segments.features, component: FeaturesConfigComponent, canActivate: [adminSectionGuard('features')] },
 ];
