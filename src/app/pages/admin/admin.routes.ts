@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router, Routes } from '@angular/router';
 import { AuthGuard } from 'src/app/guard/auth.guard';
-import { ADMIN_SECTION_ORDER, AdminSection, adminSectionUrl, canOpenAdminSection } from './admin.access';
+import { ADMIN_SECTION_ORDER, AdminSection, adminSectionUrl, canManageCategories, canOpenAdminSection } from './admin.access';
 import { AdminPaths } from './admin.paths';
 import { AnalyticsConfigComponent } from './analytics-config/analytics-config.component';
 import { CategoriesComponent } from './categories/categories.component';
@@ -26,6 +26,10 @@ const adminLandingGuard: CanActivateFn = () => {
 const adminSectionGuard = (section: AdminSection): CanActivateFn => () =>
   canOpenAdminSection(inject(AuthGuard), section) || inject(Router).parseUrl(AdminPaths.root());
 
+/** Create/update pages are write-only views: a session that can't write lands back on the list. */
+const manageCategoriesGuard: CanActivateFn = () =>
+  canManageCategories(inject(AuthGuard)) || inject(Router).parseUrl(AdminPaths.categories.list());
+
 export const adminRoutes: Routes = [
   { path: '', pathMatch: 'full', canActivate: [adminLandingGuard], children: [] },
   {
@@ -33,8 +37,8 @@ export const adminRoutes: Routes = [
     canActivate: [adminSectionGuard('categories')],
     children: [
       { path: '', component: CategoriesComponent },
-      { path: segments.new, component: CreateCategoryComponent },
-      { path: segments.id, component: UpdateCategoryComponent },
+      { path: segments.new, component: CreateCategoryComponent, canActivate: [manageCategoriesGuard] },
+      { path: segments.id, component: UpdateCategoryComponent, canActivate: [manageCategoriesGuard] },
     ],
   },
   { path: segments.verification, component: VerificationComponent, canActivate: [adminSectionGuard('verification')] },

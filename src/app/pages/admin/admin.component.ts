@@ -5,7 +5,7 @@ import { filter, takeUntil } from 'rxjs/operators';
 import { AuthGuard } from 'src/app/guard/auth.guard';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { SideNavItem, SideNavSection } from 'src/app/shared/side-nav/side-nav.model';
-import { ADMIN_SECTION_ORDER, AdminSection, adminSectionUrl, canOpenAdminSection } from './admin.access';
+import { ADMIN_SECTION_ORDER, AdminSection, adminSectionUrl, canManageCategories, canOpenAdminSection } from './admin.access';
 import { AdminPaths } from './admin.paths';
 
 @Component({
@@ -43,6 +43,8 @@ export class AdminComponent implements OnDestroy {
         this.sections = this.buildSections();
         if (!this.canOpenCurrentSection()) {
           this.router.navigateByUrl(this.paths.root());
+        } else if (this.onForbiddenCategoryWrite()) {
+          this.router.navigateByUrl(this.paths.categories.list());
         }
       });
   }
@@ -61,6 +63,12 @@ export class AdminComponent implements OnDestroy {
     const path = this.router.url.split('?')[0];
     const current = ADMIN_SECTION_ORDER.find(section => path.startsWith(adminSectionUrl(section)));
     return !current || canOpenAdminSection(this.auth, current);
+  }
+
+  /** On a category create/update page in a session that can no longer write categories. */
+  private onForbiddenCategoryWrite(): boolean {
+    const path = this.router.url.split('?')[0];
+    return path.startsWith(`${this.paths.categories.list()}/`) && !canManageCategories(this.auth);
   }
 
   /** Side-nav sections, minus the items (and then empty groups) the active session can't open. */

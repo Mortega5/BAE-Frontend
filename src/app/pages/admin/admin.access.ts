@@ -47,3 +47,12 @@ export function canOpenAdminSection(auth: AuthGuard, section: AdminSection): boo
   return auth.hasAnyRole(AdminAccess[section])
     && (!PERSONAL_SESSION_ONLY.includes(section) || auth.hasAnyRole(['individual']));
 }
+
+/**
+ * Categories stay listable from an organization session, but creating, updating
+ * and deleting them is personal-session only: the backend rejects those writes
+ * when made on behalf of an organization.
+ */
+export function canManageCategories(auth: AuthGuard): boolean {
+  return canOpenAdminSection(auth, 'categories') && auth.hasAnyRole(['individual']);
+}

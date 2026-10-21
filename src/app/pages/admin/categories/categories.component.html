@@ -5,13 +5,15 @@
       <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ 'CATEGORIES._categories_subtitle' | translate }}</p>
     </div>
 
+    @if (canManage) {
     <app-button dataCy="adminAddNewCategory" (click)="createCategory()" prefixIcon="plus">
       {{ 'CATEGORIES._add_new_cat' | translate }}
     </app-button>
+    }
   </div>
 
   <app-filtered-paginated-table data-cy="adminCategoriesTable" [columns]="categoryColumns"
-    [fetchPage]="fetchCategories" [filters]="categoryFilters" [filterColumns]="1" [clickable]="true"
-    (rowClick)="goToUpdate($event.id!)" [emptyMessage]="'CATEGORIES._no_cat'">
+    [fetchPage]="fetchCategories" [filters]="categoryFilters" [filterColumns]="1" [clickable]="canManage"
+    (rowClick)="canManage && goToUpdate($event.id!)" [emptyMessage]="'CATEGORIES._no_cat'">
   </app-filtered-paginated-table>
 </app-card>

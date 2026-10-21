@@ -1,5 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
+import { AuthGuard } from 'src/app/guard/auth.guard';
+import { EventMessageService } from 'src/app/services/event-message.service';
 import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { components } from "src/app/models/product-catalog";
 import { FormField } from 'src/app/models/formFields/form-field.model';
@@ -7,6 +11,7 @@ import { fetchAllPages, PageRequest, PageResult } from 'src/app/models/paginatio
 import { TableColumn } from 'src/app/models/table-column.model';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { expandLifecycleStatusFilter, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
+import { canManageCategories } from '../admin.access';
 import { AdminPaths } from '../admin.paths';
 type Category = components["schemas"]["Category"];
 
@@ -18,7 +23,7 @@ type CategoryRow = Category & { displayName: string };
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.css'
 })
-export class CategoriesComponent {
+export class CategoriesComponent implements OnDestroy {
   categoryFilters: FormField[] = [
     {
       name: 'status',
@@ -60,10 +65,30 @@ export class CategoriesComponent {
   /** The whole tree, flattened depth-first. Loaded once: the status filter and paging only slice it. */
   private allRows?: Promise<CategoryRow[]>;
 
+  /** Organization sessions only get a read-only list: the backend rejects their category writes. */
+  canManage: boolean;
+
+  private destroy$ = new Subject<void>();
+
   constructor(
     private router: Router,
     private api: ApiServiceService,
-  ) {}
+    private auth: AuthGuard,
+    private eventMessage: EventMessageService,
+  ) {
+    this.canManage = canManageCategories(this.auth);
+    this.eventMessage.messages$
+      .pipe(
+        filter(ev => ev.type === 'ChangedSession'),
+        takeUntil(this.destroy$),
+      )
+      .subscribe(() => this.canManage = canManageCategories(this.auth));
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
 
   createCategory() {
     this.router.navigate([AdminPaths.categories.new()]);
