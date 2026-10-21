@@ -14,7 +14,6 @@
     </nav>
 
     <div class="flex flex-wrap items-center justify-end gap-4 pb-4">
-      @if (searchEnabled) {
       <form class="w-full sm:w-auto sm:min-w-[440px]" (ngSubmit)="onUnifiedSearch($event)">
         <div class="relative">
           @if (aiSearchEnabled) {
@@ -50,7 +49,6 @@
           </button>
         </div>
       </form>
-      }
     </div>
 
   </div>

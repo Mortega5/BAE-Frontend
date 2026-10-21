@@ -4,7 +4,7 @@ import { jwtDecode } from "jwt-decode";
 import { catchError, lastValueFrom, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Category } from '../models/interfaces';
-import { applySort, PageRequest, PageResult } from '../models/pagination.model';
+import { applySort, nameContainsPattern, PageRequest, PageResult } from '../models/pagination.model';
 import { components } from "../models/product-catalog";
 import { ProductOffering as ProductOfferingModel } from '../models/product.model';
 import { ResourceStatusType, SoftwareResource } from '../models/software.model';
@@ -107,8 +107,14 @@ export class ApiServiceService {
     if (options.categoryIds && options.categoryIds.length > 0) {
       queryParams['category.id'] = options.categoryIds.join(',');
     }
-    if (options.keywords != undefined) {
-      queryParams['keyword'] = options.keywords;
+    if (options.keywords?.trim()) {
+      // `keyword` only works when the proxy has a search engine behind it (SEARCH_ENABLED);
+      // otherwise fall back to a case-insensitive "name contains" regex.
+      if (environment.SEARCH_ENABLED) {
+        queryParams['keyword'] = options.keywords;
+      } else {
+        queryParams['name*'] = nameContainsPattern(options.keywords);
+      }
     }
     this.applyVisibilityFilter(queryParams, options.visibility);
 
@@ -587,8 +593,9 @@ export class ApiServiceService {
     const tokenRequestHeader = 'X-Filtered-Pagination-Token';
     const tokenResponseHeader = 'x-filtered-pagination-token';
     let url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog?limit=${limit}&offset=${page}&lifecycleStatus=Launched`;
-    if (filter != undefined) {
-      url = url + `&body=${filter}`;
+    if (filter?.trim()) {
+      // The search engine only indexes offerings, so catalogs are always searched by name.
+      url = url + `&name*=${encodeURIComponent(nameContainsPattern(filter))}`;
     }
     if (relatedPartyId) {
       url = url + `&relatedParty.id=${relatedPartyId}`;

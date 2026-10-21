@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { environment } from 'src/environments/environment';
 import { ApiServiceService } from './product-service.service';
 
 describe('ApiServiceService', () => {
@@ -16,6 +17,34 @@ describe('ApiServiceService', () => {
 
   afterEach(() => {
     httpMock.verify();
+  });
+
+  describe('getOfferingsPaged keywords', () => {
+    const originalSearchEnabled = environment.SEARCH_ENABLED;
+    afterEach(() => environment.SEARCH_ENABLED = originalSearchEnabled);
+
+    const searchParams = async (keywords: string) => {
+      const promise = service.getOfferingsPaged({ limit: 10, offset: 0, keywords });
+      const req = httpMock.expectOne(r => r.url.endsWith('/productOffering'));
+      const params = req.request.params;
+      req.flush([]);
+      await promise;
+      return params;
+    };
+
+    it('should send keyword when a search engine is configured', async () => {
+      environment.SEARCH_ENABLED = true;
+      const params = await searchParams('cloud');
+      expect(params.get('keyword')).toBe('cloud');
+      expect(params.has('name*')).toBeFalse();
+    });
+
+    it('should fall back to a name regex when there is no search engine', async () => {
+      environment.SEARCH_ENABLED = false;
+      const params = await searchParams('cloud');
+      expect(params.get('name*')).toBe('(?i)cloud');
+      expect(params.has('keyword')).toBeFalse();
+    });
   });
 
   it('should be created', () => {
@@ -73,7 +102,7 @@ describe('ApiServiceService', () => {
 
     const req = httpMock.expectOne(request =>
       request.method === 'GET'
-      && request.urlWithParams === `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog?limit=12&offset=12&lifecycleStatus=Launched&body=cloud`
+      && request.urlWithParams === `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/catalog?limit=12&offset=12&lifecycleStatus=Launched&name*=${encodeURIComponent('(?i)cloud')}`
     );
     expect(req.request.headers.get('X-Filtered-Pagination-Token')).toBe('current-token');
     req.flush([], {});

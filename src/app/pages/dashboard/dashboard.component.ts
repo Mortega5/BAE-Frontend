@@ -56,7 +56,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
 
   isFilterPanelShown = false;
   searchField = new FormControl();
-  searchEnabled = environment.SEARCH_ENABLED;
 
   domeRegister: string = environment.DOME_REGISTER_LINK;
 

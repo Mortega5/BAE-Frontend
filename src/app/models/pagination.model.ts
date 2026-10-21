@@ -22,6 +22,20 @@ export function applySort(params: PageRequest, queryParams: Record<string, any>,
 }
 
 /**
+ * Case-insensitive "name contains <text>" pattern for the TMF `.regex` operator (`name*=`), used
+ * when no external search engine is configured behind the proxy (`keyword` is only understood
+ * by that engine). Regex metacharacters and `"` are escaped so user input is matched literally;
+ * `;` and `&` can't be sent at all (tmforum-api splits the query on them even when encoded), so
+ * they become `.`, which still matches them.
+ */
+export function nameContainsPattern(text: string): string {
+  const escaped = text.trim()
+    .replace(/[.*+?^${}()|[\]\\"]/g, '\\$&')
+    .replace(/[;&]/g, '.');
+  return `(?i)${escaped}`;
+}
+
+/**
  * Fetches every item across all pages of a `fetchPage`-shaped call (the same shape every
  * `*Paged` service method already returns), paging with a large limit to keep the number of
  * requests small. Only for collections meant to be loaded in full (e.g. populating a `<select>`),
