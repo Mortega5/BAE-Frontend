@@ -10,7 +10,6 @@ import { UpdateCategoryComponent } from './categories/update-category/update-cat
 import { DefaultCatalogComponent } from './default-catalog/default-catalog.component';
 import { EmailComponent } from './email/email.component';
 import { FeaturesConfigComponent } from './features-config/features-config.component';
-import { OperatorRevenueSharingComponent } from './operator-revenue-sharing/operator-revenue-sharing.component';
 import { SearchFiltersConfigComponent } from './search-filters-config/search-filters-config.component';
 import { VerificationComponent } from './verification/verification.component';
 
@@ -39,7 +38,6 @@ export const adminRoutes: Routes = [
     ],
   },
   { path: segments.verification, component: VerificationComponent, canActivate: [adminSectionGuard('verification')] },
-  { path: segments.revenue, component: OperatorRevenueSharingComponent, canActivate: [adminSectionGuard('revenue')] },
   { path: segments.email, component: EmailComponent, canActivate: [adminSectionGuard('email')] },
   { path: segments.searchFilters, component: SearchFiltersConfigComponent, canActivate: [adminSectionGuard('searchFilters')] },
   { path: segments.defaultCatalog, component: DefaultCatalogComponent, canActivate: [adminSectionGuard('defaultCatalog')] },

@@ -2738,7 +2738,6 @@
     "_verificationSuccess": "Credencial verificada correctamente.",
     "_verificationError": "Se produjo un error al verificar la credencial.",
     "_add": "Añadir",
-    "_revenue": "Reparto de ingresos",
     "_email": "Correo electrónico",
     "_sourceEmail": "Correo electrónico de origen",
     "_smtpServer": "Servidor SMTP",

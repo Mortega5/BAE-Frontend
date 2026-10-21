@@ -82,7 +82,6 @@ export class AdminComponent implements OnDestroy {
         label: 'ADMIN._group_business',
         items: [
           ...item('verification', 'ADMIN._verification'),
-          ...item('revenue', 'ADMIN._revenue'),
         ],
       },
       {

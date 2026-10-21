@@ -98,7 +98,6 @@ export function createThemeAwareLoader(http: HttpClient, themeService: ThemeServ
 }
 
 import { AboutDomeComponent } from "src/app/pages/about-dome/about-dome.component";
-import { OperatorRevenueSharingComponent } from "src/app/pages/admin/operator-revenue-sharing/operator-revenue-sharing.component";
 import { ProviderRevenueSharingComponent } from "src/app/pages/user-profile/profile-sections/provider-revenue-sharing/provider-revenue-sharing.component";
 import { DynamicFormComponent } from "src/app/shared/forms/dynamic-form/dynamic-form.component";
 import { ConfirmModalComponent } from "src/app/shared/confirm-modal/confirm-modal.component";
@@ -218,7 +217,6 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     ItemCardComponent,
     AttachmentUploadComponent,
     ProviderRevenueSharingComponent,
-    OperatorRevenueSharingComponent,
     CreateUsageSpecComponent,
     UpdateUsageSpecComponent,
     SellerUsageSpecComponent,

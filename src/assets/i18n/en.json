@@ -2738,7 +2738,6 @@
     "_verificationSuccess": "Credential verified successfully.",
     "_verificationError": "There was an error while verifying the credential.",
     "_add": "Add",
-    "_revenue": "Revenue sharing",
     "_email": "Email",
     "_sourceEmail": "Source email",
     "_smtpServer": "SMTP Server",
