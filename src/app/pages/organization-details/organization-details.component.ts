@@ -1,7 +1,7 @@
 import { Location } from '@angular/common';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { faEarthAmericas } from '@fortawesome/free-solid-svg-icons';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -133,6 +133,7 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
   constructor(
     private cdr: ChangeDetectorRef,
     private route: ActivatedRoute,
+    private router: Router,
     private localStorage: LocalStorageService,
     private eventMessage: EventMessageService,
     private accService: AccountServiceService,
@@ -155,12 +156,40 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
   }
 
   ngOnInit(): void {
-    this.serviceSearch.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(v => { if (!v) { this.serviceKeywords = undefined; this.reloadServices(); } });
+    this.serviceSearch.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(v => {
+      if (!v) { this.serviceKeywords = undefined; this.syncUrl(); this.reloadServices(); }
+    });
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       this.id = params.get('id');
       this.mode = this.route.snapshot.data['mode'] === 'catalog' ? 'catalog' : 'organization';
       this.resetPageState();
+      this.applyQueryParams();
       this.loadPage();
+    });
+  }
+
+  /** Search, sort and tab live in the query string, so reloads, shared links and back
+   * keep them. Read after resetPageState(), which clears them for a new organization. */
+  private applyQueryParams(): void {
+    const query = this.route.snapshot.queryParamMap;
+    this.serviceKeywords = query.get('keyword') || undefined;
+    this.serviceSearch.setValue(this.serviceKeywords ?? null, { emitEvent: false });
+    const sort = query.get('sort');
+    this.serviceSort = this.serviceSortOptions.find(o => o.value === sort)?.value ?? 'relevance';
+    this.offerTab = query.get('tab') === 'private' ? 'private' : 'public';
+  }
+
+  /** Mirrors search, sort and tab into the query string (defaults left out), replacing the
+   * current history entry instead of adding one per change. */
+  private syncUrl(): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        keyword: this.serviceKeywords || null,
+        sort: this.serviceSort === 'relevance' ? null : this.serviceSort,
+        tab: this.offerTab === 'private' ? 'private' : null,
+      },
+      replaceUrl: true,
     });
   }
 
@@ -436,6 +465,7 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
 
   filterServices(): void {
     this.serviceKeywords = this.serviceSearch.value || undefined;
+    this.syncUrl();
     this.reloadServices();
   }
 
@@ -539,6 +569,7 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
   selectOfferTab(tab: 'public' | 'private'): void {
     if (tab === this.offerTab) { return; }
     this.offerTab = tab;
+    this.syncUrl();
     this.reloadServices();
   }
 
@@ -658,6 +689,7 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
     event.stopPropagation();
     this.serviceSort = v;
     this.showServiceSort = false;
+    this.syncUrl();
     this.reloadServices();
   }
 

@@ -38,6 +38,7 @@ describe('SearchComponent', () => {
   };
   let routerSpy: jasmine.SpyObj<Router>;
   let routeParamGetSpy: jasmine.Spy;
+  let routeQueryParams: Record<string, string>;
   let messages$: Subject<any>;
   let routerEvents$: Subject<any>;
 
@@ -73,6 +74,7 @@ describe('SearchComponent', () => {
     Object.defineProperty(routerSpy, 'events', { value: routerEvents$.asObservable() });
 
     routeParamGetSpy = jasmine.createSpy('paramMap.get').and.returnValue(null);
+    routeQueryParams = {};
 
     stateMock = {
       products: [],
@@ -128,6 +130,7 @@ describe('SearchComponent', () => {
           useValue: {
             snapshot: {
               paramMap: { get: routeParamGetSpy },
+              queryParamMap: { get: (key: string) => routeQueryParams[key] ?? null },
             },
           },
         },
@@ -192,13 +195,13 @@ describe('SearchComponent', () => {
       expect(component.privateTotal).toBe(1);
     });
 
-    it('ngOnInit should restore standard-mode state and refetch the saved pages', async () => {
+    it('ngOnInit should take the filters from the URL and the saved pages from matching state', async () => {
       localStorageSpy.getValidLoginInfo.and.returnValue({ id: 'u1', logged_as: 'u1', partyId: 'party-1', organizations: [] } as any);
+      apiSpy.getDefaultCategories.and.resolveTo([{ id: 'cat-1', name: 'Cat 1' }] as any);
+      routeQueryParams = { category: 'cat-1', catalog: 'catalog-1', tab: 'private' };
       stateMock.hasState.and.returnValue(true);
       stateMock.selectedCategoryId = 'cat-1';
       stateMock.selectedCatalogId = 'catalog-1';
-      stateMock.activeCategoryName = 'Cat 1';
-      stateMock.offerTab = 'private';
       stateMock.publicPage = 2;
       stateMock.privatePage = 3;
 
@@ -337,38 +340,40 @@ describe('SearchComponent', () => {
       expect(component.hasPrivateOfferings).toBeTrue();
     });
 
-    it('filterSearch should set keywords and refresh both sections', async () => {
-      const event = { preventDefault: jasmine.createSpy('preventDefault') };
+    it('onUnifiedSearch should set keywords, sync the URL and refresh both sections', async () => {
       component.searchField.setValue('kubernetes');
-      const updateSpy = spyOn(component, 'updateQueryParams').and.stub();
+      const syncSpy = spyOn(component, 'syncUrl').and.stub();
       apiSpy.getOfferingsPaged.and.resolveTo({ items: [], total: 0 });
 
-      await component.filterSearch(event);
+      await component.onUnifiedSearch();
 
-      expect(event.preventDefault).toHaveBeenCalled();
       expect(component.keywords).toBe('kubernetes');
-      expect(updateSpy).toHaveBeenCalledWith('kubernetes');
+      expect(syncSpy).toHaveBeenCalled();
       expect(apiSpy.getOfferingsPaged).toHaveBeenCalledWith(jasmine.objectContaining({ keywords: 'kubernetes' }));
     });
 
-    it('filterSearch should clear keywords when search field is empty', async () => {
-      const event = { preventDefault: jasmine.createSpy('preventDefault') };
+    it('onUnifiedSearch should clear keywords when search field is empty', async () => {
       component.searchField.setValue('');
-      const updateSpy = spyOn(component, 'updateQueryParams').and.stub();
+      spyOn(component, 'syncUrl').and.stub();
 
-      await component.filterSearch(event);
+      await component.onUnifiedSearch();
 
       expect(component.keywords).toBeUndefined();
-      expect(updateSpy).toHaveBeenCalledWith(undefined as any);
     });
   });
 
-  it('updateQueryParams should navigate with and without keywords', () => {
-    component.updateQueryParams('ai');
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/search', { keywords: 'ai' }], { replaceUrl: true });
+  it('syncUrl should write the search and non-default filters as query params', () => {
+    component.keywords = 'ai';
+    component.selectedCategoryId = 'cat-1';
+    component.selectedCatalogId = null;
+    component.offerTab = 'public';
 
-    component.updateQueryParams(null);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/search'], { replaceUrl: true });
+    component.syncUrl();
+
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/search'], {
+      queryParams: { keyword: 'ai', category: 'cat-1', catalog: null, tab: null },
+      replaceUrl: true,
+    });
   });
 
   it('onClick should close drawer when open', () => {

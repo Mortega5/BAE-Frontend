@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 
 import { CatalogsComponent } from './catalogs.component';
@@ -39,6 +39,7 @@ describe('CatalogsComponent', () => {
         { provide: AccountServiceService, useValue: accServiceSpy },
         { provide: ThemeService, useValue: themeServiceStub },
         { provide: Router, useValue: routerSpy },
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

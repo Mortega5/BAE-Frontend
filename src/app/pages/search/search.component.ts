@@ -153,21 +153,18 @@ export class SearchComponent implements OnInit, OnDestroy {
         }
       });
 
-    if (this.route.snapshot.paramMap.get('keywords')) {
-      this.keywords = this.route.snapshot.paramMap.get('keywords');
-      this.searchField.setValue(this.keywords);
-    }
+    // The URL is the source of truth for the search and its filters, so a reload, a shared
+    // link or the back button land on the same results. `;keywords=` is the old matrix-param
+    // form, still read so existing links keep working (syncUrl() rewrites it to `?keyword=`).
+    const query = this.route.snapshot.queryParamMap;
+    this.keywords = query.get('keyword') || this.route.snapshot.paramMap.get('keywords') || undefined;
+    this.searchField.setValue(this.keywords ?? null, { emitEvent: false });
 
     if (this.aiSearchEnabled) {
-      // 1. Restaurar estado (modo IA)
-      if (this.state.hasState()) {
+      // Coming back from an offer's details: reuse the results instead of asking the AI again.
+      if (this.state.hasState() && this.state.keywords === this.keywords) {
         this.products = this.state.products;
-        this.keywords = this.state.keywords;
-        this.searchField.setValue(this.keywords);
-        return;
-      }
-
-      if (this.keywords) {
+      } else if (this.keywords) {
         await this.runAiSearch();
       } else {
         await this.runInitialAiSearch();
@@ -178,12 +175,14 @@ export class SearchComponent implements OnInit, OnDestroy {
         await this.loadCatalogOptions();
       }
 
-      // 1. Restaurar estado (modo estándar)
-      if (this.state.hasState()) {
-        this.selectedCategoryId = this.state.selectedCategoryId;
-        this.selectedCatalogId = this.catalogFilterEnabled ? this.state.selectedCatalogId : null;
-        this.activeCategoryName = this.state.activeCategoryName;
-        this.offerTab = this.state.offerTab;
+      this.selectedCategoryId = query.get('category');
+      this.activeCategoryName = this.categoryOptions.find(o => o.value === this.selectedCategoryId)?.label ?? null;
+      this.selectedCatalogId = this.catalogFilterEnabled ? query.get('catalog') : null;
+      this.offerTab = query.get('tab') === 'private' ? 'private' : 'public';
+
+      // The saved state only adds how many "load more" pages were open, and only applies when
+      // it was saved for this very search (e.g. back from an offer's details).
+      if (this.state.hasState() && this.stateMatchesFilters()) {
         await Promise.all([
           this.loadPublicOfferings(this.state.publicPage || 1),
           this.loadPrivateOfferings(this.state.privatePage || 1),
@@ -192,6 +191,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         await this.refreshOfferings();
       }
     }
+    this.syncUrl();
 
     // Emptying the field (typing it away or the clear button) drops the active search. Only
     // when one is active, so runInitialAiSearch's own searchField.reset() doesn't loop back here.
@@ -200,7 +200,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       .subscribe(async v => {
         if (!v && this.keywords !== undefined) {
           this.keywords = undefined;
-          this.updateQueryParams(this.keywords)
+          this.syncUrl();
           this.aiAnswer = '';
           this.eventMessage.emitAiSearchCleared();
           if (this.aiSearchEnabled) {
@@ -317,17 +317,20 @@ export class SearchComponent implements OnInit, OnDestroy {
   async onCategoryChange(value: any): Promise<void> {
     this.selectedCategoryId = value ?? null;
     this.activeCategoryName = this.categoryOptions.find(o => o.value === value)?.label ?? null;
+    this.syncUrl();
     await this.refreshOfferings();
   }
 
   async onCatalogChange(value: any): Promise<void> {
     this.selectedCatalogId = value ?? null;
+    this.syncUrl();
     await this.refreshOfferings();
   }
 
   selectOfferTab(tab: 'public' | 'private'): void {
     if (tab === this.offerTab) return;
     this.offerTab = tab;
+    this.syncUrl();
     this.saveStandardState();
   }
 
@@ -434,6 +437,7 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   private saveStandardState(): void {
     this.state.save({
+      keywords: this.keywords,
       selectedCategoryId: this.selectedCategoryId,
       selectedCatalogId: this.selectedCatalogId,
       activeCategoryName: this.activeCategoryName,
@@ -447,39 +451,42 @@ export class SearchComponent implements OnInit, OnDestroy {
   // Search bar (shared entry point between AI and non-AI modes)
   // ------------------------------------------------------------------
 
-  async filterSearch(event: any) {
-    event.preventDefault()
-    this.keywords = (this.searchField.value != '' && this.searchField.value != null) ? this.searchField.value : undefined;
-    this.updateQueryParams(this.keywords)
-    await this.refreshOfferings();
+  /** Mirrors the search and its filters into the query string (defaults left out). Navigating
+   * to the current route with replaceUrl just rewrites the URL: the component is reused, not
+   * reloaded, and no history entry is added per keystroke or filter change. */
+  syncUrl(): void {
+    this.router.navigate(['/search'], {
+      queryParams: {
+        keyword: this.keywords || null,
+        category: this.selectedCategoryId || null,
+        catalog: this.selectedCatalogId || null,
+        tab: this.offerTab === 'private' ? 'private' : null,
+      },
+      replaceUrl: true,
+    });
   }
 
-  updateQueryParams(keywords: string | null) {
-    if (keywords) {
-      this.router.navigate(
-        ['/search', { keywords }],
-        { replaceUrl: true }
-      );
-    } else {
-      this.router.navigate(['/search'], { replaceUrl: true });
-    }
+  private stateMatchesFilters(): boolean {
+    return (this.state.keywords ?? undefined) === this.keywords
+      && this.state.selectedCategoryId === this.selectedCategoryId
+      && this.state.selectedCatalogId === this.selectedCatalogId;
   }
 
   // Unified Search - triggers both standard search and AI answer
   async onUnifiedSearch(): Promise<void> {
     if (this.aiSearchEnabled && this.searchField.value?.trim()) {
       this.keywords = this.searchField.value;
-      this.updateQueryParams(this.keywords);
+      this.syncUrl();
       await this.runAiSearch();
     } else if (this.aiSearchEnabled) {
       this.keywords = undefined;
-      this.updateQueryParams(this.keywords);
+      this.syncUrl();
       this.aiAnswer = '';
       this.eventMessage.emitAiSearchCleared();
       await this.runInitialAiSearch();
     } else {
       this.keywords = this.searchField.value || undefined;
-      this.updateQueryParams(this.keywords);
+      this.syncUrl();
       this.aiAnswer = '';
       this.eventMessage.emitAiSearchCleared();
       await this.refreshOfferings();

@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Type } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AccountServiceService } from 'src/app/services/account-service.service';
@@ -60,6 +60,7 @@ export class CatalogsComponent implements OnInit, OnDestroy {
 
   constructor(
     private router: Router,
+    private route: ActivatedRoute,
     private accService: AccountServiceService,
     private api: ApiServiceService,
     private cdr: ChangeDetectorRef,
@@ -74,15 +75,38 @@ export class CatalogsComponent implements OnInit, OnDestroy {
         this.applyCatalogsTheme(theme?.catalogs, theme?.assets?.defaultLogoUrl);
       });
 
+    // Search and sort live in the query string, so reloads, shared links and back keep them.
+    const query = this.route.snapshot.queryParamMap;
+    this.filter = query.get('keyword') || undefined;
+    this.searchField.setValue(this.filter ?? null, { emitEvent: false });
+    const sort = query.get('sort');
+    if (this.sortOptions.some(o => o.value === sort)) {
+      this.sortOption = sort as CatalogsComponent['sortOption'];
+    }
+
     this.getProviders(false);
     this.searchField.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(v => {
         if (!v && this.filter !== undefined) {
           this.filter = undefined;
+          this.syncUrl();
           this.getProviders(false);
         }
       });
+  }
+
+  /** Mirrors search and sort into the query string (defaults left out), replacing the
+   * current history entry instead of adding one per change. */
+  private syncUrl(): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        keyword: this.filter || null,
+        sort: this.sortOption === 'recent' ? null : this.sortOption,
+      },
+      replaceUrl: true,
+    });
   }
 
   ngOnDestroy() {
@@ -297,6 +321,7 @@ export class CatalogsComponent implements OnInit, OnDestroy {
   filterProviders() {
     const value = this.searchField.value?.trim();
     this.filter = value || undefined;
+    this.syncUrl();
     this.getProviders(false);
   }
 
@@ -309,6 +334,7 @@ export class CatalogsComponent implements OnInit, OnDestroy {
     e.stopPropagation();
     this.sortOption = v;
     this.showSortDropdown = false;
+    this.syncUrl();
     this.getProviders(false);
   }
 

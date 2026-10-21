@@ -188,7 +188,7 @@ export class BrowseComponent implements OnInit {
   onSearch(event: Event) {
     event.preventDefault();
     if (this.searchQuery.trim()) {
-      this.router.navigate(['/search', { keywords: this.searchQuery.trim() }]);
+      this.router.navigate(['/search'], { queryParams: { keyword: this.searchQuery.trim() } });
     } else {
       this.router.navigate(['/search']);
     }
@@ -213,7 +213,7 @@ export class BrowseComponent implements OnInit {
     } else {
       this.localStorage.addCategoryFilter(category);
     }
-    this.router.navigate(['/search']);
+    this.router.navigate(['/search'], { queryParams: { category: category.id ?? null } });
   }
 
   onShowAll() {

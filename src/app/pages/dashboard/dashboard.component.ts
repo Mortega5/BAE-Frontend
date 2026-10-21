@@ -208,7 +208,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
   filterSearch(event: Event) {
     event.preventDefault();
     if (this.searchField.value != '' && this.searchField.value != null) {
-      this.router.navigate(['/search', { keywords: this.searchField.value }]);
+      this.router.navigate(['/search'], { queryParams: { keyword: this.searchField.value } });
     } else {
       this.router.navigate(['/search']);
     }

@@ -63,7 +63,7 @@ describe('BrowseComponent', () => {
     expect(localStorageSpy.addCategoryFilter).toHaveBeenCalledWith(childA);
     expect(localStorageSpy.addCategoryFilter).toHaveBeenCalledWith(childB);
     expect(localStorageSpy.addCategoryFilter).not.toHaveBeenCalledWith(parent);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/search']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/search'], { queryParams: { category: 'parent-1' } });
   });
 
   it('should fall back to selecting the parent category when no children are available', async () => {
@@ -73,6 +73,6 @@ describe('BrowseComponent', () => {
     await component.onCategoryClick(parent);
 
     expect(localStorageSpy.addCategoryFilter).toHaveBeenCalledOnceWith(parent);
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/search']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/search'], { queryParams: { category: 'parent-1' } });
   });
 });
