@@ -2718,6 +2718,7 @@
     "_order_by": "Order by...",
     "_last_update": "Last update",
     "_name": "Name",
+    "_parent": "Parent",
     "_active": "Active",
     "_launched": "Launched",
     "_retired": "Retired",

@@ -2718,6 +2718,7 @@
     "_order_by": "Ordenar por...",
     "_last_update": "Última actualización",
     "_name": "Nombre",
+    "_parent": "Padre",
     "_active": "Activo",
     "_launched": "Lanzado",
     "_retired": "Retirado",

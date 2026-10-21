@@ -15,8 +15,8 @@ import { canManageCategories } from '../admin.access';
 import { AdminPaths } from '../admin.paths';
 type Category = components["schemas"]["Category"];
 
-/** A category row: displayName carries its ancestors' path, since the table has no nested rows. */
-type CategoryRow = Category & { displayName: string };
+/** A category row: parentName names its direct parent, since the table has no nested rows. */
+type CategoryRow = Category & { parentName: string };
 
 @Component({
   selector: 'admin-categories',
@@ -43,22 +43,28 @@ export class CategoriesComponent implements OnDestroy {
   categoryColumns: TableColumn<CategoryRow>[] = [
     {
       header: 'ADMIN._name',
-      getValue: (cat) => cat.displayName,
-      cellClass: (cat) => this.hasLongWord(cat.displayName, 20) ? 'break-all' : 'break-words',
-      width: 'w-2/4',
+      getValue: (cat) => cat.name,
+      cellClass: (cat) => this.hasLongWord(cat.name, 20) ? 'break-all' : 'break-words',
+    },
+    {
+      header: 'ADMIN._parent',
+      getValue: (cat) => cat.parentName || '—',
+      cellClass: (cat) => this.hasLongWord(cat.parentName, 20) ? 'break-all' : 'break-words',
+      hideOnMobile: true,
     },
     {
       header: 'ADMIN._status',
       getValue: (cat) => lifecycleStatusLabel(cat.lifecycleStatus ?? ''),
       type: 'status-badge',
-      width: 'w-28',
+      width: 'w-[140px]',
       getStatus: (cat) => lifecycleStatusBadgeVariant(cat.lifecycleStatus ?? ''),
     },
     {
       header: 'ADMIN._last_update',
       type: 'date',
       getValue: (cat) => cat.lastUpdate,
-      width: 'w-40',
+      width: 'w-[220px]',
+      hideOnMobile: true,
     },
   ];
 
@@ -100,7 +106,7 @@ export class CategoriesComponent implements OnDestroy {
 
   /**
    * The status filter applies per row rather than per subtree, so a matching category
-   * still shows (with its full path) under a parent whose own status is filtered out.
+   * still shows (with its parent named) under a parent whose own status is filtered out.
    */
   fetchCategories = async (params: PageRequest, filters: Record<string, any>): Promise<PageResult<CategoryRow>> => {
     this.allRows ??= this.loadAllRows();
@@ -142,15 +148,15 @@ export class CategoriesComponent implements OnDestroy {
 
     const byName = (a: Category, b: Category) => (a.name ?? '').localeCompare(b.name ?? '');
     const visited = new Set<string | undefined>();
-    const flatten = (nodes: Category[], path: string): CategoryRow[] =>
+    // Still flattened depth-first so children sit right below their parent.
+    const flatten = (nodes: Category[], parent?: Category): CategoryRow[] =>
       [...nodes].sort(byName).flatMap(cat => {
         if (visited.has(cat.id)) return [];
         visited.add(cat.id);
-        const displayName = path ? `${path} / ${cat.name}` : cat.name ?? '';
-        return [{ ...cat, displayName }, ...flatten(childrenOf.get(cat.id ?? '') ?? [], displayName)];
+        return [{ ...cat, parentName: parent?.name ?? '' }, ...flatten(childrenOf.get(cat.id ?? '') ?? [], cat)];
       });
 
-    return flatten(roots, '');
+    return flatten(roots);
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
