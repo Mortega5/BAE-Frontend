@@ -11,7 +11,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
-import { buildLifecycleStatusOptions, FormField } from 'src/app/models/formFields/form-field.model';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 
 import {components} from "src/app/models/product-catalog";
@@ -41,18 +41,11 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
   //SERVICE GENERAL INFO:
   generalFormFields: FormField[] = [
     { type: 'string', name: 'name', label: 'UPDATE_CATEGORIES._name', required: true, maxLength: 100, dataCy: 'adminCategoryNameInput' },
-    {
-      type: 'statusPicker',
-      name: 'lifecycleStatus',
-      label: 'UPDATE_CATALOG._status',
-      options: buildLifecycleStatusOptions('adminCategoryStatus'),
-    },
     { type: 'markdownTextarea', name: 'description', label: 'UPDATE_CATEGORIES._description', dataCy: 'adminCategoryDescription' },
   ];
 
   generalForm = new FormGroup({
     name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
-    lifecycleStatus: new FormControl('Active'),
     description: new FormControl('', Validators.maxLength(100000)),
   });
   isParent:boolean=true;
@@ -61,8 +54,20 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
   selectedCategory:any=undefined;
   selected:any[];
   loading: boolean = false;
+  saving = false;
+  showDeleteConfirm = false;
+  showPublishConfirm = false;
 
   private destroy$ = new Subject<void>();
+
+  get isDraft(): boolean {
+    return this.category?.lifecycleStatus === 'Active';
+  }
+
+  /** Deleting a category retires it, so a retired one has nothing left to delete. */
+  get isRetired(): boolean {
+    return this.category?.lifecycleStatus === 'Retired';
+  }
 
   constructor(
     private router: Router,
@@ -129,7 +134,6 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
     //GENERAL INFORMATION
     this.generalForm.patchValue({
       name: this.category.name,
-      lifecycleStatus: this.category.lifecycleStatus,
       description: this.category.description,
     });
     if(this.category.isRoot==false){
@@ -267,7 +271,6 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
       this.categoryToUpdate={
         name: this.generalForm.value.name,
         description: this.generalForm.value.description != null ? this.generalForm.value.description : '',
-        lifecycleStatus: this.generalForm.value.lifecycleStatus ?? 'Active',
         isRoot: this.isParent
       }
       if(this.isParent==false){
@@ -277,17 +280,71 @@ export class UpdateCategoryComponent implements OnInit, OnDestroy {
   }
 
   updateCategory(){
+    if (!this.categoryToUpdate) return;
+    this.saving = true;
     this.api.updateCategory(this.categoryToUpdate,this.category.id).subscribe({
-      next: data => {
+      next: () => {
+        this.saving = false;
         this.notificationService.showSuccess('UPDATE_CATEGORIES._update_success');
         this.goBack();
       },
       error: error => {
-        console.error('There was an error while updating!', error);
+        console.error('There was an error while updating the category!', error);
+        this.saving = false;
         const details = error?.error?.error || error?.error?.message || error?.message;
         this.notificationService.showError('UPDATE_CATEGORIES._update_error', details ? { details } : undefined);
       }
     })
+  }
+
+  onDeleteResolved(confirmed: boolean) {
+    this.showDeleteConfirm = false;
+    if (confirmed) {
+      this.deleteCategory();
+    }
+  }
+
+  onPublishResolved(confirmed: boolean) {
+    this.showPublishConfirm = false;
+    if (confirmed) {
+      this.publishCategory();
+    }
+  }
+
+  private deleteCategory() {
+    this.saving = true;
+    this.api.updateCategory({ lifecycleStatus: 'Retired' }, this.category.id).subscribe({
+      next: () => {
+        this.saving = false;
+        this.notificationService.showSuccess('UPDATE_CATEGORIES._delete_success');
+        this.goBack();
+      },
+      error: error => {
+        console.error('There was an error while retiring the category!', error);
+        this.saving = false;
+        this.notificationService.showError('UPDATE_CATEGORIES._delete_error', {
+          details: error?.error?.error || error?.error?.message || error?.message
+        });
+      },
+    });
+  }
+
+  private publishCategory() {
+    this.saving = true;
+    this.api.updateCategory({ lifecycleStatus: 'Launched' }, this.category.id).subscribe({
+      next: () => {
+        this.saving = false;
+        this.category.lifecycleStatus = 'Launched';
+        this.notificationService.showSuccess('UPDATE_CATEGORIES._publish_success');
+      },
+      error: error => {
+        console.error('There was an error while publishing the category!', error);
+        this.saving = false;
+        this.notificationService.showError('UPDATE_CATEGORIES._publish_error', {
+          details: error?.error?.error || error?.error?.message || error?.message
+        });
+      },
+    });
   }
 
   statusBadgeVariant(status: string): BadgeStatus {

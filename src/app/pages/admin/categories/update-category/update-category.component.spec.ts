@@ -152,7 +152,6 @@ describe('UpdateCategoryComponent', () => {
 
     expect(component.generalForm.value.name).toBe('Root Category');
     expect(component.generalForm.value.description).toBe('Root desc');
-    expect(component.generalForm.value.lifecycleStatus).toBe('Active');
     expect(component.isParent).toBeTrue();
     expect(component.parentSelectionCheck).toBeFalse();
   });
@@ -207,7 +206,7 @@ describe('UpdateCategoryComponent', () => {
   });
 
   it('onStepChanged should build categoryToUpdate when reaching the last step', () => {
-    component.generalForm.patchValue({ name: 'New name', description: 'New desc', lifecycleStatus: 'Launched' });
+    component.generalForm.patchValue({ name: 'New name', description: 'New desc' });
     component.isParent = true;
 
     component.onStepChanged({ step: 1, isLastStep: true, label: '', stepId: 'summary' });
@@ -215,7 +214,6 @@ describe('UpdateCategoryComponent', () => {
     expect(component.categoryToUpdate).toEqual({
       name: 'New name',
       description: 'New desc',
-      lifecycleStatus: 'Launched',
       isRoot: true,
     } as any);
     expect(component.currentStepId).toBe('summary');
@@ -255,5 +253,24 @@ describe('UpdateCategoryComponent', () => {
     component.updateCategory();
 
     expect(showErrorSpy).toHaveBeenCalledWith('UPDATE_CATEGORIES._update_error', { details: 'Update failed' });
+  });
+
+  it('publish should transition the category to Launched', () => {
+    component.category = { ...category };
+
+    component.onPublishResolved(true);
+
+    expect(apiSpy.updateCategory).toHaveBeenCalledWith({ lifecycleStatus: 'Launched' }, 'cat-1');
+    expect(component.category.lifecycleStatus).toBe('Launched');
+  });
+
+  it('delete should soft-retire the category', () => {
+    component.category = { ...category };
+    const goBackSpy = spyOn(component, 'goBack');
+
+    component.onDeleteResolved(true);
+
+    expect(apiSpy.updateCategory).toHaveBeenCalledWith({ lifecycleStatus: 'Retired' }, 'cat-1');
+    expect(goBackSpy).toHaveBeenCalled();
   });
 });

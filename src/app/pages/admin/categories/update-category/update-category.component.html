@@ -10,9 +10,32 @@
   @if (notFound) {
   <app-not-found-state message="UPDATE_CATEGORIES._not_found" (back)="goBack()" />
   } @else {
-  <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'UPDATE_CATEGORIES._update' | translate }}</h1>
+  <div class="flex items-center justify-between mb-6 gap-3">
+    <div class="flex items-center gap-3 min-w-0">
+      <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white truncate">{{ 'UPDATE_CATEGORIES._update' | translate }}</h1>
+      @if (!notFound) {
+      <bae-badge variant="status" [status]="statusBadgeVariant(category?.lifecycleStatus ?? '')"
+        [label]="statusLabel(category?.lifecycleStatus ?? '') | translate"></bae-badge>
+      }
+    </div>
+    @if (!notFound) {
+    <div class="flex items-center gap-3 shrink-0">
+      @if (!isRetired) {
+      <app-button type="button" variant="danger" size="sm" [disabled]="saving" (click)="showDeleteConfirm = true">
+        {{ 'UPDATE_CATEGORIES._delete' | translate }}
+      </app-button>
+      }
+      @if (isDraft) {
+      <app-button type="button" size="sm" [disabled]="saving" prefixIcon="rocket-launch" (click)="showPublishConfirm = true">
+        {{ 'UPDATE_CATEGORIES._publish' | translate }}
+      </app-button>
+      }
+    </div>
+    }
+  </div>
 
-  <app-stepper [allUnlocked]="true" [canAdvance]="canAdvance" submitLabel="UPDATE_CATEGORIES._update"
+  <app-stepper [allUnlocked]="true" [canAdvance]="canAdvance" [submitDisabled]="!generalForm.valid || saving"
+    [loading]="saving" [submitAlwaysVisible]="true" submitLabel="UPDATE_CATEGORIES._update"
     (stepChanged)="onStepChanged($event)" (submitted)="updateCategory()">
 
     <ng-template stepperStep="UPDATE_CATEGORIES._general" stepId="general">
@@ -91,6 +114,16 @@
           }
           }
         </div>
+
+        <app-confirm-modal [visible]="showDeleteConfirm" [title]="'UPDATE_CATEGORIES._delete_confirm_title'"
+          message="UPDATE_CATEGORIES._delete_confirm_message" confirmLabel="UPDATE_CATEGORIES._delete"
+          cancelLabel="CONFIRM_MODAL._cancel" confirmVariant="danger" (resolved)="onDeleteResolved($event)"
+          (closed)="showDeleteConfirm = false" />
+
+        <app-confirm-modal [visible]="showPublishConfirm" [title]="'UPDATE_CATEGORIES._publish_confirm_title'"
+          message="UPDATE_CATEGORIES._publish_confirm_message" confirmLabel="UPDATE_CATEGORIES._publish"
+          cancelLabel="CONFIRM_MODAL._cancel" confirmVariant="primary" (resolved)="onPublishResolved($event)"
+          (closed)="showPublishConfirm = false" />
       </div>
     </ng-template>
 
@@ -108,8 +141,8 @@
 
         <div>
           <label class="font-bold text-sm dark:text-white block mb-1">{{ 'UPDATE_CATEGORIES._status' | translate }}</label>
-          <bae-badge variant="status" [status]="statusBadgeVariant(categoryToUpdate?.lifecycleStatus ?? '')"
-            [label]="statusLabel(categoryToUpdate?.lifecycleStatus ?? '') | translate"></bae-badge>
+          <bae-badge variant="status" [status]="statusBadgeVariant(category?.lifecycleStatus ?? '')"
+            [label]="statusLabel(category?.lifecycleStatus ?? '') | translate"></bae-badge>
         </div>
 
         @if(categoryToUpdate?.description !=''){

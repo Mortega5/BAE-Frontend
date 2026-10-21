@@ -46,6 +46,8 @@ export class CreateCategoryComponent implements OnInit, OnDestroy {
   selectedCategory:any=undefined;
   selected:any[];
   loading: boolean = false;
+  saving = false;
+  showPublishDraftModal = false;
 
   private destroy$ = new Subject<void>();
 
@@ -202,14 +204,33 @@ export class CreateCategoryComponent implements OnInit, OnDestroy {
     return lifecycleStatusLabel(status);
   }
 
-  createCategory(){
+  createCategory() {
+    this.showPublishDraftModal = true;
+  }
+
+  saveDraft() {
+    this.createCategoryWithStatus('Active');
+  }
+
+  publish() {
+    this.createCategoryWithStatus('Launched');
+  }
+
+  private createCategoryWithStatus(lifecycleStatus: 'Active' | 'Launched') {
+    if (!this.categoryToCreate) return;
+    this.categoryToCreate.lifecycleStatus = lifecycleStatus;
+    this.saving = true;
     this.api.postCategory(this.categoryToCreate).subscribe({
-      next: data => {
+      next: () => {
+        this.saving = false;
+        this.showPublishDraftModal = false;
         this.notificationService.showSuccess('CREATE_CATEGORIES._create_success');
         this.goBack();
       },
       error: error => {
-        console.error('There was an error while updating!', error);
+        console.error('There was an error while creating the category!', error);
+        this.saving = false;
+        this.showPublishDraftModal = false;
         const details = error?.error?.error || error?.error?.message || error?.message;
         this.notificationService.showError('CREATE_CATEGORIES._create_error', details ? { details } : undefined);
       }
