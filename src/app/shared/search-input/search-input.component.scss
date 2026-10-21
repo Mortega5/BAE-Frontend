@@ -1,6 +1,6 @@
 /* Input surface reuses the global form tokens (--theme-input-*, --form-hint-text) and the
-   clear button the danger-button ones (--button-danger-*); the only tokens this component
-   owns are --search-input-ai-*, for the AI mode. All are defined in styles.css. */
+   clear button the danger-button ones (--button-danger-*); AI mode uses the shared --ai-*
+   tokens. All are defined in styles.css. */
 
 :host {
   display: block;
@@ -18,13 +18,13 @@
   border-color: var(--theme-input-border);
 
   &[data-ai] {
-    border-color: var(--search-input-ai-border);
+    border-color: var(--ai-border);
   }
 }
 
 .app-search-input__ai-icon {
   @apply shrink-0 text-base;
-  color: var(--search-input-ai-icon);
+  color: var(--ai-accent);
 }
 
 .app-search-input__field {

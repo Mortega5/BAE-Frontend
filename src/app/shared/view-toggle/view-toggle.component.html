@@ -1,0 +1,9 @@
+<div class="app-view-toggle">
+  @for (option of options; track option.value) {
+  <button type="button" class="app-view-toggle__button" [attr.data-selected]="mode === option.value || null"
+    [attr.aria-pressed]="mode === option.value" [attr.aria-label]="option.label | translate"
+    (click)="select(option.value)">
+    <fa-icon [icon]="option.icon" aria-hidden="true"></fa-icon>
+  </button>
+  }
+</div>

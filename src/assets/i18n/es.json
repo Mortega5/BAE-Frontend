@@ -344,6 +344,8 @@
     "_clear_all": "Borrar todo",
     "_filters": "Filtros",
     "_view": "Vista",
+    "_grid_view": "Vista de cuadrícula",
+    "_list_view": "Vista de lista",
     "_aria_pagination": "Paginación",
     "_load_more": "Cargar más",
     "footer": {

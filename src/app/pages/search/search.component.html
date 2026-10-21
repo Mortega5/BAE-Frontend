@@ -1,15 +1,12 @@
-<div class="min-h-screen bg-[#F7F9FD] dark:bg-tertiary-50 font-[Blinker]">
+<div class="min-h-screen font-[Blinker]">
 
   <div class="mx-auto max-w-[1440px] px-8">
 
-    <nav class="flex items-center gap-2 pt-4 pb-4 text-[16px] text-[#526179] dark:text-gray-400">
+    <nav class="flex items-center gap-2 pt-4 pb-4 text-[16px] text-[var(--form-hint-text)]">
       <a [routerLink]="marketplaceHomeUrl"
-        class="hover:text-primary-100 dark:hover:text-primary-50 transition-colors">{{ 'HEADER._marketplaceH' | translate }}</a>
-      <svg class="h-4 w-4 text-[#526179] dark:text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none"
-        viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
-      </svg>
-      <span class="font-medium text-primary-100 dark:text-primary-50">{{ activeCategoryName || ('DASHBOARD._categories' | translate)
+        class="hover:text-[var(--button-link-text)] transition-colors">{{ 'HEADER._marketplaceH' | translate }}</a>
+      <fa-icon [icon]="faChevronRight" class="text-xs" aria-hidden="true"></fa-icon>
+      <span class="font-medium text-[var(--button-link-text)]">{{ activeCategoryName || ('DASHBOARD._categories' | translate)
         }}</span>
     </nav>
 
@@ -27,7 +24,7 @@
       <ul class="inline-flex -space-x-px text-sm">
         <li>
           <button (click)="onPage(page - 1)" [disabled]="page === 1"
-            class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border border-e-0 border-gray-300 dark:border-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-200 hover:text-gray-700 dark:hover:text-white rounded-s-lg disabled:opacity-50 disabled:cursor-not-allowed">
+            class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-[var(--form-hint-text)] bg-[var(--card-bg)] border border-e-0 border-[var(--card-border)] hover:bg-[var(--dropdown-item-hover-bg)] hover:text-[var(--theme-default-text)] rounded-s-lg disabled:opacity-50 disabled:cursor-not-allowed">
             {{ 'DASHBOARD._prev' | translate }}
           </button>
         </li>
@@ -35,7 +32,7 @@
         @if ($index + 1 === page || $index + 1 === 1 || $index + 1 === totalPages || ($index + 1 >= page - 2 &&
         $index + 1 <= page + 2)) { <li>
           <button (click)="onPage($index + 1)"
-            [ngClass]="$index + 1 === page ? 'text-primary-100 dark:text-primary-50 border-primary-100 dark:border-primary-50 bg-[#eef2fb] dark:bg-secondary-200' : 'text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border-gray-300 dark:border-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-200 hover:text-gray-700 dark:hover:text-white'"
+            [ngClass]="$index + 1 === page ? 'text-[var(--button-link-text)] border-[var(--card-selected-border)] bg-[var(--card-selected-bg)]' : 'text-[var(--form-hint-text)] bg-[var(--card-bg)] border-[var(--card-border)] hover:bg-[var(--dropdown-item-hover-bg)] hover:text-[var(--theme-default-text)]'"
             class="flex items-center justify-center px-3 h-8 leading-tight border">
             {{ $index + 1 }}
           </button>
@@ -43,13 +40,13 @@
           } @else if ($index + 1 === page - 3 || $index + 1 === page + 3) {
           <li>
             <span
-              class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200">...</span>
+              class="flex items-center justify-center px-3 h-8 leading-tight text-[var(--form-hint-text)] bg-[var(--card-bg)] border border-[var(--card-border)]">...</span>
           </li>
           }
           }
           <li>
             <button (click)="onPage(page + 1)" [disabled]="page === totalPages"
-              class="flex items-center justify-center px-3 h-8 leading-tight text-gray-500 dark:text-gray-400 bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-200 hover:text-gray-700 dark:hover:text-white rounded-e-lg disabled:opacity-50 disabled:cursor-not-allowed">
+              class="flex items-center justify-center px-3 h-8 leading-tight text-[var(--form-hint-text)] bg-[var(--card-bg)] border border-[var(--card-border)] hover:bg-[var(--dropdown-item-hover-bg)] hover:text-[var(--theme-default-text)] rounded-e-lg disabled:opacity-50 disabled:cursor-not-allowed">
               {{ 'DASHBOARD._next' | translate }}
             </button>
           </li>
@@ -60,7 +57,7 @@
 
   <ng-template #sidebarFilters>
     <div>
-      <label class="block text-[14px] font-medium text-[#0b1220] dark:text-white mb-1.5">{{ 'DASHBOARD._category_label' |
+      <label class="block text-[14px] font-medium text-[var(--theme-default-text)] mb-1.5">{{ 'DASHBOARD._category_label' |
         translate }}</label>
       <app-search-select data-cy="searchCategoryFilter" [options]="categoryOptions" [multiple]="false"
         [placeholder]="'DASHBOARD._categories' | translate" [selected]="selectedCategoryId"
@@ -68,7 +65,7 @@
     </div>
     @if (catalogFilterEnabled) {
     <div class="mt-4">
-      <label class="block text-[14px] font-medium text-[#0b1220] dark:text-white mb-1.5">{{ 'DASHBOARD._catalog_label' |
+      <label class="block text-[14px] font-medium text-[var(--theme-default-text)] mb-1.5">{{ 'DASHBOARD._catalog_label' |
         translate }}</label>
       <app-search-select data-cy="searchCatalogFilter" [options]="catalogOptions" [multiple]="false"
         [placeholder]="'DASHBOARD._all_catalogs' | translate" [selected]="selectedCatalogId"
@@ -83,50 +80,30 @@
       @if (!aiSearchEnabled) {
       @if (showDrawer) {
       <div (click)="$event.stopPropagation();"
-        class="fixed h-screen w-3/4 top-0 left-0 z-50 p-4 overflow-y-auto bg-white dark:bg-secondary-300" tabindex="-1">
+        class="fixed h-screen w-3/4 top-0 left-0 z-50 p-4 overflow-y-auto bg-[var(--card-bg)]" tabindex="-1">
         <app-button type="button" (click)="showDrawer=!showDrawer" variant="ghost" size="sm" prefixIcon="xmark"
           class="absolute top-2.5 end-2.5">
           <span class="sr-only">{{ 'DASHBOARD._close_menu' | translate }}</span>
         </app-button>
-        <h3 class="text-[18px] font-semibold text-[#0b1220] dark:text-white mb-4">{{ 'DASHBOARD._filters' | translate
+        <h3 class="text-[18px] font-semibold text-[var(--theme-default-text)] mb-4">{{ 'DASHBOARD._filters' | translate
           }}</h3>
         <ng-container *ngTemplateOutlet="sidebarFilters"></ng-container>
       </div>
       } @else {
       <aside class="hidden md:block w-[260px] lg:w-[300px] shrink-0">
         <div
-          class="rounded-xl border border-gray-200 dark:border-secondary-200 bg-white dark:bg-secondary-300 p-5">
-          <h3 class="text-[18px] font-semibold text-[#0b1220] dark:text-white mb-4">{{ 'DASHBOARD._filters' |
+          class="rounded-xl border border-[var(--card-border)] bg-[var(--card-bg)] p-5">
+          <h3 class="text-[18px] font-semibold text-[var(--theme-default-text)] mb-4">{{ 'DASHBOARD._filters' |
             translate }}</h3>
 
           <!-- Shared by both Private Offers and Public Catalog in the results column
                (same viewMode drives both grids) — lives here, inside the filters box,
                instead of nested inside either section's own card header, since a
                control nested in one section shouldn't silently control the other. -->
-          <div class="flex items-center justify-between mb-4 pb-4 border-b border-gray-200 dark:border-secondary-200">
-            <span class="text-[14px] font-medium text-[#0b1220] dark:text-white">{{ 'DASHBOARD._view' | translate
+          <div class="flex items-center justify-between mb-4 pb-4 border-b border-[var(--card-border)]">
+            <span class="text-[14px] font-medium text-[var(--theme-default-text)]">{{ 'DASHBOARD._view' | translate
               }}</span>
-            <div
-              class="flex items-center gap-0.5 rounded-lg border border-gray-200 dark:border-secondary-200 bg-white dark:bg-secondary-300 p-1">
-              <button (click)="viewMode='grid'"
-                [ngClass]="viewMode==='grid' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
-                class="rounded p-2 transition-colors">
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                  stroke-width="1.5" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
-                </svg>
-              </button>
-              <button (click)="viewMode='list'"
-                [ngClass]="viewMode==='list' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
-                class="rounded p-2 transition-colors">
-                <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                  stroke-width="1.5" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-                </svg>
-              </button>
-            </div>
+            <app-view-toggle [(mode)]="viewMode"></app-view-toggle>
           </div>
 
           <ng-container *ngTemplateOutlet="sidebarFilters"></ng-container>
@@ -140,16 +117,12 @@
         <ng-template #noResults>
           <div class="col-span-full flex flex-col items-center justify-center text-center py-16 px-4">
             <div
-              class="flex h-16 w-16 items-center justify-center rounded-full bg-[#eef2fb] dark:bg-secondary-300 mb-4">
-              <svg class="h-8 w-8 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg"
-                fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607ZM10.5 7.5v6m-3-3h6" />
-              </svg>
+              class="flex h-16 w-16 items-center justify-center rounded-full bg-[var(--card-inset-bg)] mb-4">
+              <fa-icon [icon]="faMagnifyingGlassPlus" class="text-2xl text-[var(--button-link-text)]" aria-hidden="true"></fa-icon>
             </div>
-            <p class="text-base font-semibold text-gray-700 dark:text-white mb-1">{{ 'DASHBOARD._not_found' |
+            <p class="text-base font-semibold text-[var(--theme-default-text)] mb-1">{{ 'DASHBOARD._not_found' |
               translate }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400 max-w-xs">{{ 'DASHBOARD._not_found_desc' | translate
+            <p class="text-sm text-[var(--form-hint-text)] max-w-xs">{{ 'DASHBOARD._not_found_desc' | translate
               }}</p>
           </div>
         </ng-template>
@@ -165,32 +138,12 @@
         <!-- ================= AI SEARCH MODE ================= -->
 
         <div class="mb-5 flex items-center justify-between">
-          <span class="text-[16px] text-[#526179] dark:text-gray-400">
+          <span class="text-[16px] text-[var(--form-hint-text)]">
             @if (!loading) {
             {{ 'DASHBOARD._results_of_total' | translate: { count: products.length, total: totalResultsCount } }}
             }
           </span>
-          <div
-            class="flex items-center gap-0.5 rounded-lg border border-gray-200 dark:border-secondary-200 bg-white dark:bg-secondary-300 p-1">
-            <button (click)="viewMode='grid'"
-              [ngClass]="viewMode==='grid' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
-              class="rounded p-2 transition-colors">
-              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M3.75 6A2.25 2.25 0 0 1 6 3.75h2.25A2.25 2.25 0 0 1 10.5 6v2.25a2.25 2.25 0 0 1-2.25 2.25H6a2.25 2.25 0 0 1-2.25-2.25V6ZM3.75 15.75A2.25 2.25 0 0 1 6 13.5h2.25a2.25 2.25 0 0 1 2.25 2.25V18a2.25 2.25 0 0 1-2.25 2.25H6A2.25 2.25 0 0 1 3.75 18v-2.25ZM13.5 6a2.25 2.25 0 0 1 2.25-2.25H18A2.25 2.25 0 0 1 20.25 6v2.25A2.25 2.25 0 0 1 18 10.5h-2.25a2.25 2.25 0 0 1-2.25-2.25V6ZM13.5 15.75a2.25 2.25 0 0 1 2.25-2.25H18a2.25 2.25 0 0 1 2.25 2.25V18A2.25 2.25 0 0 1 18 20.25h-2.25a2.25 2.25 0 0 1-2.25-2.25v-2.25Z" />
-              </svg>
-            </button>
-            <button (click)="viewMode='list'"
-              [ngClass]="viewMode==='list' ? 'bg-[#eef2fb] dark:bg-secondary-200 text-primary-100 dark:text-primary-50' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'"
-              class="rounded p-2 transition-colors">
-              <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0ZM3.75 12h.007v.008H3.75V12Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm-.375 5.25h.007v.008H3.75v-.008Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-              </svg>
-            </button>
-          </div>
+          <app-view-toggle [(mode)]="viewMode"></app-view-toggle>
         </div>
 
         @if (loading) {
@@ -199,47 +152,33 @@
 
         @if (aiAnswer) {
         <div
-          class="w-full mb-4 p-4 bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 border border-purple-200 dark:border-purple-700 rounded-lg shadow-sm">
+          class="w-full mb-4 p-4 bg-[var(--ai-surface-bg)] border border-[var(--ai-border)] rounded-lg shadow-sm">
           <div class="flex items-start gap-3">
             <div
-              class="flex-shrink-0 w-8 h-8 bg-purple-100 dark:bg-purple-800 rounded-full flex items-center justify-center">
-              <svg class="w-4 h-4 text-purple-600 dark:text-purple-300" aria-hidden="true"
-                xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z" />
-              </svg>
+              class="flex-shrink-0 w-8 h-8 bg-[var(--ai-icon-bg)] rounded-full flex items-center justify-center">
+              <fa-icon [icon]="faSparkles" class="text-sm text-[var(--ai-accent)]" aria-hidden="true"></fa-icon>
             </div>
             <div class="flex-1 min-w-0">
-              <h4 class="text-sm font-semibold text-purple-800 dark:text-purple-200 mb-2">{{ 'DASHBOARD._ai_answer' |
+              <h4 class="text-sm font-semibold text-[var(--theme-default-text)] mb-2">{{ 'DASHBOARD._ai_answer' |
                 translate }}</h4>
               <div
-                class="ai-answer-content text-sm text-gray-700 dark:text-gray-300 prose prose-sm dark:prose-invert max-w-none">
+                class="ai-answer-content text-sm text-[var(--theme-default-text)] prose prose-sm dark:prose-invert max-w-none">
                 <markdown [data]="aiAnswer"></markdown>
               </div>
             </div>
             <button type="button" (click)="aiAnswer = ''"
-              class="flex-shrink-0 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-              <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                viewBox="0 0 14 14">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                  d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
-              </svg>
+              class="flex-shrink-0 text-[var(--form-hint-text)] hover:text-[var(--theme-default-text)]">
+              <fa-icon [icon]="faXmark" class="text-base" aria-hidden="true"></fa-icon>
             </button>
           </div>
         </div>
         }
 
         @if (aiSearchLoading) {
-        <div class="w-full mb-4 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+        <div class="w-full mb-4 p-4 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg">
           <div class="flex items-center gap-3">
-            <svg class="w-5 h-5 text-purple-500 animate-spin" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-              fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-              </path>
-            </svg>
-            <span class="text-sm text-gray-600 dark:text-gray-400">{{ 'DASHBOARD._ai_thinking' | translate }}</span>
+            <fa-icon [icon]="faSpinnerThird" animation="spin" class="text-xl text-[var(--ai-accent)]" aria-hidden="true"></fa-icon>
+            <span class="text-sm text-[var(--form-hint-text)]">{{ 'DASHBOARD._ai_thinking' | translate }}</span>
           </div>
         </div>
         }

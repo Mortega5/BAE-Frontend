@@ -52,7 +52,7 @@
           }}{{ cheapestPrice.price | number:'1.2-2' }}</span>
       </div>
       } @else if (cheapestPrice?.price === 0) {
-      <span class="text-[15px] font-semibold text-[var(--status-badge-success)] uppercase tracking-wide">{{
+      <span class="text-[15px] font-semibold text-[var(--offer-card-free-text)] uppercase tracking-wide">{{
         'CARD._free' | translate }}</span>
       } @else if (isCustom()) {
       <span class="text-[15px] font-semibold text-[var(--offer-card-heading-text)] uppercase tracking-wide">{{
@@ -155,7 +155,7 @@
             | number:'1.2-2' }}</span>
         </div>
         } @else if (cheapestPrice?.price === 0) {
-        <span class="font-semibold text-[var(--status-badge-success)] uppercase tracking-wide">{{ 'CARD._free' |
+        <span class="font-semibold text-[var(--offer-card-free-text)] uppercase tracking-wide">{{ 'CARD._free' |
           translate }}</span>
         } @else if (isCustom()) {
         <span class="font-semibold text-[var(--offer-card-heading-text)] uppercase tracking-wide">{{

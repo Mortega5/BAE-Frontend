@@ -344,6 +344,8 @@
     "_clear_all": "Clear all",
     "_filters": "Filters",
     "_view": "View",
+    "_grid_view": "Grid view",
+    "_list_view": "List view",
     "_aria_pagination": "Pagination",
     "_load_more": "Load more",
     "footer": {

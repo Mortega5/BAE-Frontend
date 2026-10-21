@@ -1,0 +1,23 @@
+/* Reuses the app-card tokens (--card-bg/--card-border/--card-selected-bg) and the form/link
+   text tokens, all defined in styles.css — no tokens of its own. :host keeps the default
+   inline display so callers can hide/show it with plain utility classes. */
+
+.app-view-toggle {
+  @apply flex items-center gap-0.5 rounded-lg border p-1;
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+.app-view-toggle__button {
+  @apply flex h-8 w-8 items-center justify-center rounded-md text-base transition-colors;
+  color: var(--form-hint-text);
+
+  &:hover {
+    color: var(--theme-default-text);
+  }
+
+  &[data-selected] {
+    background-color: var(--card-selected-bg);
+    color: var(--button-link-text);
+  }
+}

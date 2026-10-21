@@ -28,9 +28,8 @@ That also covers the user deleting the text by hand.
 
 The box reuses the global form tokens (`--theme-input-bg`, `--theme-input-border`,
 `--theme-default-text`, `--form-hint-text`) and the danger-button tokens
-(`--button-danger-*`) for the clear button. The only tokens it owns are
-`--search-input-ai-border` and `--search-input-ai-icon`, for AI mode. All of them
-are defined in [src/styles.css](../../../styles.css) (`body` / `.dark body`);
+(`--button-danger-*`) for the clear button. For AI mode it uses the shared
+`--ai-border` and `--ai-accent` tokens. All of them are defined in [src/styles.css](../../../styles.css) (`body` / `.dark body`);
 `search-input.component.scss` only consumes them.
 
 ## Width

@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@
 import { FormControl } from '@angular/forms';
 
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
+import { faChevronRight, faMagnifyingGlassPlus, faSparkles, faSpinnerThird, faXmark } from '@fortawesome/pro-solid-svg-icons';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -41,6 +42,12 @@ export class SearchComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
 
   viewMode: 'grid' | 'list' = 'grid';
+
+  protected readonly faChevronRight = faChevronRight;
+  protected readonly faMagnifyingGlassPlus = faMagnifyingGlassPlus;
+  protected readonly faSparkles = faSparkles;
+  protected readonly faSpinnerThird = faSpinnerThird;
+  protected readonly faXmark = faXmark;
   marketplaceHomeUrl = '/search';
 
   // Sidebar filters (non-AI mode)
