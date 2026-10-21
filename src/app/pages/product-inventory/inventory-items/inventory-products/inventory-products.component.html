@@ -67,8 +67,12 @@
         </div>
       </app-tile-card>
       } @empty {
-      <div class="min-h-19 dark:text-gray-600 text-center dark:text-gray-400">{{ 'PRODUCT_INVENTORY._not_found' |
-        translate }}</div>
+      <app-empty-state class="col-span-full" [icon]="faBoxOpen" heading="PRODUCT_INVENTORY._not_found"
+        description="PRODUCT_INVENTORY._not_found_desc">
+        <app-button variant="primary" suffixIcon="arrow-right" (click)="goToMarketplace()">
+          {{ 'DASHBOARD._browse_serv' | translate }}
+        </app-button>
+      </app-empty-state>
       }
       @if (loading_more) {
       <div class="w-full h-full min-h-[280px] flex items-center justify-center">

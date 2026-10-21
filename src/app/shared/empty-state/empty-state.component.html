@@ -1,0 +1,12 @@
+<div class="app-empty-state">
+  <div class="app-empty-state__icon">
+    <fa-icon [icon]="icon" aria-hidden="true"></fa-icon>
+  </div>
+  <p class="app-empty-state__title">{{ heading | translate }}</p>
+  @if (description) {
+  <p class="app-empty-state__description">{{ description | translate }}</p>
+  }
+  <div class="app-empty-state__actions">
+    <ng-content></ng-content>
+  </div>
+</div>

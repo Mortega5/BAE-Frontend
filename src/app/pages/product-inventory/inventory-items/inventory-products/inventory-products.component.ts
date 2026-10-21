@@ -1,6 +1,6 @@
 import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
+import { faBoxOpen, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, firstValueFrom } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -34,6 +34,7 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
   unsubscribeModal: boolean = false;
   prodToUnsubscribe: any;
   filters: string[] = ['active', 'created'];
+  protected readonly faBoxOpen = faBoxOpen;
 
   productFilters: FormField[] = [
     {
@@ -208,6 +209,10 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
     this.total = data.total;
     this.loading = false;
     this.loading_more = false;
+  }
+
+  goToMarketplace(): void {
+    this.router.navigate(['/search']);
   }
 
   onFiltersChange(filters: Record<string, any>) {

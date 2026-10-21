@@ -1281,6 +1281,7 @@
     "_resource_specs": "Resource specifications",
     "_orders": "Orders",
     "_not_found": "No products found.",
+    "_not_found_desc": "Offerings you acquire in the marketplace will show up here. Try other status filters if you expected to see something.",
     "_no_resources": "No resources found.",
     "_no_services": "No services found.",
     "_search_criteria": "Search criteria",
