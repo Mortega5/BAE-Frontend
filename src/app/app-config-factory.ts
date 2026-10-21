@@ -11,11 +11,13 @@ export function appConfigFactory(
     return appInitService.init().then(conf => {
       googleTagManager.init(conf.googleTagManagerId);
 
-      const matomoConfigOptions = {
-        siteId: conf.matomoId,
-        trackerUrl: conf.matomoUrl
+      // Matomo is optional: without a site id and tracker URL the deferred tracker is never
+      // initialized, instead of fetching matomo.js from the app's own origin.
+      const matomoId = `${conf.matomoId ?? ''}`.trim();
+      const matomoUrl = `${conf.matomoUrl ?? ''}`.trim();
+      if (matomoId && matomoUrl) {
+        matomoInitializer.initializeTracker({ siteId: matomoId, trackerUrl: matomoUrl });
       }
-      matomoInitializer.initializeTracker(matomoConfigOptions)
     });
   }
 }
