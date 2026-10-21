@@ -3,6 +3,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, 
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faEarthAmericas } from '@fortawesome/free-solid-svg-icons';
+import { faCheck, faChevronDown, faChevronRight, faEnvelope, faGlobe, faGrid2, faLocationDot, faPhone } from '@fortawesome/pro-solid-svg-icons';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { availableFilters, searchCategoriesConfig } from 'src/app/data/availableFilters';
@@ -72,6 +73,14 @@ export class OrganizationDetailsComponent implements OnInit, AfterViewInit, OnDe
   address: string = '';
   servicesCount: number = 0;
   protected readonly faEarthAmericas = faEarthAmericas;
+  protected readonly faCheck = faCheck;
+  protected readonly faChevronDown = faChevronDown;
+  protected readonly faChevronRight = faChevronRight;
+  protected readonly faEnvelope = faEnvelope;
+  protected readonly faGlobe = faGlobe;
+  protected readonly faGrid2 = faGrid2;
+  protected readonly faLocationDot = faLocationDot;
+  protected readonly faPhone = faPhone;
   protected readonly iconForCategory = iconForCategory;
 
   serviceSearch = new FormControl();
