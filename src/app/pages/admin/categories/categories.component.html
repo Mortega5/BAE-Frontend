@@ -10,11 +10,8 @@
     </app-button>
   </div>
 
-  @if(loading){
-  <app-loading-spinner />
-  } @else {
-  <app-table-input data-cy="adminCategoriesTable" [columns]="categoryColumns" [items]="flatCategories"
-    [selectable]="false" [clickable]="true" (rowClick)="goToUpdate($event.id)"
-    [emptyMessage]="'CATEGORIES._no_cat'" />
-  }
+  <app-filtered-paginated-table data-cy="adminCategoriesTable" [columns]="categoryColumns"
+    [fetchPage]="fetchCategories" [filters]="categoryFilters" [filterColumns]="1" [clickable]="true"
+    (rowClick)="goToUpdate($event.id!)" [emptyMessage]="'CATEGORIES._no_cat'">
+  </app-filtered-paginated-table>
 </app-card>

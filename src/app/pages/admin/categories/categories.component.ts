@@ -1,107 +1,69 @@
-import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { faIdCard, faSort, faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
-import { initFlowbite } from 'flowbite';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
-import { LoginInfo } from 'src/app/models/interfaces';
+import { faSwatchbook } from "@fortawesome/pro-solid-svg-icons";
 import { components } from "src/app/models/product-catalog";
-import { EventMessageService } from "src/app/services/event-message.service";
-import { LocalStorageService } from "src/app/services/local-storage.service";
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import { environment } from 'src/environments/environment';
-import { AdminPaths } from '../admin.paths';
-import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { fetchAllPages, PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { TableColumn } from 'src/app/models/table-column.model';
+import { ApiServiceService } from 'src/app/services/product-service.service';
+import { expandLifecycleStatusFilter, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
+import { AdminPaths } from '../admin.paths';
 type Category = components["schemas"]["Category"];
+
+/** A category row: displayName carries its ancestors' path, since the table has no nested rows. */
+type CategoryRow = Category & { displayName: string };
 
 @Component({
   selector: 'admin-categories',
   templateUrl: './categories.component.html',
   styleUrl: './categories.component.css'
 })
-export class CategoriesComponent implements OnDestroy {
-  protected readonly faIdCard = faIdCard;
-  protected readonly faSort = faSort;
-  protected readonly faSwatchbook = faSwatchbook;
+export class CategoriesComponent {
+  categoryFilters: FormField[] = [
+    {
+      name: 'status',
+      label: 'OFFERINGS._filter_state',
+      type: 'select',
+      icon: faSwatchbook,
+      multiple: true,
+      defaultValue: ['Active', 'Launched'],
+      options: [
+        { value: 'Active', label: 'OFFERINGS._active' },
+        { value: 'Launched', label: 'OFFERINGS._launched' },
+        { value: 'Retired', label: 'OFFERINGS._retired' },
+      ],
+    },
+  ];
 
-  searchField = new FormControl();
-  categories: any[] = [];
-  /** categories flattened depth-first, each with a displayName prefixed by its
-   * ancestors' names — table-input has no nested-row support, so this is how the
-   * tree gets shown as a single flat, indented list. */
-  flatCategories: any[] = [];
-  unformattedCategories: any[] = [];
-  page: number = 0;
-  CATEGOY_LIMIT: number = environment.CATEGORY_LIMIT;
-  loading: boolean = false;
-  partyId: any;
-  status: any[] = ['Active', 'Launched'];
-
-  categoryColumns: TableColumn[] = [
+  categoryColumns: TableColumn<CategoryRow>[] = [
     {
       header: 'ADMIN._name',
-      getValue: (cat: any) => cat.displayName,
-      cellClass: (cat: any) => this.hasLongWord(cat.displayName, 20) ? 'break-all' : 'break-words',
+      getValue: (cat) => cat.displayName,
+      cellClass: (cat) => this.hasLongWord(cat.displayName, 20) ? 'break-all' : 'break-words',
       width: 'w-2/4',
     },
     {
       header: 'ADMIN._status',
-      getValue: (cat: any) => lifecycleStatusLabel(cat.lifecycleStatus ?? ''),
+      getValue: (cat) => lifecycleStatusLabel(cat.lifecycleStatus ?? ''),
       type: 'status-badge',
       width: 'w-28',
-      getStatus: (cat: any) => this.statusBadgeVariant(cat.lifecycleStatus ?? ''),
+      getStatus: (cat) => lifecycleStatusBadgeVariant(cat.lifecycleStatus ?? ''),
     },
     {
       header: 'ADMIN._last_update',
       type: 'date',
-      getValue: (cat: any) => cat.lastUpdate,
+      getValue: (cat) => cat.lastUpdate,
       width: 'w-40',
     },
   ];
-  private destroy$ = new Subject<void>();
+
+  /** The whole tree, flattened depth-first. Loaded once: the status filter and paging only slice it. */
+  private allRows?: Promise<CategoryRow[]>;
 
   constructor(
     private router: Router,
     private api: ApiServiceService,
-    private cdr: ChangeDetectorRef,
-    private localStorage: LocalStorageService,
-    private eventMessage: EventMessageService,
-  ) {
-    this.eventMessage.messages$
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(ev => {
-        if (ev.type === 'ChangedSession') {
-          this.initCatalogs();
-        }
-      })
-  }
-
-  ngOnInit() {
-    this.initCatalogs();
-  }
-
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  initCatalogs() {
-    this.loading = true;
-    this.categories = [];
-    this.unformattedCategories = [];
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if (aux.logged_as == aux.id) {
-      this.partyId = aux.partyId;
-    } else {
-      let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as)
-      this.partyId = loggedOrg.partyId
-    }
-
-    void this.getCategories();
-    initFlowbite();
-  }
+  ) {}
 
   createCategory() {
     this.router.navigate([AdminPaths.categories.new()]);
@@ -111,52 +73,59 @@ export class CategoriesComponent implements OnDestroy {
     this.router.navigate([AdminPaths.categories.edit(catId)]);
   }
 
-  statusBadgeVariant(status: string): BadgeStatus {
-    return lifecycleStatusBadgeVariant(status);
+  /**
+   * The status filter applies per row rather than per subtree, so a matching category
+   * still shows (with its full path) under a parent whose own status is filtered out.
+   */
+  fetchCategories = async (params: PageRequest, filters: Record<string, any>): Promise<PageResult<CategoryRow>> => {
+    this.allRows ??= this.loadAllRows();
+    let rows: CategoryRow[];
+    try {
+      rows = await this.allRows;
+    } catch (error) {
+      this.allRows = undefined;
+      throw error;
+    }
+
+    const statuses = expandLifecycleStatusFilter((filters['status'] ?? []) as string[]);
+    const filtered = statuses.length > 0
+      ? rows.filter(row => statuses.includes(row.lifecycleStatus ?? ''))
+      : rows;
+
+    return {
+      items: filtered.slice(params.offset, params.offset + params.limit),
+      total: filtered.length,
+    };
   }
 
-  async getCategories() {
-    /*this.api.getCatalog(this.selectedCatalog.id).then(data => {
-      if(data.category){
-        for (let i=0; i<data.category.length; i++){
-          this.api.getCategoryById(data.category[i].id).then(categoryInfo => {
-            this.findChildrenByParent(categoryInfo);
-          })
-        }
-        initFlowbite();
+  private async loadAllRows(): Promise<CategoryRow[]> {
+    const categories: Category[] = await fetchAllPages(params => this.api.getCategoriesPaged(params));
+    const byId = new Map(categories.map(cat => [cat.id, cat]));
+    const childrenOf = new Map<string, Category[]>();
+    const roots: Category[] = [];
+
+    for (const cat of categories) {
+      // A child whose parent isn't in the list is shown at the top level instead of being dropped.
+      if (cat.isRoot || !cat.parentId || !byId.has(cat.parentId)) {
+        roots.push(cat);
       } else {
-        this.api.getCategories().then(data => {
-          for(let i=0; i < data.length; i++){
-            this.findChildren(data[i],data)
-          }
-          this.cdr.detectChanges();
-          initFlowbite();
-        })
+        const siblings = childrenOf.get(cat.parentId) ?? [];
+        siblings.push(cat);
+        childrenOf.set(cat.parentId, siblings);
       }
-    })*/
-    console.log('Getting categories...')
-    const rootCategories = await this.api.getDefaultCategories().catch(() => []);
-    const roots = Array.isArray(rootCategories) ? rootCategories : [];
+    }
 
-    this.unformattedCategories = [...roots];
-    const categoryTrees = await Promise.all(
-      roots.map((root: any) => this.loadCategorySubtree(root))
-    );
+    const byName = (a: Category, b: Category) => (a.name ?? '').localeCompare(b.name ?? '');
+    const visited = new Set<string | undefined>();
+    const flatten = (nodes: Category[], path: string): CategoryRow[] =>
+      [...nodes].sort(byName).flatMap(cat => {
+        if (visited.has(cat.id)) return [];
+        visited.add(cat.id);
+        const displayName = path ? `${path} / ${cat.name}` : cat.name ?? '';
+        return [{ ...cat, displayName }, ...flatten(childrenOf.get(cat.id ?? '') ?? [], displayName)];
+      });
 
-    this.categories = categoryTrees.filter((cat): cat is Category => !!cat);
-    this.flatCategories = this.flattenCategories(this.categories);
-    this.loading = false;
-    this.cdr.detectChanges();
-    initFlowbite();
-  }
-
-  private flattenCategories(categories: any[], path = ''): any[] {
-    return categories.flatMap((cat: any) => {
-      const displayName = path ? `${path} / ${cat.name}` : cat.name;
-      const flattened = { ...cat, displayName };
-      const children = this.flattenCategories(cat.children || [], displayName);
-      return [flattened, ...children];
-    });
+    return flatten(roots, '');
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
@@ -166,48 +135,4 @@ export class CategoriesComponent implements OnDestroy {
       return false
     }
   }
-
-  private async loadCategorySubtree(parent: any): Promise<Category> {
-    const children = await this.api.getCategoriesByParentId(parent.id).catch(() => []);
-    const childList = Array.isArray(children) ? children : [];
-    const resolvedChildren = await Promise.all(
-      childList.map((child: any) => this.loadCategorySubtree(child))
-    );
-
-    return {
-      ...parent,
-      children: resolvedChildren
-    };
-  }
-
-  /*addParent(parentId:any){
-    const index = this.unformattedCategories.findIndex(item => item.id === parentId);
-    if (index != -1) {
-      //Si el padre no está seleccionado se añade a la selección
-      if(this.unformattedCategories[index].isRoot==false){
-        this.addCategory(this.unformattedCategories[index])
-      } else {
-        this.selectedCategories.push(this.unformattedCategories[index]);
-      }
-    }
-  }*/
-
-  onStateFilterChange(filter: string) {
-    const index = this.status.findIndex(item => item === filter);
-    if (index !== -1) {
-      this.status.splice(index, 1);
-      console.log('elimina filtro')
-      console.log(this.status)
-    } else {
-      console.log('añade filtro')
-      console.log(this.status)
-      this.status.push(filter)
-    }
-    this.loading = true;
-    this.categories = [];
-    this.unformattedCategories = [];
-    void this.getCategories();
-    console.log('filter')
-  }
-
 }

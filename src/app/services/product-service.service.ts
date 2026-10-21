@@ -484,6 +484,21 @@ export class ApiServiceService {
     );
   }
 
+  /** Every category regardless of lifecycle status or depth — for callers that build the full tree (Admin > Categories). */
+  async getCategoriesPaged(params: PageRequest): Promise<PageResult<any>> {
+    const queryParams: Record<string, any> = {
+      limit: params.limit,
+      offset: params.offset,
+    };
+    applySort(params, queryParams);
+
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/category`;
+    const response = await lastValueFrom(this.http.get<any[]>(url, { params: queryParams, observe: 'response' }));
+    const items = response.body ?? [];
+    const total = Number(response.headers.get('X-Total-Count') ?? items.length);
+    return { items, total };
+  }
+
   getCategories(status: any[]) {
     let url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/category?limit=${ApiServiceService.CATEGORY_LIMIT}`;
     let lifeStatus = ''
