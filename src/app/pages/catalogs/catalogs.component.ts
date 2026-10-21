@@ -1,6 +1,7 @@
 import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit, Type } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { faBuilding, faChevronDown, faChevronRight } from '@fortawesome/pro-solid-svg-icons';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AccountServiceService } from 'src/app/services/account-service.service';
@@ -45,6 +46,10 @@ export class CatalogsComponent implements OnInit, OnDestroy {
   searchField = new FormControl();
 
   viewMode: 'grid' | 'list' = 'grid';
+
+  protected readonly faBuilding = faBuilding;
+  protected readonly faChevronDown = faChevronDown;
+  protected readonly faChevronRight = faChevronRight;
   defaultCatalogLogoUrl = '';
   sortOption: 'recent' | 'name_asc' | 'name_desc' = 'recent';
   showSortDropdown = false;
