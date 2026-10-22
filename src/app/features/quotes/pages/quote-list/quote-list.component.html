@@ -1,0 +1,45 @@
+<div class="container mx-auto pt-4 pb-8">
+  <app-card>
+    <div appCardHeader class="flex w-full flex-col md:flex-row md:items-center justify-between gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="text-2xl font-bold dark:text-white">{{ 'QUOTES._title' | translate }}</h2>
+          <a href="https://knowledgebase.dome-marketplace.eu/books/tailored-offering-guide" target="_blank"
+            rel="noopener noreferrer" [title]="'QUOTES._guide' | translate"
+            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" aria-hidden="true">
+              <path fill-rule="evenodd"
+                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z"
+                clip-rule="evenodd" />
+            </svg>
+          </a>
+        </div>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ 'QUOTES._subtitle' | translate }}</p>
+      </div>
+
+      <app-button dataCy="refreshQuotes" variant="secondary" prefixIcon="rotate" (click)="refreshQuotes()">
+        {{ 'QUOTES._refresh' | translate }}
+      </app-button>
+    </div>
+
+    <app-tabs [activeTab]="selectedRole" (activeTabChange)="onRoleChange($event)" [fullWidth]="true">
+      <ng-template appTab="QUOTES._as_customer" tabId="customer" tabIcon="person-arrow-down-to-line"
+        dataCy="quotesAsCustomerTab"></ng-template>
+      <ng-template appTab="QUOTES._as_provider" tabId="seller" tabIcon="person-arrow-up-from-line"
+        [tabHidden]="!isSeller" dataCy="quotesAsProviderTab"></ng-template>
+
+      <div class="w-full h-fit mb-4 p-4">
+        <app-filtered-paginated-table data-cy="quotesTable" [columns]="columns" [fetchPage]="fetchQuotes"
+          [filters]="filters" [filterColumns]="1" [clickable]="true" (rowClick)="viewDetails($event)"
+          [emptyMessage]="'QUOTES._empty'">
+        </app-filtered-paginated-table>
+      </div>
+    </app-tabs>
+  </app-card>
+</div>
+
+<app-quote-details-modal [isOpen]="showQuoteDetailsModal" [quoteId]="selectedQuoteId" [currentUserRole]="selectedRole"
+  [currentUserId]="currentUserId || ''" (close)="closeQuoteDetailsModal()" (quoteUpdated)="onQuoteUpdated()">
+</app-quote-details-modal>
+
+<app-chat-modal [isOpen]="showChatModal" [quoteId]="selectedChatQuoteId" (close)="closeChatModal()"></app-chat-modal>

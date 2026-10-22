@@ -19,6 +19,8 @@ export class TabsComponent {
   /** tabId of the active tab. Falls back to the first visible tab when unset or hidden. */
   @Input() activeTab?: string;
   @Output() activeTabChange = new EventEmitter<string>();
+  /** Stretches the tabs to share the full width of the strip. */
+  @Input() fullWidth = false;
 
   @ContentChildren(TabDirective) tabs!: QueryList<TabDirective>;
 

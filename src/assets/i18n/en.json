@@ -3283,5 +3283,35 @@
     "_compliance_profile": "Compliance profile",
     "_package_deployment": "Package Deployment",
     "_configuration": "Configuration"
+  },
+  "QUOTES": {
+    "_title": "Tailored offerings",
+    "_subtitle": "Quote requests for tailored offerings, as customer or as provider",
+    "_guide": "Guide to the tailored offering process",
+    "_refresh": "Refresh",
+    "_as_customer": "As Customer",
+    "_as_provider": "As Provider",
+    "_request_date": "Request date",
+    "_provider": "Provider",
+    "_customer": "Customer",
+    "_product": "Product",
+    "_status_header": "Status",
+    "_actions": "Actions",
+    "_chat": "Chat",
+    "_filter_status": "Filter by status",
+    "_empty": "No quotes found",
+    "_updated": "Quote updated successfully.",
+    "_status": {
+      "request-sent-awaiting-feedback": "Request sent, awaiting feedback",
+      "request-accepted-and-being-worked-on": "Request accepted, being worked on",
+      "offering-submitted-by-provider": "Offering submitted by provider",
+      "offering-accepted": "Offering accepted",
+      "request-canceled": "Request cancelled",
+      "rejected": "Rejected",
+      "request-received-pending-feedback": "Request received, pending feedback",
+      "request-accepted": "Request accepted",
+      "offering-submitted": "Offering submitted",
+      "offering-accepted-by-customer": "Offering accepted by customer"
+    }
   }
 }

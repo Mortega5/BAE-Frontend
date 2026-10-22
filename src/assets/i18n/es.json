@@ -3283,5 +3283,35 @@
     "_compliance_profile": "Perfil de cumplimiento",
     "_package_deployment": "Despliegue del paquete",
     "_configuration": "Configuración"
+  },
+  "QUOTES": {
+    "_title": "Ofertas a medida",
+    "_subtitle": "Solicitudes de presupuesto de ofertas a medida, como cliente o como proveedor",
+    "_guide": "Guía del proceso de ofertas a medida",
+    "_refresh": "Actualizar",
+    "_as_customer": "Como cliente",
+    "_as_provider": "Como proveedor",
+    "_request_date": "Fecha de solicitud",
+    "_provider": "Proveedor",
+    "_customer": "Cliente",
+    "_product": "Producto",
+    "_status_header": "Estado",
+    "_actions": "Acciones",
+    "_chat": "Chat",
+    "_filter_status": "Filtrar por estado",
+    "_empty": "No se han encontrado presupuestos",
+    "_updated": "Presupuesto actualizado correctamente.",
+    "_status": {
+      "request-sent-awaiting-feedback": "Solicitud enviada, pendiente de respuesta",
+      "request-accepted-and-being-worked-on": "Solicitud aceptada, en preparación",
+      "offering-submitted-by-provider": "Oferta enviada por el proveedor",
+      "offering-accepted": "Oferta aceptada",
+      "request-canceled": "Solicitud cancelada",
+      "rejected": "Rechazada",
+      "request-received-pending-feedback": "Solicitud recibida, pendiente de respuesta",
+      "request-accepted": "Solicitud aceptada",
+      "offering-submitted": "Oferta enviada",
+      "offering-accepted-by-customer": "Oferta aceptada por el cliente"
+    }
   }
 }

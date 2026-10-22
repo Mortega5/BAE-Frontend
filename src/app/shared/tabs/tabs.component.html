@@ -1,9 +1,9 @@
 <div class="border-b border-gray-200 dark:border-gray-700 mb-2">
   <ul role="tablist" class="flex flex-wrap -mb-px text-sm font-medium text-center">
     @for (tab of visibleTabs; track tab.tabId) {
-    <li class="me-2" role="presentation">
+    <li role="presentation" [ngClass]="fullWidth ? 'flex-1' : 'me-2'">
       <button type="button" role="tab" [attr.aria-selected]="tab === currentTab" [attr.data-cy]="tab.dataCy"
-        (click)="select(tab)"
+        (click)="select(tab)" [class.w-full]="fullWidth"
         class="inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg"
         [ngClass]="tab === currentTab
           ? 'text-primary-100 border-primary-100 dark:text-primary-50 dark:border-primary-50'

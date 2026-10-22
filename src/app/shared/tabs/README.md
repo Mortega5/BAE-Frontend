@@ -35,6 +35,8 @@ for every tab.
 - `activeTab` / `activeTabChange` (two-way bindable): the active `tabId`. Unset, or
   pointing at a hidden tab, falls back to the first visible tab. `activeTabChange`
   only fires on a user click, not on that fallback.
+- `fullWidth` (default `false`): the tabs share the whole width of the strip instead
+  of sitting at their natural width on the left.
 
 `appTab` directive (on `<ng-template>`)
 - `appTab`: i18n key for the label.
