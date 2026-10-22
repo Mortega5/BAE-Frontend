@@ -11,7 +11,7 @@ import { NotificationService } from '../../services/notification.service';
 import { AccountServiceService } from '../../services/account-service.service';
 import { ApiServiceService } from '../../services/product-service.service';
 import { Quote } from '../../models/quote.model';
-import { TENDERING_STATUS_MESSAGES, COORDINATOR_STATUS_MESSAGES, QUOTE_CHAT_MESSAGES, QUOTE_CATEGORIES, QUOTE_STATUSES, tailoredStatusLabelKeys, tenderStatusLabelKey } from '../../models/quote.constants';
+import { QUOTE_CHAT_MESSAGES, QUOTE_CATEGORIES, QUOTE_STATUSES, tailoredStatusLabelKeys, tenderStatusLabelKey } from '../../models/quote.constants';
 import { API_ROLES } from '../../models/roles.constants';
 import { ChatModalComponent } from '../chat-modal/chat-modal.component';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
@@ -19,6 +19,10 @@ import { ButtonComponent, ButtonVariant } from '../button/button.component';
 import { ContentCardComponent } from '../content-card/content-card.component';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { BadgeComponent, BadgeStatus, quoteStateBadgeVariant } from '../badge/badge.component';
+
+const KNOWN_STATES: string[] = Object.values(QUOTE_STATUSES);
+/** Coordinator states that have a buyer-facing explanation (a rejected tender has none). */
+const COORDINATOR_INFO_STATES: string[] = KNOWN_STATES.filter(state => state !== QUOTE_STATUSES.REJECTED);
 
 @Component({
   selector: 'app-quote-details-modal',
@@ -299,18 +303,22 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
     return this.statusInfo('availableActions');
   }
 
-  /** Tailored texts are i18n keys (QUOTES.STATUS_INFO); tender/coordinator ones are still
-   * plain English constants shared with tender-list. */
+  /** i18n key of the status explanation / available actions for this quote, its category and the viewer's role;
+   * '' where there is nothing to say (a coordinator tender seen as provider, or a rejected one). */
   private statusInfo(field: 'explanation' | 'availableActions'): string {
     const state = this.getPrimaryState();
     const role = this.currentUserRole === 'customer' ? 'buyer' : 'provider';
-    const category = this.getQuoteCategory();
+    const suffix = field === 'explanation' ? '_explanation' : '_actions';
 
-    if (category !== QUOTE_CATEGORIES.COORDINATOR && category !== QUOTE_CATEGORIES.TENDER) {
-      return `QUOTES.STATUS_INFO.${state}.${role}._${field === 'explanation' ? 'explanation' : 'actions'}`;
+    switch (this.getQuoteCategory()) {
+      case QUOTE_CATEGORIES.COORDINATOR:
+        return role === 'buyer' && COORDINATOR_INFO_STATES.includes(state)
+          ? `TENDERS.STATUS_INFO.COORDINATOR.${state}.buyer.${suffix}` : '';
+      case QUOTE_CATEGORIES.TENDER:
+        return KNOWN_STATES.includes(state) ? `TENDERS.STATUS_INFO.TENDER.${state}.${role}.${suffix}` : '';
+      default:
+        return KNOWN_STATES.includes(state) ? `QUOTES.STATUS_INFO.${state}.${role}.${suffix}` : '';
     }
-    const messages = category === QUOTE_CATEGORIES.COORDINATOR ? COORDINATOR_STATUS_MESSAGES : TENDERING_STATUS_MESSAGES;
-    return messages[state]?.[role]?.[field] || '';
   }
 
   isQuoteFinalized(): boolean {

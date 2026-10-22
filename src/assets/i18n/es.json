@@ -3622,6 +3622,102 @@
       "_step_providers_heading": "Proveedores",
       "_step_providers_desc": "Filtra los proveedores del marketplace, guarda los que quieres invitar y envía la licitación para avisarles.",
       "_err_year_range": "El año debe estar entre este año y dentro de diez años."
+    },
+    "STATUS_INFO": {
+      "TENDER": {
+        "pending": {
+          "provider": {
+            "_explanation": "Te han enviado la invitación a la licitación. En esta fase puedes decidir si participas o no.",
+            "_actions": "Enviar mensajes al comprador (chat), aceptar o rechazar la invitación o retirarte de la licitación."
+          },
+          "buyer": {
+            "_explanation": "La licitación se ha creado y enviado al proveedor. Pendiente de que acepte o rechace participar.",
+            "_actions": "Enviar mensajes al proveedor (chat), ver los detalles de la solicitud o cancelarla."
+          }
+        },
+        "inProgress": {
+          "provider": {
+            "_explanation": "Participas en esta licitación. Envía tu oferta como un documento PDF con todos los detalles necesarios.",
+            "_actions": "Enviar mensajes al comprador (chat), subir la documentación de tu oferta o retirarte de la licitación."
+          },
+          "buyer": {
+            "_explanation": "El proveedor está preparando su oferta. Se te avisará cuando la envíe.",
+            "_actions": "Enviar mensajes al proveedor (chat), ver los detalles de la licitación o cancelarla."
+          }
+        },
+        "approved": {
+          "provider": {
+            "_explanation": "Tu oferta se ha enviado y el comprador la está revisando.",
+            "_actions": "Enviar mensajes al comprador (chat) o retirar tu oferta."
+          },
+          "buyer": {
+            "_explanation": "El proveedor ha enviado su oferta. Revísala junto con todos los documentos adjuntos.",
+            "_actions": "Enviar mensajes al proveedor (chat), aceptar la oferta, rechazarla o pedir aclaraciones."
+          }
+        },
+        "accepted": {
+          "provider": {
+            "_explanation": "¡Enhorabuena! Han aceptado tu oferta. Ahora debes crear la oferta personalizada.",
+            "_actions": "Enviar mensajes al comprador (chat)."
+          },
+          "buyer": {
+            "_explanation": "Has aceptado esta oferta. Ahora el proveedor debe crear la oferta personalizada.",
+            "_actions": "Enviar mensajes al proveedor (chat)."
+          }
+        },
+        "rejected": {
+          "provider": {
+            "_explanation": "Tu oferta no ha sido la elegida en esta licitación.",
+            "_actions": "Ver los detalles de la licitación y el historial del chat."
+          },
+          "buyer": {
+            "_explanation": "Has rechazado esta oferta.",
+            "_actions": "Ver los detalles de la licitación y el historial del chat."
+          }
+        },
+        "cancelled": {
+          "provider": {
+            "_explanation": "Esta oferta se ha cancelado.",
+            "_actions": "Ver los detalles de la licitación y el historial del chat. No hay más acciones disponibles."
+          },
+          "buyer": {
+            "_explanation": "Esta oferta se ha cancelado.",
+            "_actions": "Ver los detalles de la licitación y el historial del chat. No hay más acciones disponibles."
+          }
+        }
+      },
+      "COORDINATOR": {
+        "pending": {
+          "buyer": {
+            "_explanation": "La licitación sigue en borrador",
+            "_actions": "Completa los datos del borrador"
+          }
+        },
+        "inProgress": {
+          "buyer": {
+            "_explanation": "Los proveedores invitados tienen ahora tiempo para aceptar o rechazar la invitación",
+            "_actions": "Ver las respuestas de los proveedores, enviar mensajes, seguir el progreso o iniciar la licitación"
+          }
+        },
+        "approved": {
+          "buyer": {
+            "_explanation": "La licitación está en marcha: los proveedores que han aceptado la invitación deben enviar su oferta adjuntando un PDF. Revisa y compara las ofertas; podrás aceptar la ganadora cuando llegue la fecha de fin y se cierre la licitación.",
+            "_actions": "Revisar las respuestas, comparar las propuestas o pedir más información."
+          }
+        },
+        "accepted": {
+          "buyer": {
+            "_explanation": "La licitación está cerrada. Puedes elegir la propuesta ganadora y aceptarla.",
+            "_actions": "Ver los detalles de la licitación y hablar con el proveedor ganador"
+          }
+        },
+        "cancelled": {
+          "buyer": {
+            "_explanation": "Esta licitación se ha cancelado.",
+            "_actions": "Ver los detalles de la licitación. No hay más acciones disponibles."
+          }
+        }
+      }
     }
   }
 }

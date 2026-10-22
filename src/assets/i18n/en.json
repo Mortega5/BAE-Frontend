@@ -3622,6 +3622,102 @@
       "_step_providers_heading": "Providers",
       "_step_providers_desc": "Filter the marketplace providers, save the ones you want to invite and submit the tender to notify them.",
       "_err_year_range": "The year must be between this year and ten years from now."
+    },
+    "STATUS_INFO": {
+      "TENDER": {
+        "pending": {
+          "provider": {
+            "_explanation": "The tender request has been sent to you. At this stage you can decide whether to participate or not in this tender.",
+            "_actions": "Send messages to buyer (chat), accept or decline the tender request or withdraw from the tender."
+          },
+          "buyer": {
+            "_explanation": "The tender is created and sent to the provider. Waiting for the provider to accept or decline participation.",
+            "_actions": "Send messages to provider (chat), view tender request details or cancel the request."
+          }
+        },
+        "inProgress": {
+          "provider": {
+            "_explanation": "You are participating in this tender. Provide your offer as a PDF document to attach with all required details.",
+            "_actions": "Send messages to buyer (chat), upload tender response documents or withdraw from tender."
+          },
+          "buyer": {
+            "_explanation": "The provider is preparing their tender response. You will be notified once they submit their proposal.",
+            "_actions": "Send messages to provider (chat), view tender details or cancel the tender."
+          }
+        },
+        "approved": {
+          "provider": {
+            "_explanation": "Your offer has been submitted and is under review by the buyer.",
+            "_actions": "Send messages to buyer (chat) or withdraw your tender response."
+          },
+          "buyer": {
+            "_explanation": "The provider has submitted their tender response. Please review the submission and all attached documents.",
+            "_actions": "Send messages to provider (chat), accept the tender response, reject it, or request clarifications."
+          }
+        },
+        "accepted": {
+          "provider": {
+            "_explanation": "Congratulations! Your tender response has been accepted. You must now proceed with creating the customized offering.",
+            "_actions": "Send messages to buyer (chat)."
+          },
+          "buyer": {
+            "_explanation": "You have accepted this offer. The provider must now proceed with creating the customized offering.",
+            "_actions": "Send messages to provider (chat)."
+          }
+        },
+        "rejected": {
+          "provider": {
+            "_explanation": "Your offer was not selected for this tender.",
+            "_actions": "View tender details and chat history."
+          },
+          "buyer": {
+            "_explanation": "You have rejected this offer.",
+            "_actions": "View tender details and chat history."
+          }
+        },
+        "cancelled": {
+          "provider": {
+            "_explanation": "This offering has been cancelled.",
+            "_actions": "View tender details and chat history. No further actions available."
+          },
+          "buyer": {
+            "_explanation": "This offering has been cancelled.",
+            "_actions": "View tender details and chat history. No further actions available."
+          }
+        }
+      },
+      "COORDINATOR": {
+        "pending": {
+          "buyer": {
+            "_explanation": "Tender is still in draft",
+            "_actions": "Finish draft details"
+          }
+        },
+        "inProgress": {
+          "buyer": {
+            "_explanation": "The invited providers now have time to accept or decline the invite to the tender",
+            "_actions": "View provider responses, send messages, monitor progress, or start the tender"
+          }
+        },
+        "approved": {
+          "buyer": {
+            "_explanation": "The tendering is launched, the providers that have accepted the invitation must now provide an offer by attaching a PDF document. You must review and compare the offerings provided and will be able to accept the winning one once the End tender date has been reached and the tendering process is closed",
+            "_actions": "Review responses, compare proposals, or request additional information."
+          }
+        },
+        "accepted": {
+          "buyer": {
+            "_explanation": "The tender is now closed. You can select the winning proposal and accept it",
+            "_actions": "View tender details, communicate with winning provider"
+          }
+        },
+        "cancelled": {
+          "buyer": {
+            "_explanation": "This tender has been cancelled.",
+            "_actions": "View tender details. No further actions available."
+          }
+        }
+      }
     }
   }
 }

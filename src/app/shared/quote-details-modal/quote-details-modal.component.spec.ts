@@ -130,4 +130,21 @@ describe('QuoteDetailsModalComponent', () => {
     expect(quoteService.broadcastMessage).not.toHaveBeenCalled();
     expect(notificationService.showSuccess).toHaveBeenCalledWith('QUOTES.DETAILS._broadcast_sent');
   });
+
+  it('explains tender and coordinator states with i18n keys, and nothing where there is no text', () => {
+    component.currentUserRole = 'seller';
+    component.quote = { id: 'q', category: QUOTE_CATEGORIES.TENDER, quoteItem: [{ state: QUOTE_STATUSES.APPROVED }] } as Quote;
+    expect(component.getStatusExplanation()).toBe('TENDERS.STATUS_INFO.TENDER.approved.provider._explanation');
+
+    component.currentUserRole = 'customer';
+    component.quote = { id: 'c', category: QUOTE_CATEGORIES.COORDINATOR, quoteItem: [{ state: QUOTE_STATUSES.IN_PROGRESS }] } as Quote;
+    expect(component.getAvailableActionsText()).toBe('TENDERS.STATUS_INFO.COORDINATOR.inProgress.buyer._actions');
+
+    component.quote = { id: 'c', category: QUOTE_CATEGORIES.COORDINATOR, quoteItem: [{ state: QUOTE_STATUSES.REJECTED }] } as Quote;
+    expect(component.getStatusExplanation()).toBe('');
+
+    component.currentUserRole = 'seller';
+    component.quote = { id: 'c', category: QUOTE_CATEGORIES.COORDINATOR, quoteItem: [{ state: QUOTE_STATUSES.IN_PROGRESS }] } as Quote;
+    expect(component.getStatusExplanation()).toBe('');
+  });
 });
