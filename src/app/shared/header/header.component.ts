@@ -79,7 +79,8 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   providerThemeName = environment.providerThemeName;
   isProduction = environment.isProduction;
   quotesEnabled = environment.QUOTES_ENABLED;
-  tenderEnabled = environment.TENDER_ENABLED;
+  // Tenders run on the quote service: hidden unless quotes are on too, same as the route guard
+  tenderEnabled = environment.TENDER_ENABLED && environment.QUOTES_ENABLED;
 
   knowledge = environment.KNOWLEDGE_BASE_URL;
   knowledge_onboarding = environment.KB_ONBOARDING_GUIDELINES_URL;

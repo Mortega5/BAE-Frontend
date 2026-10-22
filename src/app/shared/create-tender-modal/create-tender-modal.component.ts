@@ -500,8 +500,8 @@ import {
       [confirmLabel]="genericConfirmButtonText"
       cancelLabel="Cancel"
       [confirmVariant]="genericConfirmVariant"
-      (confirmed)="genericConfirmCallback && genericConfirmCallback()"
-      (cancelled)="showGenericConfirm = false"
+      (resolved)="$event && genericConfirmCallback ? genericConfirmCallback() : (showGenericConfirm = false)"
+      (closed)="showGenericConfirm = false"
     ></app-confirm-modal>
   `,
   styles: []

@@ -506,8 +506,8 @@ import { COORDINATOR_STATUS_MESSAGES, QUOTE_CATEGORIES, QUOTE_STATUSES, TENDERIN
       confirmLabel="Delete"
       cancelLabel="Cancel"
       confirmVariant="danger"
-      (confirmed)="deleteQuote()"
-      (cancelled)="showDeleteConfirm = false"
+      (resolved)="$event ? deleteQuote() : (showDeleteConfirm = false)"
+      (closed)="showDeleteConfirm = false"
     ></app-confirm-modal>
 
     <!-- Generic Confirmation Dialog -->
@@ -518,8 +518,8 @@ import { COORDINATOR_STATUS_MESSAGES, QUOTE_CATEGORIES, QUOTE_STATUSES, TENDERIN
       [confirmLabel]="genericConfirmButtonText"
       cancelLabel="Cancel"
       [confirmVariant]="genericConfirmVariant"
-      (confirmed)="genericConfirmCallback && genericConfirmCallback()"
-      (cancelled)="showGenericConfirm = false"
+      (resolved)="$event && genericConfirmCallback ? genericConfirmCallback() : (showGenericConfirm = false)"
+      (closed)="showGenericConfirm = false"
     ></app-confirm-modal>
 
     <!-- State Update Modal -->

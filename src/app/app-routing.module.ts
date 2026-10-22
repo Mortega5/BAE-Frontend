@@ -8,6 +8,7 @@ import { EntryFormComponent } from "src/app/pages/dome-blog/entry-form/entry-for
 import { FaqComponent } from "src/app/offerings/faq/faq.component";
 import { AuthGuard } from './guard/auth.guard';
 import { quoteGuardGuard } from './guard/quote-guard.guard';
+import { tenderGuardGuard } from './guard/tender-guard.guard';
 import { AdminComponent } from "./pages/admin/admin.component";
 import { AdminPaths } from "./pages/admin/admin.paths";
 import { adminRoutes } from "./pages/admin/admin.routes";
@@ -130,7 +131,7 @@ const routes: Routes = [
   {
     path: 'tenders',
     loadChildren: () => import('./features/tenders/tenders.module').then(m => m.TendersModule),
-    canActivate: [AuthGuard, quoteGuardGuard],
+    canActivate: [AuthGuard, tenderGuardGuard],
     data: { roles: [] }
   },
   {
