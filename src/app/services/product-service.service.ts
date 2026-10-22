@@ -341,7 +341,10 @@ export class ApiServiceService {
     const codeParams: Record<string, any> = {
       limit: params.limit,
       offset: params.offset,
+      // Only offers the party sells: being related to an offer in another role (e.g. as the
+      // customer of an ad-hoc offer) doesn't make it theirs to manage.
       'relatedParty.id': partyId,
+      'relatedParty.role': environment.SELLER_ROLE,
     };
 
     if (isBundle != undefined) {
