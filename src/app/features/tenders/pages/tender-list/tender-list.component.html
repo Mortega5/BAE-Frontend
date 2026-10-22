@@ -1,0 +1,55 @@
+<div class="container mx-auto pt-4 pb-8">
+  <app-card>
+    <div appCardHeader class="flex w-full flex-col md:flex-row md:items-center justify-between gap-3">
+      <div>
+        <div class="flex items-center gap-2">
+          <h2 class="text-2xl font-bold dark:text-white">{{ 'TENDERS._title' | translate }}</h2>
+          @if (guideUrl) {
+          <a [href]="guideUrl" target="_blank" rel="noopener noreferrer" [title]="'TENDERS._guide' | translate"
+            data-cy="tenderGuide"
+            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+            <fa-icon [icon]="faCircleQuestion" aria-hidden="true" />
+            <span class="sr-only">{{ 'TENDERS._guide' | translate }}</span>
+          </a>
+          }
+        </div>
+        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ 'TENDERS._subtitle' | translate }}</p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <app-button dataCy="refreshTenders" variant="secondary" prefixIcon="rotate" (click)="refreshTenders()">
+          {{ 'TENDERS._refresh' | translate }}
+        </app-button>
+        @if (selectedRole === 'customer') {
+        <app-button dataCy="createTender" prefixIcon="plus" (click)="openCreateTenderModal()">
+          {{ 'TENDERS._create' | translate }}
+        </app-button>
+        }
+      </div>
+    </div>
+
+    <app-tabs [activeTab]="selectedRole" (activeTabChange)="onRoleChange($event)" [fullWidth]="true">
+      <ng-template appTab="TENDERS._as_buyer" tabId="customer" tabIcon="person-arrow-down-to-line"
+        dataCy="tendersAsBuyerTab"></ng-template>
+      <ng-template appTab="TENDERS._as_provider" tabId="seller" tabIcon="person-arrow-up-from-line"
+        [tabHidden]="!isSeller" dataCy="tendersAsProviderTab"></ng-template>
+
+      <div class="w-full h-fit mb-4 p-4">
+        <app-filtered-paginated-table data-cy="tendersTable" [columns]="columns" [fetchPage]="fetchTenders"
+          [filters]="filters" [filterColumns]="1" [clickable]="true" (rowClick)="openTender($event)"
+          [emptyMessage]="'TENDERS._empty'">
+        </app-filtered-paginated-table>
+      </div>
+    </app-tabs>
+  </app-card>
+</div>
+
+<app-quote-details-modal [isOpen]="showQuoteDetailsModal" [quoteId]="selectedQuoteId" currentUserRole="seller"
+  [currentUserId]="currentUserId || ''" (close)="closeQuoteDetailsModal()" (quoteUpdated)="onQuoteUpdated()">
+</app-quote-details-modal>
+
+<app-chat-modal [isOpen]="showChatModal" [quoteId]="selectedChatQuoteId" (close)="closeChatModal()"></app-chat-modal>
+
+<app-create-tender-modal [isOpen]="showCreateTenderModal" [customerId]="currentUserId || ''"
+  (closeModal)="closeCreateTenderModal()" (tenderCreated)="onTenderCreated()">
+</app-create-tender-modal>

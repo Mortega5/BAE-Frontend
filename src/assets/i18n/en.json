@@ -3468,5 +3468,78 @@
         }
       }
     }
+  },
+  "TENDERS": {
+    "_title": "Tenders",
+    "_subtitle": "Tenders you run as buyer and invitations you receive as provider",
+    "_guide": "Guide to the tender process",
+    "_refresh": "Refresh",
+    "_create": "Create tender",
+    "_as_buyer": "As Buyer",
+    "_as_provider": "As Provider",
+    "_tender_title": "Title",
+    "_no_title": "(no title)",
+    "_status_header": "Status",
+    "_start_date": "Start date",
+    "_end_date": "End date",
+    "_request_date": "Request date",
+    "_buyer": "Buyer",
+    "_provider": "Provider",
+    "_actions": "Actions",
+    "_chat": "Chat",
+    "_attachment": "Attachment",
+    "_download": "Download",
+    "_filter_status": "Filter by status",
+    "_empty": "No tenders found",
+    "_back": "Back to tenders",
+    "_not_found": "This tender doesn't exist or you can't see it",
+    "_request": "Buyer's request",
+    "_edit": "Edit",
+    "_details": "Details",
+    "_dev_start": "Start (test)",
+    "_dev_close": "Close (test)",
+    "_offers": "Provider offers",
+    "_offers_subtitle": "Invited providers and the state of their offers. Open one to accept or reject it.",
+    "_offers_empty": "No provider offers yet",
+    "_offers_draft": "Invitations are sent when the tender leaves draft",
+    "_updated": "Tender updated successfully.",
+    "_created": "Tender created successfully.",
+    "_download_started": "Download started",
+    "_download_error": "Error downloading attachment",
+    "_load_error": "Failed to load the tender",
+    "_confirm_start_title": "Start tender",
+    "_confirm_start_msg": "Start this tender now? Its start date will be set to today.",
+    "_confirm_close_title": "Close tender",
+    "_confirm_close_msg": "Close this tender now? Its end date will be set to today.",
+    "_started": "Tender started. Start date set to today.",
+    "_closed": "Tender closed. End date set to today.",
+    "_start_error": "Error starting the tender",
+    "_close_error": "Error closing the tender",
+    "STATUS": {
+      "COORDINATOR": {
+        "pending": "Not yet submitted",
+        "inProgress": "Invites sent, waiting acceptance",
+        "approved": "Tender started",
+        "accepted": "Tender closed",
+        "cancelled": "Cancelled",
+        "rejected": "Rejected"
+      },
+      "CUSTOMER": {
+        "pending": "Invite sent",
+        "inProgress": "Invite accepted by provider",
+        "approved": "Offer submitted by provider",
+        "accepted": "Offering accepted",
+        "cancelled": "Request cancelled",
+        "rejected": "Offering rejected"
+      },
+      "PROVIDER": {
+        "pending": "Invite received",
+        "inProgress": "Invitation accepted",
+        "approved": "Offering submitted",
+        "accepted": "Offering accepted by customer",
+        "cancelled": "Request cancelled",
+        "rejected": "Offering rejected"
+      }
+    }
   }
 }

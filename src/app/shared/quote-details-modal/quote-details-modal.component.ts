@@ -11,7 +11,7 @@ import { NotificationService } from '../../services/notification.service';
 import { AccountServiceService } from '../../services/account-service.service';
 import { ApiServiceService } from '../../services/product-service.service';
 import { Quote } from '../../models/quote.model';
-import { TENDERING_STATUS_MESSAGES, COORDINATOR_STATUS_MESSAGES, QUOTE_CHAT_MESSAGES, QUOTE_CATEGORIES, QUOTE_STATUSES, TENDER_COORDINATOR_STATUSES_LABELS, TENDER_RELATED_QUOTES_LABELS_CUSTOMER, TENDER_RELATED_QUOTES_LABELS_PROVIDER, tailoredStatusLabelKeys } from '../../models/quote.constants';
+import { TENDERING_STATUS_MESSAGES, COORDINATOR_STATUS_MESSAGES, QUOTE_CHAT_MESSAGES, QUOTE_CATEGORIES, QUOTE_STATUSES, tailoredStatusLabelKeys, tenderStatusLabelKey } from '../../models/quote.constants';
 import { API_ROLES } from '../../models/roles.constants';
 import { ChatModalComponent } from '../chat-modal/chat-modal.component';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
@@ -254,22 +254,15 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
     return this.quote.state || 'unknown';
   }
 
-  /** Tailored labels are i18n keys; tender/coordinator ones are still plain English
-   * (shared with tender-list) and pass through the translate pipe unchanged. */
   getStatusLabel(): string {
     const state = this.getPrimaryState();
     if (!this.quote) return state;
 
     const category = this.getQuoteCategory();
-    if (category !== QUOTE_CATEGORIES.COORDINATOR && category !== QUOTE_CATEGORIES.TENDER) {
-      return tailoredStatusLabelKeys(this.currentUserRole)[state] ?? state;
+    if (category === QUOTE_CATEGORIES.COORDINATOR || category === QUOTE_CATEGORIES.TENDER) {
+      return tenderStatusLabelKey(category, this.currentUserRole, state);
     }
-
-    const labels: Record<string, string> = category === QUOTE_CATEGORIES.COORDINATOR
-      ? TENDER_COORDINATOR_STATUSES_LABELS
-      : this.currentUserRole === 'customer' ? TENDER_RELATED_QUOTES_LABELS_CUSTOMER : TENDER_RELATED_QUOTES_LABELS_PROVIDER;
-    const key = Object.entries(QUOTE_STATUSES).find(([, value]) => value === state)?.[0];
-    return (key && labels[key]) || state;
+    return tailoredStatusLabelKeys(this.currentUserRole)[state] ?? state;
   }
 
   // Returns the state of the coordinator quote (for tendering quotes)

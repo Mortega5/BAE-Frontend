@@ -9,6 +9,7 @@ import { FaqComponent } from "src/app/offerings/faq/faq.component";
 import { AuthGuard } from './guard/auth.guard';
 import { quoteGuardGuard } from './guard/quote-guard.guard';
 import { tenderGuardGuard } from './guard/tender-guard.guard';
+import { TendersPaths } from './features/tenders/tenders.paths';
 import { AdminComponent } from "./pages/admin/admin.component";
 import { AdminPaths } from "./pages/admin/admin.paths";
 import { adminRoutes } from "./pages/admin/admin.routes";
@@ -129,7 +130,7 @@ const routes: Routes = [
     canActivate: [AuthGuard, quoteGuardGuard], data: { roles: [] }
   },
   {
-    path: 'tenders',
+    path: TendersPaths.rootSegment,
     loadChildren: () => import('./features/tenders/tenders.module').then(m => m.TendersModule),
     canActivate: [AuthGuard, tenderGuardGuard],
     data: { roles: [] }

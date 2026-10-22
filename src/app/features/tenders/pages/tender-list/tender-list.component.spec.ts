@@ -1,192 +1,122 @@
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
-import { TenderListComponent } from './tender-list.component';
-import { QuoteService } from '../../../quotes/services/quote.service';
+
+import { AuthGuard } from 'src/app/guard/auth.guard';
+import { Quote } from 'src/app/models/quote.model';
+import { Tender } from 'src/app/models/tender.model';
+import { AccountServiceService } from 'src/app/services/account-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NotificationService } from 'src/app/services/notification.service';
-import { AccountServiceService } from 'src/app/services/account-service.service';
-import { ProviderService } from 'src/app/services/provider.service';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import { QUOTE_CATEGORIES, QUOTE_STATUSES } from 'src/app/models/quote.constants';
-import { UI_ROLES } from 'src/app/models/roles.constants';
-import { Quote } from 'src/app/models/quote.model';
+import { ThemeService } from 'src/app/services/theme.service';
+import { QuoteService } from '../../../quotes/services/quote.service';
+import { TendersPaths } from '../../tenders.paths';
+import { TenderListComponent } from './tender-list.component';
+
+const ME = 'urn:ngsi-ld:organization:me';
+const BUYER = 'urn:ngsi-ld:organization:buyer';
+
+function tender(id: string, category: Tender['category'], state: Tender['state'], createdAt: string, extra: Partial<Tender> = {}): Tender {
+  return { id, category, state, createdAt, responseDeadline: createdAt, selectedProviders: [], tenderNote: `Tender ${id}`, ...extra };
+}
 
 describe('TenderListComponent', () => {
   let fixture: ComponentFixture<TenderListComponent>;
   let component: TenderListComponent;
+  let quoteService: jasmine.SpyObj<QuoteService>;
+  let router: jasmine.SpyObj<Router>;
+  let queryRole: string | null;
 
-  beforeEach(async () => {
+  async function setup() {
     await TestBed.configureTestingModule({
-      imports: [TenderListComponent],
+      imports: [TenderListComponent, TranslateModule.forRoot()],
       providers: [
-        {
-          provide: QuoteService,
-          useValue: {
-            getCoordinatorQuotesByUser: () => of([]),
-            getTenderingQuotesByUser: () => of([]),
-          },
-        },
-        {
-          provide: LocalStorageService,
-          useValue: {
-            getObject: () => ({
-              id: 'user-1',
-              logged_as: 'user-1',
-              partyId: 'party-1',
-              organizations: [],
-            }),
-          },
-        },
-        { provide: NotificationService, useValue: { showError: jasmine.createSpy('showError'), showSuccess: jasmine.createSpy('showSuccess') } },
-        { provide: AccountServiceService, useValue: {} },
-        { provide: ProviderService, useValue: { getProviderCountryOptions: () => of([]) } },
-        { provide: ApiServiceService, useValue: {} },
-        { provide: Router, useValue: { navigate: jasmine.createSpy('navigate') } },
+        { provide: QuoteService, useValue: quoteService },
+        { provide: LocalStorageService, useValue: { getObject: () => ({ id: 'me', logged_as: 'me', partyId: ME, organizations: [] }) } },
+        { provide: AccountServiceService, useValue: { getOrgInfo: () => Promise.resolve({ tradingName: 'Buyer Org' }) } },
+        { provide: NotificationService, useValue: jasmine.createSpyObj('NotificationService', ['showSuccess', 'showError']) },
+        { provide: ThemeService, useValue: { getCurrentThemeConfig: () => null } },
+        { provide: AuthGuard, useValue: { hasAnyRole: () => true } },
+        { provide: Router, useValue: router },
+        { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(queryRole ? { role: queryRole } : {}) } } },
       ],
-    }).compileComponents();
+    })
+      .overrideComponent(TenderListComponent, { set: { schemas: [NO_ERRORS_SCHEMA] } })
+      .compileComponents();
 
     fixture = TestBed.createComponent(TenderListComponent);
     component = fixture.componentInstance;
+    fixture.detectChanges();
+  }
+
+  beforeEach(() => {
+    quoteService = jasmine.createSpyObj<QuoteService>('QuoteService',
+      ['getCoordinatorQuotesByUser', 'getTenderingQuotesByUser', 'getQuoteById']);
+    quoteService.getCoordinatorQuotesByUser.and.returnValue(of([
+      tender('urn:quote:old', 'coordinator', 'draft', '2026-01-01T00:00:00Z'),
+      tender('urn:quote:new', 'coordinator', 'sent', '2026-02-01T00:00:00Z'),
+    ]));
+    quoteService.getTenderingQuotesByUser.and.returnValue(of([
+      tender('urn:quote:invite-live', 'tendering', 'pending', '2026-01-01T00:00:00Z', { external_id: 'urn:quote:live', buyerPartyId: BUYER }),
+      tender('urn:quote:invite-draft', 'tendering', 'pending', '2026-02-01T00:00:00Z', { external_id: 'urn:quote:draft', buyerPartyId: BUYER }),
+    ]));
+    quoteService.getQuoteById.and.callFake((id: string) =>
+      of({ id, quoteItem: [{ state: id === 'urn:quote:draft' ? 'pending' : 'inProgress' }] } as Quote));
+    router = jasmine.createSpyObj<Router>('Router', ['navigate', 'navigateByUrl']);
+    queryRole = null;
   });
 
-  it('renders tender status badges with a bordered surface so they remain distinct in tables', () => {
-    fixture.detectChanges();
+  it('lists the buyer tenders newest first, filtered by status on the client', async () => {
+    await setup();
 
-    component.selectedRole = UI_ROLES.BUYER;
-    component.loading = false;
-    component.error = null;
-    component.filteredQuotes = [
-      {
-        id: 'quote-1',
-        category: QUOTE_CATEGORIES.COORDINATOR,
-        description: 'Tender with closed state',
-        quoteItem: [{ state: QUOTE_STATUSES.ACCEPTED }],
-      } as Quote,
-    ];
+    const all = await component.fetchTenders({ limit: 10, offset: 0 }, {});
+    const launched = await component.fetchTenders({ limit: 10, offset: 0 }, { status: ['approved'] });
 
-    fixture.detectChanges();
-
-    const badge = fixture.nativeElement.querySelector('.status-badge') as HTMLElement;
-
-    expect(badge).not.toBeNull();
-
-    const computedStyle = getComputedStyle(badge);
-
-    expect(computedStyle.borderStyle).not.toBe('none');
-    expect(computedStyle.borderWidth).not.toBe('0px');
+    expect(quoteService.getCoordinatorQuotesByUser).toHaveBeenCalledTimes(1);
+    expect(all.items.map(row => row.id)).toEqual(['urn:quote:new', 'urn:quote:old']);
+    expect(launched.items.map(row => row.id)).toEqual(['urn:quote:new']);
   });
 
-  it('shows tender status filter options with user friendly labels', () => {
-    component.selectedRole = UI_ROLES.BUYER;
+  it('opens the tender page when a buyer clicks a row', async () => {
+    await setup();
+    const page = await component.fetchTenders({ limit: 10, offset: 0 }, {});
 
-    const labels = component.filterStatusOptions.map(option => option.label);
+    component.openTender(page.items[0]);
 
-    expect(labels).toContain('Not Yet Submitted');
-    expect(labels).toContain('Invites Sent, Waiting Acceptance');
-    expect(labels).toContain('Tender Started');
-    expect(labels).toContain('Tender Closed');
-    expect(labels.some(label => label.includes('-'))).toBeFalse();
+    expect(router.navigateByUrl).toHaveBeenCalledWith(TendersPaths.detail('urn:quote:new'));
   });
 
-  it('renders tender status badges with user friendly text', () => {
-    fixture.detectChanges();
+  it('hides provider invitations whose tender is still a draft and names the buyer', async () => {
+    queryRole = 'seller';
+    await setup();
 
-    component.selectedRole = UI_ROLES.BUYER;
-    component.loading = false;
-    component.error = null;
-    component.filteredQuotes = [
-      {
-        id: 'quote-1',
-        category: QUOTE_CATEGORIES.COORDINATOR,
-        description: 'Tender with closed state',
-        quoteItem: [{ state: QUOTE_STATUSES.ACCEPTED }],
-      } as Quote,
-    ];
+    const page = await component.fetchTenders({ limit: 10, offset: 0 }, {});
 
-    fixture.detectChanges();
-
-    const badge = fixture.nativeElement.querySelector('.status-badge') as HTMLElement;
-
-    expect(badge.textContent?.trim()).toBe('Tender Closed');
+    expect(component.selectedRole).toBe('seller');
+    expect(page.items.map(row => row.id)).toEqual(['urn:quote:invite-live']);
+    expect(page.items[0].buyerName).toBe('Buyer Org');
   });
 
-  it('uses the neutral palette for closed tender badges', () => {
-    fixture.detectChanges();
+  it('opens the invitation details for a provider instead of navigating', async () => {
+    queryRole = 'seller';
+    await setup();
+    const page = await component.fetchTenders({ limit: 10, offset: 0 }, {});
 
-    component.selectedRole = UI_ROLES.BUYER;
-    component.loading = false;
-    component.error = null;
-    component.filteredQuotes = [
-      {
-        id: 'quote-1',
-        category: QUOTE_CATEGORIES.COORDINATOR,
-        description: 'Tender with closed state',
-        quoteItem: [{ state: QUOTE_STATUSES.ACCEPTED }],
-      } as Quote,
-    ];
+    component.openTender(page.items[0]);
 
-    fixture.detectChanges();
-
-    const badge = fixture.nativeElement.querySelector('.status-badge') as HTMLElement;
-    const computedStyle = getComputedStyle(badge);
-
-    expect(computedStyle.backgroundColor).toBe('rgb(242, 244, 248)');
-    expect(computedStyle.borderColor).toBe('rgb(203, 211, 223)');
-    expect(computedStyle.color).toBe('rgb(50, 65, 83)');
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+    expect(component.showQuoteDetailsModal).toBeTrue();
+    expect(component.selectedQuoteId).toBe('urn:quote:invite-live');
   });
 
-  it('adds status explanations to tender badges for mouseover', () => {
-    fixture.detectChanges();
+  it('keeps the selected tab in the URL', async () => {
+    await setup();
 
-    component.selectedRole = UI_ROLES.BUYER;
-    component.loading = false;
-    component.error = null;
-    component.filteredQuotes = [
-      {
-        id: 'quote-1',
-        category: QUOTE_CATEGORIES.COORDINATOR,
-        description: 'Tender waiting for providers',
-        quoteItem: [{ state: QUOTE_STATUSES.IN_PROGRESS }],
-      } as Quote,
-    ];
+    component.onRoleChange('seller');
 
-    fixture.detectChanges();
-
-    const badge = fixture.nativeElement.querySelector('.status-badge') as HTMLElement;
-
-    expect(badge.getAttribute('title')).toContain('The invited providers now have time to accept or decline the invite to the tender');
-    expect(badge.getAttribute('title')).toContain('Available actions: View provider responses, send messages, monitor progress, or start the tender');
-  });
-
-  it('keeps provider tender status badges readable in the table row', () => {
-    fixture.detectChanges();
-
-    component.selectedRole = UI_ROLES.SELLER;
-    component.loading = false;
-    component.error = null;
-    component.filteredQuotes = [
-      {
-        id: 'quote-1',
-        category: QUOTE_CATEGORIES.TENDER,
-        description: 'Provider invite',
-        quoteDate: '2026-05-22T00:00:00.000Z',
-        quoteItem: [{ state: QUOTE_STATUSES.PENDING }],
-        relatedParty: [],
-      } as Quote,
-    ];
-
-    fixture.detectChanges();
-
-    const badge = fixture.nativeElement.querySelector('.status-badge') as HTMLElement;
-    const row = fixture.nativeElement.querySelector('[data-quote-id="quote-1"]') as HTMLElement;
-    const statusCell = row.querySelector('[data-testid="provider-tender-status-cell"]') as HTMLElement;
-
-    expect(badge.textContent?.trim()).toBe('Invite Received');
-    expect(badge.className).toContain('max-w-full');
-    expect(badge.className).toContain('truncate');
-    expect(row.className).toContain('grid-cols-12');
-    expect(statusCell.className).toContain('col-span-2');
-    expect(statusCell.className).toContain('min-w-0');
+    expect(router.navigate).toHaveBeenCalledWith([], jasmine.objectContaining({ queryParams: { role: 'seller' } }));
+    expect(component.columns[1].header).toBe('TENDERS._buyer');
   });
 });

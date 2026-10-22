@@ -80,7 +80,7 @@ describe('QuoteDetailsModalComponent', () => {
       quoteItem: [{ state: QUOTE_STATUSES.ACCEPTED }],
     };
 
-    expect(component.getStatusLabel()).toBe('Tender Closed');
+    expect(component.getStatusLabel()).toBe('TENDERS.STATUS.COORDINATOR.accepted');
     expect(component.getStatusBadge()).toBe('neutral');
   });
 

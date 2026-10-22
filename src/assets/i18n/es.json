@@ -3468,5 +3468,78 @@
         }
       }
     }
+  },
+  "TENDERS": {
+    "_title": "Licitaciones",
+    "_subtitle": "Licitaciones que lanzas como comprador e invitaciones que recibes como proveedor",
+    "_guide": "Guía del proceso de licitación",
+    "_refresh": "Actualizar",
+    "_create": "Crear licitación",
+    "_as_buyer": "Como comprador",
+    "_as_provider": "Como proveedor",
+    "_tender_title": "Título",
+    "_no_title": "(sin título)",
+    "_status_header": "Estado",
+    "_start_date": "Inicio",
+    "_end_date": "Fin",
+    "_request_date": "Fecha de solicitud",
+    "_buyer": "Comprador",
+    "_provider": "Proveedor",
+    "_actions": "Acciones",
+    "_chat": "Chat",
+    "_attachment": "Adjunto",
+    "_download": "Descargar",
+    "_filter_status": "Filtrar por estado",
+    "_empty": "No se han encontrado licitaciones",
+    "_back": "Volver a licitaciones",
+    "_not_found": "Esta licitación no existe o no tienes acceso",
+    "_request": "Solicitud del comprador",
+    "_edit": "Editar",
+    "_details": "Detalles",
+    "_dev_start": "Iniciar (prueba)",
+    "_dev_close": "Cerrar (prueba)",
+    "_offers": "Ofertas de proveedores",
+    "_offers_subtitle": "Proveedores invitados y el estado de sus ofertas. Abre una para aceptarla o rechazarla.",
+    "_offers_empty": "Todavía no hay ofertas de proveedores",
+    "_offers_draft": "Las invitaciones se envían cuando la licitación sale de borrador",
+    "_updated": "Licitación actualizada correctamente.",
+    "_created": "Licitación creada correctamente.",
+    "_download_started": "Descarga iniciada",
+    "_download_error": "Error al descargar el adjunto",
+    "_load_error": "No se ha podido cargar la licitación",
+    "_confirm_start_title": "Iniciar licitación",
+    "_confirm_start_msg": "¿Iniciar ya esta licitación? Su fecha de inicio pasará a ser hoy.",
+    "_confirm_close_title": "Cerrar licitación",
+    "_confirm_close_msg": "¿Cerrar ya esta licitación? Su fecha de fin pasará a ser hoy.",
+    "_started": "Licitación iniciada. La fecha de inicio es hoy.",
+    "_closed": "Licitación cerrada. La fecha de fin es hoy.",
+    "_start_error": "Error al iniciar la licitación",
+    "_close_error": "Error al cerrar la licitación",
+    "STATUS": {
+      "COORDINATOR": {
+        "pending": "Sin enviar",
+        "inProgress": "Invitaciones enviadas, pendiente de aceptación",
+        "approved": "Licitación iniciada",
+        "accepted": "Licitación cerrada",
+        "cancelled": "Cancelada",
+        "rejected": "Rechazada"
+      },
+      "CUSTOMER": {
+        "pending": "Invitación enviada",
+        "inProgress": "Invitación aceptada por el proveedor",
+        "approved": "Oferta enviada por el proveedor",
+        "accepted": "Oferta aceptada",
+        "cancelled": "Solicitud cancelada",
+        "rejected": "Oferta rechazada"
+      },
+      "PROVIDER": {
+        "pending": "Invitación recibida",
+        "inProgress": "Invitación aceptada",
+        "approved": "Oferta enviada",
+        "accepted": "Oferta aceptada por el cliente",
+        "cancelled": "Solicitud cancelada",
+        "rejected": "Oferta rechazada"
+      }
+    }
   }
 }

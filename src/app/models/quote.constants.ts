@@ -99,6 +99,13 @@ export const TAILORED_STATUSES_LABELS_PROVIDER = {
 
 export type TailoredStatusesLabelsProvider = typeof TAILORED_STATUSES_LABELS_PROVIDER[keyof typeof TAILORED_STATUSES_LABELS_PROVIDER];
 
+/** i18n key (TENDERS.STATUS.*) of a tender status label: coordinator tenders have their own
+ * vocabulary; a provider's tendering quote reads differently to the buyer and to the provider. */
+export function tenderStatusLabelKey(category: string | undefined, role: 'customer' | 'seller', state: string): string {
+  const group = category === QUOTE_CATEGORIES.COORDINATOR ? 'COORDINATOR' : role === 'customer' ? 'CUSTOMER' : 'PROVIDER';
+  return `TENDERS.STATUS.${group}.${state}`;
+}
+
 /** i18n keys (QUOTES._status.*) of the tailored status labels, by quote state, for the given view. */
 export function tailoredStatusLabelKeys(role: 'customer' | 'seller'): Record<string, string> {
   const labels = role === 'customer' ? TAILORED_STATUSES_LABELS_CUSTOMER : TAILORED_STATUSES_LABELS_PROVIDER;

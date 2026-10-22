@@ -1,0 +1,101 @@
+<div class="container mx-auto pt-4 pb-8 flex flex-col gap-4">
+  <div>
+    <app-button variant="link" prefixIcon="chevron-left" dataCy="tenderBack" (click)="goBack()">
+      {{ 'TENDERS._back' | translate }}
+    </app-button>
+  </div>
+
+  @if (loading && !tender) {
+  <app-loading-spinner containerClass="w-full h-40 flex justify-center items-center" />
+  } @else if (notFound) {
+  <app-not-found-state message="TENDERS._not_found" backLabel="TENDERS._back" (back)="goBack()" />
+  } @else if (tender) {
+  <app-card>
+    <div appCardHeader class="flex w-full flex-col md:flex-row md:items-start justify-between gap-3">
+      <div class="min-w-0">
+        <div class="flex flex-wrap items-center gap-3">
+          <h2 data-cy="tenderTitle" class="text-2xl font-bold dark:text-white break-words">
+            {{ tender.description || ('TENDERS._no_title' | translate) }}
+          </h2>
+          <bae-badge variant="status" [status]="statusBadge" [label]="statusLabel | translate"></bae-badge>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3 shrink-0">
+        @if (devButtonsEnabled && state === 'inProgress') {
+        <app-button variant="secondary" size="sm" prefixIcon="rocket-launch" dataCy="tenderDevStart" (click)="startTender()">
+          {{ 'TENDERS._dev_start' | translate }}
+        </app-button>
+        }
+        @if (devButtonsEnabled && state === 'approved') {
+        <app-button variant="secondary" size="sm" prefixIcon="check" dataCy="tenderDevClose" (click)="closeTender()">
+          {{ 'TENDERS._dev_close' | translate }}
+        </app-button>
+        }
+        @if (isDraft) {
+        <app-button [outline]="true" size="sm" prefixIcon="pen-to-square" dataCy="tenderEdit" (click)="editTender()">
+          {{ 'TENDERS._edit' | translate }}
+        </app-button>
+        }
+        <app-button size="sm" dataCy="tenderDetails" (click)="openTenderDetails()">
+          {{ 'TENDERS._details' | translate }}
+        </app-button>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div class="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
+        <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'TENDERS._start_date' | translate }}</p>
+        <p class="text-sm font-medium text-gray-900 dark:text-white">
+          {{ tender.expectedFulfillmentStartDate ? (tender.expectedFulfillmentStartDate | date:'dd/MM/yyyy') : '-' }}
+        </p>
+      </div>
+      <div class="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
+        <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'TENDERS._end_date' | translate }}</p>
+        <p class="text-sm font-medium text-gray-900 dark:text-white">
+          {{ tender.effectiveQuoteCompletionDate ? (tender.effectiveQuoteCompletionDate | date:'dd/MM/yyyy') : '-' }}
+        </p>
+      </div>
+      <div class="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
+        <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'TENDERS._request' | translate }}</p>
+        @if (attachmentName) {
+        <app-button variant="link" size="sm" prefixIcon="download" dataCy="tenderRequestDownload"
+          [title]="attachmentName" (click)="downloadAttachment(tender)">
+          <span class="truncate">{{ attachmentName }}</span>
+        </app-button>
+        } @else {
+        <p class="text-sm font-medium text-gray-900 dark:text-white">-</p>
+        }
+      </div>
+    </div>
+  </app-card>
+
+  <app-card>
+    <div appCardHeader>
+      <h3 class="text-xl font-bold dark:text-white">{{ 'TENDERS._offers' | translate }}</h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ 'TENDERS._offers_subtitle' | translate }}</p>
+    </div>
+
+    <div class="w-full h-fit mb-4 p-4">
+      <app-paginated-table data-cy="tenderOffersTable" [columns]="offerColumns" [fetchPage]="fetchOffers"
+        [clickable]="true" (rowClick)="openOffer($event)"
+        [emptyMessage]="isDraft ? 'TENDERS._offers_draft' : 'TENDERS._offers_empty'">
+      </app-paginated-table>
+    </div>
+  </app-card>
+  }
+</div>
+
+<app-quote-details-modal [isOpen]="showQuoteDetailsModal" [quoteId]="selectedQuoteId" currentUserRole="customer"
+  [currentUserId]="currentUserId || ''" (close)="closeQuoteDetailsModal()" (quoteUpdated)="onQuoteUpdated()">
+</app-quote-details-modal>
+
+<app-chat-modal [isOpen]="showChatModal" [quoteId]="selectedChatQuoteId" (close)="closeChatModal()"></app-chat-modal>
+
+<app-create-tender-modal [isOpen]="showEditModal" [customerId]="currentUserId || ''" [tenderToEdit]="tenderToEdit"
+  (closeModal)="closeEditModal()" (tenderUpdated)="closeEditModal()">
+</app-create-tender-modal>
+
+<app-confirm-modal [visible]="showConfirm" [title]="confirmTitle" [message]="confirmMessage" [confirmLabel]="confirmLabel"
+  [confirmVariant]="confirmVariant" (resolved)="onConfirmResolved($event)" (closed)="showConfirm = false">
+</app-confirm-modal>

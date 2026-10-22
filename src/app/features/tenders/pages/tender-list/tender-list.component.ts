@@ -1,889 +1,284 @@
-import { Component, OnInit, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
-import { Observable, forkJoin, map, of, catchError } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
-import { QuoteService } from '../../../quotes/services/quote.service';
+import { Component, OnInit, ViewChild, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faCircleQuestion, faCommentDots, faSwatchbook } from '@fortawesome/pro-solid-svg-icons';
+import { TranslateModule } from '@ngx-translate/core';
+import { firstValueFrom } from 'rxjs';
+import { AuthGuard } from 'src/app/guard/auth.guard';
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { LoginInfo } from 'src/app/models/interfaces';
+import { PageRequest, PageResult } from 'src/app/models/pagination.model';
+import { QUOTE_CATEGORIES, QUOTE_STATUSES, tenderStatusLabelKey } from 'src/app/models/quote.constants';
+import { Quote, QuoteStateType } from 'src/app/models/quote.model';
+import { API_ROLES } from 'src/app/models/roles.constants';
+import { TableColumn } from 'src/app/models/table-column.model';
+import { Tender, TenderStateType } from 'src/app/models/tender.model';
+import { AccountServiceService } from 'src/app/services/account-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NotificationService } from 'src/app/services/notification.service';
-import { AccountServiceService } from 'src/app/services/account-service.service';
-import { Tender, TenderAttachment, TenderStateType } from 'src/app/models/tender.model';
-import { Quote, QuoteStateType } from 'src/app/models/quote.model';
-import { environment } from 'src/environments/environment';
-import { LoginInfo } from 'src/app/models/interfaces';
-import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
-import { ButtonVariant } from 'src/app/shared/button/button.component';
-import { QuoteDetailsModalComponent } from 'src/app/shared/quote-details-modal/quote-details-modal.component';
+import { ThemeService } from 'src/app/services/theme.service';
+import { quoteStateBadgeVariant } from 'src/app/shared/badge/badge.component';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ChatModalComponent } from 'src/app/shared/chat-modal/chat-modal.component';
-import { AttachmentModalComponent } from 'src/app/shared/attachment-modal/attachment-modal.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 import { CreateTenderModalComponent } from 'src/app/shared/create-tender-modal/create-tender-modal.component';
-import { UI_ROLES, API_ROLES, UiRole, toApiRole } from 'src/app/models/roles.constants';
-import { COORDINATOR_STATUS_MESSAGES, QUOTE_CATEGORIES, QUOTE_STATUSES, TENDERING_STATUS_MESSAGES, TENDER_COORDINATOR_STATUSES_LABELS, TENDER_RELATED_QUOTES_LABELS_CUSTOMER, TENDER_RELATED_QUOTES_LABELS_PROVIDER } from 'src/app/models/quote.constants';
+import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
+import { QuoteDetailsModalComponent } from 'src/app/shared/quote-details-modal/quote-details-modal.component';
+import { TabDirective } from 'src/app/shared/tabs/tab.directive';
+import { TabsComponent } from 'src/app/shared/tabs/tabs.component';
+import { QuoteService } from '../../../quotes/services/quote.service';
+import { TendersPaths } from '../../tenders.paths';
+
+type TenderRole = 'customer' | 'seller';
+
+/** A tender row with the names and state the table shows, resolved once when the role's tenders load. */
+type TenderRow = Quote & { buyerName: string; primaryState: string };
+
+const STATUS_FILTER_STATES: string[] = [
+  QUOTE_STATUSES.PENDING, QUOTE_STATUSES.IN_PROGRESS, QUOTE_STATUSES.APPROVED,
+  QUOTE_STATUSES.ACCEPTED, QUOTE_STATUSES.CANCELLED, QUOTE_STATUSES.REJECTED,
+];
 
 @Component({
-  selector: 'app-quote-list',
+  selector: 'app-tender-list',
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    ConfirmModalComponent,
-    QuoteDetailsModalComponent,
-    ChatModalComponent,
-    AttachmentModalComponent,
-    CreateTenderModalComponent
-  ],
-  template: `
-    <div class="min-h-screen bg-[#F7F9FD] font-[Blinker]" (click)="closeStatusDropdown()">
-      <div class="mx-auto max-w-[1440px] px-6 py-8 sm:px-10 lg:px-20 xl:px-[160px]">
-        <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
-          <div class="flex min-w-0 items-center gap-3">
-            <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#eef2fb] text-[#1f4fbf]">
-              <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414A1 1 0 0 1 19 9.414V19a2 2 0 0 1-2 2Z" />
-              </svg>
-            </div>
-            <div class="min-w-0">
-              <div class="flex items-center gap-2">
-                <h1 class="truncate text-[28px] font-bold text-[#0b1220]">Tenders Dashboard</h1>
-                <a
-                  href="https://knowledgebase.dome-marketplace.eu/books/tailored-offering-guide"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Click here for the Tender process guide"
-                  class="rounded-lg p-1 text-[#526179] transition-colors hover:bg-[#EBF0F7] hover:text-[#1f4fbf]"
-                >
-                  <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-3a1 1 0 0 0-.867.5 1 1 0 1 1-1.731-1A3 3 0 0 1 13 8a3.001 3.001 0 0 1-2 2.83V11a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1 1 1 0 1 0 0-2Zm0 8a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
-                  </svg>
-                </a>
-              </div>
-            </div>
-          </div>
-          <div class="flex flex-wrap items-center gap-3">
-            <button
-              *ngIf="selectedRole === UI_ROLES.BUYER"
-              (click)="openCreateTenderModal()"
-              class="inline-flex h-10 items-center gap-2 rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] focus:outline-none focus:ring-2 focus:ring-[#B6CAEC] disabled:opacity-50"
-            >
-              <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              Create Tender
-            </button>
-            <button
-              (click)="refreshQuotes()"
-              [disabled]="loading"
-              class="inline-flex h-10 items-center rounded-lg border border-[#EBECEE] bg-white px-4 text-sm font-semibold text-[#324153] transition-colors hover:border-[#1f4fbf] hover:text-[#1f4fbf] disabled:opacity-50"
-            >
-              {{ loading ? 'Loading...' : 'Refresh' }}
-            </button>
-          </div>
-        </div>
-
-      <!-- Role Tabs -->
-      <div class="mb-6">
-        <div class="inline-flex rounded-2xl border border-[#EBECEE] bg-white p-1 shadow-sm">
-          <button
-            (click)="selectRole(UI_ROLES.BUYER)"
-            [class]="getRoleTabClass(UI_ROLES.BUYER)"
-          >
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-            </svg>
-            As Buyer
-          </button>
-          <button
-            (click)="selectRole(UI_ROLES.SELLER)"
-            [class]="getRoleTabClass(UI_ROLES.SELLER)"
-          >
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-            As Provider
-          </button>
-        </div>
-      </div>
-
-      <!-- Status Filter -->
-      <div class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#EBECEE] bg-white p-3 shadow-sm">
-        <div class="flex items-center gap-3">
-          <svg class="h-5 w-5 text-[#526179]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
-          </svg>
-          <span class="text-sm font-medium text-[#526179]">Status</span>
-        </div>
-        <div class="relative min-w-[240px]" (click)="$event.stopPropagation()">
-          <button
-            type="button"
-            (click)="toggleStatusDropdown($event)"
-            [ngClass]="statusFilter ? 'border-[#1f4fbf] bg-[#EBF0F7] text-[#1f4fbf]' : 'border-[#EBECEE] bg-white text-[#324153] hover:border-[#1f4fbf] hover:text-[#1f4fbf]'"
-            class="flex h-10 w-full items-center justify-between gap-3 rounded-lg border px-4 text-[15px] font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-[#B6CAEC]"
-          >
-            <span class="truncate">{{ getStatusFilterLabel() }}</span>
-            <svg class="h-4 w-4 shrink-0 transition-transform" [ngClass]="showStatusDropdown ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-            </svg>
-          </button>
-          <div *ngIf="showStatusDropdown" class="absolute right-0 top-full z-40 mt-2 w-full rounded-xl bg-white p-2 shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
-            <button
-              type="button"
-              (click)="selectStatusFilter('', $event)"
-              [ngClass]="!statusFilter ? 'bg-[#DDE6F6]' : 'hover:bg-[#EBF0F7]'"
-              class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[14px] text-[#0b1220] transition-colors"
-            >
-              <span class="min-w-0 flex-1 truncate">All Statuses</span>
-              <svg *ngIf="!statusFilter" class="h-4 w-4 text-[#1f4fbf]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m4.5 12.75 6 6 9-13.5" />
-              </svg>
-            </button>
-            <button
-              *ngFor="let opt of filterStatusOptions"
-              type="button"
-              (click)="selectStatusFilter(opt.value, $event)"
-              [ngClass]="statusFilter === opt.value ? 'bg-[#DDE6F6]' : 'hover:bg-[#EBF0F7]'"
-              class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[14px] text-[#0b1220] transition-colors"
-            >
-              <span class="min-w-0 flex-1 truncate">{{ opt.label }}</span>
-              <svg *ngIf="statusFilter === opt.value" class="h-4 w-4 text-[#1f4fbf]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m4.5 12.75 6 6 9-13.5" />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Loading State -->
-      <div *ngIf="loading" class="flex items-center justify-center py-8">
-        <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-[#1f4fbf]"></div>
-      </div>
-
-      <!-- Error State -->
-      <div *ngIf="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded relative mb-4">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-red-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div class="ml-3">
-            <h3 class="text-sm font-medium text-red-800">Error loading quotes</h3>
-            <p class="mt-1 text-sm text-red-700">{{ error }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quotes List -->
-      <div *ngIf="!loading && !error" class="overflow-hidden rounded-2xl border border-[#EBECEE] bg-white shadow-sm">
-        <div *ngIf="filteredQuotes.length === 0" class="text-center py-12">
-          <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <h3 class="mt-2 text-sm font-semibold text-[#0b1220]">No tenders found</h3>
-          <p class="mt-1 text-sm text-[#526179]">No tender requests to display</p>
-        </div>
-
-        <!-- Provider View Header (matches Quote layout) -->
-        <div *ngIf="filteredQuotes.length > 0 && selectedRole === UI_ROLES.SELLER" class="border-b border-[#DDE6F6] bg-[#EBF0F7] px-6 py-3">
-          <div class="grid grid-cols-12 gap-4 text-xs font-semibold uppercase tracking-wider text-[#526179]">
-            <div class="col-span-2">REQUEST DATE</div>
-            <div class="col-span-3">CUSTOMER</div>
-            <div class="col-span-3">TITLE</div>
-            <div class="col-span-2">STATUS</div>
-            <div class="col-span-2">ACTIONS</div>
-          </div>
-        </div>
-
-        <!-- Buyer View Header (Coordinator quotes) -->
-        <div *ngIf="filteredQuotes.length > 0 && selectedRole === UI_ROLES.BUYER" class="border-b border-[#DDE6F6] bg-[#EBF0F7] px-6 py-3">
-          <div class="grid grid-cols-16 gap-4 text-xs font-semibold uppercase tracking-wider text-[#526179]">
-            <div class="col-span-1">EXPAND</div>
-            <div class="col-span-3">TITLE</div>
-            <div class="col-span-2">STATUS</div>
-            <div class="col-span-2">TENDER START DATE</div>
-            <div class="col-span-2">TENDER END DATE</div>
-            <div class="col-span-2">ATTACHMENTS</div>
-            <div class="col-span-4">ACTIONS</div>
-          </div>
-        </div>
-
-        <!-- ==================== PROVIDER VIEW ROWS (matches Quote layout) ==================== -->
-        <ng-container *ngIf="selectedRole === UI_ROLES.SELLER">
-          <div *ngFor="let quote of filteredQuotes" class="quote-row">
-            <div class="grid grid-cols-12 gap-4 items-center px-6 py-4 border-b border-[#EBECEE] transition-colors"
-                 [ngClass]="isQuoteFinalized(quote) ? 'bg-[#F7F9FD]' : 'bg-white hover:bg-[#EBF0F7]'"
-                 [attr.data-quote-id]="quote.id">
-
-              <!-- Request Date -->
-              <div class="col-span-2 text-sm text-[#526179]">
-                {{ quote.quoteDate | date:'dd-MM-yyyy' }}
-              </div>
-
-              <!-- Customer/Buyer Name -->
-              <div class="col-span-3 text-sm font-semibold text-[#0b1220]">
-                {{ getBuyerName(quote) }}
-              </div>
-
-              <!-- Title -->
-              <div class="col-span-3 text-sm text-[#324153]" [title]="quote.description || '(no title)'">
-                {{ getTruncatedTitle(quote.description) }}
-              </div>
-
-              <!-- Status -->
-              <div class="col-span-2 min-w-0" data-testid="provider-tender-status-cell">
-                <span class="status-badge max-w-full truncate rounded-full px-2 text-xs font-semibold leading-5"
-                      [title]="getStatusTooltip(quote)"
-                      [attr.aria-label]="getStatusTooltip(quote)"
-                      [ngClass]="getStateClass(getQuoteItemState(quote))">
-                  {{ getStatusLabel(quote) }}
-                </span>
-              </div>
-
-              <!-- Actions (Chat + Details only - matching Quote layout) -->
-              <div class="col-span-2 flex items-center gap-2">
-                <!-- Chat -->
-                <button
-                  [disabled]="isActionDisabled(quote, 'chat')"
-                  (click)="openChat(quote)"
-                  [class]="getIconButtonClass(quote, 'chat', 'text-[#526179] hover:text-[#1f4fbf]')"
-                  title="Chat"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8L3 21l1.8-4A7.96 7.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                  </svg>
-                </button>
-
-                <!-- View Details Button (matching Quote style) -->
-                <button
-                  [disabled]="isActionDisabled(quote, 'viewDetails')"
-                  (click)="viewDetails(quote)"
-                  class="inline-flex items-center gap-1 rounded-lg border border-[#B6CAEC] px-3 py-1.5 text-sm font-semibold text-[#1f4fbf] transition-colors hover:bg-[#EBF0F7]"
-                  [class.opacity-50]="isActionDisabled(quote, 'viewDetails')"
-                  [class.cursor-not-allowed]="isActionDisabled(quote, 'viewDetails')"
-                >
-                  Details
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-        </ng-container>
-
-        <!-- ==================== BUYER VIEW ROWS (Coordinator quotes with expand) ==================== -->
-        <ng-container *ngIf="selectedRole === UI_ROLES.BUYER">
-          <div *ngFor="let quote of filteredQuotes" class="quote-row">
-            <div class="grid grid-cols-16 gap-4 items-center px-6 py-4 border-b border-[#EBECEE] transition-colors"
-                 [ngClass]="isQuoteFinalized(quote) ? 'bg-[#F7F9FD]' : 'bg-white hover:bg-[#EBF0F7]'"
-                 [attr.data-quote-id]="quote.id">
-
-              <!-- Quote Details (Expand/Collapse) -->
-              <div class="col-span-1 flex items-center gap-1">
-                <!-- Expand/Collapse arrow for coordinator quotes -->
-                <button
-                  *ngIf="isCoordinatorExpandable(quote)"
-                  (click)="toggleExpand(quote)"
-                  class="rounded-lg p-1.5 text-[#1f4fbf] transition-colors hover:bg-[#EBF0F7]"
-                  [title]="isExpanded(quote.id) ? 'Collapse related quotes' : 'Expand to view related quotes'"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 transition-transform" [class.rotate-180]="isExpanded(quote.id)" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-              </div>
-
-              <!-- Title -->
-              <div class="col-span-3 text-sm font-semibold text-[#0b1220]" [title]="quote.description || '(no title)'">
-                {{ getTruncatedTitle(quote.description) }}
-              </div>
-
-              <!-- Status -->
-              <div class="col-span-2 min-w-0">
-                <span class="status-badge max-w-full truncate rounded-full px-2 text-xs font-semibold leading-5"
-                      [title]="getStatusTooltip(quote)"
-                      [attr.aria-label]="getStatusTooltip(quote)"
-                      [ngClass]="getStateClass(getQuoteItemState(quote))">
-                  {{ getStatusLabel(quote) }}
-                </span>
-              </div>
-
-              <!-- Expected Fulfillment Start Date -->
-              <div class="col-span-2 text-sm text-[#526179]">
-                {{ quote.expectedFulfillmentStartDate | date:'dd/MM/yyyy' }}
-              </div>
-
-              <!-- Effective Completion Date -->
-              <div class="col-span-2 text-sm text-[#526179]">
-                {{ quote.effectiveQuoteCompletionDate | date:'dd/MM/yyyy' }}
-              </div>
-
-              <!-- Attachments Column -->
-              <div class="col-span-2 text-sm">
-                <div *ngIf="hasAttachment(quote)" class="flex items-center space-x-1">
-                  <button
-                    [disabled]="isActionDisabled(quote, 'downloadAttachment')"
-                    (click)="downloadAttachment(quote)"
-                    class="flex items-center space-x-1 text-[#1f4fbf] hover:text-[#183f99] disabled:text-gray-300"
-                    title="Download attachment"
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                    </svg>
-                    <span class="text-xs truncate max-w-[100px]">{{ getAttachmentName(quote) }}</span>
-                  </button>
-                </div>
-              </div>
-
-              <!-- Actions -->
-              <div class="col-span-4 flex flex-wrap items-center gap-2">
-                <!-- Details Button (matching Quote style) - Always visible -->
-                <button
-                  (click)="viewDetails(quote)"
-                  class="inline-flex items-center gap-1 rounded-lg border border-[#B6CAEC] px-3 py-1.5 text-sm font-semibold text-[#1f4fbf] transition-colors hover:bg-[#EBF0F7]"
-                >
-                  Details
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-
-                <!-- Edit (only for coordinator quotes in pending/draft status) -->
-                <button
-                  *ngIf="quote.category === QUOTE_CATEGORIES.COORDINATOR && !isCoordinatorExpandable(quote)"
-                  (click)="editTender(quote)"
-                  class="inline-flex items-center rounded-lg border border-[#B6CAEC] px-2.5 py-1.5 text-xs font-semibold text-[#1f4fbf] transition-colors hover:bg-[#EBF0F7]"
-                  title="Edit tender"
-                >
-                  Edit
-                </button>
-
-                <!-- Broadcast Message (only for coordinator quotes when expanded) -->
-                <button
-                  *ngIf="quote.category === QUOTE_CATEGORIES.COORDINATOR && isCoordinatorExpandable(quote) && isExpanded(quote.id)"
-                  (click)="openBroadcastModal(quote)"
-                  class="inline-flex items-center rounded-lg border border-[#B6CAEC] px-2.5 py-1.5 text-xs font-semibold text-[#1f4fbf] transition-colors hover:bg-[#EBF0F7]"
-                  title="Broadcast message to all invited providers"
-                >
-                  Broadcast
-                </button>
-
-                <!-- Test: Start Tender (for coordinator quotes in pre-launched status) -->
-                <button
-                  *ngIf="environment.TENDER_DEV_BUTTONS_OPEN_CLOSE_ENABLED && quote.category === QUOTE_CATEGORIES.COORDINATOR && getPrimaryState(quote) === QUOTE_STATUSES.IN_PROGRESS"
-                  (click)="simulateStartTender(quote)"
-                  class="inline-flex items-center gap-1 rounded-lg border border-[#B6CAEC] px-2.5 py-1.5 text-xs font-semibold text-[#1f4fbf] transition-colors hover:bg-[#EBF0F7]"
-                  title="[TEST] Start tender - updates status to 'launched'"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                  Start
-                </button>
-
-                <!-- Test: Close Tender (for coordinator quotes in launched status) -->
-                <button
-                  *ngIf="environment.TENDER_DEV_BUTTONS_OPEN_CLOSE_ENABLED && quote.category === QUOTE_CATEGORIES.COORDINATOR && getPrimaryState(quote) === QUOTE_STATUSES.APPROVED"
-                  (click)="simulateCloseTender(quote)"
-                  class="inline-flex items-center gap-1 rounded-lg border border-[#B6CAEC] px-2.5 py-1.5 text-xs font-semibold text-[#1f4fbf] transition-colors hover:bg-[#EBF0F7]"
-                  title="[TEST] Close tender - updates status to 'closed'"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  Close
-                </button>
-              </div>
-            </div>
-
-          <!-- Expanded Related Quotes View -->
-          <div *ngIf="isExpanded(quote.id)" class="border-t border-[#EBECEE] bg-[#F7F9FD] px-6 py-4">
-            <div class="ml-8">
-              <h4 class="mb-3 text-sm font-semibold text-[#324153]">Related Provider Quotes</h4>
-
-              <!-- Loading State -->
-              <div *ngIf="isLoadingRelatedQuotes(quote.id)" class="flex items-center justify-center py-4">
-                <div class="h-6 w-6 animate-spin rounded-full border-b-2 border-[#1f4fbf]"></div>
-                <span class="ml-2 text-sm text-[#526179]">Loading related quotes...</span>
-              </div>
-
-              <!-- Related Quotes Table (matching Quote layout) -->
-              <div *ngIf="!isLoadingRelatedQuotes(quote.id) && getRelatedQuotes(quote.id).length > 0" class="overflow-hidden rounded-2xl border border-[#EBECEE] bg-white shadow-sm">
-                <!-- Header -->
-                <div class="border-b border-[#DDE6F6] bg-[#EBF0F7] px-4 py-2">
-                  <div class="grid grid-cols-12 gap-4 text-xs font-semibold uppercase text-[#526179]">
-                    <div class="col-span-4">Provider</div>
-                    <div class="col-span-2">Status</div>
-                    <div class="col-span-3">Attachments</div>
-                    <div class="col-span-3">Actions</div>
-                  </div>
-                </div>
-
-                <!-- Related Quote Rows -->
-                <div *ngFor="let relatedQuote of getRelatedQuotes(quote.id); let last = last"
-                     class="px-4 py-3 transition-colors hover:bg-[#EBF0F7]"
-                     [ngClass]="!last ? 'border-b border-[#EBECEE]' : ''">
-                  <div class="grid grid-cols-12 gap-4 items-center text-sm">
-                    <!-- Provider -->
-                    <div class="col-span-4 font-semibold text-[#0b1220]">
-                      {{ getProviderName(relatedQuote) }}
-                    </div>
-
-                    <!-- Status -->
-                    <div class="col-span-2 min-w-0">
-                      <span class="status-badge max-w-full truncate rounded-full px-2 py-0.5 text-xs font-semibold leading-5"
-                            [title]="getStatusTooltip(relatedQuote)"
-                            [attr.aria-label]="getStatusTooltip(relatedQuote)"
-                            [ngClass]="getStateClass(getQuoteItemState(relatedQuote))">
-                        {{ getStatusLabel(relatedQuote) }}
-                      </span>
-                    </div>
-
-                    <!-- Attachments -->
-                    <div class="col-span-3">
-                      <button
-                        *ngIf="hasAttachment(relatedQuote)"
-                        (click)="downloadAttachment(relatedQuote)"
-                        class="flex items-center space-x-1 text-[#1f4fbf] hover:text-[#183f99]"
-                        title="Download attachment"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                        </svg>
-                        <span class="text-xs truncate max-w-[80px]">{{ getAttachmentName(relatedQuote) }}</span>
-                      </button>
-                    </div>
-
-                    <!-- Actions (matching Quote layout: Chat + Details button) -->
-                    <div class="col-span-3 flex items-center gap-2">
-                      <!-- Chat -->
-                      <button
-                        (click)="openChat(relatedQuote)"
-                        class="rounded-lg p-1 text-[#526179] transition-colors hover:bg-[#EBF0F7] hover:text-[#1f4fbf]"
-                        title="Chat"
-                      >
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8L3 21l1.8-4A7.96 7.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                        </svg>
-                      </button>
-
-                      <!-- View Details Button (matching Quote style) -->
-                      <button
-                        (click)="viewDetails(relatedQuote)"
-                        class="inline-flex items-center gap-1 rounded-lg border border-[#B6CAEC] px-2 py-1 text-xs font-semibold text-[#1f4fbf] transition-colors hover:bg-[#EBF0F7]"
-                      >
-                        Details
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- No Related Quotes -->
-              <div *ngIf="!isLoadingRelatedQuotes(quote.id) && getRelatedQuotes(quote.id).length === 0"
-                   class="rounded-2xl border border-[#EBECEE] bg-white py-6 text-center text-sm text-[#526179]">
-                <svg class="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                <p>No related provider quotes found</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        </ng-container>
-      </div>
-    </div>
-    </div>
-
-    <!-- Delete Confirmation Dialog -->
-    <app-confirm-modal
-      [visible]="showDeleteConfirm"
-      title="Delete Quote"
-      [message]="deleteConfirmMessage"
-      confirmLabel="Delete"
-      cancelLabel="Cancel"
-      confirmVariant="danger"
-      (resolved)="$event ? deleteQuote() : (showDeleteConfirm = false)"
-      (closed)="showDeleteConfirm = false"
-    ></app-confirm-modal>
-
-    <!-- Generic Confirmation Dialog -->
-    <app-confirm-modal
-      [visible]="showGenericConfirm"
-      [title]="genericConfirmTitle"
-      [message]="genericConfirmMessage"
-      [confirmLabel]="genericConfirmButtonText"
-      cancelLabel="Cancel"
-      [confirmVariant]="genericConfirmVariant"
-      (resolved)="$event && genericConfirmCallback ? genericConfirmCallback() : (showGenericConfirm = false)"
-      (closed)="showGenericConfirm = false"
-    ></app-confirm-modal>
-
-    <!-- State Update Modal -->
-    <div *ngIf="showStateUpdate" class="fixed inset-0 z-50 h-full w-full overflow-y-auto bg-[#0b1220]/45 px-4 py-8">
-      <div class="relative mx-auto mt-12 w-full max-w-md rounded-2xl border border-[#EBECEE] bg-white p-6 shadow-[0_20px_50px_rgba(11,18,32,0.24)]">
-        <div class="mt-3">
-          <h3 class="mb-4 text-lg font-bold text-[#0b1220]">Update Quote State</h3>
-          <div class="space-y-3">
-            <div *ngFor="let state of availableStates" class="flex items-center">
-              <input
-                [id]="'state-' + state"
-                [(ngModel)]="selectedState"
-                [value]="state"
-                type="radio"
-                class="h-4 w-4 border-[#B6CAEC] text-[#1f4fbf] focus:ring-[#B6CAEC]"
-              >
-              <label [for]="'state-' + state" class="ml-3 block text-sm font-semibold text-[#324153]">
-                {{ getStateDisplay(state) }}
-              </label>
-            </div>
-          </div>
-          <div class="mt-6 flex justify-end gap-3 border-t border-[#EBECEE] pt-4">
-            <button
-              (click)="showStateUpdate = false"
-              class="inline-flex h-10 items-center rounded-lg border border-[#EBECEE] bg-white px-4 text-sm font-semibold text-[#324153] transition-colors hover:border-[#1f4fbf] hover:text-[#1f4fbf]"
-            >
-              Cancel
-            </button>
-            <button
-              (click)="confirmStateUpdate()"
-              [disabled]="!selectedState"
-              class="inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Update
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Quote Details Modal -->
-    <app-quote-details-modal
-      [isOpen]="showQuoteDetailsModal"
-      [quoteId]="selectedQuoteId"
-      [currentUserRole]="getModalUserRole()"
-      [currentUserId]="currentUserId || ''"
-      (close)="closeQuoteDetailsModal()"
-      (quoteUpdated)="onQuoteUpdated($event)"
-    ></app-quote-details-modal>
-
-    <!-- Chat Modal -->
-    <app-chat-modal
-      [isOpen]="showChatModal"
-      [quoteId]="selectedChatQuoteId"
-      (close)="closeChatModal()"
-    ></app-chat-modal>
-
-    <!-- Attachment Modal -->
-    <app-attachment-modal
-      [isOpen]="showAttachmentModal"
-      [quote]="selectedAttachmentQuote"
-      (close)="closeAttachmentModal()"
-      (uploadSuccess)="onAttachmentUploaded($event)"
-    ></app-attachment-modal>
-
-    <!-- Broadcast Message Modal -->
-    <div *ngIf="showBroadcastModal" class="fixed inset-0 z-50 h-full w-full overflow-y-auto bg-[#0b1220]/45 px-4 py-8">
-      <div class="relative mx-auto mt-12 w-full max-w-md rounded-2xl border border-[#EBECEE] bg-white p-6 shadow-[0_20px_50px_rgba(11,18,32,0.24)]">
-        <div class="mt-1">
-          <h3 class="mb-4 text-lg font-bold text-[#0b1220]">Broadcast Message</h3>
-          <textarea
-            [(ngModel)]="broadcastMessage"
-            rows="4"
-            placeholder="Type your message to all invited providers..."
-            class="w-full rounded-lg border border-[#EBECEE] bg-white p-3 text-sm text-[#0b1220] outline-none transition-colors placeholder:text-[#9AA6B8] hover:border-[#1f4fbf] focus:border-[#1f4fbf] focus:ring-2 focus:ring-[#B6CAEC]"
-          ></textarea>
-          <div class="mt-4 flex justify-end gap-3 border-t border-[#EBECEE] pt-4">
-            <button
-              (click)="closeBroadcastModal()"
-              class="inline-flex h-10 items-center rounded-lg border border-[#EBECEE] bg-white px-4 text-sm font-semibold text-[#324153] transition-colors hover:border-[#1f4fbf] hover:text-[#1f4fbf]"
-            >
-              Cancel
-            </button>
-            <button
-              (click)="sendBroadcastMessage()"
-              [disabled]="!broadcastMessage || isBroadcastSending"
-              class="inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {{ isBroadcastSending ? 'Sending...' : 'Send' }}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Create Tender Modal -->
-    <app-create-tender-modal
-      [isOpen]="showCreateTenderModal"
-      [customerId]="currentUserId || ''"
-      [tenderToEdit]="tenderToEdit"
-      (closeModal)="closeCreateTenderModal()"
-      (tenderCreated)="onTenderCreated($event)"
-      (tenderUpdated)="onTenderUpdated()"
-    ></app-create-tender-modal>
-  `,
-  styles: [`
-    .status-badge {
-      @apply inline-block overflow-hidden text-ellipsis whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-semibold;
-    }
-
-    .status-pending {
-      background-color: #FFF8E6;
-      border-color: #F2D28A;
-      color: #7A4D00;
-    }
-
-    .status-inProgress {
-      background-color: #EBF0F7;
-      border-color: #B6CAEC;
-      color: #1f4fbf;
-    }
-
-    .status-approved {
-      background-color: #EAF8F1;
-      border-color: #A8DDC8;
-      color: #006B4A;
-    }
-
-    .status-rejected {
-      background-color: #FFF1F1;
-      border-color: #F4C7C7;
-      color: #B42318;
-    }
-
-    .status-cancelled {
-      background-color: #F2F4F8;
-      border-color: #CBD3DF;
-      color: #324153;
-    }
-
-    .status-accepted {
-      background-color: #EAF8F1;
-      border-color: #A8DDC8;
-      color: #006B4A;
-    }
-
-    .status-unknown {
-      background-color: #F2F4F8;
-      border-color: #CBD3DF;
-      color: #526179;
-    }
-
-    .status-draft {
-      background-color: #FFF8E6;
-      border-color: #F2D28A;
-      color: #7A4D00;
-    }
-
-    .status-pre-launched {
-      background-color: #EBF0F7;
-      border-color: #B6CAEC;
-      color: #1f4fbf;
-    }
-
-    .status-launched {
-      background-color: #EAF8F1;
-      border-color: #A8DDC8;
-      color: #006B4A;
-    }
-
-    .status-closed {
-      background-color: #F2F4F8;
-      border-color: #CBD3DF;
-      color: #324153;
-    }
-
-    .rotate-180 {
-      transform: rotate(180deg);
-    }
-  `]
+  imports: [TranslateModule, FaIconComponent, ContentCardComponent, ButtonComponent, TabsComponent, TabDirective,
+    FilteredPaginatedTableComponent, QuoteDetailsModalComponent, ChatModalComponent, CreateTenderModalComponent],
+  templateUrl: './tender-list.component.html',
 })
 export class TenderListComponent implements OnInit {
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
   private quoteService = inject(QuoteService);
   private localStorage = inject(LocalStorageService);
   private notificationService = inject(NotificationService);
   private accountService = inject(AccountServiceService);
+  private themeService = inject(ThemeService);
+  private auth = inject(AuthGuard);
 
-  quotes: Quote[] = [];
-  filteredQuotes: Quote[] = [];
-  loading = false;
-  error: string | null = null;
-  showDeleteConfirm = false;
-  deleteConfirmMessage = '';
-  quoteToDelete: Quote | null = null;
+  protected readonly faCircleQuestion = faCircleQuestion;
 
-  // State update modal
-  showStateUpdate = false;
-  quoteToUpdate: Quote | null = null;
-  selectedState: QuoteStateType | null = null;
-  availableStates: QuoteStateType[] = ['pending', 'inProgress', 'approved', 'rejected', 'cancelled', 'accepted'];
+  @ViewChild(FilteredPaginatedTableComponent) private table?: FilteredPaginatedTableComponent<TenderRow>;
 
-  // Role management
-  selectedRole: UiRole = UI_ROLES.BUYER;
+  selectedRole: TenderRole = 'customer';
   currentUserId: string | null = null;
+  isSeller = false;
 
-  // Expose constants to template
-  readonly UI_ROLES = UI_ROLES;
-  readonly QUOTE_CATEGORIES = QUOTE_CATEGORIES;
-  readonly QUOTE_STATUSES = QUOTE_STATUSES;
-  readonly environment = environment;
+  columns: TableColumn<TenderRow>[] = [];
+  filters: FormField[] = [];
 
-  // Filtering
-  statusFilter: string = '';
-  showStatusDropdown = false;
-
-  // Quote Details Modal
   showQuoteDetailsModal = false;
   selectedQuoteId: string | null = null;
 
-  // Chat Modal
   showChatModal = false;
   selectedChatQuoteId: string | null = null;
 
-  // Attachment Modal
-  showAttachmentModal = false;
-  selectedAttachmentQuote: Quote | null = null;
-
-  // Broadcast Message Modal
-  showBroadcastModal = false;
-  broadcastForCoordinatorId: string | null = null;
-  broadcastMessage: string = '';
-
-  // Generic Confirmation Dialog
-  showGenericConfirm = false;
-  genericConfirmTitle = '';
-  genericConfirmMessage = '';
-  genericConfirmButtonText = 'Confirm';
-  genericConfirmVariant: ButtonVariant = 'primary';
-  genericConfirmCallback: (() => void) | null = null;
-  isBroadcastSending = false;
-
-  // Create Tender Modal
   showCreateTenderModal = false;
-  tenderToEdit: Tender | null = null;
 
-  // Expanded rows for coordinator quotes
-  expandedQuoteIds: Set<string> = new Set();
-  relatedQuotesMap: Map<string, Quote[]> = new Map();
-  loadingRelatedQuotes: Set<string> = new Set();
+  /** Tenders of the selected role, loaded once per role: the status filter and paging only slice them. */
+  private rows?: Promise<TenderRow[]>;
+  private organizationNames = new Map<string, Promise<string>>();
 
-  // Coordinator quote states cache
-  coordinatorQuoteStatesMap: Map<string, string> = new Map();
-  loadingCoordinatorStates: Set<string> = new Set();
-
-  // Data enrichment maps
-  organizationNames: Map<string, string> = new Map();
-
-
-
-  ngOnInit() {
-    // Get user ID from localStorage (BAE Frontend pattern)
-    let aux = this.localStorage.getObject('login_items') as LoginInfo;
-    if (aux && aux.logged_as == aux.id) {
-      this.currentUserId = aux.partyId;
-    } else if (aux && aux.logged_as) {
-      let loggedOrg = aux.organizations.find((element: { id: any; }) => element.id == aux.logged_as);
-      this.currentUserId = loggedOrg?.partyId;
-    }
-
-    if (this.currentUserId) {
-      this.loadQuotes();
-    } else {
-      this.error = 'User not authenticated';
-    }
+  get guideUrl(): string | undefined {
+    return this.themeService.getCurrentThemeConfig()?.links?.tailoredOfferingGuide;
   }
 
-  loadQuotes() {
+  ngOnInit() {
+    const aux = this.localStorage.getObject('login_items') as LoginInfo;
+    if (aux && aux.logged_as == aux.id) {
+      this.currentUserId = aux.partyId;
+    } else if (aux?.logged_as) {
+      this.currentUserId = aux.organizations.find((element: { id: any }) => element.id == aux.logged_as)?.partyId ?? null;
+    }
+    this.isSeller = this.auth.hasAnyRole(['seller']);
+    // ?role=seller keeps the provider tab across reloads, same as quotes and product-orders
+    if (this.route.snapshot.queryParamMap.get('role') === 'seller' && this.isSeller) {
+      this.selectedRole = 'seller';
+    }
+    this.buildTable();
+  }
+
+  onRoleChange(role: string) {
+    this.selectedRole = role as TenderRole;
+    this.router.navigate([], { relativeTo: this.route, queryParams: { role }, queryParamsHandling: 'merge' });
+    this.rows = undefined;
+    this.buildTable();
+    this.table?.refresh(true);
+  }
+
+  refreshTenders() {
+    this.rows = undefined;
+    this.table?.refresh();
+  }
+
+  fetchTenders = async (params: PageRequest, filters: Record<string, any>): Promise<PageResult<TenderRow>> => {
     if (!this.currentUserId) {
-      this.error = 'User not authenticated';
+      throw new Error('User not authenticated');
+    }
+    this.rows ??= this.loadRows(this.currentUserId, this.selectedRole);
+    let rows: TenderRow[];
+    try {
+      rows = await this.rows;
+    } catch (error) {
+      this.rows = undefined;
+      throw error;
+    }
+
+    const statuses = (filters['status'] ?? []) as string[];
+    const filtered = statuses.length > 0 ? rows.filter(row => statuses.includes(row.primaryState)) : rows;
+    return {
+      items: filtered.slice(params.offset, params.offset + params.limit),
+      total: filtered.length,
+    };
+  };
+
+  /** Buyers open the tender page; providers the details of the invitation they received. */
+  openTender(row: TenderRow) {
+    if (this.selectedRole === 'customer') {
+      this.router.navigateByUrl(TendersPaths.detail(row.id!));
       return;
     }
+    if (row.primaryState === QUOTE_STATUSES.CANCELLED) return;
+    this.selectedQuoteId = row.id!;
+    this.showQuoteDetailsModal = true;
+  }
 
-    this.loading = true;
-    this.error = null;
+  closeQuoteDetailsModal() {
+    this.showQuoteDetailsModal = false;
+    this.selectedQuoteId = null;
+  }
 
-    // Use specific API endpoints based on role
-    let quotesObservable: Observable<Quote[]>;
+  onQuoteUpdated() {
+    this.refreshTenders();
+    this.notificationService.showSuccess('TENDERS._updated');
+  }
 
-    if (this.selectedRole === UI_ROLES.BUYER) {
-      // Buyer view: Get coordinator quotes they created
-      quotesObservable = this.quoteService.getCoordinatorQuotesByUser(this.currentUserId).pipe(
-        map((tenders: Tender[]) => tenders.map((t: Tender) => this.mapTenderToQuote(t)))
-      );
+  openChat(row: TenderRow) {
+    this.selectedChatQuoteId = row.id!;
+    this.showChatModal = true;
+  }
+
+  closeChatModal() {
+    this.showChatModal = false;
+    this.selectedChatQuoteId = null;
+  }
+
+  openCreateTenderModal() {
+    this.showCreateTenderModal = true;
+  }
+
+  closeCreateTenderModal() {
+    this.showCreateTenderModal = false;
+    this.refreshTenders();
+  }
+
+  onTenderCreated() {
+    this.refreshTenders();
+    this.notificationService.showSuccess('TENDERS._created');
+  }
+
+  private buildTable() {
+    const role = this.selectedRole;
+    const statusLabel = (row: TenderRow) => tenderStatusLabelKey(row.category, role, row.primaryState);
+    const title = (row: TenderRow) => row.description || 'TENDERS._no_title';
+
+    if (role === 'customer') {
+      this.columns = [
+        { header: 'TENDERS._tender_title', getValue: title, cellClass: 'break-words' },
+        {
+          header: 'TENDERS._status_header', type: 'status-badge', width: 'w-[260px]',
+          getValue: statusLabel, getStatus: row => quoteStateBadgeVariant(row.primaryState),
+        },
+        { header: 'TENDERS._start_date', type: 'date', format: 'dd/MM/yyyy', getValue: row => row.expectedFulfillmentStartDate, width: 'w-[150px]', hideOnMobile: true },
+        { header: 'TENDERS._end_date', type: 'date', format: 'dd/MM/yyyy', getValue: row => row.effectiveQuoteCompletionDate, width: 'w-[150px]', hideOnMobile: true },
+      ];
     } else {
-      // Seller/Provider view: Get tendering quotes they received
-      quotesObservable = this.quoteService.getTenderingQuotesByUser(this.currentUserId, toApiRole(this.selectedRole)).pipe(
-        map((tenders: Tender[]) => tenders.map((t: Tender) => this.mapTenderToQuote(t)))
-      );
+      this.columns = [
+        { header: 'TENDERS._request_date', type: 'date', format: 'dd/MM/yyyy', getValue: row => row.quoteDate, width: 'w-[150px]' },
+        { header: 'TENDERS._buyer', getValue: row => row.buyerName, cellClass: 'break-words' },
+        { header: 'TENDERS._tender_title', getValue: title, cellClass: 'break-words', hideOnMobile: true },
+        {
+          header: 'TENDERS._status_header', type: 'status-badge', width: 'w-[260px]',
+          getValue: statusLabel, getStatus: row => quoteStateBadgeVariant(row.primaryState),
+        },
+        {
+          header: 'TENDERS._actions', type: 'actions', width: 'w-28',
+          actions: [{ icon: faCommentDots, tooltip: 'TENDERS._chat', onClick: row => this.openChat(row), dataCy: 'tenderChat' }],
+        },
+      ];
     }
 
-    quotesObservable.subscribe({
-      next: (quotes: Quote[]) => {
-        // Use quotes as-is to preserve quoteItem.state
-        this.quotes = quotes;
+    this.filters = [{
+      name: 'status',
+      label: 'TENDERS._filter_status',
+      type: 'select',
+      icon: faSwatchbook,
+      multiple: true,
+      options: STATUS_FILTER_STATES.map(state => ({
+        value: state,
+        label: tenderStatusLabelKey(role === 'customer' ? QUOTE_CATEGORIES.COORDINATOR : QUOTE_CATEGORIES.TENDER, role, state),
+      })),
+    }];
+  }
 
-        // Enrich with organisation trading names
-        this.enrichQuoteData(quotes);
+  private async loadRows(userId: string, role: TenderRole): Promise<TenderRow[]> {
+    const tenders = role === 'customer'
+      ? await firstValueFrom(this.quoteService.getCoordinatorQuotesByUser(userId))
+      : await firstValueFrom(this.quoteService.getTenderingQuotesByUser(userId, API_ROLES.SELLER));
+    let quotes = tenders.map(tender => this.mapTenderToQuote(tender));
 
-        // Debug: Log quote states and externalId
-        console.log(`Loaded ${this.quotes.length} quotes as ${this.selectedRole}`);
-        console.log(`Current user ID: ${this.currentUserId}`);
+    // Providers don't see invitations to a tender its buyer hasn't launched yet (still a draft)
+    if (role === 'seller') {
+      const coordinatorStates = await this.coordinatorStates(quotes);
+      quotes = quotes.filter(quote =>
+        quote.category !== QUOTE_CATEGORIES.TENDER || !quote.externalId
+        || (coordinatorStates.has(quote.externalId) && coordinatorStates.get(quote.externalId) !== QUOTE_STATUSES.PENDING));
+    }
 
-        this.quotes.forEach(quote => {
-          console.log(`Quote ${this.extractShortId(quote.id)}:`, {
-            category: quote.category,
-            state: quote.state,
-            quoteItemState: this.getQuoteItemState(quote),
-            externalId: quote.externalId,
-            id: quote.id,
-            relatedParty: quote.relatedParty
-          });
+    const rows = await Promise.all(quotes.map(async quote => {
+      const buyer = quote.relatedParty?.find(party => party.role?.toLowerCase() === API_ROLES.BUYER.toLowerCase());
+      return {
+        ...quote,
+        buyerName: buyer?.id ? await this.organizationName(buyer.id) : '-',
+        primaryState: quote.quoteItem?.[0]?.state || quote.state || 'unknown',
+      };
+    }));
 
-          // For provider view, check if this quote is related to current user
-          if (this.selectedRole === UI_ROLES.SELLER) {
-            const isRelatedToUser = quote.relatedParty?.some(party =>
-              party.id === this.currentUserId && party.role?.toLowerCase() === API_ROLES.SELLER.toLowerCase()
-            );
-            console.log(`  -> Quote ${this.extractShortId(quote.id)} related to current provider? ${isRelatedToUser}`);
-          }
-        });
+    // Newest first
+    return rows.sort((a, b) =>
+      (b.quoteDate ? new Date(b.quoteDate).getTime() : 0) - (a.quoteDate ? new Date(a.quoteDate).getTime() : 0));
+  }
 
-        // If in seller mode, load coordinator states for tendering quotes BEFORE filtering
-        if (this.selectedRole === UI_ROLES.SELLER) {
-          this.loadCoordinatorStatesForTenderingQuotes().subscribe({
-            next: () => {
-              console.log('All coordinator states loaded, filtering quotes...');
-              this.filterQuotesByStatus();
-              this.loading = false;
-            },
-            error: (error) => {
-              console.error('Error loading coordinator states:', error);
-              this.filterQuotesByStatus();
-              this.loading = false;
-            }
-          });
-        } else {
-          this.filterQuotesByStatus();
-          this.loading = false;
-        }
-      },
-      error: (error: any) => {
-        console.error('Failed to load quotes:', error);
-        this.error = 'Failed to load quotes. Please try again.';
-        this.loading = false;
-      }
-    });
+  /** States of the coordinator tenders the given tendering quotes belong to, by coordinator id. */
+  private async coordinatorStates(quotes: Quote[]): Promise<Map<string, string>> {
+    const ids = [...new Set(quotes
+      .filter(quote => quote.category === QUOTE_CATEGORIES.TENDER && quote.externalId)
+      .map(quote => quote.externalId!))];
+    const entries = await Promise.all(ids.map(id =>
+      firstValueFrom(this.quoteService.getQuoteById(id)).then(
+        coordinator => [id, coordinator.quoteItem?.[0]?.state || coordinator.state || 'unknown'] as const,
+        () => [id, 'unknown'] as const,
+      )));
+    return new Map(entries);
+  }
+
+  private organizationName(id: string): Promise<string> {
+    if (!id.startsWith('urn:ngsi-ld:organization:')) {
+      return Promise.resolve(id);
+    }
+    let name = this.organizationNames.get(id);
+    if (!name) {
+      name = this.accountService.getOrgInfo(id).then(
+        (org: any) => org?.tradingName || org?.name || id,
+        () => id,
+      );
+      this.organizationNames.set(id, name);
+    }
+    return name;
   }
 
   private mapTenderToQuote(tender: Tender): Quote {
-    // Build quoteItem with state and attachment (if exists)
     const quoteItem: any = { state: this.mapTenderStateToQuoteState(tender.state) };
-
-    // Include attachment if present in tender
     if (tender.attachment) {
       quoteItem.attachment = [{
         name: tender.attachment.name,
@@ -892,7 +287,7 @@ export class TenderListComponent implements OnInit {
         url: tender.attachment.url,
         href: tender.attachment.href,
         path: tender.attachment.path,
-        size: tender.attachment.size ? { amount: tender.attachment.size, units: 'bytes' } : undefined
+        size: tender.attachment.size ? { amount: tender.attachment.size, units: 'bytes' } : undefined,
       }];
     }
 
@@ -904,25 +299,15 @@ export class TenderListComponent implements OnInit {
       effectiveQuoteCompletionDate: tender.effectiveQuoteCompletionDate,
       expectedFulfillmentStartDate: tender.expectedFulfillmentStartDate,
       state: this.mapTenderStateToQuoteState(tender.state),
-      // Map category back: 'tendering' -> 'tender', 'coordinator' -> 'coordinator'
+      // The service says 'tendering', the Quote model 'tender'
       category: tender.category === 'tendering' ? QUOTE_CATEGORIES.TENDER : QUOTE_CATEGORIES.COORDINATOR,
       externalId: tender.external_id,
       relatedParty: [
-        ...tender.selectedProviders.map(id => ({
-          id,
-          role: API_ROLES.SELLER,
-          name: tender.provider,
-          '@referredType': 'Organization'
-        })),
-        ...(tender.buyerPartyId ? [{
-          id: tender.buyerPartyId,
-          role: API_ROLES.BUYER,
-          '@referredType': 'Organization'
-        }] : [])
+        ...tender.selectedProviders.map(id => ({ id, role: API_ROLES.SELLER, name: tender.provider, '@referredType': 'Organization' })),
+        ...(tender.buyerPartyId ? [{ id: tender.buyerPartyId, role: API_ROLES.BUYER, '@referredType': 'Organization' }] : []),
       ],
-      // Provide a minimal quoteItem array carrying the state and attachment
       quoteItem: [quoteItem],
-      note: []
+      note: [],
     };
   }
 
@@ -937,1420 +322,5 @@ export class TenderListComponent implements OnInit {
       case 'rejected': return 'rejected';
       default: return 'pending';
     }
-  }
-
-  refreshQuotes() {
-    this.loadQuotes();
-  }
-
-  selectRole(role: UiRole) {
-    this.selectedRole = role;
-    this.loadQuotes();
-  }
-
-  getRoleTabClass(role: UiRole): string {
-    const base = 'inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5 text-sm font-semibold transition-colors';
-    return this.selectedRole === role
-      ? `${base} bg-[#EBF0F7] text-[#1f4fbf]`
-      : `${base} text-[#526179] hover:bg-[#F7F9FD] hover:text-[#1f4fbf]`;
-  }
-
-  filterQuotesByStatus() {
-    let quotesToFilter: Quote[];
-
-    if (!this.statusFilter) {
-      quotesToFilter = [...this.quotes];
-    } else {
-      quotesToFilter = this.quotes.filter(quote => {
-        const primaryState = this.getPrimaryState(quote);
-        return primaryState === this.statusFilter;
-      });
-    }
-
-    // For providers: filter out tendering quotes whose coordinator is still in draft status
-    if (this.selectedRole === UI_ROLES.SELLER) {
-      this.filteredQuotes = quotesToFilter.filter(quote => {
-        // Only filter tendering quotes (note: backend sends 'tendering' but it's mapped to 'tender' in Quote model)
-        if (quote.category !== QUOTE_CATEGORIES.TENDER) {
-          console.log(`[FILTER] Quote ${this.extractShortId(quote.id)} - category: ${quote.category}, keeping (not tender)`);
-          return true;
-        }
-
-        // Check if we have the coordinator state
-        if (!quote.externalId) {
-          console.log(`[FILTER] Tendering quote ${this.extractShortId(quote.id)} - no externalId, keeping`);
-          return true; // Keep if no externalId
-        }
-
-        const coordinatorState = this.coordinatorQuoteStatesMap.get(quote.externalId);
-        console.log(`[FILTER] Tendering quote ${this.extractShortId(quote.id)} - coordinator: ${this.extractShortId(quote.externalId)}, state: ${coordinatorState || 'NOT_LOADED'}`);
-
-        // If coordinator state not loaded yet, hide it (should be loaded by loadCoordinatorStatesForTenderingQuotes)
-        if (!coordinatorState) {
-          console.log(`[FILTER] Coordinator state not loaded yet for ${this.extractShortId(quote.externalId)}, hiding`);
-          return false;
-        }
-
-        // Filter out if coordinator is in 'pending' state (which maps to 'draft' in GUI)
-        const shouldShow = coordinatorState !== QUOTE_STATUSES.PENDING;
-        console.log(`[FILTER] Coordinator state is ${coordinatorState}, ${shouldShow ? 'SHOWING' : 'HIDING'} quote`);
-        return shouldShow;
-      });
-
-    } else {
-      this.filteredQuotes = quotesToFilter;
-    }
-  }
-
-  get filterStatusOptions(): { value: string; label: string }[] {
-    const labels = this.selectedRole === UI_ROLES.BUYER
-      ? TENDER_COORDINATOR_STATUSES_LABELS
-      : TENDER_RELATED_QUOTES_LABELS_PROVIDER;
-    return [
-      { value: QUOTE_STATUSES.PENDING,     label: labels.PENDING },
-      { value: QUOTE_STATUSES.IN_PROGRESS, label: labels.IN_PROGRESS },
-      { value: QUOTE_STATUSES.APPROVED,    label: labels.APPROVED },
-      { value: QUOTE_STATUSES.ACCEPTED,    label: labels.ACCEPTED },
-      { value: QUOTE_STATUSES.CANCELLED,   label: labels.CANCELLED },
-      { value: QUOTE_STATUSES.REJECTED,    label: labels.REJECTED },
-    ];
-  }
-
-  toggleStatusDropdown(event: Event): void {
-    event.stopPropagation();
-    this.showStatusDropdown = !this.showStatusDropdown;
-  }
-
-  closeStatusDropdown(): void {
-    this.showStatusDropdown = false;
-  }
-
-  selectStatusFilter(value: string, event?: Event): void {
-    event?.stopPropagation();
-    this.statusFilter = value;
-    this.showStatusDropdown = false;
-    this.filterQuotesByStatus();
-  }
-
-  getStatusFilterLabel(): string {
-    if (!this.statusFilter) {
-      return 'All Statuses';
-    }
-
-    return this.filterStatusOptions.find(option => option.value === this.statusFilter)?.label ?? 'All Statuses';
-  }
-
-  viewDetails(quote: Quote) {
-    this.selectedQuoteId = quote.id!;
-    this.showQuoteDetailsModal = true;
-  }
-
-  editTender(quote: Quote) {
-    // Extract attachment from quoteItem if it exists
-    let attachment: TenderAttachment | undefined = undefined;
-    if (Array.isArray(quote.quoteItem) && quote.quoteItem.length > 0) {
-      const firstItem = quote.quoteItem[0];
-      if (Array.isArray(firstItem.attachment) && firstItem.attachment.length > 0) {
-        const att = firstItem.attachment[0];
-        attachment = {
-          name: att.name || 'attachment.pdf',
-          mimeType: att.mimeType || 'application/pdf',
-          content: att.content,
-          url: att.url,
-          href: att.href,
-          path: att.path,
-          size: att.size?.amount
-        };
-      }
-    }
-
-    // Convert Quote to Tender format for editing
-    const primaryState = this.getPrimaryState(quote) as QuoteStateType;
-    const tender: Tender = {
-      id: quote.id,
-      category: quote.category === QUOTE_CATEGORIES.COORDINATOR ? 'coordinator' : 'tendering',
-      state: this.mapQuoteStateToTenderState(primaryState),
-      responseDeadline: quote.expectedFulfillmentStartDate || quote.effectiveQuoteCompletionDate || new Date().toISOString(),
-      tenderNote: quote.description || '',
-      attachment: attachment,
-      selectedProviders: quote.relatedParty?.filter(p => p.role?.toLowerCase() === API_ROLES.SELLER.toLowerCase()).map(p => p.id) || [],
-      effectiveQuoteCompletionDate: quote.effectiveQuoteCompletionDate,
-      expectedFulfillmentStartDate: quote.expectedFulfillmentStartDate
-    };
-
-    // Open the Create Tender Modal in edit mode
-    this.tenderToEdit = tender;
-    this.showCreateTenderModal = true;
-  }
-
-  private mapQuoteStateToTenderState(quoteState: QuoteStateType | undefined): TenderStateType {
-    if (!quoteState) return 'draft';
-
-    switch (quoteState) {
-      case 'pending': return 'draft';
-      case 'inProgress': return 'pre-launched';
-      case 'approved': return 'sent';
-      case 'accepted': return 'closed';
-      case 'cancelled': return 'cancelled';
-      case 'rejected': return 'rejected';
-      default: return 'draft';
-    }
-  }
-
-  viewQuote(quote: Quote) {
-    this.selectedQuoteId = quote.id!;
-    this.showQuoteDetailsModal = true;
-  }
-
-  closeQuoteDetailsModal() {
-    this.showQuoteDetailsModal = false;
-    this.selectedQuoteId = null;
-  }
-
-  /**
-   * Show generic confirmation dialog
-   */
-  showConfirmation(
-    title: string,
-    message: string,
-    callback: () => void,
-    buttonText: string = 'Confirm',
-    variant: ButtonVariant = 'primary'
-  ) {
-    this.genericConfirmTitle = title;
-    this.genericConfirmMessage = message;
-    this.genericConfirmButtonText = buttonText;
-    this.genericConfirmVariant = variant;
-    this.genericConfirmCallback = () => {
-      callback();
-      this.showGenericConfirm = false;
-    };
-    this.showGenericConfirm = true;
-  }
-
-  /**
-   * Convert UI role to modal role format ('customer' or 'seller')
-   */
-  getModalUserRole(): 'customer' | 'seller' {
-    return this.selectedRole === UI_ROLES.BUYER ? 'customer' : 'seller';
-  }
-
-  /**
-   * Handle quote updates from the details modal
-   */
-  onQuoteUpdated(updatedQuote: Quote) {
-    // Check if this is a related (tendering) quote inside an expanded coordinator view
-    for (const [coordinatorId, relatedList] of this.relatedQuotesMap.entries()) {
-      if (relatedList.some(q => q.id === updatedQuote.id)) {
-        const coordinator = this.quotes.find(q => q.id === coordinatorId);
-        if (coordinator) {
-          this.loadRelatedQuotes(coordinator);
-        }
-        const shortId = this.extractShortId(updatedQuote.id);
-        const state = this.getPrimaryState(updatedQuote);
-        this.notificationService.showSuccess(`Quote ${shortId} has been updated to ${state}.`);
-        return;
-      }
-    }
-
-    // Otherwise update in the main list
-    const index = this.quotes.findIndex(q => q.id === updatedQuote.id);
-    if (index !== -1) {
-      this.quotes[index] = updatedQuote;
-      this.filterQuotesByStatus();
-    }
-
-    const shortId = this.extractShortId(updatedQuote.id);
-    const state = this.getPrimaryState(updatedQuote);
-    this.notificationService.showSuccess(`Quote ${shortId} has been updated to ${state}.`);
-  }
-
-  closeChatModal() {
-    this.showChatModal = false;
-    this.selectedChatQuoteId = null;
-  }
-
-  closeAttachmentModal() {
-    this.showAttachmentModal = false;
-    this.selectedAttachmentQuote = null;
-  }
-
-  // =============================
-  // Broadcast Message Handlers
-  // =============================
-  openBroadcastModal(coordinatorQuote: Quote) {
-    if (!coordinatorQuote.id) return;
-    this.broadcastForCoordinatorId = coordinatorQuote.id;
-    this.broadcastMessage = '';
-    this.showBroadcastModal = true;
-  }
-
-  closeBroadcastModal() {
-    this.showBroadcastModal = false;
-    this.broadcastForCoordinatorId = null;
-    this.broadcastMessage = '';
-    this.isBroadcastSending = false;
-  }
-
-  // Create Tender Modal Methods
-  openCreateTenderModal() {
-    if (!this.currentUserId) {
-      this.notificationService.showError('You must be logged in to create a tender.');
-      return;
-    }
-    this.showCreateTenderModal = true;
-  }
-
-  closeCreateTenderModal() {
-    this.showCreateTenderModal = false;
-    this.tenderToEdit = null;
-    this.loadQuotes();
-  }
-
-  onTenderCreated(tender: Tender) {
-    console.log('Tender created successfully:', tender);
-    // Refresh the quotes list to show the new tender
-    this.loadQuotes();
-    this.notificationService.showSuccess('Tender created successfully!');
-  }
-
-  onTenderUpdated() {
-    // Refresh the quotes list to show updated tender
-    this.loadQuotes();
-  }
-
-  sendBroadcastMessage() {
-    if (!this.broadcastForCoordinatorId || !this.currentUserId || !this.broadcastMessage) {
-      return;
-    }
-
-    this.showConfirmation(
-      'Broadcast Message',
-      'Are you sure you want to broadcast this message to all the invited providers?',
-      () => this.executeBroadcastMessage(),
-      'Send',
-      'primary'
-    );
-  }
-
-  private executeBroadcastMessage() {
-    this.isBroadcastSending = true;
-
-    // Ensure related quotes are loaded
-    const related = this.getRelatedQuotes(this.broadcastForCoordinatorId!);
-    if (!related || related.length === 0) {
-      // Try to load if not present, then send
-      const coordinator = this.quotes.find(q => q.id === this.broadcastForCoordinatorId);
-      if (coordinator) {
-        this.loadRelatedQuotes(coordinator);
-      }
-    }
-
-    const quotesToMessage = this.getRelatedQuotes(this.broadcastForCoordinatorId!).filter(q => q.category === QUOTE_CATEGORIES.TENDER);
-    if (quotesToMessage.length === 0) {
-      this.notificationService.showError('No related provider quotes found to broadcast to.');
-      this.isBroadcastSending = false;
-      return;
-    }
-
-    const requests = quotesToMessage.map(q => this.quoteService.addNoteToQuote(q.id!, this.broadcastMessage, this.currentUserId!)) as Observable<Quote>[];
-    forkJoin(requests).subscribe({
-      next: () => {
-        this.notificationService.showSuccess('Message broadcast sent to all invited providers.');
-        this.closeBroadcastModal();
-      },
-      error: (error: Error) => {
-        console.error('Failed to broadcast message:', error);
-        this.notificationService.showError('Failed to broadcast message.');
-        this.isBroadcastSending = false;
-      }
-    });
-  }
-
-  onAttachmentUploaded(updatedQuote: Quote) {
-    // Update the quote in the list
-    const index = this.quotes.findIndex(q => q.id === updatedQuote.id);
-    if (index !== -1) {
-      this.quotes[index] = updatedQuote;
-      this.filterQuotesByStatus();
-    }
-
-    // If the current user is a provider (seller) and the quote is in progress,
-    // automatically update the status to 'approved' after successful PDF upload
-    if (this.selectedRole === UI_ROLES.SELLER && this.getPrimaryState(updatedQuote) === QUOTE_STATUSES.IN_PROGRESS) {
-      console.log('Provider uploaded PDF, updating quote status to approved:', updatedQuote.id);
-
-      this.quoteService.updateQuoteStatus(updatedQuote.id!, QUOTE_STATUSES.APPROVED).subscribe({
-        next: (approvedQuote: Quote) => {
-          // Update the quote again with the new status
-          const approvedIndex = this.quotes.findIndex(q => q.id === approvedQuote.id);
-          if (approvedIndex !== -1) {
-            this.quotes[approvedIndex] = approvedQuote;
-            this.filterQuotesByStatus();
-          }
-
-          const shortId = this.extractShortId(updatedQuote.id);
-          console.log('Quote status automatically updated to approved after PDF upload');
-          this.notificationService.showSuccess(`Quote ${shortId} has been approved after PDF upload.`);
-        },
-        error: (error: any) => {
-          console.error('Error updating quote status to approved:', error);
-          this.notificationService.showError(`Error updating quote status: ${error?.message || 'Unknown error'}`);
-        }
-      });
-    }
-  }
-
-  updateQuoteState(quote: Quote) {
-    this.quoteToUpdate = quote;
-    this.selectedState = quote.state || null;
-    this.showStateUpdate = true;
-  }
-
-  confirmStateUpdate() {
-    if (this.quoteToUpdate && this.selectedState) {
-      this.quoteService.updateQuoteState(this.quoteToUpdate.id!, this.selectedState).subscribe({
-        next: (updatedQuote: Quote) => {
-          const index = this.quotes.findIndex(q => q.id === updatedQuote.id);
-          if (index !== -1) {
-            this.quotes[index] = updatedQuote;
-            this.filterQuotesByStatus();
-          }
-          this.showStateUpdate = false;
-          this.notificationService.showSuccess('Quote state updated successfully');
-        },
-        error: (error: any) => {
-          console.error('Failed to update quote state:', error);
-          this.notificationService.showError('Failed to update quote state');
-        }
-      });
-    }
-  }
-
-  confirmDelete(quote: Quote) {
-    this.quoteToDelete = quote;
-    this.deleteConfirmMessage = `Are you sure you want to delete Quote ${this.extractShortId(quote.id)}? This action cannot be undone.`;
-    this.showDeleteConfirm = true;
-  }
-
-  deleteQuote() {
-    if (this.quoteToDelete) {
-      this.quoteService.deleteQuote(this.quoteToDelete.id!).subscribe({
-        next: () => {
-          this.quotes = this.quotes.filter(q => q.id !== this.quoteToDelete!.id);
-          this.filterQuotesByStatus();
-          this.showDeleteConfirm = false;
-          this.notificationService.showSuccess('Quote deleted successfully');
-        },
-        error: (error: any) => {
-          console.error('Failed to delete quote:', error);
-          this.notificationService.showError('Failed to delete quote');
-        }
-      });
-    }
-  }
-
-  // Quote action methods (migrated from QuoteRow.js)
-  openChat(quote: Quote) {
-    // Open chat modal for messaging
-    this.selectedChatQuoteId = quote.id!;
-    this.showChatModal = true;
-  }
-
-  downloadAttachment(quote: Quote) {
-    this.quoteService.downloadAttachment(quote).subscribe({
-      next: () => this.notificationService.showSuccess('Download started'),
-      error: (error: any) => {
-        console.error('Error downloading attachment:', error);
-        this.notificationService.showError(error.message || 'Error downloading attachment');
-      }
-    });
-  }
-
-  /**
-   * Download the buyer's request PDF from the coordinator quote referenced by a tender quote
-   */
-  downloadCustomerRequest(tenderQuote: Quote) {
-    const coordinatorId = tenderQuote.externalId || tenderQuote.id;
-    if (!coordinatorId) {
-      this.notificationService.showError('No coordinator reference found for this quote.');
-      return;
-    }
-
-    this.quoteService.getQuoteById(coordinatorId).subscribe({
-      next: (coordinator: Quote) => {
-        if (!coordinator.quoteItem || coordinator.quoteItem.length === 0 ||
-            !coordinator.quoteItem[0].attachment || coordinator.quoteItem[0].attachment.length === 0) {
-          this.notificationService.showError(`No buyer's request attachment found on coordinator quote.`);
-          return;
-        }
-
-        this.quoteService.downloadAttachment(coordinator).subscribe({
-          next: () => this.notificationService.showSuccess(`Download started`),
-          error: (err: any) => {
-            console.error('Error downloading buyer request:', err);
-            this.notificationService.showError(err.message || 'Error downloading buyer request');
-          }
-        });
-      },
-      error: (error: Error) => {
-        console.error('Failed to fetch coordinator quote for download:', error);
-        this.notificationService.showError('Failed to fetch coordinator quote');
-      }
-    });
-  }
-
-  addAttachment(quote: Quote) {
-    // Open the attachment modal
-    this.selectedAttachmentQuote = quote;
-    this.showAttachmentModal = true;
-  }
-
-  acceptTenderingQuote(quote: Quote) {
-    const shortId = this.extractShortId(quote.id);
-
-    this.showConfirmation(
-      'Accept Tender Request',
-      'Are you sure you want to accept this tender request?',
-      () => {
-        console.log('Accepting tendering quote:', quote.id);
-
-        this.quoteService.updateQuoteStatus(quote.id!, 'inProgress').subscribe({
-          next: (updatedQuote: Quote) => {
-            const index = this.quotes.findIndex(q => q.id === updatedQuote.id);
-            if (index !== -1) {
-              this.quotes[index] = updatedQuote;
-              this.filterQuotesByStatus();
-            }
-            console.log('Tendering quote successfully accepted');
-            this.notificationService.showSuccess(`Tender request ${shortId} has been accepted and is now in progress.`);
-          },
-          error: (error: Error) => {
-            console.error('Error accepting tendering quote:', error);
-            this.notificationService.showError(`Error accepting tender request: ${error.message || 'Unknown error'}`);
-          }
-        });
-      },
-      'Accept',
-      'primary'
-    );
-  }
-
-  cancelTenderingQuote(quote: Quote) {
-    const shortId = this.extractShortId(quote.id);
-
-    this.showConfirmation(
-      'Cancel Tender Request',
-      'Are you sure you want to cancel this tender request?\n\nThis action cannot be undone.',
-      () => {
-        console.log('Cancelling tendering quote:', quote.id);
-
-        this.quoteService.updateQuoteStatus(quote.id!, 'cancelled').subscribe({
-          next: (updatedQuote: Quote) => {
-            const index = this.quotes.findIndex(q => q.id === updatedQuote.id);
-            if (index !== -1) {
-              this.quotes[index] = updatedQuote;
-              this.filterQuotesByStatus();
-            }
-            console.log('Tendering quote successfully cancelled');
-            this.notificationService.showSuccess(`Tender request ${shortId} has been cancelled.`);
-          },
-          error: (error: Error) => {
-            console.error('Error cancelling tendering quote:', error);
-            this.notificationService.showError(`Error cancelling tender request: ${error.message || 'Unknown error'}`);
-          }
-        });
-      },
-      'Cancel Request',
-      'danger'
-    );
-  }
-
-  simulateStartTender(quote: Quote) {
-    const shortId = this.extractShortId(quote.id);
-    const todayFormatted = this.getTodayForAPI();
-
-    this.showConfirmation(
-      'Start Tender',
-      `Are you sure you want to start this tender?\n\nWarning: The Tender Start Date will be updated to today (${todayFormatted}).`,
-      () => {
-        this.quoteService.updateQuoteStatus(quote.id!, 'approved').pipe(
-          switchMap((updatedQuote: Quote) => {
-            const index = this.quotes.findIndex(q => q.id === updatedQuote.id);
-            if (index !== -1) {
-              this.quotes[index] = updatedQuote;
-              this.filterQuotesByStatus();
-            }
-            return this.quoteService.updateQuoteDate(quote.id!, todayFormatted, 'expectedFulfillment');
-          })
-        ).subscribe({
-          next: (updatedQuote: Quote) => {
-            const index = this.quotes.findIndex(q => q.id === updatedQuote.id);
-            if (index !== -1) {
-              this.quotes[index] = updatedQuote;
-              this.filterQuotesByStatus();
-            }
-            this.notificationService.showSuccess(`Tender ${shortId} started. Start date set to today.`);
-          },
-          error: (error: Error) => {
-            console.error('Error starting tender:', error);
-            this.notificationService.showError(`Error starting tender: ${error.message || 'Unknown error'}`);
-          }
-        });
-      },
-      'Start Tender',
-      'primary'
-    );
-  }
-
-  simulateCloseTender(quote: Quote) {
-    const shortId = this.extractShortId(quote.id);
-    const todayFormatted = this.getTodayForAPI();
-
-    this.showConfirmation(
-      'Close Tender',
-      `Are you sure you want to close this tender?\n\nWarning: The Tender End Date will be updated to today (${todayFormatted}).`,
-      () => {
-        this.quoteService.updateQuoteStatus(quote.id!, 'accepted').pipe(
-          switchMap((updatedQuote: Quote) => {
-            const index = this.quotes.findIndex(q => q.id === updatedQuote.id);
-            if (index !== -1) {
-              this.quotes[index] = updatedQuote;
-              this.filterQuotesByStatus();
-            }
-            return this.quoteService.updateQuoteDate(quote.id!, todayFormatted, 'effective');
-          })
-        ).subscribe({
-          next: (updatedQuote: Quote) => {
-            const index = this.quotes.findIndex(q => q.id === updatedQuote.id);
-            if (index !== -1) {
-              this.quotes[index] = updatedQuote;
-              this.filterQuotesByStatus();
-            }
-            this.notificationService.showSuccess(`Tender ${shortId} closed. End date set to today.`);
-          },
-          error: (error: Error) => {
-            console.error('Error closing tender:', error);
-            this.notificationService.showError(`Error closing tender: ${error.message || 'Unknown error'}`);
-          }
-        });
-      },
-      'Close Tender',
-      'primary'
-    );
-  }
-
-  private getTodayForAPI(): string {
-    const today = new Date();
-    const day = today.getDate().toString().padStart(2, '0');
-    const month = (today.getMonth() + 1).toString().padStart(2, '0');
-    const year = today.getFullYear();
-    return `${day}-${month}-${year}`;
-  }
-
-  acceptQuoteCustomer(quote: Quote) {
-    const shortId = this.extractShortId(quote.id);
-
-    this.showConfirmation(
-      'Accept Quotation',
-      'Are you sure you want to accept the quotation?',
-      () => {
-        console.log('Buyer accepting quotation:', quote.id);
-
-        this.quoteService.updateQuoteStatus(quote.id!, 'accepted').subscribe({
-          next: (updatedQuote: Quote) => {
-            const index = this.quotes.findIndex(q => q.id === updatedQuote.id);
-            if (index !== -1) {
-              this.quotes[index] = updatedQuote;
-              this.filterQuotesByStatus();
-            }
-            console.log('Quotation successfully accepted by buyer');
-            this.notificationService.showSuccess(`Quotation ${shortId} has been accepted successfully.`);
-          },
-          error: (error: any) => {
-            console.error('Error accepting quotation:', error);
-            this.notificationService.showError(`Error accepting quotation: ${error?.message || 'Unknown error'}`);
-          }
-        });
-      },
-      'Accept',
-      'primary'
-    );
-  }
-
-  acceptTenderQuote(quote: Quote) {
-    const shortId = this.extractShortId(quote.id);
-
-    this.showConfirmation(
-      'Accept Tender Quote',
-      'Are you sure you want to accept this quote? Every other quote in this tender will be Rejected.',
-      () => this.executeAcceptTenderQuote(quote, shortId),
-      'Accept',
-      'primary'
-    );
-  }
-
-  private executeAcceptTenderQuote(quote: Quote, shortId: string) {
-
-    console.log('Buyer accepting tender:', quote.id);
-
-    // Helper: find coordinator id (map key) that contains this related quote
-    const findCoordinatorKeyForRelated = (): string | null => {
-      // Prefer externalId if present
-      if (quote.externalId) return quote.externalId;
-      for (const [coordId, relatedList] of this.relatedQuotesMap.entries()) {
-        if (relatedList.some(r => r.id === quote.id)) return coordId;
-      }
-      return null;
-    };
-
-    const coordinatorKey = findCoordinatorKeyForRelated();
-
-    // First accept selected quote
-    this.quoteService.updateQuoteStatus(quote.id!, 'accepted').subscribe({
-      next: (acceptedQuote: Quote) => {
-        // If we have a coordinator group, reject all others in parallel
-        if (coordinatorKey) {
-          const siblings = (this.relatedQuotesMap.get(coordinatorKey) || []).filter(q => q.id !== quote.id);
-          const toReject = siblings.filter(sib => {
-            const state = this.getPrimaryState(sib);
-            return state !== QUOTE_STATUSES.ACCEPTED && state !== QUOTE_STATUSES.CANCELLED && state !== QUOTE_STATUSES.REJECTED;
-          });
-
-          if (toReject.length > 0) {
-            const rejectCalls = toReject.map(sib => this.quoteService.updateQuoteStatus(sib.id!, 'rejected'));
-            forkJoin(rejectCalls).subscribe({
-              next: (rejectedQuotes: Quote[]) => {
-                // Update related quotes map with returned objects
-                const current = this.relatedQuotesMap.get(coordinatorKey) || [];
-                const updatedList = current.map(item => {
-                  if (item.id === acceptedQuote.id) return acceptedQuote;
-                  const updated = rejectedQuotes.find(r => r.id === item.id);
-                  return updated ? updated : item;
-                });
-                this.relatedQuotesMap.set(coordinatorKey, updatedList);
-
-                // UI notify
-                this.notificationService.showSuccess(`Tender ${shortId} accepted. ${rejectedQuotes.length} other quote(s) have been rejected.`);
-              },
-              error: (err: Error) => {
-                console.error('Error rejecting sibling quotes:', err);
-                this.notificationService.showError(`Accepted the selected quote, but failed rejecting other quotes: ${err.message || 'Unknown error'}`);
-              }
-            });
-          } else {
-            // No siblings to reject; still update the accepted one in the list
-            const current = this.relatedQuotesMap.get(coordinatorKey) || [];
-            const updatedList = current.map(item => item.id === acceptedQuote.id ? acceptedQuote : item);
-            this.relatedQuotesMap.set(coordinatorKey, updatedList);
-            this.notificationService.showSuccess(`Tender ${shortId} has been accepted successfully.`);
-          }
-        } else {
-          // Not in related table context; fall back to updating main list if present
-          const index = this.quotes.findIndex(q => q.id === acceptedQuote.id);
-          if (index !== -1) {
-            this.quotes[index] = acceptedQuote;
-            this.filterQuotesByStatus();
-          }
-          this.notificationService.showSuccess(`Tender ${shortId} has been accepted successfully.`);
-        }
-      },
-      error: (error: any) => {
-        console.error('Error accepting tender:', error);
-        this.notificationService.showError(`Error accepting tender: ${error?.message || 'Unknown error'}`);
-      }
-    });
-  }
-
-  rejectTenderQuote(quote: Quote) {
-    const shortId = this.extractShortId(quote.id);
-
-    this.showConfirmation(
-      'Reject Tender',
-      'Are you sure you want to reject this tender?\n\nThis action cannot be undone.',
-      () => {
-        console.log('Buyer rejecting tender:', quote.id);
-
-        this.quoteService.updateQuoteStatus(quote.id!, 'rejected').subscribe({
-          next: (updatedQuote: Quote) => {
-            const index = this.quotes.findIndex(q => q.id === updatedQuote.id);
-            if (index !== -1) {
-              this.quotes[index] = updatedQuote;
-              this.filterQuotesByStatus();
-            }
-            console.log('Tender successfully rejected by buyer');
-            this.notificationService.showSuccess(`Tender ${shortId} has been rejected.`);
-          },
-          error: (error: any) => {
-            console.error('Error rejecting tender:', error);
-            this.notificationService.showError(`Error rejecting tender: ${error?.message || 'Unknown error'}`);
-          }
-        });
-      },
-      'Reject',
-      'danger'
-    );
-  }
-
-  cancelQuote(quote: Quote) {
-    const shortId = this.extractShortId(quote.id);
-
-    this.showConfirmation(
-      'Cancel Quote',
-      `Are you sure you want to cancel quote ${shortId}?\n\nThis action cannot be undone and will disable all other quote actions.`,
-      () => {
-        console.log('Cancelling quote:', quote.id);
-
-        this.quoteService.updateQuoteStatus(quote.id!, 'cancelled').subscribe({
-          next: (updatedQuote: Quote) => {
-            const index = this.quotes.findIndex(q => q.id === updatedQuote.id);
-            if (index !== -1) {
-              this.quotes[index] = updatedQuote;
-              this.filterQuotesByStatus();
-            }
-            console.log('Quote successfully cancelled');
-            this.notificationService.showSuccess(`Quote ${shortId} has been cancelled successfully.`);
-          },
-          error: (error: any) => {
-            console.error('Error cancelling quote:', error);
-            this.notificationService.showError(`Error cancelling quote: ${error?.message || 'Unknown error'}`);
-          }
-        });
-      },
-      'Cancel Quote',
-      'danger'
-    );
-  }
-
-  // Utility methods (migrated from QuoteRow.js)
-  extractShortId(id: string | undefined): string {
-    if (!id) return 'N/A';
-    // Extract last 8 characters or return full ID if shorter
-    return id.length > 8 ? id.slice(-8) : id;
-  }
-
-  getPrimaryState(quote: Quote): string {
-    // First try quoteItem state (this is where the actual state is stored)
-    if (Array.isArray(quote.quoteItem) && quote.quoteItem.length > 0) {
-      return quote.quoteItem[0].state || 'unknown';
-    }
-
-    // Fallback to main quote state if quoteItem state is not available
-    if (quote.state) {
-      return quote.state;
-    }
-
-    return 'unknown';
-  }
-
-  getQuoteItemState(quote: Quote): string {
-    let state = 'unknown';
-
-    if (Array.isArray(quote.quoteItem) && quote.quoteItem.length > 0) {
-      // Scan all items and pick the first defined state
-      for (const item of quote.quoteItem) {
-        if (item && (item as any).state) {
-          state = (item as any).state as string;
-          break;
-        }
-      }
-    }
-
-    // Apply mapping only for coordinator quotes
-    if (quote.category === QUOTE_CATEGORIES.COORDINATOR) {
-      return this.mapCoordinatorStatusToGUI(state);
-    }
-
-    return state;
-  }
-
-  /**
-   * Get user-friendly status label for a quote based on category and role
-   */
-  getStatusLabel(quote: Quote): string {
-    const state = this.getPrimaryState(quote);
-
-    // Determine which label set to use based on category and role
-    let labels: any;
-
-    if (quote.category === QUOTE_CATEGORIES.COORDINATOR) {
-      // Coordinator quotes use their own label set
-      labels = TENDER_COORDINATOR_STATUSES_LABELS;
-    } else if (quote.category === QUOTE_CATEGORIES.TENDER) {
-      // Tender child quotes use labels based on user role
-      labels = this.selectedRole === UI_ROLES.BUYER
-        ? TENDER_RELATED_QUOTES_LABELS_CUSTOMER
-        : TENDER_RELATED_QUOTES_LABELS_PROVIDER;
-    } else {
-      // Shouldn't happen in tender list, but fallback to empty labels
-      return state;
-    }
-
-    // Map status to label
-    switch (state) {
-      case QUOTE_STATUSES.PENDING:
-        return labels.PENDING;
-      case QUOTE_STATUSES.IN_PROGRESS:
-        return labels.IN_PROGRESS;
-      case QUOTE_STATUSES.APPROVED:
-        return labels.APPROVED;
-      case QUOTE_STATUSES.ACCEPTED:
-        return labels.ACCEPTED;
-      case QUOTE_STATUSES.CANCELLED:
-        return labels.CANCELLED;
-      case QUOTE_STATUSES.REJECTED:
-        return labels.REJECTED;
-      default:
-        return state;
-    }
-  }
-
-  getStatusTooltip(quote: Quote): string {
-    const state = this.getPrimaryState(quote);
-    const role = this.selectedRole === UI_ROLES.BUYER ? 'buyer' : 'provider';
-    const fallback = this.getStatusLabel(quote);
-    const messages = quote.category === QUOTE_CATEGORIES.COORDINATOR
-      ? COORDINATOR_STATUS_MESSAGES
-      : quote.category === QUOTE_CATEGORIES.TENDER
-        ? TENDERING_STATUS_MESSAGES
-        : null;
-    const statusInfo = messages?.[state]?.[role];
-
-    if (!statusInfo) {
-      return fallback;
-    }
-
-    const explanation = statusInfo.explanation === '...' ? '' : statusInfo.explanation;
-    const availableActions = statusInfo.availableActions === '...' ? '' : statusInfo.availableActions;
-    const tooltipParts = [
-      explanation,
-      availableActions ? `Available actions: ${availableActions}` : ''
-    ].filter(Boolean);
-
-    return tooltipParts.length > 0 ? tooltipParts.join('\n') : fallback;
-  }
-
-  /**
-   * Map coordinator quote status from backend (TMF) to frontend (GUI) display
-   * Only for coordinator quotes
-   */
-  mapCoordinatorStatusToGUI(backendStatus: string): string {
-    const mapping: { [key: string]: string } = {
-      'pending': 'draft',
-      'inProgress': 'pre-launched',
-      'approved': 'launched',
-      'accepted': 'closed',
-      'cancelled': 'cancelled',
-      'rejected': 'rejected'
-    };
-    return mapping[backendStatus] || backendStatus;
-  }
-
-  hasAttachment(quote: Quote): boolean {
-    return Array.isArray(quote.quoteItem) &&
-           quote.quoteItem.some(qi => qi.attachment && qi.attachment.length > 0);
-  }
-
-  getAttachmentName(quote: Quote): string {
-    if (!Array.isArray(quote.quoteItem)) {
-      return '';
-    }
-
-    for (const item of quote.quoteItem) {
-      if (item.attachment && item.attachment.length > 0) {
-        return item.attachment[0].name || 'attachment.pdf';
-      }
-    }
-
-    return '';
-  }
-
-  isQuoteCancelled(quote: Quote): boolean {
-    // Check quoteItem state first (this is where the actual state is stored)
-    if (quote.quoteItem?.some(item => item.state === QUOTE_STATUSES.CANCELLED)) {
-      return true;
-    }
-
-    // Fallback to main quote state
-    return quote.state === QUOTE_STATUSES.CANCELLED;
-  }
-
-  isQuoteAccepted(quote: Quote): boolean {
-    // Check quoteItem state first (this is where the actual state is stored)
-    if (quote.quoteItem?.some(item => item.state === QUOTE_STATUSES.ACCEPTED)) {
-      return true;
-    }
-
-    // Fallback to main quote state
-    return quote.state === QUOTE_STATUSES.ACCEPTED;
-  }
-
-  isQuoteFinalized(quote: Quote): boolean {
-    return this.isQuoteCancelled(quote) || this.isQuoteAccepted(quote);
-  }
-
-  isActionDisabled(quote: Quote, actionType: string): boolean {
-    const isCancelled = this.isQuoteCancelled(quote);
-    const isAccepted = this.isQuoteAccepted(quote);
-    const isFinalized = this.isQuoteFinalized(quote);
-
-    switch (actionType) {
-      case 'viewDetails':
-        return isCancelled; // Only disabled for cancelled quotes
-      case 'chat':
-        return false; // Chat is always available — users should be able to communicate regardless of quote status
-      case 'addAttachment':
-      case 'cancel':
-        return isFinalized; // Disabled for both accepted and cancelled
-      case 'downloadAttachment':
-        return isCancelled; // Only disabled for cancelled quotes, customers can download when accepted
-      case 'accept':
-        // Accept button is only for providers when quote is pending
-        // It should not be disabled by finalization since it only shows when pending
-        return false;
-      case 'acceptCustomer':
-        // Buyer accept button is only for buyers when quote is approved
-        // It should not be disabled by finalization since it only shows when approved
-        return false;
-      case 'acceptTender':
-      case 'rejectTender':
-        // Tender accept/reject buttons are only for buyers when tender quote is approved
-        // They should not be disabled by finalization since they only show when approved
-        return false;
-      case 'addRequestedDate':
-      case 'addExpectedDate':
-        return true;
-      default:
-        return false;
-    }
-  }
-
-  getButtonClass(quote: Quote, actionType: string): string {
-    const baseClass = 'inline-flex items-center rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition-colors';
-
-    if (this.isActionDisabled(quote, actionType)) {
-      return `${baseClass} cursor-not-allowed border-[#EBECEE] text-[#9AA6B8]`;
-    }
-
-    switch (actionType) {
-      case 'viewDetails':
-        return `${baseClass} border-[#B6CAEC] text-[#1f4fbf] hover:bg-[#EBF0F7]`;
-      default:
-        return `${baseClass} border-[#B6CAEC] text-[#1f4fbf] hover:bg-[#EBF0F7]`;
-    }
-  }
-
-  getIconButtonClass(quote: Quote, actionType: string, normalColor: string): string {
-    const baseClass = 'cursor-pointer rounded-lg p-1.5 text-xs transition-colors hover:bg-[#EBF0F7]';
-
-    if (this.isActionDisabled(quote, actionType)) {
-      return `${baseClass} cursor-not-allowed text-[#9AA6B8] hover:bg-transparent`;
-    }
-
-    return `${baseClass} ${normalColor}`;
-  }
-
-  getActionTitle(quote: Quote, actionType: string): string {
-    if (this.isActionDisabled(quote, actionType)) {
-      const status = this.isQuoteCancelled(quote) ? 'cancelled' : 'accepted';
-      return `Action disabled - quote is ${status}`;
-    }
-    return '';
-  }
-
-  getStateDisplay(state: QuoteStateType | undefined): string {
-    if (!state) return 'Unknown';
-
-    const stateMap: Record<QuoteStateType, string> = {
-      'pending': 'Pending',
-      'inProgress': 'In Progress',
-      'approved': 'Approved',
-      'rejected': 'Rejected',
-      'cancelled': 'Cancelled',
-      'accepted': 'Accepted'
-    };
-
-    return stateMap[state] || state;
-  }
-
-  getStateClass(state: string): string {
-    switch (state) {
-      case 'pending':
-        return 'status-pending';
-      case 'inProgress':
-        return 'status-inProgress';
-      case 'approved':
-        return 'status-approved';
-      case 'rejected':
-        return 'status-rejected';
-      case 'cancelled':
-        return 'status-cancelled';
-      case 'accepted':
-        return 'status-accepted';
-      // Coordinator quote states (mapped)
-      case 'draft':
-        return 'status-draft';
-      case 'pre-launched':
-        return 'status-pre-launched';
-      case 'launched':
-        return 'status-launched';
-      case 'closed':
-        return 'status-closed';
-      default:
-        return 'status-unknown';
-    }
-  }
-
-  canUpdateState(state: QuoteStateType | undefined): boolean {
-    return state !== QUOTE_STATUSES.CANCELLED && state !== QUOTE_STATUSES.ACCEPTED;
-  }
-
-  // ========================================
-  // EXPAND/COLLAPSE RELATED QUOTES
-  // ========================================
-
-  /**
-   * Check if a coordinator quote is expandable
-   * (not in pending status, which displays as "draft")
-   */
-  isCoordinatorExpandable(quote: Quote): boolean {
-    if (quote.category !== QUOTE_CATEGORIES.COORDINATOR) {
-      return false;
-    }
-
-    const state = this.getPrimaryState(quote);
-
-    // Expandable if NOT pending (backend state "pending" = GUI display "draft")
-    // All other states (inProgress/pre-launched, approved/launched, etc.) are expandable
-    return state !== QUOTE_STATUSES.PENDING;
-  }
-
-  /**
-   * Check if a quote row is expanded
-   */
-  isExpanded(quoteId: string | undefined): boolean {
-    return quoteId ? this.expandedQuoteIds.has(quoteId) : false;
-  }
-
-  /**
-   * Toggle expand/collapse for a coordinator quote
-   */
-  toggleExpand(quote: Quote): void {
-    if (!quote.id) return;
-
-    const isCurrentlyExpanded = this.expandedQuoteIds.has(quote.id);
-
-    if (isCurrentlyExpanded) {
-      // Collapse
-      console.log(`Collapsing quote ${this.extractShortId(quote.id)}`);
-      this.expandedQuoteIds.delete(quote.id);
-    } else {
-      // Expand - fetch related quotes if not already loaded
-      console.log(`Expanding quote ${this.extractShortId(quote.id)}, externalId: ${quote.externalId}`);
-      this.expandedQuoteIds.add(quote.id);
-
-      if (!this.relatedQuotesMap.has(quote.id)) {
-        console.log('Fetching related quotes...');
-        this.loadRelatedQuotes(quote);
-      } else {
-        console.log(`Using cached ${this.relatedQuotesMap.get(quote.id)?.length} related quotes`);
-      }
-    }
-  }
-
-  /**
-   * Load related tendering quotes for a coordinator quote
-   */
-  private loadRelatedQuotes(coordinatorQuote: Quote): void {
-    if (!coordinatorQuote.id || !this.currentUserId) {
-      console.error('Cannot load related quotes: missing id or userId', {
-        id: coordinatorQuote.id,
-        userId: this.currentUserId
-      });
-      return;
-    }
-
-    // For coordinator quotes, use the quote's own ID as the externalId
-    // because tendering quotes are created with the coordinator quote ID as their externalId
-    const externalIdToUse = coordinatorQuote.externalId || coordinatorQuote.id;
-
-    console.log(`Loading related quotes for coordinator ${this.extractShortId(coordinatorQuote.id)}:`, {
-      userId: this.currentUserId,
-      role: API_ROLES.BUYER,
-      externalId: externalIdToUse,
-      coordinatorId: coordinatorQuote.id
-    });
-
-    this.loadingRelatedQuotes.add(coordinatorQuote.id);
-
-    // Fetch tendering quotes using the coordinator quote's ID as externalId
-    this.quoteService.getTenderingQuotesByExternalId(
-      this.currentUserId,
-      externalIdToUse,
-      API_ROLES.BUYER
-    ).subscribe({
-      next: (relatedQuotes: Quote[]) => {
-        this.relatedQuotesMap.set(coordinatorQuote.id!, relatedQuotes);
-        this.loadingRelatedQuotes.delete(coordinatorQuote.id!);
-        // Enrich provider names from the raw Quote objects (relatedParty has real org IDs)
-        this.enrichQuoteData(relatedQuotes);
-        console.log(`âœ… Successfully loaded ${relatedQuotes.length} related quotes for coordinator ${this.extractShortId(coordinatorQuote.id)}`);
-        if (relatedQuotes.length > 0) {
-          console.log('Related quotes:', relatedQuotes.map(q => ({
-            id: this.extractShortId(q.id),
-            provider: this.getProviderName(q),
-            state: this.getQuoteItemState(q)
-          })));
-        }
-      },
-      error: (error: Error) => {
-        console.error('âŒ Failed to load related quotes:', error);
-        this.loadingRelatedQuotes.delete(coordinatorQuote.id!);
-        this.notificationService.showError('Failed to load related quotes');
-      }
-    });
-  }
-
-  /**
-   * Get related quotes for a coordinator quote
-   */
-  getRelatedQuotes(quoteId: string | undefined): Quote[] {
-    if (!quoteId) return [];
-    return this.relatedQuotesMap.get(quoteId) || [];
-  }
-
-  /**
-   * Check if related quotes are loading
-   */
-  isLoadingRelatedQuotes(quoteId: string | undefined): boolean {
-    return quoteId ? this.loadingRelatedQuotes.has(quoteId) : false;
-  }
-
-  private isOrganizationId(id: string): boolean {
-    return id.startsWith('urn:ngsi-ld:organization:');
-  }
-
-  /**
-   * Fetch tradingNames for every org URN found in relatedParty across the given quotes.
-   * Populates organizationNames map and triggers change detection on completion.
-   */
-  private enrichQuoteData(quotes: Quote[]): void {
-    const orgIds = new Set<string>();
-
-    quotes.forEach(quote => {
-      quote.relatedParty?.forEach(party => {
-        if (party.id && !this.organizationNames.has(party.id) && this.isOrganizationId(party.id)) {
-          orgIds.add(party.id);
-        }
-      });
-    });
-
-    if (orgIds.size === 0) return;
-
-    const orgRequests = Array.from(orgIds).map(id =>
-      this.accountService.getOrgInfo(id).then(
-        (org: any) => ({ id, name: org?.tradingName || org?.name || id }),
-        () => ({ id, name: id })
-      )
-    );
-
-    Promise.all(orgRequests).then(results => {
-      results.forEach(({ id, name }) => this.organizationNames.set(id, name));
-      // Trigger change detection
-      this.filteredQuotes = [...this.filteredQuotes];
-    });
-  }
-
-  /**
-   * Get provider name from related party
-   */
-  getProviderName(quote: Quote): string {
-    if (!quote.relatedParty || quote.relatedParty.length === 0) {
-      return 'Unknown Provider';
-    }
-
-    const provider = quote.relatedParty.find(party => party.role?.toLowerCase() === API_ROLES.SELLER.toLowerCase());
-
-    if (!provider?.id) {
-      return 'Unknown Provider';
-    }
-
-    const enrichedName = this.organizationNames.get(provider.id);
-    if (enrichedName && enrichedName !== provider.id) {
-      return enrichedName;
-    }
-
-    return 'Loading...';
-  }
-
-  /**
-   * Get buyer name from related party (for Provider view)
-   */
-  getBuyerName(quote: Quote): string {
-    if (!quote.relatedParty || quote.relatedParty.length === 0) {
-      return 'Unknown Customer';
-    }
-
-    const buyer = quote.relatedParty.find(party => party.role?.toLowerCase() === API_ROLES.BUYER.toLowerCase());
-
-    if (!buyer?.id) {
-      return 'Unknown Customer';
-    }
-
-    const enrichedName = this.organizationNames.get(buyer.id);
-    if (enrichedName && enrichedName !== buyer.id) {
-      return enrichedName;
-    }
-
-    return 'Loading...';
-  }
-
-  /**
-   * Check if the coordinator quote allows accepting tendering quotes
-   * Returns true if the coordinator quote is in 'inProgress' state
-   */
-  canAcceptTenderingQuote(tenderingQuote: Quote): boolean {
-    if (!tenderingQuote.externalId) {
-      console.warn('Tendering quote has no externalId, cannot check coordinator state');
-      return false;
-    }
-
-    // Check if we have the coordinator state cached
-    const coordinatorState = this.coordinatorQuoteStatesMap.get(tenderingQuote.externalId);
-
-    if (!coordinatorState) {
-      // State not loaded yet, load it
-      this.loadCoordinatorQuoteState(tenderingQuote.externalId);
-      return false; // Don't show button until state is loaded
-    }
-
-    // Allow accept only if coordinator is in 'inProgress' state
-    return coordinatorState === QUOTE_STATUSES.IN_PROGRESS;
-  }
-
-  /**
-   * Check if the coordinator quote allows adding attachments to tendering quotes
-   * Returns true if the coordinator quote is in 'approved' state
-   */
-  canAddAttachmentToTenderingQuote(tenderingQuote: Quote): boolean {
-    if (!tenderingQuote.externalId) {
-      console.warn('Tendering quote has no externalId, cannot check coordinator state');
-      return false;
-    }
-
-    // Check if we have the coordinator state cached
-    const coordinatorState = this.coordinatorQuoteStatesMap.get(tenderingQuote.externalId);
-
-    if (!coordinatorState) {
-      // State not loaded yet, load it
-      this.loadCoordinatorQuoteState(tenderingQuote.externalId);
-      return false; // Don't show button until state is loaded
-    }
-
-    // Allow add attachment only if coordinator is in 'approved' state
-    return coordinatorState === QUOTE_STATUSES.APPROVED;
-  }
-
-  /**
-   * Load the state of a coordinator quote
-   */
-  private loadCoordinatorQuoteState(coordinatorQuoteId: string): void {
-    if (this.loadingCoordinatorStates.has(coordinatorQuoteId) ||
-        this.coordinatorQuoteStatesMap.has(coordinatorQuoteId)) {
-      return; // Already loading or loaded
-    }
-
-    console.log(`Loading coordinator quote state for: ${this.extractShortId(coordinatorQuoteId)}`);
-    this.loadingCoordinatorStates.add(coordinatorQuoteId);
-
-    this.quoteService.getQuoteById(coordinatorQuoteId).subscribe({
-      next: (coordinatorQuote: Quote) => {
-        // Get the state from quoteItem
-        const state = this.getQuoteItemState(coordinatorQuote);
-
-        // Store the actual backend state (not the mapped GUI state)
-        const backendState = this.getPrimaryState(coordinatorQuote);
-        this.coordinatorQuoteStatesMap.set(coordinatorQuoteId, backendState);
-
-        this.loadingCoordinatorStates.delete(coordinatorQuoteId);
-
-        console.log(`Coordinator quote ${this.extractShortId(coordinatorQuoteId)} state: ${backendState} (GUI: ${state})`);
-
-        // Note: We don't call filterQuotesByStatus() here anymore since coordinator states
-        // are preloaded in parallel. This method is only used as a fallback for button permission checks.
-      },
-      error: (error: Error) => {
-        console.error(`Failed to load coordinator quote state for ${this.extractShortId(coordinatorQuoteId)}:`, error);
-        this.loadingCoordinatorStates.delete(coordinatorQuoteId);
-        // Set to unknown state to prevent repeated failed attempts
-        this.coordinatorQuoteStatesMap.set(coordinatorQuoteId, 'unknown');
-      }
-    });
-  }
-
-  /**
-   * Load coordinator states for all tendering quotes in parallel
-   * Returns an observable that completes when all states are loaded
-   */
-  private loadCoordinatorStatesForTenderingQuotes(): Observable<void> {
-    const externalIds = new Set<string>();
-
-    // Collect unique externalIds from tendering quotes (mapped to 'tender' category in Quote model)
-    this.quotes.forEach(quote => {
-      if (quote.category === QUOTE_CATEGORIES.TENDER && quote.externalId) {
-        externalIds.add(quote.externalId);
-      }
-    });
-
-    // If no tendering quotes, return completed observable
-    if (externalIds.size === 0) {
-      return of(void 0);
-    }
-
-    // Create an array of observables for each coordinator quote
-    const loadObservables = Array.from(externalIds).map(externalId => {
-      // Skip if already loaded or loading
-      if (this.coordinatorQuoteStatesMap.has(externalId)) {
-        return of(void 0);
-      }
-
-      console.log(`Loading coordinator quote state for: ${this.extractShortId(externalId)}`);
-      this.loadingCoordinatorStates.add(externalId);
-
-      return this.quoteService.getQuoteById(externalId).pipe(
-        map((coordinatorQuote: Quote) => {
-          const backendState = this.getPrimaryState(coordinatorQuote);
-          this.coordinatorQuoteStatesMap.set(externalId, backendState);
-          this.loadingCoordinatorStates.delete(externalId);
-          console.log(`Coordinator quote ${this.extractShortId(externalId)} state: ${backendState}`);
-        }),
-        catchError((error: Error) => {
-          console.error(`Failed to load coordinator quote state for ${this.extractShortId(externalId)}:`, error);
-          this.loadingCoordinatorStates.delete(externalId);
-          // Set to unknown state to prevent repeated failed attempts
-          this.coordinatorQuoteStatesMap.set(externalId, 'unknown');
-          return of(void 0); // Continue even if one fails
-        })
-      );
-    });
-
-    // Wait for all coordinator states to load in parallel
-    return forkJoin(loadObservables).pipe(
-      map(() => void 0)
-    );
-  }
-
-  /**
-   * Truncate title if longer than 50 characters
-   * @param title The title to potentially truncate
-   * @returns Truncated title with ellipsis if over 50 chars, or original title
-   */
-  getTruncatedTitle(title: string | undefined): string {
-    if (!title) return '(no title)';
-    const maxLength = 50;
-    if (title.length > maxLength) {
-      return title.substring(0, maxLength) + '...';
-    }
-    return title;
   }
 }
