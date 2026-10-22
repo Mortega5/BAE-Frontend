@@ -1,4 +1,9 @@
-<app-tabs [activeTab]="role" (activeTabChange)="onRoleChange($event)">
+<div class="mb-4">
+  <h2 class="text-2xl font-bold dark:text-white">{{ 'PRODUCT_ORDERS._invoices' | translate }}</h2>
+  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._invoices_subtitle' | translate }}</p>
+</div>
+
+<app-tabs [activeTab]="role" (activeTabChange)="onRoleChange($event)" [fullWidth]="true">
   <ng-template appTab="INVOICES._as_customer" [tabId]="buyerRole" tabIcon="person-arrow-down-to-line"></ng-template>
   <ng-template appTab="INVOICES._as_provider" [tabId]="sellerRole" tabIcon="person-arrow-up-from-line" [tabHidden]="!isSeller"></ng-template>
 

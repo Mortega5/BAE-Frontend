@@ -3001,7 +3001,9 @@
     "_no_notes": "No hay notas en este pedido.",
     "_write_note_placeholder": "Escribe una nueva nota...",
     "_saving": "Guardando...",
-    "_send": "Enviar"
+    "_send": "Enviar",
+    "_orders_subtitle": "Pedidos que has hecho como cliente y pedidos recibidos por tus ofertas como proveedor",
+    "_invoices_subtitle": "Facturas que has recibido como cliente y facturas emitidas por tus ventas como proveedor"
   },
   "FORMS": {
     "_required": "Este campo es obligatorio.",
