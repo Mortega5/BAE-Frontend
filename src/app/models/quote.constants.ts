@@ -99,6 +99,13 @@ export const TAILORED_STATUSES_LABELS_PROVIDER = {
 
 export type TailoredStatusesLabelsProvider = typeof TAILORED_STATUSES_LABELS_PROVIDER[keyof typeof TAILORED_STATUSES_LABELS_PROVIDER];
 
+/** i18n keys (QUOTES._status.*) of the tailored status labels, by quote state, for the given view. */
+export function tailoredStatusLabelKeys(role: 'customer' | 'seller'): Record<string, string> {
+  const labels = role === 'customer' ? TAILORED_STATUSES_LABELS_CUSTOMER : TAILORED_STATUSES_LABELS_PROVIDER;
+  return Object.fromEntries(Object.entries(labels)
+    .map(([status, label]) => [QUOTE_STATUSES[status as keyof typeof QUOTE_STATUSES], `QUOTES._status.${label}`]));
+}
+
 export interface StatusInfo {
   explanation: string;
   availableActions: string;

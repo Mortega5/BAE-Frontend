@@ -7,7 +7,7 @@ import { AuthGuard } from 'src/app/guard/auth.guard';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
-import { QUOTE_STATUSES, TAILORED_STATUSES_LABELS_CUSTOMER, TAILORED_STATUSES_LABELS_PROVIDER } from 'src/app/models/quote.constants';
+import { QUOTE_STATUSES, tailoredStatusLabelKeys } from 'src/app/models/quote.constants';
 import { Quote } from 'src/app/models/quote.model';
 import { API_ROLES } from 'src/app/models/roles.constants';
 import { TableColumn } from 'src/app/models/table-column.model';
@@ -15,7 +15,7 @@ import { AccountServiceService } from 'src/app/services/account-service.service'
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
-import { BadgeStatus } from 'src/app/shared/badge/badge.component';
+import { quoteStateBadgeVariant } from 'src/app/shared/badge/badge.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ChatModalComponent } from 'src/app/shared/chat-modal/chat-modal.component';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
@@ -29,30 +29,6 @@ type QuoteRole = 'customer' | 'seller';
 
 /** A quote row with the names the table shows, resolved once when the role's quotes load. */
 type QuoteRow = Quote & { otherPartyName: string; productName: string; primaryState: string };
-
-const STATUS_LABEL_KEYS: Record<QuoteRole, Record<string, string>> = {
-  customer: Object.fromEntries(Object.entries(TAILORED_STATUSES_LABELS_CUSTOMER)
-    .map(([status, label]) => [QUOTE_STATUSES[status as keyof typeof QUOTE_STATUSES], `QUOTES._status.${label}`])),
-  seller: Object.fromEntries(Object.entries(TAILORED_STATUSES_LABELS_PROVIDER)
-    .map(([status, label]) => [QUOTE_STATUSES[status as keyof typeof QUOTE_STATUSES], `QUOTES._status.${label}`])),
-};
-
-export function quoteStateBadgeVariant(state: string): BadgeStatus {
-  switch (state) {
-    case QUOTE_STATUSES.IN_PROGRESS:
-      return 'info';
-    case QUOTE_STATUSES.APPROVED:
-    case QUOTE_STATUSES.ACCEPTED:
-      return 'success';
-    case QUOTE_STATUSES.PENDING:
-      return 'warning';
-    case QUOTE_STATUSES.CANCELLED:
-    case QUOTE_STATUSES.REJECTED:
-      return 'danger';
-    default:
-      return 'neutral';
-  }
-}
 
 @Component({
   selector: 'app-quote-list',
@@ -169,7 +145,7 @@ export class QuoteListComponent implements OnInit {
   }
 
   private buildTable() {
-    const labels = STATUS_LABEL_KEYS[this.selectedRole];
+    const labels = tailoredStatusLabelKeys(this.selectedRole);
     this.columns = [
       { header: 'QUOTES._request_date', type: 'date', format: 'dd/MM/yyyy', getValue: quote => quote.quoteDate, width: 'w-[150px]' },
       {

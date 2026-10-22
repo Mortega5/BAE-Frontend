@@ -11,7 +11,8 @@ import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { QuoteService } from '../../services/quote.service';
-import { QuoteListComponent, quoteStateBadgeVariant } from './quote-list.component';
+import { quoteStateBadgeVariant } from 'src/app/shared/badge/badge.component';
+import { QuoteListComponent } from './quote-list.component';
 
 const SELLER = 'urn:ngsi-ld:organization:seller';
 const BUYER = 'urn:ngsi-ld:organization:buyer';

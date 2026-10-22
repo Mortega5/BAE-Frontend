@@ -3228,7 +3228,16 @@
     "_search_rate": "Based on your recent experience, how likely are you to recommend DOME to a colleague or a partner?"
   },
   "CHAT_MODAL": {
-    "_send_error": "Error sending message. Please try again."
+    "_send_error": "Error sending message. Please try again.",
+    "_title": "Chat",
+    "_loading": "Loading messages...",
+    "_load_error": "Error loading messages",
+    "_empty": "No messages yet",
+    "_placeholder": "Type a message...",
+    "_send": "Send",
+    "_sending": "Sending...",
+    "_close": "Close",
+    "_empty_desc": "Write the first message to start the conversation."
   },
   "CHAR_SPEC": {
     "_step_title": "Configuration options",
@@ -3312,6 +3321,152 @@
       "request-accepted": "Request accepted",
       "offering-submitted": "Offering submitted",
       "offering-accepted-by-customer": "Offering accepted by customer"
+    },
+    "DETAILS": {
+      "_title_quote": "Quote details",
+      "_title_tender": "Tender details",
+      "_buyer_info": "Buyer information",
+      "_seller_info": "Seller information",
+      "_buyer": "Buyer",
+      "_buyer_operator": "Buyer operator",
+      "_seller": "Seller",
+      "_seller_operator": "Seller operator",
+      "_vat_id": "VAT ID",
+      "_product": "Product",
+      "_request": "Request",
+      "_no_message": "No message provided",
+      "_requested_date": "Requested date",
+      "_expected_date": "Expected date",
+      "_set_expected_date": "Set expected date",
+      "_tender_start": "Tender start date",
+      "_tender_end": "Tender end date",
+      "_status_intro": "The quote is in status:",
+      "_attachments": "Attachments",
+      "_customer_request": "Customer request",
+      "_download": "Download",
+      "_upload_pdf": "Upload PDF attachment",
+      "_max_size": "Maximum file size: 10MB",
+      "_uploading": "Uploading...",
+      "_accept_quote": "Accept quote",
+      "_accept_invite": "Accept invite",
+      "_broadcast": "Broadcast message",
+      "_broadcast_help": "Send a message to all invited providers in this tender",
+      "_cancel_quote": "Cancel quote",
+      "_cancel_tender": "Cancel tender",
+      "_cancel_tender_help": "Cancel this tender and all the related quotes / invites",
+      "_create_offer": "Create offer",
+      "_chat": "Chat",
+      "_close": "Close",
+      "_save": "Save",
+      "_send": "Send",
+      "_sending": "Sending...",
+      "_accept": "Accept",
+      "_expected_date_title": "Set expected completion date",
+      "_expected_date_help": "Select when you expect to complete this quote:",
+      "_broadcast_modal_help": "This message will be sent to all invited providers in this tender:",
+      "_broadcast_placeholder": "Type your message to all invited providers...",
+      "_accept_quote_provider": "Accept the request of the customer. Set an expected delivery date first to proceed.",
+      "_accept_proposal_customer": "Accept the proposal that has been sent to you by the provider.",
+      "_cancel_quote_provider": "Cancel the quote request.",
+      "_expected_date_required": "Set an expected date for the delivery of the proposal first",
+      "_accept_tender_invite": "Accept the invitation to the tender.",
+      "_decline_tender_invite": "Decline the invitation to the tender.",
+      "_create_offer_help": "Create a customized offering based on this accepted quote.",
+      "_confirm_accept_request_title": "Accept quote request",
+      "_confirm_accept_request_msg": "Are you sure you want to accept this quote request?",
+      "_confirm_accept_proposal_title": "Accept quote proposal",
+      "_confirm_accept_proposal_msg": "Are you sure you want to accept this quote proposal?",
+      "_confirm_accept_tender_title": "Accept tender offer",
+      "_confirm_accept_tender_msg": "Are you sure you want to accept this offer? All other provider offers in this tender will be rejected.",
+      "_confirm_cancel_quote_msg": "Are you sure you want to cancel this quote?",
+      "_confirm_cancel_tender_msg": "Are you sure you want to cancel this tender? This will also cancel all related provider invites.",
+      "_confirm_broadcast_msg": "Are you sure you want to broadcast this message to all the invited providers?",
+      "_load_error": "Failed to load quote. Please try again.",
+      "_download_started": "Download started",
+      "_download_error": "Error downloading attachment",
+      "_only_pdf": "Only PDF files are allowed",
+      "_too_big": "File size exceeds the maximum limit of 10MB",
+      "_uploaded": "Attachment uploaded successfully",
+      "_approved_sent": "Quote has been approved and sent to customer",
+      "_upload_error": "Failed to upload attachment",
+      "_request_accepted": "Quote request accepted",
+      "_accept_error": "Failed to accept quote",
+      "_proposal_accepted": "Quote proposal accepted",
+      "_offer_accepted": "Offer accepted. Other open offers in the tender have been rejected.",
+      "_offer_accepted_reject_failed": "Offer accepted, but the other offers could not be rejected.",
+      "_accept_proposal_error": "Failed to accept proposal",
+      "_quote_cancelled": "Quote cancelled",
+      "_cancel_error": "Failed to cancel quote",
+      "_tender_cancelled": "Tender and its related quotes cancelled",
+      "_tender_cancel_error": "Failed to cancel tender. Some quotes may not have been cancelled.",
+      "_related_fetch_error": "Failed to fetch related quotes for cancellation",
+      "_expected_date_updated": "Expected date updated",
+      "_expected_date_error": "Failed to update expected date",
+      "_broadcast_none": "No related provider quotes found to broadcast to.",
+      "_broadcast_sent": "Message sent to all invited providers.",
+      "_broadcast_error": "Failed to broadcast message."
+    },
+    "STATUS_INFO": {
+      "pending": {
+        "provider": {
+          "_explanation": "At this stage you can decide whether to accept or reject the quote request.",
+          "_actions": "Send messages to customer (chat), accept or decline the quote."
+        },
+        "buyer": {
+          "_explanation": "The quote is created and sent to the provider. At this stage the provider must either accept or decline the request.",
+          "_actions": "Send messages to provider (chat), view quote request details or cancel the request."
+        }
+      },
+      "inProgress": {
+        "provider": {
+          "_explanation": "At this point you need to provide a proposal in the form of a PDF attachment.",
+          "_actions": "Send messages to customer (chat), upload attachment or decline the quote."
+        },
+        "buyer": {
+          "_explanation": "Your quote request is being processed. The provider is currently building the proposal based on your specifications. You will be notified once the quote is ready for review and a PDF is uploaded.",
+          "_actions": "Send messages to provider (chat), view quote details or cancel the request."
+        }
+      },
+      "approved": {
+        "provider": {
+          "_explanation": "The quote details are now locked and cannot be modified. The quote has been sent to the customer. You should wait for the customer to review the proposal and use the chat to get in touch with them.",
+          "_actions": "Send messages to customer (chat) or cancel the quote."
+        },
+        "buyer": {
+          "_explanation": "The provider has approved and sent you a quote proposal. Please review the details and attached documents. You can accept, reject, or request updates through the chat.",
+          "_actions": "Send messages to provider (chat), accept the proposal or reject the proposal or cancel the quote."
+        }
+      },
+      "accepted": {
+        "provider": {
+          "_explanation": "The customer has accepted your quote proposal. You should now create a customized version of the offering that will be visible only to the customer. The chat remains open for further communication.",
+          "_actions": "Send messages to customer (chat), create customized offering."
+        },
+        "buyer": {
+          "_explanation": "You have accepted the quote proposal. The provider will now create a customized offering based on this agreement. Once available, you can proceed with the normal order process to subscribe to the service.",
+          "_actions": "Send messages to provider (chat)."
+        }
+      },
+      "rejected": {
+        "provider": {
+          "_explanation": "The customer has rejected this quote proposal. The negotiation process has ended. You can reach out to the customer through the chat and consider submitting a new proposal.",
+          "_actions": "View quote details and chat history."
+        },
+        "buyer": {
+          "_explanation": "You have rejected this quote proposal. The negotiation process has been closed. If you wish, you can submit a new quote request with updated requirements.",
+          "_actions": "View quote details and chat history."
+        }
+      },
+      "cancelled": {
+        "provider": {
+          "_explanation": "This quote has been cancelled.",
+          "_actions": "View quote details and chat history. No further actions available."
+        },
+        "buyer": {
+          "_explanation": "This quote has been cancelled.",
+          "_actions": "View quote details and chat history. No further actions available."
+        }
+      }
     }
   }
 }

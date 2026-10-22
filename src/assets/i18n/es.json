@@ -3228,7 +3228,16 @@
     "_search_rate": "Según tu experiencia reciente, ¿qué probabilidad hay de que recomiendes DOME a un compañero o socio?"
   },
   "CHAT_MODAL": {
-    "_send_error": "Error al enviar el mensaje. Inténtalo de nuevo."
+    "_send_error": "Error al enviar el mensaje. Inténtalo de nuevo.",
+    "_title": "Chat",
+    "_loading": "Cargando mensajes...",
+    "_load_error": "Error al cargar los mensajes",
+    "_empty": "Todavía no hay mensajes",
+    "_placeholder": "Escribe un mensaje...",
+    "_send": "Enviar",
+    "_sending": "Enviando...",
+    "_close": "Cerrar",
+    "_empty_desc": "Escribe el primer mensaje para empezar la conversación."
   },
   "CHAR_SPEC": {
     "_step_title": "Opciones de configuración",
@@ -3312,6 +3321,152 @@
       "request-accepted": "Solicitud aceptada",
       "offering-submitted": "Oferta enviada",
       "offering-accepted-by-customer": "Oferta aceptada por el cliente"
+    },
+    "DETAILS": {
+      "_title_quote": "Detalles del presupuesto",
+      "_title_tender": "Detalles de la licitación",
+      "_buyer_info": "Información del comprador",
+      "_seller_info": "Información del vendedor",
+      "_buyer": "Comprador",
+      "_buyer_operator": "Operador del comprador",
+      "_seller": "Vendedor",
+      "_seller_operator": "Operador del vendedor",
+      "_vat_id": "NIF/IVA",
+      "_product": "Producto",
+      "_request": "Solicitud",
+      "_no_message": "Sin mensaje",
+      "_requested_date": "Fecha solicitada",
+      "_expected_date": "Fecha prevista",
+      "_set_expected_date": "Fijar fecha prevista",
+      "_tender_start": "Inicio de la licitación",
+      "_tender_end": "Fin de la licitación",
+      "_status_intro": "El presupuesto está en estado:",
+      "_attachments": "Adjuntos",
+      "_customer_request": "Solicitud del cliente",
+      "_download": "Descargar",
+      "_upload_pdf": "Subir adjunto PDF",
+      "_max_size": "Tamaño máximo: 10MB",
+      "_uploading": "Subiendo...",
+      "_accept_quote": "Aceptar presupuesto",
+      "_accept_invite": "Aceptar invitación",
+      "_broadcast": "Mensaje a todos",
+      "_broadcast_help": "Enviar un mensaje a todos los proveedores invitados a esta licitación",
+      "_cancel_quote": "Cancelar presupuesto",
+      "_cancel_tender": "Cancelar licitación",
+      "_cancel_tender_help": "Cancelar esta licitación y todos sus presupuestos e invitaciones",
+      "_create_offer": "Crear oferta",
+      "_chat": "Chat",
+      "_close": "Cerrar",
+      "_save": "Guardar",
+      "_send": "Enviar",
+      "_sending": "Enviando...",
+      "_accept": "Aceptar",
+      "_expected_date_title": "Fijar fecha prevista de finalización",
+      "_expected_date_help": "Elige cuándo esperas completar este presupuesto:",
+      "_broadcast_modal_help": "Este mensaje se enviará a todos los proveedores invitados a esta licitación:",
+      "_broadcast_placeholder": "Escribe tu mensaje para todos los proveedores invitados...",
+      "_accept_quote_provider": "Acepta la solicitud del cliente. Fija antes una fecha prevista de entrega para continuar.",
+      "_accept_proposal_customer": "Acepta la propuesta que te ha enviado el proveedor.",
+      "_cancel_quote_provider": "Cancela la solicitud de presupuesto.",
+      "_expected_date_required": "Fija antes una fecha prevista para la entrega de la propuesta",
+      "_accept_tender_invite": "Acepta la invitación a la licitación.",
+      "_decline_tender_invite": "Rechaza la invitación a la licitación.",
+      "_create_offer_help": "Crea una oferta personalizada a partir de este presupuesto aceptado.",
+      "_confirm_accept_request_title": "Aceptar solicitud de presupuesto",
+      "_confirm_accept_request_msg": "¿Seguro que quieres aceptar esta solicitud de presupuesto?",
+      "_confirm_accept_proposal_title": "Aceptar propuesta",
+      "_confirm_accept_proposal_msg": "¿Seguro que quieres aceptar esta propuesta?",
+      "_confirm_accept_tender_title": "Aceptar oferta de la licitación",
+      "_confirm_accept_tender_msg": "¿Seguro que quieres aceptar esta oferta? Se rechazarán las ofertas del resto de proveedores de esta licitación.",
+      "_confirm_cancel_quote_msg": "¿Seguro que quieres cancelar este presupuesto?",
+      "_confirm_cancel_tender_msg": "¿Seguro que quieres cancelar esta licitación? También se cancelarán todas las invitaciones a proveedores.",
+      "_confirm_broadcast_msg": "¿Seguro que quieres enviar este mensaje a todos los proveedores invitados?",
+      "_load_error": "No se ha podido cargar el presupuesto. Inténtalo de nuevo.",
+      "_download_started": "Descarga iniciada",
+      "_download_error": "Error al descargar el adjunto",
+      "_only_pdf": "Solo se permiten archivos PDF",
+      "_too_big": "El archivo supera el tamaño máximo de 10MB",
+      "_uploaded": "Adjunto subido correctamente",
+      "_approved_sent": "El presupuesto se ha aprobado y enviado al cliente",
+      "_upload_error": "No se ha podido subir el adjunto",
+      "_request_accepted": "Solicitud de presupuesto aceptada",
+      "_accept_error": "No se ha podido aceptar el presupuesto",
+      "_proposal_accepted": "Propuesta aceptada",
+      "_offer_accepted": "Oferta aceptada. Se han rechazado las demás ofertas abiertas de la licitación.",
+      "_offer_accepted_reject_failed": "Oferta aceptada, pero no se han podido rechazar las demás ofertas.",
+      "_accept_proposal_error": "No se ha podido aceptar la propuesta",
+      "_quote_cancelled": "Presupuesto cancelado",
+      "_cancel_error": "No se ha podido cancelar el presupuesto",
+      "_tender_cancelled": "Licitación y sus presupuestos cancelados",
+      "_tender_cancel_error": "No se ha podido cancelar la licitación. Puede que algunos presupuestos no se hayan cancelado.",
+      "_related_fetch_error": "No se han podido obtener los presupuestos relacionados para cancelarlos",
+      "_expected_date_updated": "Fecha prevista actualizada",
+      "_expected_date_error": "No se ha podido actualizar la fecha prevista",
+      "_broadcast_none": "No hay presupuestos de proveedores a los que enviar el mensaje.",
+      "_broadcast_sent": "Mensaje enviado a todos los proveedores invitados.",
+      "_broadcast_error": "No se ha podido enviar el mensaje."
+    },
+    "STATUS_INFO": {
+      "pending": {
+        "provider": {
+          "_explanation": "En esta fase puedes decidir si aceptas o rechazas la solicitud de presupuesto.",
+          "_actions": "Enviar mensajes al cliente (chat), aceptar o rechazar el presupuesto."
+        },
+        "buyer": {
+          "_explanation": "El presupuesto se ha creado y enviado al proveedor. En esta fase el proveedor debe aceptar o rechazar la solicitud.",
+          "_actions": "Enviar mensajes al proveedor (chat), ver los detalles de la solicitud o cancelarla."
+        }
+      },
+      "inProgress": {
+        "provider": {
+          "_explanation": "Ahora debes enviar una propuesta en forma de adjunto PDF.",
+          "_actions": "Enviar mensajes al cliente (chat), subir el adjunto o rechazar el presupuesto."
+        },
+        "buyer": {
+          "_explanation": "Tu solicitud se está procesando. El proveedor está preparando la propuesta según tus requisitos. Se te avisará cuando el presupuesto esté listo para revisar y se haya subido el PDF.",
+          "_actions": "Enviar mensajes al proveedor (chat), ver los detalles del presupuesto o cancelar la solicitud."
+        }
+      },
+      "approved": {
+        "provider": {
+          "_explanation": "Los detalles del presupuesto están bloqueados y no se pueden modificar. El presupuesto se ha enviado al cliente. Espera a que el cliente revise la propuesta y usa el chat para hablar con él.",
+          "_actions": "Enviar mensajes al cliente (chat) o cancelar el presupuesto."
+        },
+        "buyer": {
+          "_explanation": "El proveedor ha aprobado y te ha enviado una propuesta. Revisa los detalles y los documentos adjuntos. Puedes aceptarla, rechazarla o pedir cambios por el chat.",
+          "_actions": "Enviar mensajes al proveedor (chat), aceptar o rechazar la propuesta o cancelar el presupuesto."
+        }
+      },
+      "accepted": {
+        "provider": {
+          "_explanation": "El cliente ha aceptado tu propuesta. Ahora debes crear una versión personalizada de la oferta que solo verá el cliente. El chat sigue abierto.",
+          "_actions": "Enviar mensajes al cliente (chat), crear la oferta personalizada."
+        },
+        "buyer": {
+          "_explanation": "Has aceptado la propuesta. El proveedor creará una oferta personalizada a partir de este acuerdo. Cuando esté disponible, podrás contratarla por el proceso de compra habitual.",
+          "_actions": "Enviar mensajes al proveedor (chat)."
+        }
+      },
+      "rejected": {
+        "provider": {
+          "_explanation": "El cliente ha rechazado esta propuesta y la negociación ha terminado. Puedes contactar con el cliente por el chat y plantear una nueva propuesta.",
+          "_actions": "Ver los detalles del presupuesto y el historial del chat."
+        },
+        "buyer": {
+          "_explanation": "Has rechazado esta propuesta y la negociación se ha cerrado. Si quieres, puedes enviar una nueva solicitud con requisitos actualizados.",
+          "_actions": "Ver los detalles del presupuesto y el historial del chat."
+        }
+      },
+      "cancelled": {
+        "provider": {
+          "_explanation": "Este presupuesto se ha cancelado.",
+          "_actions": "Ver los detalles del presupuesto y el historial del chat. No hay más acciones disponibles."
+        },
+        "buyer": {
+          "_explanation": "Este presupuesto se ha cancelado.",
+          "_actions": "Ver los detalles del presupuesto y el historial del chat. No hay más acciones disponibles."
+        }
+      }
     }
   }
 }

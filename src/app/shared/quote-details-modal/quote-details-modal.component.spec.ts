@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { QuoteService } from 'src/app/features/quotes/services/quote.service';
 import { Quote } from 'src/app/models/quote.model';
@@ -40,7 +41,7 @@ describe('QuoteDetailsModalComponent', () => {
     quoteService.getTenderingQuotesByExternalId.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [QuoteDetailsModalComponent],
+      imports: [QuoteDetailsModalComponent, TranslateModule.forRoot()],
       providers: [
         { provide: QuoteService, useValue: quoteService },
         { provide: NotificationService, useValue: notificationService },
@@ -69,14 +70,10 @@ describe('QuoteDetailsModalComponent', () => {
 
     fixture.detectChanges();
 
-    const buttonLabels = Array.from(fixture.nativeElement.querySelectorAll('button') as NodeListOf<HTMLButtonElement>)
-      .map((button) => button.textContent?.trim())
-      .filter(Boolean);
-
-    expect(buttonLabels).not.toContain('Chat');
+    expect(fixture.nativeElement.querySelector('[data-cy="quoteDetailsChat"]')).toBeNull();
   });
 
-  it('uses a neutral badge palette for closed coordinator tenders', () => {
+  it('uses a neutral badge for closed coordinator tenders', () => {
     component.quote = {
       ...coordinatorQuote,
       state: QUOTE_STATUSES.ACCEPTED,
@@ -84,9 +81,32 @@ describe('QuoteDetailsModalComponent', () => {
     };
 
     expect(component.getStatusLabel()).toBe('Tender Closed');
-    expect(component.getStatusBadgeClass()).toContain('border-[#CBD3DF]');
-    expect(component.getStatusBadgeClass()).toContain('bg-[#F2F4F8]');
-    expect(component.getStatusBadgeClass()).toContain('text-[#324153]');
+    expect(component.getStatusBadge()).toBe('neutral');
+  });
+
+  it('labels tailored quotes with i18n keys for the current view', () => {
+    component.quote = { id: 'quote-1', category: QUOTE_CATEGORIES.TAILORED, quoteItem: [{ state: QUOTE_STATUSES.PENDING }] } as Quote;
+
+    component.currentUserRole = 'customer';
+    expect(component.getStatusLabel()).toBe('QUOTES._status.request-sent-awaiting-feedback');
+    expect(component.getStatusExplanation()).toBe('QUOTES.STATUS_INFO.pending.buyer._explanation');
+
+    component.currentUserRole = 'seller';
+    expect(component.getStatusLabel()).toBe('QUOTES._status.request-received-pending-feedback');
+    expect(component.getAvailableActionsText()).toBe('QUOTES.STATUS_INFO.pending.provider._actions');
+  });
+
+  it('runs the pending action only when the confirm dialog resolves to true', () => {
+    const callback = jasmine.createSpy('callback');
+    component.confirmDialogCallback = callback;
+    component.showConfirmDialog = true;
+
+    component.onConfirmResolved(false);
+    expect(callback).not.toHaveBeenCalled();
+    expect(component.showConfirmDialog).toBeFalse();
+
+    component.onConfirmResolved(true);
+    expect(callback).toHaveBeenCalled();
   });
 
   it('broadcasts from coordinator quote details by adding notes to related tendering quotes', () => {
@@ -108,6 +128,6 @@ describe('QuoteDetailsModalComponent', () => {
     expect(quoteService.addNoteToQuote).toHaveBeenCalledWith('provider-quote-1', 'Hello providers', 'buyer-1');
     expect(quoteService.addNoteToQuote).toHaveBeenCalledWith('provider-quote-2', 'Hello providers', 'buyer-1');
     expect(quoteService.broadcastMessage).not.toHaveBeenCalled();
-    expect(notificationService.showSuccess).toHaveBeenCalledWith('Message broadcast sent to all invited providers.');
+    expect(notificationService.showSuccess).toHaveBeenCalledWith('QUOTES.DETAILS._broadcast_sent');
   });
 });

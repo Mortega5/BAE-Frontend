@@ -1,6 +1,7 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { TranslateModule } from '@ngx-translate/core';
 import { Router } from '@angular/router';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { switchMap } from 'rxjs/operators';
@@ -10,411 +11,21 @@ import { NotificationService } from '../../services/notification.service';
 import { AccountServiceService } from '../../services/account-service.service';
 import { ApiServiceService } from '../../services/product-service.service';
 import { Quote } from '../../models/quote.model';
-import { QUOTE_STATUS_MESSAGES, TENDERING_STATUS_MESSAGES, COORDINATOR_STATUS_MESSAGES, QUOTE_CHAT_MESSAGES, QUOTE_ACTION_BUTTON_TEXTS, QUOTE_CATEGORIES, QUOTE_STATUSES, TAILORED_STATUSES_LABELS_CUSTOMER, TAILORED_STATUSES_LABELS_PROVIDER, TENDER_COORDINATOR_STATUSES_LABELS, TENDER_RELATED_QUOTES_LABELS_CUSTOMER, TENDER_RELATED_QUOTES_LABELS_PROVIDER } from '../../models/quote.constants';
+import { TENDERING_STATUS_MESSAGES, COORDINATOR_STATUS_MESSAGES, QUOTE_CHAT_MESSAGES, QUOTE_CATEGORIES, QUOTE_STATUSES, TENDER_COORDINATOR_STATUSES_LABELS, TENDER_RELATED_QUOTES_LABELS_CUSTOMER, TENDER_RELATED_QUOTES_LABELS_PROVIDER, tailoredStatusLabelKeys } from '../../models/quote.constants';
 import { API_ROLES } from '../../models/roles.constants';
-import { NotificationComponent } from '../notification/notification.component';
 import { ChatModalComponent } from '../chat-modal/chat-modal.component';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
-import { ButtonVariant } from '../button/button.component';
-import { environment } from 'src/environments/environment';
+import { ButtonComponent, ButtonVariant } from '../button/button.component';
+import { ContentCardComponent } from '../content-card/content-card.component';
+import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
+import { BadgeComponent, BadgeStatus, quoteStateBadgeVariant } from '../badge/badge.component';
 
 @Component({
   selector: 'app-quote-details-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, NotificationComponent, ChatModalComponent, ConfirmModalComponent],
-  template: `
-    <!-- Modal Backdrop -->
-    <div
-      *ngIf="isOpen"
-      class="fixed inset-0 z-50 h-full w-full overflow-y-auto bg-[#0b1220]/45 px-4 py-8"
-      (click)="closeModal()"
-    >
-      <!-- Modal Content -->
-      <div
-        class="relative mx-auto mt-6 w-full max-w-5xl overflow-hidden rounded-2xl border border-[#EBECEE] bg-white shadow-[0_20px_50px_rgba(11,18,32,0.24)]"
-        (click)="$event.stopPropagation()"
-      >
-        <!-- Modal Header -->
-        <div class="flex items-center justify-between border-b border-[#EBECEE] px-8 py-6">
-          <h2 class="text-2xl font-bold text-[#0b1220]">{{ getModalTitle() }}</h2>
-          <button
-            (click)="closeModal()"
-            class="inline-flex h-10 w-10 items-center justify-center rounded-lg text-[#526179] transition-colors hover:bg-[#F2F4F8] hover:text-[#0b1220] focus:outline-none focus:ring-2 focus:ring-[#B6CAEC]"
-          >
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-
-        <!-- Loading State -->
-        <div *ngIf="isLoading" class="flex items-center justify-center px-8 py-12">
-          <div class="h-10 w-10 animate-spin rounded-full border-b-2 border-[#1f4fbf]"></div>
-        </div>
-
-        <!-- Error State -->
-        <div *ngIf="error" class="relative mx-8 mt-6 rounded-lg border border-[#F4C7C7] bg-[#FFF1F1] px-4 py-3 text-[#B42318]">
-          {{ error }}
-        </div>
-
-        <!-- Quote Content -->
-        <div *ngIf="!isLoading && !error && quote" class="max-h-[70vh] space-y-5 overflow-y-auto px-8 py-6">
-
-          <!-- Buyer Section (hidden for coordinator quotes) -->
-          <div *ngIf="getQuoteCategory() !== QUOTE_CATEGORIES.COORDINATOR" class="rounded-xl border border-[#EBECEE] bg-[#F8FAFD] p-4">
-            <p class="mb-3 text-sm font-semibold text-[#324153]">Buyer Information</p>
-            <div class="grid grid-cols-2 gap-4">
-              <!-- Buyer -->
-              <div>
-                <p class="text-xs text-[#526179]">Buyer:</p>
-                <p class="text-sm font-semibold text-[#0b1220]">{{ buyerName }}</p>
-                <p class="text-xs text-[#6B7890]">VAT ID: {{ buyerVatId }}</p>
-              </div>
-              <!-- Buyer Operator -->
-              <div>
-                <p class="text-xs text-[#526179]">Buyer Operator:</p>
-                <p class="text-sm font-semibold text-[#0b1220]">{{ buyerOperatorName }}</p>
-                <p class="text-xs text-[#6B7890]">VAT ID: {{ buyerOperatorVatId }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Seller Section (hidden for coordinator quotes) -->
-          <div *ngIf="getQuoteCategory() !== QUOTE_CATEGORIES.COORDINATOR" class="rounded-xl border border-[#EBECEE] bg-[#F8FAFD] p-4">
-            <p class="mb-3 text-sm font-semibold text-[#324153]">Seller Information</p>
-            <div class="grid grid-cols-2 gap-4">
-              <!-- Seller -->
-              <div>
-                <p class="text-xs text-[#526179]">Seller:</p>
-                <p class="text-sm font-semibold text-[#0b1220]">{{ sellerName }}</p>
-                <p class="text-xs text-[#6B7890]">VAT ID: {{ sellerVatId }}</p>
-              </div>
-              <!-- Seller Operator -->
-              <div>
-                <p class="text-xs text-[#526179]">Seller Operator:</p>
-                <p class="text-sm font-semibold text-[#0b1220]">{{ sellerOperatorName }}</p>
-                <p class="text-xs text-[#6B7890]">VAT ID: {{ sellerOperatorVatId }}</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Product Info (only for tailored quotes) -->
-          <div *ngIf="getQuoteCategory() === QUOTE_CATEGORIES.TAILORED">
-            <p class="text-sm text-[#526179]">Product:</p>
-            <p class="text-base font-semibold text-[#0b1220]">{{ productName }}</p>
-          </div>
-
-          <!-- Request Message -->
-          <div>
-            <p class="mb-2 text-sm font-medium text-[#526179]">Request:</p>
-            <div class="overflow-hidden rounded-lg border border-[#EBECEE] border-l-4 border-l-[#F2C94C] bg-[#F8FAFD] p-4">
-              <p class="whitespace-pre-wrap break-words text-[#0b1220] overflow-wrap-anywhere">{{ quote.description || 'No message provided' }}</p>
-            </div>
-          </div>
-
-          <!-- Dates (TAILORED quotes) -->
-          <div *ngIf="getQuoteCategory() === QUOTE_CATEGORIES.TAILORED" class="grid grid-cols-2 gap-4">
-            <div>
-              <p class="text-sm text-[#526179]">Requested Date:</p>
-              <p class="text-base font-semibold text-[#0b1220]">
-                {{ quote.requestedQuoteCompletionDate ? (quote.requestedQuoteCompletionDate | date:'dd-MM-yyyy') : '--' }}
-              </p>
-            </div>
-            <div>
-              <p class="text-sm text-[#526179]">Expected Date:</p>
-              <div class="flex items-center gap-2">
-                <p class="text-base font-semibold text-[#0b1220]">
-                  {{ quote.expectedQuoteCompletionDate ? (quote.expectedQuoteCompletionDate | date:'dd-MM-yyyy') : '--' }}
-                </p>
-                <!-- Edit Expected Date Button (Provider only, when allowed) -->
-                <button
-                  *ngIf="canEditExpectedDate()"
-                  (click)="showExpectedDatePicker = true"
-                  class="rounded-md p-1 text-[#1f4fbf] transition-colors hover:bg-[#EBF0F7]"
-                  title="Set expected date"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Dates (TENDERING and COORDINATOR quotes) -->
-          <div *ngIf="getQuoteCategory() === QUOTE_CATEGORIES.TENDER || getQuoteCategory() === QUOTE_CATEGORIES.COORDINATOR" class="grid grid-cols-2 gap-4">
-            <div>
-              <p class="text-sm text-[#526179]">Tender Start Date:</p>
-              <p class="text-base font-semibold text-[#0b1220]">
-                {{ getTenderStartDate() }}
-              </p>
-            </div>
-            <div>
-              <p class="text-sm text-[#526179]">Tender End Date:</p>
-              <p class="text-base font-semibold text-[#0b1220]">
-                {{ getTenderEndDate() }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Status Section -->
-          <div class="border-t border-[#EBECEE] pt-5">
-            <div class="flex items-center gap-2 mb-3">
-              <p class="text-sm text-[#324153]">The quote is in status:</p>
-              <span class="rounded-full px-3 py-1 text-sm font-semibold"
-                    [ngClass]="getStatusBadgeClass()">
-                {{ getStatusLabel() }}
-              </span>
-            </div>
-            <p class="mb-2 text-sm text-[#526179]">{{ getStatusExplanation() }}</p>
-            <p class="text-sm italic text-[#6B7890]">{{ getAvailableActionsText() }}</p>
-          </div>
-
-          <!-- Attachments Section -->
-          <div *ngIf="hasAttachment() || canUploadAttachment() || hasCoordinatorAttachment()" class="border-t border-[#EBECEE] pt-5">
-            <p class="mb-3 text-sm font-semibold text-[#324153]">Attachments</p>
-
-            <!-- Download Coordinator Attachment (Customer Request) - for tendering quotes -->
-            <div *ngIf="hasCoordinatorAttachment()" class="flex items-center gap-3 mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-[#1f4fbf]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-              <span class="text-sm text-[#324153]">Customer Request: {{ getCoordinatorAttachmentName() }}</span>
-              <button
-                (click)="downloadCoordinatorAttachment()"
-                class="text-sm font-semibold text-[#1f4fbf] hover:text-[#183f99]"
-              >
-                Download
-              </button>
-            </div>
-
-            <!-- Download Attachment (Provider Response) -->
-            <div *ngIf="hasAttachment()" class="flex items-center gap-3 mb-3">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-              </svg>
-              <span class="text-sm text-[#324153]">{{ getAttachmentName() }}</span>
-              <button
-                (click)="downloadAttachment()"
-                class="text-sm font-semibold text-[#1f4fbf] hover:text-[#183f99]"
-              >
-                Download
-              </button>
-            </div>
-
-            <!-- Upload Attachment (Provider only) -->
-            <div *ngIf="canUploadAttachment()" class="mt-3">
-              <label class="flex cursor-pointer items-center gap-2 text-sm font-semibold text-[#006B4A] hover:text-[#00533A]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                <span>Upload PDF attachment</span>
-                <input
-                  type="file"
-                  accept=".pdf"
-                  class="hidden"
-                  (change)="onFileSelected($event)"
-                />
-              </label>
-              <p class="mt-1 text-xs text-[#6B7890]">Maximum file size: 10MB</p>
-              <p *ngIf="isUploading" class="mt-2 text-sm text-[#526179]">Uploading...</p>
-            </div>
-          </div>
-
-          <!-- Action Buttons Section (TAILORED and TENDERING categories) -->
-          <div *ngIf="hasActionButtons() && getQuoteCategory() !== QUOTE_CATEGORIES.COORDINATOR" class="border-t border-[#EBECEE] pt-5">
-            <div class="space-y-3">
-              <!-- Provider: Accept Tender Invite (when pending, only while coordinator is in inProgress) -->
-              <div *ngIf="currentUserRole === 'seller' && getPrimaryState() === QUOTE_STATUSES.PENDING && (getQuoteCategory() !== QUOTE_CATEGORIES.TENDER || getCoordinatorState() === QUOTE_STATUSES.IN_PROGRESS)" class="flex items-center justify-between">
-                <p class="text-sm text-[#526179]">
-                  {{ getQuoteCategory() === QUOTE_CATEGORIES.TENDER ? ACTION_TEXTS.ACCEPT_TENDER_INVITE : ACTION_TEXTS.ACCEPT_QUOTE_PROVIDER }}
-                </p>
-                <button
-                  (click)="acceptQuote()"
-                  [disabled]="isProcessing || !canAcceptQuote()"
-                  [title]="getAcceptButtonTooltip()"
-                  class="inline-flex h-10 items-center gap-2 rounded-lg bg-[#006B4A] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#00533A] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  {{ getQuoteCategory() === QUOTE_CATEGORIES.TENDER ? 'Accept Invite' : 'Accept Quote' }}
-                </button>
-              </div>
-
-              <!-- Customer: Accept Proposal (tailored: when approved; tender: only when coordinator is 'accepted'/closed) -->
-              <div *ngIf="currentUserRole === 'customer' && getPrimaryState() === QUOTE_STATUSES.APPROVED && (getQuoteCategory() !== QUOTE_CATEGORIES.TENDER || getCoordinatorState() === QUOTE_STATUSES.ACCEPTED)" class="flex items-center justify-between">
-                <p class="text-sm text-[#526179]">{{ ACTION_TEXTS.ACCEPT_PROPOSAL_CUSTOMER }}</p>
-                <button
-                  (click)="acceptProposal()"
-                  [disabled]="isProcessing"
-                  class="inline-flex h-10 items-center gap-2 rounded-lg bg-[#006B4A] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#00533A] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                  </svg>
-                  Accept Quote
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Action Buttons Section (COORDINATOR category) -->
-          <div *ngIf="getQuoteCategory() === QUOTE_CATEGORIES.COORDINATOR" class="border-t border-[#EBECEE] pt-5">
-            <div class="space-y-3">
-              <!-- Broadcast Message Button (hidden while tender is still in pending/draft) -->
-              <div *ngIf="currentUserRole === 'customer' && getPrimaryState() !== QUOTE_STATUSES.PENDING" class="flex items-center justify-between">
-                <p class="text-sm text-[#526179]">Send a message to all invited providers in this tender</p>
-                <button
-                  (click)="openBroadcastMessage()"
-                  [disabled]="isProcessing"
-                  class="inline-flex h-10 items-center gap-2 rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />
-                  </svg>
-                  Broadcast Message
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Cancel Quote (Always Available except when Accepted) -->
-          <div *ngIf="getPrimaryState() !== QUOTE_STATUSES.ACCEPTED && getPrimaryState() !== QUOTE_STATUSES.CANCELLED" class="border-t border-[#EBECEE] pt-5">
-            <div class="flex items-center justify-between">
-              <p class="text-sm text-[#526179]">
-                {{ getQuoteCategory() === QUOTE_CATEGORIES.COORDINATOR ? 'Cancel this tender and all the related quotes / invites' : (getQuoteCategory() === QUOTE_CATEGORIES.TENDER && currentUserRole === 'seller' && getPrimaryState() === QUOTE_STATUSES.PENDING ? ACTION_TEXTS.DECLINE_TENDER_INVITE : ACTION_TEXTS.CANCEL_QUOTE_PROVIDER) }}
-              </p>
-              <button
-                (click)="cancelQuote()"
-                [disabled]="isProcessing"
-                class="inline-flex h-10 items-center gap-2 rounded-lg border border-[#F4C7C7] bg-white px-4 text-sm font-semibold text-[#B42318] transition-colors hover:bg-[#FFF1F1] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-                {{ getQuoteCategory() === QUOTE_CATEGORIES.COORDINATOR ? 'Cancel Tender' : 'Cancel Quote' }}
-              </button>
-            </div>
-          </div>
-
-          <!-- Create Offer Button (Provider only, when quote is accepted) -->
-          <div *ngIf="currentUserRole === 'seller' && getPrimaryState() === QUOTE_STATUSES.ACCEPTED" class="border-t border-[#EBECEE] pt-5">
-            <div class="flex items-center justify-between">
-              <p class="text-sm text-[#526179]">{{ ACTION_TEXTS.CREATE_OFFER }}</p>
-              <button
-                (click)="createOffer()"
-                class="inline-flex h-10 items-center gap-2 rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99]"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Create Offer
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="flex justify-between border-t border-[#EBECEE] px-8 py-6">
-          <!-- Chat Button -->
-          <button
-            *ngIf="getQuoteCategory() !== QUOTE_CATEGORIES.COORDINATOR"
-            (click)="openChat()"
-            class="inline-flex h-10 items-center gap-2 rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99]"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.77 9.77 0 01-4-.8L3 21l1.8-4A7.96 7.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-            </svg>
-            Chat
-          </button>
-          <button
-            (click)="closeModal()"
-            class="inline-flex h-10 items-center rounded-lg border border-[#EBECEE] bg-white px-4 text-sm font-semibold text-[#324153] transition-colors hover:border-[#1f4fbf] hover:text-[#1f4fbf]"
-          >
-            Close
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Chat Modal -->
-    <app-chat-modal
-      [isOpen]="showChatModal"
-      [quoteId]="quoteId"
-      (close)="closeChatModal()"
-    ></app-chat-modal>
-
-    <!-- Expected Date Picker Modal -->
-    <div *ngIf="showExpectedDatePicker" class="fixed inset-0 z-[60] flex h-full w-full items-center justify-center overflow-y-auto bg-[#0b1220]/45 px-4 py-8">
-      <div class="mx-4 w-full max-w-sm rounded-2xl border border-[#EBECEE] bg-white p-6 shadow-[0_20px_50px_rgba(11,18,32,0.24)]">
-        <h3 class="mb-4 text-lg font-bold text-[#0b1220]">Set Expected Completion Date</h3>
-        <p class="mb-4 text-sm text-[#526179]">Select when you expect to complete this quote:</p>
-        <input
-          type="date"
-          [(ngModel)]="selectedExpectedDate"
-          [min]="minDate"
-          class="mb-4 w-full rounded-lg border border-[#EBECEE] bg-white px-3 py-2 text-[#0b1220] outline-none transition-colors hover:border-[#1f4fbf] focus:border-[#1f4fbf] focus:ring-2 focus:ring-[#B6CAEC]"
-        />
-        <div class="flex justify-end gap-3">
-          <button
-            (click)="showExpectedDatePicker = false"
-            class="inline-flex h-10 items-center rounded-lg border border-[#EBECEE] bg-white px-4 text-sm font-semibold text-[#324153] transition-colors hover:border-[#1f4fbf] hover:text-[#1f4fbf]"
-          >
-            Cancel
-          </button>
-          <button
-            (click)="saveExpectedDate()"
-            [disabled]="!selectedExpectedDate"
-            class="inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            Save
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Broadcast Message Modal -->
-    <div *ngIf="showBroadcastModal" class="fixed inset-0 z-[60] flex h-full w-full items-center justify-center overflow-y-auto bg-[#0b1220]/45 px-4 py-8">
-      <div class="mx-4 w-full max-w-md rounded-2xl border border-[#EBECEE] bg-white p-6 shadow-[0_20px_50px_rgba(11,18,32,0.24)]">
-        <h3 class="mb-4 text-lg font-bold text-[#0b1220]">Broadcast Message</h3>
-        <p class="mb-4 text-sm text-[#526179]">This message will be sent to all invited providers in this tender:</p>
-        <textarea
-          [(ngModel)]="broadcastMessage"
-          rows="4"
-          placeholder="Type your message to all invited providers..."
-          class="mb-4 w-full rounded-lg border border-[#EBECEE] bg-white px-3 py-2 text-sm text-[#0b1220] outline-none transition-colors placeholder:text-[#9AA6B8] hover:border-[#1f4fbf] focus:border-[#1f4fbf] focus:ring-2 focus:ring-[#B6CAEC]"
-        ></textarea>
-        <div class="flex justify-end gap-3">
-          <button
-            (click)="closeBroadcastModal()"
-            class="inline-flex h-10 items-center rounded-lg border border-[#EBECEE] bg-white px-4 text-sm font-semibold text-[#324153] transition-colors hover:border-[#1f4fbf] hover:text-[#1f4fbf]"
-          >
-            Cancel
-          </button>
-          <button
-            (click)="sendBroadcastMessage()"
-            [disabled]="!broadcastMessage || isBroadcastSending"
-            class="inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {{ isBroadcastSending ? 'Sending...' : 'Send' }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Confirmation Dialog -->
-    <app-confirm-modal
-      [visible]="showConfirmDialog"
-      [title]="confirmDialogTitle"
-      [message]="confirmDialogMessage"
-      [confirmLabel]="confirmDialogButtonText"
-      cancelLabel="Cancel"
-      [confirmVariant]="confirmDialogVariant"
-      (confirmed)="confirmDialogCallback && confirmDialogCallback()"
-      (cancelled)="showConfirmDialog = false"
-    ></app-confirm-modal>
-  `
+  imports: [DatePipe, FormsModule, TranslateModule, ChatModalComponent, ConfirmModalComponent, ButtonComponent,
+    ContentCardComponent, LoadingSpinnerComponent, BadgeComponent],
+  templateUrl: './quote-details-modal.component.html',
 })
 export class QuoteDetailsModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
@@ -436,19 +47,19 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
   confirmDialogTitle = '';
   confirmDialogMessage = '';
   confirmDialogCallback: (() => void) | null = null;
-  confirmDialogButtonText = 'Confirm';
+  confirmDialogButtonText = 'CONFIRM_MODAL._confirm';
   confirmDialogVariant: ButtonVariant = 'primary';
 
   // Data enrichment
-  buyerName = 'Loading...';
-  buyerVatId = 'N/A';
-  buyerOperatorName = 'Loading...';
-  buyerOperatorVatId = 'N/A';
-  sellerName = 'Loading...';
-  sellerVatId = 'N/A';
-  sellerOperatorName = 'Loading...';
-  sellerOperatorVatId = 'N/A';
-  productName = 'Loading...';
+  buyerName = '-';
+  buyerVatId = '-';
+  buyerOperatorName = '-';
+  buyerOperatorVatId = '-';
+  sellerName = '-';
+  sellerVatId = '-';
+  sellerOperatorName = '-';
+  sellerOperatorVatId = '-';
+  productName = '-';
 
   // Expected date picker
   showExpectedDatePicker = false;
@@ -463,7 +74,6 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
   isBroadcastSending = false;
 
   // Expose constants to template
-  readonly ACTION_TEXTS = QUOTE_ACTION_BUTTON_TEXTS;
   readonly QUOTE_CATEGORIES = QUOTE_CATEGORIES;
   readonly QUOTE_STATUSES = QUOTE_STATUSES;
 
@@ -497,15 +107,15 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
     this.quote = null;
     this.coordinatorQuote = null;
     this.error = null;
-    this.buyerName = 'Loading...';
-    this.buyerVatId = 'N/A';
-    this.buyerOperatorName = 'Loading...';
-    this.buyerOperatorVatId = 'N/A';
-    this.sellerName = 'Loading...';
-    this.sellerVatId = 'N/A';
-    this.sellerOperatorName = 'Loading...';
-    this.sellerOperatorVatId = 'N/A';
-    this.productName = 'Loading...';
+    this.buyerName = '-';
+    this.buyerVatId = '-';
+    this.buyerOperatorName = '-';
+    this.buyerOperatorVatId = '-';
+    this.sellerName = '-';
+    this.sellerVatId = '-';
+    this.sellerOperatorName = '-';
+    this.sellerOperatorVatId = '-';
+    this.productName = '-';
     this.showExpectedDatePicker = false;
     this.selectedExpectedDate = '';
   }
@@ -540,7 +150,7 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
         }
       },
       error: (error: Error) => {
-        this.error = 'Failed to load quote. Please try again.';
+        this.error = 'QUOTES.DETAILS._load_error';
         this.isLoading = false;
         this.notificationService.showError(this.error);
       }
@@ -560,7 +170,7 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
   private fetchPartyName(
     partyId: string | undefined,
     onSuccess: (name: string) => void,
-    fallbackValue: string = 'N/A'
+    fallbackValue: string = '-'
   ) {
     if (!partyId) {
       onSuccess(fallbackValue);
@@ -586,36 +196,18 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
     if (!this.quote) return;
 
     // Extract all 4 parties from relatedParty
-    const buyer = this.quote.relatedParty?.find(p =>
-      p.role?.toLowerCase() === 'buyer'
-    );
-    const buyerOperator = this.quote.relatedParty?.find(p =>
-      p.role?.toLowerCase() === 'buyeroperator'
-    );
-    const seller = this.quote.relatedParty?.find(p =>
-      p.role?.toLowerCase() === 'seller'
-    );
-    const sellerOperator = this.quote.relatedParty?.find(p =>
-      p.role?.toLowerCase() === 'selleroperator'
-    );
+    const partyWithRole = (role: string) =>
+      this.quote!.relatedParty?.find(p => p.role?.toLowerCase() === role.toLowerCase());
+    const buyer = partyWithRole(API_ROLES.BUYER);
+    const buyerOperator = partyWithRole(API_ROLES.BUYER_OPERATOR);
+    const seller = partyWithRole(API_ROLES.SELLER);
+    const sellerOperator = partyWithRole(API_ROLES.SELLER_OPERATOR);
 
-    // Helper function to clean IDs by removing URN and did:elsi prefixes
-    const cleanId = (id: string | undefined): string => {
-      if (!id) return 'N/A';
-      // Remove urn:ngsi-ld:organization: prefix
-      let cleaned = id.replace(/^urn:ngsi-ld:organization:/, '');
-      // Remove did:elsi: prefix
-      cleaned = cleaned.replace(/^did:elsi:/, '');
-      return cleaned;
-    };
-
-    // Helper function to strip "did:elsi:" prefix from VAT IDs
+    // VAT IDs travel in the relatedParty name as DIDs: strip the "did:elsi:" prefix
     const cleanVatId = (vatId: string | undefined): string => {
-      if (!vatId) return 'N/A';
+      if (!vatId) return '-';
       return vatId.replace(/^did:elsi:/, '');
     };
-
-
 
     // Get VAT IDs from relatedParty name field and clean them
     this.buyerVatId = cleanVatId(buyer?.name);
@@ -625,13 +217,13 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
 
     // Fetch party names (only calls API for organization IDs)
     // For operators without org IDs, name stays as 'N/A'
-    this.fetchPartyName(buyer?.id, (name) => this.buyerName = name, 'N/A');
+    this.fetchPartyName(buyer?.id, (name) => this.buyerName = name);
     if (this.isOrganizationId(buyerOperator?.id)) {
-      this.fetchPartyName(buyerOperator?.id, (name) => this.buyerOperatorName = name, 'N/A');
+      this.fetchPartyName(buyerOperator?.id, (name) => this.buyerOperatorName = name);
     }
-    this.fetchPartyName(seller?.id, (name) => this.sellerName = name, 'N/A');
+    this.fetchPartyName(seller?.id, (name) => this.sellerName = name);
     if (this.isOrganizationId(sellerOperator?.id)) {
-      this.fetchPartyName(sellerOperator?.id, (name) => this.sellerOperatorName = name, 'N/A');
+      this.fetchPartyName(sellerOperator?.id, (name) => this.sellerOperatorName = name);
     }
 
     // Fetch product info
@@ -662,48 +254,22 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
     return this.quote.state || 'unknown';
   }
 
-  /**
-   * Get user-friendly status label based on quote category and user role
-   */
+  /** Tailored labels are i18n keys; tender/coordinator ones are still plain English
+   * (shared with tender-list) and pass through the translate pipe unchanged. */
   getStatusLabel(): string {
     const state = this.getPrimaryState();
     if (!this.quote) return state;
 
-    // Determine which label set to use based on category and role
-    let labels: any;
-
-    if (this.getQuoteCategory() === QUOTE_CATEGORIES.COORDINATOR) {
-      // Coordinator quotes use their own label set
-      labels = TENDER_COORDINATOR_STATUSES_LABELS;
-    } else if (this.getQuoteCategory() === QUOTE_CATEGORIES.TENDER) {
-      // Tender child quotes use labels based on user role
-      labels = this.currentUserRole === 'customer'
-        ? TENDER_RELATED_QUOTES_LABELS_CUSTOMER
-        : TENDER_RELATED_QUOTES_LABELS_PROVIDER;
-    } else {
-      // Tailored quotes use labels based on user role
-      labels = this.currentUserRole === 'customer'
-        ? TAILORED_STATUSES_LABELS_CUSTOMER
-        : TAILORED_STATUSES_LABELS_PROVIDER;
+    const category = this.getQuoteCategory();
+    if (category !== QUOTE_CATEGORIES.COORDINATOR && category !== QUOTE_CATEGORIES.TENDER) {
+      return tailoredStatusLabelKeys(this.currentUserRole)[state] ?? state;
     }
 
-    // Map status to label
-    switch (state) {
-      case QUOTE_STATUSES.PENDING:
-        return labels.PENDING;
-      case QUOTE_STATUSES.IN_PROGRESS:
-        return labels.IN_PROGRESS;
-      case QUOTE_STATUSES.APPROVED:
-        return labels.APPROVED;
-      case QUOTE_STATUSES.ACCEPTED:
-        return labels.ACCEPTED;
-      case QUOTE_STATUSES.CANCELLED:
-        return labels.CANCELLED;
-      case QUOTE_STATUSES.REJECTED:
-        return labels.REJECTED;
-      default:
-        return state;
-    }
+    const labels: Record<string, string> = category === QUOTE_CATEGORIES.COORDINATOR
+      ? TENDER_COORDINATOR_STATUSES_LABELS
+      : this.currentUserRole === 'customer' ? TENDER_RELATED_QUOTES_LABELS_CUSTOMER : TENDER_RELATED_QUOTES_LABELS_PROVIDER;
+    const key = Object.entries(QUOTE_STATUSES).find(([, value]) => value === state)?.[0];
+    return (key && labels[key]) || state;
   }
 
   // Returns the state of the coordinator quote (for tendering quotes)
@@ -715,22 +281,13 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
     return this.coordinatorQuote.state || null;
   }
 
-  getStatusBadgeClass(): string {
+  getStatusBadge(): BadgeStatus {
     const state = this.getPrimaryState();
-
+    // A closed tender is finished, not a success of this quote
     if (this.getQuoteCategory() === QUOTE_CATEGORIES.COORDINATOR && state === QUOTE_STATUSES.ACCEPTED) {
-      return 'border border-[#CBD3DF] bg-[#F2F4F8] text-[#324153]';
+      return 'neutral';
     }
-
-    const classes: Record<string, string> = {
-      [QUOTE_STATUSES.PENDING]: 'border border-[#F2D28A] bg-[#FFF8E6] text-[#7A4D00]',
-      [QUOTE_STATUSES.IN_PROGRESS]: 'border border-[#B6CAEC] bg-[#EBF0F7] text-[#1f4fbf]',
-      [QUOTE_STATUSES.APPROVED]: 'border border-[#A8DDC8] bg-[#EAF8F1] text-[#006B4A]',
-      [QUOTE_STATUSES.ACCEPTED]: 'border border-[#A8DDC8] bg-[#EAF8F1] text-[#006B4A]',
-      [QUOTE_STATUSES.REJECTED]: 'border border-[#F4C7C7] bg-[#FFF1F1] text-[#B42318]',
-      [QUOTE_STATUSES.CANCELLED]: 'border border-[#CBD3DF] bg-[#F2F4F8] text-[#324153]'
-    };
-    return classes[state] || 'border border-[#CBD3DF] bg-[#F2F4F8] text-[#526179]';
+    return quoteStateBadgeVariant(state);
   }
 
   getQuoteCategory(): string {
@@ -738,42 +295,29 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
   }
 
   getModalTitle(): string {
-    const category = this.getQuoteCategory();
-    return category === QUOTE_CATEGORIES.COORDINATOR ? 'Tender Details' : 'Quote Details';
+    return this.getQuoteCategory() === QUOTE_CATEGORIES.COORDINATOR ? 'QUOTES.DETAILS._title_tender' : 'QUOTES.DETAILS._title_quote';
   }
 
   getStatusExplanation(): string {
-    const state = this.getPrimaryState();
-    const role = this.currentUserRole === 'customer' ? 'buyer' : 'provider';
-    const category = this.getQuoteCategory();
-
-    let messages;
-    if (category === QUOTE_CATEGORIES.COORDINATOR) {
-      messages = COORDINATOR_STATUS_MESSAGES;
-    } else if (category === QUOTE_CATEGORIES.TENDER) {
-      messages = TENDERING_STATUS_MESSAGES;
-    } else {
-      messages = QUOTE_STATUS_MESSAGES; // tailored or default
-    }
-
-    return messages[state]?.[role]?.explanation || 'Status information unavailable.';
+    return this.statusInfo('explanation');
   }
 
   getAvailableActionsText(): string {
+    return this.statusInfo('availableActions');
+  }
+
+  /** Tailored texts are i18n keys (QUOTES.STATUS_INFO); tender/coordinator ones are still
+   * plain English constants shared with tender-list. */
+  private statusInfo(field: 'explanation' | 'availableActions'): string {
     const state = this.getPrimaryState();
     const role = this.currentUserRole === 'customer' ? 'buyer' : 'provider';
     const category = this.getQuoteCategory();
 
-    let messages;
-    if (category === QUOTE_CATEGORIES.COORDINATOR) {
-      messages = COORDINATOR_STATUS_MESSAGES;
-    } else if (category === QUOTE_CATEGORIES.TENDER) {
-      messages = TENDERING_STATUS_MESSAGES;
-    } else {
-      messages = QUOTE_STATUS_MESSAGES; // tailored or default
+    if (category !== QUOTE_CATEGORIES.COORDINATOR && category !== QUOTE_CATEGORIES.TENDER) {
+      return `QUOTES.STATUS_INFO.${state}.${role}._${field === 'explanation' ? 'explanation' : 'actions'}`;
     }
-
-    return messages[state]?.[role]?.availableActions || '';
+    const messages = category === QUOTE_CATEGORIES.COORDINATOR ? COORDINATOR_STATUS_MESSAGES : TENDERING_STATUS_MESSAGES;
+    return messages[state]?.[role]?.[field] || '';
   }
 
   isQuoteFinalized(): boolean {
@@ -786,8 +330,7 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
   }
 
   getAttachmentName(): string {
-    const attachment = this.quote?.quoteItem?.[0]?.attachment?.[0];
-    return attachment?.name || 'attachment.pdf';
+    return this.quote?.quoteItem?.[0]?.attachment?.[0]?.name || 'attachment.pdf';
   }
 
   hasCoordinatorAttachment(): boolean {
@@ -801,26 +344,17 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
     return attachment?.name || 'tender-request.pdf';
   }
 
-  getTenderStartDate(): string {
-    // For tender quotes, use coordinator quote dates if available
-    if (this.getQuoteCategory() === QUOTE_CATEGORIES.TENDER && this.coordinatorQuote) {
-      const date = this.coordinatorQuote.expectedFulfillmentStartDate;
-      return date ? new Date(date).toLocaleDateString('en-GB').replace(/\//g, '-') : '--';
-    }
-    // For coordinator quotes, use own dates
-    const date = this.quote?.expectedFulfillmentStartDate;
-    return date ? new Date(date).toLocaleDateString('en-GB').replace(/\//g, '-') : '--';
+  /** Tender quotes show their coordinator's dates; coordinator quotes their own. */
+  private get tenderDatesSource(): Quote | null {
+    return this.getQuoteCategory() === QUOTE_CATEGORIES.TENDER && this.coordinatorQuote ? this.coordinatorQuote : this.quote;
   }
 
-  getTenderEndDate(): string {
-    // For tender quotes, use coordinator quote dates if available
-    if (this.getQuoteCategory() === QUOTE_CATEGORIES.TENDER && this.coordinatorQuote) {
-      const date = this.coordinatorQuote.effectiveQuoteCompletionDate;
-      return date ? new Date(date).toLocaleDateString('en-GB').replace(/\//g, '-') : '--';
-    }
-    // For coordinator quotes, use own dates
-    const date = this.quote?.effectiveQuoteCompletionDate;
-    return date ? new Date(date).toLocaleDateString('en-GB').replace(/\//g, '-') : '--';
+  getTenderStartDate(): string | undefined {
+    return this.tenderDatesSource?.expectedFulfillmentStartDate;
+  }
+
+  getTenderEndDate(): string | undefined {
+    return this.tenderDatesSource?.effectiveQuoteCompletionDate;
   }
 
   canUploadAttachment(): boolean {
@@ -860,41 +394,70 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
 
   getAcceptButtonTooltip(): string {
     if (this.currentUserRole === 'seller' && !this.quote?.expectedQuoteCompletionDate) {
-      return this.ACTION_TEXTS.EXPECTED_DATE_REQUIRED;
+      return 'QUOTES.DETAILS._expected_date_required';
     }
     return '';
   }
 
-  hasActionButtons(): boolean {
-    // Check if there are any action buttons to display
+  /** Provider accepting a pending request (tender invites: only while the tender is running). */
+  get canProviderAccept(): boolean {
+    return this.currentUserRole === 'seller' && this.getPrimaryState() === QUOTE_STATUSES.PENDING
+      && this.getQuoteCategory() !== QUOTE_CATEGORIES.COORDINATOR
+      && (this.getQuoteCategory() !== QUOTE_CATEGORIES.TENDER || this.getCoordinatorState() === QUOTE_STATUSES.IN_PROGRESS);
+  }
+
+  /** Customer accepting the provider's proposal (tender offers: only once the tender is closed). */
+  get canCustomerAccept(): boolean {
+    return this.currentUserRole === 'customer' && this.getPrimaryState() === QUOTE_STATUSES.APPROVED
+      && this.getQuoteCategory() !== QUOTE_CATEGORIES.COORDINATOR
+      && (this.getQuoteCategory() !== QUOTE_CATEGORIES.TENDER || this.getCoordinatorState() === QUOTE_STATUSES.ACCEPTED);
+  }
+
+  /** Coordinator customer messaging every invited provider (not while the tender is still a draft). */
+  get canBroadcast(): boolean {
+    return this.getQuoteCategory() === QUOTE_CATEGORIES.COORDINATOR && this.currentUserRole === 'customer'
+      && this.getPrimaryState() !== QUOTE_STATUSES.PENDING;
+  }
+
+  get canCancel(): boolean {
     const state = this.getPrimaryState();
+    return state !== QUOTE_STATUSES.ACCEPTED && state !== QUOTE_STATUSES.CANCELLED;
+  }
 
-    // Provider: Accept Quote (when pending)
-    if (this.currentUserRole === 'seller' && state === QUOTE_STATUSES.PENDING) {
-      return true;
+  get canCreateOffer(): boolean {
+    return this.currentUserRole === 'seller' && this.getPrimaryState() === QUOTE_STATUSES.ACCEPTED;
+  }
+
+  get providerAcceptHelp(): string {
+    return this.getQuoteCategory() === QUOTE_CATEGORIES.TENDER ? 'QUOTES.DETAILS._accept_tender_invite' : 'QUOTES.DETAILS._accept_quote_provider';
+  }
+
+  get cancelLabel(): string {
+    return this.getQuoteCategory() === QUOTE_CATEGORIES.COORDINATOR ? 'QUOTES.DETAILS._cancel_tender' : 'QUOTES.DETAILS._cancel_quote';
+  }
+
+  get cancelHelp(): string {
+    if (this.getQuoteCategory() === QUOTE_CATEGORIES.COORDINATOR) return 'QUOTES.DETAILS._cancel_tender_help';
+    if (this.getQuoteCategory() === QUOTE_CATEGORIES.TENDER && this.currentUserRole === 'seller'
+      && this.getPrimaryState() === QUOTE_STATUSES.PENDING) {
+      return 'QUOTES.DETAILS._decline_tender_invite';
     }
-
-    // Customer: Accept Proposal (when approved)
-    if (this.currentUserRole === 'customer' && state === QUOTE_STATUSES.APPROVED) {
-      return true;
-    }
-
-    return false;
+    return 'QUOTES.DETAILS._cancel_quote_provider';
   }
 
   downloadAttachment() {
     if (!this.quote) return;
     this.quoteService.downloadAttachment(this.quote).subscribe({
-      next: () => this.notificationService.showSuccess('Download started'),
-      error: (error: any) => this.notificationService.showError(error.message || 'Error downloading attachment')
+      next: () => this.notificationService.showSuccess('QUOTES.DETAILS._download_started'),
+      error: (error: any) => this.notificationService.showError('QUOTES.DETAILS._download_error', { details: error?.message })
     });
   }
 
   downloadCoordinatorAttachment() {
     if (!this.coordinatorQuote) return;
     this.quoteService.downloadAttachment(this.coordinatorQuote).subscribe({
-      next: () => this.notificationService.showSuccess('Download started'),
-      error: (error: any) => this.notificationService.showError(error.message || 'Error downloading customer request')
+      next: () => this.notificationService.showSuccess('QUOTES.DETAILS._download_started'),
+      error: (error: any) => this.notificationService.showError('QUOTES.DETAILS._download_error', { details: error?.message })
     });
   }
 
@@ -904,14 +467,14 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
 
     const file = input.files[0];
     if (file.type !== 'application/pdf') {
-      this.notificationService.showError('Only PDF files are allowed');
+      this.notificationService.showError('QUOTES.DETAILS._only_pdf');
       return;
     }
 
     // Check file size (10MB = 10 * 1024 * 1024 bytes)
     const maxSizeBytes = 10 * 1024 * 1024;
     if (file.size > maxSizeBytes) {
-      this.notificationService.showError('File size exceeds the maximum limit of 10MB');
+      this.notificationService.showError('QUOTES.DETAILS._too_big');
       return;
     }
 
@@ -941,15 +504,15 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
     ).subscribe({
       next: () => {
         this.isUploading = false;
-        this.notificationService.showSuccess('Attachment uploaded successfully');
+        this.notificationService.showSuccess('QUOTES.DETAILS._uploaded');
         if (this.getPrimaryState() === QUOTE_STATUSES.APPROVED) {
-          this.notificationService.showSuccess('Quote has been approved and sent to customer');
+          this.notificationService.showSuccess('QUOTES.DETAILS._approved_sent');
         }
         this.quoteUpdated.emit(this.quote!);
       },
       error: (error) => {
         this.isUploading = false;
-        this.notificationService.showError('Failed to upload attachment');
+        this.notificationService.showError('QUOTES.DETAILS._upload_error');
       }
     });
   }
@@ -957,9 +520,9 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
   acceptQuote() {
     if (!this.quote?.id || this.isProcessing) return;
 
-    this.confirmDialogTitle = 'Accept Quote Request';
-    this.confirmDialogMessage = 'Are you sure you want to accept this quote request?';
-    this.confirmDialogButtonText = 'Accept';
+    this.confirmDialogTitle = 'QUOTES.DETAILS._confirm_accept_request_title';
+    this.confirmDialogMessage = 'QUOTES.DETAILS._confirm_accept_request_msg';
+    this.confirmDialogButtonText = 'QUOTES.DETAILS._accept';
     this.confirmDialogVariant = 'primary';
     this.confirmDialogCallback = () => {
       this.isProcessing = true;
@@ -973,12 +536,12 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
       ).subscribe({
         next: () => {
           this.isProcessing = false;
-          this.notificationService.showSuccess('Quote request accepted');
+          this.notificationService.showSuccess('QUOTES.DETAILS._request_accepted');
           this.quoteUpdated.emit(this.quote!);
         },
         error: (error) => {
           this.isProcessing = false;
-          this.notificationService.showError('Failed to accept quote');
+          this.notificationService.showError('QUOTES.DETAILS._accept_error');
         }
       });
       this.showConfirmDialog = false;
@@ -991,11 +554,9 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
 
     const isTender = this.getQuoteCategory() === QUOTE_CATEGORIES.TENDER;
 
-    this.confirmDialogTitle = isTender ? 'Accept Tender Offer' : 'Accept Quote Proposal';
-    this.confirmDialogMessage = isTender
-      ? 'Are you sure you want to accept this offer? All other provider offers in this tender will be rejected.'
-      : 'Are you sure you want to accept this quote proposal?';
-    this.confirmDialogButtonText = 'Accept';
+    this.confirmDialogTitle = isTender ? 'QUOTES.DETAILS._confirm_accept_tender_title' : 'QUOTES.DETAILS._confirm_accept_proposal_title';
+    this.confirmDialogMessage = isTender ? 'QUOTES.DETAILS._confirm_accept_tender_msg' : 'QUOTES.DETAILS._confirm_accept_proposal_msg';
+    this.confirmDialogButtonText = 'QUOTES.DETAILS._accept';
     this.confirmDialogVariant = 'primary';
     this.confirmDialogCallback = () => {
       this.isProcessing = true;
@@ -1021,36 +582,36 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
                   forkJoin(toReject.map(s => this.quoteService.updateQuoteStatus(s.id!, QUOTE_STATUSES.REJECTED))).subscribe({
                     next: () => {
                       this.isProcessing = false;
-                      this.notificationService.showSuccess(`Offer accepted. ${toReject.length} other offer(s) have been rejected.`);
+                      this.notificationService.showSuccess('QUOTES.DETAILS._offer_accepted');
                       this.quoteUpdated.emit(this.quote!);
                     },
                     error: () => {
                       this.isProcessing = false;
-                      this.notificationService.showSuccess('Offer accepted, but failed to reject other offers.');
+                      this.notificationService.showError('QUOTES.DETAILS._offer_accepted_reject_failed');
                       this.quoteUpdated.emit(this.quote!);
                     }
                   });
                 } else {
                   this.isProcessing = false;
-                  this.notificationService.showSuccess('Offer accepted.');
+                  this.notificationService.showSuccess('QUOTES.DETAILS._proposal_accepted');
                   this.quoteUpdated.emit(this.quote!);
                 }
               },
               error: () => {
                 this.isProcessing = false;
-                this.notificationService.showSuccess('Offer accepted, but failed to fetch other offers to reject.');
+                this.notificationService.showError('QUOTES.DETAILS._offer_accepted_reject_failed');
                 this.quoteUpdated.emit(this.quote!);
               }
             });
           } else {
             this.isProcessing = false;
-            this.notificationService.showSuccess('Quote proposal accepted');
+            this.notificationService.showSuccess('QUOTES.DETAILS._proposal_accepted');
             this.quoteUpdated.emit(this.quote!);
           }
         },
         error: (error) => {
           this.isProcessing = false;
-          this.notificationService.showError('Failed to accept proposal');
+          this.notificationService.showError('QUOTES.DETAILS._accept_proposal_error');
         }
       });
       this.showConfirmDialog = false;
@@ -1063,11 +624,9 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
 
     const isCoordinator = this.getQuoteCategory() === QUOTE_CATEGORIES.COORDINATOR;
 
-    this.confirmDialogTitle = isCoordinator ? 'Cancel Tender' : 'Cancel Quote';
-    this.confirmDialogMessage = isCoordinator
-      ? 'Are you sure you want to cancel this tender? This will also cancel all related provider invites.'
-      : 'Are you sure you want to cancel this quote?';
-    this.confirmDialogButtonText = isCoordinator ? 'Cancel Tender' : 'Cancel Quote';
+    this.confirmDialogTitle = isCoordinator ? 'QUOTES.DETAILS._cancel_tender' : 'QUOTES.DETAILS._cancel_quote';
+    this.confirmDialogMessage = isCoordinator ? 'QUOTES.DETAILS._confirm_cancel_tender_msg' : 'QUOTES.DETAILS._confirm_cancel_quote_msg';
+    this.confirmDialogButtonText = this.confirmDialogTitle;
     this.confirmDialogVariant = 'danger';
     this.confirmDialogCallback = () => {
       this.isProcessing = true;
@@ -1092,13 +651,13 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
     ).subscribe({
       next: () => {
         this.isProcessing = false;
-        this.notificationService.showSuccess('Quote cancelled');
+        this.notificationService.showSuccess('QUOTES.DETAILS._quote_cancelled');
         this.quoteUpdated.emit(this.quote!);
         this.closeModal();
       },
       error: () => {
         this.isProcessing = false;
-        this.notificationService.showError('Failed to cancel quote');
+        this.notificationService.showError('QUOTES.DETAILS._cancel_error');
       }
     });
   }
@@ -1131,19 +690,19 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
         ).subscribe({
           next: () => {
             this.isProcessing = false;
-            this.notificationService.showSuccess(`Tender and ${relatedQuotes.length} related quote(s) cancelled`);
+            this.notificationService.showSuccess('QUOTES.DETAILS._tender_cancelled');
             this.quoteUpdated.emit(this.quote!);
             this.closeModal();
           },
           error: () => {
             this.isProcessing = false;
-            this.notificationService.showError('Failed to cancel tender. Some quotes may not have been cancelled.');
+            this.notificationService.showError('QUOTES.DETAILS._tender_cancel_error');
           }
         });
       },
       error: () => {
         this.isProcessing = false;
-        this.notificationService.showError('Failed to fetch related quotes for cancellation');
+        this.notificationService.showError('QUOTES.DETAILS._related_fetch_error');
       }
     });
   }
@@ -1159,11 +718,11 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
         this.quote = updatedQuote;
         this.showExpectedDatePicker = false;
         this.selectedExpectedDate = '';
-        this.notificationService.showSuccess('Expected date updated');
+        this.notificationService.showSuccess('QUOTES.DETAILS._expected_date_updated');
         this.quoteUpdated.emit(updatedQuote);
       },
       error: (error) => {
-        this.notificationService.showError('Failed to update expected date');
+        this.notificationService.showError('QUOTES.DETAILS._expected_date_error');
       }
     });
   }
@@ -1192,9 +751,9 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
       return;
     }
 
-    this.confirmDialogTitle = 'Broadcast Message';
-    this.confirmDialogMessage = 'Are you sure you want to broadcast this message to all the invited providers?';
-    this.confirmDialogButtonText = 'Send';
+    this.confirmDialogTitle = 'QUOTES.DETAILS._broadcast';
+    this.confirmDialogMessage = 'QUOTES.DETAILS._confirm_broadcast_msg';
+    this.confirmDialogButtonText = 'QUOTES.DETAILS._send';
     this.confirmDialogVariant = 'primary';
 
     this.confirmDialogCallback = () => {
@@ -1214,7 +773,7 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
         const quotesToMessage = quotes.filter(q => q.category === QUOTE_CATEGORIES.TENDER && q.id);
 
         if (quotesToMessage.length === 0) {
-          this.notificationService.showError('No related provider quotes found to broadcast to.');
+          this.notificationService.showError('QUOTES.DETAILS._broadcast_none');
           this.isBroadcastSending = false;
           return of(null);
         }
@@ -1228,15 +787,23 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
     ).subscribe({
       next: (result) => {
         if (!result) return;
-        this.notificationService.showSuccess('Message broadcast sent to all invited providers.');
+        this.notificationService.showSuccess('QUOTES.DETAILS._broadcast_sent');
         this.closeBroadcastModal();
       },
       error: (error: Error) => {
         console.error('Failed to broadcast message:', error);
-        this.notificationService.showError('Failed to broadcast message.');
+        this.notificationService.showError('QUOTES.DETAILS._broadcast_error');
         this.isBroadcastSending = false;
       }
     });
+  }
+
+  onConfirmResolved(confirmed: boolean) {
+    if (confirmed && this.confirmDialogCallback) {
+      this.confirmDialogCallback();
+    } else {
+      this.showConfirmDialog = false;
+    }
   }
 
   closeModal() {

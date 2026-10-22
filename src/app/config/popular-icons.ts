@@ -44,7 +44,7 @@ import {
   faUsers,
   faUserShield,
 } from '@fortawesome/free-solid-svg-icons';
-import { faAnglesLeft, faAnglesRight, faArrowDown, faArrowRight, faBars, faCartShopping, faCheck, faChevronDown, faChevronLeft, faChevronRight, faDisplayChartUp, faDownload, faEdit, faLayerGroup, faPersonArrowDownToLine, faPersonArrowUpFromLine, faPlus, faRocketLaunch, faRotate, faSave, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { faAnglesLeft, faAnglesRight, faArrowDown, faArrowRight, faBars, faBullhorn, faCartShopping, faCheck, faCommentDots, faChevronDown, faChevronLeft, faChevronRight, faDisplayChartUp, faDownload, faEdit, faLayerGroup, faPaperPlane, faPersonArrowDownToLine, faPersonArrowUpFromLine, faPlus, faRocketLaunch, faRotate, faSave, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons';
 
 export interface PopularIcon {
   name: string;
@@ -159,6 +159,9 @@ const BUTTON_ICONS: Partial<Record<IconName, IconDefinition>> = {
   [faDownload.iconName]: faDownload,
   [faRocketLaunch.iconName]: faRocketLaunch,
   [faRotate.iconName]: faRotate,
+  [faBullhorn.iconName]: faBullhorn,
+  [faCommentDots.iconName]: faCommentDots,
+  [faPaperPlane.iconName]: faPaperPlane,
   [faPersonArrowDownToLine.iconName]: faPersonArrowDownToLine,
   [faPersonArrowUpFromLine.iconName]: faPersonArrowUpFromLine,
   ...Object.fromEntries(POPULAR_ICONS.map(({ icon }) => [icon.iconName, icon])),

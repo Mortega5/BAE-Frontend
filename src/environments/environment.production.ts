@@ -77,7 +77,7 @@ export const environment = {
   providerThemeName: 'default',
   // Role names the quote-management service writes in a quote's relatedParty. Fixed by that
   // service, not the platform roles (SELLER_ROLE/BUYER_ROLE), which can be named differently.
-  QUOTE_ROLES: { BUYER: 'Buyer', SELLER: 'Seller' },
+  QUOTE_ROLES: { BUYER: 'Buyer', SELLER: 'Seller', BUYER_OPERATOR: 'BuyerOperator', SELLER_OPERATOR: 'SellerOperator' },
   quoteApi: 'http://localhost:8080/quoteManagement',
   documentApi: '/document',
   quoteEndpoints: {

@@ -62,6 +62,24 @@ export function resourceStatusBadgeVariant(status: string): BadgeStatus {
 }
 
 /** Maps a TMF product order's `state` to a bae-badge status color. */
+/** Maps a quote state (quoteItem[0].state, see QUOTE_STATUSES) to a bae-badge status color. */
+export function quoteStateBadgeVariant(state: string): BadgeStatus {
+  switch (state) {
+    case 'inProgress':
+      return 'info';
+    case 'approved':
+    case 'accepted':
+      return 'success';
+    case 'pending':
+      return 'warning';
+    case 'cancelled':
+    case 'rejected':
+      return 'danger';
+    default:
+      return 'neutral';
+  }
+}
+
 export function orderStateBadgeVariant(state: string): BadgeStatus {
   switch (state) {
     case 'inProgress':

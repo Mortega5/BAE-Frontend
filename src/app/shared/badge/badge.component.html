@@ -1,7 +1,8 @@
 @if (variant === 'status') {
 <span class="bae-badge-status" [attr.data-status]="status">
   <span class="bae-badge-status-dot"></span>
-  <span class="truncate">{{ label }}</span>
+  <!-- Narrow columns truncate long labels: the title keeps the full text reachable on hover -->
+  <span class="truncate" [attr.title]="label">{{ label }}</span>
 </span>
 } @else if (variant === 'plain') {
 <span class="bae-badge-plain" [attr.data-status]="status">{{ label }}</span>
