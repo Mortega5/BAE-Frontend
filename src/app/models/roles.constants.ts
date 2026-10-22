@@ -1,11 +1,10 @@
+import { environment } from 'src/environments/environment';
+
 /**
- * Role constants used throughout the application
- * These match the API's expected role values
+ * Roles of the quote-management API (what it writes in a quote's relatedParty and expects in
+ * role filters). Configured in the environment; not the platform roles.
  */
-export const API_ROLES = {
-  BUYER: 'Buyer',
-  SELLER: 'Seller'
-} as const;
+export const API_ROLES = environment.QUOTE_ROLES;
 
 /**
  * UI role constants (lowercase, used in UI logic)

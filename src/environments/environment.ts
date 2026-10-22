@@ -74,6 +74,9 @@ export const environment = {
   DFT_CATALOG_ID: '',
   MAX_FILE_SIZE: 3145728,
   providerThemeName: 'default',
+  // Role names the quote-management service writes in a quote's relatedParty. Fixed by that
+  // service, not the platform roles (SELLER_ROLE/BUYER_ROLE), which can be named differently.
+  QUOTE_ROLES: { BUYER: 'Buyer', SELLER: 'Seller' },
   quoteApi: 'http://localhost:8080/quoteManagement',
   documentApi: '/document',
   quoteEndpoints: {

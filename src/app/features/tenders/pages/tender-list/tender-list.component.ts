@@ -846,7 +846,7 @@ export class TenderListComponent implements OnInit {
           // For provider view, check if this quote is related to current user
           if (this.selectedRole === UI_ROLES.SELLER) {
             const isRelatedToUser = quote.relatedParty?.some(party =>
-              party.id === this.currentUserId && party.role?.toLowerCase() === UI_ROLES.SELLER
+              party.id === this.currentUserId && party.role?.toLowerCase() === API_ROLES.SELLER.toLowerCase()
             );
             console.log(`  -> Quote ${this.extractShortId(quote.id)} related to current provider? ${isRelatedToUser}`);
           }
@@ -910,13 +910,13 @@ export class TenderListComponent implements OnInit {
       relatedParty: [
         ...tender.selectedProviders.map(id => ({
           id,
-          role: 'Seller',
+          role: API_ROLES.SELLER,
           name: tender.provider,
           '@referredType': 'Organization'
         })),
         ...(tender.buyerPartyId ? [{
           id: tender.buyerPartyId,
-          role: 'Buyer',
+          role: API_ROLES.BUYER,
           '@referredType': 'Organization'
         }] : [])
       ],
@@ -1073,7 +1073,7 @@ export class TenderListComponent implements OnInit {
       responseDeadline: quote.expectedFulfillmentStartDate || quote.effectiveQuoteCompletionDate || new Date().toISOString(),
       tenderNote: quote.description || '',
       attachment: attachment,
-      selectedProviders: quote.relatedParty?.filter(p => p.role?.toLowerCase() === 'seller').map(p => p.id) || [],
+      selectedProviders: quote.relatedParty?.filter(p => p.role?.toLowerCase() === API_ROLES.SELLER.toLowerCase()).map(p => p.id) || [],
       effectiveQuoteCompletionDate: quote.effectiveQuoteCompletionDate,
       expectedFulfillmentStartDate: quote.expectedFulfillmentStartDate
     };
@@ -2169,7 +2169,7 @@ export class TenderListComponent implements OnInit {
       return 'Unknown Provider';
     }
 
-    const provider = quote.relatedParty.find(party => party.role?.toLowerCase() === 'seller');
+    const provider = quote.relatedParty.find(party => party.role?.toLowerCase() === API_ROLES.SELLER.toLowerCase());
 
     if (!provider?.id) {
       return 'Unknown Provider';
@@ -2191,7 +2191,7 @@ export class TenderListComponent implements OnInit {
       return 'Unknown Customer';
     }
 
-    const buyer = quote.relatedParty.find(party => party.role?.toLowerCase() === 'buyer');
+    const buyer = quote.relatedParty.find(party => party.role?.toLowerCase() === API_ROLES.BUYER.toLowerCase());
 
     if (!buyer?.id) {
       return 'Unknown Customer';

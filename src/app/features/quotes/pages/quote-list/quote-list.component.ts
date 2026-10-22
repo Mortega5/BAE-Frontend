@@ -17,7 +17,7 @@ import { ChatModalComponent } from 'src/app/shared/chat-modal/chat-modal.compone
 import { AttachmentModalComponent } from 'src/app/shared/attachment-modal/attachment-modal.component';
 import { LoginInfo } from 'src/app/models/interfaces';
 import { QUOTE_STATUSES, TAILORED_STATUSES_LABELS_CUSTOMER, TAILORED_STATUSES_LABELS_PROVIDER } from 'src/app/models/quote.constants';
-import { environment } from 'src/environments/environment';
+import { API_ROLES } from 'src/app/models/roles.constants';
 
 @Component({
   selector: 'app-quote-list',
@@ -937,10 +937,9 @@ export class QuoteListComponent implements OnInit {
     }
 
     // Determine which role to look for based on current view
-    // Use environment roles: BUYER_ROLE = 'Buyer', SELLER_ROLE = 'Seller'
     const targetRole = this.selectedRole === 'customer'
-      ? environment.SELLER_ROLE
-      : environment.BUYER_ROLE;
+      ? API_ROLES.SELLER
+      : API_ROLES.BUYER;
 
     // Find the party with the target role (case-insensitive)
     const party = quote.relatedParty.find(p =>
