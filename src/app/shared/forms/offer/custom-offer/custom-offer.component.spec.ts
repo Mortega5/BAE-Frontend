@@ -25,4 +25,17 @@ describe('CustomOfferComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('asks whether to publish or keep a draft, and creates the offer with the chosen status', () => {
+    const create = spyOn(component, 'createOffer').and.resolveTo();
+
+    component.askPublishOrDraft();
+    expect(component.showPublishDraftModal).toBeTrue();
+
+    component.publish();
+    expect(create).toHaveBeenCalledWith('Launched');
+
+    component.saveDraft();
+    expect(create).toHaveBeenCalledWith('Active');
+  });
 });

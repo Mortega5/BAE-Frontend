@@ -9,7 +9,7 @@
 } @else {
   <form [formGroup]="productOfferForm">
       <app-stepper [canAdvance]="canAdvance" [loading]="loading" submitLabel="CREATE_OFFER._create"
-        [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="createOffer()">
+        [submitDisabled]="loading" (stepChanged)="onStepChanged($event)" (submitted)="askPublishOrDraft()">
 
         <ng-template stepperStep="CREATE_OFFER._step_party_info">
           <app-related-party-id formControlName="partyInfo" [partyId]="partyId"></app-related-party-id>
@@ -32,3 +32,8 @@
       </app-stepper>
     </form>
   }
+
+<app-confirm-modal [visible]="showPublishDraftModal" [title]="'PUBLISH_DRAFT_MODAL._title'"
+  message="PUBLISH_DRAFT_MODAL._message" cancelLabel="PUBLISH_DRAFT_MODAL._save_draft"
+  confirmLabel="PUBLISH_DRAFT_MODAL._publish" confirmVariant="primary" (resolved)="$event ? publish() : saveDraft()"
+  (closed)="showPublishDraftModal = false" />

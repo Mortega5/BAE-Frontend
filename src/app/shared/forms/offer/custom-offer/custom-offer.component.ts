@@ -10,6 +10,7 @@ import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offe
 import { EventMessageService } from "src/app/services/event-message.service";
 import { NotificationService } from "src/app/services/notification.service";
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
+import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
 import { NotFoundStateComponent } from 'src/app/shared/not-found-state/not-found-state.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
 import { StepChangedEvent, StepperComponent } from 'src/app/shared/stepper/stepper.component';
@@ -34,7 +35,8 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
     LoadingSpinnerComponent,
     NotFoundStateComponent,
     StepperComponent,
-    StepperStepDirective
+    StepperStepDirective,
+    ConfirmModalComponent
   ],
   templateUrl: './custom-offer.component.html',
   styleUrl: './custom-offer.component.css'
@@ -52,6 +54,7 @@ export class CustomOfferComponent implements OnInit {
   isFormValid = false;
   pricePlans: any = [];
   loading: boolean = false;
+  showPublishDraftModal = false;
   loadingData: boolean = false;
   bundleChecked: boolean = false;
   offersBundle: any[] = [];
@@ -131,17 +134,26 @@ export class CustomOfferComponent implements OnInit {
 
   }
 
-  async createOffer() {
+  /** Same choice as every other offer: publish it right away or keep it as a draft. */
+  askPublishOrDraft() {
+    this.showPublishDraftModal = true;
+  }
+
+  saveDraft() {
+    this.createOffer('Active');
+  }
+
+  publish() {
+    this.createOffer('Launched');
+  }
+
+  async createOffer(lifecycleStatus: 'Active' | 'Launched' = 'Active') {
+    this.showPublishDraftModal = false;
     this.loading = true;
     const plans = this.productOfferForm.value.pricePlans;
 
-    console.log('---- party info value ----')
-    console.log(this.productOfferForm.get('partyInfo')?.value)
-    console.log('---- full form value ----')
-    console.log(this.productOfferForm.value)
-
     if (plans.length === 0) {
-      this.saveOfferInfo();
+      this.saveOfferInfo(lifecycleStatus);
       return;
     }
 
@@ -162,7 +174,7 @@ export class CustomOfferComponent implements OnInit {
         this.productOfferForm.value.pricePlans[i].id = createdPriceId;
 
         if (i === plans.length - 1) {
-          this.saveOfferInfo();
+          this.saveOfferInfo(lifecycleStatus);
         }
       } catch (error: any) {
         this.handleApiError(error);
@@ -170,7 +182,7 @@ export class CustomOfferComponent implements OnInit {
     }
   }
 
-  saveOfferInfo(): void {
+  saveOfferInfo(lifecycleStatus: 'Active' | 'Launched' = 'Active'): void {
     const formValue = this.productOfferForm.value;
 
     const prices = formValue.pricePlans.map((plan: any) => ({
@@ -189,7 +201,7 @@ export class CustomOfferComponent implements OnInit {
     const offer: any = {
       name: offerName,
       description: this.offer?.description || '',
-      lifecycleStatus: 'Active',
+      lifecycleStatus,
       isBundle: this.bundleChecked,
       isSellable: false, // Ad-Hoc offer cannot be generally purchased
       bundledProductOffering: this.offersBundle,
@@ -224,15 +236,11 @@ export class CustomOfferComponent implements OnInit {
     }
 
     this.offerToCreate = offer;
-    console.log('---- Offer to create -----')
-    console.log(this.offerToCreate)
 
     const request$ = this.api.postProductOffering(offer, null)
 
     request$.subscribe({
-      next: (data) => {
-        console.log('product offer created:');
-        console.log(data);
+      next: () => {
         this.loading = false;
         this.notificationService.showSuccess('CREATE_OFFER._create_success');
         this.goBack();
