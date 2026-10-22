@@ -56,7 +56,7 @@ export class AdminComponent implements OnDestroy {
 
   private updateIsListView() {
     const path = this.router.url.split('?')[0];
-    this.isListView = /^\/admin\/[a-zA-Z-]+\/?$/.test(path);
+    this.isListView = new RegExp(`^${this.paths.root()}/[a-zA-Z-]+/?$`).test(path);
   }
 
   private canOpenCurrentSection(): boolean {

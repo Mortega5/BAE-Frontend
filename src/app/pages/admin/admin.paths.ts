@@ -3,7 +3,9 @@
  * every component that navigates here import from this file instead of
  * hardcoding path strings.
  */
-const rootSegment = 'admin';
+// Not 'admin': the proxy serves /admin/* as its admin API passthrough, so reloading a deep
+// link like /admin/categories got its 403 JSON instead of the app.
+const rootSegment = 'admin-panel';
 const root = `/${rootSegment}`;
 
 const segments = {
