@@ -150,6 +150,7 @@ export const DOME_THEME_CONFIG: ThemeConfig = {
     youtube: environment.DOME_YOUTUBE,
     twitter: environment.DOME_X,
     privacyPolicy: 'assets/documents/privacy.pdf',
+    tailoredOfferingGuide: 'https://knowledgebase.dome-marketplace.eu/books/tailored-offering-guide',
 
   },
   dashboard: {

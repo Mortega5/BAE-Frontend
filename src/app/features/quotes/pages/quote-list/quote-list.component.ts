@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { faCommentDots, faSwatchbook } from '@fortawesome/pro-solid-svg-icons';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faCircleQuestion, faCommentDots, faSwatchbook } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { AuthGuard } from 'src/app/guard/auth.guard';
@@ -15,6 +16,7 @@ import { AccountServiceService } from 'src/app/services/account-service.service'
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
+import { ThemeService } from 'src/app/services/theme.service';
 import { quoteStateBadgeVariant } from 'src/app/shared/badge/badge.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ChatModalComponent } from 'src/app/shared/chat-modal/chat-modal.component';
@@ -33,7 +35,7 @@ type QuoteRow = Quote & { otherPartyName: string; productName: string; primarySt
 @Component({
   selector: 'app-quote-list',
   standalone: true,
-  imports: [TranslateModule, ContentCardComponent, ButtonComponent, TabsComponent, TabDirective,
+  imports: [TranslateModule, FaIconComponent, ContentCardComponent, ButtonComponent, TabsComponent, TabDirective,
     FilteredPaginatedTableComponent, QuoteDetailsModalComponent, ChatModalComponent],
   templateUrl: './quote-list.component.html',
 })
@@ -46,10 +48,17 @@ export class QuoteListComponent implements OnInit {
   private auth = inject(AuthGuard);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private themeService = inject(ThemeService);
+
+  protected readonly faCircleQuestion = faCircleQuestion;
 
   @ViewChild(FilteredPaginatedTableComponent) private table?: FilteredPaginatedTableComponent<QuoteRow>;
 
   selectedRole: QuoteRole = 'customer';
+
+  get guideUrl(): string | undefined {
+    return this.themeService.getCurrentThemeConfig()?.links?.tailoredOfferingGuide;
+  }
   currentUserId: string | null = null;
   isSeller = false;
 

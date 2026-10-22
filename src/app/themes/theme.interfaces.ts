@@ -46,6 +46,8 @@ export interface ThemeLinkConfig {
   privacyPolicy?: string;
   termsOfService?: string;
   contactUs?: string;
+  /** Guide to the tailored offering (quotes) process, linked from the quote list. Hidden when unset. */
+  tailoredOfferingGuide?: string;
 }
 
 export interface ThemeColorsConfig {

@@ -10,6 +10,7 @@ import { AccountServiceService } from 'src/app/services/account-service.service'
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
+import { ThemeService } from 'src/app/services/theme.service';
 import { QuoteService } from '../../services/quote.service';
 import { quoteStateBadgeVariant } from 'src/app/shared/badge/badge.component';
 import { QuoteListComponent } from './quote-list.component';
@@ -32,6 +33,7 @@ describe('QuoteListComponent', () => {
   let quoteService: jasmine.SpyObj<QuoteService>;
   let router: jasmine.SpyObj<Router>;
   let queryRole: string | null;
+  let guideUrl: string | undefined;
 
   async function setup() {
     quoteService = jasmine.createSpyObj<QuoteService>('QuoteService', ['getQuotesByUserAndRole']);
@@ -50,6 +52,7 @@ describe('QuoteListComponent', () => {
         { provide: NotificationService, useValue: jasmine.createSpyObj('NotificationService', ['showSuccess']) },
         { provide: AuthGuard, useValue: { hasAnyRole: () => true } },
         { provide: Router, useValue: router },
+        { provide: ThemeService, useValue: { getCurrentThemeConfig: () => ({ links: { tailoredOfferingGuide: guideUrl } }) } },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap(queryRole ? { role: queryRole } : {}) } } },
       ],
     })
@@ -64,6 +67,7 @@ describe('QuoteListComponent', () => {
   beforeEach(() => {
     router = jasmine.createSpyObj<Router>('Router', ['navigate']);
     queryRole = null;
+    guideUrl = undefined;
   });
 
   it('loads the session party quotes as customer, newest first, with the other party and product names', async () => {
@@ -114,6 +118,16 @@ describe('QuoteListComponent', () => {
     component.viewDetails(page.items[1]);
     expect(component.showQuoteDetailsModal).toBeTrue();
     expect(component.selectedQuoteId).toBe('urn:quote:old');
+  });
+
+  it('links the tailored offering guide only when the theme defines one', async () => {
+    await setup();
+    expect(fixture.nativeElement.querySelector('[data-cy="tailoredOfferingGuide"]')).toBeNull();
+
+    guideUrl = 'https://example.org/guide';
+    fixture.detectChanges();
+    const link: HTMLAnchorElement | null = fixture.nativeElement.querySelector('[data-cy="tailoredOfferingGuide"]');
+    expect(link?.href).toBe('https://example.org/guide');
   });
 
   it('maps quote states to badge colors', () => {
