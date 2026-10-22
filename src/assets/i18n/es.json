@@ -3386,8 +3386,6 @@
       "_load_error": "No se ha podido cargar el presupuesto. Inténtalo de nuevo.",
       "_download_started": "Descarga iniciada",
       "_download_error": "Error al descargar el adjunto",
-      "_only_pdf": "Solo se permiten archivos PDF",
-      "_too_big": "El archivo supera el tamaño máximo de 10MB",
       "_uploaded": "Adjunto subido correctamente",
       "_approved_sent": "El presupuesto se ha aprobado y enviado al cliente",
       "_upload_error": "No se ha podido subir el adjunto",

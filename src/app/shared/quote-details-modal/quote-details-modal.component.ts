@@ -19,6 +19,7 @@ import { ButtonComponent, ButtonVariant } from '../button/button.component';
 import { ContentCardComponent } from '../content-card/content-card.component';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { BadgeComponent, BadgeStatus, quoteStateBadgeVariant } from '../badge/badge.component';
+import { AttachmentUploadComponent, UploadedAttachment } from '../forms/attachment-upload/attachment-upload.component';
 
 const KNOWN_STATES: string[] = Object.values(QUOTE_STATUSES);
 /** Coordinator states that have a buyer-facing explanation (a rejected tender has none). */
@@ -28,7 +29,7 @@ const COORDINATOR_INFO_STATES: string[] = KNOWN_STATES.filter(state => state !==
   selector: 'app-quote-details-modal',
   standalone: true,
   imports: [DatePipe, FormsModule, TranslateModule, ChatModalComponent, ConfirmModalComponent, ButtonComponent,
-    ContentCardComponent, LoadingSpinnerComponent, BadgeComponent],
+    ContentCardComponent, LoadingSpinnerComponent, BadgeComponent, AttachmentUploadComponent],
   templateUrl: './quote-details-modal.component.html',
 })
 export class QuoteDetailsModalComponent implements OnInit, OnChanges {
@@ -80,6 +81,7 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
   // Expose constants to template
   readonly QUOTE_CATEGORIES = QUOTE_CATEGORIES;
   readonly QUOTE_STATUSES = QUOTE_STATUSES;
+  readonly maxAttachmentSize = 10 * 1024 * 1024;
 
   // Services
   private quoteService = inject(QuoteService);
@@ -462,22 +464,10 @@ export class QuoteDetailsModalComponent implements OnInit, OnChanges {
     });
   }
 
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (!input.files?.length || !this.quote?.id) return;
-
-    const file = input.files[0];
-    if (file.type !== 'application/pdf') {
-      this.notificationService.showError('QUOTES.DETAILS._only_pdf');
-      return;
-    }
-
-    // Check file size (10MB = 10 * 1024 * 1024 bytes)
-    const maxSizeBytes = 10 * 1024 * 1024;
-    if (file.size > maxSizeBytes) {
-      this.notificationService.showError('QUOTES.DETAILS._too_big');
-      return;
-    }
+  /** app-attachment-upload (deferUpload) already checked type and size: upload the picked PDF right away. */
+  onAttachmentPicked(value: UploadedAttachment | null) {
+    const file = value?.file;
+    if (!file || !this.quote?.id || this.isUploading) return;
 
     this.isUploading = true;
     const fileName = file.name;

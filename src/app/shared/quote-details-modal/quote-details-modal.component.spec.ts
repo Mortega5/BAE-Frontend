@@ -28,6 +28,7 @@ describe('QuoteDetailsModalComponent', () => {
 
   beforeEach(async () => {
     quoteService = jasmine.createSpyObj<QuoteService>('QuoteService', [
+      'addAttachmentToQuote',
       'addNoteToQuote',
       'broadcastMessage',
       'getQuoteById',
@@ -146,5 +147,21 @@ describe('QuoteDetailsModalComponent', () => {
     component.currentUserRole = 'seller';
     component.quote = { id: 'c', category: QUOTE_CATEGORIES.COORDINATOR, quoteItem: [{ state: QUOTE_STATUSES.IN_PROGRESS }] } as Quote;
     expect(component.getStatusExplanation()).toBe('');
+  });
+
+  it('uploads the PDF picked in the attachment component and ignores a cleared value', () => {
+    const quote = { id: 'quote-1', category: QUOTE_CATEGORIES.TAILORED, quoteItem: [{ state: QUOTE_STATUSES.APPROVED }] } as Quote;
+    quoteService.addAttachmentToQuote.and.returnValue(of(quote));
+    component.quote = quote;
+    component.currentUserId = 'seller-1';
+
+    component.onAttachmentPicked(null);
+    expect(quoteService.addAttachmentToQuote).not.toHaveBeenCalled();
+
+    const file = new File(['%PDF'], 'proposal.pdf', { type: 'application/pdf' });
+    component.onAttachmentPicked({ name: 'proposal.pdf', url: 'blob:x', attachmentType: 'application/pdf', file });
+
+    expect(quoteService.addAttachmentToQuote).toHaveBeenCalledWith('quote-1', file);
+    expect(notificationService.showSuccess).toHaveBeenCalledWith('QUOTES.DETAILS._uploaded');
   });
 });

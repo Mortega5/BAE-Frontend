@@ -3386,8 +3386,6 @@
       "_load_error": "Failed to load quote. Please try again.",
       "_download_started": "Download started",
       "_download_error": "Error downloading attachment",
-      "_only_pdf": "Only PDF files are allowed",
-      "_too_big": "File size exceeds the maximum limit of 10MB",
       "_uploaded": "Attachment uploaded successfully",
       "_approved_sent": "Quote has been approved and sent to customer",
       "_upload_error": "Failed to upload attachment",
