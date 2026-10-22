@@ -19,13 +19,16 @@ import { PaginatedTableComponent } from 'src/app/shared/forms/paginated-table/pa
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { TabDirective } from 'src/app/shared/tabs/tab.directive';
+import { TabsComponent } from 'src/app/shared/tabs/tabs.component';
 import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-invoices-info',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule, FormsModule,
-    PaginatedTableComponent, LoadingSpinnerComponent, ButtonComponent, ContentCardComponent
+    PaginatedTableComponent, LoadingSpinnerComponent, ButtonComponent, ContentCardComponent,
+    TabsComponent, TabDirective
   ],
   providers: [DatePipe],
   templateUrl: './invoices-info.component.html',

@@ -12,6 +12,8 @@ import { ContentCardComponent } from './content-card/content-card.component';
 import { DropdownPanelComponent } from './dropdown-panel/dropdown-panel.component';
 import { DrawerComponent } from './drawer/drawer.component';
 import { SideNavComponent } from './side-nav/side-nav.component';
+import { TabDirective } from './tabs/tab.directive';
+import { TabsComponent } from './tabs/tabs.component';
 import { CartDrawerComponent } from "./cart-drawer/cart-drawer.component";
 import { LoadingSpinnerComponent } from './loading-spinner/loading-spinner.component';
 import { CategoriesPanelComponent } from "./categories-panel/categories-panel.component";
@@ -53,6 +55,8 @@ const STANDALONE_IMPORTS = [
   DropdownPanelComponent,
   DrawerComponent,
   SideNavComponent,
+  TabsComponent,
+  TabDirective,
   SearchSelectComponent
 ];
 
