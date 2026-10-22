@@ -188,7 +188,7 @@
     @if (field.type === 'attachment') {
     <app-attachment-upload [accept]="asAttachment(field).accept ?? '*/*'"
       [multiple]="asAttachment(field).multiple ?? false" [readonly]="field.readonly ?? false"
-      [maxFileSize]="attachmentMaxFileSize(field)"
+      [maxFileSize]="attachmentMaxFileSize(field)" [deferUpload]="asAttachment(field).deferUpload ?? false"
       [dropLabel]="asAttachment(field).dropLabel ?? 'FORMS.ATTACHMENT._drop_label'"
       [selectLabel]="asAttachment(field).selectLabel ?? 'FORMS.ATTACHMENT._select_label'"
       [dataCy]="field.dataCy ?? field.name" [files]="formGroup.get(field.name)?.value"

@@ -44,7 +44,7 @@
         translate }} {{ uploadProgress }}%</p>
     </div>
     }
-    @for (att of attachments; track att.url) {
+    @for (att of attachments; track att.url || att.name) {
     <div class="relative shrink-0 w-28 snap-start">
       <div
         class="relative w-28 h-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-secondary-300 border border-gray-200 dark:border-secondary-200 flex items-center justify-center">

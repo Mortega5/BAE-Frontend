@@ -93,7 +93,7 @@
 <app-chat-modal [isOpen]="showChatModal" [quoteId]="selectedChatQuoteId" (close)="closeChatModal()"></app-chat-modal>
 
 <app-create-tender-modal [isOpen]="showEditModal" [customerId]="currentUserId || ''" [tenderToEdit]="tenderToEdit"
-  (closeModal)="closeEditModal()" (tenderUpdated)="closeEditModal()">
+  (closeModal)="closeEditModal()" (tenderUpdated)="loadTender()">
 </app-create-tender-modal>
 
 <app-confirm-modal [visible]="showConfirm" [title]="confirmTitle" [message]="confirmMessage" [confirmLabel]="confirmLabel"

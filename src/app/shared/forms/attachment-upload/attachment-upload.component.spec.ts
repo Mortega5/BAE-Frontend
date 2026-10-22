@@ -47,6 +47,31 @@ describe('AttachmentUploadComponent', () => {
     expect(component.errorMessage).toBe('FORMS.ATTACHMENT._too_large');
   });
 
+  it('keeps the file local without uploading it in deferUpload mode', () => {
+    const spy = spyOn(attachmentService, 'uploadFileWithProgress');
+    const changes: any[] = [];
+    component.filesChange.subscribe(value => changes.push(value));
+    component.deferUpload = true;
+    component.accept = '.pdf';
+
+    const file = makeFile('request.pdf', 'application/pdf', 20);
+    (component as any).handleFile(file);
+
+    expect(spy).not.toHaveBeenCalled();
+    expect(changes.length).toBe(1);
+    expect(changes[0].file).toBe(file);
+    expect(changes[0].name).toBe('request.pdf');
+  });
+
+  it('still validates type and size in deferUpload mode', () => {
+    component.deferUpload = true;
+    component.maxFileSize = 10;
+    (component as any).handleFile(makeFile('big.pdf', 'application/pdf', 20));
+
+    expect(component.errorMessage).toBe('FORMS.ATTACHMENT._too_large');
+    expect(component.attachments.length).toBe(0);
+  });
+
   it('should reject a file whose type is not in accept', () => {
     const spy = spyOn(attachmentService, 'uploadFileWithProgress');
     component.accept = 'image/*';

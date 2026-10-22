@@ -14,6 +14,8 @@ export interface UploadedAttachment {
   name: string;
   url: string;
   attachmentType: string;
+  /** The picked file itself, only set in deferUpload mode (nothing was uploaded yet). */
+  file?: File;
 }
 
 /** Drag-and-drop file upload, in the same visual language as the app's existing
@@ -42,6 +44,9 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
   @Input() dropLabel: string = 'FORMS.ATTACHMENT._drop_label';
   @Input() selectLabel: string = 'FORMS.ATTACHMENT._select_label';
   @Input() dataCy?: string;
+  /** Keep picked files local instead of uploading them to the media service right away: the
+   * value carries the `File` (and a local preview URL) so the caller uploads it on save. */
+  @Input() deferUpload = false;
   @Output() filesChange = new EventEmitter<any>();
 
   /** Plain, forms-independent binding — mirrors app-search-select's `[selected]`. */
@@ -102,6 +107,14 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
       this.showInlineUploadError('FORMS.ATTACHMENT._too_large');
       return;
     }
+    if (this.deferUpload) {
+      const local: UploadedAttachment = { name: file.name, url: URL.createObjectURL(file), attachmentType: file.type, file };
+      this.attachments.filter(a => a.file).forEach(a => this.multiple || URL.revokeObjectURL(a.url));
+      this.attachments = this.multiple ? [...this.attachments, local] : [local];
+      this.emitChange();
+      return;
+    }
+
     const name = `${uuidv4()}_${file.name}`;
     if (!this.filenameRegex.test(name)) {
       this.showInlineUploadError('FORMS.ATTACHMENT._invalid_name');
@@ -158,6 +171,7 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
 
   remove(attachment: UploadedAttachment): void {
     if (this.isReadonly) return;
+    if (attachment.file) URL.revokeObjectURL(attachment.url);
     this.attachments = this.attachments.filter(a => a !== attachment);
     this.emitChange();
   }

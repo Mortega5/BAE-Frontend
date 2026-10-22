@@ -1,5 +1,6 @@
 import { NgClass, NgTemplateOutlet } from '@angular/common';
 import {
+  AfterContentInit,
   Component,
   ContentChildren,
   EventEmitter,
@@ -27,7 +28,7 @@ export interface StepChangedEvent {
   standalone: true,
   imports: [NgClass, NgTemplateOutlet, TranslateModule, LoadingSpinnerComponent, ButtonComponent, ContentCardComponent],
 })
-export class StepperComponent {
+export class StepperComponent implements AfterContentInit {
   /** If true, all steps are accessible from the start (e.g. edit mode). */
   @Input() allUnlocked = false;
   /** Whether the current step passes validation and the Next button should be enabled. */
@@ -38,6 +39,11 @@ export class StepperComponent {
   @Input() submitDisabled = false;
   @Input() submitAlwaysVisible = false;
   @Input() loading = false;
+  /** Step index to open on, e.g. resuming an edit past steps already saved. Earlier steps count as visited. */
+  @Input() startAt = 0;
+  /** Runs before moving forward one step (Next, or clicking the next step). Return false to stay,
+   * e.g. when the step saves to the server and that failed. Navigation is disabled while it runs. */
+  @Input() beforeNext?: (stepId: string | undefined) => boolean | Promise<boolean>;
 
   @Output() stepChanged = new EventEmitter<StepChangedEvent>();
   @Output() submitted = new EventEmitter<void>();
@@ -48,6 +54,14 @@ export class StepperComponent {
   highestStep = 0;
   /** Toggled off/on around each step change to (re)trigger the entrance animation. */
   animateContent = true;
+  /** True while beforeNext is running. */
+  advancing = false;
+
+  ngAfterContentInit(): void {
+    if (this.startAt > 0) {
+      this._goToStep(Math.min(this.startAt, this.stepTemplates.length - 1));
+    }
+  }
 
   get isLastStep(): boolean {
     return this.currentStep === (this.stepTemplates?.length ?? 1) - 1;
@@ -62,17 +76,35 @@ export class StepperComponent {
   }
 
   handleStepClick(index: number): void {
-    if (!this.canNavigate(index)) return;
-    if (index > this.currentStep && !this.canAdvance) return;
+    if (!this.canNavigate(index) || this.advancing) return;
+    if (index > this.currentStep) {
+      if (!this.canAdvance) return;
+      // With a beforeNext hook, forward moves go one step at a time so no step skips its own save
+      if (this.beforeNext) {
+        if (index === this.currentStep + 1) void this.goNext();
+        return;
+      }
+    }
     this._goToStep(index);
   }
 
   goBack(): void {
-    if (this.currentStep > 0) this._goToStep(this.currentStep - 1);
+    if (this.currentStep > 0 && !this.advancing) this._goToStep(this.currentStep - 1);
   }
 
-  goNext(): void {
-    if (!this.isLastStep && this.canAdvance) this._goToStep(this.currentStep + 1);
+  async goNext(): Promise<void> {
+    if (this.isLastStep || !this.canAdvance || this.advancing) return;
+    if (this.beforeNext) {
+      this.advancing = true;
+      let proceed = false;
+      try {
+        proceed = await this.beforeNext(this.stepTemplates.get(this.currentStep)?.stepId);
+      } finally {
+        this.advancing = false;
+      }
+      if (!proceed) return;
+    }
+    this._goToStep(this.currentStep + 1);
   }
 
   private _goToStep(index: number): void {

@@ -1,3 +1,4 @@
+import { TranslateModule } from '@ngx-translate/core';
 import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { Subject, of, throwError } from 'rxjs';
@@ -37,7 +38,7 @@ describe('CreateTenderModalComponent', () => {
     providerService.getProvidersForTender.and.returnValue(of([]));
 
     await TestBed.configureTestingModule({
-      imports: [CreateTenderModalComponent],
+      imports: [CreateTenderModalComponent, TranslateModule.forRoot()],
       providers: [
         { provide: QuoteService, useValue: quoteService },
         { provide: NotificationService, useValue: notificationService },
@@ -80,12 +81,12 @@ describe('CreateTenderModalComponent', () => {
     fixture.detectChanges();
 
     const body = fixture.nativeElement.querySelector('[data-testid="tender-modal-body"]');
-    const footer = fixture.nativeElement.querySelector('[data-testid="tender-modal-provider-footer"]');
 
     expect(body).not.toBeNull();
     expect(body.className).toContain('overflow-x-hidden');
-    expect(footer).not.toBeNull();
-    expect(footer.className).not.toContain('-mx-6');
+    // The provider step uses app-stepper's own actions plus the extra "save providers" one
+    expect(fixture.nativeElement.querySelector('[data-cy="stepperSubmit"]')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-cy="tenderSaveProviders"]')).not.toBeNull();
   });
 
   it('closes filter dropdowns when clicking elsewhere in the modal', () => {
@@ -123,8 +124,8 @@ describe('CreateTenderModalComponent', () => {
     const selectedRow = fixture.nativeElement.querySelector('[data-testid="tender-provider-candidate"]');
 
     expect(selectedRow).not.toBeNull();
-    expect(selectedRow.className).toContain('bg-[#EBF0F7]');
-    expect(selectedRow.className).toContain('border-l-[#1f4fbf]');
+    expect(selectedRow.getAttribute('data-selected')).not.toBeNull();
+    expect(selectedRow.className).toContain('bg-[var(--card-selected-bg)]');
   });
 
   it('shows the uploaded PDF in the provider step summary immediately after step 2 is saved', fakeAsync(() => {
@@ -221,7 +222,23 @@ describe('CreateTenderModalComponent', () => {
 
     expect(component.invitedProviders).toEqual([]);
     expect(component.availableProviders.map(candidate => candidate.provider.id)).toEqual(['provider-1']);
-    expect(notificationService.showSuccess).toHaveBeenCalledWith('Provider invitation removed successfully');
+    expect(notificationService.showSuccess).toHaveBeenCalledWith('TENDERS.CREATE._invite_removed');
     expect(notificationService.showError).not.toHaveBeenCalled();
+  });
+
+  it('validates the dates form and mirrors it into the fields the save logic reads', () => {
+    component.ngOnInit();
+    const year = new Date().getFullYear();
+
+    component.datesForm.patchValue({ start: `${year + 1}-05-10`, end: `${year + 1}-05-01` });
+    expect(component.requestedCompletionDate).toBe(`${year + 1}-05-10`);
+    expect(component.datesForm.controls.end.errors?.['endBeforeStart']).toBeTrue();
+
+    component.datesForm.controls.end.setValue(`${year + 30}-01-01`);
+    expect(component.datesForm.controls.end.errors?.['yearRange']).toBeTrue();
+
+    component.datesForm.controls.end.setValue(`${year + 1}-06-01`);
+    expect(component.datesForm.controls.end.valid).toBeTrue();
+    expect(component.expectedCompletionDate).toBe(`${year + 1}-06-01`);
   });
 });

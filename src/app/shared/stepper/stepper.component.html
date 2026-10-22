@@ -46,15 +46,18 @@
     </app-card>
 
     <div class="flex justify-end space-x-4">
-      <app-button (click)="goBack()" [disabled]="currentStep === 0" variant="ghost" size="sm">
+      <app-button (click)="goBack()" [disabled]="currentStep === 0 || advancing" variant="ghost" size="sm">
         {{ previousLabel | translate }}
       </app-button>
 
       @if(!isLastStep) {
-      <app-button data-cy="stepperNext" (click)="goNext()" [disabled]="isLastStep || !canAdvance" size="sm">
+      <app-button data-cy="stepperNext" (click)="goNext()" [disabled]="isLastStep || !canAdvance || advancing" size="sm">
         {{ nextLabel | translate }}
       </app-button>
       }
+
+      <!-- Always projected (ng-content can't sit behind @if): the caller decides when its extra actions show -->
+      <ng-content select="[stepperActions]"></ng-content>
 
       @if (isLastStep || submitAlwaysVisible) {
       <app-button data-cy="stepperSubmit" (click)="submitted.emit()" [disabled]="submitDisabled" size="sm">

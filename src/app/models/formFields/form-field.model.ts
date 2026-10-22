@@ -216,6 +216,8 @@ export interface AttachmentFormField extends BaseFormField {
   maxFileSize?: number;
   dropLabel?: string;
   selectLabel?: string;
+  /** Don't upload on pick: the value carries the `File` for the caller to send on save. */
+  deferUpload?: boolean;
 }
 
 export type FormField = StringFormField | NumberFormField | DateFormField | PhoneNumberFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | SliderFormField | TableFormField | PaginatedTableFormField | CodeFormField | AttachmentFormField;

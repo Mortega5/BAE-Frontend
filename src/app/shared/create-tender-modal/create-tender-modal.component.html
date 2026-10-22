@@ -1,0 +1,298 @@
+@if (isOpen) {
+<div data-cy="createTenderModal" tabindex="-1" (click)="closeTenderModal()"
+  class="flex fixed inset-0 z-50 justify-center items-center w-full h-full backdrop-blur-sm bg-black/40 p-4">
+  <app-card variant="modal" class="w-full lg:w-3/4 max-w-6xl max-h-[90vh]"
+    (click)="closeTenderFilterDropdowns(); $event.stopPropagation()">
+    <div appCardHeader class="flex w-full flex-col gap-4">
+      <div class="flex items-center justify-between gap-3">
+        <h2 class="text-2xl font-bold text-primary-100 dark:text-white">
+          {{ (editingTenderId ? 'TENDERS.CREATE._title_edit' : 'TENDERS.CREATE._title_create') | translate }}
+        </h2>
+        <app-button type="button" variant="ghost" size="sm" prefixIcon="xmark" (click)="closeTenderModal()">
+          <span class="sr-only">{{ 'TENDERS.CREATE._close' | translate }}</span>
+        </app-button>
+      </div>
+
+    </div>
+
+    <div data-testid="tender-modal-body" class="overflow-x-hidden">
+      <app-stepper [startAt]="tenderCreationStep - 1" [canAdvance]="canAdvanceStep" [beforeNext]="saveStep"
+        submitLabel="TENDERS.CREATE._submit"
+        [submitDisabled]="invitedProviders.length === 0 || tenderLoading || providerInviteSaving"
+        (stepChanged)="onStepChanged($event)" (submitted)="finalizeTender()">
+
+      <!-- Step 1: title -->
+      <ng-template stepperStep="TENDERS.CREATE._step_title" stepId="title">
+        <div class="flex flex-col gap-5">
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'TENDERS.CREATE._step_title_heading' | translate }}</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'TENDERS.CREATE._step_title_desc' | translate }}</p>
+          </div>
+          <app-dynamic-form class="block" [fields]="titleFields" [formGroup]="titleForm" />
+        </div>
+      </ng-template>
+
+      <!-- Step 2: dates and request PDF -->
+      <ng-template stepperStep="TENDERS.CREATE._step_dates" stepId="dates">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'TENDERS.CREATE._step_dates_heading' | translate }}</h2>
+          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'TENDERS.CREATE._step_dates_desc' | translate }}</p>
+        </div>
+
+        <app-dynamic-form class="block" [fields]="dateFields" [formGroup]="datesForm" [columns]="2" />
+
+      </div>
+      </ng-template>
+
+      <!-- Step 3: providers -->
+      <ng-template stepperStep="TENDERS.CREATE._step_providers" stepId="providers">
+      <div class="mb-5">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'TENDERS.CREATE._step_providers_heading' | translate }}</h2>
+        <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'TENDERS.CREATE._step_providers_desc' | translate }}</p>
+      </div>
+      <section aria-label="Tender setup summary" class="mb-5 grid gap-3 md:grid-cols-3">
+        <div data-summary-item class="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
+          <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'TENDERS.CREATE._tender_title' | translate }}</p>
+          <p class="mt-1 break-words text-sm font-medium text-gray-900 dark:text-white">{{ tenderTitle }}</p>
+        </div>
+        <div data-summary-item class="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
+          <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'TENDERS.CREATE._dates_set' | translate }}</p>
+          <div class="mt-1 grid grid-cols-2 gap-x-4 text-sm">
+            <div class="min-w-0">
+              <span class="block text-xs text-gray-500 dark:text-gray-400">{{ 'TENDERS.CREATE._start' | translate }}</span>
+              <span class="block truncate font-medium text-gray-900 dark:text-white">{{ formatDateForDisplay(requestedCompletionDate) }}</span>
+            </div>
+            <div class="min-w-0">
+              <span class="block text-xs text-gray-500 dark:text-gray-400">{{ 'TENDERS.CREATE._end' | translate }}</span>
+              <span class="block truncate font-medium text-gray-900 dark:text-white">{{ formatDateForDisplay(expectedCompletionDate) }}</span>
+            </div>
+          </div>
+        </div>
+        @if (existingAttachment || pdfAttachmentSet) {
+        <div data-summary-item class="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
+          <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'TENDERS.CREATE._pdf' | translate }}</p>
+          <p class="mt-1 truncate text-sm font-medium text-gray-900 dark:text-white">{{ existingAttachment?.name || selectedPdfFile?.name }}</p>
+        </div>
+        }
+      </section>
+
+      @if (providerSearchLoading) {
+      <app-loading-spinner containerClass="w-full py-8 flex justify-center" />
+      }
+
+      @if (tenderError) {
+      <p class="mb-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+        {{ tenderError | translate }}
+      </p>
+      } @else {
+      @if (invitedProviders.length > 0) {
+      <div class="mb-5">
+        <p class="mb-2 text-sm font-medium text-gray-900 dark:text-white">
+          {{ 'TENDERS.CREATE._invited' | translate }} ({{ invitedProviders.length }})
+        </p>
+        <div class="max-h-40 overflow-y-auto rounded-2xl border border-[var(--card-border)]">
+          @for (invited of invitedProviders; track invited.quoteId) {
+          <div class="flex items-center justify-between gap-3 border-b border-[var(--card-border)] px-4 py-3 last:border-b-0">
+            <div class="min-w-0">
+              <p class="truncate text-sm font-medium text-gray-900 dark:text-white">
+                {{ invited.provider.tradingName || ('TENDERS.CREATE._unnamed_provider' | translate) }}
+              </p>
+              @if (invited.provider.externalReference?.[0]?.name) {
+              <p class="truncate text-xs text-gray-500 dark:text-gray-400">{{ invited.provider.externalReference?.[0]?.name }}</p>
+              }
+            </div>
+            <app-button type="button" variant="ghost" size="sm" prefixIcon="trash"
+              [title]="'TENDERS.CREATE._remove_invite' | translate" (click)="removeInvitedProvider(invited.quoteId, invited.provider.id)">
+              <span class="sr-only">{{ 'TENDERS.CREATE._remove_invite' | translate }}</span>
+            </app-button>
+          </div>
+          }
+        </div>
+      </div>
+      }
+
+      <p class="mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ 'TENDERS.CREATE._select_providers' | translate }}</p>
+      <div class="rounded-2xl border border-[var(--card-border)] p-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <!-- Category (single choice) -->
+          <div class="relative">
+            <app-button type="button" size="sm" suffixIcon="chevron-down" [variant]="selectedServiceCategory ? 'primary' : 'neutral'"
+              [outline]="!!selectedServiceCategory" (click)="toggleTenderFilterDropdown('serviceCategory', $event)">
+              <span class="max-w-[200px] truncate">{{ selectedServiceCategory?.name || ('TENDERS.CREATE._all_categories' | translate) }}</span>
+            </app-button>
+            @if (showServiceCategoryDropdown) {
+            <app-dropdown-panel class="absolute left-0 top-full z-[70] mt-2 max-h-[360px] w-[280px] overflow-y-auto" (click)="$event.stopPropagation()">
+              @if (catalogueOptionsLoading) {
+              <p class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">{{ 'TENDERS.CREATE._loading_options' | translate }}</p>
+              }
+              <button type="button" class="tender-filter-option" [class.font-semibold]="!selectedServiceCategory" (click)="selectServiceCategory(null, $event)">
+                {{ 'TENDERS.CREATE._all_categories' | translate }}
+              </button>
+              @for (option of serviceCategoryOptions; track option.id) {
+              <button type="button" class="tender-filter-option" [class.font-semibold]="selectedServiceCategory?.id === option.id"
+                (click)="selectServiceCategory(option, $event)">
+                <span class="truncate">{{ option.name }}</span>
+              </button>
+              }
+              @if (!catalogueOptionsLoading && serviceCategoryOptions.length === 0) {
+              <p class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">{{ 'TENDERS.CREATE._no_options' | translate }}</p>
+              }
+            </app-dropdown-panel>
+            }
+          </div>
+
+          <!-- Compliance levels -->
+          <div class="relative">
+            <app-button type="button" size="sm" suffixIcon="chevron-down" [variant]="selectedComplianceLevels.length ? 'primary' : 'neutral'"
+              [outline]="selectedComplianceLevels.length > 0" (click)="toggleTenderFilterDropdown('compliance', $event)">
+              {{ 'TENDERS.CREATE._compliance' | translate }}{{ selectedComplianceLevels.length ? ' (' + selectedComplianceLevels.length + ')' : '' }}
+            </app-button>
+            @if (showComplianceDropdown) {
+            <app-dropdown-panel class="absolute left-0 top-full z-[70] mt-2 w-[240px]" (click)="$event.stopPropagation()">
+              @for (option of complianceLevelOptions; track option.code) {
+              <label class="tender-filter-option cursor-pointer">
+                <input type="checkbox" [checked]="isComplianceSelected(option.code)" (change)="toggleComplianceLevel(option.code, $event)"
+                  class="h-4 w-4 rounded border-gray-300 text-primary-100 focus:ring-primary-100" />
+                <span>{{ option.label }}</span>
+              </label>
+              }
+            </app-dropdown-panel>
+            }
+          </div>
+
+          <!-- Addressable sectors -->
+          <div class="relative">
+            <app-button type="button" size="sm" suffixIcon="chevron-down" [variant]="selectedSectorIds.length ? 'primary' : 'neutral'"
+              [outline]="selectedSectorIds.length > 0" (click)="toggleTenderFilterDropdown('sector', $event)">
+              {{ 'TENDERS.CREATE._sectors' | translate }}{{ selectedSectorIds.length ? ' (' + selectedSectorIds.length + ')' : '' }}
+            </app-button>
+            @if (showSectorDropdown) {
+            <app-dropdown-panel class="absolute left-0 top-full z-[70] mt-2 max-h-[360px] w-[260px] overflow-y-auto" (click)="$event.stopPropagation()">
+              @if (catalogueOptionsLoading) {
+              <p class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">{{ 'TENDERS.CREATE._loading_options' | translate }}</p>
+              }
+              @for (option of addressableSectorOptions; track option.id) {
+              <label class="tender-filter-option cursor-pointer">
+                <input type="checkbox" [checked]="isSectorSelected(option)" (change)="toggleAddressableSector(option, $event)"
+                  class="h-4 w-4 rounded border-gray-300 text-primary-100 focus:ring-primary-100" />
+                <span class="truncate">{{ option.name }}</span>
+              </label>
+              }
+              @if (!catalogueOptionsLoading && addressableSectorOptions.length === 0) {
+              <p class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">{{ 'TENDERS.CREATE._no_options' | translate }}</p>
+              }
+            </app-dropdown-panel>
+            }
+          </div>
+
+          <!-- Country -->
+          <div class="relative">
+            <app-button type="button" size="sm" suffixIcon="chevron-down" [variant]="selectedCountryCodes.length ? 'primary' : 'neutral'"
+              [outline]="selectedCountryCodes.length > 0" (click)="toggleTenderFilterDropdown('country', $event)">
+              {{ 'TENDERS.CREATE._country' | translate }}{{ selectedCountryCodes.length ? ' (' + selectedCountryCodes.length + ')' : '' }}
+            </app-button>
+            @if (showCountryDropdown) {
+            <app-dropdown-panel class="absolute left-0 top-full z-[70] mt-2 max-h-[360px] w-[240px] overflow-y-auto" (click)="$event.stopPropagation()">
+              @if (countryOptionsLoading) {
+              <p class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">{{ 'TENDERS.CREATE._loading_options' | translate }}</p>
+              }
+              @for (option of countryOptions; track option.code) {
+              <label class="tender-filter-option cursor-pointer">
+                <input type="checkbox" [checked]="isCountrySelected(option.code)" (change)="toggleCountry(option.code, $event)"
+                  class="h-4 w-4 rounded border-gray-300 text-primary-100 focus:ring-primary-100" />
+                <span class="truncate">{{ option.label }}</span>
+              </label>
+              }
+              @if (!countryOptionsLoading && countryOptions.length === 0) {
+              <p class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">{{ 'TENDERS.CREATE._no_options' | translate }}</p>
+              }
+            </app-dropdown-panel>
+            }
+          </div>
+
+          <!-- Integration framework -->
+          <div class="relative">
+            <app-button type="button" size="sm" suffixIcon="chevron-down" [variant]="selectedFrameworkIds.length ? 'primary' : 'neutral'"
+              [outline]="selectedFrameworkIds.length > 0" (click)="toggleTenderFilterDropdown('framework', $event)">
+              {{ 'TENDERS.CREATE._frameworks' | translate }}{{ selectedFrameworkIds.length ? ' (' + selectedFrameworkIds.length + ')' : '' }}
+            </app-button>
+            @if (showFrameworkDropdown) {
+            <app-dropdown-panel class="absolute left-0 top-full z-[70] mt-2 max-h-[360px] w-[280px] overflow-y-auto" (click)="$event.stopPropagation()">
+              @if (catalogueOptionsLoading) {
+              <p class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">{{ 'TENDERS.CREATE._loading_options' | translate }}</p>
+              }
+              @for (option of integrationFrameworkOptions; track option.id) {
+              <label class="tender-filter-option cursor-pointer">
+                <input type="checkbox" [checked]="isFrameworkSelected(option)" (change)="toggleIntegrationFramework(option, $event)"
+                  class="h-4 w-4 rounded border-gray-300 text-primary-100 focus:ring-primary-100" />
+                <span class="truncate">{{ option.name }}</span>
+              </label>
+              }
+              @if (!catalogueOptionsLoading && integrationFrameworkOptions.length === 0) {
+              <p class="px-4 py-2 text-sm text-gray-500 dark:text-gray-400">{{ 'TENDERS.CREATE._no_options' | translate }}</p>
+              }
+            </app-dropdown-panel>
+            }
+          </div>
+        </div>
+
+        <div class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[var(--card-border)] pt-3">
+          <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'TENDERS.CREATE._candidates' | translate }}: {{ availableProviders.length }}</p>
+          <app-button type="button" variant="link" size="sm" prefixIcon="rotate" (click)="clearFilters()">
+            {{ 'TENDERS.CREATE._clear_filters' | translate }}
+          </app-button>
+        </div>
+        @if (providerSearchWarning) {
+        <p class="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+          {{ providerSearchWarning | translate }}
+        </p>
+        }
+      </div>
+
+      <div class="mt-4 max-h-[30vh] min-h-[156px] overflow-y-auto rounded-2xl border border-[var(--card-border)]">
+        @for (candidate of availableProviders; track candidate.provider.id) {
+        <label data-testid="tender-provider-candidate" [attr.data-selected]="candidate.selected || null"
+          class="flex cursor-pointer items-center gap-3 border-b border-l-4 border-b-[var(--card-border)] px-4 py-3 transition-colors last:border-b-0"
+          [ngClass]="candidate.selected ? 'border-l-primary-100 bg-[var(--card-selected-bg)]' : 'border-l-transparent hover:bg-[var(--dropdown-item-hover-bg)]'">
+          <input type="checkbox" [checked]="candidate.selected" (change)="toggleProviderSelection(candidate.provider.id!)"
+            class="h-4 w-4 rounded border-gray-300 text-primary-100 focus:ring-primary-100" />
+          <span class="min-w-0 flex-1">
+            <span class="block truncate text-sm font-medium text-gray-900 dark:text-white">
+              {{ candidate.provider.tradingName || ('TENDERS.CREATE._unnamed_provider' | translate) }}
+            </span>
+            @if (candidate.provider.externalReference?.[0]?.name) {
+            <span class="block truncate text-xs text-gray-500 dark:text-gray-400">{{ candidate.provider.externalReference?.[0]?.name }}</span>
+            }
+          </span>
+        </label>
+        } @empty {
+        <p class="p-8 text-center text-sm text-gray-500 dark:text-gray-400">
+          {{ (hasActiveFilters() ? 'TENDERS.CREATE._no_candidates_filtered' : 'TENDERS.CREATE._no_candidates') | translate }}
+        </p>
+        }
+      </div>
+
+      <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{{ 'TENDERS.CREATE._selected_count' | translate }}: {{ selectedProviders.size }}</p>
+      }
+      </ng-template>
+
+      <div stepperActions>
+        @if (tenderCreationStep === 3) {
+        <app-button type="button" variant="secondary" size="sm" dataCy="tenderSaveProviders"
+          [disabled]="selectedProviders.size === 0 || providerInviteSaving || providerSearchLoading"
+          [title]="selectedProviders.size === 0 ? ('TENDERS.CREATE._select_one' | translate) : ''" (click)="saveProvidersList()">
+          {{ (providerInviteSaving ? 'TENDERS.CREATE._inviting' : 'TENDERS.CREATE._save_providers') | translate }}
+        </app-button>
+        }
+      </div>
+      </app-stepper>
+    </div>
+  </app-card>
+</div>
+}
+
+<app-confirm-modal [visible]="showGenericConfirm" [title]="genericConfirmTitle" [message]="genericConfirmMessage"
+  [confirmLabel]="genericConfirmButtonText" [confirmVariant]="genericConfirmVariant"
+  (resolved)="$event && genericConfirmCallback ? genericConfirmCallback() : (showGenericConfirm = false)"
+  (closed)="showGenericConfirm = false"></app-confirm-modal>

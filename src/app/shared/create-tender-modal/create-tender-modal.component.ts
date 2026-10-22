@@ -1,6 +1,10 @@
 import { Component, EventEmitter, Input, Output, inject, OnInit, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { NgClass } from '@angular/common';
+import { AbstractControl, FormControl, FormGroup, FormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { noWhitespaceValidator } from 'src/app/validators/validators';
+import { DynamicFormComponent } from '../forms/dynamic-form/dynamic-form.component';
+import { UploadedAttachment } from '../forms/attachment-upload/attachment-upload.component';
 import { Router } from '@angular/router';
 import { forkJoin, of } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
@@ -13,7 +17,6 @@ import { AccountServiceService } from 'src/app/services/account-service.service'
 import { Tender, TenderAttachment } from 'src/app/models/tender.model';
 import { Category, LoginInfo } from 'src/app/models/interfaces';
 import { API_ROLES } from 'src/app/models/roles.constants';
-import { TENDER_STEP2_DESCRIPTION } from 'src/app/models/quote.constants';
 import {
   ProviderCountryOption,
   SearchOrganizationsFilters,
@@ -25,8 +28,13 @@ import {
   shouldUseUnfilteredProviderFallback,
 } from 'src/app/models/search-organizations-filters.model';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
-import { ButtonVariant } from '../button/button.component';
-import { TenderDateFieldComponent } from '../tender-date-field/tender-date-field.component';
+import { TranslateModule } from '@ngx-translate/core';
+import { ButtonComponent, ButtonVariant } from '../button/button.component';
+import { ContentCardComponent } from '../content-card/content-card.component';
+import { DropdownPanelComponent } from '../dropdown-panel/dropdown-panel.component';
+import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
+import { StepChangedEvent, StepperComponent } from '../stepper/stepper.component';
+import { StepperStepDirective } from '../stepper/stepper-step.directive';
 import {
   TenderProviderCandidate,
   buildStableProviderCandidates,
@@ -35,476 +43,10 @@ import {
 @Component({
   selector: 'app-create-tender-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ConfirmModalComponent, TenderDateFieldComponent],
-  template: `
-    <!-- Tender Creation Modal -->
-    <div *ngIf="isOpen" class="fixed inset-0 z-50 flex h-full w-full items-start justify-center overflow-hidden bg-[#0b1220]/45 px-4 py-6 font-[Blinker]" (click)="closeTenderModal()">
-      <div class="relative flex max-h-[calc(100vh-3rem)] w-full max-w-[1280px] flex-col overflow-hidden rounded-2xl border border-[#EBECEE] bg-[#F7F9FD] shadow-[0_20px_50px_rgba(11,18,32,0.24)]" (click)="closeTenderFilterDropdowns(); $event.stopPropagation()">
-        <div class="flex shrink-0 items-center justify-between border-b border-[#EBECEE] bg-[#F7F9FD] px-6 py-5">
-          <h3 class="text-[24px] font-bold text-[#0b1220]">{{ editingTenderId ? 'Edit Tender' : 'Create New Tender' }}</h3>
-          <button (click)="closeTenderModal()" class="rounded-lg p-2 text-[#526179] transition-colors hover:bg-[#EBF0F7] hover:text-[#1f4fbf]" aria-label="Close tender modal">
-            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-            </svg>
-          </button>
-        </div>
-        <div data-testid="tender-modal-body" class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-6 py-5">
-
-        <!-- Step 1: Title Only -->
-        <div *ngIf="tenderCreationStep === 1">
-          <div class="mb-6">
-            <label for="tenderTitle" class="mb-2 block text-sm font-semibold text-[#324153]">
-              Tender Title *
-            </label>
-            <input
-              type="text"
-              id="tenderTitle"
-              [(ngModel)]="tenderTitle"
-              class="h-12 w-full rounded-lg border border-[#EBECEE] bg-white px-4 text-[15px] text-[#0b1220] outline-none transition-colors placeholder:text-[#9AA6B8] hover:border-[#1f4fbf] focus:border-[#1f4fbf] focus:ring-2 focus:ring-[#B6CAEC]"
-              placeholder="Enter tender title or description..."
-              autofocus
-            />
-            <p class="mt-2 text-sm text-[#526179]">This will be the main description of your tender</p>
-          </div>
-
-          <!-- Actions for Step 1 -->
-          <div class="mt-6 flex justify-end gap-3 border-t border-[#EBECEE] pt-4">
-            <button
-              (click)="closeTenderModal()"
-              class="inline-flex h-10 items-center rounded-lg border border-[#EBECEE] bg-white px-4 text-sm font-semibold text-[#324153] transition-colors hover:border-[#1f4fbf] hover:text-[#1f4fbf]"
-            >
-              Cancel
-            </button>
-            <button
-              (click)="saveInitialTender()"
-              [disabled]="!tenderTitle.trim() || tenderLoading"
-              class="inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {{ tenderLoading ? 'Saving...' : 'Save' }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 2: Completion Dates -->
-        <div *ngIf="tenderCreationStep === 2">
-          <!-- Display Title (Read-only) -->
-          <div class="mb-4 rounded-2xl border border-[#EBECEE] bg-white p-4 shadow-sm">
-            <label class="mb-2 block text-sm font-semibold text-[#526179]">Tender Title</label>
-            <p class="break-words text-[16px] font-semibold text-[#0b1220] overflow-wrap-anywhere">{{ tenderTitle }}</p>
-          </div>
-
-          <!-- Step 2 Instructions -->
-          <div class="mb-6 rounded-2xl border border-[#F2D28A] bg-[#FFF8E6] p-4">
-            <p class="text-sm font-semibold text-[#7A4D00]">{{ TENDER_STEP2_DESCRIPTION }}</p>
-          </div>
-
-          <!-- Tender Start Date -->
-          <div class="mb-6">
-            <label for="requestedDate" class="mb-2 block text-sm font-semibold text-[#324153]">
-              Tender Start Date *
-            </label>
-            <app-tender-date-field
-              id="requestedDate"
-              [(value)]="requestedCompletionDate"
-              [min]="minDate"
-            ></app-tender-date-field>
-            <p class="mt-1 text-xs text-[#526179]">Format: DD/MM/YYYY</p>
-            <p
-              *ngIf="requestedCompletionDate && step2ValidationError && step2ValidationError.includes('Start date')"
-              class="mt-1 text-xs text-[#B42318]"
-            >{{ step2ValidationError }}</p>
-          </div>
-
-          <!-- Tender End Date -->
-          <div class="mb-6">
-            <label for="expectedDate" class="mb-2 block text-sm font-semibold text-[#324153]">
-              Tender End Date *
-            </label>
-            <app-tender-date-field
-              id="expectedDate"
-              [(value)]="expectedCompletionDate"
-              [min]="minDate"
-            ></app-tender-date-field>
-            <p class="mt-1 text-xs text-[#526179]">Format: DD/MM/YYYY</p>
-            <p
-              *ngIf="expectedCompletionDate && step2ValidationError && (step2ValidationError.includes('End date') || step2ValidationError.includes('End Date must be after'))"
-              class="mt-1 text-xs text-[#B42318]"
-            >{{ step2ValidationError }}</p>
-          </div>
-
-          <!-- PDF Upload -->
-          <div class="mb-6">
-            <label for="pdfFile" class="mb-2 block text-sm font-semibold text-[#324153]">
-              PDF Attachment *
-            </label>
-
-            <!-- Display existing attachment prominently -->
-            <div *ngIf="existingAttachment" class="mb-3 rounded-2xl border border-[#B6CAEC] bg-[#EBF0F7] p-4">
-              <div class="flex items-center justify-between">
-                <div class="flex min-w-0 items-center gap-3">
-                  <svg class="h-5 w-5 shrink-0 text-[#1f4fbf]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                  </svg>
-                  <div class="min-w-0">
-                    <p class="text-sm font-semibold text-[#0b1220]">Current PDF</p>
-                    <p class="truncate text-sm text-[#526179]">{{ existingAttachment.name }}</p>
-                  </div>
-                </div>
-                <span class="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-[#1f4fbf]">Attached</span>
-              </div>
-              <p class="mt-2 text-xs text-[#526179]">Upload a new file to replace the existing attachment</p>
-            </div>
-
-            <input
-              type="file"
-              id="pdfFile"
-              accept=".pdf"
-              (change)="onPdfFileSelected($any($event))"
-              class="block w-full cursor-pointer rounded-lg border border-[#EBECEE] bg-white text-sm text-[#526179] transition-colors file:mr-4 file:h-12 file:cursor-pointer file:border-0 file:bg-[#EBF0F7] file:px-4 file:text-sm file:font-semibold file:text-[#1f4fbf] hover:border-[#1f4fbf] focus:outline-none focus:ring-2 focus:ring-[#B6CAEC]"
-            />
-            <p class="mt-1 text-xs text-[#526179]">
-              {{ existingAttachment ? 'Select a new file to upload or keep the current one' : 'Only PDF files allowed' }} — Max size 10MB
-            </p>
-          </div>
-
-          <!-- Actions for Step 2 -->
-          <div class="mt-6 flex justify-end gap-3 border-t border-[#EBECEE] pt-4">
-            <button
-              (click)="closeTenderModal()"
-              class="inline-flex h-10 items-center rounded-lg border border-[#EBECEE] bg-white px-4 text-sm font-semibold text-[#324153] transition-colors hover:border-[#1f4fbf] hover:text-[#1f4fbf]"
-            >
-              Cancel
-            </button>
-            <button
-              (click)="proceedToProviderSelection()"
-              [disabled]="!isStep2Complete() || tenderLoading"
-              [title]="step2ValidationError"
-              class="group relative inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {{ tenderLoading ? 'Saving...' : 'Next: Select Providers' }}
-              <span
-                *ngIf="!isStep2Complete()"
-                class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-              >
-                Fill in all fields to continue
-              </span>
-            </button>
-          </div>
-        </div>
-
-        <!-- Step 3: Provider Selection -->
-        <div *ngIf="tenderCreationStep === 3">
-          <!-- Tender Setup Summary -->
-          <section aria-label="Tender setup summary" class="mb-5 grid gap-3 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,1fr)]">
-            <div data-summary-item class="rounded-xl border border-[#EBECEE] bg-white px-4 py-3 shadow-sm">
-              <p class="text-xs font-semibold uppercase tracking-[0.04em] text-[#526179]">Tender Title</p>
-              <p class="mt-1 break-words text-[15px] font-semibold leading-5 text-[#0b1220] overflow-wrap-anywhere">{{ tenderTitle }}</p>
-            </div>
-
-            <div data-summary-item class="rounded-xl border border-[#CBEADB] bg-[#F0FBF6] px-4 py-3">
-              <p class="text-xs font-semibold uppercase tracking-[0.04em] text-[#006B4A]">Dates Set</p>
-              <div class="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-sm">
-                <div class="min-w-0">
-                  <span class="block text-xs text-[#526179]">Start</span>
-                  <span class="block truncate font-semibold text-[#0b1220]">{{ formatDateForDisplay(requestedCompletionDate) }}</span>
-                </div>
-                <div class="min-w-0">
-                  <span class="block text-xs text-[#526179]">End</span>
-                  <span class="block truncate font-semibold text-[#0b1220]">{{ formatDateForDisplay(expectedCompletionDate) }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div data-summary-item *ngIf="existingAttachment || pdfAttachmentSet" class="rounded-xl border border-[#CBEADB] bg-[#F0FBF6] px-4 py-3">
-              <p class="text-xs font-semibold uppercase tracking-[0.04em] text-[#006B4A]">PDF Attachment</p>
-              <div class="mt-2 flex min-w-0 items-center gap-2">
-                <svg class="h-4 w-4 shrink-0 text-[#006B4A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 3h7l5 5v13H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M14 3v5h5" />
-                </svg>
-                <p class="min-w-0 truncate text-sm font-semibold text-[#0b1220]">{{ existingAttachment?.name || selectedPdfFile?.name }}</p>
-              </div>
-            </div>
-          </section>
-
-          <!-- Loading State -->
-          <div *ngIf="providerSearchLoading" class="flex justify-center py-8">
-            <div class="h-8 w-8 animate-spin rounded-full border-b-2 border-[#1f4fbf]"></div>
-          </div>
-
-          <!-- Error State -->
-          <div *ngIf="tenderError" class="mb-4 rounded-2xl border border-[#F4C7C7] bg-[#FFF1F1] p-4">
-            <p class="text-sm font-semibold text-[#B42318]">{{ tenderError }}</p>
-          </div>
-
-          <div *ngIf="!tenderError">
-            <!-- Already Invited Providers Section -->
-            <div *ngIf="invitedProviders.length > 0" class="mb-5">
-              <label class="mb-2 block text-sm font-semibold text-[#324153]">
-                Already Invited Providers ({{ invitedProviders.length }})
-              </label>
-
-              <div class="max-h-40 overflow-y-auto rounded-xl border border-[#CBEADB] bg-[#F0FBF6]">
-                <div *ngFor="let invited of invitedProviders"
-                     class="flex items-center justify-between border-b border-[#CBEADB] px-4 py-3 transition-colors last:border-b-0 hover:bg-white">
-                  <div class="flex-1">
-                    <p class="text-sm font-semibold text-[#0b1220]">
-                      {{ invited.provider.tradingName || 'Unnamed Provider' }}
-                    </p>
-                    <p *ngIf="invited.provider.externalReference?.[0]?.name" class="mt-1 text-xs text-[#526179]">
-                      {{ invited.provider.externalReference?.[0]?.name }}
-                    </p>
-                  </div>
-                  <button
-                    (click)="removeInvitedProvider(invited.quoteId, invited.provider.id)"
-                    class="ml-4 rounded-lg p-2 text-[#B42318] transition-colors hover:bg-[#FFF1F1]"
-                    title="Remove invitation"
-                  >
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Available Providers Selection -->
-            <div class="mb-5">
-              <label class="mb-2 block text-sm font-semibold text-[#324153]">
-                Select Providers to Invite
-              </label>
-
-              <div class="rounded-xl border border-[#EBECEE] bg-white p-3 shadow-sm">
-                <div class="flex flex-wrap items-center gap-2">
-                  <div class="relative shrink-0">
-                    <button
-                      type="button"
-                      (click)="toggleTenderFilterDropdown('serviceCategory', $event)"
-                      [ngClass]="selectedServiceCategory ? 'border-[#1f4fbf] bg-[#EBF0F7] text-[#1f4fbf]' : 'border-[#EBECEE] text-[#324153] hover:border-[#1f4fbf] hover:text-[#1f4fbf]'"
-                       class="flex h-10 max-w-[240px] items-center gap-2 rounded-lg border pl-4 pr-3 text-[15px] transition-colors"
-                    >
-                      <span class="truncate">{{ selectedServiceCategory?.name || 'All Categories' }}</span>
-                      <svg class="h-4 w-4 shrink-0 transition-transform" [ngClass]="showServiceCategoryDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                      </svg>
-                    </button>
-                    <div *ngIf="showServiceCategoryDropdown" (click)="$event.stopPropagation()" class="absolute left-0 top-full z-[70] mt-2 max-h-[360px] w-[280px] overflow-y-auto rounded-xl bg-white p-2 shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
-                      <div *ngIf="catalogueOptionsLoading" class="px-3 py-2.5 text-[14px] text-[#526179]">Loading categories...</div>
-                      <button type="button" (click)="selectServiceCategory(null, $event)" [ngClass]="!selectedServiceCategory ? 'bg-[#DDE6F6]' : 'hover:bg-[#EBF0F7]'" class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[14px] text-[#0b1220] transition-colors">
-                        <span class="min-w-0 flex-1">All Categories</span>
-                        <svg *ngIf="!selectedServiceCategory" class="h-4 w-4 text-[#1f4fbf]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                        </svg>
-                      </button>
-                      <button *ngFor="let option of serviceCategoryOptions" type="button" (click)="selectServiceCategory(option, $event)" [ngClass]="selectedServiceCategory?.id === option.id ? 'bg-[#DDE6F6]' : 'hover:bg-[#EBF0F7]'" class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[14px] text-[#0b1220] transition-colors">
-                        <span class="min-w-0 flex-1 truncate">{{ option.name }}</span>
-                      </button>
-                      <div *ngIf="!catalogueOptionsLoading && serviceCategoryOptions.length === 0" class="px-3 py-2.5 text-[14px] text-[#526179]">No category options available</div>
-                    </div>
-                  </div>
-
-                  <div class="relative shrink-0">
-                    <button type="button" (click)="toggleTenderFilterDropdown('compliance', $event)" [ngClass]="selectedComplianceLevels.length > 0 ? 'border-[#1f4fbf] bg-[#EBF0F7] text-[#1f4fbf]' : 'border-[#EBECEE] text-[#324153] hover:border-[#1f4fbf] hover:text-[#1f4fbf]'" class="flex h-10 items-center gap-2 rounded-lg border pl-4 pr-3 text-[15px] transition-colors">
-                      Compliance Levels
-                      <span *ngIf="selectedComplianceLevels.length > 0" class="inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-[#B6CAEC] px-1.5 text-[12px] font-semibold text-[#1f4fbf]">{{ selectedComplianceLevels.length }}</span>
-                      <svg class="h-4 w-4 transition-transform" [ngClass]="showComplianceDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                      </svg>
-                    </button>
-                    <div *ngIf="showComplianceDropdown" (click)="$event.stopPropagation()" class="absolute left-0 top-full z-[70] mt-2 w-[240px] rounded-xl bg-white p-2 shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
-                      <button *ngFor="let option of complianceLevelOptions" type="button" (click)="toggleComplianceLevel(option.code, $event)" [ngClass]="isComplianceSelected(option.code) ? 'bg-[#DDE6F6]' : 'hover:bg-[#EBF0F7]'" class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] text-[#0b1220] transition-colors">
-                        <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border" [ngClass]="isComplianceSelected(option.code) ? 'border-[#1f4fbf] bg-[#1f4fbf] text-white' : 'border-[#B6CAEC] bg-white'">
-                          <svg *ngIf="isComplianceSelected(option.code)" class="h-2.5 w-2.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                          </svg>
-                        </span>
-                        <span>{{ option.label }}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  <div class="relative shrink-0">
-                    <button type="button" (click)="toggleTenderFilterDropdown('sector', $event)" [ngClass]="selectedSectorIds.length > 0 ? 'border-[#1f4fbf] bg-[#EBF0F7] text-[#1f4fbf]' : 'border-[#EBECEE] text-[#324153] hover:border-[#1f4fbf] hover:text-[#1f4fbf]'" class="flex h-10 items-center gap-2 rounded-lg border pl-4 pr-3 text-[15px] transition-colors">
-                      Addressable Sectors
-                      <span *ngIf="selectedSectorIds.length > 0" class="inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-[#B6CAEC] px-1.5 text-[12px] font-semibold text-[#1f4fbf]">{{ selectedSectorIds.length }}</span>
-                      <svg class="h-4 w-4 transition-transform" [ngClass]="showSectorDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                      </svg>
-                    </button>
-                    <div *ngIf="showSectorDropdown" (click)="$event.stopPropagation()" class="absolute left-0 top-full z-[70] mt-2 max-h-[360px] w-[260px] overflow-y-auto rounded-xl bg-white p-2 shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
-                      <div *ngIf="catalogueOptionsLoading" class="px-3 py-2.5 text-[14px] text-[#526179]">Loading sectors...</div>
-                      <button *ngFor="let option of addressableSectorOptions" type="button" (click)="toggleAddressableSector(option, $event)" [ngClass]="isSectorSelected(option) ? 'bg-[#DDE6F6]' : 'hover:bg-[#EBF0F7]'" class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[14px] text-[#0b1220] transition-colors">
-                        <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border" [ngClass]="isSectorSelected(option) ? 'border-[#1f4fbf] bg-[#1f4fbf] text-white' : 'border-[#B6CAEC] bg-white'">
-                          <svg *ngIf="isSectorSelected(option)" class="h-2.5 w-2.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                          </svg>
-                        </span>
-                        <span class="truncate">{{ option.name }}</span>
-                      </button>
-                      <div *ngIf="!catalogueOptionsLoading && addressableSectorOptions.length === 0" class="px-3 py-2.5 text-[14px] text-[#526179]">No sector options available</div>
-                    </div>
-                  </div>
-
-                  <div class="relative shrink-0">
-                    <button type="button" (click)="toggleTenderFilterDropdown('country', $event)" [ngClass]="selectedCountryCodes.length > 0 ? 'border-[#1f4fbf] bg-[#EBF0F7] text-[#1f4fbf]' : 'border-[#EBECEE] text-[#324153] hover:border-[#1f4fbf] hover:text-[#1f4fbf]'" class="flex h-10 items-center gap-2 rounded-lg border pl-4 pr-3 text-[15px] transition-colors">
-                      Country
-                      <span *ngIf="selectedCountryCodes.length > 0" class="inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-[#B6CAEC] px-1.5 text-[12px] font-semibold text-[#1f4fbf]">{{ selectedCountryCodes.length }}</span>
-                      <svg class="h-4 w-4 transition-transform" [ngClass]="showCountryDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                      </svg>
-                    </button>
-                    <div *ngIf="showCountryDropdown" (click)="$event.stopPropagation()" class="absolute left-0 top-full z-[70] mt-2 max-h-[360px] w-[240px] overflow-y-auto rounded-xl bg-white p-2 shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
-                      <div *ngIf="countryOptionsLoading" class="px-3 py-2.5 text-[14px] text-[#526179]">Loading countries...</div>
-                      <button *ngFor="let option of countryOptions" type="button" (click)="toggleCountry(option.code, $event)" [ngClass]="isCountrySelected(option.code) ? 'bg-[#DDE6F6]' : 'hover:bg-[#EBF0F7]'" class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[14px] text-[#0b1220] transition-colors">
-                        <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border" [ngClass]="isCountrySelected(option.code) ? 'border-[#1f4fbf] bg-[#1f4fbf] text-white' : 'border-[#B6CAEC] bg-white'">
-                          <svg *ngIf="isCountrySelected(option.code)" class="h-2.5 w-2.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                          </svg>
-                        </span>
-                        <span class="truncate">{{ option.label }}</span>
-                      </button>
-                      <div *ngIf="!countryOptionsLoading && countryOptions.length === 0" class="px-3 py-2.5 text-[14px] text-[#526179]">No country options available</div>
-                    </div>
-                  </div>
-
-                  <div class="relative shrink-0">
-                    <button type="button" (click)="toggleTenderFilterDropdown('framework', $event)" [ngClass]="selectedFrameworkIds.length > 0 ? 'border-[#1f4fbf] bg-[#EBF0F7] text-[#1f4fbf]' : 'border-[#EBECEE] text-[#324153] hover:border-[#1f4fbf] hover:text-[#1f4fbf]'" class="flex h-10 items-center gap-2 rounded-lg border pl-4 pr-3 text-[15px] transition-colors">
-                      Integration Framework
-                      <span *ngIf="selectedFrameworkIds.length > 0" class="inline-flex h-[22px] min-w-[22px] items-center justify-center rounded-full bg-[#B6CAEC] px-1.5 text-[12px] font-semibold text-[#1f4fbf]">{{ selectedFrameworkIds.length }}</span>
-                      <svg class="h-4 w-4 transition-transform" [ngClass]="showFrameworkDropdown ? 'rotate-180' : ''" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                      </svg>
-                    </button>
-                    <div *ngIf="showFrameworkDropdown" (click)="$event.stopPropagation()" class="absolute left-0 top-full z-[70] mt-2 max-h-[360px] w-[280px] overflow-y-auto rounded-xl bg-white p-2 shadow-[0_4px_12px_rgba(0,0,0,0.15)]">
-                      <div *ngIf="catalogueOptionsLoading" class="px-3 py-2.5 text-[14px] text-[#526179]">Loading frameworks...</div>
-                      <button *ngFor="let option of integrationFrameworkOptions" type="button" (click)="toggleIntegrationFramework(option, $event)" [ngClass]="isFrameworkSelected(option) ? 'bg-[#DDE6F6]' : 'hover:bg-[#EBF0F7]'" class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-[14px] text-[#0b1220] transition-colors">
-                        <span class="flex h-4 w-4 shrink-0 items-center justify-center rounded border" [ngClass]="isFrameworkSelected(option) ? 'border-[#1f4fbf] bg-[#1f4fbf] text-white' : 'border-[#B6CAEC] bg-white'">
-                          <svg *ngIf="isFrameworkSelected(option)" class="h-2.5 w-2.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                          </svg>
-                        </span>
-                        <span class="truncate">{{ option.name }}</span>
-                      </button>
-                      <div *ngIf="!catalogueOptionsLoading && integrationFrameworkOptions.length === 0" class="px-3 py-2.5 text-[14px] text-[#526179]">No framework options available</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-[#EBECEE] pt-3">
-                  <p class="text-sm text-[#526179]">{{ availableProviders.length }} provider candidate(s)</p>
-                  <button type="button" (click)="clearFilters()" class="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-[#1f4fbf] hover:bg-[#EBF0F7]">
-                    <svg class="h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2.2" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M21.015 4.356v4.992m0 0h-4.992m4.993 0-3.181-3.183a8.25 8.25 0 0 0-13.803 3.7" />
-                    </svg>
-                    Clear all
-                  </button>
-                </div>
-                <div *ngIf="providerSearchWarning" class="mt-3 rounded-xl border border-[#F2D28A] bg-[#FFF8E6] px-3 py-2 text-sm font-semibold text-[#7A4D00]">
-                  {{ providerSearchWarning }}
-                </div>
-              </div>
-
-              <div class="mt-4 max-h-[30vh] min-h-[156px] overflow-y-auto rounded-xl border border-[#EBECEE] bg-white">
-                <div
-                  *ngFor="let candidate of availableProviders"
-                  data-testid="tender-provider-candidate"
-                  class="flex items-center gap-3 border-b border-l-4 border-b-[#EBECEE] px-4 py-3 transition-colors last:border-b-0"
-                  [ngClass]="candidate.selected ? 'border-l-[#1f4fbf] bg-[#EBF0F7]' : 'border-l-transparent hover:bg-[#F7F9FD]'"
-                >
-                  <ng-container *ngIf="candidate.provider.id as providerId">
-                    <input
-                      type="checkbox"
-                      [id]="'provider-' + providerId"
-                      [checked]="candidate.selected"
-                      (change)="toggleProviderSelection(providerId)"
-                      class="h-4 w-4 rounded border-[#B6CAEC] text-[#1f4fbf] focus:ring-[#B6CAEC]"
-                    />
-                    <label [for]="'provider-' + providerId" class="min-w-0 flex-1 cursor-pointer">
-                      <p class="truncate text-sm font-semibold text-[#0b1220]">{{ candidate.provider.tradingName || 'Unnamed Provider' }}</p>
-                      <p *ngIf="candidate.provider.externalReference?.[0]?.name" class="mt-0.5 truncate text-xs text-[#526179]">{{ candidate.provider.externalReference?.[0]?.name }}</p>
-                    </label>
-                  </ng-container>
-                </div>
-
-                <div *ngIf="availableProviders.length === 0" class="p-8 text-center text-[#526179]">
-                  <p class="text-sm" *ngIf="hasActiveFilters(); else noMoreProviders">
-                    No provider candidates match the selected filters.
-                  </p>
-                  <ng-template #noMoreProviders>
-                    <p class="text-sm">No more providers available.</p>
-                  </ng-template>
-                </div>
-              </div>
-
-              <p class="mt-2 text-sm font-semibold text-[#526179]">
-                {{ selectedProviders.size }} provider(s) selected
-              </p>
-            </div>
-          </div>
-
-          <!-- Actions for Step 3 -->
-          <div data-testid="tender-modal-provider-footer" class="sticky bottom-0 mt-5 flex flex-wrap justify-between gap-3 border-t border-[#EBECEE] bg-[#F7F9FD]/95 py-4 backdrop-blur">
-            <button
-              (click)="backToStep2()"
-              class="inline-flex h-10 items-center rounded-lg border border-[#EBECEE] bg-white px-4 text-sm font-semibold text-[#324153] transition-colors hover:border-[#1f4fbf] hover:text-[#1f4fbf]"
-            >
-              ← Back
-            </button>
-            <div class="flex flex-wrap justify-end gap-3">
-              <button
-                (click)="closeTenderModal()"
-                class="inline-flex h-10 items-center rounded-lg border border-[#EBECEE] bg-white px-4 text-sm font-semibold text-[#324153] transition-colors hover:border-[#1f4fbf] hover:text-[#1f4fbf]"
-              >
-                Cancel
-              </button>
-              <button
-                (click)="saveProvidersList()"
-                [disabled]="selectedProviders.size === 0 || providerInviteSaving || providerSearchLoading"
-                [title]="selectedProviders.size === 0 ? 'Please select at least one provider' : ''"
-                class="group relative inline-flex h-10 items-center rounded-lg bg-[#1f4fbf] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#183f99] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {{ providerInviteSaving ? 'Inviting...' : 'Save Providers List' }}
-                <span
-                  *ngIf="selectedProviders.size === 0"
-                  class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                >
-                  Please select at least one provider
-                </span>
-              </button>
-              <button
-                (click)="finalizeTender()"
-                [disabled]="invitedProviders.length === 0 || tenderLoading || providerInviteSaving"
-                [title]="invitedProviders.length === 0 ? 'Please invite at least one provider first' : ''"
-                class="group relative inline-flex h-10 items-center rounded-lg bg-[#006B4A] px-4 text-sm font-semibold text-white transition-colors hover:bg-[#00523A] disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                Submit Tender
-                <span
-                  *ngIf="invitedProviders.length === 0"
-                  class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 bg-gray-900 text-white text-xs rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none"
-                >
-                  Please invite at least one provider first
-                </span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    </div>
-
-    <!-- Generic Confirmation Dialog -->
-    <app-confirm-modal
-      [visible]="showGenericConfirm"
-      [title]="genericConfirmTitle"
-      [message]="genericConfirmMessage"
-      [confirmLabel]="genericConfirmButtonText"
-      cancelLabel="Cancel"
-      [confirmVariant]="genericConfirmVariant"
-      (resolved)="$event && genericConfirmCallback ? genericConfirmCallback() : (showGenericConfirm = false)"
-      (closed)="showGenericConfirm = false"
-    ></app-confirm-modal>
-  `,
-  styles: []
+  imports: [NgClass, FormsModule, TranslateModule, ConfirmModalComponent, DynamicFormComponent, ButtonComponent,
+    ContentCardComponent, DropdownPanelComponent, LoadingSpinnerComponent, StepperComponent, StepperStepDirective],
+  templateUrl: './create-tender-modal.component.html',
+  styleUrl: './create-tender-modal.component.scss',
 })
 export class CreateTenderModalComponent implements OnInit, OnChanges {
   @Input() isOpen = false;
@@ -536,7 +78,7 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
   showGenericConfirm = false;
   genericConfirmTitle = '';
   genericConfirmMessage = '';
-  genericConfirmButtonText = 'Confirm';
+  genericConfirmButtonText = 'CONFIRM_MODAL._confirm';
   genericConfirmVariant: ButtonVariant = 'primary';
   genericConfirmCallback: (() => void) | null = null;
   currentUserId: string | null = null;
@@ -597,11 +139,49 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
   existingAttachment: TenderAttachment | null = null;
   createdQuoteId: string | null = null;
 
+  // Step 1 and 2 inputs, rendered by app-dynamic-form. Their values are mirrored into
+  // tenderTitle / requestedCompletionDate / expectedCompletionDate, which the save logic reads.
+  readonly titleForm = new FormGroup({
+    title: new FormControl('', [Validators.required, noWhitespaceValidator]),
+  });
+
+  readonly datesForm = new FormGroup({
+    start: new FormControl('', [Validators.required, this.yearRangeValidator()]),
+    end: new FormControl('', [Validators.required, this.yearRangeValidator(), this.endAfterStartValidator()]),
+    // UploadedAttachment: a picked file (with .file) or the tender's current PDF (no .file)
+    pdf: new FormControl<UploadedAttachment | null>(null, [Validators.required]),
+  });
+
+  private readonly titleFieldsEditable: FormField[] = [this.titleField(false)];
+  private readonly titleFieldsReadonly: FormField[] = [this.titleField(true)];
+
+  /** Read-only once the tender exists: going back to step 1 never renames or recreates it. */
+  get titleFields(): FormField[] {
+    return this.createdQuoteId ? this.titleFieldsReadonly : this.titleFieldsEditable;
+  }
+
+  readonly dateFields: FormField[] = [
+    {
+      name: 'start', type: 'date', label: 'TENDERS.CREATE._start_date', required: true, min: this.minDate,
+      dataCy: 'tenderStartDate', errorMessages: { yearRange: 'TENDERS.CREATE._err_year_range' },
+    },
+    {
+      name: 'end', type: 'date', label: 'TENDERS.CREATE._end_date', required: true, min: this.minDate,
+      dataCy: 'tenderEndDate',
+      errorMessages: { yearRange: 'TENDERS.CREATE._err_year_range', endBeforeStart: 'TENDERS.CREATE._err_end_before_start' },
+    },
+    {
+      // Kept local: the step's save sends it with addAttachmentToQuote
+      name: 'pdf', type: 'attachment', label: 'TENDERS.CREATE._pdf', required: true, colSpan: 2,
+      accept: '.pdf,application/pdf', maxFileSize: 10 * 1024 * 1024, deferUpload: true,
+      hint: 'TENDERS.CREATE._pdf_help', dataCy: 'tenderPdf',
+    },
+  ];
+
   // Track tender creation steps
   tenderCreationStep: number = 1; // 1 = Title, 2 = Dates, 3 = Providers
 
   // Expose constant to template
-  readonly TENDER_STEP2_DESCRIPTION = TENDER_STEP2_DESCRIPTION;
 
   get minDate(): string {
     const today = new Date();
@@ -609,6 +189,24 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
+    this.titleForm.controls.title.valueChanges.subscribe(value => this.tenderTitle = value ?? '');
+    this.datesForm.controls.start.valueChanges.subscribe(value => {
+      this.requestedCompletionDate = value ?? '';
+      // The end date is only valid relative to the start date
+      this.datesForm.controls.end.updateValueAndValidity({ emitEvent: false });
+    });
+    this.datesForm.controls.end.valueChanges.subscribe(value => this.expectedCompletionDate = value ?? '');
+    this.datesForm.controls.pdf.valueChanges.subscribe(value => {
+      if (value?.file) {
+        this.selectedPdfFile = value.file;
+      } else if (!value) {
+        // Removed: a new PDF is required again
+        this.selectedPdfFile = null;
+        this.existingAttachment = null;
+        this.pdfAttachmentSet = false;
+      }
+    });
+
     // Use customerId if provided from parent, otherwise get from localStorage
     if (this.customerId) {
       this.currentUserId = this.customerId;
@@ -662,6 +260,7 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
 
     // Always start at step 2 when clicking EDIT to ensure proper initialization and API calls
     this.tenderCreationStep = 2;
+    this.syncFormsFromModel();
   }
 
   private formatDateForInput(isoDate: string): string {
@@ -698,7 +297,7 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
     title: string,
     message: string,
     callback: () => void,
-    buttonText: string = 'Confirm',
+    buttonText: string = 'CONFIRM_MODAL._confirm',
     variant: ButtonVariant = 'primary'
   ) {
     this.genericConfirmTitle = title;
@@ -725,44 +324,51 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
     this.invitedProviders = [];
     this.providerSearchLoading = false;
     this.providerInviteSaving = false;
+    this.syncFormsFromModel();
   }
 
   /**
    * Step 1: Save initial tender with just title
    * Calls createCoordinatorQuote API
    */
-  saveInitialTender() {
+  saveInitialTender(): Promise<boolean> {
+    // Already created (came back to this step): moving on must not create a second tender
+    if (this.createdQuoteId) {
+      return Promise.resolve(true);
+    }
+
     if (!this.tenderTitle.trim()) {
-      this.notificationService.showError('Tender title is required');
-      return;
+      this.notificationService.showError('TENDERS.CREATE._title_required');
+      return Promise.resolve(false);
     }
 
     if (!this.currentUserId) {
-      this.notificationService.showError('User not logged in');
-      return;
+      this.notificationService.showError('TENDERS.CREATE._not_logged');
+      return Promise.resolve(false);
     }
 
     this.tenderLoading = true;
 
-    this.quoteService.createCoordinatorQuote(this.currentUserId, this.tenderTitle.trim()).subscribe({
+    return new Promise(resolve => this.quoteService.createCoordinatorQuote(this.currentUserId!, this.tenderTitle.trim()).subscribe({
       next: (createdTender) => {
-        console.log('Coordinator tender created:', createdTender);
         this.createdQuoteId = createdTender.id || null;
         this.editingTenderId = createdTender.id || null;
-        this.notificationService.showSuccess('Tender created! Now set the completion dates.');
+        this.notificationService.showSuccess('TENDERS.CREATE._created_next');
         this.tenderLoading = false;
 
         // Move to Step 2: Date fields
         this.tenderCreationStep = 2;
         // Notify the parent dashboard so the new tender appears in the list immediately
         this.tenderUpdated.emit();
+        resolve(true);
       },
       error: (error) => {
         console.error('Error creating tender:', error);
-        this.notificationService.showError('Failed to create tender: ' + (error.message || 'Unknown error'));
+        this.notificationService.showError('TENDERS.CREATE._create_error', { details: error?.message });
         this.tenderLoading = false;
+        resolve(false);
       }
-    });
+    }));
   }
 
   /**
@@ -779,7 +385,7 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
    */
   setExpectedDate() {
     if (!this.expectedCompletionDate || !this.createdQuoteId) {
-      this.notificationService.showError('Please select a date');
+      this.notificationService.showError('TENDERS.CREATE._date_required');
       return;
     }
 
@@ -789,14 +395,14 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
     this.quoteService.updateQuoteDate(this.createdQuoteId, formattedDate, 'effective').subscribe({
       next: (updatedTender: any) => {
         this.expectedDateSet = true;
-        this.notificationService.showSuccess('Effective completion date set successfully!');
+        this.notificationService.showSuccess('TENDERS.CREATE._end_date_saved');
         this.tenderLoading = false;
         // Emit update event so parent can refresh the tender list
         this.tenderUpdated.emit();
       },
       error: (error: any) => {
         console.error('Error setting effective date:', error);
-        this.notificationService.showError('Failed to set effective date: ' + (error.message || 'Unknown error'));
+        this.notificationService.showError('TENDERS.CREATE._date_error', { details: error?.message });
         this.tenderLoading = false;
       }
     });
@@ -807,7 +413,7 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
    */
   setRequestedDate() {
     if (!this.requestedCompletionDate || !this.createdQuoteId) {
-      this.notificationService.showError('Please select a date');
+      this.notificationService.showError('TENDERS.CREATE._date_required');
       return;
     }
 
@@ -817,14 +423,14 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
     this.quoteService.updateQuoteDate(this.createdQuoteId, formattedDate, 'expectedFulfillment').subscribe({
       next: (updatedTender: any) => {
         this.requestedDateSet = true;
-        this.notificationService.showSuccess('Expected fulfillment start date set successfully!');
+        this.notificationService.showSuccess('TENDERS.CREATE._start_date_saved');
         this.tenderLoading = false;
         // Emit update event so parent can refresh the tender list
         this.tenderUpdated.emit();
       },
       error: (error: any) => {
         console.error('Error setting expected fulfillment date:', error);
-        this.notificationService.showError('Failed to set expected fulfillment date: ' + (error.message || 'Unknown error'));
+        this.notificationService.showError('TENDERS.CREATE._date_error', { details: error?.message });
         this.tenderLoading = false;
       }
     });
@@ -833,30 +439,12 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
   /**
    * Step 2: Handle PDF file selection
    */
-  onPdfFileSelected(event: Event) {
-    const target = event.target as HTMLInputElement;
-    const file = target.files?.[0];
-
-    if (file) {
-      if (file.type !== 'application/pdf') {
-        this.notificationService.showError('Please select a valid PDF file');
-        this.selectedPdfFile = null;
-        target.value = '';
-        return;
-      }
-      this.selectedPdfFile = file;
-      console.log('PDF file selected:', file.name);
-    } else {
-      this.selectedPdfFile = null;
-    }
-  }
-
   /**
    * Step 2: Upload PDF attachment
    */
   setPdfAttachment() {
     if (!this.selectedPdfFile || !this.createdQuoteId) {
-      this.notificationService.showError('Please select a PDF file');
+      this.notificationService.showError('TENDERS.CREATE._pdf_required');
       return;
     }
 
@@ -873,12 +461,12 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
           fileInput.value = '';
         }
 
-        this.notificationService.showSuccess('PDF attachment uploaded successfully!');
+        this.notificationService.showSuccess('TENDERS.CREATE._pdf_uploaded');
         this.tenderLoading = false;
       },
       error: (error: any) => {
         console.error('Error uploading PDF:', error);
-        this.notificationService.showError('Failed to upload PDF: ' + (error.message || 'Unknown error'));
+        this.notificationService.showError('TENDERS.CREATE._pdf_error', { details: error?.message });
         this.tenderLoading = false;
       }
     });
@@ -910,41 +498,73 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
     this.pdfAttachmentSet = Boolean(this.existingAttachment);
   }
 
-  /**
-   * Check if all Step 2 fields are filled (drives the Next button enabled state)
-   */
+  /** Copies the model fields back into the forms after code sets them (edit load, reset). */
+  private syncFormsFromModel() {
+    this.titleForm.setValue({ title: this.tenderTitle }, { emitEvent: false });
+    this.datesForm.setValue({
+      start: this.requestedCompletionDate,
+      end: this.expectedCompletionDate,
+      pdf: this.existingAttachment
+        ? { name: this.existingAttachment.name, url: this.existingAttachment.url || this.existingAttachment.href || '', attachmentType: this.existingAttachment.mimeType }
+        : null,
+    }, { emitEvent: false });
+    this.datesForm.controls.end.updateValueAndValidity({ emitEvent: false });
+  }
+
+  private titleField(readonly: boolean): FormField {
+    return {
+      name: 'title', type: 'string', label: 'TENDERS.CREATE._tender_title', required: true, readonly,
+      placeholder: 'TENDERS.CREATE._tender_title_placeholder', dataCy: 'tenderTitleInput',
+    };
+  }
+
+  private yearRangeValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) return null;
+      const { min, max } = this.step2YearRange;
+      const year = new Date(control.value).getFullYear();
+      return year < min || year > max ? { yearRange: true } : null;
+    };
+  }
+
+  private endAfterStartValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      const start = control.parent?.get('start')?.value;
+      if (!control.value || !start) return null;
+      return new Date(control.value) <= new Date(start) ? { endBeforeStart: true } : null;
+    };
+  }
+
+  /** Dates must fall within this year and the next ten (passed to the year error messages). */
+  get step2YearRange(): { min: number; max: number } {
+    const min = new Date().getFullYear();
+    return { min, max: min + 10 };
+  }
+
+  /** i18n key (TENDERS.CREATE._err_*) of the first step 2 problem, '' when the step is complete. */
   get step2ValidationError(): string {
-    const currentYear = new Date().getFullYear();
-    const maxYear = currentYear + 10;
+    const { min, max } = this.step2YearRange;
+    const outOfRange = (date: string) => {
+      const year = new Date(date).getFullYear();
+      return year < min || year > max;
+    };
 
-    if (this.requestedCompletionDate) {
-      const startYear = new Date(this.requestedCompletionDate).getFullYear();
-      if (startYear < currentYear || startYear > maxYear) {
-        return `Start date year must be between ${currentYear} and ${maxYear}.`;
-      }
+    if (this.requestedCompletionDate && outOfRange(this.requestedCompletionDate)) {
+      return 'TENDERS.CREATE._err_year_range';
     }
-
-    if (this.expectedCompletionDate) {
-      const endYear = new Date(this.expectedCompletionDate).getFullYear();
-      if (endYear < currentYear || endYear > maxYear) {
-        return `End date year must be between ${currentYear} and ${maxYear}.`;
-      }
+    if (this.expectedCompletionDate && outOfRange(this.expectedCompletionDate)) {
+      return 'TENDERS.CREATE._err_year_range';
     }
-
-    if (this.requestedCompletionDate && this.expectedCompletionDate) {
-      if (new Date(this.expectedCompletionDate) <= new Date(this.requestedCompletionDate)) {
-        return 'Tender End Date must be after the Tender Start Date.';
-      }
+    if (this.requestedCompletionDate && this.expectedCompletionDate
+      && new Date(this.expectedCompletionDate) <= new Date(this.requestedCompletionDate)) {
+      return 'TENDERS.CREATE._err_end_before_start';
     }
-
     if (!this.requestedCompletionDate || !this.expectedCompletionDate) {
-      return 'Both start and end dates are required.';
+      return 'TENDERS.CREATE._err_dates_required';
     }
-
     if (!this.selectedPdfFile && !this.existingAttachment) {
-      return 'A PDF attachment is required.';
+      return 'TENDERS.CREATE._err_pdf_required';
     }
-
     return '';
   }
 
@@ -955,8 +575,8 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
   /**
    * Proceed from Step 2 to Step 3: saves all data sequentially then moves to provider selection
    */
-  proceedToProviderSelection() {
-    if (!this.isStep2Complete() || !this.createdQuoteId) return;
+  proceedToProviderSelection(): Promise<boolean> {
+    if (!this.isStep2Complete() || !this.createdQuoteId) return Promise.resolve(false);
 
     this.tenderLoading = true;
     const pendingPdfFile = this.selectedPdfFile;
@@ -965,7 +585,7 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
     const formattedExpected = this.formatDateForAPI(this.expectedCompletionDate);
 
     // 1. Set tender start date
-    this.quoteService.updateQuoteDate(this.createdQuoteId, formattedRequested, 'expectedFulfillment').pipe(
+    return new Promise(resolve => this.quoteService.updateQuoteDate(this.createdQuoteId!, formattedRequested, 'expectedFulfillment').pipe(
       // 2. Set tender end date
       switchMap(() => this.quoteService.updateQuoteDate(this.createdQuoteId!, formattedExpected, 'effective')),
       // 3. Upload PDF only if a new file was selected (skip if keeping existing)
@@ -980,10 +600,11 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
         if (pendingPdfFile) {
           this.setAttachmentFromQuoteOrFile(updatedQuote, pendingPdfFile);
           this.selectedPdfFile = null;
+          this.syncFormsFromModel();
         }
 
         this.tenderLoading = false;
-        this.notificationService.showSuccess('Tender details saved successfully!');
+        this.notificationService.showSuccess('TENDERS.CREATE._details_saved');
         this.tenderCreationStep = 3;
 
         // Notify parent so the list reflects the saved dates and PDF immediately
@@ -992,13 +613,32 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
         this.resetTenderFilters();
         this.loadFilterOptions();
         this.loadTenderProviders();
+        resolve(true);
       },
       error: (error: any) => {
         this.tenderLoading = false;
-        this.notificationService.showError('Failed to save tender details. Please try again.');
+        this.notificationService.showError('TENDERS.CREATE._details_error');
         console.error('Error saving tender step 2:', error);
+        resolve(false);
       }
-    });
+    }));
+  }
+
+  /** app-stepper's beforeNext: the title and dates steps save to the server before moving on. */
+  saveStep = (stepId: string | undefined): Promise<boolean> => {
+    if (stepId === 'title') return this.saveInitialTender();
+    if (stepId === 'dates') return this.proceedToProviderSelection();
+    return Promise.resolve(true);
+  };
+
+  get canAdvanceStep(): boolean {
+    if (this.tenderCreationStep === 1) return this.titleForm.valid;
+    if (this.tenderCreationStep === 2) return this.isStep2Complete();
+    return true;
+  }
+
+  onStepChanged(event: StepChangedEvent) {
+    this.tenderCreationStep = event.step + 1;
   }
 
   /**
@@ -1018,7 +658,6 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
         if (!this.isCurrentProviderLoad(loadSequence)) return;
 
         this.tenderProviders = providers ?? [];
-        console.log('Search loaded providers:', this.tenderProviders.length);
         this.updateAvailableProviders();
 
         if (this.tenderCreationStep === 3) {
@@ -1032,7 +671,7 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
 
         if (!shouldUseUnfilteredProviderFallback(this.orgFilters)) {
           console.warn('Filtered search endpoint returned an error:', err);
-          this.providerSearchWarning = 'Unable to apply the selected filters. Provider candidates were cleared to avoid showing unfiltered results.';
+          this.providerSearchWarning = 'TENDERS.CREATE._filters_warning';
           this.tenderProviders = [];
           this.providerSearchLoading = false;
           this.updateAvailableProviders();
@@ -1046,7 +685,6 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
             if (!this.isCurrentProviderLoad(loadSequence)) return;
 
             this.tenderProviders = fallbackProviders;
-            console.log('Fallback loaded providers:', fallbackProviders.length);
             this.updateAvailableProviders();
 
             if (this.tenderCreationStep === 3) {
@@ -1058,7 +696,7 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
           error: (fallbackErr) => {
             if (!this.isCurrentProviderLoad(loadSequence)) return;
 
-            this.tenderError = 'Failed to load providers: ' + (fallbackErr.message || 'Unknown error');
+            this.tenderError = 'TENDERS.CREATE._providers_load_error';
             this.providerSearchLoading = false;
             console.error('Fallback endpoint also failed:', fallbackErr);
           }
@@ -1288,18 +926,15 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
    */
   loadInvitedProviders() {
     if (!this.createdQuoteId || !this.currentUserId) {
-      console.log('No coordinator quote ID or user ID, skipping invited providers load');
       this.providerSearchLoading = false;
       return;
     }
 
-    console.log('Loading invited providers for externalId:', this.createdQuoteId);
 
     this.providerSearchLoading = true;
 
     this.quoteService.getTenderingQuotesByUser(this.currentUserId, API_ROLES.BUYER).subscribe({
       next: async (tenders) => {
-        console.log('Received tenders:', tenders);
 
         // Filter tenders that match our coordinator quote as their parent
         const matchingTenders = tenders.filter(t => t.external_id === this.createdQuoteId && !!t.id);
@@ -1337,7 +972,6 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
 
         this.invitedProviders = entries;
         this.rebuildSelectionAndAvailable();
-        console.log('Total invited providers loaded:', this.invitedProviders.length);
         this.providerSearchLoading = false;
       },
       error: (error) => {
@@ -1386,12 +1020,12 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
    */
   saveProvidersList() {
     if (this.selectedProviders.size === 0) {
-      this.notificationService.showError('Please select at least one provider');
+      this.notificationService.showError('TENDERS.CREATE._select_one');
       return;
     }
 
     if (!this.createdQuoteId || !this.currentUserId) {
-      this.notificationService.showError('Coordinator quote not found. Please start over.');
+      this.notificationService.showError('TENDERS.CREATE._coordinator_missing');
       return;
     }
 
@@ -1399,7 +1033,6 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
     const providerIds = Array.from(this.selectedProviders);
     const customerMessage = this.tenderTitle;
 
-    console.log('Creating tendering quotes for providers:', providerIds);
 
     // Create tendering quotes one by one to capture individual quote IDs
     const requests = providerIds.map(providerId => {
@@ -1423,7 +1056,6 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
 
     Promise.all(requests)
       .then(results => {
-        console.log('Tendering quotes created:', results);
 
         // Add to invited providers list
         this.invitedProviders.push(...results);
@@ -1433,13 +1065,13 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
         this._safeInvitedList = [];
         this.rebuildSelectionAndAvailable();
 
-        this.notificationService.showSuccess(`${providerIds.length} provider(s) has been saved for invite`);
+        this.notificationService.showSuccess('TENDERS.CREATE._providers_saved');
         this.tenderUpdated.emit();
         this.providerInviteSaving = false;
       })
       .catch(error => {
         console.error('Error creating tendering quotes:', error);
-        this.notificationService.showError('Failed to invite providers: ' + (error.message || 'Unknown error'));
+        this.notificationService.showError('TENDERS.CREATE._invite_error', { details: error?.message });
         this.providerInviteSaving = false;
       });
   }
@@ -1451,18 +1083,17 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
     if (!quoteId) return;
 
     this.showConfirmation(
-      'Remove Provider',
-      'Are you sure you want to remove this provider invitation? This will delete the quote.',
+      'TENDERS.CREATE._confirm_remove_title',
+      'TENDERS.CREATE._confirm_remove_msg',
       () => {
         this.providerInviteSaving = true;
 
         this.quoteService.deleteQuote(quoteId).subscribe({
           next: () => {
-            console.log('Quote deleted for provider:', providerId);
 
             this.completeInvitedProviderRemoval(quoteId, providerId);
 
-            this.notificationService.showSuccess('Provider invitation removed successfully');
+            this.notificationService.showSuccess('TENDERS.CREATE._invite_removed');
             this.providerInviteSaving = false;
           },
           error: (error) => {
@@ -1484,16 +1115,16 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
                 '— removing from UI anyway.'
               );
               this.completeInvitedProviderRemoval(quoteId, providerId);
-              this.notificationService.showSuccess('Provider invitation removed successfully');
+              this.notificationService.showSuccess('TENDERS.CREATE._invite_removed');
             } else {
               console.error('Error deleting quote:', error);
-              this.notificationService.showError('Failed to remove provider invitation: ' + (error.message || 'Unknown error'));
+              this.notificationService.showError('TENDERS.CREATE._remove_error', { details: error?.message });
             }
             this.providerInviteSaving = false;
           }
         });
       },
-      'Remove',
+      'TENDERS.CREATE._remove',
       'danger'
     );
   }
@@ -1522,20 +1153,20 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
    */
   finalizeTender() {
     if (this.invitedProviders.length === 0) {
-      this.notificationService.showError('Please invite at least one provider first');
+      this.notificationService.showError('TENDERS.CREATE._invite_one_first');
       return;
     }
 
     if (!this.createdQuoteId) {
-      this.notificationService.showError('Coordinator quote not found');
+      this.notificationService.showError('TENDERS.CREATE._coordinator_missing');
       return;
     }
 
     this.showConfirmation(
-      'Finalize Tender',
-      'Are you sure you want to finalize the tender? This will notify all invited providers.',
+      'TENDERS.CREATE._confirm_finalize_title',
+      'TENDERS.CREATE._confirm_finalize_msg',
       () => this.executeFinalizeTender(),
-      'Finalize',
+      'TENDERS.CREATE._submit',
       'primary'
     );
   }
@@ -1546,12 +1177,10 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
     // Get the coordinator quote to extract the dates
     this.quoteService.getQuoteById(this.createdQuoteId!).pipe(
       switchMap(coordinatorQuote => {
-        console.log('Coordinator quote retrieved:', coordinatorQuote);
 
         const formattedEffectiveDate = this.formatDateForAPI(this.expectedCompletionDate);
         const formattedExpectedFulfillmentDate = this.formatDateForAPI(this.requestedCompletionDate);
 
-        console.log(`Copying dates to ${this.invitedProviders.length} provider quotes`);
 
         // Create array of date update observables for all invited provider quotes
         const dateUpdateObservables = this.invitedProviders.flatMap(invitedProvider => {
@@ -1570,16 +1199,14 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
         return forkJoin(dateUpdateObservables);
       }),
       switchMap(dateUpdateResults => {
-        console.log(`Successfully updated dates for ${dateUpdateResults.length / 2} provider quotes`);
 
         // Update coordinator quote status to "inProgress"
         return this.quoteService.updateQuoteStatus(this.createdQuoteId!, 'inProgress');
       })
     ).subscribe({
       next: (updatedQuote: any) => {
-        console.log('Coordinator quote status updated to inProgress:', updatedQuote);
 
-        this.notificationService.showSuccess('Dates copied to all provider quotes and notifications sent to providers');
+        this.notificationService.showSuccess('TENDERS.CREATE._finalized');
 
         this.tenderLoading = false;
         this.closeTenderModal();
@@ -1589,7 +1216,7 @@ export class CreateTenderModalComponent implements OnInit, OnChanges {
       },
       error: (error: any) => {
         console.error('Error finalizing tender:', error);
-        this.notificationService.showError('Failed to finalize tender: ' + (error.message || 'Unknown error'));
+        this.notificationService.showError('TENDERS.CREATE._finalize_error', { details: error?.message });
         this.tenderLoading = false;
       }
     });
