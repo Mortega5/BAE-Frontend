@@ -71,10 +71,11 @@ export class FeaturesConfigComponent implements OnInit {
     try {
       const payload = this.buildFeaturesPayload();
       const url = `${environment.BASE_URL}/config/features`;
-      await firstValueFrom(this.http.patch<any>(url, payload));
+      // The proxy answers with the effective flags it stored: apply those, not what was sent
+      const effective = await firstValueFrom(this.http.patch<any>(url, payload));
 
-      applyRuntimeFeaturesConfig(payload);
-      await this.syncFromBackend();
+      applyRuntimeFeaturesConfig(effective);
+      this.loadFeatureFlags(readFeaturesConfig(effective));
 
       this.notificationService.showSuccess('ADMIN.FEATURES._save_success');
     } catch (error: any) {

@@ -78,9 +78,15 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
 
   providerThemeName = environment.providerThemeName;
   isProduction = environment.isProduction;
-  quotesEnabled = environment.QUOTES_ENABLED;
+  // Getters, not snapshots: the header lives for the whole session, so an admin toggling
+  // these flags in Admin > Features would otherwise only see the menu change after a reload.
+  get quotesEnabled(): boolean {
+    return environment.QUOTES_ENABLED;
+  }
   // Tenders run on the quote service: hidden unless quotes are on too, same as the route guard
-  tenderEnabled = environment.TENDER_ENABLED && environment.QUOTES_ENABLED;
+  get tenderEnabled(): boolean {
+    return environment.TENDER_ENABLED && environment.QUOTES_ENABLED;
+  }
 
   knowledge = environment.KNOWLEDGE_BASE_URL;
   knowledge_onboarding = environment.KB_ONBOARDING_GUIDELINES_URL;
