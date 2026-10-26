@@ -211,6 +211,11 @@
   margin: 0;
 }
 
+/* app-search-input caps its own width at 443px from sm up; the dashboard bar spans the row. */
+.dashboard-search app-search-input {
+  width: 100%;
+}
+
 .dd-marketplace-search {
   width: 100%;
   padding: 0.9rem 1.2rem;

@@ -1,6 +1,6 @@
 import { NgClass } from '@angular/common';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit, SecurityContext } from '@angular/core';
-import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { FormControl } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -27,6 +27,7 @@ import { DashboardServicesComponent } from './dashboard-services/dashboard-servi
 import { DashboardStatsComponent } from './dashboard-stats/dashboard-stats.component';
 import { DashboardWhatsDome } from './dashboard-whatsdome/dashboard-whatsdome.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { SearchInputComponent } from 'src/app/shared/search-input/search-input.component';
 
 export interface IDashboardStats {
   services: number;
@@ -38,7 +39,7 @@ export interface IDashboardStats {
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.css',
   standalone: true,
-  imports: [TranslateModule, ReactiveFormsModule, FeaturedComponent, NgClass, DashboardWhatsDome, DashboardHeroComponent, DashboardStatsComponent, DashboardServicesComponent, DashboardCustomersComponent, DashboardProvidersComponent, DashboardEcosystemComponent, ButtonComponent],
+  imports: [TranslateModule, FeaturedComponent, NgClass, DashboardWhatsDome, DashboardHeroComponent, DashboardStatsComponent, DashboardServicesComponent, DashboardCustomersComponent, DashboardProvidersComponent, DashboardEcosystemComponent, ButtonComponent, SearchInputComponent],
 })
 export class DashboardComponent implements OnInit, OnDestroy {
   customersLink = environment.DOME_CUSTOMER_REGISTER_LINK;
@@ -205,8 +206,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
     this.router.navigate(['/search']);
   }
 
-  filterSearch(event: Event) {
-    event.preventDefault();
+  filterSearch() {
     if (this.searchField.value != '' && this.searchField.value != null) {
       this.router.navigate(['/search'], { queryParams: { keyword: this.searchField.value } });
     } else {
