@@ -961,6 +961,70 @@ describe('OfferComponent', () => {
       expect(payload.productOfferingTerm[0]).toEqual({ name: 'License', description: 'New terms' });
     });
 
+    it('should update a lowercase license term instead of adding a second one', async () => {
+      component.offer = { ...baseOffer(), productOfferingTerm: [{ name: 'license', description: 'Old terms' }] };
+      eventMessage.emitSubformChange({
+        subformType: 'license', isDirty: true, dirtyFields: ['description'],
+        originalValue: { description: 'Old terms' }, currentValue: { description: 'New terms' }
+      });
+      const updateSpy = spyOn(api, 'updateProductOffering').and.returnValue(of({}));
+
+      await component.updateOffer();
+
+      const payload = updateSpy.calls.mostRecent().args[0];
+      const licenseTerms = payload.productOfferingTerm.filter((t: any) => t.name.toLowerCase() === 'license');
+      expect(licenseTerms).toEqual([{ name: 'license', description: 'New terms' }]);
+    });
+
+    it('should update a differently-cased procurement term instead of adding a second one', async () => {
+      component.offer = { ...baseOffer(), productOfferingTerm: [{ name: 'Procurement', description: 'manual' }] };
+      eventMessage.emitSubformChange({
+        subformType: 'procurement', isDirty: true, dirtyFields: ['id'],
+        originalValue: { id: 'manual' }, currentValue: { id: 'automatic' }
+      });
+      const updateSpy = spyOn(api, 'updateProductOffering').and.returnValue(of({}));
+
+      await component.updateOffer();
+
+      const payload = updateSpy.calls.mostRecent().args[0];
+      const procurementTerms = payload.productOfferingTerm.filter((t: any) => t.name.toLowerCase() === 'procurement');
+      expect(procurementTerms).toEqual([{ name: 'Procurement', description: 'automatic' }]);
+    });
+
+    it('should drop duplicated license and procurement terms already stored on the offer', async () => {
+      component.offer = {
+        ...baseOffer(),
+        productOfferingTerm: [
+          { name: 'License', description: 'Terms' },
+          { name: 'procurement', description: 'manual' },
+          { name: 'license', description: 'Duplicated terms' },
+          { name: 'Procurement', description: 'automatic' }
+        ]
+      };
+      const updateSpy = spyOn(api, 'updateProductOffering').and.returnValue(of({}));
+
+      await component.updateOffer();
+
+      const payload = updateSpy.calls.mostRecent().args[0];
+      expect(payload.productOfferingTerm).toEqual([
+        { name: 'License', description: 'Terms' },
+        { name: 'procurement', description: 'manual' }
+      ]);
+    });
+
+    it('should not mutate the loaded offer terms while building the payload', async () => {
+      component.offer = baseOffer();
+      eventMessage.emitSubformChange({
+        subformType: 'license', isDirty: true, dirtyFields: ['description'],
+        originalValue: { description: 'Old terms' }, currentValue: { description: 'New terms' }
+      });
+      spyOn(api, 'updateProductOffering').and.returnValue(of({}));
+
+      await component.updateOffer();
+
+      expect(component.offer.productOfferingTerm).toEqual([{ name: 'License', description: 'Old terms' }]);
+    });
+
     it('should add a terms-file term when a new T&C document is uploaded', async () => {
       component.offer = baseOffer();
       eventMessage.emitSubformChange({

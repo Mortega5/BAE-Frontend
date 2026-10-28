@@ -521,7 +521,7 @@ export class OfferComponent implements OnInit, OnDestroy {
       // Mantener el primer término (licencia) incluso si está vacío
       //const licenseTerm = this.offer.productOfferingTerm[0];
       const licenseTerm = this.offer.productOfferingTerm.find(
-        (element: { name: string; }) => element.name === 'License'
+        (element: { name: string; }) => this.isLicenseTerm(element)
       );
 
       // Filtrar el resto de términos
@@ -552,7 +552,7 @@ export class OfferComponent implements OnInit, OnDestroy {
 
       //PROCUREMENT
       const procurementTerm = this.offer.productOfferingTerm.find(
-        (element: { name: string; }) => element.name === 'procurement'
+        (element: { name: string; }) => this.isProcurementTerm(element)
       );
       if (procurementTerm) {
         const procurementValue = {
@@ -1289,7 +1289,8 @@ export class OfferComponent implements OnInit, OnDestroy {
         }
       }),
       validFor: this.offer.validFor,
-      productOfferingTerm: this.offer.productOfferingTerm
+      // Cloned so editing the payload's terms doesn't change the loaded offer if the update fails.
+      productOfferingTerm: (this.offer.productOfferingTerm || []).map((term: any) => ({ ...term }))
     };
 
     // Procesar cada cambio emitido por los subformularios
@@ -1323,7 +1324,7 @@ export class OfferComponent implements OnInit, OnDestroy {
 
         case 'license':
           // Actualizar términos de licencia
-          const licenseTerm = basePayload.productOfferingTerm.find((term: any) => term.name === 'License');
+          const licenseTerm = basePayload.productOfferingTerm.find((term: any) => this.isLicenseTerm(term));
           if (licenseTerm) {
             licenseTerm.description = change.currentValue.description;
           } else {
@@ -1414,7 +1415,7 @@ export class OfferComponent implements OnInit, OnDestroy {
 
         case 'procurement':
           // Actualizar modo de adquisición
-          const procurementTerm = basePayload.productOfferingTerm.find((term: any) => term.name === 'procurement');
+          const procurementTerm = basePayload.productOfferingTerm.find((term: any) => this.isProcurementTerm(term));
           if (procurementTerm) {
             procurementTerm.description = change.currentValue.id;
           } else {
@@ -1458,6 +1459,8 @@ export class OfferComponent implements OnInit, OnDestroy {
           break;
       }
     }
+
+    basePayload.productOfferingTerm = this.removeDuplicateFormTerms(basePayload.productOfferingTerm);
 
     // Eliminar campos undefined o null
     Object.keys(basePayload).forEach(key => {
@@ -1503,6 +1506,27 @@ export class OfferComponent implements OnInit, OnDestroy {
         details: this.extractErrorDetail(error)
       });
     }
+  }
+
+  // Older offers may store these terms as 'license' or 'Procurement'.
+  private isLicenseTerm(term: any): boolean {
+    return String(term?.name || '').toLowerCase() === 'license';
+  }
+
+  private isProcurementTerm(term: any): boolean {
+    return String(term?.name || '').toLowerCase() === 'procurement';
+  }
+
+  /** Keeps only the first license and procurement term, so an update never sends both casings. */
+  private removeDuplicateFormTerms(terms: any[]): any[] {
+    const seen = new Set<string>();
+    return terms.filter(term => {
+      if (!this.isLicenseTerm(term) && !this.isProcurementTerm(term)) return true;
+      const name = String(term.name).toLowerCase();
+      if (seen.has(name)) return false;
+      seen.add(name);
+      return true;
+    });
   }
 
   private isdEdcCompatible() {
