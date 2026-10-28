@@ -1186,8 +1186,12 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     });
   }
 
+  get leaveNeedsConfirmation(): boolean {
+    return !(this.isUpdate || this.leaveAllowed || !this.productOfferForm.dirty);
+  }
+
   confirmLeave(): boolean | Promise<boolean> {
-    if (this.isUpdate || this.leaveAllowed || !this.productOfferForm.dirty) return true;
+    if (!this.leaveNeedsConfirmation) return true;
     return this.unsavedChangesModal?.confirm(() => this.saveDraft()) ?? true;
   }
 

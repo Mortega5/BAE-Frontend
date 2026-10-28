@@ -582,8 +582,12 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
     }
   }
 
+  get leaveNeedsConfirmation(): boolean {
+    return !(this.embedded || this.leaveAllowed || !this.hasUnsavedChanges());
+  }
+
   confirmLeave(): boolean | Promise<boolean> {
-    if (this.embedded || this.leaveAllowed || !this.hasUnsavedChanges()) return true;
+    if (!this.leaveNeedsConfirmation) return true;
     return this.unsavedChangesModal?.confirm(() => {
       this.showFinish();
       this.saveDraft();

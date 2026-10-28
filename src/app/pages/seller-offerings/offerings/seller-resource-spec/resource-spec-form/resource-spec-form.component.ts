@@ -245,8 +245,12 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
     }
   }
 
+  get leaveNeedsConfirmation(): boolean {
+    return !(this.isUpdate || this.embedded || this.leaveAllowed || !this.hasUnsavedChanges());
+  }
+
   confirmLeave(): boolean | Promise<boolean> {
-    if (this.isUpdate || this.embedded || this.leaveAllowed || !this.hasUnsavedChanges()) return true;
+    if (!this.leaveNeedsConfirmation) return true;
     return this.unsavedChangesModal?.confirm(() => {
       this.prepareData();
       this.saveDraft();

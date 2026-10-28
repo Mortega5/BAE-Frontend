@@ -542,7 +542,7 @@
   confirmLabel="PUBLISH_DRAFT_MODAL._publish" confirmVariant="primary"
   (resolved)="$event ? publish() : saveDraft()" (closed)="showPublishDraftModal = false" />
 
-<app-unsaved-changes-modal [canSaveDraft]="canSaveDraft" />
+<app-unsaved-changes-modal [canSaveDraft]="canSaveDraft" [blockUnload]="leaveNeedsConfirmation" />
 
 @if(itemModal.type){
 <div (click)="closeItemModal()" class="fixed inset-0 z-50 flex items-center justify-center px-4"

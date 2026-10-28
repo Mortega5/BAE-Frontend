@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
 
 /** "Leave without saving?" prompt for create forms: stay, discard, or save a draft first.
@@ -12,10 +12,19 @@ import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-moda
 export class UnsavedChangesModalComponent {
   /** Whether the form is complete enough to be saved as a draft. */
   @Input() canSaveDraft = false;
+  /** Also warn on reload/tab close. The browser only allows its own generic dialog there. */
+  @Input() blockUnload = false;
 
   visible = false;
   private resolveChoice?: (leave: boolean) => void;
   private saveDraft?: () => void;
+
+  @HostListener('window:beforeunload', ['$event'])
+  onBeforeUnload(event: BeforeUnloadEvent): void {
+    if (!this.blockUnload) return;
+    event.preventDefault();
+    event.returnValue = '';
+  }
 
   /** Resolves true when the seller discards their changes and the navigation may go on.
    * Saving a draft resolves false: the form navigates away itself once the draft is saved. */

@@ -175,8 +175,12 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
     this.characteristicItems = this.buildCharacteristicItems();
   }
 
+  get leaveNeedsConfirmation(): boolean {
+    return !(this.isUpdate || this.embedded || this.leaveAllowed || !this.hasUnsavedChanges());
+  }
+
   confirmLeave(): boolean | Promise<boolean> {
-    if (this.isUpdate || this.embedded || this.leaveAllowed || !this.hasUnsavedChanges()) return true;
+    if (!this.leaveNeedsConfirmation) return true;
     return this.unsavedChangesModal?.confirm(() => {
       this.setServiceData();
       this.saveDraft();
