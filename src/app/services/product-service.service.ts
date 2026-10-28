@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { catchError, lastValueFrom, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Category } from '../models/interfaces';
-import { applySort, nameContainsPattern, PageRequest, PageResult } from '../models/pagination.model';
+import { applySort, fetchAllPages, nameContainsPattern, PageRequest, PageResult } from '../models/pagination.model';
 import { components } from "../models/product-catalog";
 import { ProductOffering as ProductOfferingModel } from '../models/product.model';
 import { ResourceStatusType, SoftwareResource } from '../models/software.model';
@@ -855,4 +855,31 @@ export class ApiServiceService {
     return this.http.post<any>(url, software);
   }
 
+  /** Offerings whose price plans bundle a price component metered by this usage spec. */
+  async getOfferingsUsingUsageSpec(usageSpecId: string): Promise<any[]> {
+    const components = await this.getAllCatalogItems('productOfferingPrice', { usageSpecId });
+    const plans = new Map<string, any>();
+    for (const component of components.filter(c => c?.id)) {
+      const componentPlans = await this.getAllCatalogItems('productOfferingPrice', { 'bundledPopRelationship.id': component.id });
+      componentPlans.filter(p => p?.id).forEach(p => plans.set(p.id, p));
+    }
+    const offers = new Map<string, any>();
+    for (const planId of plans.keys()) {
+      const planOffers = await this.getAllCatalogItems('productOffering', { 'productOfferingPrice.id': planId });
+      planOffers.filter(o => o?.id).forEach(o => offers.set(o.id, o));
+    }
+    return [...offers.values()];
+  }
+
+  private getAllCatalogItems(resource: string, filters: Record<string, string>): Promise<any[]> {
+    const url = `${ApiServiceService.BASE_URL}${ApiServiceService.API_PRODUCT}/${resource}`;
+    return fetchAllPages(async params => {
+      const response = await lastValueFrom(this.http.get<any[]>(url, {
+        params: { ...filters, limit: params.limit, offset: params.offset },
+        observe: 'response',
+      }));
+      const items = response.body ?? [];
+      return { items, total: Number(response.headers.get('X-Total-Count') ?? items.length) };
+    });
+  }
 }

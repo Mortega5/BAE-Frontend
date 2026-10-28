@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { lastValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { components } from "../models/product-catalog";
-import { applySort, PageRequest, PageResult } from '../models/pagination.model';
+import { applySort, fetchAllPages, PageRequest, PageResult } from '../models/pagination.model';
 import { LocalStorageService } from "./local-storage.service";
 type ProductOffering = components["schemas"]["ProductOffering"];
 
@@ -27,13 +27,16 @@ export class UsageServiceService {
     return lastValueFrom(this.http.get<any>(url));
   }
 
-  async getUsageSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, partyId: any): Promise<PageResult<any>> {
+  async getUsageSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: string[], partyId: any): Promise<PageResult<any>> {
     const codeParams: Record<string, any> = {
       limit: params.limit,
       offset: params.offset,
       'relatedParty.id': partyId,
     };
     applySort(params, codeParams);
+    if (status.length > 0) {
+      codeParams['lifecycleStatus'] = status.join(',');
+    }
 
     const queryParams = { ...filter, ...codeParams };
 
@@ -42,6 +45,11 @@ export class UsageServiceService {
     const items = response.body ?? [];
     const total = Number(response.headers.get('X-Total-Count') ?? items.length);
     return { items, total };
+  }
+
+  /** Every usage spec of the provider, whatever its status (e.g. to check name uniqueness). */
+  getAllUsageSpecsOfParty(partyId: any): Promise<any[]> {
+    return fetchAllPages(params => this.getUsageSpecByUserPaged(params, undefined, [], partyId));
   }
 
   getAllUsageSpecs(partyId: any) {

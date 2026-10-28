@@ -1,6 +1,27 @@
-<h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
-  {{ (formType === 'update' ? 'USAGE_SPECS._update' : 'USAGE_SPECS._create') | translate }}
-</h1>
+<div class="flex items-center justify-between mb-6 gap-3">
+  <div class="flex items-center gap-3 min-w-0">
+    <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white truncate">
+      {{ (isUpdate ? 'USAGE_SPECS._update' : 'USAGE_SPECS._create') | translate }}
+    </h1>
+    @if (isUpdate) {
+    <bae-badge variant="status" [status]="statusBadgeVariant" [label]="statusLabel | translate"></bae-badge>
+    }
+  </div>
+  @if (isUpdate && !isDeleted) {
+  <div class="flex items-center gap-3 shrink-0">
+    <app-button type="button" variant="danger" size="sm" data-cy="deleteUsageSpec" [disabled]="actionLoading"
+      (click)="openDeleteConfirm()">
+      {{ 'USAGE_SPECS._delete' | translate }}
+    </app-button>
+    @if (isDraft) {
+    <app-button type="button" size="sm" data-cy="publishUsageSpec" [disabled]="actionLoading" prefixIcon="rocket-launch"
+      (click)="showPublishConfirm = true">
+      {{ 'USAGE_SPECS._publish' | translate }}
+    </app-button>
+    }
+  </div>
+  }
+</div>
 
 @if (loadingData) {
 <app-loading-spinner />
@@ -10,7 +31,7 @@
     previousLabel="USAGE_SPECS._previous" nextLabel="USAGE_SPECS._next"
     [submitLabel]="formType === 'update' ? 'USAGE_SPECS._update' : 'USAGE_SPECS._create'"
     [submitAlwaysVisible]="formType === 'update'"
-    [submitDisabled]="!usageSpecForm.controls['generalInfo'].valid"
+    [submitDisabled]="usageSpecForm.invalid"
     (stepChanged)="onStepChanged($event)" (submitted)="submitForm()">
 
     <ng-template stepperStep="USAGE_SPECS._general_info" stepId="generalInfo">
@@ -20,6 +41,7 @@
           <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'USAGE_SPECS._general_info_desc' | translate }}</p>
         </div>
         <usage-spec-general-info [data]="usageSpec" [formType]="formType" [form]="usageSpecForm.controls['generalInfo']"
+          [existingNames]="existingNames"
           (formChange)="handleSubformChange($event)">
         </usage-spec-general-info>
       </div>
@@ -38,3 +60,12 @@
   </app-stepper>
 </form>
 }
+
+<app-confirm-modal [visible]="showDeleteConfirm" [title]="'USAGE_SPECS._delete_confirm_title'"
+  [message]="deleteConfirmMessage" confirmLabel="USAGE_SPECS._delete" cancelLabel="CONFIRM_MODAL._cancel"
+  confirmVariant="danger" [confirmDisabled]="deleteCheck !== 'ok'" (resolved)="onDeleteResolved($event)"
+  (closed)="showDeleteConfirm = false" />
+
+<app-confirm-modal [visible]="showPublishConfirm" [title]="'USAGE_SPECS._publish_confirm_title'"
+  message="USAGE_SPECS._publish_confirm_message" confirmLabel="USAGE_SPECS._publish" cancelLabel="CONFIRM_MODAL._cancel"
+  confirmVariant="primary" (resolved)="onPublishResolved($event)" (closed)="showPublishConfirm = false" />
