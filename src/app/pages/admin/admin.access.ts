@@ -16,6 +16,7 @@ export const AdminAccess = {
   email: ['admin'],
   analytics: ['admin'],
   searchFilters: ['admin'],
+  search: ['admin'],
   features: ['admin'],
 } as const satisfies Record<string, readonly string[]>;
 
@@ -24,9 +25,9 @@ export type AdminSection = keyof typeof AdminAccess;
 /**
  * Sections only usable from the personal session: their backends reject requests
  * made on behalf of an organization (email's notify config in charging, and
- * analytics config behind the proxy's checkOrganizations).
+ * analytics and search config behind the proxy's checkOrganizations).
  */
-const PERSONAL_SESSION_ONLY: readonly AdminSection[] = ['email', 'analytics'];
+const PERSONAL_SESSION_ONLY: readonly AdminSection[] = ['email', 'analytics', 'search'];
 
 /** Order the /admin landing redirect tries sections in; categories stays the admin default. */
 export const ADMIN_SECTION_ORDER: AdminSection[] = [
@@ -36,6 +37,7 @@ export const ADMIN_SECTION_ORDER: AdminSection[] = [
   'email',
   'analytics',
   'searchFilters',
+  'search',
   'features',
 ];
 

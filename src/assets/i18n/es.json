@@ -2725,6 +2725,16 @@
     "_dashboard_unavailable": "Dashboard no disponible"
   },
   "ADMIN": {
+    "_search": "Motor de búsqueda",
+    "SEARCH_CONFIG": {
+      "_subtitle": "A dónde envía el marketplace las búsquedas por palabra clave.",
+      "_search_url": "URL del motor de búsqueda",
+      "_use_query_keyword": "Usar palabra clave de consulta",
+      "_use_query_keyword_hint": "Envía el texto buscado al motor como palabra clave de consulta (useQueryKeyword).",
+      "_load_error": "Se produjo un error al cargar la configuración de búsqueda.",
+      "_save_success": "Configuración de búsqueda guardada correctamente.",
+      "_save_error": "Se produjo un error al guardar la configuración de búsqueda."
+    },
     "_admin": "Administración",
     "_filter_state": "Filtrar por estado",
     "_state": "Estado",

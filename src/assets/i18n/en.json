@@ -2725,6 +2725,16 @@
     "_dashboard_unavailable": "Dashboard unavailable"
   },
   "ADMIN": {
+    "_search": "Search engine",
+    "SEARCH_CONFIG": {
+      "_subtitle": "Where the marketplace sends keyword searches.",
+      "_search_url": "Search engine URL",
+      "_use_query_keyword": "Use query keyword",
+      "_use_query_keyword_hint": "Send the search text to the engine as a query keyword (useQueryKeyword).",
+      "_load_error": "There was an error while loading the search configuration.",
+      "_save_success": "Search configuration saved successfully.",
+      "_save_error": "There was an error while saving the search configuration."
+    },
     "_admin": "Administration",
     "_filter_state": "Filter by status",
     "_state": "State",

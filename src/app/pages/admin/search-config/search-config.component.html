@@ -1,0 +1,24 @@
+<app-card>
+  <div appCardHeader>
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'ADMIN._search' | translate }}</h2>
+    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ 'ADMIN.SEARCH_CONFIG._subtitle' | translate }}</p>
+  </div>
+
+  @if (loading) {
+  <div appCardContent>
+    <app-loading-spinner containerClass="w-full h-full flex justify-center align-middle py-6" />
+  </div>
+  } @else {
+  <div appCardContent data-cy="adminSearchConfig">
+    <app-dynamic-form class="block" [fields]="fields" [formGroup]="form" />
+  </div>
+  }
+
+  @if (!loading) {
+  <div appCardFooter>
+    <app-button data-cy="adminSaveSearchConfig" type="button" (click)="save()" [disabled]="saving" suffixIcon="arrow-right">
+      {{ 'COMMON._save' | translate }}
+    </app-button>
+  </div>
+  }
+</app-card>
