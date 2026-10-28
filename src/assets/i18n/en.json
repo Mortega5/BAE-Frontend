@@ -895,9 +895,9 @@
     "_title": "Leave without saving?",
     "_message": "You have unsaved changes. You can keep editing, discard them, or save what you have as a draft.",
     "_message_no_draft": "You have unsaved changes. Complete the required fields to save them as a draft, or discard them.",
-    "_stay": "Keep editing",
-    "_discard": "Discard changes",
-    "_save_draft": "Save draft"
+    "_stay": "Cancel",
+    "_discard": "Discard",
+    "_save_draft": "Save"
   },
   "CONFIRM_MODAL": {
     "_confirm": "Confirm",
