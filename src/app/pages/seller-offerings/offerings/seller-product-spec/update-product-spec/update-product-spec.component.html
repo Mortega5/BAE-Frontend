@@ -98,7 +98,7 @@
           @if(keyFeatures.length === 0){
           <div
             class="rounded-2xl border border-dashed border-line-input flex flex-col items-center justify-center px-6 py-10">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2" style="background-color: #DDE6F6;">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2">
               <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24">
                 <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
               </svg>
@@ -122,7 +122,7 @@
           @if(businessBenefits.length === 0){
           <div
             class="rounded-2xl border border-dashed border-line-input flex flex-col items-center justify-center px-6 py-10">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2" style="background-color: #DDE6F6;">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2">
               <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24">
                 <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
               </svg>
@@ -146,7 +146,7 @@
           @if(useCases.length === 0){
           <div
             class="rounded-2xl border border-dashed border-line-input flex flex-col items-center justify-center px-6 py-10">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2" style="background-color: #DDE6F6;">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2">
               <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24">
                 <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
               </svg>
@@ -600,7 +600,7 @@
 </request-validation-modal>
 
 @if(itemModal.type){
-<div (click)="closeItemModal()" class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background-color: rgba(11, 21, 40, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+<div (click)="closeItemModal()" class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-overlay backdrop-blur-sm">
   <app-card variant="modal" class="w-full max-w-[680px] max-h-[90vh]" (click)="$event.stopPropagation()">
     <div appCardHeader class="flex justify-between items-start">
       <h2 class="text-2xl font-bold text-content">
@@ -636,7 +636,7 @@
       <div class="mb-6">
         <label class="block text-sm font-semibold text-content mb-1">{{ 'CREATE_PROD_SPEC._icon' | translate }}</label>
         <p class="text-sm text-content-muted mb-3">{{ 'CREATE_PROD_SPEC._icon_hint' | translate }}</p>
-        <div class="rounded-2xl p-5 flex flex-col gap-5" style="background-color: #F7F9FD; border: 1px solid #DDE6F6;">
+        <div class="rounded-2xl p-5 flex flex-col gap-5 bg-surface-muted border border-line">
           @for(cat of iconCategories; track cat.labelKey){
           <div>
             <p class="text-sm font-semibold text-content mb-2">{{ cat.labelKey | translate }}</p>
@@ -670,13 +670,13 @@
 }
 
 @if(faqDeleteIdx !== null){
-<div (click)="cancelDeleteFaq()" class="fixed inset-0 z-50 flex items-center justify-center px-4" style="background-color: rgba(11, 21, 40, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+<div (click)="cancelDeleteFaq()" class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-overlay backdrop-blur-sm">
   <app-card variant="modal" class="w-full max-w-[480px]" (click)="$event.stopPropagation()">
     <div class="flex justify-end">
       <app-button type="button" (click)="cancelDeleteFaq()" variant="ghost" size="sm" prefixIcon="xmark" />
     </div>
     <div class="flex flex-col items-center text-center pb-2">
-      <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4" style="background-color: #DDE6F6;">
+      <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4 bg-secondary-50">
         <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 5a1.25 1.25 0 11-1.25 1.25A1.25 1.25 0 0112 7zm1.5 11h-3a.75.75 0 010-1.5h.75v-4h-.75a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75V16.5h.75a.75.75 0 010 1.5z"/></svg>
       </div>
       <h2 class="text-xl font-bold text-content mb-2">{{ 'CREATE_PROD_SPEC._delete_question_title' | translate }}</h2>
