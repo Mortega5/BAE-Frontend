@@ -42,6 +42,8 @@ export class GeneralInfoComponent implements OnInit, OnChanges, OnDestroy {
   descriptionFields: FormField[] = [];
 
   showCreateCatalogModal = false;
+  /** What was typed into the catalogue picker when "create" was chosen. */
+  newCatalogName = '';
 
   private originalValue!: GeneralInfo;
   private isEditMode = false;
@@ -124,7 +126,8 @@ export class GeneralInfoComponent implements OnInit, OnChanges, OnDestroy {
 
   /** search-select's `onCreate` handler: opens the embedded <create-catalog> modal and
    * doesn't resolve until it emits (created) or (cancelled). */
-  private createCatalogueOption(): Promise<SelectOption> {
+  private createCatalogueOption(query: string): Promise<SelectOption> {
+    this.newCatalogName = query;
     this.showCreateCatalogModal = true;
     return new Promise<SelectOption>((resolve, reject) => {
       this.pendingCatalogCreate = { resolve, reject };
@@ -159,7 +162,7 @@ export class GeneralInfoComponent implements OnInit, OnChanges, OnDestroy {
         placeholder: 'CREATE_OFFER._select',
         dataCy: 'offerCatalogSelect',
         allowCreate: true,
-        onCreate: () => this.createCatalogueOption(),
+        onCreate: (query: string) => this.createCatalogueOption(query),
       }] : []),
     ];
     this.descriptionFields = [

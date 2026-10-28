@@ -10,5 +10,8 @@
     <app-button type="button" (click)="closeCreateCatalogModal()" variant="ghost" size="sm" prefixIcon="xmark" />
   </div>
 
-  <create-catalog [embedded]="true" (created)="onCatalogCreated($event)" (cancelled)="closeCreateCatalogModal()" />
+  @if (showCreateCatalogModal) {
+  <create-catalog [embedded]="true" [initialName]="newCatalogName" (created)="onCatalogCreated($event)"
+    (cancelled)="closeCreateCatalogModal()" />
+  }
 </app-modal>

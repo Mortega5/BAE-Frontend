@@ -34,6 +34,8 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
   /** True when embedded inside another flow (e.g. the offer form's catalogue picker)
    * instead of routed to as its own page — swaps navigating away for emitting `created`. */
   @Input() embedded = false;
+  /** Prefills the name, e.g. with what was typed into the catalogue picker that opened this form. */
+  @Input() initialName = '';
   @Output() created = new EventEmitter<any>();
   /** Only emitted in embedded mode, when the seller backs out instead of creating one. */
   @Output() cancelled = new EventEmitter<void>();
@@ -75,6 +77,9 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     this.initPartyInfo();
+    if (this.initialName.trim()) {
+      this.generalForm.patchValue({ name: this.initialName.trim() });
+    }
   }
 
   ngOnDestroy() {
