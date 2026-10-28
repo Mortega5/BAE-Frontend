@@ -889,6 +889,45 @@ describe('OfferComponent', () => {
     });
   });
 
+  describe('price plan bundle kind', () => {
+    it('should create a custom plan without components as a plain price', () => {
+      const price = (component as any).createBundledPricePlan({ name: 'Negotiated', priceType: 'custom' }, []);
+
+      expect(price.isBundle).toBeFalse();
+      expect(price.bundledPopRelationship).toBeUndefined();
+      expect(price.priceType).toBe('custom');
+    });
+
+    it('should create a plan with components as a bundle', () => {
+      const compRel = [{ id: 'pc-1', href: 'pc-1', name: 'monthly' }];
+      const price = (component as any).createBundledPricePlan({ name: 'Paid', priceType: 'custom' }, compRel);
+
+      expect(price.isBundle).toBeTrue();
+      expect(price.bundledPopRelationship).toEqual(compRel);
+    });
+
+    it('should keep a non-bundle plan as such when updating it', async () => {
+      const updateSpy = spyOn(api, 'updateOfferingPrice').and.returnValue(of({}));
+
+      await component.updatePricePlan({ id: 'plan-1', oldValue: { isBundle: false }, newValue: { name: 'Plan' } }, [], ['name']);
+
+      const sent = updateSpy.calls.mostRecent().args[0];
+      expect(sent.isBundle).toBeFalse();
+      expect(sent.bundledPopRelationship).toBeUndefined();
+    });
+
+    it('should keep sending the components of a bundle plan when updating it', async () => {
+      const updateSpy = spyOn(api, 'updateOfferingPrice').and.returnValue(of({}));
+      const compRel = [{ id: 'pc-1' }];
+
+      await component.updatePricePlan({ id: 'plan-1', oldValue: { isBundle: true }, newValue: { name: 'Plan' } }, compRel, ['name']);
+
+      const sent = updateSpy.calls.mostRecent().args[0];
+      expect(sent.isBundle).toBeTrue();
+      expect(sent.bundledPopRelationship).toEqual(compRel);
+    });
+  });
+
   describe('calculateDiscountDuration', () => {
     it('should compute the difference between two dates in the given unit', () => {
       const duration = component.calculateDiscountDuration(

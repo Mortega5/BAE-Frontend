@@ -623,6 +623,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
 
         let priceInfo: any = {
           id: pricePlan.id,
+          isBundle: pricePlan.isBundle,
           name: pricePlan.name,
           description: pricePlan.description,
           lifecycleStatus: pricePlan.lifecycleStatus,
@@ -953,12 +954,14 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   }
 
   private createBundledPricePlan(plan: any, compRel: any[], constraintPopRelationship: any[] = []): ProductOfferingPrice {
+    // A custom (negotiated) plan with no price components is a plain price, not a bundle.
+    const isCustomNoComponents = (plan?.priceType === 'custom' || plan?.newValue?.priceType === 'custom') && compRel.length === 0;
     const price: ProductOfferingPrice = {
       name: plan.name ?? plan?.newValue?.name,
-      isBundle: true,
+      isBundle: !isCustomNoComponents,
       description: plan.description ?? plan?.newValue?.description,
       lifecycleStatus: plan.lifecycleStatus ?? plan?.newValue?.lifecycleStatus,
-      bundledPopRelationship: compRel
+      ...(isCustomNoComponents ? {} : { bundledPopRelationship: compRel })
     };
 
     if (constraintPopRelationship.length > 0) {
@@ -1012,10 +1015,12 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     console.log(plan)
     console.log(plan.id)
     console.log(compRel)
+    // Keep the plan's bundle kind: a non-bundle plan has no bundled components to send.
+    const isBundle = plan?.oldValue?.isBundle ?? plan?.newValue?.isBundle;
     let price: ProductOfferingPrice = {
       name: plan.newValue.name,
-      isBundle: true,
-      bundledPopRelationship: compRel
+      isBundle,
+      ...(isBundle ? { bundledPopRelationship: compRel } : {})
     }
     if (modifiedFields.includes('description')) {
       price.description = plan.newValue.description
