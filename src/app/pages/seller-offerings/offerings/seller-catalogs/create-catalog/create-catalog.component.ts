@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
@@ -14,6 +14,8 @@ import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { environment } from 'src/environments/environment';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { StepperComponent } from 'src/app/shared/stepper/stepper.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
@@ -26,11 +28,11 @@ type Catalog_Create = components['schemas']['Catalog_Create'];
 @Component({
   selector: 'create-catalog',
   standalone: true,
-  imports: [TranslateModule, ButtonComponent, ConfirmModalComponent, DynamicFormComponent, StepperComponent, StepperStepDirective],
+  imports: [TranslateModule, ButtonComponent, ConfirmModalComponent, UnsavedChangesModalComponent, DynamicFormComponent, StepperComponent, StepperStepDirective],
   templateUrl: './create-catalog.component.html',
   styleUrl: './create-catalog.component.css'
 })
-export class CreateCatalogComponent implements OnInit, OnDestroy {
+export class CreateCatalogComponent implements OnInit, OnDestroy, LeaveConfirmable {
   /** True when embedded inside another flow (e.g. the offer form's catalogue picker)
    * instead of routed to as its own page — swaps navigating away for emitting `created`. */
   @Input() embedded = false;
@@ -56,6 +58,9 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
   });
 
   showPublishDraftModal = false;
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  /** Set once the catalogue is saved, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
   private destroy$ = new Subject<void>();
 
   constructor(
@@ -107,6 +112,18 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
     }
   }
 
+  get leaveNeedsConfirmation(): boolean {
+    return !this.embedded && !this.leaveAllowed && this.generalForm.dirty;
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (!this.leaveNeedsConfirmation) return true;
+    return this.unsavedChangesModal?.confirm(() => {
+      this.setCatalogData();
+      this.saveDraft();
+    }) ?? true;
+  }
+
   goBack() {
     if (this.embedded) {
       this.cancelled.emit();
@@ -155,6 +172,7 @@ export class CreateCatalogComponent implements OnInit, OnDestroy {
         if (this.embedded) {
           this.created.emit(created);
         } else {
+          this.leaveAllowed = true;
           this.goBack();
         }
       },

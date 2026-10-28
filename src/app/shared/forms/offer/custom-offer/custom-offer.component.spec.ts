@@ -26,11 +26,21 @@ describe('CustomOfferComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('asks whether to publish or keep a draft, and creates the offer with the chosen status', () => {
+  it('shows the preview before creating, then creates the offer with the status chosen there', () => {
     const create = spyOn(component, 'createOffer').and.resolveTo();
+    const preview = spyOn(component.submitPreviewRequested, 'emit');
+    component.offer = {
+      name: 'Base offer', description: 'desc', category: [{ id: 'cat-1' }],
+      productOfferingTerm: [{ name: 'License', description: 'terms' }],
+    };
+    component.productOfferForm.patchValue({ partyInfo: { tradingName: 'Acme' } });
 
     component.askPublishOrDraft();
-    expect(component.showPublishDraftModal).toBeTrue();
+    expect(preview).toHaveBeenCalledWith(jasmine.objectContaining({
+      name: 'Base offer - Acme',
+      productOfferingTerm: jasmine.arrayContaining([{ name: 'License', description: 'terms' }]),
+    }));
+    expect(create).not.toHaveBeenCalled();
 
     component.publish();
     expect(create).toHaveBeenCalledWith('Launched');

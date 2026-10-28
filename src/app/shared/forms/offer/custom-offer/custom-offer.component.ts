@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -10,7 +10,8 @@ import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offe
 import { EventMessageService } from "src/app/services/event-message.service";
 import { NotificationService } from "src/app/services/notification.service";
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
-import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { NotFoundStateComponent } from 'src/app/shared/not-found-state/not-found-state.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
 import { StepChangedEvent, StepperComponent } from 'src/app/shared/stepper/stepper.component';
@@ -23,6 +24,7 @@ import { RelatedPartyIdComponent } from "../related-party-id/related-party-id.co
 type ProductOffering_Create = components["schemas"]["ProductOffering_Create"];
 type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
 
+import { previewPricesFromPlans } from '../offer-preview.util';
 @Component({
   selector: 'app-custom-offer',
   standalone: true,
@@ -36,12 +38,17 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
     NotFoundStateComponent,
     StepperComponent,
     StepperStepDirective,
-    ConfirmModalComponent
+    UnsavedChangesModalComponent
   ],
   templateUrl: './custom-offer.component.html',
   styleUrl: './custom-offer.component.css'
 })
-export class CustomOfferComponent implements OnInit {
+export class CustomOfferComponent implements OnInit, LeaveConfirmable {
+  /** Submitting first shows the preview; the host calls publish()/saveDraft() once it's confirmed there. */
+  @Output() submitPreviewRequested = new EventEmitter<any>();
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  /** Set once the offer is created, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
   offer: any;
   partyId: any | undefined;
 
@@ -54,7 +61,6 @@ export class CustomOfferComponent implements OnInit {
   isFormValid = false;
   pricePlans: any = [];
   loading: boolean = false;
-  showPublishDraftModal = false;
   loadingData: boolean = false;
   bundleChecked: boolean = false;
   offersBundle: any[] = [];
@@ -134,9 +140,53 @@ export class CustomOfferComponent implements OnInit {
 
   }
 
-  /** Same choice as every other offer: publish it right away or keep it as a draft. */
+  /** Like every other offer: preview it first, then publish it right away or keep it as a draft. */
   askPublishOrDraft() {
-    this.showPublishDraftModal = true;
+    this.submitPreviewRequested.emit(this.buildPreviewProductOff());
+  }
+
+  get leaveNeedsConfirmation(): boolean {
+    return !this.leaveAllowed && !!this.offer && this.productOfferForm.dirty;
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (!this.leaveNeedsConfirmation) return true;
+    return this.unsavedChangesModal?.confirm(() => this.saveDraft()) ?? true;
+  }
+
+  get canSaveDraft(): boolean {
+    const partyInfo = this.productOfferForm.get('partyInfo')?.value;
+    return !this.loading && !!partyInfo && Object.keys(partyInfo).length > 0
+      && (this.productOfferForm.get('procurementMode')?.valid ?? false);
+  }
+
+  /** The base offer's name, suffixed with the buyer organization it is tailored for. */
+  private customOfferName(): string {
+    const tradingName = this.productOfferForm.get('partyInfo')?.value?.tradingName;
+    return tradingName ? `${this.offer.name} - ${tradingName}` : this.offer.name;
+  }
+
+  private buildPreviewProductOff(): any {
+    const formValue = this.productOfferForm.value;
+    const license = this.offer?.productOfferingTerm?.find((t: { name: string; }) => t.name === 'License');
+    const terms: any[] = [
+      ...(license ? [{ name: 'License', description: license.description || '' }] : []),
+      ...(formValue.procurementMode?.mode ? [{ name: 'procurement', description: formValue.procurementMode.mode }] : []),
+    ];
+    const prodSpec = formValue.prodSpec || this.offer?.productSpecification;
+    return {
+      id: 'preview',
+      name: this.customOfferName(),
+      description: this.offer?.description || '',
+      version: this.offer?.version || '',
+      lifecycleStatus: 'Active',
+      category: this.offer?.category || [],
+      productSpecification: prodSpec || undefined,
+      attachment: prodSpec?.attachment || [],
+      productOfferingTerm: terms,
+      productOfferingPrice: previewPricesFromPlans(formValue.pricePlans),
+      lastUpdate: new Date().toISOString()
+    };
   }
 
   saveDraft() {
@@ -148,7 +198,6 @@ export class CustomOfferComponent implements OnInit {
   }
 
   async createOffer(lifecycleStatus: 'Active' | 'Launched' = 'Active') {
-    this.showPublishDraftModal = false;
     this.loading = true;
     const plans = this.productOfferForm.value.pricePlans;
 
@@ -193,11 +242,7 @@ export class CustomOfferComponent implements OnInit {
 
     const license = this.offer.productOfferingTerm.find((t: { name: string; }) => t.name === 'License');
 
-    // Add the name of the organization/trading name to the offer name
-    let offerName = this.offer.name;
-    if (this.productOfferForm.get('partyInfo')?.value.tradingName) {
-      offerName = `${this.offer.name} - ${this.productOfferForm.get('partyInfo')?.value.tradingName}`;
-    }
+    const offerName = this.customOfferName();
 
     const offer: any = {
       name: offerName,
@@ -244,6 +289,7 @@ export class CustomOfferComponent implements OnInit {
       next: () => {
         this.loading = false;
         this.notificationService.showSuccess('CREATE_OFFER._create_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: (error) => {

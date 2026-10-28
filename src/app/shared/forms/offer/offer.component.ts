@@ -41,6 +41,7 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
 const CONSTRAINT_PRICE_TYPE = 'constraint';
 const DISCOUNT_PRICE_TYPE = 'discount';
 
+import { previewPricesFromPlans } from './offer-preview.util';
 @Component({
   selector: 'app-offer-form',
   standalone: true,
@@ -1593,24 +1594,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
       });
     }
 
-    // Flatten every plan's price components into top-level prices (no bundledPopRelationship
-    // refs to resolve) so the details page's usage-metrics lookup works on this data as-is.
-    const prices: any[] = [];
-    for (const plan of (formValue.pricePlans || [])) {
-      for (const component of (plan.priceComponents || [])) {
-        prices.push({
-          id: component.id,
-          href: component.id,
-          name: component.name || plan.name,
-          description: component.description || plan.description,
-          priceType: component.priceType,
-          price: component.price != null ? { value: component.price, unit: plan.currency || component.currency || 'EUR' } : undefined,
-          recurringChargePeriodType: component.recurringPeriod,
-          usageSpecId: component.usageSpecId,
-          unitOfMeasure: component.usageUnit
-        });
-      }
-    }
+    const prices = previewPricesFromPlans(formValue.pricePlans);
 
     return {
       id: this.formType === 'update' && this.offer?.id ? this.offer.id : 'preview',

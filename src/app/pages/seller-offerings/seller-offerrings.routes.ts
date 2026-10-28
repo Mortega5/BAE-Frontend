@@ -1,9 +1,9 @@
 import { Routes } from '@angular/router';
 import { unsavedChangesGuard } from 'src/app/guard/unsaved-changes.guard';
-import { CustomOfferComponent } from 'src/app/shared/forms/offer/custom-offer/custom-offer.component';
 import { CreateCatalogComponent } from './offerings/seller-catalogs/create-catalog/create-catalog.component';
 import { SellerCatalogsComponent } from './offerings/seller-catalogs/seller-catalogs.component';
 import { UpdateCatalogComponent } from './offerings/seller-catalogs/update-catalog/update-catalog.component';
+import { CreateCustomOfferComponent } from './offerings/seller-offer/create-custom-offer/create-custom-offer.component';
 import { CreateOfferComponent } from './offerings/seller-offer/create-offer/create-offer.component';
 import { SellerOfferComponent } from './offerings/seller-offer/seller-offer.component';
 import { UpdateOfferComponent } from './offerings/seller-offer/update-offer/update-offer.component';
@@ -27,8 +27,8 @@ export const sellerOfferingsRoutes: Routes = [
     path: segments.catalogues,
     children: [
       { path: '', component: SellerCatalogsComponent },
-      { path: segments.new, component: CreateCatalogComponent },
-      { path: segments.id, component: UpdateCatalogComponent },
+      { path: segments.new, component: CreateCatalogComponent, canDeactivate: [unsavedChangesGuard] },
+      { path: segments.id, component: UpdateCatalogComponent, canDeactivate: [unsavedChangesGuard] },
     ],
   },
   {
@@ -36,7 +36,7 @@ export const sellerOfferingsRoutes: Routes = [
     children: [
       { path: '', component: SellerOfferComponent },
       { path: segments.new, component: CreateOfferComponent, canDeactivate: [unsavedChangesGuard] },
-      { path: segments.custom, component: CustomOfferComponent },
+      { path: segments.custom, component: CreateCustomOfferComponent, canDeactivate: [unsavedChangesGuard] },
       { path: segments.id, component: UpdateOfferComponent, canDeactivate: [unsavedChangesGuard] },
     ],
   },

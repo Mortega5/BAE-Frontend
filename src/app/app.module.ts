@@ -48,6 +48,7 @@ import { SellerOfferComponent } from './pages/seller-offerings/offerings/seller-
 import { UpdateOfferComponent } from './pages/seller-offerings/offerings/seller-offer/update-offer/update-offer.component';
 import { BlueprintProductFormComponent } from './pages/seller-offerings/offerings/seller-product-spec/blueprint-product-form/blueprint-product-form.component';
 import { SellerProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/seller-product-spec.component';
+import { CreateCustomOfferComponent } from './pages/seller-offerings/offerings/seller-offer/create-custom-offer/create-custom-offer.component';
 import { UpdateProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/update-product-spec.component';
 import { ResourceSpecFormComponent } from './pages/seller-offerings/offerings/seller-resource-spec/resource-spec-form/resource-spec-form.component';
 import { ServiceSpecFormComponent } from './pages/seller-offerings/offerings/seller-service-spec/service-spec-form/service-spec-form.component';
@@ -148,6 +149,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     CreateOfferComponent,
     CategoriesRecursionComponent,
     UpdateProductSpecComponent,
+    CreateCustomOfferComponent,
     UpdateOfferComponent,
     UpdateCatalogComponent,
     ErrorMessageComponent,

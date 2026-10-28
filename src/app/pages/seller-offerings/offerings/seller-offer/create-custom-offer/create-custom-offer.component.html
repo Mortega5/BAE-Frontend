@@ -1,0 +1,4 @@
+<app-custom-offer (submitPreviewRequested)="previewProductOff = $event" />
+
+<app-offer-preview-modal [previewProductOff]="previewProductOff" submitMode="create"
+  (submitted)="onPreviewSubmitted($event)" (closed)="previewProductOff = null" />
