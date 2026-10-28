@@ -4,7 +4,6 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { initFlowbite } from 'flowbite';
-import { jwtDecode } from "jwt-decode";
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IconCategory, POPULAR_ICON_CATEGORIES } from 'src/app/config/popular-icons';
@@ -24,6 +23,7 @@ import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
+import { extractComplianceLevelFromVcToken } from 'src/app/shared/compliance-credential.utils';
 import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
 import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
@@ -805,35 +805,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private applyComplianceDataFromVcToken(vcToken: any) {
-    if (!vcToken || typeof vcToken !== 'string') {
-      this.complianceLevel = 'NL';
-      return;
-    }
-
-    const allowedLevels = ['NL', 'BL', 'P', 'PP'];
-
-    try {
-      const decoded: any = jwtDecode(vcToken);
-      let credential: any = null;
-
-      if ('verifiableCredential' in decoded) {
-        credential = decoded.verifiableCredential;
-      } else if ('vc' in decoded) {
-        credential = decoded.vc;
-      }
-
-      const subject = credential?.credentialSubject;
-      if (!subject) {
-        this.complianceLevel = 'NL';
-        return;
-      }
-
-      const level = subject['gx:labelLevel'];
-      this.complianceLevel = (typeof level === 'string' && allowedLevels.includes(level)) ? level : 'NL';
-    } catch (error) {
-      this.complianceLevel = 'NL';
-      console.log(error);
-    }
+    this.complianceLevel = extractComplianceLevelFromVcToken(vcToken);
   }
 
   openRequestValidationModal() {

@@ -1,6 +1,5 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { jwtDecode } from "jwt-decode";
 import { catchError, lastValueFrom, Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 import { Category } from '../models/interfaces';
@@ -8,6 +7,7 @@ import { applySort, nameContainsPattern, PageRequest, PageResult } from '../mode
 import { components } from "../models/product-catalog";
 import { ProductOffering as ProductOfferingModel } from '../models/product.model';
 import { ResourceStatusType, SoftwareResource } from '../models/software.model';
+import { extractComplianceLevelFromVcToken } from '../shared/compliance-credential.utils';
 import { LocalStorageService } from "./local-storage.service";
 type ProductOffering = components["schemas"]["ProductOffering"];
 
@@ -799,22 +799,7 @@ export class ApiServiceService {
 
       if (vcProf) {
         const vcToken: any = vcProf.productSpecCharacteristicValue?.at(0)?.value
-        const decoded = jwtDecode(vcToken)
-        let credential: any = null
-
-        if ('verifiableCredential' in decoded) {
-          credential = decoded.verifiableCredential;
-        } else if ('vc' in decoded) {
-          credential = decoded.vc;
-        }
-
-        if (credential != null) {
-          const subject = credential.credentialSubject;
-
-          if ('gx:labelLevel' in subject) {
-            level = subject['gx:labelLevel'];
-          }
-        }
+        level = extractComplianceLevelFromVcToken(vcToken);
       }
     }
 
