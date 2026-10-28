@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
 import { OfferComponent } from 'src/app/shared/forms/offer/offer.component';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { currencies } from 'currencies.json';
 import { initFlowbite } from 'flowbite';
 import { lastValueFrom, Subject } from 'rxjs';
@@ -32,7 +33,7 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
   templateUrl: './update-offer.component.html',
   styleUrl: './update-offer.component.css'
 })
-export class UpdateOfferComponent implements OnInit, OnDestroy {
+export class UpdateOfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   offer: any;
   loading = false;
 
@@ -402,6 +403,10 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
         })
       }
     }
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    return this.offerForm?.confirmLeave() ?? true;
   }
 
   goBack() {

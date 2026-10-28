@@ -898,6 +898,8 @@
     "_professional_plus": "Profesional+"
   },
   "UNSAVED_CHANGES": {
+    "_message_update": "Tienes cambios sin guardar. Puedes seguir editando, descartarlos o guardarlos.",
+    "_message_update_invalid": "Tienes cambios sin guardar. Completa los campos obligatorios para guardarlos, o descártalos.",
     "_title": "¿Salir sin guardar?",
     "_message": "Tienes cambios sin guardar. Puedes seguir editando, descartarlos o guardar lo que llevas como borrador.",
     "_message_no_draft": "Tienes cambios sin guardar. Completa los campos obligatorios para guardarlos como borrador, o descártalos.",

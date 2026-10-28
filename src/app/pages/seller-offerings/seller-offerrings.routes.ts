@@ -37,7 +37,7 @@ export const sellerOfferingsRoutes: Routes = [
       { path: '', component: SellerOfferComponent },
       { path: segments.new, component: CreateOfferComponent, canDeactivate: [unsavedChangesGuard] },
       { path: segments.custom, component: CustomOfferComponent },
-      { path: segments.id, component: UpdateOfferComponent },
+      { path: segments.id, component: UpdateOfferComponent, canDeactivate: [unsavedChangesGuard] },
     ],
   },
   // Software is now managed inside Resources (SoftwareSpecification / SoftwareSupportPackageSpecification baseTemplate).
@@ -54,7 +54,7 @@ export const sellerOfferingsRoutes: Routes = [
     children: [
       { path: '', component: SellerProductSpecComponent },
       { path: segments.new, component: CreateProductSpecComponent, canDeactivate: [unsavedChangesGuard] },
-      { path: segments.id, component: UpdateProductSpecComponent },
+      { path: segments.id, component: UpdateProductSpecComponent, canDeactivate: [unsavedChangesGuard] },
     ],
   },
   {
@@ -62,7 +62,7 @@ export const sellerOfferingsRoutes: Routes = [
     children: [
       { path: '', component: SellerServiceSpecComponent },
       { path: segments.new, component: ServiceSpecFormComponent, data: { mode: 'create' }, canDeactivate: [unsavedChangesGuard] },
-      { path: segments.id, component: ServiceSpecFormComponent, data: { mode: 'update' } },
+      { path: segments.id, component: ServiceSpecFormComponent, data: { mode: 'update' }, canDeactivate: [unsavedChangesGuard] },
     ],
   },
   {
@@ -70,7 +70,7 @@ export const sellerOfferingsRoutes: Routes = [
     children: [
       { path: '', component: SellerResourceSpecComponent },
       { path: segments.new, component: ResourceSpecFormComponent, data: { mode: 'create' }, canDeactivate: [unsavedChangesGuard] },
-      { path: segments.id, component: ResourceSpecFormComponent, data: { mode: 'update' } },
+      { path: segments.id, component: ResourceSpecFormComponent, data: { mode: 'update' }, canDeactivate: [unsavedChangesGuard] },
     ],
   },
   {
@@ -78,7 +78,7 @@ export const sellerOfferingsRoutes: Routes = [
     children: [
       { path: '', component: SellerUsageSpecComponent },
       { path: segments.new, component: CreateUsageSpecComponent, canDeactivate: [unsavedChangesGuard] },
-      { path: segments.id, component: UpdateUsageSpecComponent },
+      { path: segments.id, component: UpdateUsageSpecComponent, canDeactivate: [unsavedChangesGuard] },
     ],
   },
 ];

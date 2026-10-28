@@ -1186,12 +1186,12 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   }
 
   get leaveNeedsConfirmation(): boolean {
-    return !(this.isUpdate || this.leaveAllowed || !this.productOfferForm.dirty);
+    return !this.leaveAllowed && (this.productOfferForm.dirty || (this.isUpdate && this.hasChanges));
   }
 
   confirmLeave(): boolean | Promise<boolean> {
     if (!this.leaveNeedsConfirmation) return true;
-    return this.unsavedChangesModal?.confirm(() => this.saveDraft()) ?? true;
+    return this.unsavedChangesModal?.confirm(() => this.isUpdate ? this.confirmUpdate() : this.saveDraft()) ?? true;
   }
 
   get canSaveDraft(): boolean {
@@ -1230,6 +1230,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
       next: () => {
         this.loading = false;
         this.notificationService.showSuccess('UPDATE_OFFER._delete_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: (error: any) => {
@@ -1517,6 +1518,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
       console.log('✅ Offer updated successfully');
       this.loading = false;
       this.notificationService.showSuccess('UPDATE_OFFER._update_success');
+      this.leaveAllowed = true;
       this.goBack();
     } catch (error: any) {
       console.error('❌ Error updating offer:', error);

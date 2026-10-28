@@ -102,6 +102,7 @@ import { AboutDomeComponent } from "src/app/pages/about-dome/about-dome.componen
 import { ProviderRevenueSharingComponent } from "src/app/pages/user-profile/profile-sections/provider-revenue-sharing/provider-revenue-sharing.component";
 import { DynamicFormComponent } from "src/app/shared/forms/dynamic-form/dynamic-form.component";
 import { ConfirmModalComponent } from "src/app/shared/confirm-modal/confirm-modal.component";
+import { UnsavedChangesModalComponent } from "src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component";
 import { ItemCardComponent } from "src/app/shared/item-card/item-card.component";
 import { MarkdownTextareaComponent } from "src/app/shared/forms/markdown-textarea/markdown-textarea.component";
 import { AttachmentUploadComponent } from "src/app/shared/forms/attachment-upload/attachment-upload.component";
@@ -216,6 +217,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     MarkdownTextareaComponent,
     DynamicFormComponent,
     ConfirmModalComponent,
+    UnsavedChangesModalComponent,
     ItemCardComponent,
     AttachmentUploadComponent,
     ProviderRevenueSharingComponent,

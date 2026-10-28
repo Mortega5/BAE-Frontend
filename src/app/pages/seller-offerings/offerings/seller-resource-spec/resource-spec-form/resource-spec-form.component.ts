@@ -130,6 +130,8 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
   @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
   /** Set once the spec is saved, so the navigation back to the list isn't asked about. */
   private leaveAllowed = false;
+  /** Characteristics as loaded, to tell an edit apart from an untouched spec. */
+  private loadedCharsSnapshot = '[]';
   showDeleteConfirm = false;
   showPublishConfirm = false;
   loading = false;
@@ -154,6 +156,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
           this.initPartyInfo();
           if (!belongsToParty(this.res, this.partyId)) {
             this.notificationService.showInfo(this.translate.instant('UPDATE_RES_SPEC._wrong_org_notice'));
+            this.leaveAllowed = true;
             this.goBack();
           }
         }
@@ -224,6 +227,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
     this.generalForm.controls['lifecycleStatus'].setValue(this.res.lifecycleStatus);
     this.prodChars = this.res.resourceSpecCharacteristic;
     this.characteristicItems = this.buildCharacteristicItems();
+    this.loadedCharsSnapshot = JSON.stringify(this.prodChars ?? []);
 
     const configs = type ? buildResourceConfigUpdate({ partyId: this.partyId, resSpecService: this.resSpecService }) : undefined;
     const templateConfig = configs && type ? configs[type] : undefined;
@@ -246,18 +250,26 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
   }
 
   get leaveNeedsConfirmation(): boolean {
-    return !(this.isUpdate || this.embedded || this.leaveAllowed || !this.hasUnsavedChanges());
+    return !(this.embedded || this.leaveAllowed || !this.hasUnsavedChanges());
   }
 
   confirmLeave(): boolean | Promise<boolean> {
     if (!this.leaveNeedsConfirmation) return true;
     return this.unsavedChangesModal?.confirm(() => {
-      this.prepareData();
-      this.saveDraft();
+      if (this.isUpdate) {
+        this.save();
+      } else {
+        this.prepareData();
+        this.saveDraft();
+      }
     }) ?? true;
   }
 
   hasUnsavedChanges(): boolean {
+    if (this.isUpdate) {
+      return this.generalForm.dirty || this.templateConfigForm.dirty || !!this.deploymentForm?.dirty
+      || JSON.stringify(this.prodChars ?? []) !== this.loadedCharsSnapshot;
+    }
     return this.generalForm.dirty || this.templateConfigForm.dirty || !!this.deploymentForm?.dirty
       || this.prodChars.length > 0;
   }
@@ -417,6 +429,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
           next: () => {
             this.loading = false;
             this.notificationService.showSuccess('CREATE_RES_SPEC._update_success');
+            this.leaveAllowed = true;
             this.goBack();
           },
           error: e => this.handleError(e),
@@ -491,6 +504,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
       next: () => {
         this.loading = false;
         this.notificationService.showSuccess('UPDATE_RES_SPEC._delete_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: (error: any) => {

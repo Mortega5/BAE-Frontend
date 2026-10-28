@@ -55,13 +55,15 @@ const BASE_TEMPLATE_OPTIONS = [
   { value: 'BlueprintProductSpecification', label: 'Blueprint Product Specification' },
 ];
 
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
 @Component({
   selector: 'update-product-spec',
   templateUrl: './update-product-spec.component.html',
   styleUrl: './update-product-spec.component.css',
   providers: [DatePipe],
 })
-export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
+export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, LeaveConfirmable {
 
   prod: any;
 
@@ -195,6 +197,11 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   selectedServiceSpecs: any[] = [];
   showCreateServiceSpecModal = false;
   @ViewChild('serviceSpecsTable') private serviceSpecsTable?: PaginatedTableComponent;
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  /** Set once the spec is saved or deleted, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
+  /** Everything editable outside generalForm, as loaded, to tell an edit apart from an untouched spec. */
+  private initialEditSignature = '';
   servColumns: TableColumn[] = [
     { header: 'CREATE_PROD_SPEC._name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
     { header: 'CREATE_PROD_SPEC._status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
@@ -331,6 +338,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
           this.initPartyInfo();
           if (!belongsToParty(this.prod, this.partyId)) {
             this.notificationService.showInfo(this.translate.instant('UPDATE_PROD_SPEC._wrong_org_notice'));
+            this.leaveAllowed = true;
             this.goBack();
           }
         }
@@ -350,6 +358,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     try {
       this.prod = await this.prodSpecService.getResSpecById(id);
       this.populateProductInfo();
+      this.initialEditSignature = this.editSignature();
       initFlowbite();
     } catch (error) {
       console.error('Error loading product spec', error);
@@ -785,6 +794,34 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     if (this.prod.externalId) {
       this.addDspConfigStep();
     }
+  }
+
+  get leaveNeedsConfirmation(): boolean {
+    return !this.leaveAllowed && !!this.prod && this.hasUnsavedChanges();
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (!this.leaveNeedsConfirmation) return true;
+    return this.unsavedChangesModal?.confirm(() => this.updateProduct()) ?? true;
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.generalForm.dirty || this.dspConfigForm.dirty || this.editSignature() !== this.initialEditSignature;
+  }
+
+  private editSignature(): string {
+    const ids = (list: any[] | undefined) => (list ?? []).map(item => item?.id);
+    return JSON.stringify({
+      details: this.serializeProductDetails(),
+      chars: this.prodChars,
+      endpoints: this.endpointUrls,
+      services: ids(this.selectedServiceSpecs),
+      resources: ids(this.selectedResourceSpecs),
+      relationships: ids(this.prodRelationships),
+      bundle: ids(this.prodSpecsBundle),
+      attachments: this.prodAttachments,
+      compliance: this.getCurrentComplianceEvidenceSignature(),
+    });
   }
 
   goBack() {
@@ -1328,6 +1365,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
       next: data => {
         this.loading = false;
         this.notificationService.showSuccess('CREATE_PROD_SPEC._update_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: error => {
@@ -1358,6 +1396,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
       next: () => {
         this.loading = false;
         this.notificationService.showSuccess('UPDATE_PROD_SPEC._delete_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: error => {

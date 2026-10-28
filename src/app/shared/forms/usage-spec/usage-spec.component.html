@@ -75,4 +75,5 @@
   confirmLabel="PUBLISH_DRAFT_MODAL._publish" confirmVariant="primary"
   (resolved)="$event ? publish() : saveDraft()" (closed)="showPublishDraftModal = false" />
 
-<app-unsaved-changes-modal [canSaveDraft]="usageSpecForm.valid" [blockUnload]="leaveNeedsConfirmation" />
+<app-unsaved-changes-modal [canSaveDraft]="usageSpecForm.valid" [saveMode]="isUpdate ? 'update' : 'draft'"
+  [blockUnload]="leaveNeedsConfirmation" />

@@ -98,6 +98,8 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
   @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
   /** Set once the spec is saved, so the navigation back to the list isn't asked about. */
   private leaveAllowed = false;
+  /** Characteristics as loaded, to tell an edit apart from an untouched spec. */
+  private loadedCharsSnapshot = '[]';
   showDeleteConfirm = false;
   showPublishConfirm = false;
 
@@ -119,6 +121,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
           this.initPartyInfo();
           if (!belongsToParty(this.serv, this.partyId)) {
             this.notificationService.showInfo(this.translate.instant('UPDATE_SERV_SPEC._wrong_org_notice'));
+            this.leaveAllowed = true;
             this.goBack();
           }
         }
@@ -173,21 +176,29 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
     });
     this.prodChars = this.serv.specCharacteristic;
     this.characteristicItems = this.buildCharacteristicItems();
+    this.loadedCharsSnapshot = JSON.stringify(this.prodChars ?? []);
   }
 
   get leaveNeedsConfirmation(): boolean {
-    return !(this.isUpdate || this.embedded || this.leaveAllowed || !this.hasUnsavedChanges());
+    return !(this.embedded || this.leaveAllowed || !this.hasUnsavedChanges());
   }
 
   confirmLeave(): boolean | Promise<boolean> {
     if (!this.leaveNeedsConfirmation) return true;
     return this.unsavedChangesModal?.confirm(() => {
-      this.setServiceData();
-      this.saveDraft();
+      if (this.isUpdate) {
+        this.save();
+      } else {
+        this.setServiceData();
+        this.saveDraft();
+      }
     }) ?? true;
   }
 
   hasUnsavedChanges(): boolean {
+    if (this.isUpdate) {
+      return this.generalForm.dirty || JSON.stringify(this.prodChars ?? []) !== this.loadedCharsSnapshot;
+    }
     return this.generalForm.dirty || this.prodChars.length > 0;
   }
 
@@ -252,6 +263,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
         next: () => {
           this.loading = false;
           this.notificationService.showSuccess('CREATE_SERV_SPEC._update_success');
+          this.leaveAllowed = true;
           this.goBack();
         },
         error: e => this.handleError(e),
@@ -325,6 +337,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
       next: () => {
         this.loading = false;
         this.notificationService.showSuccess('UPDATE_SERV_SPEC._delete_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: (error: any) => {

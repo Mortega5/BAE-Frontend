@@ -898,6 +898,8 @@
     "_professional_plus": "Professional+"
   },
   "UNSAVED_CHANGES": {
+    "_message_update": "You have unsaved changes. You can keep editing, discard them, or save them.",
+    "_message_update_invalid": "You have unsaved changes. Complete the required fields to save them, or discard them.",
     "_title": "Leave without saving?",
     "_message": "You have unsaved changes. You can keep editing, discard them, or save what you have as a draft.",
     "_message_no_draft": "You have unsaved changes. Complete the required fields to save them as a draft, or discard them.",

@@ -10,8 +10,10 @@ import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-moda
   templateUrl: './unsaved-changes-modal.component.html',
 })
 export class UnsavedChangesModalComponent {
-  /** Whether the form is complete enough to be saved as a draft. */
+  /** Whether the form is complete enough to be saved (as a draft when creating). */
   @Input() canSaveDraft = false;
+  /** 'draft' when creating (save keeps a draft), 'update' when editing (save applies the changes). */
+  @Input() saveMode: 'draft' | 'update' = 'draft';
   /** Also warn on reload/tab close. The browser only allows its own generic dialog there. */
   @Input() blockUnload = false;
 
@@ -26,8 +28,15 @@ export class UnsavedChangesModalComponent {
     event.returnValue = '';
   }
 
+  get message(): string {
+    if (this.saveMode === 'update') {
+      return this.canSaveDraft ? 'UNSAVED_CHANGES._message_update' : 'UNSAVED_CHANGES._message_update_invalid';
+    }
+    return this.canSaveDraft ? 'UNSAVED_CHANGES._message' : 'UNSAVED_CHANGES._message_no_draft';
+  }
+
   /** Resolves true when the seller discards their changes and the navigation may go on.
-   * Saving a draft resolves false: the form navigates away itself once the draft is saved. */
+   * Saving resolves false: the form navigates away itself once it has saved. */
   confirm(saveDraft: () => void): Promise<boolean> {
     this.saveDraft = saveDraft;
     this.visible = true;

@@ -138,12 +138,12 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges, LeaveCo
   }
 
   get leaveNeedsConfirmation(): boolean {
-    return !this.isUpdate && !this.leaveAllowed && this.usageSpecForm.dirty;
+    return !this.leaveAllowed && (this.usageSpecForm.dirty || (this.isUpdate && this.hasChanges));
   }
 
   confirmLeave(): boolean | Promise<boolean> {
     if (!this.leaveNeedsConfirmation) return true;
-    return this.unsavedChangesModal?.confirm(() => this.saveDraft()) ?? true;
+    return this.unsavedChangesModal?.confirm(() => this.isUpdate ? this.updateUsageSpec() : this.saveDraft()) ?? true;
   }
 
   get isUpdate(): boolean {
@@ -315,6 +315,7 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges, LeaveCo
       await lastValueFrom(this.usageSpecService.updateUsageSpec(basePayload, this.usageSpec.id));
       console.log('✅ Usage Spec updated successfully');
       this.notificationService.showSuccess('USAGE_SPECS._update_success');
+      this.leaveAllowed = true;
       this.goBack();
     } catch (error: any) {
       console.error('❌ Error updating Usage Spec:', error);
@@ -379,7 +380,10 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges, LeaveCo
         this.actionLoading = false;
         this.usageSpec.lifecycleStatus = lifecycleStatus;
         this.notificationService.showSuccess(successKey);
-        if (leave) this.goBack();
+        if (leave) {
+          this.leaveAllowed = true;
+          this.goBack();
+        }
       },
       error: error => {
         this.actionLoading = false;

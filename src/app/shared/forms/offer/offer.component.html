@@ -171,7 +171,8 @@
 </form>
 }
 
-<app-unsaved-changes-modal [canSaveDraft]="canSaveDraft" [blockUnload]="leaveNeedsConfirmation" />
+<app-unsaved-changes-modal [canSaveDraft]="canSaveDraft" [saveMode]="isUpdate ? 'update' : 'draft'"
+  [blockUnload]="leaveNeedsConfirmation" />
 
 <app-confirm-modal [visible]="showDeleteConfirm" [title]="'UPDATE_OFFER._delete_confirm_title'"
   message="UPDATE_OFFER._delete_confirm_message" confirmLabel="UPDATE_OFFER._delete" cancelLabel="CONFIRM_MODAL._cancel"
