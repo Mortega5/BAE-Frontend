@@ -21,6 +21,9 @@
   <app-table-input data-cy="prodSpecs" [columns]="prodColumns" [items]="[selectedProdSpecInternal]" [multiple]="false"
     [readonly]="true" [ngModel]="selectedProdSpecInternal">
   </app-table-input>
+  <p data-cy="productSpecUpdateLocked" class="mt-1 text-xs text-[var(--form-hint-text)]">
+    {{ 'CREATE_OFFER._product_spec_update_locked' | translate }}
+  </p>
 </div>
 }
 } @else {

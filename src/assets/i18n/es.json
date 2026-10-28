@@ -2220,6 +2220,7 @@
     "_duplicated_price_name": "El nombre del precio ya existe.",
     "_save_license": "Guardar licencia",
     "_no_prod_spec": "Las ofertas empaquetadas no pueden incluir especificaciones de producto.",
+    "_product_spec_update_locked": "La especificación de producto no se puede cambiar una vez creada la oferta.",
     "_cancel": "Cancelar",
     "_no_prods": "No hay especificaciones de producto.",
     "_no_prods_to_proceed": "Añade al menos una especificación de producto para continuar al siguiente paso",

@@ -2220,6 +2220,7 @@
     "_duplicated_price_name": "Price name already exists.",
     "_save_license": "Save license",
     "_no_prod_spec": "Bundled offers can't include product specifications.",
+    "_product_spec_update_locked": "The product specification cannot be changed after the offer has been created.",
     "_cancel": "Cancel",
     "_no_prods": "There's no product specifications.",
     "_no_prods_to_proceed": "Please add at least one product specification to proceed to the next step",
