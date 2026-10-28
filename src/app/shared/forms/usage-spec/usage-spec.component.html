@@ -69,3 +69,8 @@
 <app-confirm-modal [visible]="showPublishConfirm" [title]="'USAGE_SPECS._publish_confirm_title'"
   message="USAGE_SPECS._publish_confirm_message" confirmLabel="USAGE_SPECS._publish" cancelLabel="CONFIRM_MODAL._cancel"
   confirmVariant="primary" (resolved)="onPublishResolved($event)" (closed)="showPublishConfirm = false" />
+
+<app-confirm-modal [visible]="showPublishDraftModal" [title]="'PUBLISH_DRAFT_MODAL._title'"
+  message="PUBLISH_DRAFT_MODAL._message" cancelLabel="PUBLISH_DRAFT_MODAL._save_draft"
+  confirmLabel="PUBLISH_DRAFT_MODAL._publish" confirmVariant="primary"
+  (resolved)="$event ? publish() : saveDraft()" (closed)="showPublishDraftModal = false" />

@@ -70,6 +70,7 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges {
   actionLoading = false;
   showPublishConfirm = false;
   showDeleteConfirm = false;
+  showPublishDraftModal = false;
   /** Offerings still selling a price metered by this spec; it can't be deleted while there are any. */
   deleteCheck: 'checking' | 'error' | 'blocked' | 'ok' = 'checking';
   private blockingOfferNames = '';
@@ -184,8 +185,7 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges {
       // Por ahora solo mostramos los cambios
       this.updateUsageSpec();
     } else {
-      // Lógica de creación existente
-      this.createUsageSpec();
+      this.showPublishDraftModal = true;
     }
   }
 
@@ -213,7 +213,16 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  async createUsageSpec() {
+  saveDraft() {
+    this.createUsageSpec('Active');
+  }
+
+  publish() {
+    this.createUsageSpec('Launched');
+  }
+
+  async createUsageSpec(lifecycleStatus: 'Active' | 'Launched' = 'Active') {
+    this.showPublishDraftModal = false;
 
     const formValue = this.usageSpecForm.value;
     const generalInfo = formValue.generalInfo;
@@ -222,7 +231,7 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges {
     const usageSpec: any = {
       name: generalInfo.name,
       description: generalInfo.description || '',
-      lifecycleStatus: 'Active',
+      lifecycleStatus,
       specCharacteristic: metrics,
       relatedParty: [
         {

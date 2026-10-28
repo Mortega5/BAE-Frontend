@@ -123,6 +123,25 @@ describe('UsageSpecComponent', () => {
     });
   });
 
+  it('should ask whether to publish or save a draft when creating', () => {
+    component.formType = 'create';
+    component.submitForm();
+    expect(component.showPublishDraftModal).toBeTrue();
+  });
+
+  it('should create the metric with the status chosen in the publish/draft modal', () => {
+    const usageService = TestBed.inject(UsageServiceService);
+    const postSpy = spyOn(usageService, 'postUsageSpec').and.returnValue(of({}));
+    spyOn(component, 'goBack');
+    component.usageSpecForm.patchValue({ metrics: [{ id: 'm1', name: 'cpu' }] });
+
+    component.publish();
+    expect(postSpy.calls.mostRecent().args[0].lifecycleStatus).toBe('Launched');
+
+    component.saveDraft();
+    expect(postSpy.calls.mostRecent().args[0].lifecycleStatus).toBe('Active');
+  });
+
   it('should publish a draft and keep the page open', () => {
     const usageService = TestBed.inject(UsageServiceService);
     const updateSpy = spyOn(usageService, 'updateUsageSpec').and.returnValue(of({}));
