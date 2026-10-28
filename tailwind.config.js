@@ -29,12 +29,30 @@ module.exports = {
           50: 'rgb(var(--theme-tertiary-50) / <alpha-value>)', //BG color for dark theme
           100: 'rgb(var(--theme-tertiary-100) / <alpha-value>)' //BG color for dark theme
         },
-        // Puedes añadir más colores temáticos aquí si es necesario
-        // Ejemplo:
-        // 'accent': 'var(--theme-accent-color)',
-        // 'background': 'var(--theme-background-color)',
-        // 'text-default': 'var(--theme-text-color)',
-        // 'text-muted': 'var(--theme-text-muted-color)',
+        // Semantic roles backed by theme tokens in src/styles.css (light + dark). Use these
+        // instead of fixed palette colors (gray-*, red-*...) — see docs/theme-tokens.md.
+        // Full colors, not channels: opacity modifiers (/50) don't apply to them.
+        content: {
+          DEFAULT: 'var(--theme-default-text)',
+          secondary: 'var(--theme-text-secondary)',
+          muted: 'var(--theme-text-muted)',
+        },
+        surface: {
+          DEFAULT: 'var(--card-bg)',
+          input: 'var(--theme-input-bg)',
+          muted: 'var(--theme-surface-muted)',
+        },
+        line: {
+          DEFAULT: 'var(--card-border)',
+          input: 'var(--theme-input-border)',
+        },
+        skeleton: 'var(--theme-skeleton)',
+        overlay: 'var(--theme-overlay)',
+        focus: 'var(--theme-focus-ring)',
+        danger: { DEFAULT: 'var(--theme-danger-text)', soft: 'var(--theme-danger-bg)', border: 'var(--theme-danger-border)' },
+        success: { DEFAULT: 'var(--theme-success-text)', soft: 'var(--theme-success-bg)', border: 'var(--theme-success-border)' },
+        warning: { DEFAULT: 'var(--theme-warning-text)', soft: 'var(--theme-warning-bg)', border: 'var(--theme-warning-border)' },
+        info: { DEFAULT: 'var(--theme-info-text)', soft: 'var(--theme-info-bg)', border: 'var(--theme-info-border)' },
       },
       transitionProperty: {
         width: "width"
