@@ -2133,6 +2133,7 @@
     "_wrong_org_notice": "This service spec belongs to a different organization — returning to the list."
   },
   "CREATE_OFFER": {
+    "_back_to_edit": "Back to edit",
     "_back": "Back",
     "_create": "Create product offer",
     "_new": "New product offer",
@@ -2456,6 +2457,7 @@
     "_preview_placeholder_description": "Add a product overview in step 1 to see it here."
   },
   "UPDATE_OFFER": {
+    "_confirm_update": "Confirm & update",
     "_not_found": "This offer could not be found.",
     "_back": "Back",
     "_create": "Create product offer",

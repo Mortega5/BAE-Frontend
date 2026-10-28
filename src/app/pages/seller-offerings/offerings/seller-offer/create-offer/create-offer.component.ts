@@ -69,6 +69,7 @@ export class CreateOfferComponent implements OnInit, OnDestroy, LeaveConfirmable
 
   showPreview: boolean = false;
   previewProductOff: any = null;
+  previewSubmitMode: 'create' | 'update' | null = null;
   showEmoji: boolean = false;
   description: string = '';
   partyId: any = '';
@@ -306,9 +307,23 @@ export class CreateOfferComponent implements OnInit, OnDestroy, LeaveConfirmable
     this.router.navigate([SellerOfferingsPaths.offers.list()]);
   }
 
-  onPreviewRequested(productOff: any): void {
+  onPreviewRequested(productOff: any, submitMode: 'create' | 'update' | null = null): void {
     this.previewProductOff = productOff;
+    this.previewSubmitMode = submitMode;
   }
+
+  onPreviewSubmitted(action: 'draft' | 'publish' | 'update'): void {
+    this.closePreview();
+    if (action === 'draft') this.offerForm?.saveDraft();
+    else if (action === 'publish') this.offerForm?.publish();
+    else this.offerForm?.confirmUpdate();
+  }
+
+  closePreview(): void {
+    this.previewProductOff = null;
+    this.previewSubmitMode = null;
+  }
+
 
   toggleGeneral() {
     this.selectStep('general-info', 'general-circle');

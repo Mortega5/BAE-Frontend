@@ -253,22 +253,29 @@ describe('OfferComponent', () => {
       component.selectedRootCategory = { id: 'cat-root' };
     });
 
-    it('should open the publish draft modal in create mode', () => {
+    it('should ask for the preview before creating', () => {
       const createSpy = spyOn(component, 'createOffer');
+      const previewSpy = spyOn(component.submitPreviewRequested, 'emit');
 
       component.formType = 'create';
       component.submitForm();
 
-      expect(component.showPublishDraftModal).toBeTrue();
+      expect(previewSpy).toHaveBeenCalled();
       expect(createSpy).not.toHaveBeenCalled();
     });
 
-    it('should emit UpdateOffer and update the offer in update mode', () => {
+    it('should ask for the preview before updating, and update once confirmed', () => {
       const updateSpy = spyOn(component, 'updateOffer');
       const emitSpy = spyOn(eventMessage, 'emitUpdateOffer');
+      const previewSpy = spyOn(component.submitPreviewRequested, 'emit');
 
       component.formType = 'update';
       component.submitForm();
+
+      expect(previewSpy).toHaveBeenCalled();
+      expect(updateSpy).not.toHaveBeenCalled();
+
+      component.confirmUpdate();
 
       expect(emitSpy).toHaveBeenCalledWith(true);
       expect(updateSpy).toHaveBeenCalled();
@@ -279,10 +286,12 @@ describe('OfferComponent', () => {
       const emitSpy = spyOn(eventMessage, 'emitUpdateOffer');
 
       component.formType = 'update';
+      const previewSpy = spyOn(component.submitPreviewRequested, 'emit');
       component.selectedRootCategory = null;
       component.submitForm();
 
       expect(component.canSubmit).toBeFalse();
+      expect(previewSpy).not.toHaveBeenCalled();
       expect(emitSpy).not.toHaveBeenCalled();
       expect(updateSpy).not.toHaveBeenCalled();
     });

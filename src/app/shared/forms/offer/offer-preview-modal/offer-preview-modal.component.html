@@ -129,4 +129,24 @@
       </div>
       }
     </div>
+
+    @if (submitMode) {
+    <div appCardFooter class="flex w-full justify-end gap-3">
+      <app-button type="button" variant="ghost" data-cy="previewBackToEdit" (click)="close()">
+        {{ 'CREATE_OFFER._back_to_edit' | translate }}
+      </app-button>
+      @if (submitMode === 'create') {
+      <app-button type="button" variant="secondary" data-cy="previewSaveDraft" (click)="submit('draft')">
+        {{ 'PUBLISH_DRAFT_MODAL._save_draft' | translate }}
+      </app-button>
+      <app-button type="button" data-cy="confirmPublish" prefixIcon="rocket-launch" (click)="submit('publish')">
+        {{ 'PUBLISH_DRAFT_MODAL._publish' | translate }}
+      </app-button>
+      } @else {
+      <app-button type="button" data-cy="confirmUpdate" (click)="submit('update')">
+        {{ 'UPDATE_OFFER._confirm_update' | translate }}
+      </app-button>
+      }
+    </div>
+    }
 </app-modal>

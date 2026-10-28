@@ -2133,6 +2133,7 @@
     "_wrong_org_notice": "Esta especificación de servicio pertenece a otra organización — volviendo a la lista."
   },
   "CREATE_OFFER": {
+    "_back_to_edit": "Volver a editar",
     "_back": "Atrás",
     "_create": "Crear oferta de producto",
     "_new": "Nueva oferta de producto",
@@ -2456,6 +2457,7 @@
     "_preview_placeholder_description": "Añade una descripción general del producto en el paso 1 para verla aquí."
   },
   "UPDATE_OFFER": {
+    "_confirm_update": "Confirmar y actualizar",
     "_not_found": "No se pudo encontrar esta oferta.",
     "_back": "Atrás",
     "_create": "Crear oferta de producto",

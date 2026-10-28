@@ -8,9 +8,11 @@
   <!-- End Breadcrumb -->
 
   <app-offer-form [partyId]="partyId" [formType]="'create'"
-    (previewRequested)="onPreviewRequested($event)"></app-offer-form>
+    (previewRequested)="onPreviewRequested($event)"
+    (submitPreviewRequested)="onPreviewRequested($event, 'create')"></app-offer-form>
 
-  <app-offer-preview-modal [previewProductOff]="previewProductOff" (closed)="previewProductOff = null" />
+  <app-offer-preview-modal [previewProductOff]="previewProductOff" [submitMode]="previewSubmitMode"
+    (submitted)="onPreviewSubmitted($event)" (closed)="closePreview()" />
 
   @if(showError){
   <error-message

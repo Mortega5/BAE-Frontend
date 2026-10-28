@@ -71,6 +71,8 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   @Input() offer: any = {};
   @Input() partyId: any;
   @Output() previewRequested = new EventEmitter<any>();
+  /** Submitting first shows the preview; the host calls publish()/saveDraft()/confirmUpdate() once it's confirmed there. */
+  @Output() submitPreviewRequested = new EventEmitter<any>();
 
   productOfferForm: FormGroup;
   currentStepId = 'general';
@@ -78,7 +80,6 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   isFormValid = false;
   selectedProdSpec: any;
   pricePlans: any = [];
-  showPublishDraftModal: boolean = false;
   @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
   /** Set once the offer is saved, so the navigation back to the list isn't asked about. */
   private leaveAllowed = false;
@@ -249,17 +250,12 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
 
   submitForm() {
     if (!this.canSubmit) return;
-    if (this.formType === 'update') {
-      this.eventMessage.emitUpdateOffer(true);
-      console.log('🔄 Starting offer update process...');
-      console.log('📝 Current form changes:', this.formChanges);
+    this.submitPreviewRequested.emit(this.buildPreviewProductOff());
+  }
 
-      // Aquí irá la lógica de actualización
-      // Por ahora solo mostramos los cambios
-      this.updateOffer();
-    } else {
-      this.showPublishDraftModal = true;
-    }
+  confirmUpdate() {
+    this.eventMessage.emitUpdateOffer(true);
+    this.updateOffer();
   }
 
   saveDraft() {
@@ -804,7 +800,6 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   private handleApiError(error: any): void {
     console.error('Error while creating offer price!', error);
     this.loading = false;
-    this.showPublishDraftModal = false;
     this.notificationService.showError('CREATE_OFFER._price_create_error', {
       details: this.extractErrorDetail(error)
     });
@@ -1156,7 +1151,6 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
       : this.autoCatalogue?.id;
     if (this.formType === 'create' && !catalogueId) {
       this.loading = false;
-      this.showPublishDraftModal = false;
       this.notificationService.showError('CREATE_OFFER._no_catalogue_available');
       return;
     }
@@ -1170,7 +1164,6 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
         console.log('product offer created:');
         console.log(data);
         this.loading = false;
-        this.showPublishDraftModal = false;
         this.notificationService.showSuccess(this.formType === 'create' ? 'CREATE_OFFER._create_success' : 'UPDATE_OFFER._update_success');
         this.leaveAllowed = true;
         this.goBack();
@@ -1178,7 +1171,6 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
       error: (error) => {
         console.error('Error during offer save/update:', error);
         this.loading = false;
-        this.showPublishDraftModal = false;
         this.notificationService.showError(this.formType === 'create' ? 'CREATE_OFFER._save_error' : 'UPDATE_OFFER._update_error', {
           details: this.extractErrorDetail(error)
         });

@@ -3,6 +3,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
+import { OfferComponent } from 'src/app/shared/forms/offer/offer.component';
 import { currencies } from 'currencies.json';
 import { initFlowbite } from 'flowbite';
 import { lastValueFrom, Subject } from 'rxjs';
@@ -62,6 +63,7 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
 
   showPreview: boolean = false;
   previewProductOff: any = null;
+  previewSubmitMode: 'create' | 'update' | null = null;
   showEmoji: boolean = false;
   description: string = '';
   partyId: any = '';
@@ -205,6 +207,7 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  @ViewChild(OfferComponent) private offerForm?: OfferComponent;
   @ViewChild('updatemetric') updatemetric!: ElementRef;
   @ViewChild('responsemetric') responsemetric!: ElementRef;
   @ViewChild('delaymetric') delaymetric!: ElementRef;
@@ -405,9 +408,23 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
     this.router.navigate([SellerOfferingsPaths.offers.list()]);
   }
 
-  onPreviewRequested(productOff: any): void {
+  onPreviewRequested(productOff: any, submitMode: 'create' | 'update' | null = null): void {
     this.previewProductOff = productOff;
+    this.previewSubmitMode = submitMode;
   }
+
+  onPreviewSubmitted(action: 'draft' | 'publish' | 'update'): void {
+    this.closePreview();
+    if (action === 'draft') this.offerForm?.saveDraft();
+    else if (action === 'publish') this.offerForm?.publish();
+    else this.offerForm?.confirmUpdate();
+  }
+
+  closePreview(): void {
+    this.previewProductOff = null;
+    this.previewSubmitMode = null;
+  }
+
 
   setOfferStatus(status: any) {
     this.offerStatus = status;
