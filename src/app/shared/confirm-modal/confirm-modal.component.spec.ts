@@ -75,10 +75,11 @@ describe('ConfirmModalComponent', () => {
     component.dismissLabel = 'Keep editing';
     fixture.detectChanges();
 
-    // buttons order: close (X), dismiss, cancel, confirm
+    // buttons order: close (X), cancel (pushed left), dismiss, confirm
     const buttons = fixture.nativeElement.querySelectorAll('app-button');
     expect(buttons.length).toBe(4);
-    buttons[1].dispatchEvent(new MouseEvent('click'));
+    expect(buttons[1].classList).toContain('mr-auto');
+    buttons[2].dispatchEvent(new MouseEvent('click'));
 
     expect(component.closed.emit).toHaveBeenCalled();
   });

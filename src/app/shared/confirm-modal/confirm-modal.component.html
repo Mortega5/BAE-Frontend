@@ -10,15 +10,17 @@
       </app-button>
     </div>
     <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{{ message | translate }}</p>
-    <div appCardFooter class="flex gap-3">
+    <!-- With a dismiss button the cancel action (e.g. "discard") is pushed to the far left, apart from the other two. -->
+    <div appCardFooter class="flex w-full justify-end gap-3">
+      <app-button type="button" [variant]="cancelVariant" size="sm" [class.mr-auto]="!!dismissLabel"
+        (click)="$event.stopPropagation(); resolved.emit(false)">
+        {{ cancelLabel | translate }}
+      </app-button>
       @if (dismissLabel) {
       <app-button type="button" variant="ghost" size="sm" (click)="$event.stopPropagation(); closed.emit()">
         {{ dismissLabel | translate }}
       </app-button>
       }
-      <app-button type="button" [variant]="cancelVariant" size="sm" (click)="$event.stopPropagation(); resolved.emit(false)">
-        {{ cancelLabel | translate }}
-      </app-button>
       <app-button type="button" [variant]="confirmVariant" size="sm" [disabled]="confirmDisabled"
         (click)="$event.stopPropagation(); resolved.emit(true)">
         {{ confirmLabel | translate }}
