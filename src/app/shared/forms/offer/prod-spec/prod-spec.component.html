@@ -57,3 +57,8 @@
   <create-product-spec [embedded]="true" (created)="onProdSpecCreated($event)"
     (cancelled)="closeCreateProdSpecModal()" />
 </app-modal>
+
+<app-confirm-modal [visible]="showProdSpecChangeConfirm" [title]="'CREATE_OFFER._product_spec_change_title'"
+  message="CREATE_OFFER._product_spec_change_warning" confirmLabel="CREATE_OFFER._product_spec_change_accept"
+  cancelLabel="CONFIRM_MODAL._cancel" confirmVariant="danger" (resolved)="onProdSpecChangeResolved($event)"
+  (closed)="onProdSpecChangeResolved(false)" />

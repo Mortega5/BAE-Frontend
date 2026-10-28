@@ -1508,6 +1508,12 @@ export class OfferComponent implements OnInit, OnDestroy {
     }
   }
 
+  /** Called when the seller switches to another product spec: plans priced on the old spec's characteristics no longer apply. */
+  clearPricePlans(): void {
+    this.pricePlans = [];
+    this.productOfferForm.get('pricePlans')?.setValue([]);
+  }
+
   // Older offers may store these terms as 'license' or 'Procurement'.
   private isLicenseTerm(term: any): boolean {
     return String(term?.name || '').toLowerCase() === 'license';

@@ -112,7 +112,8 @@
             }}</p>
         </div>
         <app-prod-spec-form formControlName="prodSpec" [data]="offer" [partyId]="partyId" [formType]="formType"
-          (formChange)="handleSubformChange($event)">
+          [hasPricePlans]="productOfferForm.get('pricePlans')?.value?.length > 0"
+          (pricePlansCleared)="clearPricePlans()" (formChange)="handleSubformChange($event)">
         </app-prod-spec-form>
       </div>
     </ng-template>
