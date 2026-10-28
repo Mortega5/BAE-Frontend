@@ -308,6 +308,20 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
   ];
 
   private destroy$ = new Subject<void>();
+  /** The compliance step's two uploads, as app-dynamic-form attachment fields. Filled from the
+   * self-attestation/additional-certificate state when the step opens; edits flow back through
+   * onSelfAttestationChange/onComplianceAttachmentsChange. */
+  readonly complianceFields: FormField[] = [
+    {
+      type: 'attachment', name: 'selfAttestation', label: 'CREATE_PROD_SPEC._upload_self_attestation',
+      accept: '.pdf,.doc,.docx', hint: 'CREATE_PROD_SPEC._compliance_panel_desc', dataCy: 'productSpecSelfAttestation'
+    },
+    {
+      type: 'attachment', name: 'additionalAttachments', label: 'CREATE_PROD_SPEC._additional_attachments',
+      accept: '.pdf,.doc,.docx', multiple: true, dataCy: 'productSpecComplianceAttachments'
+    },
+  ];
+  readonly complianceForm = buildFormGroup(this.complianceFields);
 
   get dspEnable(): boolean {
     return environment.DSP_ENABLED && this.DATA_SPACE_ENABLED;
@@ -377,6 +391,12 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
   }
 
   ngOnInit() {
+    this.complianceForm.get('selfAttestation')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(file => this.onSelfAttestationChange(file));
+    this.complianceForm.get('additionalAttachments')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(files => this.onComplianceAttachmentsChange(files));
     this.initPartyInfo();
     this.generalForm.get('dspCompatible')!.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -558,6 +578,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
 
   onStepChanged(event: StepChangedEvent): void {
     this.currentStepId = event.stepId as ProductSpecFormStep
+    if (this.currentStepId === 'compliance') { this.syncComplianceForm(); }
     switch (this.currentStepId) {
       case 'characteristics':
       case 'dataspace':
@@ -660,6 +681,13 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
 
   onComplianceAttachmentsChange(files: any[]): void {
     this.additionalISOS = (files || []).map(f => ({ name: 'Compliance:' + f.name, url: f.url }));
+  }
+
+  private syncComplianceForm(): void {
+    this.complianceForm.setValue({
+      selfAttestation: this.selfAttFile,
+      additionalAttachments: this.additionalAttestationFiles,
+    }, { emitEvent: false });
   }
 
   downloadSelfAttestationTemplate(): void {

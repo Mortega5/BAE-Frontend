@@ -284,6 +284,23 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   ];
 
   private destroy$ = new Subject<void>();
+  /** The compliance step's two uploads, as app-dynamic-form attachment fields. Filled from the
+   * self-attestation/additional-certificate state when the step opens; edits flow back through
+   * onSelfAttestationChange/onComplianceAttachmentsChange. */
+  readonly complianceFields: FormField[] = [
+    {
+      type: 'attachment', name: 'selfAttestation', label: 'CREATE_PROD_SPEC._upload_self_attestation',
+      accept: '.pdf,.doc,.docx', hint: 'CREATE_PROD_SPEC._compliance_panel_desc', dataCy: 'productSpecSelfAttestation'
+    },
+    {
+      type: 'attachment', name: 'additionalAttachments', label: 'CREATE_PROD_SPEC._additional_attachments',
+      accept: '.pdf,.doc,.docx', multiple: true, dataCy: 'productSpecComplianceAttachments'
+    },
+  ];
+  readonly complianceForm = buildFormGroup(this.complianceFields);
+  /** Rendered as two forms so the existing certifications list sits between them. */
+  readonly selfAttestationFields = [this.complianceFields[0]];
+  readonly additionalAttachmentFields = [this.complianceFields[1]];
 
   get templateName(): string {
     return this.generalForm.get('baseTemplate')?.value || '';
@@ -321,6 +338,12 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   async ngOnInit() {
+    this.complianceForm.get('selfAttestation')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(file => this.onSelfAttestationChange(file));
+    this.complianceForm.get('additionalAttachments')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(files => this.onComplianceAttachmentsChange(files));
     this.initPartyInfo();
     this.loading = true;
     const id = this.route.snapshot.paramMap.get('id')!;
@@ -585,6 +608,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     this.currentStepId = event.stepId as ProductSpecFormStep;
     if (this.currentStepId === 'characteristics' || this.currentStepId === 'dataspace') { this.characteristicItems = this.buildCharacteristicItems(); }
     if (this.currentStepId === 'relationships') { this.getProdSpecsRel(false); }
+    if (this.currentStepId === 'compliance') { this.syncComplianceForm(); }
     if (event.isLastStep) { this.showFinish(); }
   }
 
@@ -856,6 +880,13 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
       const existing = this.additionalISOS.find(c => c.url === f.url);
       return { id: existing?.id, name: 'Compliance:' + f.name, url: f.url };
     });
+  }
+
+  private syncComplianceForm(): void {
+    this.complianceForm.setValue({
+      selfAttestation: this.selfAttFile,
+      additionalAttachments: this.additionalAttestationFiles,
+    }, { emitEvent: false });
   }
 
   downloadSelfAttestationTemplate(): void {

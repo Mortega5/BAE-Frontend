@@ -508,74 +508,52 @@
           </app-button>
         </div>
 
-        <div
-          class="rounded-2xl border border-gray-200 dark:border-secondary-200 bg-gray-50 dark:bg-secondary-200 p-4 sm:p-6 flex flex-col gap-6">
-          <div class="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
-            <div class="flex-1 flex flex-col gap-2">
-              <p class="text-sm text-gray-600 dark:text-gray-300">{{ 'CREATE_PROD_SPEC._compliance_panel_desc' |
-                translate }}</p>
-              @if(complianceVC && complianceLevel=='BL'){
-              <img class="h-[1.9rem] max-w-[12rem] object-contain rounded-md" src="assets/logos/baseline.png"
-                alt="Baseline logo" />
-              } @else if(complianceVC && complianceLevel=='P') {
-              <img class="h-[1.9rem] max-w-[12rem] object-contain rounded-md" src="assets/logos/prof.png"
-                alt="Professional logo" />
-              } @else if(complianceVC && complianceLevel=='PP') {
-              <img class="h-[1.9rem] max-w-[12rem] object-contain rounded-md" src="assets/logos/profplus.png"
-                alt="Professional plus logo" />
-              }
+        <div class="flex flex-col sm:flex-row sm:items-start gap-4 sm:gap-6">
+          <div class="flex-1 flex flex-col gap-2">
+            @if(complianceVC && complianceLevel=='BL'){
+            <img class="h-[1.9rem] max-w-[12rem] object-contain rounded-md" src="assets/logos/baseline.png"
+              alt="Baseline logo" />
+            } @else if(complianceVC && complianceLevel=='P') {
+            <img class="h-[1.9rem] max-w-[12rem] object-contain rounded-md" src="assets/logos/prof.png"
+              alt="Professional logo" />
+            } @else if(complianceVC && complianceLevel=='PP') {
+            <img class="h-[1.9rem] max-w-[12rem] object-contain rounded-md" src="assets/logos/profplus.png"
+              alt="Professional plus logo" />
+            }
+          </div>
+          <app-button type="button" (click)="openRequestValidationModal(); $event.stopPropagation();"
+            [disabled]="!hasSelfAttestation() || hasUnsavedComplianceProfileChanges()"
+            suffixIcon="check" class="shrink-0">
+            {{ 'CREATE_PROD_SPEC._request_validation' | translate }}
+          </app-button>
+        </div>
+
+        @if (hasUnsavedComplianceProfileChanges()) {
+        <div class="p-3 text-sm rounded-lg border border-[var(--status-badge-warning-border)] bg-[var(--status-badge-warning-bg)] text-[var(--theme-default-text)]"
+          role="alert">
+          {{ 'UPDATE_PROD_SPEC._request_validation_disabled' | translate }}
+        </div>
+        }
+
+        <app-dynamic-form class="block" [fields]="selfAttestationFields" [formGroup]="complianceForm" />
+
+        @if (selectedISOS.length > 0) {
+        <div>
+          <p class="font-bold text-sm dark:text-white pb-2">{{ 'UPDATE_PROD_SPEC._existing_certifications' | translate }}</p>
+          <div class="flex flex-col gap-2">
+            @for (sel of selectedISOS; track sel.name) {
+            <div
+              class="flex items-center justify-between px-4 py-3 border border-gray-200 dark:border-secondary-200 rounded-lg bg-white dark:bg-secondary-300">
+              <p [ngClass]="{ 'break-all': hasLongWord(sel.name, 20), 'break-words': !hasLongWord(sel.name, 20) }"
+                class="text-sm text-gray-900 dark:text-white">{{ normalizeName(sel.name) }}</p>
+              <app-button type="button" variant="ghost" size="sm" prefixIcon="xmark" class="shrink-0" (click)="removeISO(sel)" />
             </div>
-            <app-button type="button" (click)="openRequestValidationModal(); $event.stopPropagation();"
-              [disabled]="!hasSelfAttestation() || hasUnsavedComplianceProfileChanges()"
-              suffixIcon="check" class="shrink-0">
-              {{ 'CREATE_PROD_SPEC._request_validation' | translate }}
-            </app-button>
-          </div>
-
-          @if (hasUnsavedComplianceProfileChanges()) {
-          <div class="p-3 text-sm text-amber-800 rounded-lg bg-amber-100 dark:bg-amber-900 dark:text-amber-200"
-            role="alert">
-            {{ 'UPDATE_PROD_SPEC._request_validation_disabled' | translate }}
-          </div>
-          }
-
-          <div>
-            <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">{{
-              'CREATE_PROD_SPEC._upload_self_attestation' | translate }}</label>
-            <app-attachment-upload data-cy="productSpecSelfAttestation" accept=".pdf,.doc,.docx" [multiple]="false"
-              [files]="selfAttFile" (filesChange)="onSelfAttestationChange($event)" />
-          </div>
-
-          @if (selectedISOS.length > 0) {
-          <div>
-            <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">{{
-              'UPDATE_PROD_SPEC._existing_certifications' | translate }}</label>
-            <div class="flex flex-col gap-2">
-              @for (sel of selectedISOS; track sel.name) {
-              <div
-                class="flex items-center justify-between px-4 py-3 border border-gray-200 dark:border-secondary-200 rounded-lg bg-white dark:bg-secondary-300">
-                <p [ngClass]="{ 'break-all': hasLongWord(sel.name, 20), 'break-words': !hasLongWord(sel.name, 20) }"
-                  class="text-sm text-gray-900 dark:text-white">{{ normalizeName(sel.name) }}</p>
-                <button (click)="removeISO(sel)" type="button"
-                  class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 shrink-0">
-                  <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              }
-            </div>
-          </div>
-          }
-
-          <div>
-            <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">{{
-              'CREATE_PROD_SPEC._additional_attachments' | translate }}</label>
-            <app-attachment-upload data-cy="productSpecComplianceAttachments" accept=".pdf,.doc,.docx"
-              [multiple]="true" [files]="additionalAttestationFiles" (filesChange)="onComplianceAttachmentsChange($event)" />
+            }
           </div>
         </div>
+        }
+
+        <app-dynamic-form class="block" [fields]="additionalAttachmentFields" [formGroup]="complianceForm" />
       </div>
     </ng-template>
 

@@ -489,25 +489,7 @@
           </app-button>
         </div>
 
-        <div
-          class="rounded-2xl border border-gray-200 dark:border-secondary-200 bg-gray-50 dark:bg-secondary-200 p-4 sm:p-6 flex flex-col gap-6">
-          <p class="text-sm text-gray-600 dark:text-gray-300">{{ 'CREATE_PROD_SPEC._compliance_panel_desc' | translate
-            }}</p>
-
-          <div>
-            <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">{{
-              'CREATE_PROD_SPEC._upload_self_attestation' | translate }}</label>
-            <app-attachment-upload data-cy="productSpecSelfAttestation" accept=".pdf,.doc,.docx" [multiple]="false"
-              [files]="selfAttFile" (filesChange)="onSelfAttestationChange($event)" />
-          </div>
-
-          <div>
-            <label class="block text-sm font-bold text-gray-900 dark:text-white mb-2">{{
-              'CREATE_PROD_SPEC._additional_attachments' | translate }}</label>
-            <app-attachment-upload data-cy="productSpecComplianceAttachments" accept=".pdf,.doc,.docx"
-              [multiple]="true" [files]="additionalAttestationFiles" (filesChange)="onComplianceAttachmentsChange($event)" />
-          </div>
-        </div>
+        <app-dynamic-form class="block" [fields]="complianceFields" [formGroup]="complianceForm" />
       </div>
     </ng-template>
 
