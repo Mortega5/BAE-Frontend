@@ -2430,8 +2430,6 @@
     "_tags_placeholder": "Escribe una etiqueta y pulsa Intro",
     "_tags_hint": "etiquetas añadidas (máx. 5)",
     "_tags_max": "Se ha alcanzado el máximo de 5 etiquetas",
-    "_cant_find_cat_title": "¿No encuentras la categoría adecuada?",
-    "_cant_find_cat_text": "Ponte en contacto con nuestro equipo de soporte en <strong>support&#64;dome-marketplace.eu</strong> y te ayudaremos a clasificar correctamente tu servicio.",
     "_leave_title": "¿Seguro que quieres salir de la creación de esta oferta de producto?",
     "_leave_text": "Puedes continuar editando, descartar los cambios o guardar un borrador si los campos obligatorios están completos.",
     "_continue_editing": "Continuar editando",
