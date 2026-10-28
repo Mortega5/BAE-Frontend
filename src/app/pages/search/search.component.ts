@@ -164,7 +164,7 @@ export class SearchComponent implements OnInit, OnDestroy {
     // link or the back button land on the same results. `;keywords=` is the old matrix-param
     // form, still read so existing links keep working (syncUrl() rewrites it to `?keyword=`).
     const query = this.route.snapshot.queryParamMap;
-    this.keywords = query.get('keyword') || this.route.snapshot.paramMap.get('keywords') || undefined;
+    this.keywords = (query.get('keyword') || this.route.snapshot.paramMap.get('keywords'))?.trim() || undefined;
     this.searchField.setValue(this.keywords ?? null, { emitEvent: false });
 
     if (this.aiSearchEnabled) {
@@ -492,7 +492,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       this.eventMessage.emitAiSearchCleared();
       await this.runInitialAiSearch();
     } else {
-      this.keywords = this.searchField.value || undefined;
+      this.keywords = this.searchField.value?.trim() || undefined;
       this.syncUrl();
       this.aiAnswer = '';
       this.eventMessage.emitAiSearchCleared();
