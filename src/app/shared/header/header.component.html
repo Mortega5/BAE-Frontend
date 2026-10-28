@@ -55,8 +55,8 @@
     <app-dropdown-panel id="userDropdown"
       class="hidden absolute right-6 sm:right-10 top-[88px] z-50 w-[260px] p-2">
       <div class="px-3 py-2 min-w-0">
-        <div class="text-[13px] font-semibold text-slate-900 dark:text-white break-words">{{ username }}</div>
-        <div class="mt-0.5 text-[12px] text-slate-600 dark:text-gray-400 break-all">{{ email }}</div>
+        <div class="text-[13px] font-semibold text-content break-words">{{ username }}</div>
+        <div class="mt-0.5 text-[12px] text-content-muted break-all">{{ email }}</div>
       </div>
 
       <div class="h-px my-2 bg-slate-900/10 dark:bg-white/10"></div>
@@ -299,17 +299,17 @@
       @if (themeDropdownOpen) {
       <app-dropdown-panel class="absolute right-0 mt-2 w-40 z-50" (click)="$event.stopPropagation()">
         <button type="button" data-cy="themeLight"
-          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          class="w-full text-left px-4 py-2 text-sm text-content-secondary hover:bg-surface-muted flex items-center gap-2"
           [class.font-semibold]="themeMode === ThemeMode.Light" (click)="setThemeMode(ThemeMode.Light)">
           <fa-icon [icon]="lightIcon"></fa-icon>{{ 'HEADER._theme_light' | translate }}
         </button>
         <button type="button" data-cy="themeDark"
-          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          class="w-full text-left px-4 py-2 text-sm text-content-secondary hover:bg-surface-muted flex items-center gap-2"
           [class.font-semibold]="themeMode === ThemeMode.Dark" (click)="setThemeMode(ThemeMode.Dark)">
           <fa-icon [icon]="darkIcon"></fa-icon>{{ 'HEADER._theme_dark' | translate }}
         </button>
         <button type="button" data-cy="themeSystem"
-          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          class="w-full text-left px-4 py-2 text-sm text-content-secondary hover:bg-surface-muted flex items-center gap-2"
           [class.font-semibold]="themeMode === ThemeMode.System" (click)="setThemeMode(ThemeMode.System)">
           <fa-icon [icon]="systemIcon"></fa-icon>{{ 'HEADER._theme_system' | translate }}
         </button>
@@ -343,7 +343,7 @@
       <app-dropdown-panel class="absolute right-0 mt-2 w-48 z-50" (click)="$event.stopPropagation()">
         @for (theme of availableProviderThemes; track theme.name) {
         <button type="button" [attr.data-cy]="'providerTheme-' + theme.name"
-          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          class="w-full text-left px-4 py-2 text-sm text-content-secondary hover:bg-surface-muted flex items-center gap-2"
           [class.font-semibold]="currentTheme?.name === theme.name" (click)="selectProviderTheme(theme)">
           {{ theme.displayName }}
         </button>
@@ -378,7 +378,7 @@
       <app-dropdown-panel class="absolute right-0 mt-2 w-32 z-50" (click)="$event.stopPropagation()">
         @for (lang of langs; track lang) {
         <button type="button" [attr.data-cy]="'lang-' + lang"
-          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          class="w-full text-left px-4 py-2 text-sm text-content-secondary hover:bg-surface-muted flex items-center gap-2"
           [class.font-semibold]="lang === defaultLang" (click)="switchLanguage(lang)">
           {{ lang === 'es' ? 'Español' : 'English' }}
         </button>

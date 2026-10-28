@@ -19,3 +19,8 @@
   background-color: var(--md-toolbar-icon-hover-bg);
   color: var(--md-toolbar-icon-hover);
 }
+
+/* Editor/preview body; --md-body-bg is set per theme and mode in styles.css. */
+.md-body {
+  background-color: var(--md-body-bg);
+}

@@ -3,7 +3,7 @@
   <div class="flex gap-2">
     <input type="text" [(ngModel)]="inputValue" [placeholder]="placeholder | translate"
       [maxLength]="maxLength" (keyup.enter)="add()"
-      class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" />
+      class="bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-focus focus:border-primary-100 block w-full p-2.5" />
     <app-button type="button" (click)="add()" [disabled]="!inputValue.trim()" size="sm" class="whitespace-nowrap">
       {{ addLabel | translate }}
     </app-button>
@@ -13,11 +13,11 @@
   <div class="flex flex-wrap gap-2">
     @for (v of values; track v; let i = $index) {
     <span
-      class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-blue-100 dark:bg-secondary-300 text-blue-800 dark:text-white">
+      class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-info-soft text-info">
       {{ v }}
       @if (!isReadonly) {
       <button type="button" (click)="remove(i)"
-        class="ml-1 text-blue-500 dark:text-gray-300 hover:text-red-500">✕</button>
+        class="ml-1 text-info hover:text-danger">✕</button>
       }
     </span>
     }

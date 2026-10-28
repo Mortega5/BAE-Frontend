@@ -3,13 +3,13 @@
   <div class="flex gap-2 flex-wrap">
     <input type="number" [(ngModel)]="inputFrom" [placeholder]="fromPlaceholder | translate"
       (keyup.enter)="set()"
-      class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-sm rounded-lg p-2.5 flex-1 min-w-24" />
+      class="bg-surface-input border border-line-input text-content text-sm rounded-lg p-2.5 flex-1 min-w-24" />
     <input type="number" [(ngModel)]="inputTo" [placeholder]="toPlaceholder | translate"
       (keyup.enter)="set()"
-      class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-sm rounded-lg p-2.5 flex-1 min-w-24" />
+      class="bg-surface-input border border-line-input text-content text-sm rounded-lg p-2.5 flex-1 min-w-24" />
     <input type="text" [(ngModel)]="inputUnit" [placeholder]="unitPlaceholder | translate"
       (keyup.enter)="set()"
-      class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-sm rounded-lg p-2.5 w-28" />
+      class="bg-surface-input border border-line-input text-content text-sm rounded-lg p-2.5 w-28" />
     <app-button type="button" (click)="set()" [disabled]="!canSet" size="sm" class="whitespace-nowrap">
       {{ setLabel | translate }}
     </app-button>
@@ -17,11 +17,11 @@
   }
   @if (current) {
   <span
-    class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full w-fit bg-blue-100 dark:bg-secondary-300 text-blue-800 dark:text-white">
+    class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full w-fit bg-info-soft text-info">
     {{ current.from }} – {{ current.to }} ({{ current.unit }})
     @if (!isReadonly) {
     <button type="button" (click)="clear()"
-      class="ml-1 text-blue-500 dark:text-gray-300 hover:text-red-500">✕</button>
+      class="ml-1 text-info hover:text-danger">✕</button>
     }
   </span>
   }

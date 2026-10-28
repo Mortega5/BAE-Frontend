@@ -74,15 +74,15 @@
 } @else {
 <div>
   <div
-    class="flex h-[25px] justify-center md:justify-between items-center bg-white border-t border-gray-200 shadow dark:bg-tertiary-50 dark:border-gray-600 p-4">
-    <div class="hidden md:flex justify-start text-gray-500 dark:text-gray-400">
+    class="flex h-[25px] justify-center md:justify-between items-center bg-surface border-t border-line shadow dark:bg-tertiary-50 p-4">
+    <div class="hidden md:flex justify-start text-content-muted">
       @for (social of socialLinks; track social.url) {
       <fa-icon (click)="openNewTab(social.url!)" [ngClass]="{ 'mr-4': !$last }" class="cursor-pointer"
         [icon]="social.icon"></fa-icon>
       }
     </div>
 
-    <ul class="flex flex-wrap items-center text-sm font-medium text-gray-500 dark:text-gray-400">
+    <ul class="flex flex-wrap items-center text-sm font-medium text-content-muted">
       @if (checkLogged) {
       <li>
         <button (click)="feedback = !feedback; $event.stopPropagation()" class="mr-4 hover:underline md:mr-6">

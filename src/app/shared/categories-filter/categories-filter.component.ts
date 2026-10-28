@@ -17,15 +17,15 @@ import { LocalStorageService } from "../../services/local-storage.service";
 })
 export class CategoriesFilterComponent implements OnInit, OnDestroy, OnChanges {
 
-  classListFirst = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-b-0 border-gray-200 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
-  classListLast = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-gray-200 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
-  classList = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-b-0 border-gray-200 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-tertiary-100 gap-3';
+  classListFirst = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-content-muted border border-b-0 border-line rounded-t-xl focus:ring-4 focus:ring-focus hover:bg-surface-muted gap-3';
+  classListLast = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-content-muted border border-line focus:ring-4 focus:ring-focus hover:bg-surface-muted gap-3';
+  classList = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-content-muted border border-b-0 border-line focus:ring-4 focus:ring-focus hover:bg-surface-muted gap-3';
 
-  classListFirstChecked = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-2 border-primary-50 rounded-t-xl focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-primary-50 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3';
-  classListLastChecked = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-2 border-primary-50 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-primary-50 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3';
-  classListChecked = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 border border-2 border-primary-50 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-800 dark:border-primary-50 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 gap-3';
+  classListFirstChecked = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-content-muted border border-2 border-primary-50 rounded-t-xl focus:ring-4 focus:ring-focus dark:border-primary-50 hover:bg-surface-muted gap-3';
+  classListLastChecked = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-content-muted border border-2 border-primary-50 focus:ring-4 focus:ring-focus dark:border-primary-50 hover:bg-surface-muted gap-3';
+  classListChecked = 'flex items-center justify-between w-full p-5 font-medium rtl:text-right text-content-muted border border-2 border-primary-50 focus:ring-4 focus:ring-focus dark:border-primary-50 hover:bg-surface-muted gap-3';
 
-  labelClass: string = "text-gray-500 bg-white border-2 rounded-lg cursor-pointer dark:hover:text-gray-300 dark:border-gray-700 peer-checked:border-primary-50 hover:text-gray-600 dark:peer-checked:bg-primary-50 dark:peer-checked:text-secondary-100 peer-checked:text-gray-600 hover:bg-gray-50 dark:text-gray-400 dark:bg-tertiary-100 dark:hover:bg-primary-50";
+  labelClass: string = "text-content-muted bg-surface border-2 rounded-lg cursor-pointer border-line peer-checked:border-primary-50 hover:text-content-secondary dark:peer-checked:bg-primary-50 dark:peer-checked:text-secondary-100 peer-checked:text-content-secondary hover:bg-surface-muted dark:bg-tertiary-100 dark:hover:bg-primary-50";
   categories: Category[] = [];
   checkedCategories: any[] = [];
   selected: Category[] = [];

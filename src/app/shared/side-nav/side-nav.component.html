@@ -4,35 +4,35 @@
   <div class="flex items-center gap-3 mb-8 mt-4 lg:hidden">
     <button type="button" (click)="openMobileMenu()"
       [attr.aria-label]="mobileLabel ? (mobileLabel | translate) : 'Menu'"
-      class="shrink-0 text-black dark:text-white shadow bg-white dark:bg-secondary-200 hover:bg-gray-100 dark:hover:bg-secondary-300 focus:ring-4 focus:outline-none focus:ring-primary-100 font-medium rounded-lg text-sm p-2.5 inline-flex items-center justify-center shadow-lg">
+      class="shrink-0 text-content shadow bg-surface hover:bg-surface-muted focus:ring-4 focus:outline-none focus:ring-primary-100 font-medium rounded-lg text-sm p-2.5 inline-flex items-center justify-center shadow-lg">
       <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1h15M1 7h15M1 13h15" />
       </svg>
     </button>
     @if (title) {
-    <h1 class="text-4xl font-extrabold leading-none tracking-tight text-gray-900 dark:text-white">
+    <h1 class="text-4xl font-extrabold leading-none tracking-tight text-content">
       <span class="underline underline-offset-3 decoration-8 decoration-primary-100 dark:decoration-primary-100">{{ title | translate }}</span>
     </h1>
     }
   </div>
 
   <!-- Off-canvas backdrop -->
-  <div class="fixed inset-0 z-[60] bg-black/50 transition-opacity duration-300 lg:hidden"
+  <div class="fixed inset-0 z-[60] bg-overlay transition-opacity duration-300 lg:hidden"
     [ngClass]="mobileMenuOpen ? 'opacity-100' : 'opacity-0 invisible'"
     [attr.inert]="mobileMenuOpen ? null : ''"
     (click)="closeMobileMenu()"></div>
 
   <!-- Off-canvas drawer: slides in from the left, same nav content as the desktop sidebar -->
   <div data-cy="sideNavMobileDrawer"
-    class="fixed inset-y-0 left-0 z-[70] w-72 max-w-[85%] flex flex-col bg-white dark:bg-secondary-200 shadow-xl transform transition-transform duration-300 ease-in-out lg:hidden"
+    class="fixed inset-y-0 left-0 z-[70] w-72 max-w-[85%] flex flex-col bg-surface shadow-xl transform transition-transform duration-300 ease-in-out lg:hidden"
     [ngClass]="mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'"
     [attr.inert]="mobileMenuOpen ? null : ''">
-    <div class="flex items-center justify-between gap-3 p-4 border-b border-gray-100 dark:border-gray-700">
+    <div class="flex items-center justify-between gap-3 p-4 border-b border-line">
       @if (title) {
-      <h2 class="text-xl font-extrabold text-gray-900 dark:text-white">{{ title | translate }}</h2>
+      <h2 class="text-xl font-extrabold text-content">{{ title | translate }}</h2>
       }
       <button type="button" (click)="closeMobileMenu()" [attr.aria-label]="'COMMON._close_menu' | translate"
-        class="ml-auto shrink-0 text-black dark:text-white hover:bg-gray-100 dark:hover:bg-secondary-300 focus:ring-4 focus:outline-none focus:ring-primary-100 font-medium rounded-lg text-sm p-2.5 inline-flex items-center justify-center">
+        class="ml-auto shrink-0 text-content hover:bg-surface-muted focus:ring-4 focus:outline-none focus:ring-primary-100 font-medium rounded-lg text-sm p-2.5 inline-flex items-center justify-center">
         <svg class="w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
           <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 1l12 12M13 1L1 13" />
         </svg>
@@ -47,7 +47,7 @@
   @if (showDesktopSidebar) {
   <div data-cy="sideNavDesktop" class="hidden lg:flex lg:flex-col lg:w-[300px] lg:shrink-0 lg:basis-[300px]">
     @if (title) {
-    <h2 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6 mt-4 px-2">{{ title | translate }}</h2>
+    <h2 class="text-3xl font-extrabold text-content mb-6 mt-4 px-2">{{ title | translate }}</h2>
     }
 
     <ng-container *ngTemplateOutlet="navSections; context: { closeOnClick: false }"></ng-container>
@@ -65,7 +65,7 @@
 <ng-template #navSections let-closeOnClick="closeOnClick">
   @for (section of sections; track $index) {
   @if (section.label) {
-  <p class="text-xs uppercase font-semibold text-gray-500 dark:text-gray-400 tracking-wider mb-3 px-4">{{ section.label | translate }}</p>
+  <p class="text-xs uppercase font-semibold text-content-muted tracking-wider mb-3 px-4">{{ section.label | translate }}</p>
   }
   <div class="flex flex-col gap-2 mb-3">
     @for (item of section.items; track $index) {
@@ -74,12 +74,12 @@
       [routerLinkActiveOptions]="{exact: !!item.exact}" #rla="routerLinkActive"
       (click)="closeOnClick && closeMobileMenu()"
       [ngClass]="rla.isActive ? 'bg-secondary-50 dark:bg-secondary-300' : 'hover:bg-secondary-50/50 dark:hover:bg-secondary-300'"
-      class="flex items-center justify-between w-full p-4 rounded-2xl text-base font-medium text-gray-900 dark:text-white transition-colors focus:outline-none cursor-pointer">
+      class="flex items-center justify-between w-full p-4 rounded-2xl text-base font-medium text-content transition-colors focus:outline-none cursor-pointer">
       <ng-container *ngTemplateOutlet="itemContent; context: { item: item, active: rla.isActive }"></ng-container>
     </a>
     } @else {
     <button type="button" [attr.data-cy]="item.dataCy" (click)="item.onClick?.(); closeOnClick && closeMobileMenu()"
-      class="flex items-center justify-between w-full p-4 rounded-2xl text-base font-medium text-gray-900 dark:text-white transition-colors hover:bg-secondary-50/50 dark:hover:bg-secondary-300 focus:outline-none cursor-pointer">
+      class="flex items-center justify-between w-full p-4 rounded-2xl text-base font-medium text-content transition-colors hover:bg-secondary-50/50 dark:hover:bg-secondary-300 focus:outline-none cursor-pointer">
       <ng-container *ngTemplateOutlet="itemContent; context: { item: item, active: false }"></ng-container>
     </button>
     }

@@ -1,14 +1,14 @@
 <div class="search-select-root relative w-full" [attr.id]="id" [attr.data-cy]="dataCy">
   <div #inputRow
-    class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] rounded-lg flex flex-wrap items-center gap-1 focus-within:ring-1 focus-within:ring-primary-100 focus-within:border-primary-100"
+    class="bg-surface-input border border-line-input rounded-lg flex flex-wrap items-center gap-1 focus-within:ring-1 focus-within:ring-primary-100 focus-within:border-primary-100"
     [class.pointer-events-none]="isReadonly" [class.opacity-60]="isReadonly">
     @if (multiple) {
     @for (item of selectedOptions; track item.value) {
     <span
-      class="ml-2 bg-primary-100 text-white text-sm font-medium leading-none pl-3 pr-1.5 py-1.5 rounded-full shadow-sm inline-flex items-center gap-1">
+      class="ml-2 bg-primary-100 text-on-primary text-sm font-medium leading-none pl-3 pr-1.5 py-1.5 rounded-full shadow-sm inline-flex items-center gap-1">
       <span>{{ item.label | translate }}</span>
       <button type="button"
-        class="inline-flex items-center justify-center w-4 h-4 p-0 border-0 leading-none rounded-full text-red-400 hover:text-red-600 hover:bg-white/80"
+        class="inline-flex items-center justify-center w-4 h-4 p-0 border-0 leading-none rounded-full text-danger hover:text-danger hover:bg-white/80"
         (click)="removeItem(item, $event)">
         <svg class="w-3 h-3 block" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"
           stroke-linejoin="round" viewBox="0 0 24 24">
@@ -19,11 +19,11 @@
     }
     }
     <input type="text"
-      class="flex-1 min-w-[6rem] bg-transparent border-0 outline-none focus:ring-0 text-sm text-gray-900 dark:text-white rounded-lg p-2.5"
+      class="flex-1 min-w-[6rem] bg-transparent border-0 outline-none focus:ring-0 text-sm text-content rounded-lg p-2.5"
       [value]="displayValue" (input)="onQueryChange($event)" (focus)="onFocus()" [placeholder]="placeholder | translate"
       [readonly]="isReadonly" />
     @if (!multiple && selectedOptions.length > 0) {
-    <button type="button" class="mr-2.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+    <button type="button" class="mr-2.5 text-content-muted hover:text-content-secondary"
       (click)="clearSelection($event)">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
         stroke-linejoin="round" viewBox="0 0 24 24">
@@ -31,7 +31,7 @@
       </svg>
     </button>
     }
-    <svg class="w-4 h-4 mr-2.5 text-gray-400 shrink-0 transition-transform" [class.rotate-180]="isOpen"
+    <svg class="w-4 h-4 mr-2.5 text-content-muted shrink-0 transition-transform" [class.rotate-180]="isOpen"
       fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
       viewBox="0 0 24 24">
       <path d="m6 9 6 6 6-6" />
@@ -40,32 +40,32 @@
 
   @if (isOpen) {
   <div
-    class="fixed bg-[var(--theme-input-bg)] dark:text-white border border-[var(--theme-input-border)] rounded-lg shadow-lg z-50"
+    class="fixed bg-surface-input text-content border border-line-input rounded-lg shadow-lg z-50"
     [style.top.px]="dropdownPosition.top" [style.left.px]="dropdownPosition.left"
     [style.width.px]="dropdownPosition.width">
     <ul class="max-h-48 overflow-y-auto">
       @for (option of filteredOptions; track option.value) {
       <li (click)="selectOption(option)"
-        class="cursor-pointer px-3 py-2 hover:bg-gray-100 dark:hover:bg-secondary-200 flex items-center gap-2">
+        class="cursor-pointer px-3 py-2 hover:bg-surface-muted flex items-center gap-2">
         @if (multiple) {
         <input type="checkbox" [checked]="isSelected(option)"
-          class="w-4 h-4 flex-shrink-0 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded text-primary-600 focus:ring-primary-100" />
+          class="w-4 h-4 flex-shrink-0 bg-surface-muted checked:bg-primary-100 dark:checked:bg-primary-100 border-line-input rounded text-primary-600 focus:ring-primary-100" />
         }
         <span class="flex-1 min-w-0 flex flex-col">
           <span class="truncate">{{ option.label | translate }}</span>
           @if (option.subtitle) {
-          <span class="truncate text-xs text-gray-500 dark:text-gray-400">{{ option.subtitle | translate }}</span>
+          <span class="truncate text-xs text-content-muted">{{ option.subtitle | translate }}</span>
           }
         </span>
       </li>
       } @empty {
       @if (!showCreateOption) {
-      <li class="p-4 text-sm text-gray-500 dark:text-gray-400">{{ 'COMMON._no_results' | translate }}</li>
+      <li class="p-4 text-sm text-content-muted">{{ 'COMMON._no_results' | translate }}</li>
       }
       }
       @if (showCreateOption) {
       <li (click)="requestCreate()" [class.pointer-events-none]="isCreating" [class.opacity-60]="isCreating"
-        class="cursor-pointer px-3 py-2 text-primary-100 dark:text-primary-50 font-medium hover:bg-gray-100 dark:hover:bg-secondary-200">
+        class="cursor-pointer px-3 py-2 text-primary-100 dark:text-primary-50 font-medium hover:bg-surface-muted">
         @if (isCreating) {
         {{ 'COMMON._loading' | translate }}
         } @else {

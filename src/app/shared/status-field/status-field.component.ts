@@ -22,7 +22,7 @@ export class StatusFieldComponent {
     const base = 'cursor-pointer flex items-center';
     const connector = this.isLast
       ? ''
-      : 'w-fit md:w-full after:w-full after:h-1 after:border-b after:border-gray-700 dark:after:border-gray-400 after:border-1 after:mx-2 md:after:mx-6 xl:after:mx-10';
+      : 'w-fit md:w-full after:w-full after:h-1 after:border-b after:border-content-secondary after:border-1 after:mx-2 md:after:mx-6 xl:after:mx-10';
     const color = this.isActive ? this.activeClass : '';
     return [base, connector, color].filter(Boolean).join(' ');
   }

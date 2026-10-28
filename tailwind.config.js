@@ -46,6 +46,8 @@ module.exports = {
           DEFAULT: 'var(--card-border)',
           input: 'var(--theme-input-border)',
         },
+        // Text/icons on primary-colored surfaces (filled chips, active steps, selected options).
+        'on-primary': 'var(--theme-primary-text)',
         skeleton: 'var(--theme-skeleton)',
         overlay: 'var(--theme-overlay)',
         focus: 'var(--theme-focus-ring)',
