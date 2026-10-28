@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ViewChild } from '@angular/core';
 import { AbstractControl, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, ValidationErrors } from "@angular/forms";
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from "@ngx-translate/core";
@@ -10,6 +10,8 @@ import { UsageServiceService } from 'src/app/services/usage-service.service';
 import { BadgeComponent, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
 import { StepChangedEvent, StepperComponent } from 'src/app/shared/stepper/stepper.component';
@@ -41,13 +43,14 @@ const DELETED_STATUSES = ['Retired', 'Obsolete'];
     BadgeComponent,
     ButtonComponent,
     ConfirmModalComponent,
+    UnsavedChangesModalComponent,
     StepperComponent,
     StepperStepDirective
   ],
   templateUrl: './usage-spec.component.html',
   styleUrl: './usage-spec.component.css'
 })
-export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges {
+export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges, LeaveConfirmable {
 
   @Input() formType: 'create' | 'update' = 'create';
   @Input() usageSpec: any = {};
@@ -71,6 +74,9 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges {
   showPublishConfirm = false;
   showDeleteConfirm = false;
   showPublishDraftModal = false;
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  /** Set once the metric is saved, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
   /** Offerings still selling a price metered by this spec; it can't be deleted while there are any. */
   deleteCheck: 'checking' | 'error' | 'blocked' | 'ok' = 'checking';
   private blockingOfferNames = '';
@@ -129,6 +135,15 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges {
 
   get canAdvance(): boolean {
     return this.validateCurrentStep();
+  }
+
+  get leaveNeedsConfirmation(): boolean {
+    return !this.isUpdate && !this.leaveAllowed && this.usageSpecForm.dirty;
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (!this.leaveNeedsConfirmation) return true;
+    return this.unsavedChangesModal?.confirm(() => this.saveDraft()) ?? true;
   }
 
   get isUpdate(): boolean {
@@ -248,6 +263,7 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges {
         console.log('usageSpec created:')
         console.log(data)
         this.notificationService.showSuccess('USAGE_SPECS._create_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: error => {

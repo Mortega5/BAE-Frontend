@@ -1,8 +1,9 @@
-import { ChangeDetectorRef, Component, ElementRef, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ReactiveFormsModule } from "@angular/forms";
 import { Router } from '@angular/router';
 import { TranslateModule } from "@ngx-translate/core";
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { UsageSpecComponent } from 'src/app/shared/forms/usage-spec/usage-spec.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
@@ -19,7 +20,8 @@ import { ButtonComponent } from 'src/app/shared/button/button.component';
   styleUrl: './create-usage-spec.component.css'
 })
 
-export class CreateUsageSpecComponent implements OnInit {
+export class CreateUsageSpecComponent implements OnInit, LeaveConfirmable {
+  @ViewChild(UsageSpecComponent) private usageSpecForm?: UsageSpecComponent;
   partyId: any = '';
 
   constructor(
@@ -28,6 +30,10 @@ export class CreateUsageSpecComponent implements OnInit {
     private localStorage: LocalStorageService,
     private router: Router,
   ) { }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    return this.usageSpecForm?.confirmLeave() ?? true;
+  }
 
   ngOnInit() {
     this.initPartyInfo();

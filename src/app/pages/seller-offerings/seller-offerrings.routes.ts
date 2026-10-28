@@ -77,7 +77,7 @@ export const sellerOfferingsRoutes: Routes = [
     path: segments.usageSpecs,
     children: [
       { path: '', component: SellerUsageSpecComponent },
-      { path: segments.new, component: CreateUsageSpecComponent },
+      { path: segments.new, component: CreateUsageSpecComponent, canDeactivate: [unsavedChangesGuard] },
       { path: segments.id, component: UpdateUsageSpecComponent },
     ],
   },
