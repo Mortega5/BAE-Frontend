@@ -69,6 +69,29 @@ describe('ConfirmModalComponent', () => {
     expect(component.closed.emit).toHaveBeenCalled();
   });
 
+  it('should render a dismiss button that emits closed when dismissLabel is set', () => {
+    spyOn(component.closed, 'emit');
+    component.visible = true;
+    component.dismissLabel = 'Keep editing';
+    fixture.detectChanges();
+
+    // buttons order: close (X), dismiss, cancel, confirm
+    const buttons = fixture.nativeElement.querySelectorAll('app-button');
+    expect(buttons.length).toBe(4);
+    buttons[1].dispatchEvent(new MouseEvent('click'));
+
+    expect(component.closed.emit).toHaveBeenCalled();
+  });
+
+  it('should disable the confirm button when confirmDisabled is set', () => {
+    component.visible = true;
+    component.confirmDisabled = true;
+    fixture.detectChanges();
+
+    const buttons = fixture.nativeElement.querySelectorAll('app-button button');
+    expect(buttons[buttons.length - 1].disabled).toBeTrue();
+  });
+
   it('Escape key should emit closed only when visible', () => {
     spyOn(component.closed, 'emit');
     component.visible = false;

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -16,6 +16,8 @@ import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/r
 import { BadgeComponent, BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { NotFoundStateComponent } from 'src/app/shared/not-found-state/not-found-state.component';
 import { CharacteristicItem, CharacteristicsEditorComponent } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
@@ -68,11 +70,12 @@ const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
     CharacteristicsEditorComponent,
     PackageDeploymentComponent,
     ConfirmModalComponent,
+    UnsavedChangesModalComponent,
   ],
   templateUrl: './resource-spec-form.component.html',
 
 })
-export class ResourceSpecFormComponent implements OnInit, OnDestroy {
+export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirmable {
   /** True when embedded inside another flow (e.g. the product spec form's resource picker)
    * instead of routed to as its own page — swaps navigating away for emitting `created`. */
   @Input() embedded = false;
@@ -124,6 +127,9 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   characteristicItems: CharacteristicItem[] = [];
 
   showPublishDraftModal = false;
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  /** Set once the spec is saved, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
   showDeleteConfirm = false;
   showPublishConfirm = false;
   loading = false;
@@ -237,6 +243,25 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
           });
       }
     }
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (this.isUpdate || this.embedded || this.leaveAllowed || !this.hasUnsavedChanges()) return true;
+    return this.unsavedChangesModal?.confirm(() => {
+      this.prepareData();
+      this.saveDraft();
+    }) ?? true;
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.generalForm.dirty || this.templateConfigForm.dirty || !!this.deploymentForm?.dirty
+      || this.prodChars.length > 0;
+  }
+
+  get canSaveDraft(): boolean {
+    return !this.loading && this.generalForm.valid
+      && (!this.requiresPackageDeployment || !!this.deploymentForm?.valid)
+      && (this.templateConfigFields.length === 0 || this.templateConfigForm.valid);
   }
 
   goBack(): void {
@@ -418,6 +443,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
           if (this.embedded) {
             this.created.emit(created);
           } else {
+            this.leaveAllowed = true;
             this.goBack();
           }
         },

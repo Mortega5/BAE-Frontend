@@ -2,6 +2,8 @@ import { ChangeDetectorRef, Component, ElementRef, HostListener, OnDestroy, OnIn
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
+import { OfferComponent } from 'src/app/shared/forms/offer/offer.component';
 import { currencies } from 'currencies.json';
 import { initFlowbite } from 'flowbite';
 import { lastValueFrom, Subject } from 'rxjs';
@@ -29,7 +31,7 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
   templateUrl: './create-offer.component.html',
   styleUrl: './create-offer.component.css'
 })
-export class CreateOfferComponent implements OnInit, OnDestroy {
+export class CreateOfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
 
   //PAGE SIZES:
   PROD_SPEC_LIMIT: number = environment.PROD_SPEC_LIMIT;
@@ -205,6 +207,7 @@ export class CreateOfferComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  @ViewChild(OfferComponent) private offerForm?: OfferComponent;
   @ViewChild('updatemetric') updatemetric!: ElementRef;
   @ViewChild('responsemetric') responsemetric!: ElementRef;
   @ViewChild('delaymetric') delaymetric!: ElementRef;
@@ -293,6 +296,10 @@ export class CreateOfferComponent implements OnInit, OnDestroy {
         this.partyId = loggedOrg.partyId
       }
     }
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    return this.offerForm?.confirmLeave() ?? true;
   }
 
   goBack() {

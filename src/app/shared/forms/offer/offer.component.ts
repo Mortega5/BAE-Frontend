@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -17,6 +17,8 @@ import { NotificationService } from 'src/app/services/notification.service';
 import { BadgeComponent, BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { SearchSelectComponent } from 'src/app/shared/search-select/search-select.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
@@ -54,6 +56,7 @@ const DISCOUNT_PRICE_TYPE = 'discount';
     BadgeComponent,
     ButtonComponent,
     ConfirmModalComponent,
+    UnsavedChangesModalComponent,
     LoadingSpinnerComponent,
     SearchSelectComponent,
     StepperComponent,
@@ -62,7 +65,7 @@ const DISCOUNT_PRICE_TYPE = 'discount';
   templateUrl: './offer.component.html',
   styleUrl: './offer.component.css'
 })
-export class OfferComponent implements OnInit, OnDestroy {
+export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
 
   @Input() formType: 'create' | 'update' = 'create';
   @Input() offer: any = {};
@@ -76,6 +79,9 @@ export class OfferComponent implements OnInit, OnDestroy {
   selectedProdSpec: any;
   pricePlans: any = [];
   showPublishDraftModal: boolean = false;
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  /** Set once the offer is saved, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
   showDeleteConfirm: boolean = false;
   showPublishConfirm: boolean = false;
   loading: boolean = false;
@@ -1166,6 +1172,7 @@ export class OfferComponent implements OnInit, OnDestroy {
         this.loading = false;
         this.showPublishDraftModal = false;
         this.notificationService.showSuccess(this.formType === 'create' ? 'CREATE_OFFER._create_success' : 'UPDATE_OFFER._update_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: (error) => {
@@ -1177,6 +1184,15 @@ export class OfferComponent implements OnInit, OnDestroy {
         });
       }
     });
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (this.isUpdate || this.leaveAllowed || !this.productOfferForm.dirty) return true;
+    return this.unsavedChangesModal?.confirm(() => this.saveDraft()) ?? true;
+  }
+
+  get canSaveDraft(): boolean {
+    return !this.loading && this.canSubmit;
   }
 
   goBack() {

@@ -18,6 +18,10 @@ export class ConfirmModalComponent {
   @Input() confirmLabel = 'CONFIRM_MODAL._confirm';
   @Input() cancelLabel = 'CONFIRM_MODAL._cancel';
   @Input() confirmVariant: ButtonVariant = 'danger';
+  @Input() cancelVariant: ButtonVariant = 'ghost';
+  @Input() confirmDisabled = false;
+  /** Optional third button that dismisses the modal like the close (X) button, emitting `closed`. */
+  @Input() dismissLabel = '';
   /** true when the confirm button was clicked, false when the cancel button was clicked. */
   @Output() resolved = new EventEmitter<boolean>();
   /** Fired when the modal is dismissed without picking either button — backdrop

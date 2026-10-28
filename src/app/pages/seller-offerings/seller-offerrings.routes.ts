@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { unsavedChangesGuard } from 'src/app/guard/unsaved-changes.guard';
 import { CustomOfferComponent } from 'src/app/shared/forms/offer/custom-offer/custom-offer.component';
 import { CreateCatalogComponent } from './offerings/seller-catalogs/create-catalog/create-catalog.component';
 import { SellerCatalogsComponent } from './offerings/seller-catalogs/seller-catalogs.component';
@@ -34,7 +35,7 @@ export const sellerOfferingsRoutes: Routes = [
     path: segments.offers,
     children: [
       { path: '', component: SellerOfferComponent },
-      { path: segments.new, component: CreateOfferComponent },
+      { path: segments.new, component: CreateOfferComponent, canDeactivate: [unsavedChangesGuard] },
       { path: segments.custom, component: CustomOfferComponent },
       { path: segments.id, component: UpdateOfferComponent },
     ],
@@ -52,7 +53,7 @@ export const sellerOfferingsRoutes: Routes = [
     path: segments.productSpecs,
     children: [
       { path: '', component: SellerProductSpecComponent },
-      { path: segments.new, component: CreateProductSpecComponent },
+      { path: segments.new, component: CreateProductSpecComponent, canDeactivate: [unsavedChangesGuard] },
       { path: segments.id, component: UpdateProductSpecComponent },
     ],
   },
@@ -60,7 +61,7 @@ export const sellerOfferingsRoutes: Routes = [
     path: segments.serviceSpecs,
     children: [
       { path: '', component: SellerServiceSpecComponent },
-      { path: segments.new, component: ServiceSpecFormComponent, data: { mode: 'create' } },
+      { path: segments.new, component: ServiceSpecFormComponent, data: { mode: 'create' }, canDeactivate: [unsavedChangesGuard] },
       { path: segments.id, component: ServiceSpecFormComponent, data: { mode: 'update' } },
     ],
   },
@@ -68,7 +69,7 @@ export const sellerOfferingsRoutes: Routes = [
     path: segments.resourceSpecs,
     children: [
       { path: '', component: SellerResourceSpecComponent },
-      { path: segments.new, component: ResourceSpecFormComponent, data: { mode: 'create' } },
+      { path: segments.new, component: ResourceSpecFormComponent, data: { mode: 'create' }, canDeactivate: [unsavedChangesGuard] },
       { path: segments.id, component: ResourceSpecFormComponent, data: { mode: 'update' } },
     ],
   },

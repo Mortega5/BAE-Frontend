@@ -542,6 +542,8 @@
   confirmLabel="PUBLISH_DRAFT_MODAL._publish" confirmVariant="primary"
   (resolved)="$event ? publish() : saveDraft()" (closed)="showPublishDraftModal = false" />
 
+<app-unsaved-changes-modal [canSaveDraft]="canSaveDraft" />
+
 @if(itemModal.type){
 <div (click)="closeItemModal()" class="fixed inset-0 z-50 flex items-center justify-center px-4"
   style="background-color: rgba(11, 21, 40, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">

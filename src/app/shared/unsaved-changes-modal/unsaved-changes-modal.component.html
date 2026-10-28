@@ -1,0 +1,5 @@
+<app-confirm-modal [visible]="visible" [title]="'UNSAVED_CHANGES._title'"
+  [message]="canSaveDraft ? 'UNSAVED_CHANGES._message' : 'UNSAVED_CHANGES._message_no_draft'"
+  dismissLabel="UNSAVED_CHANGES._stay" cancelLabel="UNSAVED_CHANGES._discard" cancelVariant="danger"
+  confirmLabel="UNSAVED_CHANGES._save_draft" confirmVariant="primary" [confirmDisabled]="!canSaveDraft"
+  (resolved)="onResolved($event)" (closed)="onClosed()" />

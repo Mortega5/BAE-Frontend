@@ -24,6 +24,8 @@ import { ServiceSpecServiceService } from 'src/app/services/service-spec-service
 import { BadgeComponent, BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 import { DropdownPanelComponent } from 'src/app/shared/dropdown-panel/dropdown-panel.component';
 import { AttachmentUploadComponent } from 'src/app/shared/forms/attachment-upload/attachment-upload.component';
@@ -84,6 +86,7 @@ const BASE_TEMPLATE_OPTIONS = [
     ContentCardComponent,
     ModalComponent,
     ConfirmModalComponent,
+    UnsavedChangesModalComponent,
     BlueprintProductFormComponent,
     ResourceSpecFormComponent,
     ServiceSpecFormComponent,
@@ -92,7 +95,7 @@ const BASE_TEMPLATE_OPTIONS = [
   styleUrl: './create-product-spec.component.css',
   providers: [DatePipe],
 })
-export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
+export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, LeaveConfirmable {
   /** True when embedded inside another flow (e.g. the offer form's product spec picker)
    * instead of routed to as its own page — swaps navigating away for emitting `created`. */
   @Input() embedded = false;
@@ -224,6 +227,9 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   selectedServiceSpecs: any[] = [];
   showCreateServiceSpecModal = false;
   @ViewChild('serviceSpecsTable') private serviceSpecsTable?: PaginatedTableComponent;
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  /** Set once the spec is saved, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
   servColumns: TableColumn[] = [
     { header: 'CREATE_PROD_SPEC._name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
     { header: 'CREATE_PROD_SPEC._status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
@@ -574,6 +580,26 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
         this.partyId = loggedOrg.partyId
       }
     }
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (this.embedded || this.leaveAllowed || !this.hasUnsavedChanges()) return true;
+    return this.unsavedChangesModal?.confirm(() => {
+      this.showFinish();
+      this.saveDraft();
+    }) ?? true;
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.generalForm.dirty || this.dspConfigForm.dirty || !!this.howItWorks?.trim()
+      || this.hasSelfAttestation()
+      || [this.prodAttachments, this.keyFeatures, this.businessBenefits, this.useCases, this.faqs, this.endpointUrls,
+        this.prodChars, this.prodSpecsBundle, this.selectedServiceSpecs, this.selectedResourceSpecs,
+        this.prodRelationships, this.additionalISOS].some(list => list.length > 0);
+  }
+
+  get canSaveDraft(): boolean {
+    return !this.loading && this.generalForm.valid && (!this.generalForm.value.dspCompatible || this.dspConfigForm.valid);
   }
 
   goBack() {
@@ -1041,6 +1067,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
         if (this.embedded) {
           this.created.emit(data);
         } else {
+          this.leaveAllowed = true;
           this.goBack();
         }
       },
