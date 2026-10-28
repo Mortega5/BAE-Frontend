@@ -8,6 +8,7 @@ import { CatalogsComponent } from './catalogs.component';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { ThemeService } from 'src/app/services/theme.service';
+import { ProviderService } from 'src/app/services/provider.service';
 import { environment } from 'src/environments/environment';
 
 describe('CatalogsComponent', () => {
@@ -15,6 +16,7 @@ describe('CatalogsComponent', () => {
   let fixture: ComponentFixture<CatalogsComponent>;
   let apiServiceSpy: jasmine.SpyObj<ApiServiceService>;
   let accServiceSpy: jasmine.SpyObj<AccountServiceService>;
+  let providerServiceSpy: jasmine.SpyObj<ProviderService>;
   let themeServiceStub: { currentTheme$: Observable<any> };
   let routerSpy: jasmine.SpyObj<Router>;
 
@@ -27,6 +29,9 @@ describe('CatalogsComponent', () => {
     accServiceSpy = jasmine.createSpyObj<AccountServiceService>('AccountServiceService', ['getOrgInfo']);
     accServiceSpy.getOrgInfo.and.returnValue(Promise.resolve({} as any));
 
+    providerServiceSpy = jasmine.createSpyObj<ProviderService>('ProviderService', ['getProviderDirectoryPage']);
+    providerServiceSpy.getProviderDirectoryPage.and.resolveTo({ items: [], total: 0 });
+
     themeServiceStub = { currentTheme$: of(null) };
 
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
@@ -37,6 +42,7 @@ describe('CatalogsComponent', () => {
       providers: [
         { provide: ApiServiceService, useValue: apiServiceSpy },
         { provide: AccountServiceService, useValue: accServiceSpy },
+        { provide: ProviderService, useValue: providerServiceSpy },
         { provide: ThemeService, useValue: themeServiceStub },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: { snapshot: { queryParamMap: convertToParamMap({}) } } },
@@ -50,6 +56,37 @@ describe('CatalogsComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('provider directory (catalog management disabled)', () => {
+    beforeEach(() => {
+      (component as any).directoryMode = 'provider';
+    });
+
+    it('should list organizations instead of catalogues and page with the total', async () => {
+      providerServiceSpy.getProviderDirectoryPage.and.resolveTo({
+        items: [{
+          id: 'urn:org:1', tradingName: 'Acme',
+          partyCharacteristic: [{ name: 'description', value: 'We sell things' }, { name: 'logo', value: 'logo.png' }],
+        }],
+        total: 3,
+      });
+
+      await component.getProviders(false);
+
+      expect(apiServiceSpy.getLaunchedCatalogsPage).not.toHaveBeenCalled();
+      expect(providerServiceSpy.getProviderDirectoryPage).toHaveBeenCalledWith(jasmine.objectContaining({ offset: 0 }));
+      expect(component.providers).toEqual([
+        { id: 'urn:org:1', name: 'Acme', description: 'We sell things', logo: 'logo.png', owner: '' },
+      ]);
+      expect(component.catalogTotal).toBe(3);
+      expect(component.page_check).toBeTrue();
+    });
+
+    it('should open the organization page from a card', () => {
+      component.goToProvider('urn:org:1');
+      expect(routerSpy.navigate).toHaveBeenCalledWith(['/org-details', 'urn:org:1']);
+    });
   });
 
   it('ngOnInit should subscribe to the theme and request providers', () => {

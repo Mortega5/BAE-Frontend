@@ -5,7 +5,7 @@
       <fa-icon [icon]="faChevronRight" class="text-xs" aria-hidden="true"></fa-icon>
       <a [routerLink]="marketplaceHomeUrl" class="hover:text-[var(--button-link-text)] transition-colors">{{ 'CATALOGS._bc_marketplace' | translate }}</a>
       <fa-icon [icon]="faChevronRight" class="text-xs" aria-hidden="true"></fa-icon>
-      <span class="font-medium text-[var(--button-link-text)]">{{ 'CATALOGS._bc_current' | translate }}</span>
+      <span class="font-medium text-[var(--button-link-text)]">{{ (directoryMode === 'provider' ? 'CATALOGS._providers_bc_current' : 'CATALOGS._bc_current') | translate }}</span>
     </nav>
   </div>
 
@@ -15,9 +15,11 @@
     }
 
     <div class="flex flex-wrap items-center justify-between gap-4 pb-4">
-      <h2 class="text-[20px] leading-[24px] sm:text-[30px] font-bold sm:leading-[36px] text-[var(--theme-default-text)]">{{ 'CATALOGS._all_providers' | translate }}</h2>
+      <h2 class="text-[20px] leading-[24px] sm:text-[30px] font-bold sm:leading-[36px] text-[var(--theme-default-text)]">{{ (directoryMode === 'provider' ? 'CATALOGS._providers_title' : 'CATALOGS._all_providers') | translate }}</h2>
+      @if (searchAvailable) {
       <app-search-input [control]="searchField" [placeholder]="'CATALOGS._search_placeholder' | translate"
         (search)="filterProviders()"></app-search-input>
+      }
     </div>
 
     <div class="flex flex-wrap items-center justify-between gap-4 pt-[24px] sm:pt-[32px] pb-[24px]">

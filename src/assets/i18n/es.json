@@ -1130,6 +1130,8 @@
     "_no_features": "No hay funcionalidades disponibles para este producto."
   },
   "CATALOGS": {
+    "_providers_title": "Todos los proveedores",
+    "_providers_bc_current": "Proveedores",
     "_all_catalogs": "Todos los catálogos",
     "_no_desc": "No se incluye descripción",
     "_no_cat": "No se incluyen categorías",

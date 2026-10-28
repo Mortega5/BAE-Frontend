@@ -1130,6 +1130,8 @@
     "_no_features": "No features available for this product."
   },
   "CATALOGS": {
+    "_providers_title": "All providers",
+    "_providers_bc_current": "Providers",
     "_all_catalogs": "All catalogues",
     "_no_desc": "No description included",
     "_no_cat": "No categories included",

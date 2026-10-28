@@ -1,8 +1,9 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { EMPTY, Observable, catchError, expand, forkJoin, map, of, reduce } from 'rxjs';
+import { EMPTY, Observable, catchError, expand, forkJoin, lastValueFrom, map, of, reduce } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { FilterOptions } from '../models/filter-options.model';
+import { PageResult } from '../models/pagination.model';
 import {
   PROVIDER_COUNTRY_LIST_URL,
   ProviderCountryListResponse,
@@ -15,6 +16,10 @@ export interface Provider {
   id?: string;
   href?: string;
   tradingName?: string;
+  partyCharacteristic?: Array<{
+    name?: string;
+    value?: string;
+  }>;
   externalReference?: Array<{
     externalReferenceType?: string;
     name?: string;
@@ -51,6 +56,24 @@ export class ProviderService {
         return of([]);
       })
     );
+  }
+
+  /** Organizations with launched offerings, for the providers directory. `keyword` needs the
+   * proxy's search engine (the party API has no name regex to fall back on). */
+  async getProviderDirectoryPage(params: { offset: number; limit: number; keyword?: string; sort?: string }): Promise<PageResult<Provider>> {
+    let httpParams = new HttpParams()
+      .set('offset', params.offset.toString())
+      .set('limit', params.limit.toString())
+      .set('lifecycleStatus', 'Launched');
+    if (params.keyword) {
+      httpParams = httpParams.set('keyword', params.keyword);
+    }
+    if (params.sort) {
+      httpParams = httpParams.set('sort', params.sort);
+    }
+    const response = await lastValueFrom(this.http.get<Provider[]>(this.endpoint, { params: httpParams, observe: 'response' }));
+    const items = Array.isArray(response.body) ? response.body : [];
+    return { items, total: Number(response.headers.get('X-Total-Count') ?? items.length) };
   }
 
   getProviderById(id: string): Observable<Provider> {

@@ -6,6 +6,7 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 import { ApiServiceService, CatalogPageResponse } from 'src/app/services/product-service.service';
+import { Provider, ProviderService } from 'src/app/services/provider.service';
 import { ThemeService } from 'src/app/services/theme.service';
 import { CatalogsPageConfig } from 'src/app/themes';
 import { environment } from 'src/environments/environment';
@@ -20,6 +21,11 @@ interface OwnerInfo { logo: string | null; name: string | null; }
   styleUrl: './catalogs.component.css'
 })
 export class CatalogsComponent implements OnInit, OnDestroy {
+  /** Without catalog management, sellers don't curate catalogues: the directory lists the
+   * organizations with launched offerings instead, and each card opens its org page. */
+  readonly directoryMode: 'catalog' | 'provider' = environment.CATALOG_MANAGEMENT_ENABLED ? 'catalog' : 'provider';
+  /** Organizations can only be searched through the proxy's search engine. */
+  readonly searchAvailable = this.directoryMode === 'catalog' || environment.SEARCH_ENABLED;
   private destroy$ = new Subject<void>();
   private catalogs: any[] = [];
   private nextCatalogs: any[] = [];
@@ -68,6 +74,7 @@ export class CatalogsComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private accService: AccountServiceService,
     private api: ApiServiceService,
+    private providerService: ProviderService,
     private cdr: ChangeDetectorRef,
     private themeService: ThemeService
   ) { }
@@ -145,6 +152,9 @@ export class CatalogsComponent implements OnInit, OnDestroy {
   async getProviders(next = false) {
     if (next && (!this.page_check || this.loading_more)) {
       return;
+    }
+    if (this.directoryMode === 'provider') {
+      return this.getOrganizations(next);
     }
 
     const requestSeq = ++this.providersRequestSeq;
@@ -239,6 +249,60 @@ export class CatalogsComponent implements OnInit, OnDestroy {
         this.loading_more = false;
         this.cdr.detectChanges();
       }
+    }
+  }
+
+  /** Provider directory: plain limit/offset paging over the organizations. */
+  private async getOrganizations(next: boolean) {
+    const requestSeq = ++this.providersRequestSeq;
+    if (next) {
+      this.loading_more = true;
+    } else {
+      this.loading = true;
+      this.page = 0;
+      this.allProviders = [];
+      this.providers = [];
+    }
+    try {
+      const result = await this.providerService.getProviderDirectoryPage({
+        offset: this.page,
+        limit: this.CATALOG_LIMIT,
+        keyword: this.filter,
+        sort: this.organizationSortParam,
+      });
+      if (requestSeq !== this.providersRequestSeq) return;
+      this.page += this.CATALOG_LIMIT;
+      this.allProviders = [...this.allProviders, ...result.items.filter(org => org.id).map(org => this.mapOrganization(org))];
+      this.catalogTotal = result.total;
+      this.page_check = this.allProviders.length < result.total;
+      this.applyView();
+    } catch (err) {
+      console.error('Error loading providers:', err);
+    } finally {
+      if (requestSeq === this.providersRequestSeq) {
+        this.loading = false;
+        this.loading_more = false;
+        this.cdr.detectChanges();
+      }
+    }
+  }
+
+  private mapOrganization(org: Provider): ProviderCard {
+    const characteristic = (name: string) => org.partyCharacteristic?.find(ch => ch?.name === name)?.value ?? '';
+    return {
+      id: org.id ?? '',
+      name: org.tradingName ?? '',
+      description: characteristic('description'),
+      logo: characteristic('logo') || this.defaultCatalogLogoUrl,
+      owner: '',
+    };
+  }
+
+  private get organizationSortParam(): string | undefined {
+    switch (this.sortOption) {
+      case 'name_asc': return 'tradingName';
+      case 'name_desc': return '-tradingName';
+      default: return undefined;
     }
   }
 
@@ -348,7 +412,7 @@ export class CatalogsComponent implements OnInit, OnDestroy {
   }
 
   goToProvider(id: string) {
-    this.router.navigate(['/search/catalogue', id]);
+    this.router.navigate(this.directoryMode === 'provider' ? ['/org-details', id] : ['/search/catalogue', id]);
   }
 
   @HostListener('document:click') onClick() {
