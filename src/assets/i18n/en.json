@@ -140,6 +140,12 @@
   },
   "europeTrademark": "Distributed Open Marketplace for Europe (DOME) Project has received funding from European Union’s Digital Europe Programme under the Grant Agreement No 101084071.",
   "DASHBOARD": {
+    "news": {
+      "_title": "Latest news",
+      "_subtitle": "News and events from the marketplace.",
+      "_viewAll": "View all news",
+      "_readMore": "Read more"
+    },
     "whatsdome": {
       "_title": "What is DOME Marketplace?",
       "_desc": "DOME is the European marketplace that provides a unified environment where trust, compliance, and interoperability form the foundation of how digital services are published, compared, and used across Europe.",

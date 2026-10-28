@@ -9,6 +9,7 @@ import { ConfirmModalComponent } from "src/app/shared/confirm-modal/confirm-moda
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { blogEntryExcerpt, blogEntryFeaturedImage, blogEntryRouteId, extractBlogEntries, matchesBlogContentType } from './blog-entry.util';
 @Component({
   selector: 'app-dome-blog',
   standalone: true,
@@ -177,24 +178,12 @@ export class DomeBlogComponent implements OnInit, OnDestroy {
     }
   }
 
-  getEntryRouteId(entry:any): string {
-    if (entry?.slug && typeof entry.slug === 'string' && entry.slug.trim().length > 0) {
-      return entry.slug.trim();
-    }
-
-    return entry?._id;
+  getEntryRouteId(entry: any): string {
+    return blogEntryRouteId(entry);
   }
 
   getFeaturedImage(entry: any): string | null {
-    if (typeof entry?.featuredImage === 'string' && entry.featuredImage.trim().length > 0) {
-      return entry.featuredImage.trim();
-    }
-
-    if (typeof entry?.featuredImage?.url === 'string' && entry.featuredImage.url.trim().length > 0) {
-      return entry.featuredImage.url.trim();
-    }
-
-    return null;
+    return blogEntryFeaturedImage(entry);
   }
 
   getEntryTags(entry: any): string[] {
@@ -216,18 +205,7 @@ export class DomeBlogComponent implements OnInit, OnDestroy {
   }
 
   getEntryExcerpt(entry: any): string {
-    const explicitExcerpt = (entry?.excerpt || '').toString().trim();
-    if (explicitExcerpt) {
-      return explicitExcerpt;
-    }
-
-    const metaDescription = (entry?.metaDescription || '').toString().trim();
-    if (metaDescription) {
-      return metaDescription;
-    }
-
-    const plainTextContent = this.stripMarkdown((entry?.content || '').toString());
-    return this.truncateText(plainTextContent, 260);
+    return blogEntryExcerpt(entry, 260);
   }
 
   getCardTitleClass(): string {
@@ -252,47 +230,12 @@ export class DomeBlogComponent implements OnInit, OnDestroy {
   }
 
   private normalizeEntryResponse(response: any, page: number): { entries: any[]; hasMore: boolean } {
-    const rawEntries = this.extractEntries(response);
-    const entries = rawEntries.filter((entry) => this.matchesContentType(entry));
+    const rawEntries = extractBlogEntries(response);
+    const entries = rawEntries.filter((entry) => matchesBlogContentType(entry, this.contentType));
     const total = Number(response?.total ?? response?.count ?? response?.pagination?.total ?? 0);
     const hasExplicitNext = Boolean(response?.next || response?.hasMore || response?.pagination?.hasNext);
     const hasMore = hasExplicitNext || (total > 0 && page * this.pageLimit < total);
 
     return { entries, hasMore };
-  }
-
-  private extractEntries(response: any): any[] {
-    if (Array.isArray(response)) {
-      return response;
-    }
-
-    const possibleEntries = response?.items || response?.entries || response?.data || response?.results || response?.content;
-    return Array.isArray(possibleEntries) ? possibleEntries : [];
-  }
-
-  private matchesContentType(entry: any): boolean {
-    const entryContentType = (entry?.contentType || entry?.type || '').toString().trim().toLowerCase();
-    if (this.contentType === 'blog') {
-      return !entryContentType || entryContentType === 'blog';
-    }
-
-    return entryContentType === this.contentType;
-  }
-
-  private stripMarkdown(content: string): string {
-    return content
-      .replace(/!\[[^\]]*]\([^)]*\)/g, ' ')
-      .replace(/\[[^\]]*]\([^)]*\)/g, ' ')
-      .replace(/[`*_>#-]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  private truncateText(text: string, maxLength: number): string {
-    if (!text || text.length <= maxLength) {
-      return text;
-    }
-
-    return `${text.slice(0, maxLength).trim()}...`;
   }
 }

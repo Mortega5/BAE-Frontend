@@ -10,6 +10,7 @@ import { DomeBlogContentType } from "src/app/services/dome-blog-service.service"
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
+import { blogEntryFeaturedImage, stripMarkdown, truncateText } from '../blog-entry.util';
 @Component({
   selector: 'app-blog-entry-detail',
   standalone: true,
@@ -186,28 +187,20 @@ export class BlogEntryDetailComponent implements OnInit {
   private getEntryMetaDescription(): string {
     const explicitMeta = (this.entry?.metaDescription || '').toString().trim();
     if (explicitMeta) {
-      return this.truncateText(explicitMeta, 160);
+      return truncateText(explicitMeta, 160);
     }
 
     const excerpt = (this.entry?.excerpt || '').toString().trim();
     if (excerpt) {
-      return this.truncateText(excerpt, 160);
+      return truncateText(excerpt, 160);
     }
 
-    const plainContent = this.stripMarkdown((this.entry?.content || '').toString());
-    return this.truncateText(plainContent, 160);
+    const plainContent = stripMarkdown((this.entry?.content || '').toString());
+    return truncateText(plainContent, 160);
   }
 
   getFeaturedImage(): string | null {
-    if (typeof this.entry?.featuredImage === 'string' && this.entry.featuredImage.trim().length > 0) {
-      return this.entry.featuredImage.trim();
-    }
-
-    if (typeof this.entry?.featuredImage?.url === 'string' && this.entry.featuredImage.url.trim().length > 0) {
-      return this.entry.featuredImage.url.trim();
-    }
-
-    return null;
+    return blogEntryFeaturedImage(this.entry);
   }
 
   getEntryTags(): string[] {
@@ -226,22 +219,5 @@ export class BlogEntryDetailComponent implements OnInit {
     }
 
     return [];
-  }
-
-  private stripMarkdown(content: string): string {
-    return content
-      .replace(/!\[[^\]]*]\([^)]*\)/g, ' ')
-      .replace(/\[[^\]]*]\([^)]*\)/g, ' ')
-      .replace(/[`*_>#-]/g, ' ')
-      .replace(/\s+/g, ' ')
-      .trim();
-  }
-
-  private truncateText(text: string, maxLength: number): string {
-    if (!text || text.length <= maxLength) {
-      return text;
-    }
-
-    return `${text.slice(0, maxLength).trim()}...`;
   }
 }
