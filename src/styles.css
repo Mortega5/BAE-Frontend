@@ -70,6 +70,15 @@ body {
   /* Helper line under a dynamic-form field (FormField.hint). */
   --form-hint-text: rgb(107 114 128);
   /* gray-500 */
+  /* Offer page (product-details): body copy, secondary/meta text, emphasized text,
+     the tinted icon chips and their hover, and placeholder/border tones. */
+  --product-details-body-text: #526179;
+  --product-details-muted-text: #8896A8;
+  --product-details-strong-text: #0B1528;
+  --product-details-chip-bg: #eef2fb;
+  --product-details-chip-hover-bg: #dde6f6;
+  --product-details-placeholder-bg: #EBECEE;
+  --product-details-border: #D8DADE;
   /* Was only ever defined per-theme (bae/dome/ocei), with header.component.css's own
      var(--x, #070f24) fallback silently covering the gap — give it a real default here
      like every other seed token, so a theme that doesn't override it still gets a
@@ -268,6 +277,13 @@ body.theme-bae {
   /* slate-700 */
   --form-hint-text: rgb(156 163 175);
   /* gray-400 */
+  --product-details-body-text: rgb(156 163 175);
+  --product-details-muted-text: rgb(156 163 175);
+  --product-details-strong-text: rgb(209 213 219);
+  --product-details-chip-bg: rgb(var(--theme-secondary-300));
+  --product-details-chip-hover-bg: rgb(var(--theme-secondary-100));
+  --product-details-placeholder-bg: rgb(var(--theme-secondary-300));
+  --product-details-border: rgb(var(--theme-secondary-200));
   /* Dark counterpart of the light default above — see the comment there. */
   --theme-header-v2-top-bg: var(--theme-page-bg);
   --theme-header-v2-glass-bg: rgba(7, 18, 40, 0.55);
