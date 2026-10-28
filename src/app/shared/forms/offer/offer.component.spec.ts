@@ -889,6 +889,18 @@ describe('OfferComponent', () => {
     });
   });
 
+  describe('onCatalogCreated', () => {
+    it('should add the new catalogue and reload the categories, since creating it also creates its category', () => {
+      const loadSpy = spyOn(component, 'loadCategories').and.resolveTo();
+      component.availableCatalogs = [];
+
+      component.onCatalogCreated({ id: 'cat-new', name: 'New catalogue' });
+
+      expect(component.availableCatalogs.map(c => c.label)).toEqual(['New catalogue']);
+      expect(loadSpy).toHaveBeenCalled();
+    });
+  });
+
   describe('price plan bundle kind', () => {
     it('should create a custom plan without components as a plain price', () => {
       const price = (component as any).createBundledPricePlan({ name: 'Negotiated', priceType: 'custom' }, []);

@@ -421,6 +421,8 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
       ...this.availableCatalogs,
       { value: catalog, label: catalog.name, subtitle: catalog.description || '-' }
     ];
+    // Creating a catalogue also creates its category, which the category step must offer.
+    this.loadCategories();
   }
 
   /** Update mode: once the offer's category array is loaded, figure out which root/subcategory it matches. */
