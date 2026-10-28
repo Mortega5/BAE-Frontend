@@ -209,7 +209,8 @@ export class PriceComponentDrawerComponent implements OnInit {
 
     this.initPartyInfo();
     this.refreshUsageFields();
-    this.usageService.getAllUsageSpecs(this.partyId).then(data => {
+    // Only published metrics can be priced; drafts and deleted ones stay out.
+    this.usageService.getAllUsageSpecsOfParty(this.partyId, ['Launched']).then(data => {
       this.usageSpecs=data;
       this.selectedUsageSpec = this.usageSpecs.find(spec => spec.id == this.priceComponentForm.get('usageSpecId')?.value);
       this.refreshUsageFields();

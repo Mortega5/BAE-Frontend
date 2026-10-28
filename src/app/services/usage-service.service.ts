@@ -47,16 +47,9 @@ export class UsageServiceService {
     return { items, total };
   }
 
-  /** Every usage spec of the provider, whatever its status (e.g. to check name uniqueness). */
-  getAllUsageSpecsOfParty(partyId: any): Promise<any[]> {
-    return fetchAllPages(params => this.getUsageSpecByUserPaged(params, undefined, [], partyId));
-  }
-
-  getAllUsageSpecs(partyId: any) {
-
-    let url = `${UsageServiceService.BASE_URL}/usage/usageSpecification?relatedParty.id=${partyId}`;
-
-    return lastValueFrom(this.http.get<any[]>(url));
+  /** Every usage spec of the provider in the given statuses (any status when empty). */
+  getAllUsageSpecsOfParty(partyId: any, status: string[] = []): Promise<any[]> {
+    return fetchAllPages(params => this.getUsageSpecByUserPaged(params, undefined, status, partyId));
   }
 
 
