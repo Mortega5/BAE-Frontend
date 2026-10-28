@@ -28,15 +28,30 @@ export class UsageServiceService {
   }
 
   async getUsageSpecByUserPaged(params: PageRequest, filter: Record<string, string> | undefined, status: string[], partyId: any): Promise<PageResult<any>> {
+    if (status.length === 0) {
+      return this.getUsageSpecPage(params, filter, partyId);
+    }
+    // The usage API honours a lifecycleStatus filter on the items but its X-Total-Count still
+    // counts every status, so a filtered page/total can't be trusted. A provider has few usage
+    // specs: load them all and filter and page here instead.
+    const matching = await this.getAllUsageSpecsOfParty(partyId, status, params, filter);
+    return { items: matching.slice(params.offset, params.offset + params.limit), total: matching.length };
+  }
+
+  /** Every usage spec of the provider in the given statuses (any status when empty). */
+  async getAllUsageSpecsOfParty(partyId: any, status: string[] = [], sort?: PageRequest, filter?: Record<string, string>): Promise<any[]> {
+    const all = await fetchAllPages(params =>
+      this.getUsageSpecPage({ ...params, orderBy: sort?.orderBy, orderDirection: sort?.orderDirection }, filter, partyId));
+    return status.length > 0 ? all.filter(spec => status.includes(spec?.lifecycleStatus)) : all;
+  }
+
+  private async getUsageSpecPage(params: PageRequest, filter: Record<string, string> | undefined, partyId: any): Promise<PageResult<any>> {
     const codeParams: Record<string, any> = {
       limit: params.limit,
       offset: params.offset,
       'relatedParty.id': partyId,
     };
     applySort(params, codeParams);
-    if (status.length > 0) {
-      codeParams['lifecycleStatus'] = status.join(',');
-    }
 
     const queryParams = { ...filter, ...codeParams };
 
@@ -45,11 +60,6 @@ export class UsageServiceService {
     const items = response.body ?? [];
     const total = Number(response.headers.get('X-Total-Count') ?? items.length);
     return { items, total };
-  }
-
-  /** Every usage spec of the provider in the given statuses (any status when empty). */
-  getAllUsageSpecsOfParty(partyId: any, status: string[] = []): Promise<any[]> {
-    return fetchAllPages(params => this.getUsageSpecByUserPaged(params, undefined, status, partyId));
   }
 
 
