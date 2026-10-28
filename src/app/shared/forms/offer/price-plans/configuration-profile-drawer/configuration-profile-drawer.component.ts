@@ -1,13 +1,12 @@
 import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
-import { certifications } from 'src/app/models/certification-standards.const';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
-import { formatProfileValue } from '../profile-value.util';
+import { formatProfileValue, isProfileSelectableCharacteristic } from '../profile-value.util';
 
 @Component({
   selector: 'app-configuration-profile-drawer',
@@ -32,7 +31,7 @@ export class ConfigurationProfileDrawerComponent implements OnInit {
   private characteristics: any[] = [];
 
   ngOnInit() {
-    this.characteristics = this.profileData.filter(char => this.isSelectableForProfile(char));
+    this.characteristics = this.profileData.filter(isProfileSelectableCharacteristic);
 
     // One select per characteristic. The control holds the *index* of the chosen option rather
     // than its value: 'object' values are JSON objects and ranges have no `value` at all, and
@@ -53,23 +52,6 @@ export class ConfigurationProfileDrawerComponent implements OnInit {
   /** Characteristic ids are URNs and may contain dots, which FormGroup.get() treats as a path. */
   private controlName(index: number): string {
     return `char_${index}`;
-  }
-
-  /** A characteristic belongs in the profile picker unless it's a certification/compliance
-   * marker, an "- enabled" companion toggle, a fixed-schema config type, or a configurable
-   * characteristic with no predefined value — those are meant to be filled in by the
-   * customer at order time, not fixed into a plan's profile. */
-  private isSelectableForProfile(char: any): boolean {
-    const charName = (char?.name ?? '').toString().trim();
-    const isOptionalToggle = charName.toLowerCase().endsWith('- enabled');
-    const isConfigurableWithoutValue = char.configurable !== false && !char.productSpecCharacteristicValue?.length;
-
-    return !certifications.some(certification => certification.name === charName)
-      && !charName.startsWith('Compliance:')
-      && !isOptionalToggle
-      && char.valueType !== 'credentialsConfiguration'
-      && char.valueType !== 'authorizationPolicy'
-      && !isConfigurableWithoutValue;
   }
 
   private mapFormToProfile(): any[] {

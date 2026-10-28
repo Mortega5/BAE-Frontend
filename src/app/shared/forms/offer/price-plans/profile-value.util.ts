@@ -2,6 +2,25 @@
  * (productSpecCharacteristicValue entries): plain values, values with a unit, ranges
  * (valueFrom/valueTo) and 'object' values, which are JSON objects. */
 
+import { certifications } from 'src/app/models/certification-standards.const';
+
+/** A characteristic belongs in the profile picker unless it's a certification/compliance
+ * marker, an "- enabled" companion toggle, a fixed-schema config type, or a configurable
+ * characteristic with no predefined value — those are meant to be filled in by the
+ * customer at order time, not fixed into a plan's profile. */
+export function isProfileSelectableCharacteristic(char: any): boolean {
+  const charName = (char?.name ?? '').toString().trim();
+  const isOptionalToggle = charName.toLowerCase().endsWith('- enabled');
+  const isConfigurableWithoutValue = char?.configurable !== false && !char?.productSpecCharacteristicValue?.length;
+
+  return !certifications.some(certification => certification.name === charName)
+    && !charName.startsWith('Compliance:')
+    && !isOptionalToggle
+    && char?.valueType !== 'credentialsConfiguration'
+    && char?.valueType !== 'authorizationPolicy'
+    && !isConfigurableWithoutValue;
+}
+
 /** Human-readable label for one productSpecCharacteristicValue entry. */
 export function formatProfileValue(option: any): string {
   if (option == null) return '';

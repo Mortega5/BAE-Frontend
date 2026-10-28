@@ -11,6 +11,7 @@ import {PricePlansTableComponent} from "./price-plans-table/price-plans-table.co
 import {TranslateModule} from "@ngx-translate/core";
 import {PricePlanDrawerComponent} from "./price-plan-drawer/price-plan-drawer.component";
 import {PlanSubtypeModalComponent} from "./plan-subtype-modal/plan-subtype-modal.component";
+import { isProfileSelectableCharacteristic } from "./profile-value.util";
 import { v4 as uuidv4 } from 'uuid';
 import {pricePlanValidator, uniqueNameValidatorFactory} from "../../../../validators/validators";
 import { ReactiveFormsModule } from '@angular/forms';
@@ -100,6 +101,11 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
   @Input() prodSpec: any | null = null;  // Y con este se acceder a prodSpec
   @Input() custom:boolean = false;
   @Output() formChange = new EventEmitter<FormChangeState>();
+
+  /** Whether the product spec has configuration options a standard plan's profile can pick from. */
+  get hasConfigurationOptions(): boolean {
+    return (this.prodSpec?.productSpecCharacteristic ?? []).some(isProfileSelectableCharacteristic);
+  }
 
   pricePlansForm = this.fb.array<FormGroup>([], { validators: [] });
   paymentOnline = false;  // Estado global del checkbox

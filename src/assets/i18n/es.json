@@ -2293,6 +2293,7 @@
     "_select_plan_type": "Selecciona el tipo de plan de precios",
     "_standard_plan": "Plan estándar",
     "_standard_plan_desc": "Crea un plan de precio fijo basado en configuraciones estándar. El precio se determina según las opciones de producto que preselecciones para esta oferta.",
+    "_standard_plan_requires_configuration_options": "Este tipo de plan requiere que la especificación de producto defina opciones de configuración.",
     "_flex_plan": "Plan flexible",
     "_flex_plan_desc": "Ofrece la máxima flexibilidad permitiendo que los usuarios finales creen su propio precio. Vincula distintos componentes de precio a las opciones de configuración del producto para una solución a medida.",
     "_continue": "Continuar",

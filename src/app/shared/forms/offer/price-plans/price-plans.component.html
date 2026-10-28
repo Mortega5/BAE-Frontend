@@ -65,7 +65,8 @@
 
 <!-- Standard/Flex Choice Modal -->
 @if (showSubtypeModal) {
-<app-plan-subtype-modal (select)="onSubtypeSelected($event)" (closed)="closeSubtypeModal()">
+<app-plan-subtype-modal [standardAvailable]="hasConfigurationOptions" (select)="onSubtypeSelected($event)"
+  (closed)="closeSubtypeModal()">
 </app-plan-subtype-modal>
 }
 
