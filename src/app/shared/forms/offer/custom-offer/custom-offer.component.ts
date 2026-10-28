@@ -178,6 +178,7 @@ export class CustomOfferComponent implements OnInit {
         }
       } catch (error: any) {
         this.handleApiError(error);
+        return;
       }
     }
   }
@@ -260,6 +261,7 @@ export class CustomOfferComponent implements OnInit {
     console.log(component)
     let priceComp: ProductOfferingPrice = {
       name: component.name,
+      isBundle: false,
       description: component.description ?? component?.newValue.description,
       lifecycleStatus: component?.lifecycleStatus ?? component?.newValue?.lifecycleStatus ?? 'Active',
       priceType: component.priceType ?? component?.newValue?.priceType,
@@ -313,6 +315,7 @@ export class CustomOfferComponent implements OnInit {
   private async createPriceAlteration(component: any, currency: string): Promise<any> {
     const priceAlter: ProductOfferingPrice = {
       name: 'discount',
+      isBundle: false,
       priceType: 'discount',
       validFor: {
         startDateTime: moment().toISOString(),
@@ -393,6 +396,7 @@ export class CustomOfferComponent implements OnInit {
 
   private handleApiError(error: any): void {
     console.error('Error while creating offer price!', error);
+    this.loading = false;
     this.notificationService.showError('CREATE_OFFER._price_create_error', {
       details: this.extractErrorDetail(error)
     });
