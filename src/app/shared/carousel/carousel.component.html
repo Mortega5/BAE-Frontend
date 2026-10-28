@@ -1,6 +1,7 @@
 <div [class]="wrapperClass">
 
-  <button (click)="prev()" [disabled]="!loop && index === 0" [class]="leftButtonClass">
+  <!-- Arrows stay in the layout but hidden when every item already fits on screen. -->
+  <button (click)="prev()" [disabled]="!loop && index === 0" [class]="leftButtonClass" [class.invisible]="pages <= 1">
 
     <fa-icon [icon]="faChevronLeft">
     </fa-icon>
@@ -24,7 +25,7 @@
 
 
 
-  <button (click)="next()" [disabled]="!loop && index === maxIndex" [class]="rightButtonClass">
+  <button (click)="next()" [disabled]="!loop && index === maxIndex" [class]="rightButtonClass" [class.invisible]="pages <= 1">
 
     <fa-icon [icon]="faChevronRight">
     </fa-icon>
