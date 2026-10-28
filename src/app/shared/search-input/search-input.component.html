@@ -1,8 +1,5 @@
 <form (submit)="onSubmit($event)">
-  <div class="app-search-input" [attr.data-ai]="ai || null">
-    @if (ai) {
-    <fa-icon class="app-search-input__ai-icon" [icon]="faSparkles" aria-hidden="true"></fa-icon>
-    }
+  <div class="app-search-input">
     <input type="text" enterkeyhint="search" [formControl]="control" class="app-search-input__field"
       [placeholder]="placeholder" />
     @if (control.value) {

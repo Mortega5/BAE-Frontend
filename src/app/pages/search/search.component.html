@@ -11,49 +11,12 @@
     </nav>
 
     <div class="flex flex-wrap items-center justify-end gap-4 pb-4">
-      <app-search-input [control]="searchField" [ai]="aiSearchEnabled" [loading]="aiSearchLoading"
-        [placeholder]="(aiSearchEnabled ? 'DASHBOARD._ai_search_ph' : 'DASHBOARD._search_ph') | translate"
+      <app-search-input [control]="searchField" 
+        [placeholder]="'DASHBOARD._search_ph' | translate"
         (search)="onUnifiedSearch()"></app-search-input>
     </div>
 
   </div>
-
-  <ng-template #pager let-page="page" let-totalPages="totalPages" let-onPage="onPage">
-    @if (totalPages > 1) {
-    <nav class="flex justify-center pt-4" [attr.aria-label]="'DASHBOARD._aria_pagination' | translate">
-      <ul class="inline-flex -space-x-px text-sm">
-        <li>
-          <button (click)="onPage(page - 1)" [disabled]="page === 1"
-            class="flex items-center justify-center px-3 h-8 ms-0 leading-tight text-[var(--form-hint-text)] bg-[var(--card-bg)] border border-e-0 border-[var(--card-border)] hover:bg-[var(--dropdown-item-hover-bg)] hover:text-[var(--theme-default-text)] rounded-s-lg disabled:opacity-50 disabled:cursor-not-allowed">
-            {{ 'DASHBOARD._prev' | translate }}
-          </button>
-        </li>
-        @for (p of [].constructor(totalPages); track $index) {
-        @if ($index + 1 === page || $index + 1 === 1 || $index + 1 === totalPages || ($index + 1 >= page - 2 &&
-        $index + 1 <= page + 2)) { <li>
-          <button (click)="onPage($index + 1)"
-            [ngClass]="$index + 1 === page ? 'text-[var(--button-link-text)] border-[var(--card-selected-border)] bg-[var(--card-selected-bg)]' : 'text-[var(--form-hint-text)] bg-[var(--card-bg)] border-[var(--card-border)] hover:bg-[var(--dropdown-item-hover-bg)] hover:text-[var(--theme-default-text)]'"
-            class="flex items-center justify-center px-3 h-8 leading-tight border">
-            {{ $index + 1 }}
-          </button>
-          </li>
-          } @else if ($index + 1 === page - 3 || $index + 1 === page + 3) {
-          <li>
-            <span
-              class="flex items-center justify-center px-3 h-8 leading-tight text-[var(--form-hint-text)] bg-[var(--card-bg)] border border-[var(--card-border)]">...</span>
-          </li>
-          }
-          }
-          <li>
-            <button (click)="onPage(page + 1)" [disabled]="page === totalPages"
-              class="flex items-center justify-center px-3 h-8 leading-tight text-[var(--form-hint-text)] bg-[var(--card-bg)] border border-[var(--card-border)] hover:bg-[var(--dropdown-item-hover-bg)] hover:text-[var(--theme-default-text)] rounded-e-lg disabled:opacity-50 disabled:cursor-not-allowed">
-              {{ 'DASHBOARD._next' | translate }}
-            </button>
-          </li>
-      </ul>
-    </nav>
-    }
-  </ng-template>
 
   <ng-template #sidebarFilters>
     <div>
@@ -77,7 +40,6 @@
   <div class="mx-auto max-w-[1440px] px-8 pt-4 pb-6 flex-1">
     <div class="flex gap-6 items-start">
 
-      @if (!aiSearchEnabled) {
       @if (showDrawer) {
       <div (click)="$event.stopPropagation();"
         class="fixed h-screen w-3/4 top-0 left-0 z-50 p-4 overflow-y-auto bg-[var(--card-bg)]" tabindex="-1">
@@ -110,7 +72,6 @@
         </div>
       </aside>
       }
-      }
 
       <div class="min-w-0 flex-1">
 
@@ -127,81 +88,10 @@
           </div>
         </ng-template>
 
-        @if (!aiSearchEnabled) {
         <app-button (click)="showDrawer=!showDrawer; $event.stopPropagation();" type="button" variant="secondary"
           prefixIcon="bars" class="mb-4 md:hidden">
           {{ 'DASHBOARD._filters' | translate }}
         </app-button>
-        }
-
-        @if (aiSearchEnabled) {
-        <!-- ================= AI SEARCH MODE ================= -->
-
-        <div class="mb-5 flex items-center justify-between">
-          <span class="text-[16px] text-[var(--form-hint-text)]">
-            @if (!loading) {
-            {{ 'DASHBOARD._results_of_total' | translate: { count: products.length, total: totalResultsCount } }}
-            }
-          </span>
-          <app-view-toggle [(mode)]="viewMode"></app-view-toggle>
-        </div>
-
-        @if (loading) {
-        <app-loading-spinner />
-        } @else {
-
-        @if (aiAnswer) {
-        <div
-          class="w-full mb-4 p-4 bg-[var(--ai-surface-bg)] border border-[var(--ai-border)] rounded-lg shadow-sm">
-          <div class="flex items-start gap-3">
-            <div
-              class="flex-shrink-0 w-8 h-8 bg-[var(--ai-icon-bg)] rounded-full flex items-center justify-center">
-              <fa-icon [icon]="faSparkles" class="text-sm text-[var(--ai-accent)]" aria-hidden="true"></fa-icon>
-            </div>
-            <div class="flex-1 min-w-0">
-              <h4 class="text-sm font-semibold text-[var(--theme-default-text)] mb-2">{{ 'DASHBOARD._ai_answer' |
-                translate }}</h4>
-              <div
-                class="ai-answer-content text-sm text-[var(--theme-default-text)] prose prose-sm dark:prose-invert max-w-none">
-                <markdown [data]="aiAnswer"></markdown>
-              </div>
-            </div>
-            <button type="button" (click)="aiAnswer = ''"
-              class="flex-shrink-0 text-[var(--form-hint-text)] hover:text-[var(--theme-default-text)]">
-              <fa-icon [icon]="faXmark" class="text-base" aria-hidden="true"></fa-icon>
-            </button>
-          </div>
-        </div>
-        }
-
-        @if (aiSearchLoading) {
-        <div class="w-full mb-4 p-4 bg-[var(--card-bg)] border border-[var(--card-border)] rounded-lg">
-          <div class="flex items-center gap-3">
-            <fa-icon [icon]="faSpinnerThird" animation="spin" class="text-xl text-[var(--ai-accent)]" aria-hidden="true"></fa-icon>
-            <span class="text-sm text-[var(--form-hint-text)]">{{ 'DASHBOARD._ai_thinking' | translate }}</span>
-          </div>
-        </div>
-        }
-
-        <div
-          [ngClass]="viewMode === 'list' ? 'flex flex-col gap-4' : 'grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4'">
-          @for (prod of products; track prod.id; let index = $index) {
-          <bae-off-card data-cy="baeCard" [productOff]="prod" [cardId]="index" [viewMode]="viewMode"
-            class="w-full h-full"></bae-off-card>
-          } @empty {
-          <div data-cy="searchNoOffersFound" class="col-span-full">
-            <ng-container *ngTemplateOutlet="noResults"></ng-container>
-          </div>
-          }
-        </div>
-
-        <ng-container
-          *ngTemplateOutlet="pager; context: { page: aiCurrentPage, totalPages: aiTotalPages, onPage: changeAiPage }"></ng-container>
-
-        }
-        <!-- ================= END AI SEARCH MODE ================= -->
-        } @else {
-        <!-- ================= STANDARD SEARCH MODE ================= -->
 
         <app-card class="block rounded-xl overflow-hidden">
           <div appCardHeader>
@@ -297,8 +187,6 @@
           </div>
         </app-card>
 
-        <!-- ================= END STANDARD SEARCH MODE ================= -->
-        }
       </div>
     </div>
   </div>

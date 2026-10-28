@@ -2,7 +2,7 @@ import { ChangeDetectorRef, Component, HostListener, OnDestroy, OnInit } from '@
 import { FormControl } from '@angular/forms';
 
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router';
-import { faChevronRight, faMagnifyingGlassPlus, faSparkles, faSpinnerThird, faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { faChevronRight, faMagnifyingGlassPlus } from '@fortawesome/pro-solid-svg-icons';
 import moment from 'moment';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -20,7 +20,6 @@ type ProductOffering = components["schemas"]["ProductOffering"];
 import { fetchAllPages } from 'src/app/models/pagination.model';
 import { SelectOption } from 'src/app/models/formFields/form-field.model';
 import { searchCategoriesConfig } from 'src/app/data/availableFilters';
-import { AiSearchService } from 'src/app/services/ai-search.service';
 import { ThemeService } from 'src/app/services/theme.service';
 
 @Component({
@@ -45,12 +44,9 @@ export class SearchComponent implements OnInit, OnDestroy {
 
   protected readonly faChevronRight = faChevronRight;
   protected readonly faMagnifyingGlassPlus = faMagnifyingGlassPlus;
-  protected readonly faSparkles = faSparkles;
-  protected readonly faSpinnerThird = faSpinnerThird;
-  protected readonly faXmark = faXmark;
   marketplaceHomeUrl = '/search';
 
-  // Sidebar filters (non-AI mode)
+  // Sidebar filters
   rootCategories: Category[] = [];
   categoryOptions: SelectOption[] = [];
   selectedCategoryId: string | null = null;
@@ -63,7 +59,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   primaryCategoriesMode = searchCategoriesConfig.primaryCategoriesMode;
   primaryRootName = searchCategoriesConfig.primaryRootName;
 
-  // Private offerings section (non-AI mode)
+  // Private offerings section 
   privateItems: ProductOffering[] = [];
   privatePage = 1;
   privateTotal = 0;
@@ -71,7 +67,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   privateLoadingMore = false;
   readonly PRIVATE_LIMIT = 6;
 
-  // Public offerings section (non-AI mode)
+  // Public offerings section 
   publicItems: ProductOffering[] = [];
   publicPage = 1;
   publicTotal = 0;
@@ -103,23 +99,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     return this.hasPrivateOfferings || this.offerTab === 'private';
   }
 
-  // AI Search properties (untouched — a separate, independent mode)
-  aiSearchEnabled = environment.AI_SEARCH_ENABLED;
-  aiAnswer: string = '';
-  aiSearchLoading: boolean = false;
-  aiTotalItems: number = 0;
-  aiCurrentPage: number = 1;
-  aiPageSize: number = environment.PRODUCT_LIMIT;
-  products: ProductOffering[] = [];
-
-  get aiTotalPages(): number {
-    return Math.ceil(this.aiTotalItems / this.aiPageSize);
-  }
-
-  get totalResultsCount(): number {
-    return this.aiTotalItems;
-  }
-
   constructor(
     private api: ApiServiceService,
     private cdr: ChangeDetectorRef,
@@ -129,7 +108,6 @@ export class SearchComponent implements OnInit, OnDestroy {
     private eventMessage: EventMessageService,
     private loginService: LoginServiceService,
     private state: SearchStateService,
-    private aiSearchService: AiSearchService,
     private themeService: ThemeService) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -167,54 +145,37 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.keywords = (query.get('keyword') || this.route.snapshot.paramMap.get('keywords'))?.trim() || undefined;
     this.searchField.setValue(this.keywords ?? null, { emitEvent: false });
 
-    if (this.aiSearchEnabled) {
-      // Coming back from an offer's details: reuse the results instead of asking the AI again.
-      if (this.state.hasState() && this.state.keywords === this.keywords) {
-        this.products = this.state.products;
-      } else if (this.keywords) {
-        await this.runAiSearch();
-      } else {
-        await this.runInitialAiSearch();
-      }
+    await this.loadCategoryOptions();
+    if (this.catalogFilterEnabled) {
+      await this.loadCatalogOptions();
+    }
+
+    this.selectedCategoryId = query.get('category');
+    this.activeCategoryName = this.categoryOptions.find(o => o.value === this.selectedCategoryId)?.label ?? null;
+    this.selectedCatalogId = this.catalogFilterEnabled ? query.get('catalog') : null;
+    this.offerTab = query.get('tab') === 'private' ? 'private' : 'public';
+
+    // The saved state only adds how many "load more" pages were open, and only applies when
+    // it was saved for this very search (e.g. back from an offer's details).
+    if (this.state.hasState() && this.stateMatchesFilters()) {
+      await Promise.all([
+        this.loadPublicOfferings(this.state.publicPage || 1),
+        this.loadPrivateOfferings(this.state.privatePage || 1),
+      ]);
     } else {
-      await this.loadCategoryOptions();
-      if (this.catalogFilterEnabled) {
-        await this.loadCatalogOptions();
-      }
-
-      this.selectedCategoryId = query.get('category');
-      this.activeCategoryName = this.categoryOptions.find(o => o.value === this.selectedCategoryId)?.label ?? null;
-      this.selectedCatalogId = this.catalogFilterEnabled ? query.get('catalog') : null;
-      this.offerTab = query.get('tab') === 'private' ? 'private' : 'public';
-
-      // The saved state only adds how many "load more" pages were open, and only applies when
-      // it was saved for this very search (e.g. back from an offer's details).
-      if (this.state.hasState() && this.stateMatchesFilters()) {
-        await Promise.all([
-          this.loadPublicOfferings(this.state.publicPage || 1),
-          this.loadPrivateOfferings(this.state.privatePage || 1),
-        ]);
-      } else {
-        await this.refreshOfferings();
-      }
+      await this.refreshOfferings();
     }
     this.syncUrl();
 
     // Emptying the field (typing it away or the clear button) drops the active search. Only
-    // when one is active, so runInitialAiSearch's own searchField.reset() doesn't loop back here.
+    // when one is active, so programmatic resets don't loop back here.
     this.searchField.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(async v => {
         if (!v && this.keywords !== undefined) {
           this.keywords = undefined;
           this.syncUrl();
-          this.aiAnswer = '';
-          this.eventMessage.emitAiSearchCleared();
-          if (this.aiSearchEnabled) {
-            await this.runInitialAiSearch();
-          } else {
-            await this.refreshOfferings();
-          }
+          await this.refreshOfferings();
         }
       });
     setTimeout(() => {
@@ -342,7 +303,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   // ------------------------------------------------------------------
-  // Offerings loading (non-AI mode) — classic forward/backward pagination,
+  // Offerings loading — classic forward/backward pagination,
   // one independent page per section.
   // ------------------------------------------------------------------
 
@@ -455,7 +416,7 @@ export class SearchComponent implements OnInit, OnDestroy {
   }
 
   // ------------------------------------------------------------------
-  // Search bar (shared entry point between AI and non-AI modes)
+  // Search bar
   // ------------------------------------------------------------------
 
   /** Mirrors the search and its filters into the query string (defaults left out). Navigating
@@ -479,158 +440,10 @@ export class SearchComponent implements OnInit, OnDestroy {
       && this.state.selectedCatalogId === this.selectedCatalogId;
   }
 
-  // Unified Search - triggers both standard search and AI answer
   async onUnifiedSearch(): Promise<void> {
-    if (this.aiSearchEnabled && this.searchField.value?.trim()) {
-      this.keywords = this.searchField.value;
-      this.syncUrl();
-      await this.runAiSearch();
-    } else if (this.aiSearchEnabled) {
-      this.keywords = undefined;
-      this.syncUrl();
-      this.aiAnswer = '';
-      this.eventMessage.emitAiSearchCleared();
-      await this.runInitialAiSearch();
-    } else {
-      this.keywords = this.searchField.value?.trim() || undefined;
-      this.syncUrl();
-      this.aiAnswer = '';
-      this.eventMessage.emitAiSearchCleared();
-      await this.refreshOfferings();
-    }
-  }
-
-  // ------------------------------------------------------------------
-  // AI Search mode — untouched, independent of the sidebar filters above.
-  // ------------------------------------------------------------------
-
-  private async runInitialAiSearch(): Promise<void> {
-    this.loading = true;
-    this.aiCurrentPage = 1;
-    if (!this.keywords) {
-      this.searchField.reset();
-    }
-    this.cdr.detectChanges();
-
-    try {
-      const searchResponse = await this.aiSearchService.search(
-        '',
-        [],
-        false,
-        this.aiPageSize,
-        0
-      );
-
-      this.products = this.mapAiSearchToProducts(searchResponse.items || []);
-      this.aiTotalItems = searchResponse.total_count;
-
-      this.state.save({
-        products: this.products,
-        keywords: this.keywords
-      });
-    } catch (error) {
-      console.error('Initial AI Search error:', error);
-    } finally {
-      this.loading = false;
-      this.cdr.detectChanges();
-    }
-  }
-
-  private async runAiSearch(): Promise<void> {
-    const query = this.searchField.value?.trim();
-    if (!query) {
-      return;
-    }
-
-    this.aiSearchLoading = true;
-    this.aiAnswer = '';
-    this.loading = true;
-    this.aiCurrentPage = 1;
-    this.cdr.detectChanges();
-
-    try {
-      const { searchResponse, answer } = await this.aiSearchService.searchWithAnswer(
-        query,
-        [],
-        this.aiPageSize,
-        0
-      );
-
-      this.products = this.mapAiSearchToProducts(searchResponse.items || []);
-      this.aiTotalItems = searchResponse.total_count;
-      this.aiAnswer = answer;
-
-      this.state.save({
-        products: this.products,
-        keywords: this.keywords
-      });
-    } catch (error) {
-      console.error('AI Search error:', error);
-      this.aiAnswer = '';
-      this.products = [];
-    } finally {
-      this.aiSearchLoading = false;
-      this.loading = false;
-      this.cdr.detectChanges();
-    }
-  }
-
-  changeAiPage = async (page: number): Promise<void> => {
-    this.aiCurrentPage = page;
-    this.loading = true;
-    this.cdr.detectChanges();
-
-    try {
-      const offset = (this.aiCurrentPage - 1) * this.aiPageSize;
-
-      const searchResponse = await this.aiSearchService.search(
-        this.keywords || '',
-        [],
-        false,
-        this.aiPageSize,
-        offset
-      );
-
-      this.products = this.mapAiSearchToProducts(searchResponse.items || []);
-      this.aiTotalItems = searchResponse.total_count;
-    } catch (error) {
-      console.error('AI Search page change error:', error);
-    } finally {
-      this.loading = false;
-      this.cdr.detectChanges();
-    }
-  }
-
-  private mapAiSearchToProducts(aiItems: any[]): ProductOffering[] {
-    return aiItems.map(item => ({
-      id: item.id,
-      href: item.id,
-      name: item.offeringName || item.specificationName,
-      description: item.offeringDescription || item.specificationDescription,
-      lifecycleStatus: item.lifecycleStatus || 'Launched',
-      category: item.categories || [],
-      attachment: item.imageUrl ? [{
-        id: 'ai-image',
-        name: 'Profile Picture',
-        attachmentType: 'Picture',
-        url: item.imageUrl,
-        mimeType: 'image/png'
-      }] : [],
-      productSpecification: {
-        id: item.id,
-        name: item.specificationName,
-        description: item.specificationDescription,
-        brand: item.brand,
-        productSpecCharacteristic: item.complianceProfiles ? [{
-          name: 'complianceProfiles',
-          productSpecCharacteristicValue: item.complianceProfiles.map((cp: any) => ({
-            value: cp.name
-          }))
-        }] : []
-      },
-      productOfferingPrice: [],
-      _aiSearchData: item
-    } as any));
+    this.keywords = this.searchField.value?.trim() || undefined;
+    this.syncUrl();
+    await this.refreshOfferings();
   }
 
 }

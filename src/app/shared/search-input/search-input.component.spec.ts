@@ -46,13 +46,4 @@ describe('SearchInputComponent', () => {
     el('.app-search-input__submit')!.click();
     expect(component.search.emit).toHaveBeenCalled();
   });
-
-  it('should show the AI icon only in AI mode', () => {
-    expect(el('.app-search-input__ai-icon')).toBeNull();
-
-    fixture.componentRef.setInput('ai', true);
-    fixture.detectChanges();
-    expect(el('.app-search-input__ai-icon')).not.toBeNull();
-    expect(el('.app-search-input')!.hasAttribute('data-ai')).toBeTrue();
-  });
 });

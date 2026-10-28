@@ -2,14 +2,7 @@ import { Injectable } from '@angular/core';
 
 @Injectable({ providedIn: 'root' })
 export class SearchStateService {
-  // AI-search mode state (unchanged shape).
-  products: any[] = [];
-  page: number = 0;
-  page_check: boolean = true;
-  total: number = 0;
   keywords: string | undefined = undefined;
-
-  // Standard (non-AI) search mode state.
   selectedCategoryId: string | null = null;
   selectedCatalogId: string | null = null;
   activeCategoryName: string | null = null;
@@ -20,7 +13,7 @@ export class SearchStateService {
   private hasStandardState = false;
 
   hasState(): boolean {
-    return this.products.length > 0 || this.hasStandardState;
+    return this.hasStandardState;
   }
 
   save(state: Partial<SearchStateService>) {
@@ -36,10 +29,6 @@ export class SearchStateService {
   }
 
   clear() {
-    this.products = [];
-    this.page = 0;
-    this.page_check = true;
-    this.total = 0;
     this.keywords = undefined;
     this.selectedCategoryId = null;
     this.selectedCatalogId = null;

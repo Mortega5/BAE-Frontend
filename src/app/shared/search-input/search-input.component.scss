@@ -1,6 +1,5 @@
 /* Input surface reuses the global form tokens (--theme-input-*, --form-hint-text) and the
-   clear button the danger-button ones (--button-danger-*); AI mode uses the shared --ai-*
-   tokens. All are defined in styles.css. */
+   clear button the danger-button ones (--button-danger-*). All are defined in styles.css. */
 
 :host {
   display: block;
@@ -16,15 +15,6 @@
   @apply flex h-[56px] w-full items-center gap-4 rounded-2xl border px-4;
   background-color: var(--theme-input-bg);
   border-color: var(--theme-input-border);
-
-  &[data-ai] {
-    border-color: var(--ai-border);
-  }
-}
-
-.app-search-input__ai-icon {
-  @apply shrink-0 text-base;
-  color: var(--ai-accent);
 }
 
 .app-search-input__field {

@@ -15,7 +15,7 @@ export interface Category {
   version?: string,
   validFor?: object,
   children?: Category[],
-  count?: number, // Count from AI search facets
+  count?: number, // Optional result count
   sanitizedId?: string // Sanitized ID for CSS selectors (used with static filters)
 }
 
