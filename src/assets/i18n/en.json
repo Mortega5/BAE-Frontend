@@ -1056,6 +1056,8 @@
     "_resources": "Resources"
   },
   "PRODUCT_DETAILS": {
+    "_discover_more": "Discover more",
+    "_discover_more_subtitle": "More offers from this provider",
     "_back": "Back",
     "_details": "Details",
     "_information": "Information",

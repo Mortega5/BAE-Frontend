@@ -97,6 +97,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
   toastVisibility: boolean = false;
   lastAddedProd: any | undefined;
   checkCustom: boolean = false;
+  moreOfferings: any[] = [];
+  moreVisibleItems = 3;
   textDivHeight: any;
   prodChars: any[] = [];
   /** prodChars split by `configurable` — the buyer can pick a value for these at
@@ -303,9 +305,25 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
       this.check_logged = false,
         this.cdr.detectChanges();
     }
-    window.scrollTo(0, 0);
+    // Subscribed rather than read once: the "discover more" carousel links to other offers
+    // on this same route, which reuses this component instead of creating a new one.
+    this.route.paramMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(params => this.loadOffer(params.get('id')));
+  }
 
-    this.id = this.route.snapshot.paramMap.get('id');
+  private async loadOffer(id: string | null) {
+    window.scrollTo(0, 0);
+    this.pageLoading = true;
+    this.notFound = false;
+    this.productOff = undefined;
+    this.orgInfo = undefined;
+    this.checkCustom = false;
+    this.productAlreadyInCart = false;
+    this.activeTab = 'overview';
+    this.moreOfferings = [];
+
+    this.id = id;
     console.log('--- Details ID:')
     console.log(this.id)
     let prod;
@@ -1232,6 +1250,30 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     }
 
     this.orgInfo = await this.accService.getOrgInfo(sellerParty.id);
+    if (!this.isPreviewMode) this.loadMoreFromProvider(sellerParty.id);
+  }
+
+  /** Other public offers by the same provider, for the "discover more" carousel. Not awaited:
+   * it isn't needed to show the offer itself. */
+  private async loadMoreFromProvider(partyId: string): Promise<void> {
+    const offerId = this.id;
+    try {
+      const page = await this.api.getOfferingsPaged({ limit: 10, offset: 0, partyId, visibility: 'public' });
+      const others = page.items.filter((offer: any) => offer?.id !== offerId).slice(0, 9);
+      const enriched = others.length > 0 ? await this.api.getProductsDetails(others) : [];
+      if (this.id !== offerId) return; // navigated to another offer meanwhile
+      this.updateMoreVisibleItems();
+      this.moreOfferings = enriched;
+      this.cdr.detectChanges();
+    } catch (error) {
+      console.error('Could not load more offers from this provider', error);
+    }
+  }
+
+  @HostListener('window:resize')
+  updateMoreVisibleItems(): void {
+    const width = window.innerWidth;
+    this.moreVisibleItems = width < 768 ? 1 : width < 1024 ? 2 : 3;
   }
 
   goToOrgDetails(id: any) {
