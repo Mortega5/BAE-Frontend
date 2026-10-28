@@ -1,5 +1,4 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { NgClass } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ModalComponent } from 'src/app/shared/modal/modal.component';
@@ -8,7 +7,7 @@ import { ModalComponent } from 'src/app/shared/modal/modal.component';
   selector: 'app-plan-subtype-modal',
   standalone: true,
   templateUrl: './plan-subtype-modal.component.html',
-  imports: [NgClass, TranslateModule, ButtonComponent, ModalComponent]
+  imports: [TranslateModule, ButtonComponent, ModalComponent]
 })
 export class PlanSubtypeModalComponent {
 

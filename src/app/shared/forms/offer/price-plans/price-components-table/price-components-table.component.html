@@ -1,13 +1,13 @@
 @if (priceComponents.length === 0) {
-<div class="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center px-6 py-10 text-center">
-  <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 bg-[#DDE6F6] dark:bg-secondary-300">
+<div class="rounded-2xl border border-dashed border-line-input flex flex-col items-center justify-center px-6 py-10 text-center">
+  <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 bg-secondary-50 dark:bg-secondary-300">
     <svg class="w-10 h-10 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
       <path fill-rule="evenodd" clip-rule="evenodd" d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v.75c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875v-.75C22.5 3.839 21.66 3 20.625 3H3.375z"/>
       <path fill-rule="evenodd" clip-rule="evenodd" d="M3.087 9l.54 9.176A3 3 0 006.62 21h10.757a3 3 0 002.995-2.824L20.913 9H3.087zm6.133 2.845a.75.75 0 011.06 0l1.72 1.72 1.72-1.72a.75.75 0 111.06 1.06l-1.72 1.72 1.72 1.72a.75.75 0 11-1.06 1.06L12 15.685l-1.72 1.72a.75.75 0 11-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06z"/>
     </svg>
   </div>
-  <p class="text-lg font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._no_price_components_yet' | translate }}</p>
-  <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._no_price_plans_yet_subtitle' | translate }}</p>
+  <p class="text-lg font-semibold text-content">{{ 'CREATE_OFFER._no_price_components_yet' | translate }}</p>
+  <p class="text-sm text-content-muted mt-2">{{ 'CREATE_OFFER._no_price_plans_yet_subtitle' | translate }}</p>
 </div>
 } @else {
 <app-table-input [columns]="columns" [items]="priceComponents" [selectable]="false" />
@@ -15,8 +15,8 @@
 
 <!-- Modal de Confirmación de Eliminación -->
 <app-modal [visible]="showDeleteModal" width="max-w-lg" (closed)="showDeleteModal = false">
-  <h2 appCardHeader class="text-xl font-extrabold text-gray-900 dark:text-white">{{ 'FORMS.PRICE_PLAN_COMPONENT._delete_price_comp' | translate }}</h2>
-  <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'FORMS.PRICE_PLAN_COMPONENT._unable_undone' | translate }}</p>
+  <h2 appCardHeader class="text-xl font-extrabold text-content">{{ 'FORMS.PRICE_PLAN_COMPONENT._delete_price_comp' | translate }}</h2>
+  <p class="text-sm text-content-muted">{{ 'FORMS.PRICE_PLAN_COMPONENT._unable_undone' | translate }}</p>
   <div appCardFooter class="flex justify-end gap-3">
     <app-button (click)="showDeleteModal = false" variant="secondary">{{ 'FORMS.PRICE_PLAN_COMPONENT._cancel' | translate }}</app-button>
     <app-button (click)="deletePriceComponent()" variant="danger">{{ 'FORMS.PRICE_PLAN_COMPONENT._delete' | translate }}</app-button>

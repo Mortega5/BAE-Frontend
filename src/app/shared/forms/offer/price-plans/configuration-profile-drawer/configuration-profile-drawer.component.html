@@ -1,6 +1,6 @@
 <app-modal [visible]="true" width="md:w-5/6 max-w-3xl" (closed)="cancel()">
   <div appCardHeader class="flex justify-between items-center">
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+    <h2 class="text-2xl font-bold text-content">
       {{ 'FORMS.PRICE_PLANS._configure_profile_chars' | translate }}
     </h2>
     <app-button type="button" (click)="cancel()" variant="ghost" size="sm" prefixIcon="xmark" />
@@ -11,7 +11,7 @@
         <app-dynamic-form [fields]="fields" [formGroup]="form" [columns]="2" />
       </app-card>
     } @else {
-      <div class="p-4 my-2 text-sm text-center text-primary-100 dark:text-primary-50 rounded-lg bg-blue-50 dark:bg-secondary-300" role="alert">
+      <div class="p-4 my-2 text-sm text-center text-primary-100 dark:text-primary-50 rounded-lg bg-info-soft" role="alert">
         <span class="font-medium">{{ 'FORMS.PRICE_PLANS._prod_spec_no_chars' | translate }}</span>
       </div>
     }

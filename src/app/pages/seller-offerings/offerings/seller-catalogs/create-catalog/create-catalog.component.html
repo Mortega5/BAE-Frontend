@@ -8,7 +8,7 @@
   </div>
   <!-- End Breadcrumb -->
 
-  <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'CREATE_CATALOG._new' | translate }}</h1>
+  <h1 class="text-3xl font-extrabold text-content mb-6">{{ 'CREATE_CATALOG._new' | translate }}</h1>
   }
 
   <app-stepper [canAdvance]="canAdvance" submitLabel="CREATE_CATALOG._create"
@@ -18,8 +18,8 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._general_info' | translate }}">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_CATALOG._general' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_CATALOG._general_desc' | translate }}</p>
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_CATALOG._general' | translate }}</h2>
+          <p class="text-sm text-content-muted mt-2">{{ 'CREATE_CATALOG._general_desc' | translate }}</p>
         </div>
         <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" />
       </div>

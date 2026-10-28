@@ -3,16 +3,16 @@
 
   <!-- Header -->
   <div class="flex justify-between items-center mb-2">
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'REQUEST_VALIDATION._title' | translate }}</h2>
+    <h2 class="text-2xl font-bold text-content">{{ 'REQUEST_VALIDATION._title' | translate }}</h2>
     <app-button type="button" (click)="closeModal.emit()" variant="ghost" size="sm" prefixIcon="xmark">
       <span class="sr-only">{{ 'COMMON._close_drawer' | translate }}</span>
     </app-button>
   </div>
-  <p class="mb-4 text-sm text-gray-600 dark:text-gray-400">{{ 'REQUEST_VALIDATION._intro' | translate }}</p>
+  <p class="mb-4 text-sm text-content-muted">{{ 'REQUEST_VALIDATION._intro' | translate }}</p>
 
   <div class="flex flex-col gap-4">
     <app-card>
-      <h3 appCardHeader class="text-lg font-semibold text-gray-900 dark:text-white">
+      <h3 appCardHeader class="text-lg font-semibold text-content">
         {{ 'REQUEST_VALIDATION._evidence_title' | translate }}
       </h3>
       <app-table-input [columns]="evidenceColumns" [items]="validationEvidenceRows" [selectable]="false"
@@ -20,7 +20,7 @@
     </app-card>
 
     <app-card>
-      <h3 appCardHeader class="text-lg font-semibold text-gray-900 dark:text-white">
+      <h3 appCardHeader class="text-lg font-semibold text-content">
         {{ 'REQUEST_VALIDATION._org_info_title' | translate }}
       </h3>
       <app-table-input [columns]="organizationColumns" [items]="organizationRows" [selectable]="false" />
@@ -28,20 +28,20 @@
 
     @if (hasMissingOrganizationInfo()) {
     <div role="alert"
-      class="flex items-center gap-3 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900">
-      <svg class="w-5 h-5 shrink-0 text-amber-600 dark:text-amber-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+      class="flex items-center gap-3 px-3 py-2 rounded-lg bg-warning-soft border border-warning-border">
+      <svg class="w-5 h-5 shrink-0 text-warning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
         <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm9.75-4.5a.75.75 0 0 0-.75.75v3.75a.75.75 0 0 0 1.5 0V8.25a.75.75 0 0 0-.75-.75Zm0 8.25a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z" clip-rule="evenodd"/>
       </svg>
-      <p class="text-sm text-amber-800 dark:text-amber-200">{{ 'REQUEST_VALIDATION._missing_org_info' | translate }}</p>
+      <p class="text-sm text-warning">{{ 'REQUEST_VALIDATION._missing_org_info' | translate }}</p>
     </div>
     }
     @if (requestValidationError) {
     <div role="alert"
-      class="flex items-center gap-3 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900">
-      <svg class="w-5 h-5 shrink-0 text-red-600 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+      class="flex items-center gap-3 px-3 py-2 rounded-lg bg-danger-soft border border-danger-border">
+      <svg class="w-5 h-5 shrink-0 text-danger" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
         <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm9.75-4.5a.75.75 0 0 0-.75.75v3.75a.75.75 0 0 0 1.5 0V8.25a.75.75 0 0 0-.75-.75Zm0 8.25a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z" clip-rule="evenodd"/>
       </svg>
-      <p class="text-sm text-red-700 dark:text-red-300">{{ requestValidationError }}</p>
+      <p class="text-sm text-danger">{{ requestValidationError }}</p>
     </div>
     }
 

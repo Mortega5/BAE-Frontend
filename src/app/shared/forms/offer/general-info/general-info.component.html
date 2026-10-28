@@ -6,7 +6,7 @@
 <app-modal data-cy="createCatalogModal" [visible]="showCreateCatalogModal" width="max-w-7xl"
   (closed)="closeCreateCatalogModal()">
   <div appCardHeader class="flex items-center justify-between">
-    <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_CATALOG._new' | translate }}</h3>
+    <h3 class="text-xl font-bold text-content">{{ 'CREATE_CATALOG._new' | translate }}</h3>
     <app-button type="button" (click)="closeCreateCatalogModal()" variant="ghost" size="sm" prefixIcon="xmark" />
   </div>
 

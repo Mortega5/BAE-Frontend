@@ -641,3 +641,17 @@ textarea:-webkit-autofill {
 textarea:-webkit-autofill::first-line {
   color: inherit;
 }
+
+/* Selectable option card (plan type, price tier...): reads the card tokens so templates only
+   toggle `.is-selected` instead of binding the variables. */
+.option-card {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+}
+.option-card:hover:not(:disabled) {
+  border-color: var(--card-hover-border);
+}
+.option-card.is-selected {
+  background-color: var(--card-selected-bg);
+  border-color: var(--card-selected-border);
+}
