@@ -134,6 +134,20 @@ describe('OdrlPolicyInputComponent', () => {
       expect(editor.hasAttribute('api-base-url')).toBeFalse();
     });
 
+    it('hands the editor the marketplace theme mapped on the host', async () => {
+      fixture.nativeElement.style.setProperty('--odrl-primary-color', 'rgb(1 2 3)');
+      fixture.nativeElement.style.setProperty('--odrl-card-bg', 'rgb(4 5 6)');
+
+      await open();
+
+      const config = (inBody('odrl-policy-editor') as any).themeConfig;
+      expect(config['odrl-primary-color']).toBe('rgb(1 2 3)');
+      expect(config['odrl-card-bg']).toBe('rgb(4 5 6)');
+      // Not overridden here: comes from the stylesheet's mapping onto the marketplace token.
+      expect(config['odrl-text-color']).toBe(
+        getComputedStyle(document.body).getPropertyValue('--theme-default-text').trim());
+    });
+
     it('leaves Cancel to the modal footer and puts the summary in a tab', async () => {
       await open();
 
