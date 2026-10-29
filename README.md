@@ -27,6 +27,16 @@ The core of the system is the `ThemeService`, which is responsible for loading a
 
 ---
 
+## Using theme colors in templates
+
+Templates never use fixed colors (`text-gray-900`, `bg-red-50`, `text-[#0B1528]`) or bind CSS variables directly (`text-[var(--x)]`). Each meaning has one role class that reads a theme token and already covers dark mode. Examples: `text-content`, `text-content-muted`, `bg-surface`, `bg-surface-input`, `border-line`, `ring-focus`, `text-on-primary`, `text-link`, and `text-danger` / `bg-danger-soft` with their success, warning and info equivalents.
+
+- **Token values** live in `src/styles.css`: light under `body`, dark under `.dark body`. A theme can override any of them in its `body.theme-<name>` block.
+- **Tailwind exposes them** as colors in `tailwind.config.js`, the same way it exposes `primary-*` / `secondary-*`.
+- **Component-specific tokens** (e.g. `--product-details-*`) are read from a class in the component's own stylesheet, and the template uses only that class.
+
+The full list of roles and when to use each one is in [`docs/theme-tokens.md`](docs/theme-tokens.md).
+
 ## Creating a New Theme
 
 Follow these steps to add a new theme to the application. In this example, we will create a new theme called **"Galaxy"**.

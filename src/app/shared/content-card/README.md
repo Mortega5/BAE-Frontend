@@ -55,7 +55,7 @@ README/memory for the story). An empty header or footer slot collapses via CSS
 
 ```html
 <app-card variant="panel">
-  <h2 appCardHeader class="text-2xl font-bold text-gray-900 dark:text-white">
+  <h2 appCardHeader class="text-2xl font-bold text-content">
     {{ 'NS._title' | translate }}
   </h2>
 
