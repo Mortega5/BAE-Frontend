@@ -412,9 +412,10 @@
           translate }}</h3>
         @for(service of serviceSpecs; track service.id){
         <div class="mb-2">
-          <span class="font-semibold text-secondary-100 dark:text-content">{{service.name}}</span>:
+          <span class="font-semibold text-secondary-100 dark:text-content">{{service.name}}</span>@if (service.description) {:
           <markdown class="text-[16px] pd-strong-text inline" [data]="service.description">
           </markdown>
+          }
         </div>
         }
       </div>
@@ -426,9 +427,10 @@
           | translate }}</h3>
         @for(resource of resourceSpecs; track resource.id){
         <div class="mb-2">
-          <span class="font-semibold text-secondary-100 dark:text-content">{{resource.name}}</span>:
+          <span class="font-semibold text-secondary-100 dark:text-content">{{resource.name}}</span>@if (resource.description) {:
           <markdown class="text-[16px] pd-strong-text inline" [data]="resource.description">
           </markdown>
+          }
         </div>
         }
       </div>
@@ -529,7 +531,7 @@
               @for (val of char?.productSpecCharacteristicValue; track val.value) {
               @if (val?.isDefault) {
               <span [title]="getCharacteristicValueTitle(val)"
-                class="inline-flex items-center rounded-md pd-chip px-2.5 py-1 text-xs font-semibold text-primary-100 dark:text-primary-50">{{
+                class="inline-flex items-center max-w-full min-w-0 break-all rounded-md pd-chip px-2.5 py-1 text-xs font-semibold text-primary-100 dark:text-primary-50">{{
                 getCharacteristicValueDisplay(val) }}</span>
               } @else {
               <bae-badge variant="plain" [title]="getCharacteristicValueTitle(val)"
