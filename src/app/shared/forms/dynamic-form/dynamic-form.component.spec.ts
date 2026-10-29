@@ -238,4 +238,14 @@ describe('DynamicFormComponent', () => {
     const labels = fixture.nativeElement.querySelectorAll('label[for]');
     expect(labels.length).toBe(3);
   });
+
+  it('should render an app-odrl-policy-input for an odrlPolicy field', () => {
+    const fields: FormField[] = [{ name: 'policy', label: 'Policy', type: 'odrlPolicy', dataCy: 'policy-field' }];
+    component.fields = fields;
+    component.formGroup = buildForm(fields);
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('app-odrl-policy-input')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('[data-cy="policy-field-raw"]')).not.toBeNull();
+  });
 });

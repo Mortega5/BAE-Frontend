@@ -103,4 +103,18 @@ describe('buildFormGroup', () => {
     const fg = buildFormGroup(fields);
     expect(fg.valid).toBeFalse();
   });
+
+  it('should create an odrlPolicy control that rejects invalid JSON but accepts empty and valid JSON', () => {
+    const fg = buildFormGroup([{ name: 'policy', label: 'Policy', type: 'odrlPolicy' }]);
+    const control = fg.get('policy')!;
+
+    expect(control.value).toBe('');
+    expect(control.valid).toBeTrue();
+
+    control.setValue('{"@type":"odrl:Policy"}');
+    expect(control.valid).toBeTrue();
+
+    control.setValue('{oops');
+    expect(control.errors?.['invalidJson']).toBeTrue();
+  });
 });

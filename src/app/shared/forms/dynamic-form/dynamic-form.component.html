@@ -196,6 +196,12 @@
       (filesChange)="formGroup.get(field.name)?.setValue($event); formGroup.get(field.name)?.markAsDirty()" />
     }
 
+    @if (field.type === 'odrlPolicy') {
+    <app-odrl-policy-input [formControlName]="field.name" [rows]="asOdrlPolicy(field).rows ?? 8"
+      [placeholder]="asOdrlPolicy(field).placeholder ?? 'FORMS.ODRL_POLICY._placeholder'" [readonly]="field.readonly ?? false"
+      [dataCy]="field.dataCy ?? field.name" />
+    }
+
     @if (field.hint) {
     <p class="mt-1 text-xs text-content-muted">{{ field.hint | translate }}</p>
     }

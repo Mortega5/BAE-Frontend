@@ -214,6 +214,13 @@ export interface CodeFormField extends BaseFormField {
   formatButton?: boolean;
 }
 
+/** An ODRL policy as JSON text, editable raw or through the visual ODRL policy editor. */
+export interface OdrlPolicyFormField extends BaseFormField {
+  type: 'odrlPolicy';
+  rows?: number;
+  placeholder?: string;
+}
+
 export interface AttachmentFormField extends BaseFormField {
   type: 'attachment';
   /** File type filter, e.g. "image/*" or ".pdf,.docx". Defaults to any file. */
@@ -226,4 +233,4 @@ export interface AttachmentFormField extends BaseFormField {
   deferUpload?: boolean;
 }
 
-export type FormField = StringFormField | NumberFormField | DateFormField | PhoneNumberFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | SliderFormField | TableFormField | PaginatedTableFormField | CodeFormField | AttachmentFormField;
+export type FormField = StringFormField | NumberFormField | DateFormField | PhoneNumberFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | SliderFormField | TableFormField | PaginatedTableFormField | CodeFormField | AttachmentFormField | OdrlPolicyFormField;

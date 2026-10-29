@@ -1,0 +1,34 @@
+<div class="flex flex-col gap-2" [attr.data-cy]="dataCy">
+  @if (mode === 'visual') {
+  <odrl-policy-editor load="none" save="none" validate="none" templates="none" mappings="none" hide-template-create-tab
+    [attr.theme]="editorTheme" [policy]="editorPolicy" (policy-changed)="onPolicyChanged($event)"></odrl-policy-editor>
+  } @else {
+  <textarea [value]="value" (input)="onInput($any($event.target).value)" (blur)="onBlur()" [rows]="rows"
+    [placeholder]="placeholder | translate" [attr.readonly]="locked || null" [class.pointer-events-none]="locked"
+    [class.opacity-60]="locked" [class.cursor-not-allowed]="locked" [attr.data-cy]="dataCy ? dataCy + '-raw' : null"
+    spellcheck="false"
+    class="bg-surface-input border border-line-input text-content text-sm font-mono rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 resize-y"></textarea>
+  @if (!validJson) {
+  <p class="text-sm text-danger">{{ 'FORMS.ODRL_POLICY._invalid_json' | translate }}</p>
+  }
+  }
+
+  @if (editorLoadFailed) {
+  <p class="text-sm text-danger">{{ 'FORMS.ODRL_POLICY._editor_load_failed' | translate }}</p>
+  }
+
+  @if (!locked) {
+  <div class="flex">
+    @if (mode === 'visual') {
+    <app-button variant="neutral" size="sm" [dataCy]="dataCy ? dataCy + '-show-raw' : undefined" (click)="showRaw()">
+      {{ 'FORMS.ODRL_POLICY._show_raw' | translate }}
+    </app-button>
+    } @else {
+    <app-button variant="neutral" size="sm" [disabled]="!canOpenEditor"
+      [dataCy]="dataCy ? dataCy + '-show-editor' : undefined" (click)="showEditor()">
+      {{ (loadingEditor ? 'FORMS.ODRL_POLICY._loading_editor' : 'FORMS.ODRL_POLICY._show_editor') | translate }}
+    </app-button>
+    }
+  </div>
+  }
+</div>

@@ -3156,6 +3156,14 @@
       "_error_loading": "Error al cargar los datos",
       "_selected_count": "{{count}} seleccionados"
     },
+    "ODRL_POLICY": {
+      "_show_editor": "Abrir editor visual",
+      "_loading_editor": "Cargando editor...",
+      "_show_raw": "Volver al JSON en crudo",
+      "_invalid_json": "El JSON no es válido.",
+      "_editor_load_failed": "No se ha podido cargar el editor visual. Aún puedes escribir la política como JSON.",
+      "_placeholder": "Pega o escribe la política ODRL en JSON"
+    },
     "MULTIPLE_SELECT": {
       "_add_items": "Añadir..."
     },

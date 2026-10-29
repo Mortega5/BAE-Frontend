@@ -1,6 +1,6 @@
 import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { CodeFormField, FormField, PaginatedTableFormField, SelectableFormField, TableFormField } from 'src/app/models/formFields/form-field.model';
-import { phoneNumberValidator, yamlValidator } from 'src/app/validators/validators';
+import { jsonValidator, phoneNumberValidator, yamlValidator } from 'src/app/validators/validators';
 
 /**
  * @param fields - Field descriptors; per-control validators are derived from them
@@ -21,6 +21,7 @@ export function buildFormGroup(fields: FormField[], groupValidators: ValidatorFn
     const validators: ValidatorFn[] = [];
     if (field.required) validators.push(Validators.required);
     if (field.type === 'code' && (field as CodeFormField).language === 'yaml') validators.push(yamlValidator);
+    if (field.type === 'odrlPolicy') validators.push(jsonValidator);
     if (field.type === 'phoneNumber') validators.push(phoneNumberValidator);
     if (field.validators) validators.push(...field.validators);
 
