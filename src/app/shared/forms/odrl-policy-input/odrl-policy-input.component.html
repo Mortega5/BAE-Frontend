@@ -42,7 +42,7 @@
          viewport width, not this modal's, and the editor is plain because the modal is already a card. -->
     <div class="h-[min(44rem,calc(100vh-16rem))] overflow-y-auto">
       <odrl-policy-editor load="none" save="none" validate="none" templates="none" mappings="none"
-        hide-template-create-tab hide-cancel-button summary="tab" variant="plain" [attr.theme]="editorTheme"
+        hide-template-create-tab hide-cancel-button summary="tab" variant="plain" [attr.theme]="editorTheme" [attr.locale]="editorLocale"
         [policy]="editorPolicy" (policy-changed)="onPolicyChanged($event)"></odrl-policy-editor>
     </div>
 

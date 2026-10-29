@@ -2,7 +2,7 @@ import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, Component, ElementRef, forwa
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ButtonComponent } from '../../button/button.component';
 import { ModalComponent } from '../../modal/modal.component';
 
@@ -43,11 +43,14 @@ export class OdrlPolicyInputComponent implements ControlValueAccessor, OnDestroy
   /** Policy the editor starts from, taken from the text when the modal opens. */
   editorPolicy?: Record<string, unknown>;
   editorTheme: 'light' | 'dark' = 'light';
+  /** UI language of the editor; it falls back to English for languages it has no strings for. */
+  editorLocale = 'en';
   /** Last policy the editor reported; committed to the control on Apply, dropped on Cancel. */
   private draft: string | null = null;
   private portalElement?: HTMLElement;
 
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly translate = inject(TranslateService);
   private onChange: (v: string) => void = () => { };
   private onTouched: () => void = () => { };
 
@@ -99,6 +102,7 @@ export class OdrlPolicyInputComponent implements ControlValueAccessor, OnDestroy
       await this.loadEditor();
       this.editorPolicy = this.parse(this.value);
       this.editorTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+      this.editorLocale = (this.translate.currentLang || this.translate.defaultLang || 'en').slice(0, 2);
       this.draft = null;
       this.editorOpen = true;
     } catch {
