@@ -148,12 +148,14 @@ describe('OdrlPolicyInputComponent', () => {
       expect(inBody('odrl-policy-editor')!.getAttribute('variant')).toBe('plain');
     });
 
-    it('scrolls the editor in its own area instead of growing the modal', async () => {
+    it('scrolls the editor in an area of fixed height, so the modal keeps its size on every tab', async () => {
       await open();
 
       const area = inBody('odrl-policy-editor')!.parentElement!;
       expect(area.classList).toContain('overflow-y-auto');
-      expect(Array.from(area.classList).some(c => c.startsWith('max-h-'))).toBeTrue();
+      // A fixed height (h-), not a cap (max-h-): a cap would let the modal shrink on short tabs.
+      expect(Array.from(area.classList).some(c => c.startsWith('h-['))).toBeTrue();
+      expect(Array.from(area.classList).some(c => c.startsWith('max-h-'))).toBeFalse();
     });
 
     it('keeps edits in a draft and only writes them on Apply', async () => {
