@@ -1,7 +1,8 @@
 <nav class="sticky top-0 z-50 w-full header-text transition-all duration-300"
   [class.header-top]="!scrolled && !isNavBarOpen" [class.header-glass]="scrolled || isNavBarOpen">
   <div class="mx-auto" [ngClass]="longNav ? 'max-w-[1280px]' : 'max-w-[1180px]'">
-    <div class="flex h-[88px] items-center justify-between gap-6">
+    <!-- 87px + the nav's 1px bottom border = the 88px the rest of the app subtracts from the viewport. -->
+    <div class="flex h-[87px] items-center justify-between gap-6">
       <a (click)="goTo('/dashboard')" class="flex shrink-0 items-center gap-4 cursor-pointer select-none">
         @if (currentTheme?.assets?.logoUrl) {
         <img [src]="currentTheme?.assets?.logoUrl" class="h-[51.7px] w-auto"
