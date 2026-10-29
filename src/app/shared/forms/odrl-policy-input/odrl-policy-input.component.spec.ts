@@ -134,6 +134,22 @@ describe('OdrlPolicyInputComponent', () => {
       expect(editor.hasAttribute('api-base-url')).toBeFalse();
     });
 
+    it('leaves Cancel to the modal footer and puts the summary in a tab', async () => {
+      await open();
+
+      const editor = inBody('odrl-policy-editor')!;
+      expect(editor.hasAttribute('hide-cancel-button')).toBeTrue();
+      expect(editor.getAttribute('summary')).toBe('tab');
+    });
+
+    it('scrolls the editor in its own area instead of growing the modal', async () => {
+      await open();
+
+      const area = inBody('odrl-policy-editor')!.parentElement!;
+      expect(area.classList).toContain('overflow-y-auto');
+      expect(Array.from(area.classList).some(c => c.startsWith('max-h-'))).toBeTrue();
+    });
+
     it('keeps edits in a draft and only writes them on Apply', async () => {
       const onChange = jasmine.createSpy('onChange');
       component.registerOnChange(onChange);

@@ -35,11 +35,14 @@
         [dataCy]="dataCy ? dataCy + '-close-editor' : undefined" (click)="cancelEditor()" />
     </div>
 
-    <!-- Leaves room for the editor's own dropdowns, which open inside the scrolling body. -->
-    <div class="min-h-[24rem]">
+    <!-- The editor is tall: it scrolls in its own area, capped to what is left of the viewport once the
+         modal's header, footer and padding are taken off. app-card's own cap does not apply here. Cancel
+         lives in the modal footer, and the summary is a tab because the side column follows the
+         viewport width, not this modal's. -->
+    <div class="max-h-[calc(100vh-16rem)] overflow-y-auto">
       <odrl-policy-editor load="none" save="none" validate="none" templates="none" mappings="none"
-        hide-template-create-tab [attr.theme]="editorTheme" [policy]="editorPolicy"
-        (policy-changed)="onPolicyChanged($event)"></odrl-policy-editor>
+        hide-template-create-tab hide-cancel-button summary="tab" [attr.theme]="editorTheme"
+        [policy]="editorPolicy" (policy-changed)="onPolicyChanged($event)"></odrl-policy-editor>
     </div>
 
     <div appCardFooter>
