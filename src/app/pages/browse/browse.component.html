@@ -23,12 +23,12 @@
             type="search"
             [(ngModel)]="searchQuery"
             name="searchQuery"
-            class="block w-full rounded-[16px] border border-gray-200 bg-white py-4 pl-5 pr-14 text-[16px] text-gray-900 shadow-none placeholder:text-gray-400 hover:shadow-[0_3px_16px_rgba(0,0,0,0.25)] focus:ring-2 focus:ring-[#00ADD3] focus:border-[#00ADD3] focus:shadow-none transition-shadow outline-none sm:text-[17px]"
+            class="block w-full rounded-[16px] border border-line bg-surface py-4 pl-5 pr-14 text-[16px] text-content shadow-none placeholder:text-gray-400 hover:shadow-[0_3px_16px_rgba(0,0,0,0.25)] focus:ring-2 focus:ring-[#00ADD3] focus:border-[#00ADD3] focus:shadow-none transition-shadow outline-none sm:text-[17px]"
             placeholder="{{ 'BROWSE.searchPlaceholder' | translate }}"
           />
           <button
             type="submit"
-            class="absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-lg text-gray-400 hover:text-gray-600 transition-colors"
+            class="absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-lg text-content-muted hover:text-gray-600 transition-colors"
           >
             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -60,7 +60,7 @@
           @for (category of categories; track category.id) {
             <button
               (click)="onCategoryClick(category)"
-              class="flex h-[72px] items-center gap-3 rounded-2xl border border-transparent bg-white px-6 text-left shadow-[0_0_16px_rgba(45,88,167,0.24)] transition hover:border-[#2D58A7] hover:shadow-[0_0_22px_rgba(45,88,167,0.35)]"
+              class="flex h-[72px] items-center gap-3 rounded-2xl border border-transparent bg-surface px-6 text-left shadow-[0_0_16px_rgba(45,88,167,0.24)] transition hover:border-[#2D58A7] hover:shadow-[0_0_22px_rgba(45,88,167,0.35)]"
             >
               <fa-icon [icon]="iconForCategory(category.name)" class="text-[20px] text-[#2D58A7]"></fa-icon>
               <span class="text-[15px] font-semibold text-[#0b1220] sm:text-[16px]">{{ category.name }}</span>
@@ -109,7 +109,7 @@
               @for (page of [popularPage]; track page) {
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 popular-grid" [attr.data-direction]="popularDirection">
                   @for (offer of popularPages[page]; track offer.id) {
-                    <div class="popular-card flex h-[438px] flex-col rounded-[20px] border border-[#d5dace] bg-white p-2">
+                    <div class="popular-card flex h-[438px] flex-col rounded-[20px] border border-[#d5dace] bg-surface p-2">
                       <div class="relative h-[170px] w-full shrink-0 overflow-hidden rounded-[14px] bg-[#e2e9f5] flex justify-center items-center">
                         <div class="absolute inset-0 bg-cover bg-center opacity-75" [style.background-image]="'url(' + offer.imageUrl + ')'" style="filter: blur(20px);"></div>
                         <img

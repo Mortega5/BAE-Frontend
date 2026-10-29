@@ -1,11 +1,11 @@
 <div class="relative isolate min-h-screen w-full font-[Blinker]">
   <div class="mx-auto w-full max-w-[1440px] px-8">
-    <nav class="flex items-center gap-2 pt-4 pb-4 text-[16px] text-[var(--form-hint-text)]">
-      <a [routerLink]="['/dashboard']" class="hover:text-[var(--button-link-text)] transition-colors">{{ 'CATALOGS._bc_home' | translate }}</a>
+    <nav class="flex items-center gap-2 pt-4 pb-4 text-[16px] text-content-muted">
+      <a [routerLink]="['/dashboard']" class="hover:text-link transition-colors">{{ 'CATALOGS._bc_home' | translate }}</a>
       <fa-icon [icon]="faChevronRight" class="text-xs" aria-hidden="true"></fa-icon>
-      <a [routerLink]="marketplaceHomeUrl" class="hover:text-[var(--button-link-text)] transition-colors">{{ 'CATALOGS._bc_marketplace' | translate }}</a>
+      <a [routerLink]="marketplaceHomeUrl" class="hover:text-link transition-colors">{{ 'CATALOGS._bc_marketplace' | translate }}</a>
       <fa-icon [icon]="faChevronRight" class="text-xs" aria-hidden="true"></fa-icon>
-      <span class="font-medium text-[var(--button-link-text)]">{{ (directoryMode === 'provider' ? 'CATALOGS._providers_bc_current' : 'CATALOGS._bc_current') | translate }}</span>
+      <span class="font-medium text-link">{{ (directoryMode === 'provider' ? 'CATALOGS._providers_bc_current' : 'CATALOGS._bc_current') | translate }}</span>
     </nav>
   </div>
 
@@ -15,7 +15,7 @@
     }
 
     <div class="flex flex-wrap items-center justify-between gap-4 pb-4">
-      <h2 class="text-[20px] leading-[24px] sm:text-[30px] font-bold sm:leading-[36px] text-[var(--theme-default-text)]">{{ (directoryMode === 'provider' ? 'CATALOGS._providers_title' : 'CATALOGS._all_providers') | translate }}</h2>
+      <h2 class="text-[20px] leading-[24px] sm:text-[30px] font-bold sm:leading-[36px] text-content">{{ (directoryMode === 'provider' ? 'CATALOGS._providers_title' : 'CATALOGS._all_providers') | translate }}</h2>
       @if (searchAvailable) {
       <app-search-input [control]="searchField" [placeholder]="'CATALOGS._search_placeholder' | translate"
         (search)="filterProviders()"></app-search-input>
@@ -24,7 +24,7 @@
 
     <div class="flex flex-wrap items-center justify-between gap-4 pt-[24px] sm:pt-[32px] pb-[24px]">
       <div class="flex w-full items-center justify-between gap-[24px] sm:w-auto sm:justify-start">
-        <span class="text-[16px] font-normal leading-[24px] text-[var(--form-hint-text)]">
+        <span class="text-[16px] font-normal leading-[24px] text-content-muted">
           @if (catalogTotal !== null) {
           {{ 'DASHBOARD._results_of_total' | translate: { count: totalCount, total: catalogTotal } }}
           } @else {
@@ -32,8 +32,8 @@
           }
         </span>
         <div class="relative flex items-center gap-[8px]">
-          <span class="text-[14px] font-normal leading-[24px] text-[var(--theme-default-text)]">{{ 'CATALOGS._sort_by' | translate }}:</span>
-          <button (click)="toggleSortDropdown($event)" class="flex items-center gap-[4px] text-[14px] font-semibold leading-[16px] tracking-[0.5px] text-[var(--button-link-text)]">
+          <span class="text-[14px] font-normal leading-[24px] text-content">{{ 'CATALOGS._sort_by' | translate }}:</span>
+          <button (click)="toggleSortDropdown($event)" class="flex items-center gap-[4px] text-[14px] font-semibold leading-[16px] tracking-[0.5px] text-link">
             {{ sortLabel | translate }}
             <fa-icon [icon]="faChevronDown" class="inline-flex text-xs transition-transform" [ngClass]="showSortDropdown ? 'rotate-180' : ''" aria-hidden="true"></fa-icon>
           </button>
@@ -41,7 +41,7 @@
             <app-dropdown-panel (click)="$event.stopPropagation()" class="absolute right-0 sm:left-0 sm:right-auto top-full z-50 mt-2 w-[200px]">
               @for (opt of sortOptions; track opt.value) {
                 <button (click)="selectSort(opt.value, $event)"
-                  [ngClass]="sortOption === opt.value ? 'bg-[var(--card-selected-bg)] text-[var(--button-link-text)]' : 'text-[var(--theme-default-text)] hover:bg-[var(--dropdown-item-hover-bg)]'"
+                  [ngClass]="sortOption === opt.value ? 'bg-surface-selected text-link' : 'text-content hover:bg-surface-hover'"
                   class="flex w-full items-center px-3 py-2.5 text-[14px]">{{ opt.label | translate }}</button>
               }
             </app-dropdown-panel>
@@ -60,14 +60,14 @@
             imageFit="contain" [clickable]="true" (cardClick)="goToProvider(prov.id)">
             <div class="flex flex-col gap-[8px]">
               @if (prov.owner) {
-              <div class="flex min-w-0 items-center gap-2 text-[14px] text-[var(--form-hint-text)]">
+              <div class="flex min-w-0 items-center gap-2 text-[14px] text-content-muted">
                 <fa-icon [icon]="faBuilding" class="shrink-0" aria-hidden="true"></fa-icon>
                 <span data-cy="cataloguesOwner" class="min-w-0 truncate" [title]="prov.owner">{{ prov.owner }}</span>
               </div>
               }
               <h5 data-cy="cataloguesTitle" [title]="prov.name"
-                class="min-w-0 truncate text-[20px] font-bold leading-[28px] text-[var(--theme-default-text)]">{{ prov.name }}</h5>
-              <p class="line-clamp-2 min-h-[48px] text-[16px] font-normal leading-[24px] text-[var(--form-hint-text)]">{{ prov.description || ('CATALOGS._no_desc' | translate) }}</p>
+                class="min-w-0 truncate text-[20px] font-bold leading-[28px] text-content">{{ prov.name }}</h5>
+              <p class="line-clamp-2 min-h-[48px] text-[16px] font-normal leading-[24px] text-content-muted">{{ prov.description || ('CATALOGS._no_desc' | translate) }}</p>
             </div>
           </app-tile-card>
         }

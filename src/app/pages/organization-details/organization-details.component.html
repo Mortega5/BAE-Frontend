@@ -1,24 +1,24 @@
 <div class="min-h-screen w-full font-[Blinker]">
   <div #summaryBar
-    class="absolute left-0 right-0 top-full z-40 w-full border-b border-[var(--card-border)] bg-[var(--card-bg)] transition-opacity duration-300 ease-out"
+    class="absolute left-0 right-0 top-full z-40 w-full border-b border-line bg-surface transition-opacity duration-300 ease-out"
     [ngClass]="showSummaryBar ? 'opacity-100' : 'pointer-events-none opacity-0'" [attr.aria-hidden]="!showSummaryBar">
     <div
       class="mx-auto flex w-full max-w-[1440px] flex-col gap-[12px] px-8 py-[12px] sm:flex-row sm:items-center sm:justify-between sm:gap-[16px]">
       <div class="flex min-w-0 items-center gap-[16px]">
         <div
-          class="hidden sm:block h-[86.5px] w-[157.74px] shrink-0 rounded-[12px] bg-[var(--card-inset-bg)] bg-contain bg-center bg-no-repeat">
+          class="hidden sm:block h-[86.5px] w-[157.74px] shrink-0 rounded-[12px] bg-surface-inset bg-contain bg-center bg-no-repeat">
         </div>
         <div class="flex min-w-0 flex-col gap-[4px]">
-          <h2 class="truncate text-[24px] font-bold leading-[28px] text-[var(--theme-default-text)]">{{
+          <h2 class="truncate text-[24px] font-bold leading-[28px] text-content">{{
             orgInfo?.tradingName }}</h2>
           <div class="hidden sm:flex items-center gap-[16px]">
             @if (country) {
-            <span class="text-[14px] font-semibold leading-[16px] tracking-[0.5px] text-[var(--theme-default-text)]">{{
+            <span class="text-[14px] font-semibold leading-[16px] tracking-[0.5px] text-content">{{
               country
               }}</span>
-            <span class="h-[16px] w-px bg-[var(--card-border)]"></span>
+            <span class="h-[16px] w-px bg-line"></span>
             }
-            <span class="flex items-center gap-[4px] text-[var(--theme-default-text)]">
+            <span class="flex items-center gap-[4px] text-content">
               <span class="text-[14px] font-semibold leading-[16px] tracking-[0.5px]">{{ servicesCount }}</span>
               <span class="text-[14px] font-normal leading-[24px]">{{ 'ORGANIZATION._services' | translate }}</span>
             </span>
@@ -28,25 +28,25 @@
     </div>
   </div>
   <div class="mx-auto w-full max-w-[1440px] px-8">
-    <nav class="flex min-w-0 items-center gap-2 pt-4 pb-4 text-[16px] text-[var(--form-hint-text)]">
-      <a [routerLink]="['/dashboard']" class="shrink-0 hover:text-[var(--button-link-text)] transition-colors">{{
+    <nav class="flex min-w-0 items-center gap-2 pt-4 pb-4 text-[16px] text-content-muted">
+      <a [routerLink]="['/dashboard']" class="shrink-0 hover:text-link transition-colors">{{
         'ORGANIZATION._bc_home' | translate }}</a>
       <fa-icon [icon]="faChevronRight" class="text-xs shrink-0" aria-hidden="true"></fa-icon>
-      <a [routerLink]="['/catalogues']" class="shrink-0 hover:text-[var(--button-link-text)] transition-colors">{{
+      <a [routerLink]="['/catalogues']" class="shrink-0 hover:text-link transition-colors">{{
         'ORGANIZATION._bc_marketplace' | translate }}</a>
       <fa-icon [icon]="faChevronRight" class="text-xs shrink-0" aria-hidden="true"></fa-icon>
-      <span class="min-w-0 truncate font-medium text-[var(--button-link-text)]">{{ orgInfo?.tradingName }}</span>
+      <span class="min-w-0 truncate font-medium text-link">{{ orgInfo?.tradingName }}</span>
     </nav>
   </div>
 
   @if (notFound) {
   <div class="mx-auto flex w-full max-w-[1440px] flex-col items-center gap-[16px] px-8 py-[120px] text-center">
-    <h1 class="text-[30px] font-bold leading-[36px] text-[var(--theme-default-text)]">{{ 'ORGANIZATION._not_found' |
+    <h1 class="text-[30px] font-bold leading-[36px] text-content">{{ 'ORGANIZATION._not_found' |
       translate }}</h1>
-    <p class="text-[16px] font-normal leading-[24px] text-[var(--form-hint-text)]">{{ 'ORGANIZATION._not_found_desc' |
+    <p class="text-[16px] font-normal leading-[24px] text-content-muted">{{ 'ORGANIZATION._not_found_desc' |
       translate }}</p>
     <a [routerLink]="['/catalogues']"
-      class="mt-[8px] flex h-[48px] items-center justify-center rounded-[8px] bg-[var(--button-primary-bg)] px-[24px] text-[18px] font-semibold leading-[22px] text-[var(--button-primary-text)] hover:bg-[var(--button-primary-bg-hover)]">{{
+      class="mt-[8px] flex h-[48px] items-center justify-center rounded-[8px] od-primary-bg px-[24px] text-[18px] font-semibold leading-[22px] od-primary-text od-primary-bg-hover">{{
       'ORGANIZATION._back_to_providers' | translate }}</a>
   </div>
   } @else {
@@ -55,16 +55,16 @@
     <app-card>
       <div #providerHero class="flex flex-col gap-[24px] md:flex-row">
         <div
-          class="h-[189px] w-full md:h-[233px] md:w-[424px] shrink-0 rounded-[12px] bg-[var(--card-inset-bg)] bg-contain bg-center bg-no-repeat"
+          class="h-[189px] w-full md:h-[233px] md:w-[424px] shrink-0 rounded-[12px] bg-surface-inset bg-contain bg-center bg-no-repeat"
           [style.background-image]="logo ? 'url(' + logo + ')' : null"></div>
         <!-- On md+ the description takes all the height the logo leaves free, instead of a fixed 4 lines -->
         <div class="flex min-w-0 flex-1 flex-col gap-[12px] md:h-[233px]">
           <h1
-            class="text-[24px] leading-[29px] md:text-[30px] font-bold md:leading-[36px] text-[var(--theme-default-text)]">
+            class="text-[24px] leading-[29px] md:text-[30px] font-bold md:leading-[36px] text-content">
             {{
             orgInfo?.tradingName }}</h1>
           <p #descPara
-            class="line-clamp-4 md:line-clamp-none md:min-h-0 md:flex-1 md:overflow-hidden text-[16px] font-normal leading-[24px] text-[var(--form-hint-text)]"
+            class="line-clamp-4 md:line-clamp-none md:min-h-0 md:flex-1 md:overflow-hidden text-[16px] font-normal leading-[24px] text-content-muted"
             [ngClass]="descTruncated ? 'md:[mask-image:linear-gradient(to_bottom,black_75%,transparent)]' : ''">{{
             description ||
             ('ORGANIZATION._no_desc' | translate) }}</p>
@@ -79,37 +79,37 @@
       <div class="mt-[32px] flex flex-col gap-[24px] md:flex-row md:items-stretch">
         @if (hasContact) {
         <div class="flex flex-1 flex-col">
-          <h2 class="text-[20px] font-bold leading-[24px] text-[var(--theme-default-text)]">{{
+          <h2 class="text-[20px] font-bold leading-[24px] text-content">{{
             'ORGANIZATION._support_contact' |
             translate }}</h2>
-          <div class="mt-[24px] flex flex-1 flex-col gap-[16px] rounded-[16px] bg-[var(--card-inset-bg)] p-[24px]"
+          <div class="mt-[24px] flex flex-1 flex-col gap-[16px] rounded-[16px] bg-surface-inset p-[24px]"
             [ngClass]="contactCount > 1 ? 'justify-between' : 'justify-center'">
 
             @for (contact of supportContacts; track contact.kind + contact.value + $index) {
             <div class="flex items-center gap-[16px]">
               <div
-                class="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-[8px] bg-[var(--card-bg)]">
+                class="flex h-[48px] w-[48px] shrink-0 items-center justify-center rounded-[8px] bg-surface">
                 @if (contact.kind === 'email') {
-                <fa-icon [icon]="faEnvelope" class="text-xl text-[var(--button-link-text)]" aria-hidden="true"></fa-icon>
+                <fa-icon [icon]="faEnvelope" class="text-xl text-link" aria-hidden="true"></fa-icon>
                 } @else if (contact.kind === 'website') {
-                <fa-icon [icon]="faGlobe" class="text-xl text-[var(--button-link-text)]" aria-hidden="true"></fa-icon>
+                <fa-icon [icon]="faGlobe" class="text-xl text-link" aria-hidden="true"></fa-icon>
                 } @else if (contact.kind === 'address') {
-                <fa-icon [icon]="faLocationDot" class="text-xl text-[var(--button-link-text)]" aria-hidden="true"></fa-icon>
+                <fa-icon [icon]="faLocationDot" class="text-xl text-link" aria-hidden="true"></fa-icon>
                 } @else {
-                <fa-icon [icon]="faPhone" class="text-xl text-[var(--button-link-text)]" aria-hidden="true"></fa-icon>
+                <fa-icon [icon]="faPhone" class="text-xl text-link" aria-hidden="true"></fa-icon>
                 }
               </div>
               <div class="flex min-w-0 flex-col">
-                <span class="text-[14px] font-normal leading-[24px] text-[var(--form-hint-text)]">{{ contact.title ||
+                <span class="text-[14px] font-normal leading-[24px] text-content-muted">{{ contact.title ||
                   (contact.titleKey | translate) }}</span>
                 @if (contact.href) {
                 <a [href]="contact.href" [target]="contact.kind === 'website' ? '_blank' : null"
                   [rel]="contact.kind === 'website' ? 'noopener' : null"
-                  class="truncate text-[16px] font-semibold leading-[24px] tracking-[0.5px] text-[var(--button-link-text)] underline">{{
+                  class="truncate text-[16px] font-semibold leading-[24px] tracking-[0.5px] text-link underline">{{
                   contact.value }}</a>
                 } @else {
                 <span
-                  class="text-[16px] font-semibold leading-[24px] tracking-[0.5px] text-[var(--theme-default-text)]">{{
+                  class="text-[16px] font-semibold leading-[24px] tracking-[0.5px] text-content">{{
                   contact.value }}</span>
                 }
               </div>
@@ -121,14 +121,14 @@
 
         @if (country) {
         <div class="flex flex-1 flex-col">
-          <h2 class="text-[20px] font-bold leading-[24px] text-[var(--theme-default-text)]">{{ 'ORGANIZATION._region' |
+          <h2 class="text-[20px] font-bold leading-[24px] text-content">{{ 'ORGANIZATION._region' |
             translate }}
           </h2>
           <div
-            class="relative mt-[24px] flex h-[72px] items-center gap-[24px] overflow-hidden rounded-[16px] bg-[var(--card-inset-bg)] px-[24px]">
+            class="relative mt-[24px] flex h-[72px] items-center gap-[24px] overflow-hidden rounded-[16px] bg-surface-inset px-[24px]">
             <fa-icon [icon]="faEarthAmericas"
-              class="pointer-events-none absolute -bottom-7 right-1 text-[120px] leading-none text-[var(--button-link-text)] opacity-10"></fa-icon>
-            <span class="relative z-10 text-[16px] font-normal leading-[24px] text-[var(--theme-default-text)]">{{
+              class="pointer-events-none absolute -bottom-7 right-1 text-[120px] leading-none text-link opacity-10"></fa-icon>
+            <span class="relative z-10 text-[16px] font-normal leading-[24px] text-content">{{
               country }}</span>
           </div>
         </div>
@@ -143,38 +143,38 @@
 
       <div class="flex flex-col gap-[16px] py-2 sm:flex-row sm:items-center sm:justify-between sm:gap-[40px]">
         <div class="relative flex items-center gap-[16px]">
-          <div class="flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-[var(--card-inset-bg)]">
-            <fa-icon [icon]="faGrid2" class="text-3xl text-[var(--button-link-text)]" aria-hidden="true"></fa-icon>
+          <div class="flex h-[48px] w-[48px] items-center justify-center rounded-[4px] bg-surface-inset">
+            <fa-icon [icon]="faGrid2" class="text-3xl text-link" aria-hidden="true"></fa-icon>
           </div>
           <button (click)="toggleCategoryDropdown($event)" class="flex min-w-0 items-center gap-[8px]">
             <h2
-              class="truncate text-[20px] leading-[24px] sm:text-[30px] font-bold sm:leading-[36px] text-[var(--theme-default-text)]">
+              class="truncate text-[20px] leading-[24px] sm:text-[30px] font-bold sm:leading-[36px] text-content">
               {{
               activeCategoryName || ('ORGANIZATION._all_services' | translate) }}</h2>
-            <fa-icon [icon]="faChevronDown" class="text-xl inline-flex shrink-0 text-[var(--form-hint-text)] transition-transform" [ngClass]="showCategoryDropdown ? 'rotate-180' : ''" aria-hidden="true"></fa-icon>
+            <fa-icon [icon]="faChevronDown" class="text-xl inline-flex shrink-0 text-content-muted transition-transform" [ngClass]="showCategoryDropdown ? 'rotate-180' : ''" aria-hidden="true"></fa-icon>
           </button>
           @if (showCategoryDropdown) {
           <app-dropdown-panel (click)="$event.stopPropagation()"
             class="absolute left-0 top-full z-40 mt-2 w-[420px] max-w-[90vw]">
             <div class="flex max-h-[520px] flex-col gap-1 overflow-y-auto p-2">
               <button (click)="selectCategory(null)"
-                [ngClass]="!activeCategoryName ? 'bg-[var(--card-selected-bg)]' : 'hover:bg-[var(--dropdown-item-hover-bg)]'"
-                class="flex h-12 w-full items-center gap-3 rounded-lg px-4 text-[16px] font-medium text-[var(--theme-default-text)]">
-                <fa-icon [icon]="faGrid2" class="text-xl shrink-0 text-[var(--button-link-text)]" aria-hidden="true"></fa-icon>
+                [ngClass]="!activeCategoryName ? 'bg-surface-selected' : 'hover:bg-surface-hover'"
+                class="flex h-12 w-full items-center gap-3 rounded-lg px-4 text-[16px] font-medium text-content">
+                <fa-icon [icon]="faGrid2" class="text-xl shrink-0 text-link" aria-hidden="true"></fa-icon>
                 <span>{{ 'ORGANIZATION._all_services' | translate }}</span>
                 @if (!activeCategoryName) {
-                <fa-icon [icon]="faCheck" class="text-base ml-auto text-[var(--button-link-text)]" aria-hidden="true"></fa-icon>
+                <fa-icon [icon]="faCheck" class="text-base ml-auto text-link" aria-hidden="true"></fa-icon>
                 }
               </button>
               @for (cat of rootCategories; track cat.id) {
               <button (click)="selectCategory(cat)"
-                [ngClass]="activeCategoryId === cat.id ? 'bg-[var(--card-selected-bg)]' : 'hover:bg-[var(--dropdown-item-hover-bg)]'"
-                class="flex h-12 w-full items-center gap-3 rounded-lg px-4 text-[16px] text-[var(--theme-default-text)]">
+                [ngClass]="activeCategoryId === cat.id ? 'bg-surface-selected' : 'hover:bg-surface-hover'"
+                class="flex h-12 w-full items-center gap-3 rounded-lg px-4 text-[16px] text-content">
                 <fa-icon [icon]="iconForCategory(cat.name)"
-                  class="text-[20px] text-[var(--form-hint-text)] shrink-0"></fa-icon>
+                  class="text-[20px] text-content-muted shrink-0"></fa-icon>
                 <span class="text-left">{{ cat.name }}</span>
                 @if (activeCategoryId === cat.id) {
-                <fa-icon [icon]="faCheck" class="text-base ml-auto text-[var(--button-link-text)]" aria-hidden="true"></fa-icon>
+                <fa-icon [icon]="faCheck" class="text-base ml-auto text-link" aria-hidden="true"></fa-icon>
                 }
               </button>
               }
@@ -194,12 +194,12 @@
             @for (f of toolbarFilters; track f.key) {
             <div class="relative shrink-0">
               <button (click)="toggleToolbarFilterDropdown(f, $event)"
-                [ngClass]="f.selectedIds.length ? 'border-[var(--button-link-text)] text-[var(--button-link-text)]' :'border-[var(--theme-input-border)] text-[var(--theme-default-text)] hover:border-[var(--button-link-text)] hover:text-[var(--button-link-text)]'"
-                class="flex h-[40px] items-center gap-[8px] rounded-[8px] border bg-[var(--theme-input-bg)] py-[8px] pl-[16px] pr-[12px] transition-colors">
+                [ngClass]="f.selectedIds.length ? 'border-link text-link' :'border-line-input text-content hover:border-link hover:text-link'"
+                class="flex h-[40px] items-center gap-[8px] rounded-[8px] border bg-surface-input py-[8px] pl-[16px] pr-[12px] transition-colors">
                 <span class="text-[16px] font-normal leading-[24px]">{{ f.label }}</span>
                 @if (f.selectedIds.length) {
                 <span
-                  class="inline-flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-[var(--card-selected-bg)] px-1.5 text-[12px] font-semibold text-[var(--button-link-text)]">{{
+                  class="inline-flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-surface-selected px-1.5 text-[12px] font-semibold text-link">{{
                   f.selectedIds.length }}</span>
                 }
                 <fa-icon [icon]="faChevronDown" class="text-base inline-flex transition-transform" [ngClass]="f.open ? 'rotate-180' : ''" aria-hidden="true"></fa-icon>
@@ -210,10 +210,10 @@
                 <div class="flex max-h-[360px] flex-col gap-1 overflow-y-auto p-2">
                   @for (option of f.options; track option.id) {
                   <button (click)="toggleToolbarOption(f, option, $event)"
-                    [ngClass]="isToolbarOptionSelected(f, option) ? 'bg-[var(--card-selected-bg)]' : 'hover:bg-[var(--dropdown-item-hover-bg)]'"
-                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] text-[var(--theme-default-text)]">
+                    [ngClass]="isToolbarOptionSelected(f, option) ? 'bg-surface-selected' : 'hover:bg-surface-hover'"
+                    class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-[14px] text-content">
                     <div class="flex h-4 w-4 shrink-0 items-center justify-center rounded border"
-                      [ngClass]="isToolbarOptionSelected(f, option) ? 'border-[var(--button-primary-bg)] bg-[var(--button-primary-bg)] text-[var(--button-primary-text)]' : 'border-[var(--theme-input-border)] bg-[var(--theme-input-bg)]'">
+                      [ngClass]="isToolbarOptionSelected(f, option) ? 'od-primary-border od-primary-bg od-primary-text' : 'border-line-input bg-surface-input'">
                       @if (isToolbarOptionSelected(f, option)) {
                       <fa-icon [icon]="faCheck" class="text-[10px]" aria-hidden="true"></fa-icon>
                       }
@@ -221,7 +221,7 @@
                     <span class="text-left">{{ option.name }}</span>
                   </button>
                   } @empty {
-                  <span class="px-3 py-2 text-[14px] text-[var(--form-hint-text)]">{{ 'ORGANIZATION._no_options' |
+                  <span class="px-3 py-2 text-[14px] text-content-muted">{{ 'ORGANIZATION._no_options' |
                     translate }}</span>
                   }
                 </div>
@@ -246,7 +246,7 @@
           {{ 'ORGANIZATION._categories' | translate }}
           @if (selectedCategoryCount) {
           <span
-            class="inline-flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-[var(--button-primary-bg)] px-1.5 text-[12px] font-semibold text-[var(--button-primary-text)]">{{
+            class="inline-flex h-[20px] min-w-[20px] items-center justify-center rounded-full od-primary-bg px-1.5 text-[12px] font-semibold od-primary-text">{{
             selectedCategoryCount }}</span>
           }
         </app-button>
@@ -265,7 +265,7 @@
       <aside class="hidden lg:block w-[441px] shrink-0 self-start">
         <app-card>
           <div appCardHeader class="flex items-center justify-between">
-            <h3 class="text-[18px] font-semibold text-[var(--theme-default-text)]">{{ 'ORGANIZATION._filters' |
+            <h3 class="text-[18px] font-semibold text-content">{{ 'ORGANIZATION._filters' |
               translate }}</h3>
             <app-button (click)="clearServiceFilters()" variant="link" size="sm">{{
               'ORGANIZATION._clear_all' | translate }}</app-button>
@@ -278,34 +278,34 @@
 
       <section class="flex-1 min-w-0">
         @if (showOfferTabs) {
-        <div role="tablist" class="mb-6 flex border-b border-[var(--card-border)]">
+        <div role="tablist" class="mb-6 flex border-b border-line">
           @for (tab of offerTabs; track tab.value) {
           <button type="button" role="tab" [attr.aria-selected]="offerTab === tab.value"
             (click)="selectOfferTab(tab.value)" [ngClass]="offerTab === tab.value
-              ? 'border-[var(--button-link-text)] text-[var(--button-link-text)]'
-              : 'border-transparent text-[var(--form-hint-text)] hover:text-[var(--theme-default-text)]'"
+              ? 'border-link text-link'
+              : 'border-transparent text-content-muted hover:text-content'"
             class="-mb-px flex flex-1 items-center justify-center gap-[10px] border-b-2 pb-[16px] text-[16px] font-semibold leading-[24px] transition-colors">
             {{ tab.label | translate }}
             <span
-              class="inline-flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-[var(--card-inset-bg)] px-1.5 text-[12px] font-semibold">{{
+              class="inline-flex h-[20px] min-w-[20px] items-center justify-center rounded-full bg-surface-inset px-1.5 text-[12px] font-semibold">{{
               tab.value === 'public' ? publicTotal : privateTotal }}</span>
           </button>
           }
         </div>
         @if (offerTab === 'private') {
-        <p class="mb-4 text-[14px] leading-[24px] text-[var(--form-hint-text)]">{{ 'DASHBOARD._private_offers_desc' |
+        <p class="mb-4 text-[14px] leading-[24px] text-content-muted">{{ 'DASHBOARD._private_offers_desc' |
           translate }}</p>
         }
         }
         <div class="mb-4 flex items-center gap-[24px]">
-          <span class="text-[16px] leading-[24px] text-[var(--form-hint-text)]">{{ 'DASHBOARD._results_of_total' |
+          <span class="text-[16px] leading-[24px] text-content-muted">{{ 'DASHBOARD._results_of_total' |
             translate: { count: services.length, total: serviceTotal } }}</span>
           <div class="relative flex items-center gap-[4px]">
-            <span class="text-[14px] leading-[24px] text-[var(--theme-default-text)]">{{ 'ORGANIZATION._sort_by' |
+            <span class="text-[14px] leading-[24px] text-content">{{ 'ORGANIZATION._sort_by' |
               translate
               }}:</span>
             <button (click)="toggleServiceSort($event)"
-              class="flex items-center gap-[4px] text-[14px] font-semibold leading-[16px] tracking-[0.5px] text-[var(--button-link-text)]">
+              class="flex items-center gap-[4px] text-[14px] font-semibold leading-[16px] tracking-[0.5px] text-link">
               {{ serviceSortLabel | translate }}
               <fa-icon [icon]="faChevronDown" class="text-base inline-flex transition-transform" [ngClass]="showServiceSort ? 'rotate-180' : ''" aria-hidden="true"></fa-icon>
             </button>
@@ -313,7 +313,7 @@
             <app-dropdown-panel (click)="$event.stopPropagation()" class="absolute left-0 top-full z-40 mt-2 w-[200px]">
               @for (opt of serviceSortOptions; track opt.value) {
               <button (click)="selectServiceSort(opt.value, $event)"
-                [ngClass]="serviceSort === opt.value ? 'bg-[var(--card-selected-bg)] text-[var(--button-link-text)]' : 'text-[var(--theme-default-text)] hover:bg-[var(--dropdown-item-hover-bg)]'"
+                [ngClass]="serviceSort === opt.value ? 'bg-surface-selected text-link' : 'text-content hover:bg-surface-hover'"
                 class="flex w-full items-center px-3 py-2.5 text-[14px]">{{ opt.label | translate }}</button>
               }
             </app-dropdown-panel>
@@ -324,7 +324,7 @@
         @if (servicesLoading) {
         <app-loading-spinner containerClass="flex w-full justify-center py-12" />
         } @else if (!services.length) {
-        <div class="py-12 text-center text-[16px] leading-[24px] text-[var(--form-hint-text)]">{{
+        <div class="py-12 text-center text-[16px] leading-[24px] text-content-muted">{{
           'ORGANIZATION._no_services' |
           translate }}</div>
         } @else {
@@ -352,14 +352,14 @@
   </div>
 
   @if (showCategoriesOverlay) {
-  <div class="fixed inset-0 z-[70] flex flex-col bg-[var(--theme-page-bg)] font-[Blinker]">
+  <div class="fixed inset-0 z-[70] flex flex-col bg-page font-[Blinker]">
     <div class="flex items-center justify-end px-[24px] pt-[16px]">
       <app-button (click)="cancelCategoriesOverlay()" variant="ghost" size="sm" prefixIcon="xmark">
         <span class="sr-only">{{ 'ORGANIZATION._close' | translate }}</span>
       </app-button>
     </div>
     <div class="flex items-center justify-between px-[24px] py-[8px]">
-      <h2 class="text-[20px] font-bold leading-[24px] text-[var(--theme-default-text)]">{{ 'ORGANIZATION._categories' |
+      <h2 class="text-[20px] font-bold leading-[24px] text-content">{{ 'ORGANIZATION._categories' |
         translate }}
       </h2>
       <app-button (click)="clearOverlayCategories()" variant="link" prefixIcon="rotate">
@@ -371,12 +371,12 @@
       <bae-categories-filter [showTitle]="false" [simpleMode]="true" [catalogId]="categoryFilterCatalogId"
         [selectedRootId]="activeCategoryId" [selectedRootName]="activeCategoryName"></bae-categories-filter>
       } @else {
-      <div class="py-[24px] text-center text-[14px] leading-[24px] text-[var(--form-hint-text)]">{{
+      <div class="py-[24px] text-center text-[14px] leading-[24px] text-content-muted">{{
         'ORGANIZATION._no_options' |
         translate }}</div>
       }
     </div>
-    <div class="flex flex-col gap-[12px] border-t border-[var(--card-border)] px-[24px] py-[16px]">
+    <div class="flex flex-col gap-[12px] border-t border-line px-[24px] py-[16px]">
       <app-button (click)="cancelCategoriesOverlay()" variant="secondary" class="h-[48px]">{{ 'ORGANIZATION._cancel' |
         translate }}</app-button>
       <app-button (click)="applyCategoriesOverlay()">{{ 'ORGANIZATION._apply' | translate }}</app-button>
@@ -386,12 +386,12 @@
 
   <app-modal [visible]="showDescModal" width="max-w-[720px]" (closed)="closeDescModal()">
     <div appCardHeader class="flex items-start justify-between gap-[16px]">
-      <h2 class="text-[24px] font-bold leading-[28px] text-[var(--theme-default-text)]">{{ orgInfo?.tradingName }}</h2>
+      <h2 class="text-[24px] font-bold leading-[28px] text-content">{{ orgInfo?.tradingName }}</h2>
       <app-button (click)="closeDescModal()" variant="ghost" size="sm" prefixIcon="xmark">
         <span class="sr-only">{{ 'ORGANIZATION._close' | translate }}</span>
       </app-button>
     </div>
-    <p class="whitespace-pre-line text-[16px] font-normal leading-[24px] text-[var(--form-hint-text)]">{{ description
+    <p class="whitespace-pre-line text-[16px] font-normal leading-[24px] text-content-muted">{{ description
       }}</p>
   </app-modal>
   }

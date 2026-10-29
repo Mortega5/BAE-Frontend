@@ -1,5 +1,5 @@
 @if (pageLoading) {
-<div class="bg-white dark:bg-tertiary-50 font-[Blinker] flex items-center justify-center"
+<div class="bg-surface dark:bg-tertiary-50 font-[Blinker] flex items-center justify-center"
   [class.min-h-screen]="!isPreviewMode" [class.min-h-[60vh]]="isPreviewMode">
   <app-loading-spinner containerClass="flex flex-col items-center gap-3"
     [label]="'PRODUCT_DETAILS._loading' | translate" />
@@ -10,13 +10,13 @@
     (back)="goTo('/search')" />
 </div>
 } @else {
-<div class="bg-white dark:bg-tertiary-50 font-[Blinker]" [class.min-h-screen]="!isPreviewMode">
+<div class="bg-surface dark:bg-tertiary-50 font-[Blinker]" [class.min-h-screen]="!isPreviewMode">
   <div class="mx-auto max-w-[1200px] px-8">
 
     @if (!isPreviewMode) {
-    <nav class="flex items-center gap-2 pt-4 pb-6 text-[16px] text-[var(--product-details-body-text)]">
+    <nav class="flex items-center gap-2 pt-4 pb-6 text-[16px] pd-body-text">
       <app-button (click)="back()" variant="link">{{ 'PRODUCT_DETAILS._all_categories' | translate }}</app-button>
-      <svg class="h-4 w-4 text-[var(--product-details-body-text)]" xmlns="http://www.w3.org/2000/svg" fill="none"
+      <svg class="h-4 w-4 pd-body-text" xmlns="http://www.w3.org/2000/svg" fill="none"
         viewBox="0 0 24 24" stroke-width="2.5" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
       </svg>
@@ -35,7 +35,7 @@
         <h1 [ngClass]="{
             'break-all': hasLongWord(productOff?.name, 20),
             'break-words': !hasLongWord(productOff?.name, 20)
-          }" class="text-[32px] font-bold leading-tight text-secondary-100 dark:text-white mb-4">{{productOff?.name}}
+          }" class="text-[32px] font-bold leading-tight text-secondary-100 dark:text-content mb-4">{{productOff?.name}}
         </h1>
 
         <div class="mb-5">
@@ -43,7 +43,7 @@
             <markdown [ngClass]="{
                 'break-all': hasLongWord(productOff?.description, 20),
                 'break-words': !hasLongWord(productOff?.description, 20)
-              }" class="text-[16px] leading-[26px] text-[var(--product-details-strong-text)]" [data]="productOff?.description">
+              }" class="text-[16px] leading-[26px] pd-strong-text" [data]="productOff?.description">
             </markdown>
           </div>
           @if (showDescriptionReadMore) {
@@ -59,7 +59,7 @@
           @if(orgInfo.contactMedium){
           @for(contact of orgInfo.contactMedium; track contact){
           @if(contact.mediumType === 'Email'){
-          <div class="flex items-center gap-2 text-[15px] text-[var(--product-details-body-text)]">
+          <div class="flex items-center gap-2 text-[15px] pd-body-text">
             <svg class="h-5 w-5 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" fill="none"
               viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -89,7 +89,7 @@
       </div>
 
       <div class="flex flex-col gap-2">
-        <div class="relative rounded-2xl bg-[var(--product-details-placeholder-bg)] aspect-[2/1] overflow-hidden">
+        <div class="relative rounded-2xl pd-placeholder aspect-[2/1] overflow-hidden">
           <div class="absolute inset-0 bg-cover bg-center opacity-75"
             [style.background-image]="'url(' + getSelectedImage() + ')'" style="filter: blur(20px);"></div>
           <img class="relative z-10 h-full w-full object-contain" src="{{getSelectedImage()}}"
@@ -171,7 +171,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--product-details-chip-bg)]">
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full pd-chip">
             <svg class="h-6 w-6 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" fill="none"
               viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -179,15 +179,15 @@
             </svg>
           </div>
           <div>
-            <span class="text-[14px] text-[var(--product-details-muted-text)] block">{{ 'PRODUCT_DETAILS._offer_version' |
+            <span class="text-[14px] pd-muted-text block">{{ 'PRODUCT_DETAILS._offer_version' |
               translate }}</span>
-            <span class="text-[16px] font-semibold text-secondary-100 dark:text-white">v{{productOff?.version ||
+            <span class="text-[16px] font-semibold text-secondary-100 dark:text-content">v{{productOff?.version ||
               '1.0'}}</span>
           </div>
         </div>
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--product-details-chip-bg)]">
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full pd-chip">
             <svg class="h-6 w-6 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" fill="none"
               viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -195,16 +195,16 @@
             </svg>
           </div>
           <div>
-            <span class="text-[14px] text-[var(--product-details-muted-text)] block">{{ 'PRODUCT_DETAILS._last_update' |
+            <span class="text-[14px] pd-muted-text block">{{ 'PRODUCT_DETAILS._last_update' |
               translate }}</span>
-            <span class="text-[16px] font-semibold text-secondary-100 dark:text-white">{{productOff?.lastUpdate |
+            <span class="text-[16px] font-semibold text-secondary-100 dark:text-content">{{productOff?.lastUpdate |
               date:'dd/MM/yy,
               HH:mm'}}</span>
           </div>
         </div>
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--product-details-chip-bg)]">
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full pd-chip">
             <svg class="h-6 w-6 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" fill="none"
               viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -212,15 +212,15 @@
             </svg>
           </div>
           <div>
-            <span class="text-[14px] text-[var(--product-details-muted-text)] block">{{ 'PRODUCT_DETAILS._product_name' |
+            <span class="text-[14px] pd-muted-text block">{{ 'PRODUCT_DETAILS._product_name' |
               translate }}</span>
-            <span class="text-[16px] font-semibold text-secondary-100 dark:text-white">{{prodSpec.name}}</span>
+            <span class="text-[16px] font-semibold text-secondary-100 dark:text-content">{{prodSpec.name}}</span>
           </div>
         </div>
         @if(prodSpec.productNumber){
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--product-details-chip-bg)]">
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full pd-chip">
             <svg class="h-6 w-6 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" fill="none"
               viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -228,16 +228,16 @@
             </svg>
           </div>
           <div>
-            <span class="text-[14px] text-[var(--product-details-muted-text)] block">{{
+            <span class="text-[14px] pd-muted-text block">{{
               'PRODUCT_DETAILS._identification_number' | translate }}</span>
-            <span class="text-[16px] font-semibold text-secondary-100 dark:text-white">{{prodSpec.productNumber}}</span>
+            <span class="text-[16px] font-semibold text-secondary-100 dark:text-content">{{prodSpec.productNumber}}</span>
           </div>
         </div>
         }
         @if(prodSpec.brand){
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--product-details-chip-bg)]">
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full pd-chip">
             <svg class="h-6 w-6 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" fill="none"
               viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -245,16 +245,16 @@
             </svg>
           </div>
           <div>
-            <span class="text-[14px] text-[var(--product-details-muted-text)] block">{{ 'PRODUCT_DETAILS._brand' | translate
+            <span class="text-[14px] pd-muted-text block">{{ 'PRODUCT_DETAILS._brand' | translate
               }}</span>
-            <span class="text-[16px] font-semibold text-secondary-100 dark:text-white">{{prodSpec.brand}}</span>
+            <span class="text-[16px] font-semibold text-secondary-100 dark:text-content">{{prodSpec.brand}}</span>
           </div>
         </div>
         }
         @if(orgInfo!=undefined){
         <div class="flex items-center gap-4">
           <div
-            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--product-details-chip-bg)]">
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full pd-chip">
             <svg class="h-6 w-6 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" fill="none"
               viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round"
@@ -262,7 +262,7 @@
             </svg>
           </div>
           <div>
-            <span class="text-[14px] text-[var(--product-details-muted-text)] block">{{ 'PRODUCT_DETAILS._owner' | translate
+            <span class="text-[14px] pd-muted-text block">{{ 'PRODUCT_DETAILS._owner' | translate
               }}</span>
             <a (click)="goToOrgDetails(orgInfo.id)"
               class="text-[16px] font-semibold text-primary-100 dark:text-primary-50 cursor-pointer hover:underline">{{orgInfo.tradingName}}</a>
@@ -276,13 +276,13 @@
 
       @if(specOverview){
       <div class="mt-6 mb-8">
-        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'PRODUCT_DETAILS._description' |
+        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-4">{{ 'PRODUCT_DETAILS._description' |
           translate }}</h2>
         <div [ngClass]="descMoreOpen ? '' : 'line-clamp-[8]'" class="overflow-hidden">
           <markdown [ngClass]="{
                 'break-all': hasLongWord(specOverview, 20),
                 'break-words': !hasLongWord(specOverview, 20)
-              }" class="text-[16px] leading-[26px] text-[var(--product-details-strong-text)]" [data]="specOverview">
+              }" class="text-[16px] leading-[26px] pd-strong-text" [data]="specOverview">
           </markdown>
         </div>
         @if(isLongText(specOverview)){
@@ -301,13 +301,13 @@
 
       @if(howItWorks){
       <div class="mb-8">
-        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'PRODUCT_DETAILS._how_it_works' |
+        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-4">{{ 'PRODUCT_DETAILS._how_it_works' |
           translate }}</h2>
         <div [ngClass]="howItWorksMoreOpen ? '' : 'line-clamp-[8]'" class="overflow-hidden">
           <markdown [ngClass]="{
                 'break-all': hasLongWord(howItWorks, 20),
                 'break-words': !hasLongWord(howItWorks, 20)
-              }" class="text-[16px] leading-[26px] text-[var(--product-details-strong-text)]" [data]="howItWorks">
+              }" class="text-[16px] leading-[26px] pd-strong-text" [data]="howItWorks">
           </markdown>
         </div>
         @if(isLongText(howItWorks)){
@@ -325,7 +325,7 @@
 
       @if(keyFeatures.length > 0){
       <div class="mb-10">
-        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-6">{{ 'PRODUCT_DETAILS._key_features' |
+        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-6">{{ 'PRODUCT_DETAILS._key_features' |
           translate }}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           @for(feat of keyFeatures; track feat){
@@ -339,11 +339,11 @@
               }
               <div class="min-w-0 flex flex-col gap-2">
                 <h3 [ngClass]="{'break-all': hasLongWord(feat.name, 20), 'break-words': !hasLongWord(feat.name, 20)}"
-                  class="text-[20px] leading-[24px] font-semibold text-secondary-500 dark:text-white line-clamp-1">
+                  class="text-[20px] leading-[24px] font-semibold text-secondary-500 dark:text-content line-clamp-1">
                   {{feat.name}}</h3>
                 @if(feat.description){
                 <p [ngClass]="{'break-all': hasLongWord(feat.description, 20), 'break-words': !hasLongWord(feat.description, 20)}"
-                  class="text-[16px] leading-[24px] text-gray-600 dark:text-gray-300 line-clamp-2">{{feat.description}}
+                  class="text-[16px] leading-[24px] text-content-secondary line-clamp-2">{{feat.description}}
                 </p>
                 }
               </div>
@@ -356,7 +356,7 @@
 
       @if(businessBenefits.length > 0){
       <div class="mb-10">
-        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-6">{{
+        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-6">{{
           'PRODUCT_DETAILS._business_benefits' | translate }}</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           @for(benefit of businessBenefits; track benefit){
@@ -373,11 +373,11 @@
               <div class="flex flex-col gap-2">
                 <h3
                   [ngClass]="{'break-all': hasLongWord(benefit.name, 20), 'break-words': !hasLongWord(benefit.name, 20)}"
-                  class="text-[20px] leading-[24px] font-semibold text-secondary-500 dark:text-white">{{benefit.name}}
+                  class="text-[20px] leading-[24px] font-semibold text-secondary-500 dark:text-content">{{benefit.name}}
                 </h3>
                 @if(benefit.description){
                 <p [ngClass]="{'break-all': hasLongWord(benefit.description, 20), 'break-words': !hasLongWord(benefit.description, 20)}"
-                  class="text-[16px] leading-[24px] text-gray-600 dark:text-gray-300">{{benefit.description}}</p>
+                  class="text-[16px] leading-[24px] text-content-secondary">{{benefit.description}}</p>
                 }
               </div>
             </div>
@@ -389,16 +389,16 @@
 
       @if(useCases.length > 0){
       <div class="mb-10">
-        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-6">{{ 'PRODUCT_DETAILS._use_cases' |
+        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-6">{{ 'PRODUCT_DETAILS._use_cases' |
           translate }}</h2>
         <div class="flex flex-col gap-4">
           @for(uc of useCases; track uc){
           <app-card>
             <h3 [ngClass]="{'break-all': hasLongWord(uc.name, 20), 'break-words': !hasLongWord(uc.name, 20)}"
-              class="text-[18px] font-bold text-secondary-100 dark:text-white mb-2">{{uc.name}}</h3>
+              class="text-[18px] font-bold text-secondary-100 dark:text-content mb-2">{{uc.name}}</h3>
             @if(uc.description){
             <p [ngClass]="{'break-all': hasLongWord(uc.description, 20), 'break-words': !hasLongWord(uc.description, 20)}"
-              class="text-[16px] leading-[24px] text-gray-500 dark:text-gray-400">{{uc.description}}</p>
+              class="text-[16px] leading-[24px] text-content-muted">{{uc.description}}</p>
             }
           </app-card>
           }
@@ -408,12 +408,12 @@
 
       @if(serviceSpecs.length > 0){
       <div class="mb-6">
-        <h3 class="text-[20px] font-bold text-secondary-100 dark:text-white mb-3">{{ 'PRODUCT_DETAILS._service_spec' |
+        <h3 class="text-[20px] font-bold text-secondary-100 dark:text-content mb-3">{{ 'PRODUCT_DETAILS._service_spec' |
           translate }}</h3>
         @for(service of serviceSpecs; track service.id){
         <div class="mb-2">
-          <span class="font-semibold text-secondary-100 dark:text-white">{{service.name}}</span>:
-          <markdown class="text-[16px] text-[var(--product-details-strong-text)] inline" [data]="service.description">
+          <span class="font-semibold text-secondary-100 dark:text-content">{{service.name}}</span>:
+          <markdown class="text-[16px] pd-strong-text inline" [data]="service.description">
           </markdown>
         </div>
         }
@@ -422,12 +422,12 @@
 
       @if(resourceSpecs.length > 0){
       <div class="mb-6">
-        <h3 class="text-[20px] font-bold text-secondary-100 dark:text-white mb-3">{{ 'PRODUCT_DETAILS._resource_spec'
+        <h3 class="text-[20px] font-bold text-secondary-100 dark:text-content mb-3">{{ 'PRODUCT_DETAILS._resource_spec'
           | translate }}</h3>
         @for(resource of resourceSpecs; track resource.id){
         <div class="mb-2">
-          <span class="font-semibold text-secondary-100 dark:text-white">{{resource.name}}</span>:
-          <markdown class="text-[16px] text-[var(--product-details-strong-text)] inline" [data]="resource.description">
+          <span class="font-semibold text-secondary-100 dark:text-content">{{resource.name}}</span>:
+          <markdown class="text-[16px] pd-strong-text inline" [data]="resource.description">
           </markdown>
         </div>
         }
@@ -436,15 +436,15 @@
 
       @if(prodSpec.productSpecificationRelationship != undefined &&
       prodSpec.productSpecificationRelationship.length>0){
-      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'PRODUCT_DETAILS._product_rels' |
+      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-4">{{ 'PRODUCT_DETAILS._product_rels' |
         translate }}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         @for (rel of prodSpec.productSpecificationRelationship; track rel.id) {
         <app-card>
           <h3 [ngClass]="{'break-all': hasLongWord(rel.name, 20), 'break-words': !hasLongWord(rel.name, 20)}"
-            class="text-[18px] font-bold text-secondary-100 dark:text-white mb-2 break-words">{{rel.name}}</h3>
+            class="text-[18px] font-bold text-secondary-100 dark:text-content mb-2 break-words">{{rel.name}}</h3>
           <div class="flex items-center justify-between">
-            <p class="text-[14px] text-[var(--product-details-body-text)]">{{rel.relationshipType}}</p>
+            <p class="text-[14px] pd-body-text">{{rel.relationshipType}}</p>
             @if(rel.relationshipType == 'dependency'){
             <fa-icon [icon]="faArrowProgress" class="text-xl text-primary-100 dark:text-primary-50"></fa-icon>
             } @else if(rel.relationshipType == 'migration'){
@@ -462,25 +462,25 @@
 
       @if(faqs.length > 0){
       <div class="mb-10">
-        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-6">{{ 'PRODUCT_DETAILS._faqs' |
+        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-6">{{ 'PRODUCT_DETAILS._faqs' |
           translate }}</h2>
         <div class="flex flex-col gap-4">
           @for(faq of faqs; track $index){
           <app-card class="faq-card" [class.faq-card--open]="isFaqOpen($index)">
             <button type="button" class="faq-question" (click)="toggleFaq($index)"
               [attr.aria-expanded]="isFaqOpen($index)">
-              <span class="faq-question__title text-[18px] font-bold text-secondary-100 dark:text-white"
+              <span class="faq-question__title text-[18px] font-bold text-secondary-100 dark:text-content"
                 [ngClass]="{'break-all': hasLongWord(faq.question, 20), 'break-words': !hasLongWord(faq.question, 20)}">{{
                 faq.question }}</span>
               <span class="faq-icon w-10 h-10 rounded-md flex items-center justify-center shrink-0 transition-colors"
-                [ngClass]="isFaqOpen($index) ? 'bg-primary-100 text-white' : 'bg-[var(--product-details-chip-bg)] text-primary-100 dark:text-primary-50'">
+                [ngClass]="isFaqOpen($index) ? 'bg-primary-100 text-on-primary' : 'pd-chip text-primary-100 dark:text-primary-50'">
                 <fa-icon [icon]="isFaqOpen($index) ? faMinus : faPlus"></fa-icon>
               </span>
             </button>
             <div class="faq-answer" [class.faq-answer--open]="isFaqOpen($index)">
               <div class="faq-answer__inner">
                 <div class="faq-divider"></div>
-                <div class="faq-answer__content text-[16px] leading-[26px] text-[var(--product-details-body-text)]"
+                <div class="faq-answer__content text-[16px] leading-[26px] pd-body-text"
                   [ngClass]="{'break-all': hasLongWord(faq.answer, 20), 'break-words': !hasLongWord(faq.answer, 20)}">
                   {{ faq.answer }}</div>
               </div>
@@ -501,25 +501,25 @@
         <app-card [variant]="'accent'">
           <div class="flex items-start justify-between gap-2 mb-2">
             <h3 [ngClass]="{'break-all': hasLongWord(char.name, 20), 'break-words': !hasLongWord(char.name, 20)}"
-              class="text-[18px] font-bold text-secondary-100 dark:text-white break-words">{{char.name}}</h3>
+              class="text-[18px] font-bold text-secondary-100 dark:text-content break-words">{{char.name}}</h3>
             @if (isOptionalCharacteristic(char)) {
             <span
-              class="shrink-0 inline-flex items-center rounded-md bg-[var(--product-details-chip-bg)] px-2 py-1 text-xs font-medium text-primary-100 dark:text-primary-50">{{
+              class="shrink-0 inline-flex items-center rounded-md pd-chip px-2 py-1 text-xs font-medium text-primary-100 dark:text-primary-50">{{
               'PRODUCT_DETAILS._optional' | translate }}</span>
             }
           </div>
           @if (char.description) {
           <markdown
             [ngClass]="{'break-all': hasLongWord(char.description, 20), 'break-words': !hasLongWord(char.description, 20)}"
-            class="text-[13px] text-[var(--product-details-body-text)] mb-3" [data]="char.description"></markdown>
+            class="text-[13px] pd-body-text mb-3" [data]="char.description"></markdown>
           }
           <div class="mt-3">
             @if (isBooleanCharacteristic(char)) {
             <div class="flex items-center gap-2">
-              <span class="text-sm font-medium text-[var(--product-details-body-text)]">{{ 'PRODUCT_DETAILS._default' |
+              <span class="text-sm font-medium pd-body-text">{{ 'PRODUCT_DETAILS._default' |
                 translate }}</span>
               <span class="inline-flex items-center rounded-md px-2 py-1 text-xs font-medium"
-                [ngClass]="getBooleanDefaultValue(char) ? 'bg-green-100 dark:bg-green-800 text-green-700 dark:text-green-200' : 'bg-gray-200 dark:bg-secondary-300 text-gray-700 dark:text-gray-300'">
+                [ngClass]="getBooleanDefaultValue(char) ? 'bg-success-soft text-success' : 'bg-skeleton dark:bg-secondary-300 text-content-secondary'">
                 {{ getBooleanDefaultValue(char) ? ('PRODUCT_DETAILS._enabled' | translate) :
                 ('PRODUCT_DETAILS._disabled' | translate) }}
               </span>
@@ -529,7 +529,7 @@
               @for (val of char?.productSpecCharacteristicValue; track val.value) {
               @if (val?.isDefault) {
               <span [title]="getCharacteristicValueTitle(val)"
-                class="inline-flex items-center rounded-md bg-[var(--product-details-chip-bg)] px-2.5 py-1 text-xs font-semibold text-primary-100 dark:text-primary-50">{{
+                class="inline-flex items-center rounded-md pd-chip px-2.5 py-1 text-xs font-semibold text-primary-100 dark:text-primary-50">{{
                 getCharacteristicValueDisplay(val) }}</span>
               } @else {
               <bae-badge variant="plain" [title]="getCharacteristicValueTitle(val)"
@@ -544,20 +544,20 @@
 
       @if (bundledProducts.length > 0) {
       <div class="mb-10">
-        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'PRODUCT_DETAILS._bundle_products'
+        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-4">{{ 'PRODUCT_DETAILS._bundle_products'
           | translate }}</h2>
         <div class="flex flex-col gap-4">
           @for (product of bundledProducts; track product.id) {
           <app-card>
             <div class="flex items-center justify-between gap-2 mb-4">
-              <h3 class="text-[20px] font-bold text-secondary-100 dark:text-white break-words">{{product.name}}</h3>
+              <h3 class="text-[20px] font-bold text-secondary-100 dark:text-content break-words">{{product.name}}</h3>
               @if (product.lifecycleStatus) {
               <bae-badge variant="status" [status]="lifecycleStatusBadgeVariant(product.lifecycleStatus)"
                 [label]="lifecycleStatusLabel(product.lifecycleStatus) | translate"></bae-badge>
               }
             </div>
             @if (product.configurableChars.length > 0) {
-            <p class="text-xs font-semibold uppercase tracking-wide text-[var(--product-details-muted-text)] mb-2">{{
+            <p class="text-xs font-semibold uppercase tracking-wide pd-muted-text mb-2">{{
               'PRODUCT_DETAILS._configurable_chars' | translate }}</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
               @for (char of product.configurableChars; track char.id) {
@@ -566,7 +566,7 @@
             </div>
             }
             @if (product.fixedChars.length > 0) {
-            <p class="text-xs font-semibold uppercase tracking-wide text-[var(--product-details-muted-text)] mb-2">{{
+            <p class="text-xs font-semibold uppercase tracking-wide pd-muted-text mb-2">{{
               'PRODUCT_DETAILS._fixed_chars' | translate }}</p>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               @for (char of product.fixedChars; track char.id) {
@@ -575,7 +575,7 @@
             </div>
             }
             @if (product.configurableChars.length === 0 && product.fixedChars.length === 0) {
-            <p class="text-sm text-[var(--product-details-body-text)]">{{ 'PRODUCT_DETAILS._no_chars' | translate }}</p>
+            <p class="text-sm pd-body-text">{{ 'PRODUCT_DETAILS._no_chars' | translate }}</p>
             }
           </app-card>
           }
@@ -585,7 +585,7 @@
 
       @if (configurableChars.length > 0) {
       <div class="mb-10">
-        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{
+        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-4">{{
           'PRODUCT_DETAILS._configurable_chars' | translate }}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           @for (char of configurableChars; track char.id) {
@@ -597,7 +597,7 @@
 
       @if (fixedChars.length > 0) {
       <div class="mb-10">
-        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'PRODUCT_DETAILS._fixed_chars' |
+        <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-4">{{ 'PRODUCT_DETAILS._fixed_chars' |
           translate }}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           @for (char of fixedChars; track char.id) {
@@ -608,7 +608,7 @@
       }
 
       @if (bundledProducts.length === 0 && configurableChars.length === 0 && fixedChars.length === 0) {
-      <div class="text-center py-12 text-[var(--product-details-body-text)]">
+      <div class="text-center py-12 pd-body-text">
         {{ 'PRODUCT_DETAILS._no_features' | translate }}
       </div>
       }
@@ -618,7 +618,7 @@
 
     @if (activeTab === 'pricing') {
     <app-card class="mt-8">
-      <h2 appCardHeader data-cy="pricePlanTitle" class="text-[24px] font-bold text-secondary-100 dark:text-white">{{
+      <h2 appCardHeader data-cy="pricePlanTitle" class="text-[24px] font-bold text-secondary-100 dark:text-content">{{
         'PRODUCT_DETAILS._product_pricing' | translate }}</h2>
       @if(productOff?.productOfferingPrice != undefined){
       @if(checkCustom){
@@ -627,19 +627,19 @@
         @if (price.priceType == 'custom') {
         <app-card [variant]="'accent'">
           <h3 [ngClass]="{'break-all': hasLongWord(price.name, 20), 'break-words': !hasLongWord(price.name, 20)}"
-            class="text-[20px] font-bold text-secondary-100 dark:text-white mb-2 break-words">{{price.name}}</h3>
+            class="text-[20px] font-bold text-secondary-100 dark:text-content mb-2 break-words">{{price.name}}</h3>
           <markdown
             [ngClass]="{'break-all': hasLongWord(price?.description, 20), 'break-words': !hasLongWord(price?.description, 20)}"
-            class="text-[14px] text-[var(--product-details-body-text)]" [data]="price?.description"></markdown>
+            class="text-[14px] pd-body-text" [data]="price?.description"></markdown>
           @if (getIncludedCharacteristics(price); as included) {
           @if (included.length > 0) {
           <div class="mt-3 pt-3 border-t border-[color:var(--card-border)]">
-            <p class="text-xs font-semibold uppercase tracking-wide text-[var(--product-details-muted-text)] mb-1.5">{{
+            <p class="text-xs font-semibold uppercase tracking-wide pd-muted-text mb-1.5">{{
               'PRODUCT_DETAILS._includes' | translate }}</p>
             <ul class="space-y-1">
               @for (item of included; track item.name) {
-              <li class="flex items-baseline justify-between gap-3 text-sm text-[var(--product-details-body-text)]">
-                <span class="font-medium text-secondary-100 dark:text-white">{{item.name}}</span>
+              <li class="flex items-baseline justify-between gap-3 text-sm pd-body-text">
+                <span class="font-medium text-secondary-100 dark:text-content">{{item.name}}</span>
                 <span class="text-right">{{item.value}}</span>
               </li>
               }
@@ -653,10 +653,10 @@
         @if(productOff?.productOfferingPrice?.length==0){
         <app-card>
           <div class="text-center">
-            <h3 class="text-[20px] font-bold text-secondary-100 dark:text-white mb-2">{{ 'SHOPPING_CART._free' |
+            <h3 class="text-[20px] font-bold text-secondary-100 dark:text-content mb-2">{{ 'SHOPPING_CART._free' |
               translate
               }}</h3>
-            <p class="text-[14px] text-[var(--product-details-body-text)]">{{ 'SHOPPING_CART._free_desc' | translate }}</p>
+            <p class="text-[14px] pd-body-text">{{ 'SHOPPING_CART._free_desc' | translate }}</p>
           </div>
         </app-card>
         }
@@ -666,28 +666,28 @@
         @for (price of productOff?.productOfferingPrice; track price.id) {
         <app-card variant="accent">
           <h3 [ngClass]="{'break-all': hasLongWord(price.name, 20), 'break-words': !hasLongWord(price.name, 20)}"
-            class="text-[18px] font-bold text-secondary-100 dark:text-white break-words mb-2">{{price.name}}</h3>
+            class="text-[18px] font-bold text-secondary-100 dark:text-content break-words mb-2">{{price.name}}</h3>
           @if (price.price?.value != null) {
-          <div class="text-[24px] font-bold text-secondary-100 dark:text-white mb-2">
+          <div class="text-[24px] font-bold text-secondary-100 dark:text-content mb-2">
             {{ price.price!.value | currency: price.price!.unit }}<span class="align-top text-[14px]">*</span>
             @if (price.priceType === 'recurring' && price.recurringChargePeriodType) {
-            <span class="text-[14px] font-normal text-[var(--product-details-body-text)]">/ {{
+            <span class="text-[14px] font-normal pd-body-text">/ {{
               price.recurringChargePeriodType }}</span>
             }
           </div>
           }
           <markdown
             [ngClass]="{'break-all': hasLongWord(price?.description, 20), 'break-words': !hasLongWord(price?.description, 20)}"
-            class="text-[14px] text-[var(--product-details-body-text)]" [data]="price?.description"></markdown>
+            class="text-[14px] pd-body-text" [data]="price?.description"></markdown>
           @if (getIncludedCharacteristics(price); as included) {
           @if (included.length > 0) {
           <div class="mt-3 pt-3 border-t border-[color:var(--card-border)]">
-            <p class="text-xs font-semibold uppercase tracking-wide text-[var(--product-details-muted-text)] mb-1.5">{{
+            <p class="text-xs font-semibold uppercase tracking-wide pd-muted-text mb-1.5">{{
               'PRODUCT_DETAILS._includes' | translate }}</p>
             <ul class="space-y-1">
               @for (item of included; track item.name) {
-              <li class="flex items-baseline justify-between gap-3 text-sm text-[var(--product-details-body-text)]">
-                <span class="font-medium text-secondary-100 dark:text-white">{{item.name}}</span>
+              <li class="flex items-baseline justify-between gap-3 text-sm pd-body-text">
+                <span class="font-medium text-secondary-100 dark:text-content">{{item.name}}</span>
                 <span class="text-right">{{item.value}}</span>
               </li>
               }
@@ -700,9 +700,9 @@
         @if(productOff?.productOfferingPrice?.length==0){
         <div
           class="rounded-2xl bg-[color:var(--card-bg)] border border-[color:var(--card-border)] overflow-hidden text-center p-6">
-          <h3 class="text-[18px] font-bold text-secondary-100 dark:text-white mb-2">{{ 'SHOPPING_CART._free' |
+          <h3 class="text-[18px] font-bold text-secondary-100 dark:text-content mb-2">{{ 'SHOPPING_CART._free' |
             translate }}</h3>
-          <p class="text-[14px] text-[var(--product-details-body-text)]">{{ 'SHOPPING_CART._free_desc' | translate }}</p>
+          <p class="text-[14px] pd-body-text">{{ 'SHOPPING_CART._free_desc' | translate }}</p>
         </div>
         }
       </div>
@@ -710,53 +710,53 @@
       }
 
       @if(usageMetrics.length > 0){
-      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'PRODUCT_DETAILS._usage_metrics' |
+      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-4">{{ 'PRODUCT_DETAILS._usage_metrics' |
         translate }}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         @for (metric of usageMetrics; track metric.id) {
         <app-card>
           <h3 [ngClass]="{'break-all': hasLongWord(metric.name, 20), 'break-words': !hasLongWord(metric.name, 20)}"
-            class="text-[18px] font-bold text-secondary-100 dark:text-white mb-2 break-words">{{metric.name}}</h3>
+            class="text-[18px] font-bold text-secondary-100 dark:text-content mb-2 break-words">{{metric.name}}</h3>
           <markdown
             [ngClass]="{'break-all': hasLongWord(metric.description, 20), 'break-words': !hasLongWord(metric.description, 20)}"
-            class="text-[14px] text-[var(--product-details-body-text)]" [data]="metric.description"></markdown>
+            class="text-[14px] pd-body-text" [data]="metric.description"></markdown>
         </app-card>
         }
       </div>
       }
       @if (!checkCustom && (productOff?.productOfferingPrice?.length ?? 0) > 0) {
-      <p class="text-xs text-[var(--product-details-muted-text)]">{{ 'PRODUCT_DETAILS._prices_exclude_tax' | translate }}</p>
+      <p class="text-xs pd-muted-text">{{ 'PRODUCT_DETAILS._prices_exclude_tax' | translate }}</p>
       }
     </app-card>
     }
 
     @if (activeTab === 'compliance') {
     <div class="mb-8">
-      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'PRODUCT_DETAILS._certification' |
+      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-4">{{ 'PRODUCT_DETAILS._certification' |
         translate }}</h2>
-      <div class="rounded-2xl bg-[var(--product-details-chip-bg)] border border-[var(--product-details-border)] p-6">
+      <div class="rounded-2xl pd-chip border pd-border p-6">
         <div class="flex items-center gap-4">
           <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-100">
-            <svg class="h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            <svg class="h-5 w-5 text-on-primary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
               stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" />
             </svg>
           </div>
           <div>
             @if(complianceLevel=='NL'){
-            <h3 class="text-[18px] font-bold text-secondary-100 dark:text-white">{{ 'CARD._no_level' | translate }}
+            <h3 class="text-[18px] font-bold text-secondary-100 dark:text-content">{{ 'CARD._no_level' | translate }}
             </h3>
             }@else if(complianceLevel=='BL'){
-            <h3 class="text-[18px] font-bold text-secondary-100 dark:text-white">{{ 'CARD._baseline' | translate }}
+            <h3 class="text-[18px] font-bold text-secondary-100 dark:text-content">{{ 'CARD._baseline' | translate }}
             </h3>
             } @else if(complianceLevel=='P') {
-            <h3 class="text-[18px] font-bold text-secondary-100 dark:text-white">{{ 'CARD._professional' | translate
+            <h3 class="text-[18px] font-bold text-secondary-100 dark:text-content">{{ 'CARD._professional' | translate
               }}</h3>
             } @else {
-            <h3 class="text-[18px] font-bold text-secondary-100 dark:text-white">{{ 'CARD._professional_plus' |
+            <h3 class="text-[18px] font-bold text-secondary-100 dark:text-content">{{ 'CARD._professional_plus' |
               translate }}</h3>
             }
-            <p class="text-[14px] text-[var(--product-details-body-text)]">{{ complianceDescription | translate }}</p>
+            <p class="text-[14px] pd-body-text">{{ complianceDescription | translate }}</p>
           </div>
         </div>
         @if (selfAtt) {
@@ -770,15 +770,15 @@
 
     @if(complianceProf.length>0){
     <div class="mb-8">
-      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'PRODUCT_DETAILS._key_capabilities'
+      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-4">{{ 'PRODUCT_DETAILS._key_capabilities'
         | translate }}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         @for (char of complianceProf; track char.id) {
         <app-card class="cursor-pointer" (click)="goToLink(char.href)">
-          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--product-details-chip-bg)] mb-4">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl pd-chip mb-4">
             <fa-icon [icon]="faAtom" class="text-primary-100 dark:text-primary-50 text-xl"></fa-icon>
           </div>
-          <h3 class="text-[18px] font-bold text-secondary-100 dark:text-white mb-1">{{char.name}}</h3>
+          <h3 class="text-[18px] font-bold text-secondary-100 dark:text-content mb-1">{{char.name}}</h3>
         </app-card>
         }
       </div>
@@ -787,15 +787,15 @@
 
     @if(additionalCerts.length>0){
     <div class="mb-8">
-      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{
+      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-4">{{
         'PRODUCT_DETAILS._additional_certifications' | translate }}</h2>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         @for (char of additionalCerts; track char.id) {
         <app-card class="cursor-pointer" (click)="goToLink(char.productSpecCharacteristicValue?.at(0)?.value)">
-          <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-[var(--product-details-chip-bg)] mb-4">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl pd-chip mb-4">
             <fa-icon [icon]="faAtom" class="text-primary-100 dark:text-primary-50 text-xl"></fa-icon>
           </div>
-          <h3 class="text-[18px] font-bold text-secondary-100 dark:text-white mb-1">{{normalizeName(char.name)}}</h3>
+          <h3 class="text-[18px] font-bold text-secondary-100 dark:text-content mb-1">{{normalizeName(char.name)}}</h3>
         </app-card>
         }
       </div>
@@ -804,7 +804,7 @@
 
     @if(licenseTerm || termsFileAttachments.length > 0 || productOff?.serviceLevelAgreement){
     @if((licenseTerm && licenseTerm?.description != '') || termsFileAttachments.length > 0){
-    <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'CREATE_OFFER._terms_conditions' |
+    <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-4">{{ 'CREATE_OFFER._terms_conditions' |
       translate }}</h2>
     @if(licenseTerm && licenseTerm?.description != ''){
     <app-card [ngClass]="termsFileAttachments.length > 0 ? 'mb-4' : 'mb-8'">
@@ -816,7 +816,7 @@
                     'break-all': hasLongWord(licenseTerm?.description, 20),
                     'break-words': !hasLongWord(licenseTerm?.description, 20)
                   }" [data]="licenseTerm?.description"
-          class="text-[16px] text-[var(--product-details-body-text)] break-words"></markdown>
+          class="text-[16px] pd-body-text break-words"></markdown>
       </div>
       @if(showReadMoreButton || isLongText(licenseTerm?.description)){
       <button class="mt-4 text-primary-100 dark:text-primary-50 font-medium text-[14px] hover:underline"
@@ -832,7 +832,7 @@
       <app-card>
         <div class="flex items-center justify-between">
           <h3 [ngClass]="{'break-all': hasLongWord(att.name, 20), 'break-words': !hasLongWord(att.name, 20)}"
-            class="text-[18px] font-bold text-secondary-100 dark:text-white break-words">{{att.name}}</h3>
+            class="text-[18px] font-bold text-secondary-100 dark:text-content break-words">{{att.name}}</h3>
           <button (click)="goToLink(att.url)"
             class="flex items-center justify-center h-10 w-10 rounded-full bg-secondary-50 dark:bg-secondary-200 hover:bg-secondary-50/80 dark:hover:bg-secondary-200/80 transition-colors text-primary-100 dark:text-primary-50 shrink-0 ml-4">
             <fa-icon [icon]="faDownload" class="text-lg"></fa-icon>
@@ -844,23 +844,23 @@
     }
     }
     @if(productOff?.serviceLevelAgreement){
-    <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'PRODUCT_DETAILS._sla' | translate }}
+    <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-4">{{ 'PRODUCT_DETAILS._sla' | translate }}
     </h2>
-    <p class="text-[16px] text-[var(--product-details-body-text)] mb-8">{{productOff?.serviceLevelAgreement?.name}}.</p>
+    <p class="text-[16px] pd-body-text mb-8">{{productOff?.serviceLevelAgreement?.name}}.</p>
     }
     }
 
     @if(attatchments.length>0){
-    <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-4">{{ 'PRODUCT_DETAILS._product_att' |
+    <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-4">{{ 'PRODUCT_DETAILS._product_att' |
       translate }}</h2>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
       @for (att of attatchments; track att.id) {
       <app-card>
         <div class="flex items-center justify-between">
           <h3 [ngClass]="{'break-all': hasLongWord(att.name, 20), 'break-words': !hasLongWord(att.name, 20)}"
-            class="text-[18px] font-bold text-secondary-100 dark:text-white break-words">{{att.name}}</h3>
+            class="text-[18px] font-bold text-secondary-100 dark:text-content break-words">{{att.name}}</h3>
           <button (click)="goToLink(att.url)"
-            class="flex items-center justify-center h-10 w-10 rounded-full bg-[var(--product-details-chip-bg)] hover:bg-[var(--product-details-chip-hover-bg)] transition-colors text-primary-100 dark:text-primary-50 shrink-0 ml-4">
+            class="flex items-center justify-center h-10 w-10 rounded-full pd-chip pd-chip-hover transition-colors text-primary-100 dark:text-primary-50 shrink-0 ml-4">
             <fa-icon [icon]="faDownload" class="text-lg"></fa-icon>
           </button>
         </div>
@@ -872,8 +872,8 @@
 
     @if (moreOfferings.length > 0) {
     <section data-cy="discoverMore" class="mt-8 mb-8">
-      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-white mb-1">{{ 'PRODUCT_DETAILS._discover_more' | translate }}</h2>
-      <p class="text-[16px] text-[var(--product-details-body-text)] mb-6">{{ 'PRODUCT_DETAILS._discover_more_subtitle' | translate }}</p>
+      <h2 class="text-[24px] font-bold text-secondary-100 dark:text-content mb-1">{{ 'PRODUCT_DETAILS._discover_more' | translate }}</h2>
+      <p class="text-[16px] pd-body-text mb-6">{{ 'PRODUCT_DETAILS._discover_more_subtitle' | translate }}</p>
       <app-carousel [items]="moreOfferings" [visible]="moreVisibleItems">
         @for (off of moreOfferings; track off.id) {
         <div class="shrink-0 px-3" [style.width.%]="100 / moreVisibleItems">
@@ -890,7 +890,7 @@
       <p class="text-[16px] text-gray-300 mb-6">{{ 'PRODUCT_DETAILS._join_companies_using' | translate: { productName:
         productOff?.name } }}</p>
       <a [href]="customersLink" target="_blank" rel="noopener noreferrer"
-        class="inline-flex items-center px-8 py-3.5 rounded-lg bg-primary-100 text-white text-[16px] font-medium hover:bg-primary-50 transition-colors">
+        class="inline-flex items-center px-8 py-3.5 rounded-lg bg-primary-100 text-on-primary text-[16px] font-medium hover:bg-primary-50 transition-colors">
         {{ 'PRODUCT_DETAILS._join_marketplace' | translate }}
       </a>
     </div>
@@ -902,10 +902,10 @@
 <!-- ADD TO CART TOAST -->
 @if (toastVisibility) {
 <div id="toast-add-cart"
-  class="flex grid grid-flow-row mr-2 items-center w-auto max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 fixed top-1/2 right-0 z-50 justify-center"
+  class="flex grid grid-flow-row mr-2 items-center w-auto max-w-xs p-4 text-content-muted bg-surface rounded-lg shadow fixed top-1/2 right-0 z-50 justify-center"
   role="alert">
   <div class="flex items-center justify-center">
-    <svg class="w-[18px] h-[18px] text-gray-800 dark:text-white mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"
+    <svg class="w-[18px] h-[18px] text-content mr-2" xmlns="http://www.w3.org/2000/svg" fill="none"
       viewBox="0 0 18 20">
       <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
         d="M6 15a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0h8m-8 0-1-4m9 4a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-9-4h10l2-7H3m2 7L3 4m0 0-.792-3H1" />
@@ -915,7 +915,7 @@
     </div>
     <div class="flex items-center ms-auto space-x-2 rtl:space-x-reverse p-1.5">
       <button type="button" (click)="deleteProduct(lastAddedProd)"
-        class="px-3 py-2 text-xs font-medium text-center text-gray-400 hover:text-gray-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">{{
+        class="px-3 py-2 text-xs font-medium text-center text-content-muted hover:text-content rounded-lg focus:ring-2 focus:ring-focus p-1.5 hover:bg-surface-muted ">{{
         'CARD._undo' | translate }}</button>
       <app-button type="button" (click)="toastVisibility=false" variant="ghost" size="sm" prefixIcon="xmark"
         [attr.aria-label]="'COMMON._close' | translate" class="ms-auto">
@@ -923,9 +923,9 @@
       </app-button>
     </div>
   </div>
-  <div class="flex w-full mt-2 rounded-full h-2.5 dark:bg-gray-700">
+  <div class="flex w-full mt-2 rounded-full h-2.5 bg-skeleton">
     <div id="progress-bar"
-      class="flex bg-green-600 h-2.5 rounded-full dark:bg-green-500 transition-width delay-200 duration-3000 ease-out"
+      class="flex bg-success h-2.5 rounded-full transition-width delay-200 duration-3000 ease-out"
       style="width: 0px;"></div>
   </div>
 </div>
@@ -953,13 +953,13 @@
 @if (showDescriptionModal) {
 <app-modal [visible]="showDescriptionModal" width="max-w-2xl" (closed)="closeDescriptionModal()">
   <div appCardHeader class="flex items-center justify-between">
-    <h3 class="text-[20px] font-bold text-secondary-100 dark:text-white break-words pr-8">{{productOff?.name}}</h3>
+    <h3 class="text-[20px] font-bold text-secondary-100 dark:text-content break-words pr-8">{{productOff?.name}}</h3>
     <app-button (click)="closeDescriptionModal()" variant="ghost" size="sm" prefixIcon="xmark" />
   </div>
   <markdown [ngClass]="{
         'break-all': hasLongWord(productOff?.description, 20),
         'break-words': !hasLongWord(productOff?.description, 20)
-      }" class="text-[16px] leading-[26px] text-[var(--product-details-strong-text)]" [data]="productOff?.description">
+      }" class="text-[16px] leading-[26px] pd-strong-text" [data]="productOff?.description">
   </markdown>
 </app-modal>
 }

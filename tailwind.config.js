@@ -43,6 +43,7 @@ module.exports = {
           muted: 'var(--theme-surface-muted)',
           inset: 'var(--card-inset-bg)',
           selected: 'var(--card-selected-bg)',
+          hover: 'var(--dropdown-item-hover-bg)',
         },
         line: {
           DEFAULT: 'var(--card-border)',
@@ -50,6 +51,9 @@ module.exports = {
         },
         // Text/icons on primary-colored surfaces (filled chips, active steps, selected options).
         'on-primary': 'var(--theme-primary-text)',
+        // Links and link-styled actions.
+        link: 'var(--button-link-text)',
+        page: 'var(--theme-page-bg)',
         skeleton: 'var(--theme-skeleton)',
         overlay: 'var(--theme-overlay)',
         focus: 'var(--theme-focus-ring)',
