@@ -33,7 +33,10 @@
        the reverted stretch-to-match-a-sibling's-height work — no ancestor
        markup needs to cooperate for this to work. */
     @apply shadow-xl flex flex-col;
-    max-height: min(90vh, 100%);
+    /* Must be viewport-based: a % here resolves against the host element, whose
+       height is auto, so the whole min() would be discarded and the cap lost.
+       2rem matches the p-4 of the modal backdrop. */
+    max-height: calc(100vh - 2rem);
     /* Same surface as app-drawer's panel, so a card placed inside a modal reads as a card
        on a page — exactly as it does inside a drawer — instead of white-on-white. */
     background-color: var(--theme-page-bg);
