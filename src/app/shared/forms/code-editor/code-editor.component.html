@@ -1,6 +1,6 @@
 <div #container class="bg-surface-input border border-line-input
-             text-content text-sm rounded-lg block w-full overflow-hidden
+             text-content text-sm rounded-lg block w-full min-w-0 overflow-hidden
              focus-within:ring-2 focus-within:ring-focus focus-within:border-primary-100"
   [class.pointer-events-none]="readonly || isDisabled" [class.opacity-60]="readonly || isDisabled"
-  [style.min-height]="minHeight">
+  [style.min-height]="minHeight" [style.max-height]="maxHeight">
 </div>

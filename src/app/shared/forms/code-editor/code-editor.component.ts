@@ -46,15 +46,17 @@ const LANG_LINTERS: Partial<Record<CodeLanguage, () => any>> = {
 
 const HIDE_LINE_NUMBERS = EditorView.theme({
   '.cm-gutters': { display: 'none' },
-  '.cm-content': { paddingLeft: '0.75rem' },
+  '.cm-content': { paddingLeft: '0.25rem' },
 });
 
 // Neutralizes CodeMirror's own background/border so the Tailwind wrapper takes over.
 const INPUT_THEME = EditorView.theme({
-  '&': { background: 'transparent !important', border: 'none', outline: 'none' },
+  '&': { background: 'transparent !important', border: 'none', outline: 'none', maxHeight: 'inherit', minHeight: 'inherit' },
   '&.cm-focused': { outline: 'none !important' },
   '.cm-scroller': {
-    padding: '0.5rem 0.75rem',
+    overflow: 'auto',
+    flexGrow: 1,
+    padding: '0.125rem 0.25rem',
     fontSize: '0.875rem',
     lineHeight: '1.5rem',
     fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace',
@@ -67,6 +69,7 @@ const INPUT_THEME = EditorView.theme({
   selector: 'app-code-editor',
   standalone: true,
   templateUrl: './code-editor.component.html',
+  host: { class: 'block min-w-0 max-w-full' },
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => CodeEditorComponent), multi: true },
   ],
@@ -74,6 +77,8 @@ const INPUT_THEME = EditorView.theme({
 export class CodeEditorComponent implements AfterViewInit, OnDestroy, ControlValueAccessor {
   @Input() language: CodeLanguage = 'json';
   @Input() minHeight = '120px';
+  /** Past this height the editor scrolls inside its box instead of growing with the content. */
+  @Input() maxHeight = '400px';
   @Input() readonly = false;
   @Input() lineNumbers = true;
   @Input() theme: CodeTheme = 'auto';
