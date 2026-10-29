@@ -1,7 +1,6 @@
 /* Maps the ODRL policy editor's theme tokens onto the marketplace's, so the editor follows the active
    theme and dark mode. The component reads these values when the editor opens and hands them to it
-   as `themeConfig`; the editor only uses a few of its tokens so far (see the README of
-   @seamware/odrl-policy-editor), the rest are mapped ready for when it does. */
+   as `themeConfig`. The editor draws its tabs, buttons, cards and step badges from them. */
 :host {
   --odrl-primary-color: var(--button-primary-bg);
   --odrl-secondary-color: var(--theme-info-text);
@@ -16,4 +15,6 @@
   --odrl-info-color: var(--theme-info-text);
   --odrl-font-family: "Blinker", system-ui, sans-serif;
   --odrl-border-radius: 0.5rem;
+  --odrl-primary-text-color: var(--button-primary-text);
+  --odrl-card-radius: 1rem;
 }

@@ -11,7 +11,7 @@ import { ModalComponent } from '../../modal/modal.component';
 const ODRL_THEME_TOKENS = [
   'odrl-primary-color', 'odrl-secondary-color', 'odrl-bg-color', 'odrl-text-color', 'odrl-text-muted',
   'odrl-card-bg', 'odrl-border-color', 'odrl-font-family', 'odrl-border-radius', 'odrl-section-header-bg',
-  'odrl-success-color', 'odrl-danger-color', 'odrl-info-color',
+  'odrl-success-color', 'odrl-danger-color', 'odrl-info-color', 'odrl-primary-text-color', 'odrl-card-radius',
 ] as const;
 
 /** An ODRL policy as raw JSON text, with a button next to the title that opens the visual

@@ -156,6 +156,12 @@ describe('OdrlPolicyInputComponent', () => {
       expect(editor.getAttribute('summary')).toBe('tab');
     });
 
+    it('is plain, since the modal is already a card', async () => {
+      await open();
+
+      expect(inBody('odrl-policy-editor')!.getAttribute('variant')).toBe('plain');
+    });
+
     it('scrolls the editor in its own area instead of growing the modal', async () => {
       await open();
 

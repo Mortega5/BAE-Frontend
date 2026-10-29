@@ -37,11 +37,11 @@
 
     <!-- The editor is tall: it scrolls in its own area, capped to what is left of the viewport once the
          modal's header, footer and padding are taken off. app-card's own cap does not apply here. Cancel
-         lives in the modal footer, and the summary is a tab because the side column follows the
-         viewport width, not this modal's. -->
+         lives in the modal footer, the summary is a tab because the side column follows the
+         viewport width, not this modal's, and the editor is plain because the modal is already a card. -->
     <div class="max-h-[calc(100vh-16rem)] overflow-y-auto">
       <odrl-policy-editor load="none" save="none" validate="none" templates="none" mappings="none"
-        hide-template-create-tab hide-cancel-button summary="tab" [attr.theme]="editorTheme"
+        hide-template-create-tab hide-cancel-button summary="tab" variant="plain" [attr.theme]="editorTheme"
         [themeConfig]="editorThemeConfig" [policy]="editorPolicy" (policy-changed)="onPolicyChanged($event)"></odrl-policy-editor>
     </div>
 
