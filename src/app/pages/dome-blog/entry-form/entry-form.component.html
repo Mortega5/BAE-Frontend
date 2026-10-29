@@ -1,155 +1,50 @@
-<!-- Full height app wrapper -->
-<div class="bg-secondary-50 dark:bg-secondary-200 flex min-h-full flex-col">
-    <section class="w-full bg-secondary-50">
-        <div class="pb-4">
-            <nav class="flex px-5 py-3 shadow-lg text-content-secondary border border-line bg-secondary-50 dark:bg-secondary-100"
-                [attr.aria-label]="'COMMON._aria_breadcrumb' | translate">
-            <ol class="inline-flex items-center space-x-1 md:space-x-2 rtl:space-x-reverse">
-            <li class="inline-flex items-center">
-                <app-button (click)="goBack()" variant="link" prefixIcon="chevron-left">
-                {{ 'BLOG_ENTRY._back' | translate }}
-                </app-button>
-            </li>
-            <li aria-current="page">
-                <div class="flex items-center">
-                <svg class="rtl:rotate-180  w-3 h-3 mx-1 text-content-muted" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
-                </svg>
-                <span class="ms-1 text-sm font-medium text-content-muted md:ms-2 ">{{ 'BLOG_ENTRY._create_blog_entry' | translate }}</span>
-                </div>
-            </li>
-            </ol>
-        </nav>
-        </div>
-    </section>
-  
-    <div class="flex-1 mx-auto w-full max-w-[1440px] p-4 pb-16 sm:px-8 md:px-10 lg:px-16 xl:px-[160px]">
-        <div class="mx-auto w-full max-w-screen-xl rounded-lg border border-line-input bg-surface p-6 shadow-lg dark:border-secondary-300 md:p-8">
-            <h1 class="mb-6 text-3xl font-bold text-secondary-200 dark:text-content">
-                {{ blogId ? ('BLOG_ENTRY._update_cms_entry' | translate) : ('BLOG_ENTRY._create_cms_entry' | translate) }}
-            </h1>
-            @if(loading){
-                <app-loading-spinner containerClass="flex min-h-[300px] w-full items-center justify-center" />
-            } @else {
-              <!-- Stepper -->
-              <form [formGroup]="entryForm">  
-            
-                <form class="md:p-8" [formGroup]="entryForm">
-                      <label for="contentType" class="font-bold text-lg text-content">{{ 'BLOG_ENTRY._content_type' | translate }}</label>
-                      <select data-cy="blogEntryContentType" id="contentType" formControlName="contentType"
-                              class="mb-4 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-focus focus:border-primary-100 block w-full p-2.5">
-                        @for(contentType of contentTypes; track contentType.value){
-                          <option [value]="contentType.value">{{ contentType.label | translate }}</option>
-                        }
-                      </select>
-
-                      <label for="title" class="font-bold text-lg text-content">{{ getTitleLabel() | translate }}</label>
-                      <input data-cy="blogEntryTitle" id="title" type="text" formControlName="title"
-                              class="mb-4 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-focus focus:border-primary-100 block w-full p-2.5"/>
-
-                      @if(!isFaqEntry()){
-                        <label for="slug" class="font-bold text-lg text-content">{{ 'BLOG_ENTRY._url_slug' | translate }}</label>
-                        <input data-cy="blogEntrySlug" id="slug" type="text" formControlName="slug"
-                                class="mb-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-focus focus:border-primary-100 block w-full p-2.5"
-                                placeholder="my-blog-entry"/>
-                        <p class="mb-2 text-xs text-content-muted">{{ 'BLOG_ENTRY._url_preview' | translate }} {{ getUrlPreviewBase() }}/{{ entryForm.controls['slug'].value || 'my-blog-entry' }}</p>
-                        @if(entryForm.controls['slug'].touched && entryForm.controls['slug'].invalid){
-                          <p class="mb-2 text-sm text-danger">{{ 'BLOG_ENTRY._slug_hint' | translate }}</p>
-                        }
-                        @if(isSlugTaken()){
-                          <p class="mb-2 text-sm text-danger">{{ 'BLOG_ENTRY._slug_taken' | translate }}</p>
-                        }
-                      }
-
-                      @if(!isFaqEntry()){
-                        <label for="metaDescription" class="font-bold text-lg text-content">{{ 'BLOG_ENTRY._meta_description' | translate }}</label>
-                        <textarea data-cy="blogEntryMetaDescription" id="metaDescription" formControlName="metaDescription" rows="3"
-                                class="mb-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-focus focus:border-primary-100 block w-full p-2.5"
-                                [attr.placeholder]="'BLOG_ENTRY._meta_description_placeholder' | translate"></textarea>
-                        <p class="mb-2 text-xs text-content-muted">{{ (entryForm.controls['metaDescription'].value || '').length }}/160</p>
-                        @if(entryForm.controls['metaDescription'].touched && entryForm.controls['metaDescription'].hasError('maxlength')){
-                          <p class="mb-2 text-sm text-danger">{{ 'BLOG_ENTRY._meta_description_max' | translate }}</p>
-                        }
-
-                        <label for="excerpt" class="font-bold text-lg text-content">{{ 'BLOG_ENTRY._excerpt' | translate }}</label>
-                        <textarea data-cy="blogEntryExcerpt" id="excerpt" formControlName="excerpt" rows="4"
-                                class="mb-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-focus focus:border-primary-100 block w-full p-2.5"
-                                [attr.placeholder]="'BLOG_ENTRY._excerpt_placeholder' | translate"></textarea>
-                        <p class="mb-2 text-xs text-content-muted">{{ (entryForm.controls['excerpt'].value || '').length }}/300</p>
-                        @if(entryForm.controls['excerpt'].touched && entryForm.controls['excerpt'].hasError('maxlength')){
-                          <p class="mb-2 text-sm text-danger">{{ 'BLOG_ENTRY._excerpt_max' | translate }}</p>
-                        }
-
-                        <label for="tags" class="font-bold text-lg text-content">{{ 'BLOG_ENTRY._tags' | translate }}</label>
-                        <input data-cy="blogEntryTags" id="tags" type="text" formControlName="tags"
-                                class="mb-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-focus focus:border-primary-100 block w-full p-2.5"
-                                placeholder="ai, automation, product updates"/>
-                        <p class="mb-2 text-xs text-content-muted">{{ 'BLOG_ENTRY._tags_hint' | translate }}</p>
-
-                        <label for="author" class="font-bold text-lg text-content">{{ 'BLOG_ENTRY._author' | translate }}</label>
-                        <input data-cy="blogEntryAuthor" id="author" type="text" formControlName="author"
-                                class="mb-2 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-focus focus:border-primary-100 block w-full p-2.5"
-                                [attr.placeholder]="'BLOG_ENTRY._author_placeholder' | translate"/>
-
-                        <label for="date" class="font-bold text-lg text-content">{{ 'BLOG_ENTRY._date' | translate }}</label>
-                        <input data-cy="blogEntryDate" id="date" type="datetime-local" formControlName="date"
-                                class="mb-3 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-focus focus:border-primary-100 block w-full p-2.5"/>
-                        <p class="mb-2 text-xs text-content-muted">{{ 'BLOG_ENTRY._date_hint' | translate }}</p>
-
-                        <label for="featuredImageFile" class="font-bold text-lg text-content">{{ 'BLOG_ENTRY._featured_image' | translate }}</label>
-                        @if(getFeaturedImageUrl()){
-                          <div class="relative mb-3 mt-2 w-full">
-                            <img [src]="getFeaturedImageUrl()" [attr.alt]="'BLOG_ENTRY._featured_image_preview' | translate"
-                                 class="h-56 w-full rounded-lg border border-line-input object-cover">
-                            <app-button type="button" (click)="removeFeaturedImage()" variant="danger" size="sm" prefixIcon="xmark"
-                                    class="absolute right-2 top-2" />
-                          </div>
-                        }
-                        <div class="mb-3 mt-2">
-                          <input id="featuredImageFile" type="file" accept="image/*" (change)="onFeaturedImageSelected($event)"
-                                 [disabled]="uploadingFeaturedImage"
-                                 class="block w-full text-sm text-content file:mr-4 file:rounded-lg file:border-0 file:bg-primary-100 file:px-4 file:py-2 file:text-on-primary hover:file:bg-primary-50 disabled:opacity-60"/>
-                          <p class="mt-2 text-xs text-content-muted">{{ 'BLOG_ENTRY._upload_hint' | translate }}</p>
-                          @if(uploadingFeaturedImage){
-                            <p class="mt-2 text-sm text-primary-100 dark:text-primary-50">{{ 'BLOG_ENTRY._uploading_featured_image' | translate }}</p>
-                          }
-                        </div>
-                      }
-          
-                      <label class="font-bold text-lg col-span-2 text-content">{{ getContentLabel() | translate }}</label>
-                      <app-markdown-textarea class="h-[500px]" formControlName="content"></app-markdown-textarea>
-                </form>
-                <!-- Navigation Buttons -->
-                 @if(blogId){
-                    <div class="flex justify-end mt-6 space-x-4">
-                        <app-button data-cy="blogEntryDelete" (click)="openDeleteDialog()" [disabled]="loading" variant="danger">
-                          {{ 'BLOG_ENTRY._delete_entry' | translate }}
-                        </app-button>
-                        <app-button data-cy="blogEntryCreate" (click)="update()" [disabled]="!canSubmit()">
-                          {{ 'BLOG_ENTRY._update_entry' | translate }}
-                        </app-button>
-                    </div>
-                 } @else  {
-                    <div class="flex justify-end mt-6 space-x-4">
-
-                        <app-button data-cy="blogEntryCreate" (click)="create()" [disabled]="!canSubmit()">
-                          {{ 'BLOG_ENTRY._create_entry' | translate }}
-                        </app-button>
-                    </div>
-                 }
-              </form>
-            }
-        </div>
-    </div>
-
+<div class="mx-auto w-full max-w-screen-xl flex-1 flex flex-col px-4 pb-16 sm:px-8">
+  <!-- Breadcrumb -->
+  <div class="py-4">
+    <app-button (click)="goBack()" variant="link" prefixIcon="chevron-left">
+      {{ 'BLOG_ENTRY._back' | translate }}
+    </app-button>
   </div>
-  <app-confirm-modal
-    [visible]="showDeleteConfirm"
-    [title]="deleteConfirmTitle"
-    [message]="deleteConfirmMessage"
-    [confirmLabel]="deleteConfirmButtonText"
-    cancelLabel="CONFIRM_MODAL._cancel"
-    confirmVariant="danger"
-    (resolved)="$event ? confirmDelete() : closeDeleteDialog()"
-    (closed)="closeDeleteDialog()"
-  ></app-confirm-modal>
+  <!-- End Breadcrumb -->
+
+  <h1 class="text-3xl font-extrabold text-content mb-6">
+    {{ blogId ? ('BLOG_ENTRY._update_cms_entry' | translate) : ('BLOG_ENTRY._create_cms_entry' | translate) }}
+  </h1>
+
+  @if (loading) {
+  <app-loading-spinner containerClass="flex min-h-[300px] w-full items-center justify-center" />
+  } @else {
+  <app-card>
+    <app-dynamic-form class="block" [fields]="fields" [formGroup]="entryForm" [columns]="2" />
+
+    <div appCardFooter class="flex w-full items-center justify-end gap-3">
+      @if (blogId) {
+      <app-button data-cy="blogEntryDelete" class="mr-auto" variant="danger" (click)="openDeleteDialog()"
+        [disabled]="loading">
+        {{ 'BLOG_ENTRY._delete_entry' | translate }}
+      </app-button>
+      <app-button data-cy="blogEntryCreate" (click)="update()" [disabled]="!canSubmit()">
+        {{ 'BLOG_ENTRY._update_entry' | translate }}
+      </app-button>
+      } @else {
+      <app-button data-cy="blogEntryCreate" (click)="create()" [disabled]="!canSubmit()">
+        {{ 'BLOG_ENTRY._create_entry' | translate }}
+      </app-button>
+      }
+    </div>
+  </app-card>
+  }
+</div>
+
+<app-confirm-modal
+  [visible]="showDeleteConfirm"
+  [title]="deleteConfirmTitle"
+  [message]="deleteConfirmMessage"
+  [confirmLabel]="deleteConfirmButtonText"
+  cancelLabel="CONFIRM_MODAL._cancel"
+  confirmVariant="danger"
+  (resolved)="$event ? confirmDelete() : closeDeleteDialog()"
+  (closed)="closeDeleteDialog()"
+></app-confirm-modal>
+
+<app-unsaved-changes-modal saveMode="update" [canSaveDraft]="canSubmit()" [blockUnload]="leaveNeedsConfirmation" />

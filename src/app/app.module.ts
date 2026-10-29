@@ -17,7 +17,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ChatbotWidgetComponent } from './chatbot-widget/chatbot-widget.component';
 import { RequestInterceptor } from './interceptors/requests-interceptor';
-import { FaqComponent } from './offerings/faq/faq.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { AnalyticsConfigComponent } from './pages/admin/analytics-config/analytics-config.component';
 import { CategoriesComponent } from './pages/admin/categories/categories.component';
@@ -168,7 +167,6 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     InventoryServicesComponent,
     ProductInvDetailComponent,
     OrganizationDetailsComponent,
-    FaqComponent,
     SellerSoftware,
     CreateSoftwareComponent,
     UpdateSoftwareComponent

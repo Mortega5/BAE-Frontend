@@ -29,7 +29,7 @@
     }
 
     @if (field.type === 'date') {
-    <input [id]="field.name" [formControlName]="field.name" type="date" [attr.min]="$any(field).min ?? null"
+    <input [id]="field.name" [formControlName]="field.name" [type]="$any(field).inputType ?? 'date'" [attr.min]="$any(field).min ?? null"
       [attr.max]="$any(field).max ?? null" [attr.readonly]="field.readonly || null"
       [class.pointer-events-none]="field.readonly" [class.opacity-60]="field.readonly"
       [class.cursor-not-allowed]="field.readonly" [attr.data-cy]="field.dataCy ?? field.name"
@@ -192,7 +192,7 @@
       [dropLabel]="asAttachment(field).dropLabel ?? 'FORMS.ATTACHMENT._drop_label'"
       [selectLabel]="asAttachment(field).selectLabel ?? 'FORMS.ATTACHMENT._select_label'"
       [dataCy]="field.dataCy ?? field.name" [files]="formGroup.get(field.name)?.value"
-      (filesChange)="formGroup.get(field.name)?.setValue($event)" />
+      (filesChange)="formGroup.get(field.name)?.setValue($event); formGroup.get(field.name)?.markAsDirty()" />
     }
 
     @if (field.hint) {

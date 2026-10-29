@@ -34,6 +34,7 @@ import { SellerOfferingsComponent } from "./pages/seller-offerings/seller-offeri
 import { SellerOfferingsPaths } from "./pages/seller-offerings/seller-offerings.paths";
 import { sellerOfferingsRoutes } from "./pages/seller-offerings/seller-offerrings.routes";
 import { UserProfileComponent } from "./pages/user-profile/user-profile.component";
+import { unsavedChangesGuard } from "./guard/unsaved-changes.guard";
 import { UserProfilePaths } from "./pages/user-profile/user-profile.paths";
 import { userProfileRoutes } from "./pages/user-profile/user-profile.routes";
 
@@ -162,12 +163,12 @@ const routes: Routes = [
   {
     path: 'blog-entry',
     component: EntryFormComponent,
-    canActivate: [AuthGuard], data: { roles: ['admin'] }
+    canDeactivate: [unsavedChangesGuard], canActivate: [AuthGuard], data: { roles: ['admin'] }
   },
   {
     path: 'blog-entry/:id',
     component: EntryFormComponent,
-    canActivate: [AuthGuard], data: { roles: ['admin'] }
+    canDeactivate: [unsavedChangesGuard], canActivate: [AuthGuard], data: { roles: ['admin'] }
   },
 
   {

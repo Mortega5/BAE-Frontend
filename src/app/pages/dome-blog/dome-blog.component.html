@@ -23,25 +23,25 @@
     <div class="flex-1 mx-auto w-full max-w-[1440px] px-6 pb-16 pt-4 sm:px-8 md:px-10 lg:px-16 xl:px-[160px]">
         @for(entry of entries; track entry){
             <div class="mb-8 flex w-full flex-col border border-line-input bg-surface p-8 shadow-lg rounded-lg dark:border-secondary-300">
-                <div class="flex inline-flex justify-between">
-                    <h2 class="font-bold mb-4 text-content break-words" [ngClass]="getCardTitleClass()">{{ entry.title }}</h2>
+                <div class="mb-2 flex items-center justify-between gap-2">
+                    <h2 class="min-w-0 font-bold text-content break-words" [ngClass]="getCardTitleClass()">{{ entry.title }}</h2>
                     @if(canManageEntry(entry)){
-                        <div class="flex items-center gap-2">
-                            <app-button type="button" (click)="goToUpdate(entry._id)" shape="pill" prefixIcon="pen-to-square" [title]="'BLOG_ENTRY._edit_entry' | translate">
+                        <div class="flex shrink-0 items-center">
+                            <app-button type="button" (click)="goToUpdate(entry._id)" variant="ghost" size="sm" prefixIcon="pen-to-square" [title]="'BLOG_ENTRY._edit_entry' | translate">
                               <span class="sr-only">{{ 'BLOG_ENTRY._edit_entry' | translate }}</span>
                             </app-button>
                             <app-button type="button" (click)="openDeleteDialog(entry)" [disabled]="isDeletingEntry(entry)"
-                                    variant="danger" prefixIcon="trash" [title]="'BLOG_ENTRY._delete_entry' | translate">
+                                    variant="ghost" size="sm" prefixIcon="trash" [title]="'BLOG_ENTRY._delete_entry' | translate">
                               <span class="sr-only">{{ 'BLOG_ENTRY._delete_entry' | translate }}</span>
                             </app-button>
                         </div>
                     }
                 </div>
-                <h4 class="mb-4 text-lg italic text-secondary-200 dark:text-secondary-50">
+                <p class="mb-3 text-sm text-content-muted">
                     {{ 'BLOG_ENTRY._created_by' | translate }}
-                    <b class="text-secondary-100 dark:text-primary-50">{{entry.author}}</b>
-                    {{ 'BLOG_ENTRY._on' | translate }} {{entry.date | date:'EEEE, dd/MM/yy, HH:mm'}}.
-                </h4>
+                    <b class="font-semibold text-content-secondary">{{entry.author}}</b>
+                    {{ 'BLOG_ENTRY._on' | translate }} {{entry.date | date:'dd/MM/yy, HH:mm'}}
+                </p>
                 @if(getEntryTags(entry); as tags){
                     @if(tags.length > 0){
                         <div class="mb-4 flex flex-wrap gap-2">

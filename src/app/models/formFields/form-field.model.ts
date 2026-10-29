@@ -46,6 +46,8 @@ export interface NumberFormField extends BaseFormField {
 
 export interface DateFormField extends BaseFormField {
   type: 'date';
+  /** Defaults to 'date'; use 'datetime-local' when the time of day matters too. */
+  inputType?: 'date' | 'datetime-local';
   min?: string;
   max?: string;
 }
