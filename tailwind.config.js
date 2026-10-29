@@ -41,6 +41,8 @@ module.exports = {
           DEFAULT: 'var(--card-bg)',
           input: 'var(--theme-input-bg)',
           muted: 'var(--theme-surface-muted)',
+          inset: 'var(--card-inset-bg)',
+          selected: 'var(--card-selected-bg)',
         },
         line: {
           DEFAULT: 'var(--card-border)',

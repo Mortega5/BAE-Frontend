@@ -6,8 +6,8 @@
   <div [class.hidden]="showDetails">
   <app-card>
     <div appCardHeader>
-      <h2 class="text-2xl font-bold dark:text-white">{{ 'PRODUCT_INVENTORY._products' | translate }}</h2>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ 'PRODUCT_INVENTORY._products_subtitle' | translate }}</p>
+      <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_INVENTORY._products' | translate }}</h2>
+      <p class="text-sm text-content-muted mt-1">{{ 'PRODUCT_INVENTORY._products_subtitle' | translate }}</p>
     </div>
     <app-filter-bar [filters]="productFilters" [columns]="1" (filtersChange)="onFiltersChange($event)">
     </app-filter-bar>
@@ -24,13 +24,13 @@
         </div>
 
         <div class="flex items-start justify-between gap-2">
-          <h5 class="min-w-0 text-lg font-semibold text-gray-900 dark:text-white truncate" [title]="inv.product?.name ?? ''">{{inv.product?.name}}</h5>
+          <h5 class="min-w-0 text-lg font-semibold text-content truncate" [title]="inv.product?.name ?? ''">{{inv.product?.name}}</h5>
           <div class="flex items-center gap-1.5 shrink-0">
             <bae-badge variant="plain" [label]="'V' + (inv.product?.version || 'latest')"></bae-badge>
             @if(inv.status == 'active'){
             <div class="relative">
               <button type="button" data-cy="cardMenuToggle" (click)="toggleCardMenu(idx, $event)"
-                class="w-7 h-7 flex items-center justify-center rounded-full text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-secondary-300">
+                class="w-7 h-7 flex items-center justify-center rounded-full text-content-muted hover:bg-surface-muted">
                 <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                   <circle cx="12" cy="5" r="2" />
                   <circle cx="12" cy="12" r="2" />
@@ -42,12 +42,12 @@
                 (click)="$event.stopPropagation()">
                 <button type="button" data-cy="modifyInvProduct"
                   (click)="openModifyFromCard(inv); openCardMenuIdx = null"
-                  class="w-full flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-secondary-300">
+                  class="w-full flex items-center gap-2 px-4 py-2 text-sm text-content-secondary hover:bg-surface-muted">
                   {{ 'PRODUCT_INVENTORY._modify_chars' | translate }}
                 </button>
                 <button type="button" data-cy="terminateInvProduct"
                   (click)="showUnsubscribeModal(inv); openCardMenuIdx = null"
-                  class="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-gray-50 dark:hover:bg-secondary-300">
+                  class="w-full flex items-center gap-2 px-4 py-2 text-sm text-danger hover:bg-surface-muted">
                   {{ 'PRODUCT_INVENTORY._unsubscribe' | translate }}
                 </button>
               </app-dropdown-panel>
@@ -57,7 +57,7 @@
           </div>
         </div>
 
-        <markdown class="mt-1 h-16 line-clamp-3 text-sm text-gray-500 dark:text-gray-400"
+        <markdown class="mt-1 h-16 line-clamp-3 text-sm text-content-muted"
           [data]="inv.product?.description"></markdown>
 
         <div class="flex flex-wrap gap-1.5 mt-3">
@@ -80,7 +80,7 @@
       </div>
       } @else if (hasMore) {
       <button type="button" data-cy="loadMore" (click)="next()"
-        class="w-full h-full min-h-[280px] flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-gray-300 dark:border-secondary-200 text-gray-500 dark:text-gray-400 hover:border-primary-100 hover:text-primary-100 dark:hover:border-primary-50 dark:hover:text-primary-50 transition-colors">
+        class="w-full h-full min-h-[280px] flex flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-line-input text-content-muted hover:border-primary-100 hover:text-primary-100 dark:hover:border-primary-50 dark:hover:text-primary-50 transition-colors">
         <svg class="w-8 h-8" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
           stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
@@ -109,7 +109,7 @@
 
   <app-modal [visible]="showBillingSelector" width="max-w-2xl" (closed)="showBillingSelector = false">
     <div appCardHeader class="flex items-center justify-between">
-      <h3 class="text-xl font-semibold text-primary-100 dark:text-white">{{ 'PRODUCT_INVENTORY._select_billing' |
+      <h3 class="text-xl font-semibold text-primary-100 dark:text-content">{{ 'PRODUCT_INVENTORY._select_billing' |
         translate }}</h3>
       <app-button type="button" (click)="showBillingSelector = false" variant="ghost" size="sm" prefixIcon="xmark">
         <span class="sr-only">{{ 'PRODUCT_INVENTORY._close_modal' | translate }}</span>
@@ -121,7 +121,7 @@
       <app-billing-address [data]="baddr" [position]="i"
         (selectedEvent)="onBillingSelected($event)"></app-billing-address>
       } @empty {
-      <p class="text-gray-500 dark:text-gray-400 text-center">{{ 'BILLING._no_billing' | translate }}</p>
+      <p class="text-content-muted text-center">{{ 'BILLING._no_billing' | translate }}</p>
       }
     </div>
 

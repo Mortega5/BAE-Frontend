@@ -3,14 +3,14 @@
   aria-labelledby="cart-drawer-label" aria-hidden="true">
 
   <div class="flex items-center">
-    <fa-icon class="mr-2 text-gray-500 dark:text-gray-400" [icon]="faCartShopping"></fa-icon>
-    <h3 id="cart-drawer-label" class="text-base font-semibold text-gray-500 dark:text-gray-400 text-xl"
+    <fa-icon class="mr-2 text-content-muted" [icon]="faCartShopping"></fa-icon>
+    <h3 id="cart-drawer-label" class="text-base font-semibold text-content-muted text-xl"
       aria-hidden="true">
       {{ 'CART_DRAWER._title' | translate }}
     </h3>
   </div>
 
-  <hr class="h-px my-2 bg-gray-200 border-0 dark:bg-gray-700">
+  <hr class="h-px my-2 bg-skeleton border-0">
 
   <!-- close button -->
   <app-button (click)="hideCart()" type="button" variant="ghost" size="sm" prefixIcon="xmark"
@@ -25,8 +25,8 @@
 
     @if(items.length > 0){
       @for (providerItems of items; track providerItems) {
-        <div class="mb-6 border border-gray-300 dark:border-gray-600 rounded-lg p-3">
-          <!--<h4 class="font-semibold text-gray-800 dark:text-gray-200 mb-2">
+        <div class="mb-6 border border-line-input rounded-lg p-3">
+          <!--<h4 class="font-semibold text-content mb-2">
             {{ 'CART_DRAWER._provider' | translate }}
           </h4>-->
 
@@ -34,7 +34,7 @@
           @if (isArray(providerItems)) {
           @for (item of providerItems; track item) {
             <div
-              class="flex mt-2 mb-2 rounded-lg bg-secondary-50/95 dark:bg-gray-700 dark:border-gray-800 border-secondary-50 border">
+              class="flex mt-2 mb-2 rounded-lg bg-secondary-50/95 dark:bg-surface-muted border-secondary-50 dark:border-line border">
               <div class="flex flex-col w-full">
                 <div class="flex justify-between w-full">
                   <div class="flex p-2 box-decoration-clone">
@@ -50,7 +50,7 @@
                       'break-all': hasLongWord(item.name, 20),
                       'break-words': !hasLongWord(item.name, 20)
                       }"
-                      class="text-lg text-gray-700 dark:text-gray-400 line-clamp-4 text-wrap break-words cursor-pointer"
+                      class="text-lg text-content-secondary line-clamp-4 text-wrap break-words cursor-pointer"
                       role="button" tabindex="0">
                       {{ item.name }}
                     </p>
@@ -60,12 +60,12 @@
                 <!-- pricing -->
                 <div class="p-2 flex items-center flex-row">
                   @if (item.options.pricing) {
-                    <div class="items-center text-sm text-white">
+                    <div class="items-center text-sm text-content">
                       @for (price of item.options.pricing; track price) {
                         <div class="flex place-content-center flex-col">
-                          <span class="font-bold text-gray-900 dark:text-primary-50 mr-3">{{ price['priceType'] }}:</span>
+                          <span class="font-bold text-content dark:text-primary-50 mr-3">{{ price['priceType'] }}:</span>
                           <span
-                            class="text-xs text-gray-900 dark:text-primary-50">
+                            class="text-xs text-content dark:text-primary-50">
                             @if(price['priceType'] == 'usage'){
                               Estimated price:
                             }
@@ -85,8 +85,8 @@
               <!-- delete button -->
               <div class="p-2 flex items-center">
                 <button type="button" (click)="deleteProduct(item)"
-                  class="h-fit text-blue-700 hover:bg-gray-300 hover:text-white focus:ring-4 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center dark:text-blue-500 dark:hover:text-white dark:hover:bg-gray-600">
-                  <svg class="w-[12px] h-[12px] text-gray-700 dark:text-gray-400" aria-hidden="true"
+                  class="h-fit text-info hover:bg-surface-muted hover:text-danger focus:ring-4 font-medium rounded-full text-sm p-2.5 text-center inline-flex items-center">
+                  <svg class="w-[12px] h-[12px] text-content-secondary" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
@@ -108,11 +108,11 @@
       }
     } @else {
       <div class="w-full min-h-[33vh] rounded-2xl flex flex-col items-center justify-center px-6 py-6 text-center">
-        <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 bg-[#DDE6F6] dark:bg-secondary-300">
+        <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 bg-secondary-50 dark:bg-secondary-300">
           <fa-icon [icon]="faCartShopping" class="text-3xl text-primary-100 dark:text-primary-50"></fa-icon>
         </div>
-        <p class="text-base font-semibold text-gray-900 dark:text-white mb-1">{{ 'CART_DRAWER._empty' | translate }}</p>
-        <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'CART_DRAWER._empty_subtitle' | translate }}</p>
+        <p class="text-base font-semibold text-content mb-1">{{ 'CART_DRAWER._empty' | translate }}</p>
+        <p class="text-sm text-content-muted">{{ 'CART_DRAWER._empty_subtitle' | translate }}</p>
       </div>
     }
   </div>

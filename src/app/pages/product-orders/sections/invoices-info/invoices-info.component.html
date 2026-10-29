@@ -1,6 +1,6 @@
 <div class="mb-4">
-  <h2 class="text-2xl font-bold dark:text-white">{{ 'PRODUCT_ORDERS._invoices' | translate }}</h2>
-  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._invoices_subtitle' | translate }}</p>
+  <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_ORDERS._invoices' | translate }}</h2>
+  <p class="mt-1 text-sm text-content-muted">{{ 'PRODUCT_ORDERS._invoices_subtitle' | translate }}</p>
 </div>
 
 <app-tabs [activeTab]="role" (activeTabChange)="onRoleChange($event)" [fullWidth]="true">
@@ -21,19 +21,19 @@
   class="flex justify-center overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%)] max-h-full shadow-2xl">
   <app-card data-cy="invoiceDetail" variant="modal" class="w-full md:w-3/4 lg:w-1/2 max-h-[90vh]" (click)="$event.stopPropagation();">
     <div appCardHeader class="flex items-center justify-between">
-      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 dark:text-white">{{
+      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 dark:text-content">{{
         'INVOICES._invoice_details' | translate }}</h2>
       <app-button (click)="showInvoiceDetails=false;" type="button" variant="ghost" size="sm" prefixIcon="xmark">
         <span class="sr-only">{{ 'CARD._close' | translate }}</span>
       </app-button>
     </div>
-    <div data-cy="invoiceBillNo" class="pb-6 border-b border-gray-200 dark:border-gray-700">
-      <label for="invoicename" class="block mb-2 text-sm font-bold text-gray-700 dark:text-white">
+    <div data-cy="invoiceBillNo" class="pb-6 border-b border-line">
+      <label for="invoicename" class="block mb-2 text-sm font-bold text-content-secondary">
         {{ 'INVOICES._billno' | translate }}
       </label>
       <div class="flex items-center gap-3">
         <input [(ngModel)]="editableInvoiceName" type="text" id="invoicename" [disabled]="!isEditingBillNo"
-          class="border-gray-300 dark:border-secondary-200 bg-gray-50 dark:bg-secondary-300 border dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 w-64 disabled:opacity-60 disabled:cursor-not-allowed" />
+          class="border-line-input bg-surface-input border text-content text-sm rounded-lg focus:ring-focus focus:border-primary-100 p-2.5 w-64 disabled:opacity-60 disabled:cursor-not-allowed" />
         @if (isEditingBillNo) {
         <app-button data-cy="saveInvoice" (click)="saveInvoice()" type="button" prefixIcon="floppy-disk">
           {{ 'INVOICES._save' | translate }}
@@ -51,53 +51,53 @@
     @if (loadingACBRs) {
         <app-loading-spinner containerClass="w-full h-24 flex justify-center items-center" />
         } @else if (appliedCustomerBillingRates.length === 0) {
-        <p class="text-gray-500 dark:text-gray-400 text-sm">
+        <p class="text-content-muted text-sm">
           {{ 'INVOICES._no_billing_rates' | translate }}
         </p>
         } @else {
         <div class="max-h-96 overflow-y-auto pr-2">
           @for (acbr of appliedCustomerBillingRates; track acbr.id) {
           <div data-cy="acbr"
-            class="mb-4 p-4 bg-gray-50 dark:bg-secondary-300 rounded-lg border border-gray-200 dark:border-gray-600">
+            class="mb-4 p-4 bg-surface-input rounded-lg border border-line">
             <div class="flex flex-col gap-2">
               <div class="flex flex-row gap-2">
-                <p class="text-sm font-bold text-gray-700 dark:text-white">
+                <p class="text-sm font-bold text-content-secondary">
                   {{ 'INVOICES._name' | translate }}:
                 </p>
-                <p class="text-sm text-gray-600 dark:text-gray-200">
+                <p class="text-sm text-content-secondary">
                   {{acbr.name}}
                 </p>
               </div>
 
               <div class="flex flex-row gap-2">
-                <p class="text-sm font-bold text-gray-700 dark:text-white">
+                <p class="text-sm font-bold text-content-secondary">
                   {{ 'INVOICES._description' | translate }}:
                 </p>
-                <p class="text-sm text-gray-600 dark:text-gray-200">
+                <p class="text-sm text-content-secondary">
                   {{acbr.description}}
                 </p>
               </div>
 
               <div class="flex flex-row gap-2">
-                <p class="text-sm font-bold text-gray-700 dark:text-white">
+                <p class="text-sm font-bold text-content-secondary">
                   {{ 'INVOICES._type' | translate }}:
                 </p>
-                <p data-cy="acbrType" class="text-sm text-gray-600 dark:text-gray-200">
+                <p data-cy="acbrType" class="text-sm text-content-secondary">
                   {{acbr.type}}
                 </p>
               </div>
 
               <div class="flex flex-row gap-2">
-                <p class="text-sm font-bold text-gray-700 dark:text-white">
+                <p class="text-sm font-bold text-content-secondary">
                   {{ 'INVOICES._tax_included_amount' | translate }}:
                 </p>
-                <p data-cy="acbrPrice" class="text-sm text-gray-600 dark:text-gray-200">
+                <p data-cy="acbrPrice" class="text-sm text-content-secondary">
                   {{acbr.taxIncludedAmount?.value}}{{acbr.taxIncludedAmount?.unit}}
                 </p>
               </div>
 
               <div class="flex flex-row gap-2">
-                <p class="text-sm font-bold text-gray-700 dark:text-white">
+                <p class="text-sm font-bold text-content-secondary">
                   {{ 'INVOICES._product_acbr_ref' | translate }}:
                 </p>
                 <p class="text-sm text-primary-100 dark:text-primary-50 font-mono">
@@ -109,10 +109,10 @@
 
               @if (acbr.periodCoverage) {
               <div class="flex flex-row gap-2">
-                <p class="text-sm font-bold text-gray-700 dark:text-white">
+                <p class="text-sm font-bold text-content-secondary">
                   {{ 'INVOICES._period_coverage' | translate }}:
                 </p>
-                <p class="text-sm text-gray-600 dark:text-gray-200">
+                <p class="text-sm text-content-secondary">
                   {{acbr.periodCoverage.startDateTime | date:'dd/MM/yyyy'}} - {{acbr.periodCoverage.endDateTime |
                   date:'dd/MM/yyyy'}}
                 </p>

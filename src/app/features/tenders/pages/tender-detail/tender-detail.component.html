@@ -14,7 +14,7 @@
     <div appCardHeader class="flex w-full flex-col md:flex-row md:items-start justify-between gap-3">
       <div class="min-w-0">
         <div class="flex flex-wrap items-center gap-3">
-          <h2 data-cy="tenderTitle" class="text-2xl font-bold dark:text-white break-words">
+          <h2 data-cy="tenderTitle" class="text-2xl font-bold text-content break-words">
             {{ tender.description || ('TENDERS._no_title' | translate) }}
           </h2>
           <bae-badge variant="status" [status]="statusBadge" [label]="statusLabel | translate"></bae-badge>
@@ -44,27 +44,27 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div class="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
-        <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'TENDERS._start_date' | translate }}</p>
-        <p class="text-sm font-medium text-gray-900 dark:text-white">
+      <div class="rounded-2xl border border-line bg-surface p-4">
+        <p class="text-xs text-content-muted">{{ 'TENDERS._start_date' | translate }}</p>
+        <p class="text-sm font-medium text-content">
           {{ tender.expectedFulfillmentStartDate ? (tender.expectedFulfillmentStartDate | date:'dd/MM/yyyy') : '-' }}
         </p>
       </div>
-      <div class="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
-        <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'TENDERS._end_date' | translate }}</p>
-        <p class="text-sm font-medium text-gray-900 dark:text-white">
+      <div class="rounded-2xl border border-line bg-surface p-4">
+        <p class="text-xs text-content-muted">{{ 'TENDERS._end_date' | translate }}</p>
+        <p class="text-sm font-medium text-content">
           {{ tender.effectiveQuoteCompletionDate ? (tender.effectiveQuoteCompletionDate | date:'dd/MM/yyyy') : '-' }}
         </p>
       </div>
-      <div class="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
-        <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'TENDERS._request' | translate }}</p>
+      <div class="rounded-2xl border border-line bg-surface p-4">
+        <p class="text-xs text-content-muted">{{ 'TENDERS._request' | translate }}</p>
         @if (attachmentName) {
         <app-button variant="link" size="sm" prefixIcon="download" dataCy="tenderRequestDownload"
           [title]="attachmentName" (click)="downloadAttachment(tender)">
           <span class="truncate">{{ attachmentName }}</span>
         </app-button>
         } @else {
-        <p class="text-sm font-medium text-gray-900 dark:text-white">-</p>
+        <p class="text-sm font-medium text-content">-</p>
         }
       </div>
     </div>
@@ -72,8 +72,8 @@
 
   <app-card>
     <div appCardHeader>
-      <h3 class="text-xl font-bold dark:text-white">{{ 'TENDERS._offers' | translate }}</h3>
-      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ 'TENDERS._offers_subtitle' | translate }}</p>
+      <h3 class="text-xl font-bold text-content">{{ 'TENDERS._offers' | translate }}</h3>
+      <p class="mt-1 text-sm text-content-muted">{{ 'TENDERS._offers_subtitle' | translate }}</p>
     </div>
 
     <div class="w-full h-fit mb-4 p-4">
