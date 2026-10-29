@@ -134,20 +134,6 @@ describe('OdrlPolicyInputComponent', () => {
       expect(editor.hasAttribute('api-base-url')).toBeFalse();
     });
 
-    it('hands the editor the marketplace theme mapped on the host', async () => {
-      fixture.nativeElement.style.setProperty('--odrl-primary-color', 'rgb(1 2 3)');
-      fixture.nativeElement.style.setProperty('--odrl-card-bg', 'rgb(4 5 6)');
-
-      await open();
-
-      const config = (inBody('odrl-policy-editor') as any).themeConfig;
-      expect(config['odrl-primary-color']).toBe('rgb(1 2 3)');
-      expect(config['odrl-card-bg']).toBe('rgb(4 5 6)');
-      // Not overridden here: comes from the stylesheet's mapping onto the marketplace token.
-      expect(config['odrl-text-color']).toBe(
-        getComputedStyle(document.body).getPropertyValue('--theme-default-text').trim());
-    });
-
     it('leaves Cancel to the modal footer and puts the summary in a tab', async () => {
       await open();
 
@@ -300,3 +286,42 @@ describe('OdrlPolicyInputComponent as a form control', () => {
     expect(fixture.componentInstance.control.dirty).toBeTrue();
   });
 });
+
+describe('marketplace theme for the ODRL policy editor', () => {
+  let editor: HTMLElement;
+
+  beforeEach(() => {
+    editor = document.createElement('odrl-policy-editor');
+    document.body.appendChild(editor);
+  });
+
+  afterEach(() => editor.remove());
+
+  const token = (name: string) => getComputedStyle(editor).getPropertyValue(name).trim();
+  const bodyToken = (name: string) => getComputedStyle(document.body).getPropertyValue(name).trim();
+
+  it('maps the editor tokens onto the marketplace ones through styles.css', () => {
+    const mapping: Record<string, string> = {
+      '--odrl-primary-color': '--button-primary-bg',
+      '--odrl-primary-text-color': '--button-primary-text',
+      '--odrl-text-color': '--theme-default-text',
+      '--odrl-card-bg': '--card-bg',
+      '--odrl-input-bg': '--theme-input-bg',
+      '--odrl-border-color': '--card-border',
+      '--odrl-danger-color': '--theme-danger-text',
+    };
+
+    for (const [editorToken, marketplaceToken] of Object.entries(mapping)) {
+      expect(token(editorToken)).withContext(editorToken).toBe(bodyToken(marketplaceToken));
+    }
+    // The primary tokens derive from the theme class (theme-bae...), which tests do not set, so they
+    // resolve empty here; these two do not depend on it, so they prove the rule is applied at all.
+    expect(token('--odrl-text-color')).not.toBe('');
+    expect(token('--odrl-card-bg')).not.toBe('');
+  });
+
+  it('sets the card radius the marketplace uses', () => {
+    expect(token('--odrl-card-radius')).toBe('1rem');
+  });
+});
+

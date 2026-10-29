@@ -6,14 +6,6 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../../button/button.component';
 import { ModalComponent } from '../../modal/modal.component';
 
-/** Theme tokens of the editor (its `themeConfig` keys). Their values come from the `--<token>` custom
- * properties the stylesheet maps onto the marketplace's own tokens. */
-const ODRL_THEME_TOKENS = [
-  'odrl-primary-color', 'odrl-secondary-color', 'odrl-bg-color', 'odrl-text-color', 'odrl-text-muted',
-  'odrl-card-bg', 'odrl-border-color', 'odrl-font-family', 'odrl-border-radius', 'odrl-section-header-bg',
-  'odrl-success-color', 'odrl-danger-color', 'odrl-info-color', 'odrl-primary-text-color', 'odrl-card-radius',
-] as const;
-
 /** An ODRL policy as raw JSON text, with a button next to the title that opens the visual
  * `<odrl-policy-editor>` from `@seamware/odrl-policy-editor` in a modal. The form value is always the
  * JSON text and the modal edits a draft that only reaches it on Apply. The editor runs with every
@@ -28,7 +20,6 @@ const ODRL_THEME_TOKENS = [
   imports: [TranslateModule, ButtonComponent, ModalComponent, FaIconComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './odrl-policy-input.component.html',
-  styleUrl: './odrl-policy-input.component.scss',
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => OdrlPolicyInputComponent), multi: true },
   ],
@@ -52,14 +43,11 @@ export class OdrlPolicyInputComponent implements ControlValueAccessor, OnDestroy
   /** Policy the editor starts from, taken from the text when the modal opens. */
   editorPolicy?: Record<string, unknown>;
   editorTheme: 'light' | 'dark' = 'light';
-  /** The marketplace's theme as the editor's tokens, read when it opens. Tokens left empty keep the editor's own. */
-  editorThemeConfig: Record<string, string> = {};
   /** Last policy the editor reported; committed to the control on Apply, dropped on Cancel. */
   private draft: string | null = null;
   private portalElement?: HTMLElement;
 
   private readonly cdr = inject(ChangeDetectorRef);
-  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private onChange: (v: string) => void = () => { };
   private onTouched: () => void = () => { };
 
@@ -111,7 +99,6 @@ export class OdrlPolicyInputComponent implements ControlValueAccessor, OnDestroy
       await this.loadEditor();
       this.editorPolicy = this.parse(this.value);
       this.editorTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-      this.editorThemeConfig = this.readThemeConfig();
       this.draft = null;
       this.editorOpen = true;
     } catch {
@@ -147,16 +134,6 @@ export class OdrlPolicyInputComponent implements ControlValueAccessor, OnDestroy
   /** Registers `<odrl-policy-editor>`; a separate method so tests can skip loading the bundle. */
   protected loadEditor(): Promise<unknown> {
     return import('@seamware/odrl-policy-editor');
-  }
-
-  private readThemeConfig(): Record<string, string> {
-    const style = getComputedStyle(this.host.nativeElement);
-    const config: Record<string, string> = {};
-    for (const token of ODRL_THEME_TOKENS) {
-      const value = style.getPropertyValue(`--${token}`).trim();
-      if (value) config[token] = value;
-    }
-    return config;
   }
 
   private closeEditor(): void {

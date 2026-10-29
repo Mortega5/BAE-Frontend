@@ -662,3 +662,26 @@ textarea:-webkit-autofill::first-line {
   background-color: var(--card-selected-bg);
   border-color: var(--card-selected-border);
 }
+
+/* ODRL policy editor (@seamware/odrl-policy-editor): its theme tokens mapped onto the marketplace's, so
+   its tabs, buttons, cards and fields follow the active theme and dark mode. The editor declares its
+   own light/dark presets on its host, which this rule overrides. */
+odrl-policy-editor {
+  --odrl-primary-color: var(--button-primary-bg);
+  --odrl-primary-text-color: var(--button-primary-text);
+  --odrl-secondary-color: var(--theme-info-text);
+  --odrl-bg-color: var(--theme-page-bg);
+  --odrl-text-color: var(--theme-default-text);
+  --odrl-text-muted: var(--theme-text-muted);
+  --odrl-card-bg: var(--card-bg);
+  --odrl-input-bg: var(--theme-input-bg);
+  --odrl-border-color: var(--card-border);
+  --odrl-section-header-bg: var(--theme-surface-muted);
+  --odrl-success-color: var(--theme-success-text);
+  --odrl-danger-color: var(--theme-danger-text);
+  --odrl-info-color: var(--theme-info-text);
+  --odrl-font-family: "Blinker", system-ui, sans-serif;
+  --odrl-border-radius: 0.5rem;
+  --odrl-card-radius: 1rem;
+}
+
