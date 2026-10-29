@@ -2,14 +2,25 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { DomeBlogServiceService } from 'src/app/services/dome-blog-service.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { MarkdownComponent } from 'ngx-markdown';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { faChevronDown, faCircleQuestion } from '@fortawesome/pro-solid-svg-icons';
+import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { EmptyStateComponent } from 'src/app/shared/empty-state/empty-state.component';
 
 @Component({
   selector: 'app-faq',
-  templateUrl: './faq.component.html',
-  styleUrl: './faq.component.css'
+  standalone: true,
+  imports: [TranslateModule, MarkdownComponent, FaIconComponent, ButtonComponent, ConfirmModalComponent,
+    ContentCardComponent, EmptyStateComponent],
+  templateUrl: './faq.component.html'
 })
 export class FaqComponent implements OnInit {
+  protected readonly faChevronDown = faChevronDown;
+  protected readonly faCircleQuestion = faCircleQuestion;
   faqs: any[] = [];
   openFaqId = '';
   checkAdmin = false;

@@ -1,8 +1,8 @@
 <app-card>
   <div appCardHeader class="flex w-full flex-cols items-center md:flex-row justify-between">
     <div>
-      <h2 class="text-2xl font-bold dark:text-white">{{ 'USAGE_SPECS._usage_spec' | translate }}</h2>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ 'USAGE_SPECS._usage_spec_subtitle' | translate }}</p>
+      <h2 class="text-2xl font-bold text-content">{{ 'USAGE_SPECS._usage_spec' | translate }}</h2>
+      <p class="text-sm text-content-muted mt-1">{{ 'USAGE_SPECS._usage_spec_subtitle' | translate }}</p>
     </div>
     <app-button dataCy="createUsageSpec" (click)="goToCreate()" prefixIcon="plus">
       {{ 'USAGE_SPECS._add_new' | translate }}

@@ -10,7 +10,7 @@
 
   <div class="flex items-center justify-between mb-6 gap-3">
     <div class="flex items-center gap-3 min-w-0">
-      <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white truncate">
+      <h1 class="text-3xl font-extrabold text-content truncate">
         {{ (isUpdate ? 'UPDATE_RES_SPEC._update_res' : 'CREATE_RES_SPEC._new') | translate }}
       </h1>
       @if (isUpdate && !notFound) {
@@ -46,9 +46,9 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._general_info' | translate }}" stepId="general">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._general_info' | translate }}
+          <h2 class="text-2xl font-bold text-content">{{ i18nPrefix + '._general_info' | translate }}
           </h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ i18nPrefix + '._general_info_desc' | translate }}
+          <p class="text-sm text-content-muted mt-2">{{ i18nPrefix + '._general_info_desc' | translate }}
           </p>
         </div>
         <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" />
@@ -59,8 +59,8 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._configuration_options' | translate }}" stepId="characteristics">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CHAR_SPEC._step_title' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CHAR_SPEC._step_subtitle' | translate }}</p>
+          <h2 class="text-2xl font-bold text-content">{{ 'CHAR_SPEC._step_title' | translate }}</h2>
+          <p class="text-sm text-content-muted mt-2">{{ 'CHAR_SPEC._step_subtitle' | translate }}</p>
         </div>
         <app-characteristics-editor [characteristics]="characteristicItems" [supportedTypes]="allowedChars"
           (characteristicsChange)="onCharacteristicsChange($event)" />
@@ -72,9 +72,9 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._package_deployment' | translate }}" stepId="packageDeployment">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._package_deployment_title' |
+          <h2 class="text-2xl font-bold text-content">{{ i18nPrefix + '._package_deployment_title' |
             translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ i18nPrefix + '._package_deployment_subtitle' |
+          <p class="text-sm text-content-muted mt-2">{{ i18nPrefix + '._package_deployment_subtitle' |
             translate }}</p>
         </div>
         <app-package-deployment [initialValue]="deploymentInitialValue" (formReady)="onDeploymentFormReady($event)" />
@@ -86,15 +86,15 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._configuration' | translate }}" stepId="configuration">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ i18nPrefix + '._template_config_title' |
+          <h2 class="text-2xl font-bold text-content">{{ i18nPrefix + '._template_config_title' |
             translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ i18nPrefix + '._template_config_subtitle' |
+          <p class="text-sm text-content-muted mt-2">{{ i18nPrefix + '._template_config_subtitle' |
             translate }}</p>
         </div>
         <div class="flex justify-center w-full">
           @if (templateConfigFields.length === 0) {
           <div
-            class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
+            class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-info-soft dark:text-primary-50"
             role="alert">
             <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
               fill="currentColor" viewBox="0 0 20 20">
@@ -104,10 +104,10 @@
             <span>{{ i18nPrefix + '._no_config' | translate }}</span>
           </div>
           } @else {
-          <div class="w-full border border-gray-200 rounded-lg bg-white dark:bg-secondary-200 dark:border-gray-700">
+          <div class="w-full border border-line rounded-lg bg-surface">
             <h3>
               <button type="button" (click)="advancedConfigOpen = !advancedConfigOpen"
-                class="flex items-center justify-between w-full p-5 font-medium rtl:text-right text-gray-500 dark:text-gray-400 gap-3"
+                class="flex items-center justify-between w-full p-5 font-medium rtl:text-right text-content-muted gap-3"
                 [attr.aria-expanded]="advancedConfigOpen" aria-controls="advanced-config-body">
                 <span class="text-primary-100 dark:text-primary-50">{{ i18nPrefix + '._advanced_config' | translate
                   }}</span>

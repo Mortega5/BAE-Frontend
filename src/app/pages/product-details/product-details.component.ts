@@ -1199,8 +1199,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
 
   tabClass(name: string): string {
     return this.activeTab === name
-      ? 'text-white font-semibold'
-      : 'text-[#526179] dark:text-gray-400 font-medium hover:bg-primary-100/10 hover:text-primary-100 dark:hover:bg-primary-50/10 dark:hover:text-primary-50';
+      ? 'text-on-primary font-semibold'
+      : 'pd-body-text font-medium hover:bg-primary-100/10 hover:text-primary-100 dark:hover:bg-primary-50/10 dark:hover:text-primary-50';
   }
 
   toggleTermsReadMore() {

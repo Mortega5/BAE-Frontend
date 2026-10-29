@@ -1,15 +1,15 @@
 @if (visible) {
-<div class="fixed inset-0 z-[60] bg-black/40 dark:bg-black/60 flex items-center justify-center p-4"
+<div class="fixed inset-0 z-[60] bg-overlay flex items-center justify-center p-4"
   (click)="$event.stopPropagation(); closed.emit()">
   <app-card variant="modal" class="w-full max-w-md" (click)="$event.stopPropagation()">
     <div class="flex items-start justify-between gap-3">
-      <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ title | translate }}</h3>
+      <h3 class="text-lg font-bold text-content">{{ title | translate }}</h3>
       <app-button type="button" variant="ghost" size="sm" prefixIcon="xmark"
         (click)="$event.stopPropagation(); closed.emit()">
         <span class="sr-only">{{ 'CARD._close' | translate }}</span>
       </app-button>
     </div>
-    <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">{{ message | translate }}</p>
+    <p class="mt-2 text-sm text-content-muted">{{ message | translate }}</p>
     <!-- With a dismiss button the cancel action (e.g. "discard") is pushed to the far left, apart from the other two. -->
     <div appCardFooter class="flex w-full justify-end gap-3">
       <app-button type="button" [variant]="cancelVariant" size="sm" [class.mr-auto]="!!dismissLabel"

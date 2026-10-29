@@ -8,7 +8,7 @@
   </div>
   <!-- End Breadcrumb -->
 
-  <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'CREATE_PROD_SPEC._new' | translate }}</h1>
+  <h1 class="text-3xl font-extrabold text-content mb-6">{{ 'CREATE_PROD_SPEC._new' | translate }}</h1>
   }
 
   <app-stepper [canAdvance]="canAdvance" submitLabel="CREATE_PROD_SPEC._create_prod" [submitDisabled]="loading"
@@ -17,29 +17,29 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._general_info' | translate }}" stepId="general">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._general_info' | translate
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._general_info' | translate
             }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._general_info_desc' | translate
+          <p class="text-sm text-content-muted mt-2">{{ 'CREATE_PROD_SPEC._general_info_desc' | translate
             }}</p>
         </div>
         <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" [columns]="2" />
 
         @if (dspEnable) {
         <label
-          class="flex items-start gap-3 p-4 rounded-lg border border-gray-200 dark:border-secondary-200 cursor-pointer">
+          class="flex items-start gap-3 p-4 rounded-lg border border-line cursor-pointer">
           <input data-cy="prodSpecDspCompatible" type="checkbox" [formControl]="generalForm.controls.dspCompatible"
             class="mt-1 w-4 h-4 text-primary-100 focus:ring-primary-100 rounded" />
           <span class="flex flex-col">
-            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_compatible' |
+            <span class="text-sm font-semibold text-content">{{ 'CREATE_PROD_SPEC._dsp_compatible' |
               translate }}</span>
-            <span class="text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_PROD_SPEC._dsp_compatible_desc' |
+            <span class="text-xs text-content-muted">{{ 'CREATE_PROD_SPEC._dsp_compatible_desc' |
               translate }}</span>
           </span>
         </label>
         }
 
         <div>
-          <label class="font-bold text-sm dark:text-white block mb-2">{{ 'CREATE_PROD_SPEC._attachments' | translate
+          <label class="font-bold text-sm text-content block mb-2">{{ 'CREATE_PROD_SPEC._attachments' | translate
             }}</label>
           <app-attachment-upload [(ngModel)]="prodAttachments" [ngModelOptions]="{standalone: true}"
             data-cy="prodSpecAttachments" accept="image/*,.pdf,.doc,.docx" [multiple]="true" />
@@ -50,14 +50,14 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._product_details' | translate }}" stepId="productDetails">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._product_details' |
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._product_details' |
             translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._product_details_desc' |
+          <p class="text-sm text-content-muted mt-2">{{ 'CREATE_PROD_SPEC._product_details_desc' |
             translate }}</p>
         </div>
 
         <div>
-          <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{
+          <label class="block text-sm font-semibold text-content mb-2">{{
             'CREATE_PROD_SPEC._how_it_works' | translate }}</label>
           <app-markdown-textarea data-cy="prodSpecHowItWorks" [(ngModel)]="howItWorks"
             [ngModelOptions]="{standalone: true}" [rows]="5" [maxLength]="2000"
@@ -66,7 +66,7 @@
 
         <div>
           <div class="flex justify-between items-center mb-3">
-            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._key_features' |
+            <span class="text-sm font-semibold text-content">{{ 'CREATE_PROD_SPEC._key_features' |
               translate }}</span>
             <app-button type="button" (click)="openItemModal('feature')" data-cy="addKeyFeature" size="sm" prefixIcon="plus">
               {{ 'CREATE_PROD_SPEC._add_key_feature' | translate }}
@@ -74,13 +74,13 @@
           </div>
           @if(keyFeatures.length === 0){
           <div
-            class="rounded-2xl border border-dashed border-gray-300 dark:border-secondary-200 flex flex-col items-center justify-center px-6 py-10">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2" style="background-color: #DDE6F6;">
+            class="rounded-2xl border border-dashed border-line-input flex flex-col items-center justify-center px-6 py-10">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2">
               <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24">
                 <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
               </svg>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'CREATE_PROD_SPEC._no_key_features' | translate }}
+            <p class="text-sm text-content-muted">{{ 'CREATE_PROD_SPEC._no_key_features' | translate }}
             </p>
           </div>
           } @else {
@@ -90,7 +90,7 @@
 
         <div>
           <div class="flex justify-between items-center mb-3">
-            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._business_benefits' |
+            <span class="text-sm font-semibold text-content">{{ 'CREATE_PROD_SPEC._business_benefits' |
               translate }}</span>
             <app-button type="button" (click)="openItemModal('benefit')" data-cy="addBusinessBenefit" size="sm" prefixIcon="plus">
               {{ 'CREATE_PROD_SPEC._add_business_benefit' | translate }}
@@ -98,13 +98,13 @@
           </div>
           @if(businessBenefits.length === 0){
           <div
-            class="rounded-2xl border border-dashed border-gray-300 dark:border-secondary-200 flex flex-col items-center justify-center px-6 py-10">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2" style="background-color: #DDE6F6;">
+            class="rounded-2xl border border-dashed border-line-input flex flex-col items-center justify-center px-6 py-10">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2">
               <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24">
                 <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
               </svg>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'CREATE_PROD_SPEC._no_business_benefits' | translate
+            <p class="text-sm text-content-muted">{{ 'CREATE_PROD_SPEC._no_business_benefits' | translate
               }}</p>
           </div>
           } @else {
@@ -114,7 +114,7 @@
 
         <div>
           <div class="flex justify-between items-center mb-3">
-            <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._use_cases' |
+            <span class="text-sm font-semibold text-content">{{ 'CREATE_PROD_SPEC._use_cases' |
               translate }}</span>
             <app-button type="button" (click)="openItemModal('usecase')" data-cy="addUseCase" size="sm" prefixIcon="plus">
               {{ 'CREATE_PROD_SPEC._add_use_case' | translate }}
@@ -122,13 +122,13 @@
           </div>
           @if(useCases.length === 0){
           <div
-            class="rounded-2xl border border-dashed border-gray-300 dark:border-secondary-200 flex flex-col items-center justify-center px-6 py-10">
-            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2" style="background-color: #DDE6F6;">
+            class="rounded-2xl border border-dashed border-line-input flex flex-col items-center justify-center px-6 py-10">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center mb-2">
               <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24">
                 <path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z" />
               </svg>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'CREATE_PROD_SPEC._no_use_cases' | translate }}</p>
+            <p class="text-sm text-content-muted">{{ 'CREATE_PROD_SPEC._no_use_cases' | translate }}</p>
           </div>
           } @else {
           <app-table-input [columns]="useCaseColumns" [items]="useCases" [selectable]="false" />
@@ -141,18 +141,18 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._bundle' | translate }}" stepId="bundle">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._bundle_step_title' |
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._bundle_step_title' |
             translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._bundle_step_subtitle' |
+          <p class="text-sm text-content-muted mt-2">{{ 'CREATE_PROD_SPEC._bundle_step_subtitle' |
             translate }}</p>
         </div>
         <div class="col-span-2 flex align-items-middle h-fit m-4">
-          <label for="prod-brand" class="font-bold text-lg dark:text-white">{{ 'CREATE_PROD_SPEC._is_bundled' |
+          <label for="prod-brand" class="font-bold text-lg text-content">{{ 'CREATE_PROD_SPEC._is_bundled' |
             translate }}</label>
           <label class="inline-flex items-center me-5 cursor-pointer ml-4">
             <input type="checkbox" (change)="toggleBundleCheck()" [checked]="bundleChecked" class="sr-only peer">
             <div
-              class="relative w-11 h-6 bg-gray-400 dark:bg-gray-700 rounded-full peer peer-focus:ring-4 peer-focus:ring-primary-100 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-100">
+              class="relative w-11 h-6 bg-content-muted rounded-full peer peer-focus:ring-4 peer-focus:ring-primary-100 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-line-input after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-100">
             </div>
           </label>
         </div>
@@ -162,7 +162,7 @@
           (selectedChange)="onBundleSelectionChange($event)" emptyMessage="OFFERINGS._no_prod" />
         }
         <!--<div class="flex w-full justify-items-end justify-end ml-4">
-                        <button data-cy="btnNext" type="button" (click)="goToStep(currentStep + 1)" [disabled]="prodSpecsBundle.length<2 && bundleChecked" [ngClass]="(prodSpecsBundle.length<2 && bundleChecked) ? 'opacity-50' : 'hover:bg-primary-50'" class="flex text-white justify-end bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
+                        <button data-cy="btnNext" type="button" (click)="goToStep(currentStep + 1)" [disabled]="prodSpecsBundle.length<2 && bundleChecked" [ngClass]="(prodSpecsBundle.length<2 && bundleChecked) ? 'opacity-50' : 'hover:bg-primary-50'" class="flex text-white justify-end bg-primary-100 hover:bg-primary-50 focus:ring-4 focus:outline-none focus:ring-focus font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center">
                             {{ 'CREATE_PROD_SPEC._next' | translate }}
                             <svg class="rtl:rotate-180 w-3.5 h-3.5 ms-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 10">
                             <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M1 5h12m0 0L9 1m4 4L9 9"/>
@@ -177,9 +177,9 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._dataspace_configuration' | translate }}" stepId="dataspace">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._dataspace_configuration' |
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._dataspace_configuration' |
             translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._dataspace_configuration_desc' |
+          <p class="text-sm text-content-muted mt-2">{{ 'CREATE_PROD_SPEC._dataspace_configuration_desc' |
             translate }}</p>
         </div>
         <app-characteristics-editor [characteristics]="characteristicItems"
@@ -193,9 +193,9 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._dsp_config' | translate }}" stepId="dsp_config">
       <div class="m-4 flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._dsp_configuration' |
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._dsp_configuration' |
             translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._dsp_configuration_desc' |
+          <p class="text-sm text-content-muted mt-2">{{ 'CREATE_PROD_SPEC._dsp_configuration_desc' |
             translate }}</p>
         </div>
 
@@ -217,15 +217,15 @@
 
         @if (endpointUrls.length === 0) {
         <div data-cy="dspEndpointRequired" role="alert"
-          class="flex items-center gap-3 px-3 py-2 rounded-lg bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900">
-          <svg class="w-5 h-5 shrink-0 text-red-600 dark:text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+          class="flex items-center gap-3 px-3 py-2 rounded-lg bg-danger-soft border border-danger-border">
+          <svg class="w-5 h-5 shrink-0 text-danger" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
             <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm9.75-4.5a.75.75 0 0 0-.75.75v3.75a.75.75 0 0 0 1.5 0V8.25a.75.75 0 0 0-.75-.75Zm0 8.25a.75.75 0 1 0 0 1.5.75.75 0 0 0 0-1.5Z" clip-rule="evenodd"/>
           </svg>
-          <p class="text-sm text-red-700 dark:text-red-300">{{ 'CREATE_PROD_SPEC._dsp_endpoint_required' | translate }}</p>
+          <p class="text-sm text-danger">{{ 'CREATE_PROD_SPEC._dsp_endpoint_required' | translate }}</p>
         </div>
         }
 
-        <hr class="my-6 border-gray-200 dark:border-gray-700" />
+        <hr class="my-6 border-line" />
         <app-dynamic-form class="block" [fields]="dspFormFields" [formGroup]="dspConfigForm" [columns]="3" />
 
       </div>
@@ -235,9 +235,9 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._resource_specifications' | translate }}" stepId="resource">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._resource_specs_step' |
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._resource_specs_step' |
             translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._resource_specs_desc' |
+          <p class="text-sm text-content-muted mt-2">{{ 'CREATE_PROD_SPEC._resource_specs_desc' |
             translate }}</p>
         </div>
         <div class="w-full">
@@ -259,8 +259,8 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._configuration_options' | translate }}" stepId="characteristics">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CHAR_SPEC._step_title' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CHAR_SPEC._step_subtitle' | translate }}</p>
+          <h2 class="text-2xl font-bold text-content">{{ 'CHAR_SPEC._step_title' | translate }}</h2>
+          <p class="text-sm text-content-muted mt-2">{{ 'CHAR_SPEC._step_subtitle' | translate }}</p>
         </div>
         <app-characteristics-editor [characteristics]="characteristicItems"
           [supportedTypes]="['string', 'number', 'range', 'boolean', 'object']"
@@ -271,9 +271,9 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._service_specifications' | translate }}" stepId="service">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._service_specs_step' |
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._service_specs_step' |
             translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._service_specs_desc' | translate
+          <p class="text-sm text-content-muted mt-2">{{ 'CREATE_PROD_SPEC._service_specs_desc' | translate
             }}</p>
         </div>
         <div class="w-full">
@@ -295,15 +295,15 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._relationships' | translate }}" stepId="relationships">
       <div class="m-4 flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._relationships_step_title' |
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._relationships_step_title' |
             translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._relationships_step_subtitle' |
+          <p class="text-sm text-content-muted mt-2">{{ 'CREATE_PROD_SPEC._relationships_step_subtitle' |
             translate }}</p>
         </div>
         @if (prodRelationships.length === 0){
         <div class="flex justify-center w-full mb-4">
           <div
-            class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
+            class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-info-soft dark:text-primary-50"
             role="alert">
             <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
               fill="currentColor" viewBox="0 0 20 20">
@@ -356,9 +356,9 @@
     <ng-template stepperStep="{{ 'BLUEPRINT_PROD._orchestration_plan' | translate}}" stepId="orchestrationPlan">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'BLUEPRINT_PROD._orchestration_plan' |
+          <h2 class="text-2xl font-bold text-content">{{ 'BLUEPRINT_PROD._orchestration_plan' |
             translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'BLUEPRINT_PROD._orchestration_plan_subtitle' |
+          <p class="text-sm text-content-muted mt-2">{{ 'BLUEPRINT_PROD._orchestration_plan_subtitle' |
             translate }}</p>
         </div>
         <app-blueprint-product-form (formChange)="onBlueprintConfigChange($event)"
@@ -371,11 +371,11 @@
       <div class="flex flex-col gap-5">
         <div class="flex justify-between items-center gap-4">
           <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._faqs_step' | translate }}
+            <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._faqs_step' | translate }}
             </h2>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-2 max-w-3xl">{{ 'CREATE_PROD_SPEC._faqs_intro' |
+            <p class="text-sm text-content-muted mt-2 max-w-3xl">{{ 'CREATE_PROD_SPEC._faqs_intro' |
               translate }}</p>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mt-1 max-w-3xl">{{ 'CREATE_PROD_SPEC._faqs_intro2' |
+            <p class="text-sm text-content-muted mt-1 max-w-3xl">{{ 'CREATE_PROD_SPEC._faqs_intro2' |
               translate }}</p>
           </div>
           <app-button type="button" (click)="addFaq()" data-cy="addFaq" prefixIcon="plus" class="shrink-0">
@@ -384,9 +384,9 @@
         </div>
 
         @if(faqs.length === 0){
-        <div class="rounded-2xl border border-dashed border-gray-300 dark:border-secondary-200">
+        <div class="rounded-2xl border border-dashed border-line-input">
           <div class="flex flex-col items-center justify-center px-6 py-12 text-center">
-            <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 p-4 bg-[#DDE6F6] dark:bg-secondary-300">
+            <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 p-4 bg-secondary-50 dark:bg-secondary-300">
               <svg class="w-10 h-10 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                 <path fill-rule="evenodd" clip-rule="evenodd"
                   d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v.75c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875v-.75C22.5 3.839 21.66 3 20.625 3H3.375z" />
@@ -394,9 +394,9 @@
                   d="M3.087 9l.54 9.176A3 3 0 006.62 21h10.757a3 3 0 002.995-2.824L20.913 9H3.087zm6.133 2.845a.75.75 0 011.06 0l1.72 1.72 1.72-1.72a.75.75 0 111.06 1.06l-1.72 1.72 1.72 1.72a.75.75 0 11-1.06 1.06L12 15.685l-1.72 1.72a.75.75 0 11-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06z" />
               </svg>
             </div>
-            <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">{{ 'CREATE_PROD_SPEC._no_faqs' |
+            <h3 class="text-lg font-semibold text-content mb-1">{{ 'CREATE_PROD_SPEC._no_faqs' |
               translate }}</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">{{ 'CREATE_PROD_SPEC._add_new_to_collect' |
+            <p class="text-sm text-content-muted mb-5">{{ 'CREATE_PROD_SPEC._add_new_to_collect' |
               translate }}</p>
             <app-button type="button" (click)="addFaq()" prefixIcon="plus">
               {{ 'CREATE_PROD_SPEC._add_faq' | translate }}
@@ -406,12 +406,12 @@
         } @else {
         <div class="flex flex-col gap-3">
           @for(faq of faqs; track faq; let idx = $index){
-          <div class="border border-gray-200 dark:border-secondary-200 rounded-xl bg-white dark:bg-secondary-300"
+          <div class="border border-line rounded-xl bg-surface-input"
             [class.opacity-50]="draggingFaqIdx === idx" (dragover)="onFaqDragOver($event)"
             (drop)="onFaqDrop($event, idx)">
             <div class="flex items-center gap-3 px-4 py-3" draggable="true" (dragstart)="onFaqDragStart($event, idx)"
               (dragend)="onFaqDragEnd()">
-              <span class="text-gray-400 dark:text-gray-500 cursor-move select-none"
+              <span class="text-content-muted cursor-move select-none"
                 title="{{ 'CREATE_PROD_SPEC._drag_to_reorder' | translate }}">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
                   <circle cx="9" cy="6" r="1.5" />
@@ -422,12 +422,11 @@
                   <circle cx="15" cy="18" r="1.5" />
                 </svg>
               </span>
-              <span class="flex-1 text-sm text-gray-900 dark:text-white truncate" [class.text-gray-400]="!faq.question"
-                [class.dark:text-gray-500]="!faq.question">
+              <span class="flex-1 text-sm text-content truncate" [class.text-content-muted]="!faq.question">
                 {{ faq.question || ('CREATE_PROD_SPEC._untitled_question' | translate) }}
               </span>
               <button type="button" (click)="toggleFaq(idx)"
-                class="p-1 text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+                class="p-1 text-content-muted hover:text-content">
                 <svg class="w-4 h-4 transition-transform" [class.rotate-180]="!faq.expanded"
                   xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2"
                   stroke="currentColor">
@@ -435,7 +434,7 @@
                 </svg>
               </button>
               <button type="button" (click)="removeFaq(idx)"
-                class="p-1 text-gray-400 dark:text-gray-500 hover:text-red-600 dark:hover:text-red-400">
+                class="p-1 text-content-muted hover:text-danger">
                 <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                   stroke-width="1.8" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round"
@@ -447,22 +446,22 @@
             @if(faq.expanded){
             <!-- Same label/input look as app-dynamic-form; kept on ngModel since each FAQ is a plain
                  object in a drag-reorderable list, not a reactive form control. -->
-            <div class="border-t border-gray-200 dark:border-secondary-200 px-4 py-4 flex flex-col gap-4">
+            <div class="border-t border-line px-4 py-4 flex flex-col gap-4">
               <div>
-                <label [for]="'faqQuestion' + idx" class="font-bold text-sm dark:text-white flex items-center gap-2 pb-2">
+                <label [for]="'faqQuestion' + idx" class="font-bold text-sm text-content flex items-center gap-2 pb-2">
                   {{ 'CREATE_PROD_SPEC._question' | translate }}
                 </label>
                 <input [id]="'faqQuestion' + idx" type="text" [(ngModel)]="faq.question" [ngModelOptions]="{standalone: true}"
                   maxLength="200" placeholder="{{ 'CREATE_PROD_SPEC._enter_question' | translate }}"
-                  class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+                  class="bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
               </div>
               <div>
-                <label [for]="'faqAnswer' + idx" class="font-bold text-sm dark:text-white flex items-center gap-2 pb-2">
+                <label [for]="'faqAnswer' + idx" class="font-bold text-sm text-content flex items-center gap-2 pb-2">
                   {{ 'CREATE_PROD_SPEC._answer' | translate }}
                 </label>
                 <textarea [id]="'faqAnswer' + idx" [(ngModel)]="faq.answer" [ngModelOptions]="{standalone: true}" rows="5"
                   maxLength="2000" placeholder="{{ 'CREATE_PROD_SPEC._write_answer' | translate }}"
-                  class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 resize-y"></textarea>
+                  class="bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 resize-y"></textarea>
               </div>
             </div>
             }
@@ -476,9 +475,9 @@
     <ng-template stepperStep="{{ 'SPEC_STEPS._compliance_profile' | translate }}" stepId="compliance">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._compliance_step' |
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._compliance_step' |
             translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_PROD_SPEC._compliance_desc' | translate }}
+          <p class="text-sm text-content-muted mt-2">{{ 'CREATE_PROD_SPEC._compliance_desc' | translate }}
           </p>
         </div>
 
@@ -500,7 +499,7 @@
 <app-modal data-cy="createResourceSpecModal" [visible]="showCreateResourceSpecModal" width="max-w-7xl"
   (closed)="closeCreateResourceSpecModal()">
   <div appCardHeader class="flex items-center justify-between">
-    <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_RES_SPEC._new' | translate }}</h3>
+    <h3 class="text-xl font-bold text-content">{{ 'CREATE_RES_SPEC._new' | translate }}</h3>
     <app-button type="button" (click)="closeCreateResourceSpecModal()" variant="ghost" size="sm" prefixIcon="xmark" />
   </div>
 
@@ -511,7 +510,7 @@
 <app-modal data-cy="createServiceSpecModal" [visible]="showCreateServiceSpecModal" width="max-w-7xl"
   (closed)="closeCreateServiceSpecModal()">
   <div appCardHeader class="flex items-center justify-between">
-    <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_SERV_SPEC._new' | translate }}</h3>
+    <h3 class="text-xl font-bold text-content">{{ 'CREATE_SERV_SPEC._new' | translate }}</h3>
     <app-button type="button" (click)="closeCreateServiceSpecModal()" variant="ghost" size="sm" prefixIcon="xmark" />
   </div>
 
@@ -527,56 +526,55 @@
 <app-unsaved-changes-modal [canSaveDraft]="canSaveDraft" [blockUnload]="leaveNeedsConfirmation" />
 
 @if(itemModal.type){
-<div (click)="closeItemModal()" class="fixed inset-0 z-50 flex items-center justify-center px-4"
-  style="background-color: rgba(11, 21, 40, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+<div (click)="closeItemModal()" class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-overlay backdrop-blur-sm">
   <app-card variant="modal" class="w-full max-w-[680px] max-h-[90vh]" (click)="$event.stopPropagation()">
     <div appCardHeader class="flex justify-between items-start">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+      <h2 class="text-2xl font-bold text-content">
         @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._modal_title_feature' | translate }} }
         @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._modal_title_benefit' | translate }} }
         @else { {{ 'CREATE_PROD_SPEC._modal_title_usecase' | translate }} }
       </h2>
       <app-button type="button" (click)="closeItemModal()" variant="ghost" size="sm" prefixIcon="xmark" />
     </div>
-    <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">
+    <p class="text-sm text-content-muted mb-6">
       @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._modal_desc_feature' | translate }} }
       @else if(itemModal.type === 'benefit'){ {{ 'CREATE_PROD_SPEC._modal_desc_benefit' | translate }} }
       @else { {{ 'CREATE_PROD_SPEC._modal_desc_usecase' | translate }} }
     </p>
 
     <div class="mb-4">
-        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ 'CREATE_PROD_SPEC._item_name' |
+        <label class="block text-sm font-semibold text-content mb-2">{{ 'CREATE_PROD_SPEC._item_name' |
           translate }}</label>
         <input type="text" [(ngModel)]="itemModal.name" [ngModelOptions]="{standalone: true}" maxLength="100"
           placeholder="{{ (itemModal.type === 'feature' ? 'CREATE_PROD_SPEC._feature_name_placeholder' : itemModal.type === 'benefit' ? 'CREATE_PROD_SPEC._benefit_name_placeholder' : 'CREATE_PROD_SPEC._usecase_name_placeholder') | translate }}"
-          class="bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+          class="bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
       </div>
 
       <div class="mb-4">
-        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">{{ 'CREATE_PROD_SPEC._description'
+        <label class="block text-sm font-semibold text-content mb-2">{{ 'CREATE_PROD_SPEC._description'
           | translate }}</label>
         <textarea [(ngModel)]="itemModal.description" [ngModelOptions]="{standalone: true}" rows="3"
           [maxLength]="itemDescriptionLimit(itemModal.type)"
           placeholder="{{ (itemModal.type === 'feature' ? 'CREATE_PROD_SPEC._feature_desc_placeholder' : itemModal.type === 'benefit' ? 'CREATE_PROD_SPEC._benefit_desc_placeholder' : 'CREATE_PROD_SPEC._usecase_desc_placeholder') | translate }}"
-          class="bg-white dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 text-gray-900 dark:text-white text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 resize-none"></textarea>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">{{ itemModal.description.length || 0 }}/{{
+          class="bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 resize-none"></textarea>
+        <p class="text-xs text-content-muted mt-1">{{ itemModal.description.length || 0 }}/{{
           itemDescriptionLimit(itemModal.type) }}</p>
       </div>
 
       @if(itemModal.type === 'feature'){
       <div class="mb-6">
-        <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-1">{{ 'CREATE_PROD_SPEC._icon' |
+        <label class="block text-sm font-semibold text-content mb-1">{{ 'CREATE_PROD_SPEC._icon' |
           translate }}</label>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">{{ 'CREATE_PROD_SPEC._icon_hint' | translate }}</p>
-        <div class="rounded-2xl p-5 flex flex-col gap-5" style="background-color: #F7F9FD; border: 1px solid #DDE6F6;">
+        <p class="text-sm text-content-muted mb-3">{{ 'CREATE_PROD_SPEC._icon_hint' | translate }}</p>
+        <div class="rounded-2xl p-5 flex flex-col gap-5 bg-surface-muted border border-line">
           @for(cat of iconCategories; track cat.labelKey){
           <div>
-            <p class="text-sm font-semibold text-gray-900 mb-2">{{ cat.labelKey | translate }}</p>
+            <p class="text-sm font-semibold text-content mb-2">{{ cat.labelKey | translate }}</p>
             <div class="flex flex-wrap gap-2">
               @for(opt of cat.icons; track opt.name){
               <button type="button" (click)="selectModalIcon(opt.name)" [title]="opt.name"
-                [ngClass]="itemModal.icon === opt.name ? 'border-primary-100 bg-secondary-50' : 'border-gray-200 bg-white hover:border-gray-400'"
-                class="flex items-center justify-center w-10 h-10 rounded-lg border text-gray-800">
+                [ngClass]="itemModal.icon === opt.name ? 'border-primary-100 bg-secondary-50' : 'border-line bg-surface-input hover:border-line-input'"
+                class="flex items-center justify-center w-10 h-10 rounded-lg border text-content">
                 <fa-icon [icon]="opt.icon"></fa-icon>
               </button>
               }
@@ -602,22 +600,21 @@
 }
 
 @if(faqDeleteIdx !== null){
-<div (click)="cancelDeleteFaq()" class="fixed inset-0 z-50 flex items-center justify-center px-4"
-  style="background-color: rgba(11, 21, 40, 0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);">
+<div (click)="cancelDeleteFaq()" class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-overlay backdrop-blur-sm">
   <app-card variant="modal" class="w-full max-w-[480px]" (click)="$event.stopPropagation()">
     <div class="flex justify-end">
       <app-button type="button" (click)="cancelDeleteFaq()" variant="ghost" size="sm" prefixIcon="xmark" />
     </div>
     <div class="flex flex-col items-center text-center pb-2">
-      <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4" style="background-color: #DDE6F6;">
+      <div class="w-14 h-14 rounded-full flex items-center justify-center mb-4 bg-secondary-50">
         <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="#2D58A7" viewBox="0 0 24 24">
           <path
             d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 5a1.25 1.25 0 11-1.25 1.25A1.25 1.25 0 0112 7zm1.5 11h-3a.75.75 0 010-1.5h.75v-4h-.75a.75.75 0 010-1.5h1.5a.75.75 0 01.75.75V16.5h.75a.75.75 0 010 1.5z" />
         </svg>
       </div>
-      <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-2">{{ 'CREATE_PROD_SPEC._delete_question_title' |
+      <h2 class="text-xl font-bold text-content mb-2">{{ 'CREATE_PROD_SPEC._delete_question_title' |
         translate }}</h2>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mb-6">{{ 'CREATE_PROD_SPEC._delete_question_desc' | translate
+      <p class="text-sm text-content-muted mb-6">{{ 'CREATE_PROD_SPEC._delete_question_desc' | translate
         }}</p>
       <div class="grid grid-cols-2 gap-3 w-full">
         <app-button type="button" (click)="cancelDeleteFaq()" variant="secondary" class="h-11">{{

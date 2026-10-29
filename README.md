@@ -27,6 +27,34 @@ The core of the system is the `ThemeService`, which is responsible for loading a
 
 ---
 
+## Using theme colors in templates
+
+Colors in templates must follow the active theme, in light and dark mode. To achieve this:
+
+- Do not use fixed Tailwind colors (`text-gray-900`, `bg-red-50`) or hex values (`text-[#0B1528]`).
+- Do not reference CSS variables from templates (`text-[var(--x)]`).
+- Use a **role class** that expresses the meaning of the color. It already covers dark mode, so no `dark:` variant is needed.
+
+```html
+<h2 class="text-content">Title</h2>
+<p class="text-content-muted">Hint</p>
+<div class="bg-surface border border-line">…</div>
+<span class="text-danger">Error message</span>
+```
+
+| Need | Classes |
+|---|---|
+| Text | `text-content`, `text-content-secondary`, `text-content-muted`, `text-on-primary`, `text-link` |
+| Backgrounds | `bg-page`, `bg-surface`, `bg-surface-input`, `bg-surface-muted`, `bg-skeleton`, `bg-overlay` |
+| Borders and focus | `border-line`, `border-line-input`, `ring-focus` |
+| Status | `text-danger` / `bg-danger-soft` / `border-danger-border`, and the same for `success`, `warning`, `info` |
+
+Token values live in `src/styles.css` (light under `body`, dark under `.dark body`) and are exposed to Tailwind in `tailwind.config.js`. A theme can override any of them in its own block. Colors specific to one component are defined as a class in that component's stylesheet.
+
+Prefer the shared components in `src/app/shared` (`app-button`, `app-card`, `app-item-card`, `app-dropdown-panel`, `app-side-nav`, `app-tabs`, `app-empty-state`, `app-search-input`, `app-view-toggle`, `app-table-input`) over hand-written markup: they already apply these roles and each has its own README.
+
+The complete role list, selection rules and the procedure to add a new role are in [`docs/theme-tokens.md`](docs/theme-tokens.md).
+
 ## Creating a New Theme
 
 Follow these steps to add a new theme to the application. In this example, we will create a new theme called **"Galaxy"**.

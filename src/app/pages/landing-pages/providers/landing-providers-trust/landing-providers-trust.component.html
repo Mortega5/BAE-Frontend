@@ -1,13 +1,13 @@
-<section class="w-full bg-[#F1F5FB] font-[Blinker]">
+<section class="w-full bg-surface-muted font-[Blinker]">
   <div
     class="mx-auto flex w-full max-w-[1440px] flex-col gap-10 px-5 py-16 sm:px-8 sm:py-20 lg:flex-row lg:items-center lg:gap-8 lg:px-[80px] lg:py-[80px] xl:px-[160px]">
 
     <div class="flex w-full flex-1 flex-col items-start gap-6 lg:max-w-[544px]">
       <div class="flex w-full flex-col items-start gap-4 pb-2 sm:pb-4 lg:w-[544px] lg:pb-6">
         <h2
-          class="w-full text-[32px] font-bold leading-[1.15] text-[#0B1528] sm:text-[40px] md:text-[44px] lg:w-[544px] lg:text-[48px] lg:leading-[58px]">
+          class="w-full text-[32px] font-bold leading-[1.15] text-content sm:text-[40px] md:text-[44px] lg:w-[544px] lg:text-[48px] lg:leading-[58px]">
           {{ 'LANDINGPAGE.providers.trust.titleStart' | translate }}
-          <span class="text-[#2D58A7]">
+          <span class="text-primary-100">
             {{ 'LANDINGPAGE.providers.trust.titleHighlight' | translate }}
           </span>
           <br />
@@ -17,7 +17,7 @@
         </h2>
 
         <p
-          class="w-full text-[17px] font-normal leading-[28px] text-[#0B1528] sm:text-[18px] sm:leading-[30px] lg:w-[544px] lg:text-[20px] lg:leading-[32px]">
+          class="w-full text-[17px] font-normal leading-[28px] text-content sm:text-[18px] sm:leading-[30px] lg:w-[544px] lg:text-[20px] lg:leading-[32px]">
           {{ 'LANDINGPAGE.providers.trust.description' | translate }}
         </p>
       </div>
@@ -26,19 +26,19 @@
     <div class="flex w-full flex-1 flex-col gap-6 sm:gap-8 lg:max-w-[544px] lg:flex-row lg:items-start lg:gap-6">
       <div class="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:flex lg:w-[260px] lg:flex-col">
         @for (card of leftCards; track card.titleKey) {
-        <article class="flex min-h-[221px] w-full flex-col items-start rounded-2xl bg-white p-6 lg:w-[260px]"
+        <article class="flex min-h-[221px] w-full flex-col items-start rounded-2xl bg-surface p-6 lg:w-[260px]"
           [class.justify-end]="card.alignEnd">
-          <div class="mb-6 flex h-10 w-10 items-center justify-center text-[#2D58A7]">
+          <div class="mb-6 flex h-10 w-10 items-center justify-center text-primary-100">
             <fa-icon [icon]="card.icon" class="text-[40px] leading-none"></fa-icon>
           </div>
 
           <div class="flex w-full flex-col items-start gap-2 self-stretch lg:w-[212px]">
             <h3
-              class="self-stretch text-[22px] font-bold leading-[1.2] text-[#0B1528] lg:text-[24px] lg:leading-[29px]">
+              class="self-stretch text-[22px] font-bold leading-[1.2] text-content lg:text-[24px] lg:leading-[29px]">
               {{ card.titleKey | translate }}
             </h3>
 
-            <p class="self-stretch text-[15px] font-normal leading-6 text-[#0B1528] lg:text-[16px]">
+            <p class="self-stretch text-[15px] font-normal leading-6 text-content lg:text-[16px]">
               {{ card.descriptionKey | translate }}
             </p>
           </div>
@@ -48,18 +48,18 @@
 
       <div class="grid w-full grid-cols-1 gap-6 sm:grid-cols-2 lg:flex lg:w-[260px] lg:flex-col lg:pt-12">
         @for (card of rightCards; track card.titleKey) {
-        <article class="flex min-h-[221px] w-full flex-col items-start rounded-2xl bg-white p-6 lg:w-[260px]">
-          <div class="mb-6 flex h-10 w-10 items-center justify-center text-[#2D58A7]">
+        <article class="flex min-h-[221px] w-full flex-col items-start rounded-2xl bg-surface p-6 lg:w-[260px]">
+          <div class="mb-6 flex h-10 w-10 items-center justify-center text-primary-100">
             <fa-icon [icon]="card.icon" class="text-[40px] leading-none"></fa-icon>
           </div>
 
           <div class="flex w-full flex-col items-start gap-2 self-stretch lg:w-[212px]">
             <h3
-              class="self-stretch text-[22px] font-bold leading-[1.2] text-[#0B1528] lg:text-[24px] lg:leading-[29px]">
+              class="self-stretch text-[22px] font-bold leading-[1.2] text-content lg:text-[24px] lg:leading-[29px]">
               {{ card.titleKey | translate }}
             </h3>
 
-            <p class="self-stretch text-[15px] font-normal leading-6 text-[#0B1528] lg:text-[16px]">
+            <p class="self-stretch text-[15px] font-normal leading-6 text-content lg:text-[16px]">
               {{ card.descriptionKey | translate }}
             </p>
           </div>

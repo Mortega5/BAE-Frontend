@@ -6,7 +6,7 @@
 
   <div class="relative z-[2] flex w-full max-w-[1120px] items-center justify-center">
     <h2
-      class="text-center text-[32px] font-bold leading-[40px] text-white sm:text-[40px] sm:leading-[48px] lg:text-[48px] lg:leading-[58px]">
+      class="text-center text-[32px] font-bold leading-[40px] text-on-primary sm:text-[40px] sm:leading-[48px] lg:text-[48px] lg:leading-[58px]">
       {{ 'LANDINGPAGE.providers.included.title' | translate }}
     </h2>
   </div>
@@ -17,21 +17,21 @@
       @for (card of cards; track card.titleKey) {
       <div class="shrink-0 px-3" [style.width.%]="100 / visibleItems">
         <article
-          class="provider-card relative flex h-[350px] flex-col items-start gap-12 overflow-hidden rounded-2xl border border-[#234481] bg-[linear-gradient(175.9deg,#14274A_3.34%,#0B1528_97.37%)] p-6">
+          class="provider-card relative flex h-[350px] flex-col items-start gap-12 overflow-hidden rounded-2xl border border-primary-hover bg-[linear-gradient(175.9deg,#14274A_3.34%,#0B1528_97.37%)] p-6">
 
           <div class="provider-card__top-line" aria-hidden="true"></div>
 
-          <div class="flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-[#1A3360]">
-            <fa-icon [icon]="card.icon" class="text-[40px] text-[#00ADD3]">
+          <div class="flex h-[72px] w-[72px] items-center justify-center rounded-2xl bg-primary-active">
+            <fa-icon [icon]="card.icon" class="text-[40px] text-primary-50">
             </fa-icon>
           </div>
 
           <div class="flex flex-col items-start gap-4">
-            <h3 class="m-0 min-h-[76px] text-left text-[28px] font-bold leading-[1.15] text-white lg:text-[32px]">
+            <h3 class="m-0 min-h-[76px] text-left text-[28px] font-bold leading-[1.15] text-on-primary lg:text-[32px]">
               {{ card.titleKey | translate }}
             </h3>
 
-            <p class="m-0 text-left text-[18px] font-normal leading-8 text-white">
+            <p class="m-0 text-left text-[18px] font-normal leading-8 text-on-primary">
               {{ card.descriptionKey | translate }}
             </p>
           </div>

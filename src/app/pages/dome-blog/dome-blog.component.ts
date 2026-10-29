@@ -216,8 +216,8 @@ export class DomeBlogComponent implements OnInit, OnDestroy {
 
   getImageClass(): string {
     return this.isNewsLayout
-      ? 'h-72 w-full rounded-lg border border-gray-300 object-cover md:h-64 md:w-[432px] md:min-w-[432px] dark:border-gray-700'
-      : 'h-52 w-full rounded-lg border border-gray-300 object-contain p-2 md:h-44 md:w-72 md:min-w-72 dark:border-gray-700';
+      ? 'h-72 w-full rounded-lg border border-line-input object-cover md:h-64 md:w-[432px] md:min-w-[432px]'
+      : 'h-52 w-full rounded-lg border border-line-input object-contain p-2 md:h-44 md:w-72 md:min-w-72';
   }
 
   private applyRouteConfiguration() {

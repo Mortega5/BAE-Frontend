@@ -125,7 +125,7 @@ describe('CreateTenderModalComponent', () => {
 
     expect(selectedRow).not.toBeNull();
     expect(selectedRow.getAttribute('data-selected')).not.toBeNull();
-    expect(selectedRow.className).toContain('bg-[var(--card-selected-bg)]');
+    expect(selectedRow.className).toContain('bg-surface-selected');
   });
 
   it('shows the uploaded PDF in the provider step summary immediately after step 2 is saved', fakeAsync(() => {

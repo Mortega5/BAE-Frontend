@@ -3,7 +3,7 @@
 
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+      <h2 class="text-2xl font-bold text-content">
         {{ pricePlanTranslationKey | translate }}
       </h2>
       <app-button type="button" (click)="closeDrawer()" variant="ghost" size="sm" prefixIcon="xmark" />
@@ -15,29 +15,29 @@
 
         <!-- Nombre -->
         <div class="mb-4">
-          <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-            {{ 'FORMS.PRICE_PLANS._name' | translate }}<span class="text-red-600 ml-0.5">*</span>
+          <label class="block text-sm font-semibold text-content mb-2">
+            {{ 'FORMS.PRICE_PLANS._name' | translate }}<span class="text-danger ml-0.5">*</span>
           </label>
           <input data-cy="pricePlanName" formControlName="name" type="text"
           placeholder="{{ 'CREATE_OFFER._pp_form_name_placeholder' | translate }}"
-          [ngClass]="(formGroup.get('name')?.invalid == true && formGroup.value.name!='') || (formGroup.get('name')?.touched && formGroup.value.name=='') || (formGroup.hasError('nonUniqueName') && formGroup.get('name')?.touched) ? 'border-red-500' : 'border-gray-300 dark:border-secondary-200'"
-                 class="bg-white dark:bg-secondary-300 border text-gray-900 dark:text-white text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100">
+          [ngClass]="(formGroup.get('name')?.invalid == true && formGroup.value.name!='') || (formGroup.get('name')?.touched && formGroup.value.name=='') || (formGroup.hasError('nonUniqueName') && formGroup.get('name')?.touched) ? 'border-danger' : 'border-line-input'"
+                 class="bg-surface-input border text-content text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100">
           @if(formGroup.hasError('nonUniqueName') && formGroup.get('name')?.touched){
-            <p class="mt-1 text-xs text-red-600"><span class="font-medium">{{ 'FORMS.PRICE_PLANS._unique' | translate }}</span></p>
+            <p class="mt-1 text-xs text-danger"><span class="font-medium">{{ 'FORMS.PRICE_PLANS._unique' | translate }}</span></p>
           }
           @if(formGroup.get('name')?.invalid && formGroup.get('name')?.errors?.['required'] && (formGroup.get('name')?.touched && formGroup.value.name=='')){
-            <p class="mt-1 text-xs text-red-600"><span class="font-medium">{{ 'FORMS.PRICE_PLANS._mandatory' | translate }}</span></p>
+            <p class="mt-1 text-xs text-danger"><span class="font-medium">{{ 'FORMS.PRICE_PLANS._mandatory' | translate }}</span></p>
           }
         </div>
 
         <!-- Descripción -->
         <div class="mb-4">
-          <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
-            {{ 'FORMS.PRICE_PLANS._description' | translate }}<span class="text-red-600 ml-0.5">*</span>
+          <label class="block text-sm font-semibold text-content mb-2">
+            {{ 'FORMS.PRICE_PLANS._description' | translate }}<span class="text-danger ml-0.5">*</span>
           </label>
           <app-markdown-textarea formControlName="description" [placeholder]="'CREATE_OFFER._pp_form_description_placeholder' | translate"></app-markdown-textarea>
           @if(formGroup.get('description')?.invalid && formGroup.get('description')?.errors?.['required'] && (formGroup.get('description')?.touched && formGroup.value.description=='')){
-            <p class="mt-1 text-xs text-red-600"><span class="font-medium">{{ 'FORMS.PRICE_PLANS._mandatory' | translate }}</span></p>
+            <p class="mt-1 text-xs text-danger"><span class="font-medium">{{ 'FORMS.PRICE_PLANS._mandatory' | translate }}</span></p>
           }
         </div>
 
@@ -51,8 +51,8 @@
           <app-card class="mb-4">
             <div class="flex items-center justify-between gap-4">
               <div>
-                <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._price_plan_characteristics' | translate }}</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                <h3 class="text-base font-semibold text-content">{{ 'CREATE_OFFER._price_plan_characteristics' | translate }}</h3>
+                <p class="text-sm text-content-muted mt-1">
                   {{ 'CREATE_OFFER._price_plan_characteristics_hint' | translate:{ allowed: allowedPricePlanCharacteristicCount, total: (prodSpec?.productSpecCharacteristic || []).length } }}
                 </p>
               </div>
@@ -71,7 +71,7 @@
                el perfil por price-component ("Apply to Characteristic" en price-component-drawer). -->
           @if (planSubType === 'standard') {
           <div class="mb-4">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+            <h3 class="text-xl font-semibold text-content mb-3">
               {{ 'FORMS.PRICE_PLANS._config_profile' | translate }}
             </h3>
           @if (getProcessedProfileData().length > 0){
@@ -83,7 +83,7 @@
               </app-button>
             </div>
           } @else {
-            <div class="p-4 my-2 text-sm text-center text-primary-100 dark:text-primary-50 rounded-lg bg-blue-50 dark:bg-secondary-300" role="alert">
+            <div class="p-4 my-2 text-sm text-center text-primary-100 dark:text-primary-50 rounded-lg bg-info-soft" role="alert">
               <span class="font-medium">{{ 'FORMS.PRICE_PLANS._profile_desc' | translate }}</span>
             </div>
             <div>
@@ -102,11 +102,11 @@
           }
           <!-- Tabla de Price Components -->
           <div class="mb-4">
-            <h3 class="text-xl font-semibold text-gray-900 dark:text-white mb-3">
+            <h3 class="text-xl font-semibold text-content mb-3">
               {{ 'FORMS.PRICE_PLANS._price_components' | translate }}
             </h3>
             <div class="mb-4">
-              <label class="block text-sm font-semibold text-gray-900 dark:text-white mb-2">
+              <label class="block text-sm font-semibold text-content mb-2">
                 {{ 'FORMS.PRICE_PLANS._currency' | translate }}
               </label>
               <app-search-select formControlName="currency" [options]="currencyOptions" data-cy="pricePlanCurrency" />
@@ -140,21 +140,21 @@
 
         <!-- Range Validation Error Message -->
         @if(rangeValidationError) {
-          <div class="mb-4 p-4 text-sm text-red-800 dark:text-red-300 rounded-lg bg-red-50 dark:bg-red-950/40" role="alert">
+          <div class="mb-4 p-4 text-sm text-danger rounded-lg bg-danger-soft" role="alert">
             <span class="font-medium">{{ rangeValidationError }}</span>
           </div>
         }
 
         <!-- Configuration Profile Required Error Message -->
         @if(profileRequiredError) {
-          <div class="mb-4 p-4 text-sm text-red-800 dark:text-red-300 rounded-lg bg-red-50 dark:bg-red-950/40" role="alert">
+          <div class="mb-4 p-4 text-sm text-danger rounded-lg bg-danger-soft" role="alert">
             <span class="font-medium">{{ profileRequiredError | translate }}</span>
           </div>
         }
 
         <!-- Profile/Constraints Conflict Error Message -->
         @if(constraintsConflictError) {
-          <div class="mb-4 p-4 text-sm text-red-800 dark:text-red-300 rounded-lg bg-red-50 dark:bg-red-950/40" role="alert">
+          <div class="mb-4 p-4 text-sm text-danger rounded-lg bg-danger-soft" role="alert">
             <span class="font-medium">{{ constraintsConflictError | translate }}</span>
           </div>
         }
@@ -178,7 +178,7 @@
 
   <!-- Overlay when child drawer is open - covers entire viewport and dims parent -->
   <div *ngIf="showPriceComponentDrawer || showTierPricingDrawer"
-       class="fixed inset-0 bg-black bg-opacity-30 pointer-events-none z-[51]"></div>
+       class="fixed inset-0 bg-overlay pointer-events-none z-[51]"></div>
 
     <!-- Drawer para editar Price Components -->
     <app-price-component-drawer *ngIf="showPriceComponentDrawer"

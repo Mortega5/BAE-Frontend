@@ -1,30 +1,32 @@
 <nav class="sticky top-0 z-50 w-full header-text transition-all duration-300"
   [class.header-top]="!scrolled && !isNavBarOpen" [class.header-glass]="scrolled || isNavBarOpen">
-  <div class="mx-auto max-w-[1180px] px-6 sm:px-10">
-    <div class="flex h-[88px] items-center justify-between">
-      <a (click)="goTo('/dashboard')" class="flex items-center gap-4 cursor-pointer select-none">
+  <div class="mx-auto" [ngClass]="longNav ? 'max-w-[1280px]' : 'max-w-[1180px]'">
+    <!-- 87px + the nav's 1px bottom border = the 88px the rest of the app subtracts from the viewport. -->
+    <div class="flex h-[87px] items-center justify-between gap-6">
+      <a (click)="goTo('/dashboard')" class="flex shrink-0 items-center gap-4 cursor-pointer select-none">
         @if (currentTheme?.assets?.logoUrl) {
         <img [src]="currentTheme?.assets?.logoUrl" class="h-[51.7px] w-auto"
           alt="{{ currentTheme?.displayName }} Logo" />
         }
       </a>
 
-      <div class="hidden lg:flex items-center justify-center flex-1">
-        <ul class="flex items-center gap-12">
+      <div class="hidden min-w-0 items-center justify-center flex-1"
+        [ngClass]="longNav ? 'xl:flex' : 'lg:flex'">
+        <ul class="flex items-center" [ngClass]="longNav ? 'gap-4 2xl:gap-12' : 'gap-5 xl:gap-12'">
           <ng-container [ngTemplateOutlet]="navLinksTemplate" [ngTemplateOutletContext]="{ mobile: false }">
           </ng-container>
         </ul>
       </div>
 
       <div class="flex items-center gap-3">
-        <div class="hidden lg:flex items-center gap-3">
+        <div class="hidden items-center gap-3" [ngClass]="longNav ? 'xl:flex' : 'lg:flex'">
           <ng-container [ngTemplateOutlet]="headerActionsTemplate" [ngTemplateOutletContext]="{ mobile: false }">
           </ng-container>
         </div>
 
         <button #navbarbutton type="button"
-          class="inline-flex lg:hidden h-[44px] w-[44px] items-center justify-center rounded-[10px] header-text-muted hover:bg-white/10 transition"
-          aria-controls="navbar-dropdown" [attr.aria-expanded]="isNavBarOpen"
+          class="inline-flex h-[44px] w-[44px] items-center justify-center rounded-[10px] header-text-muted hover:bg-white/10 transition"
+          [ngClass]="longNav ? 'xl:hidden' : 'lg:hidden'" aria-controls="navbar-dropdown" [attr.aria-expanded]="isNavBarOpen"
           (click)="toggleNavBar(); $event.stopPropagation()">
           <span class="sr-only">{{ 'HEADER._open_menu' | translate }}</span>
           <fa-icon [icon]="faBars"></fa-icon>
@@ -33,7 +35,7 @@
     </div>
 
     @if (isNavBarOpen) {
-    <div id="navbar-dropdown" class="lg:hidden pb-6">
+    <div id="navbar-dropdown" class="pb-6" [ngClass]="longNav ? 'xl:hidden' : 'lg:hidden'">
       <div
         class="mt-3 rounded-[14px] bg-white/10 backdrop-blur-md ring-1 ring-white/10 overflow-hidden shadow-[0_10px_30px_rgba(0,0,0,0.18)]">
         <ul class="flex flex-col p-2">
@@ -55,8 +57,8 @@
     <app-dropdown-panel id="userDropdown"
       class="hidden absolute right-6 sm:right-10 top-[88px] z-50 w-[260px] p-2">
       <div class="px-3 py-2 min-w-0">
-        <div class="text-[13px] font-semibold text-slate-900 dark:text-white break-words">{{ username }}</div>
-        <div class="mt-0.5 text-[12px] text-slate-600 dark:text-gray-400 break-all">{{ email }}</div>
+        <div class="text-[13px] font-semibold text-content break-words">{{ username }}</div>
+        <div class="mt-0.5 text-[12px] text-content-muted break-all">{{ email }}</div>
       </div>
 
       <div class="h-px my-2 bg-slate-900/10 dark:bg-white/10"></div>
@@ -196,7 +198,7 @@
     @if (!mobile) {
     <li class="relative">
       <button type="button"
-        class="inline-flex items-center gap-2 text-[15px] font-semibold header-text-muted transition-colors"
+        class="inline-flex items-center gap-2 whitespace-nowrap text-[15px] font-semibold header-text-muted transition-colors"
         [id]="link.id" [attr.data-dropdown-toggle]="link.id + 'Menu'"
         [attr.data-cy]="(link.id === 'searchDropdown' || link.id === 'dropdown-marketplace') ? 'browse' : null">
         {{ link.label | translate }}
@@ -243,12 +245,12 @@
     <li>
       @if (!mobile) {
       @if (!link.isRouterLink) {
-      <a class="text-[15px] font-semibold header-text-muted transition-colors" target="_blank"
+      <a class="whitespace-nowrap text-[15px] font-semibold header-text-muted transition-colors" target="_blank"
         [href]="link.url">
         {{ link.label | translate }}
       </a>
       } @else {
-      <a class="text-[15px] font-semibold header-text-muted transition-colors" [routerLink]="link.url"
+      <a class="whitespace-nowrap text-[15px] font-semibold header-text-muted transition-colors" [routerLink]="link.url"
         [attr.data-cy]="link.url === '/about' ? 'about' : null">
         {{ link.label | translate }}
       </a>
@@ -299,17 +301,17 @@
       @if (themeDropdownOpen) {
       <app-dropdown-panel class="absolute right-0 mt-2 w-40 z-50" (click)="$event.stopPropagation()">
         <button type="button" data-cy="themeLight"
-          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          class="w-full text-left px-4 py-2 text-sm text-content-secondary hover:bg-surface-muted flex items-center gap-2"
           [class.font-semibold]="themeMode === ThemeMode.Light" (click)="setThemeMode(ThemeMode.Light)">
           <fa-icon [icon]="lightIcon"></fa-icon>{{ 'HEADER._theme_light' | translate }}
         </button>
         <button type="button" data-cy="themeDark"
-          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          class="w-full text-left px-4 py-2 text-sm text-content-secondary hover:bg-surface-muted flex items-center gap-2"
           [class.font-semibold]="themeMode === ThemeMode.Dark" (click)="setThemeMode(ThemeMode.Dark)">
           <fa-icon [icon]="darkIcon"></fa-icon>{{ 'HEADER._theme_dark' | translate }}
         </button>
         <button type="button" data-cy="themeSystem"
-          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          class="w-full text-left px-4 py-2 text-sm text-content-secondary hover:bg-surface-muted flex items-center gap-2"
           [class.font-semibold]="themeMode === ThemeMode.System" (click)="setThemeMode(ThemeMode.System)">
           <fa-icon [icon]="systemIcon"></fa-icon>{{ 'HEADER._theme_system' | translate }}
         </button>
@@ -343,7 +345,7 @@
       <app-dropdown-panel class="absolute right-0 mt-2 w-48 z-50" (click)="$event.stopPropagation()">
         @for (theme of availableProviderThemes; track theme.name) {
         <button type="button" [attr.data-cy]="'providerTheme-' + theme.name"
-          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          class="w-full text-left px-4 py-2 text-sm text-content-secondary hover:bg-surface-muted flex items-center gap-2"
           [class.font-semibold]="currentTheme?.name === theme.name" (click)="selectProviderTheme(theme)">
           {{ theme.displayName }}
         </button>
@@ -378,7 +380,7 @@
       <app-dropdown-panel class="absolute right-0 mt-2 w-32 z-50" (click)="$event.stopPropagation()">
         @for (lang of langs; track lang) {
         <button type="button" [attr.data-cy]="'lang-' + lang"
-          class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2"
+          class="w-full text-left px-4 py-2 text-sm text-content-secondary hover:bg-surface-muted flex items-center gap-2"
           [class.font-semibold]="lang === defaultLang" (click)="switchLanguage(lang)">
           {{ lang === 'es' ? 'Español' : 'English' }}
         </button>

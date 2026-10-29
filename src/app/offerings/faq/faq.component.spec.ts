@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { RouterTestingModule } from '@angular/router/testing';
 import { DomeBlogServiceService } from 'src/app/services/dome-blog-service.service';
@@ -18,9 +17,7 @@ describe('FaqComponent', () => {
     domeBlogService.deleteBlogEntry.and.resolveTo({});
 
     await TestBed.configureTestingModule({
-      schemas: [NO_ERRORS_SCHEMA],
-      imports: [RouterTestingModule, TranslateModule.forRoot()],
-      declarations: [FaqComponent],
+      imports: [RouterTestingModule, TranslateModule.forRoot(), FaqComponent],
       providers: [
         { provide: DomeBlogServiceService, useValue: domeBlogService },
         { provide: LocalStorageService, useValue: { getObject: jasmine.createSpy('getObject').and.returnValue({}) } }

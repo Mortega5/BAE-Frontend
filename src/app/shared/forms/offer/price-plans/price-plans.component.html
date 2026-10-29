@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-5">
   <div>
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._price_plans' | translate }}</h2>
-    <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'CREATE_OFFER._step4_subtitle' | translate }}</p>
+    <h2 class="text-2xl font-bold text-content">{{ 'CREATE_OFFER._price_plans' | translate }}</h2>
+    <p class="text-sm text-content-muted mt-2">{{ 'CREATE_OFFER._step4_subtitle' | translate }}</p>
   </div>
 
   <!-- Price tier picker -->
@@ -9,35 +9,29 @@
     @if (pricePlans.length == 0) {
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
       <button type="button" data-cy="pricePlanTypeFree" (click)="selectPriceTier('free')"
-        [ngClass]="priceType === 'free'
-          ? 'bg-[var(--card-selected-bg)] border-[var(--card-selected-border)]'
-          : 'bg-[var(--card-bg)] border-[var(--card-border)] hover:border-[var(--card-hover-border)]'"
-        class="flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
-        <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._price_tier_free' | translate }}</h3>
-        <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._price_tier_free_desc' | translate }}</p>
+        [class.is-selected]="priceType === 'free'"
+        class="option-card flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
+        <h3 class="text-base font-semibold text-content">{{ 'CREATE_OFFER._price_tier_free' | translate }}</h3>
+        <p class="text-sm text-content-muted">{{ 'CREATE_OFFER._price_tier_free_desc' | translate }}</p>
       </button>
       @if(!custom){
       <button type="button" data-cy="pricePlanTypeTailored" (click)="selectPriceTier('tailored')"
-        [ngClass]="priceType === 'tailored'
-          ? 'bg-[var(--card-selected-bg)] border-[var(--card-selected-border)]'
-          : 'bg-[var(--card-bg)] border-[var(--card-border)] hover:border-[var(--card-hover-border)]'"
-        class="flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
-        <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._price_tier_tailored' | translate }}</h3>
-        <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._price_tier_tailored_desc' | translate }}</p>
+        [class.is-selected]="priceType === 'tailored'"
+        class="option-card flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
+        <h3 class="text-base font-semibold text-content">{{ 'CREATE_OFFER._price_tier_tailored' | translate }}</h3>
+        <p class="text-sm text-content-muted">{{ 'CREATE_OFFER._price_tier_tailored_desc' | translate }}</p>
       </button>
       }
       <button type="button" data-cy="pricePlanTypePaid" (click)="selectPriceTier('paid')"
-        [ngClass]="priceType === 'paid'
-          ? 'bg-[var(--card-selected-bg)] border-[var(--card-selected-border)]'
-          : 'bg-[var(--card-bg)] border-[var(--card-border)] hover:border-[var(--card-hover-border)]'"
-        class="flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
-        <h3 class="text-base font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._price_tier_online' | translate }}</h3>
-        <p class="text-sm text-gray-600 dark:text-gray-400">{{ 'CREATE_OFFER._price_tier_online_desc' | translate }}</p>
+        [class.is-selected]="priceType === 'paid'"
+        class="option-card flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
+        <h3 class="text-base font-semibold text-content">{{ 'CREATE_OFFER._price_tier_online' | translate }}</h3>
+        <p class="text-sm text-content-muted">{{ 'CREATE_OFFER._price_tier_online_desc' | translate }}</p>
       </button>
     </div>
     } @else {
-    <label class="text-sm text-gray-600 dark:text-gray-400">
-      <span class="font-semibold text-gray-900 dark:text-white">
+    <label class="text-sm text-content-muted">
+      <span class="font-semibold text-content">
         {{
         priceType === 'free' ? ('CREATE_OFFER._price_tier_free' | translate) :
         priceType === 'tailored' ? ('CREATE_OFFER._price_tier_tailored' | translate) :

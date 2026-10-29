@@ -1,7 +1,7 @@
 <div class="flex justify-between items-start gap-4 mb-2">
   <div>
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-1">{{ 'USAGE_SPECS._metrics' | translate }}</h2>
-    <p class="text-sm text-gray-500 dark:text-gray-400 max-w-2xl">{{ 'USAGE_SPECS._metrics_desc' | translate }}</p>
+    <h2 class="text-2xl font-bold text-content mb-1">{{ 'USAGE_SPECS._metrics' | translate }}</h2>
+    <p class="text-sm text-content-muted max-w-2xl">{{ 'USAGE_SPECS._metrics_desc' | translate }}</p>
   </div>
   @if(metrics.length > 0 && showCreateMetric == false){
     <app-button data-cy="btnNewMetric" type="button" (click)="showCreateMetric=!showCreateMetric" variant="secondary" prefixIcon="plus" class="shrink-0">
@@ -20,15 +20,15 @@
   @if(metrics.length === 0){
     <div class="rounded-2xl flex-1 dashed-pane mt-4">
       <div class="flex-1 flex flex-col items-center justify-center px-6 py-12 text-center">
-        <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 p-4 bg-[#DDE6F6] dark:bg-secondary-300">
+        <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 p-4 bg-secondary-50 dark:bg-secondary-300">
           <svg class="w-10 h-10 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v.75c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875v-.75C22.5 3.839 21.66 3 20.625 3H3.375z"/>
             <path fill-rule="evenodd" clip-rule="evenodd" d="M3.087 9l.54 9.176A3 3 0 006.62 21h10.757a3 3 0 002.995-2.824L20.913 9H3.087zm6.133 2.845a.75.75 0 011.06 0l1.72 1.72 1.72-1.72a.75.75 0 111.06 1.06l-1.72 1.72 1.72 1.72a.75.75 0 11-1.06 1.06L12 15.685l-1.72 1.72a.75.75 0 11-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06z"/>
           </svg>
         </div>
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-1">{{ 'USAGE_SPECS._no_metrics' | translate }}</h3>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">{{ 'USAGE_SPECS._add_metric_desc' | translate }}</p>
-        <p class="text-xs text-[var(--form-hint-text)] -mt-3 mb-5">{{ 'USAGE_SPECS._metrics_required' | translate }}</p>
+        <h3 class="text-lg font-semibold text-content mb-1">{{ 'USAGE_SPECS._no_metrics' | translate }}</h3>
+        <p class="text-sm text-content-muted mb-5">{{ 'USAGE_SPECS._add_metric_desc' | translate }}</p>
+        <p class="text-xs text-content-muted -mt-3 mb-5">{{ 'USAGE_SPECS._metrics_required' | translate }}</p>
         <app-button data-cy="btnNewMetric" type="button" (click)="showCreateMetric=!showCreateMetric" variant="secondary" prefixIcon="plus">
           {{ 'USAGE_SPECS._create_metric' | translate }}
         </app-button>

@@ -145,12 +145,12 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
         actions: [
           {
             icon: faCopy, tooltip: 'BLUEPRINT_PROD._copy_step_id', dataCy: 'copyStepId',
-            buttonClass: 'bg-gray-500 hover:bg-gray-600 focus:ring-gray-300',
+            buttonClass: 'bg-content-muted hover:bg-content-secondary focus:ring-focus',
             onClick: (s: OrchestrationStep) => this.copyStepId(s),
           },
           {
             icon: faEdit, tooltip: 'BLUEPRINT_PROD._edit_step', dataCy: 'editStep',
-            buttonClass: 'bg-blue-500 hover:bg-blue-600 focus:ring-blue-300',
+            buttonClass: 'bg-primary-100 hover:bg-primary-50 focus:ring-focus',
             onClick: (s: OrchestrationStep) => this.editStep(this.orchestrationSteps.indexOf(s)),
           },
           {

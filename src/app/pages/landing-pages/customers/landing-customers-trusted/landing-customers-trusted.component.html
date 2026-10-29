@@ -1,20 +1,20 @@
-<section class="w-full bg-[#EBF0F7] font-[Blinker]">
+<section class="w-full bg-surface-muted font-[Blinker]">
   <div
     class="mx-auto flex w-full max-w-[1440px] flex-col items-center gap-12 px-6 py-16 sm:px-8 md:py-20 lg:flex-row lg:items-center lg:gap-6 lg:px-16 lg:py-[100px] xl:px-[160px]">
     <div class="w-full max-w-[548px] flex-1">
       <div class="flex flex-col items-start gap-6">
         <div class="flex flex-col items-start gap-4 pb-6">
           <h2
-            class="max-w-[548px] text-[38px] font-bold leading-[1.12] text-[#0B1528] sm:text-[42px] lg:text-[48px] lg:leading-[58px]">
+            class="max-w-[548px] text-[38px] font-bold leading-[1.12] text-content sm:text-[42px] lg:text-[48px] lg:leading-[58px]">
             {{ 'LANDINGPAGE.customers.trusted._titleStart' | translate }}
-            <span class="text-[#2D58A7]">
+            <span class="text-primary-100">
               {{ 'LANDINGPAGE.customers.trusted._titleAccent' | translate }}
             </span>
             {{ 'LANDINGPAGE.customers.trusted._titleEnd' | translate }}
           </h2>
 
           <p
-            class="max-w-[548px] text-[18px] font-normal leading-[1.6] text-[#0B1528] sm:text-[19px] lg:text-[20px] lg:leading-[32px]">
+            class="max-w-[548px] text-[18px] font-normal leading-[1.6] text-content sm:text-[19px] lg:text-[20px] lg:leading-[32px]">
             {{ 'LANDINGPAGE.customers.trusted._desc' | translate }}
           </p>
         </div>
@@ -23,10 +23,10 @@
 
         <div class="flex items-center gap-4">
           <div class="flex items-center justify-center w-8 h-8">
-            <fa-icon [icon]="faCircleCheck" class="text-[#2D58A7] text-[32px]"></fa-icon>
+            <fa-icon [icon]="faCircleCheck" class="text-primary-100 text-[32px]"></fa-icon>
           </div>
 
-          <span class="text-[18px] font-semibold leading-6 text-[#111827] lg:text-[20px]">
+          <span class="text-[18px] font-semibold leading-6 text-content lg:text-[20px]">
             {{ item.key | translate }}
           </span>
         </div>
@@ -38,18 +38,18 @@
       <div class="mx-auto flex max-w-[548px] flex-col gap-6 sm:flex-row sm:items-start">
         <div class="flex w-full flex-col gap-6 sm:w-1/2">
           @for (card of leftCards; track card.titleKey) {
-          <div class="min-h-[221px] rounded-[16px] bg-white p-6">
-            <div class="mb-6 text-[#2D58A7]">
+          <div class="min-h-[221px] rounded-[16px] bg-surface p-6">
+            <div class="mb-6 text-primary-100">
               <fa-icon [icon]="card.icon" class="h-10 w-10 text-[40px]">
               </fa-icon>
             </div>
 
             <div class="flex flex-col gap-2">
-              <h3 class="text-[24px] font-bold leading-[29px] text-[#0B1528]">
+              <h3 class="text-[24px] font-bold leading-[29px] text-content">
                 {{ card.titleKey | translate }}
               </h3>
 
-              <p class="text-[16px] font-normal leading-6 text-[#0B1528]">
+              <p class="text-[16px] font-normal leading-6 text-content">
                 {{ card.descKey | translate }}
               </p>
             </div>
@@ -59,18 +59,18 @@
 
         <div class="flex w-full flex-col gap-6 pt-0 sm:w-1/2 sm:pt-12">
           @for (card of rightCards; track card.titleKey) {
-          <div class="min-h-[221px] rounded-[16px] bg-white p-6">
-            <div class="mb-6 text-[#2D58A7]">
+          <div class="min-h-[221px] rounded-[16px] bg-surface p-6">
+            <div class="mb-6 text-primary-100">
               <fa-icon [icon]="card.icon" class="flex items-center justify-center w-10 h-10 text-[26px]">
               </fa-icon>
             </div>
 
             <div class="flex flex-col gap-2">
-              <h3 class="text-[24px] font-bold leading-[29px] text-[#0B1528]">
+              <h3 class="text-[24px] font-bold leading-[29px] text-content">
                 {{ card.titleKey | translate }}
               </h3>
 
-              <p class="text-[16px] font-normal leading-6 text-[#0B1528]">
+              <p class="text-[16px] font-normal leading-6 text-content">
                 {{ card.descKey | translate }}
               </p>
             </div>

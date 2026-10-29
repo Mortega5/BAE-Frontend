@@ -1,6 +1,6 @@
-<div #container class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)]
-             text-gray-900 dark:text-white text-sm rounded-lg block w-full overflow-hidden
-             focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500"
+<div #container class="bg-surface-input border border-line-input
+             text-content text-sm rounded-lg block w-full overflow-hidden
+             focus-within:ring-2 focus-within:ring-focus focus-within:border-primary-100"
   [class.pointer-events-none]="readonly || isDisabled" [class.opacity-60]="readonly || isDisabled"
   [style.min-height]="minHeight">
 </div>

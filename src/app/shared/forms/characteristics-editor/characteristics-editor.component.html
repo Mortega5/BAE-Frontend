@@ -1,14 +1,14 @@
 <div class="flex flex-col gap-4">
 
   @if (characteristics.length === 0) {
-  <div class="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center px-6 py-12 text-center">
-    <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 bg-[#DDE6F6] dark:bg-secondary-300">
+  <div class="rounded-2xl border border-dashed border-line-input flex flex-col items-center justify-center px-6 py-12 text-center">
+    <div class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 bg-secondary-50 dark:bg-secondary-300">
       <svg class="w-10 h-10 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
         <path fill-rule="evenodd" clip-rule="evenodd" d="M3.375 3C2.339 3 1.5 3.84 1.5 4.875v.75c0 1.036.84 1.875 1.875 1.875h17.25c1.035 0 1.875-.84 1.875-1.875v-.75C22.5 3.839 21.66 3 20.625 3H3.375z"/>
         <path fill-rule="evenodd" clip-rule="evenodd" d="M3.087 9l.54 9.176A3 3 0 006.62 21h10.757a3 3 0 002.995-2.824L20.913 9H3.087zm6.133 2.845a.75.75 0 011.06 0l1.72 1.72 1.72-1.72a.75.75 0 111.06 1.06l-1.72 1.72 1.72 1.72a.75.75 0 11-1.06 1.06L12 15.685l-1.72 1.72a.75.75 0 11-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06z"/>
       </svg>
     </div>
-    <p class="text-base font-semibold text-gray-900 dark:text-white mb-1">{{ 'CHAR_SPEC._no_chars' | translate }}</p>
+    <p class="text-base font-semibold text-content mb-1">{{ 'CHAR_SPEC._no_chars' | translate }}</p>
     @if (!readonly) {
     <app-button type="button" (click)="showForm = true" data-cy="newCharacteristic" prefixIcon="plus" class="mt-4">
       {{ 'CHAR_SPEC._new_char' | translate }}
@@ -31,7 +31,7 @@
 
 <app-modal [visible]="showForm" width="max-w-2xl" (closed)="cancel()">
   <div appCardHeader class="flex items-center justify-between">
-    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+    <h3 class="text-xl font-bold text-content">
       {{ (editingChar ? 'CHAR_SPEC._edit_char' : 'CHAR_SPEC._new_char') | translate }}
     </h3>
     <app-button type="button" (click)="cancel()" variant="ghost" size="sm" prefixIcon="xmark" />
@@ -45,12 +45,12 @@
       [initialValues]="editingChar?.values ?? []" (formChange)="onFormChange($event)" />
 
     @if (showError) {
-    <div class="text-sm text-red-600 dark:text-red-400">{{ errorMessage }}</div>
+    <div class="text-sm text-danger">{{ errorMessage }}</div>
     }
 
     @if (showFreeValueBanner) {
     <div
-      class="flex w-full items-center p-3 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
+      class="flex w-full items-center p-3 text-sm text-primary-100 rounded-lg bg-info-soft dark:bg-secondary-200 dark:text-primary-50"
       role="alert">
       <fa-icon [icon]="faCircleInfo" class="flex-shrink-0 me-3" aria-hidden="true"></fa-icon>
       <span class="sr-only">Info</span>

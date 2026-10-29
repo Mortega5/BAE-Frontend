@@ -10,19 +10,19 @@
   <app-card>
     <div class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6">
       <div class="flex flex-col gap-3">
-        <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">{{productOff?.name}}</h1>
+        <h1 class="text-2xl md:text-3xl font-bold text-content">{{productOff?.name}}</h1>
         <markdown [ngClass]="{
             'break-all': hasLongWord(productOff?.description, 20),
             'break-words': !hasLongWord(productOff?.description, 20)
-            }" class="text-sm text-gray-600 dark:text-gray-400 text-wrap" [data]="productOff?.description"></markdown>
+            }" class="text-sm text-content-muted text-wrap" [data]="productOff?.description"></markdown>
         @if (prod.startDate) {
-        <p class="text-sm text-gray-500 dark:text-gray-400">
-          <span class="font-semibold text-gray-700 dark:text-gray-200">{{ 'PRODUCT_INVENTORY._start_date' | translate }}:</span>
+        <p class="text-sm text-content-muted">
+          <span class="font-semibold text-content-secondary">{{ 'PRODUCT_INVENTORY._start_date' | translate }}:</span>
           {{ prod.startDate | date:'EEEE, dd/MM/yy, HH:mm' }}
         </p>
         }
       </div>
-      <div class="rounded-2xl overflow-hidden shadow-sm border border-[#EBECEE] dark:border-gray-800 bg-gray-100 dark:bg-secondary-300 h-56 lg:h-full">
+      <div class="rounded-2xl overflow-hidden shadow-sm border border-line bg-surface-muted dark:bg-secondary-300 h-56 lg:h-full">
         <img class="w-full h-full object-cover" [src]="getProductImage()" alt="Product image">
       </div>
     </div>
@@ -30,13 +30,13 @@
     <div class="mt-8 flex flex-col gap-8">
       @if (prod?.productPrice != undefined) {
       <div>
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'PRODUCT_INVENTORY._pricing' | translate }}</h2>
+        <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_INVENTORY._pricing' | translate }}</h2>
         @if (pricePlans.length === 0) {
         <div class="mt-3">
           <app-item-card [selected]="true">
             <div class="w-full">
-              <p class="font-semibold text-gray-900 dark:text-white">{{ 'SHOPPING_CART._free' | translate }}</p>
-              <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">{{ 'SHOPPING_CART._free_desc' | translate }}</p>
+              <p class="font-semibold text-content">{{ 'SHOPPING_CART._free' | translate }}</p>
+              <p class="text-sm text-content-muted mt-1">{{ 'SHOPPING_CART._free_desc' | translate }}</p>
             </div>
           </app-item-card>
         </div>
@@ -49,14 +49,14 @@
                 <h3 [ngClass]="{
                     'break-all': hasLongWord(plan.name, 20),
                     'break-words': !hasLongWord(plan.name, 20)
-                    }" class="font-semibold text-gray-900 dark:text-white break-words">{{plan.name}}</h3>
+                    }" class="font-semibold text-content break-words">{{plan.name}}</h3>
                 <span [ngClass]="priceTypeBadgeClass(plan.priceType)"
                   class="text-xs font-medium px-2 py-0.5 rounded border shrink-0">{{plan.priceType}}</span>
               </div>
               <markdown [ngClass]="{
                   'break-all': hasLongWord(plan?.description, 20),
                   'break-words': !hasLongWord(plan?.description, 20)
-                  }" class="text-sm text-gray-600 dark:text-gray-400 text-wrap" [data]="plan?.description"></markdown>
+                  }" class="text-sm text-content-muted text-wrap" [data]="plan?.description"></markdown>
             </div>
           </app-item-card>
           }
@@ -67,16 +67,16 @@
 
       @if (prodSpec.description) {
       <div>
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'PRODUCT_DETAILS._description' | translate }}</h2>
+        <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_DETAILS._description' | translate }}</h2>
         <markdown [ngClass]="{
             'break-all': hasLongWord(prodSpec.description, 20),
             'break-words': !hasLongWord(prodSpec.description, 20)
-            }" class="text-sm text-gray-600 dark:text-gray-400 text-wrap mt-3" [data]="prodSpec.description"></markdown>
+            }" class="text-sm text-content-muted text-wrap mt-3" [data]="prodSpec.description"></markdown>
       </div>
       }
 
       <div>
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'PRODUCT_INVENTORY._service_specs' | translate }}</h2>
+        <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_INVENTORY._service_specs' | translate }}</h2>
         <div class="mt-3">
           <app-table-input [columns]="specColumns" [items]="serviceSpecs" [selectable]="false"
             [emptyMessage]="'PRODUCT_INVENTORY._no_services'" />
@@ -84,7 +84,7 @@
       </div>
 
       <div>
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'PRODUCT_INVENTORY._resource_specs' | translate }}</h2>
+        <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_INVENTORY._resource_specs' | translate }}</h2>
         <div class="mt-3">
           <app-table-input [columns]="specColumns" [items]="resourceSpecs" [selectable]="false"
             [emptyMessage]="'PRODUCT_INVENTORY._no_resources'" />
@@ -93,7 +93,7 @@
 
       @if (prod.productCharacteristic != undefined && prod.productCharacteristic.length > 0) {
       <div>
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'PRODUCT_INVENTORY._chars' | translate }}</h2>
+        <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_INVENTORY._chars' | translate }}</h2>
         <div class="mt-3">
           <app-table-input [columns]="characteristicColumns" [items]="prod.productCharacteristic" [selectable]="false" />
         </div>

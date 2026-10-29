@@ -12,7 +12,7 @@
   } @else {
   <div class="flex items-center justify-between mb-6 gap-3">
     <div class="flex items-center gap-3 min-w-0">
-      <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white truncate">{{ 'UPDATE_CATEGORIES._update' | translate }}</h1>
+      <h1 class="text-3xl font-extrabold text-content truncate">{{ 'UPDATE_CATEGORIES._update' | translate }}</h1>
       @if (!notFound) {
       <bae-badge variant="status" [status]="statusBadgeVariant(category?.lifecycleStatus ?? '')"
         [label]="statusLabel(category?.lifecycleStatus ?? '') | translate"></bae-badge>
@@ -41,20 +41,20 @@
     <ng-template stepperStep="UPDATE_CATEGORIES._general" stepId="general">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'UPDATE_CATEGORIES._general' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'UPDATE_CATEGORIES._general_info' | translate }}</p>
+          <h2 class="text-2xl font-bold text-content">{{ 'UPDATE_CATEGORIES._general' | translate }}</h2>
+          <p class="text-sm text-content-muted mt-2">{{ 'UPDATE_CATEGORIES._general_info' | translate }}</p>
         </div>
 
         <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" />
 
         <div class="flex flex-col gap-4">
           <div>
-            <label class="font-bold text-sm dark:text-white block mb-2">{{ 'UPDATE_CATEGORIES._choose_parent' | translate }}</label>
+            <label class="font-bold text-sm text-content block mb-2">{{ 'UPDATE_CATEGORIES._choose_parent' | translate }}</label>
             <label class="inline-flex items-center cursor-pointer">
               <input data-cy="adminToggleParentCategory" type="checkbox" (change)="toggleParent()"
                 [disabled]="checkDisableParent" [checked]="parentSelectionCheck" class="sr-only peer">
               <div
-                class="relative w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-focus:ring-4 peer-focus:ring-primary-50 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-100">
+                class="relative w-11 h-6 bg-skeleton rounded-full peer peer-focus:ring-4 peer-focus:ring-primary-50 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-line-input after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary-100">
               </div>
             </label>
           </div>
@@ -62,13 +62,13 @@
           @if(parentSelectionCheck){
           @if(categories.length==0){
           <div
-            class="rounded-2xl border border-dashed border-gray-300 dark:border-secondary-200 flex flex-col items-center justify-center px-6 py-10 text-center text-sm text-gray-500 dark:text-gray-400">
+            class="rounded-2xl border border-dashed border-line-input flex flex-col items-center justify-center px-6 py-10 text-center text-sm text-content-muted">
             {{ 'OFFERINGS._no_categories' | translate }}
           </div>
           } @else {
-          <div class="relative overflow-x-auto rounded-lg border border-gray-200 dark:border-secondary-200 w-full">
-            <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-200">
-              <thead class="text-xs text-gray-700 uppercase bg-gray-100 dark:bg-secondary-200 dark:text-white">
+          <div class="relative overflow-x-auto rounded-lg border border-line w-full">
+            <table class="w-full text-sm text-left rtl:text-right text-content-muted">
+              <thead class="text-xs text-content-secondary uppercase bg-surface-muted">
                 <tr class="flex w-full justify-between">
                   <th scope="col" class="flex px-6 py-3 w-3/5">
                     {{ 'CREATE_OFFER._name' | translate }}
@@ -84,7 +84,7 @@
               <tbody>
                 @for (cat of categories; track cat.id;let idx = $index) {
                 <tr data-cy="adminParentCategoryRow"
-                  class="flex border-b dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-secondary-200 w-full justify-between">
+                  class="flex border-b border-line hover:bg-surface-muted w-full justify-between">
                   <td data-cy="adminParentCategoryName" class="flex px-6 py-4 w-3/5 text-wrap break-all">
                     <b>{{cat.name}}</b>
                   </td>
@@ -94,7 +94,7 @@
                   <td class="flex px-6 py-4 w-fit justify-end">
                     <input id="select-checkbox" data-cy="adminParentCategoryCheckbox"
                       [checked]="isCategorySelected(cat)" type="checkbox" value="" (click)="addCategory(cat)"
-                      class="flex w-4 h-4 justify-end text-primary-100 bg-gray-100 border-gray-300 rounded focus:ring-primary-100 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                      class="flex w-4 h-4 justify-end text-primary-100 bg-surface-muted border-line-input rounded focus:ring-primary-100 ring-offset-surface focus:ring-2">
                   </td>
                 </tr>
                 @if(cat.children.length>0){
@@ -130,34 +130,34 @@
     <ng-template stepperStep="UPDATE_CATEGORIES._finish" stepId="summary">
       <div class="flex flex-col gap-5">
         <div>
-          <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'UPDATE_CATEGORIES._finish' | translate }}</h2>
-          <p class="text-sm text-gray-600 dark:text-gray-400 mt-2">{{ 'UPDATE_CATEGORIES._summary' | translate }}</p>
+          <h2 class="text-2xl font-bold text-content">{{ 'UPDATE_CATEGORIES._finish' | translate }}</h2>
+          <p class="text-sm text-content-muted mt-2">{{ 'UPDATE_CATEGORIES._summary' | translate }}</p>
         </div>
 
         <div>
-          <label class="font-bold text-sm dark:text-white">{{ 'UPDATE_CATEGORIES._name' | translate }}</label>
-          <p class="mt-1 text-gray-900 dark:text-white text-wrap break-all">{{categoryToUpdate?.name}}</p>
+          <label class="font-bold text-sm text-content">{{ 'UPDATE_CATEGORIES._name' | translate }}</label>
+          <p class="mt-1 text-content text-wrap break-all">{{categoryToUpdate?.name}}</p>
         </div>
 
         <div>
-          <label class="font-bold text-sm dark:text-white block mb-1">{{ 'UPDATE_CATEGORIES._status' | translate }}</label>
+          <label class="font-bold text-sm text-content block mb-1">{{ 'UPDATE_CATEGORIES._status' | translate }}</label>
           <bae-badge variant="status" [status]="statusBadgeVariant(category?.lifecycleStatus ?? '')"
             [label]="statusLabel(category?.lifecycleStatus ?? '') | translate"></bae-badge>
         </div>
 
         @if(categoryToUpdate?.description !=''){
         <div>
-          <label class="font-bold text-sm dark:text-white">{{ 'UPDATE_CATEGORIES._description' | translate }}</label>
-          <div class="mt-1 px-4 py-2 bg-gray-50 dark:bg-secondary-300 border border-gray-200 dark:border-secondary-200 rounded-lg">
-            <markdown class="text-gray-900 dark:text-white text-wrap break-all" [data]="categoryToUpdate?.description"></markdown>
+          <label class="font-bold text-sm text-content">{{ 'UPDATE_CATEGORIES._description' | translate }}</label>
+          <div class="mt-1 px-4 py-2 bg-surface-input border border-line rounded-lg">
+            <markdown class="text-content text-wrap break-all" [data]="categoryToUpdate?.description"></markdown>
           </div>
         </div>
         }
 
         @if(isParent==false){
         <div>
-          <label class="font-bold text-sm dark:text-white">{{ 'UPDATE_CATEGORIES._parent' | translate }}</label>
-          <p class="mt-1 text-gray-900 dark:text-white text-wrap break-all">{{selectedCategory.name}}</p>
+          <label class="font-bold text-sm text-content">{{ 'UPDATE_CATEGORIES._parent' | translate }}</label>
+          <p class="mt-1 text-content text-wrap break-all">{{selectedCategory.name}}</p>
         </div>
         }
       </div>

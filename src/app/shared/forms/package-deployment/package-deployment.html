@@ -3,14 +3,14 @@
   <app-dynamic-form [fields]="topFields" [formGroup]="form" [columns]="2"></app-dynamic-form>
 
   <div>
-    <h3 class="text-base font-bold dark:text-white mb-3">
+    <h3 class="text-base font-bold text-content mb-3">
       {{ (form.get('type')?.value === 'docker' ? 'PACKAGE_DEPLOYMENT._docker_properties' : 'PACKAGE_DEPLOYMENT._helm_properties') | translate }}
     </h3>
     <app-dynamic-form [fields]="propertiesFields" [formGroup]="propertiesForm" [columns]="4"></app-dynamic-form>
 
     @if (shadowedKeys.length > 0) {
     <div
-      class="flex items-start gap-2 mt-3 p-3 text-sm text-red-700 bg-red-50 rounded-lg dark:bg-secondary-200 dark:text-red-400"
+      class="flex items-start gap-2 mt-3 p-3 text-sm text-danger bg-danger-soft rounded-lg dark:bg-secondary-200"
       role="alert">
       <svg class="w-4 h-4 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
         viewBox="0 0 20 20">

@@ -1,9 +1,9 @@
 @if (isOpen) {
 <div data-cy="quoteDetailsModal" tabindex="-1" (click)="closeModal()"
-  class="flex overflow-y-auto overflow-x-hidden fixed inset-0 z-50 justify-center items-center w-full h-full backdrop-blur-sm bg-black/40 p-4">
+  class="flex overflow-y-auto overflow-x-hidden fixed inset-0 z-50 justify-center items-center w-full h-full backdrop-blur-sm bg-overlay p-4">
   <app-card variant="modal" class="w-full md:w-3/4 lg:w-1/2 max-h-[90vh]" (click)="$event.stopPropagation()">
     <div appCardHeader class="flex items-center justify-between gap-3">
-      <h2 class="text-2xl font-bold text-primary-100 dark:text-white">{{ getModalTitle() | translate }}</h2>
+      <h2 class="text-2xl font-bold text-primary-100 dark:text-content">{{ getModalTitle() | translate }}</h2>
       <div class="flex items-center gap-3 shrink-0">
         @if (quote && !isLoading) {
         <bae-badge variant="status" [status]="getStatusBadge()" [label]="getStatusLabel() | translate"></bae-badge>
@@ -17,7 +17,7 @@
     @if (isLoading) {
     <app-loading-spinner containerClass="w-full h-40 flex justify-center items-center" />
     } @else if (error) {
-    <p class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-800 dark:bg-red-900/20 dark:text-red-300">
+    <p class="rounded-lg border border-danger-border bg-danger-soft px-4 py-3 text-sm text-danger">
       {{ error | translate }}
     </p>
     } @else if (quote) {
@@ -25,33 +25,33 @@
       <!-- Parties (coordinator quotes have no single buyer/seller pair) -->
       @if (getQuoteCategory() !== QUOTE_CATEGORIES.COORDINATOR) {
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
-          <p class="mb-3 text-sm font-semibold text-gray-900 dark:text-white">{{ 'QUOTES.DETAILS._buyer_info' | translate }}</p>
+        <div class="rounded-2xl border border-line bg-surface p-4">
+          <p class="mb-3 text-sm font-semibold text-content">{{ 'QUOTES.DETAILS._buyer_info' | translate }}</p>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'QUOTES.DETAILS._buyer' | translate }}</p>
-              <p class="text-sm font-medium text-gray-900 dark:text-white break-words">{{ buyerName }}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400 break-all">{{ 'QUOTES.DETAILS._vat_id' | translate }}: {{ buyerVatId }}</p>
+              <p class="text-xs text-content-muted">{{ 'QUOTES.DETAILS._buyer' | translate }}</p>
+              <p class="text-sm font-medium text-content break-words">{{ buyerName }}</p>
+              <p class="text-xs text-content-muted break-all">{{ 'QUOTES.DETAILS._vat_id' | translate }}: {{ buyerVatId }}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'QUOTES.DETAILS._buyer_operator' | translate }}</p>
-              <p class="text-sm font-medium text-gray-900 dark:text-white break-words">{{ buyerOperatorName }}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400 break-all">{{ 'QUOTES.DETAILS._vat_id' | translate }}: {{ buyerOperatorVatId }}</p>
+              <p class="text-xs text-content-muted">{{ 'QUOTES.DETAILS._buyer_operator' | translate }}</p>
+              <p class="text-sm font-medium text-content break-words">{{ buyerOperatorName }}</p>
+              <p class="text-xs text-content-muted break-all">{{ 'QUOTES.DETAILS._vat_id' | translate }}: {{ buyerOperatorVatId }}</p>
             </div>
           </div>
         </div>
-        <div class="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
-          <p class="mb-3 text-sm font-semibold text-gray-900 dark:text-white">{{ 'QUOTES.DETAILS._seller_info' | translate }}</p>
+        <div class="rounded-2xl border border-line bg-surface p-4">
+          <p class="mb-3 text-sm font-semibold text-content">{{ 'QUOTES.DETAILS._seller_info' | translate }}</p>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'QUOTES.DETAILS._seller' | translate }}</p>
-              <p class="text-sm font-medium text-gray-900 dark:text-white break-words">{{ sellerName }}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400 break-all">{{ 'QUOTES.DETAILS._vat_id' | translate }}: {{ sellerVatId }}</p>
+              <p class="text-xs text-content-muted">{{ 'QUOTES.DETAILS._seller' | translate }}</p>
+              <p class="text-sm font-medium text-content break-words">{{ sellerName }}</p>
+              <p class="text-xs text-content-muted break-all">{{ 'QUOTES.DETAILS._vat_id' | translate }}: {{ sellerVatId }}</p>
             </div>
             <div>
-              <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'QUOTES.DETAILS._seller_operator' | translate }}</p>
-              <p class="text-sm font-medium text-gray-900 dark:text-white break-words">{{ sellerOperatorName }}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400 break-all">{{ 'QUOTES.DETAILS._vat_id' | translate }}: {{ sellerOperatorVatId }}</p>
+              <p class="text-xs text-content-muted">{{ 'QUOTES.DETAILS._seller_operator' | translate }}</p>
+              <p class="text-sm font-medium text-content break-words">{{ sellerOperatorName }}</p>
+              <p class="text-xs text-content-muted break-all">{{ 'QUOTES.DETAILS._vat_id' | translate }}: {{ sellerOperatorVatId }}</p>
             </div>
           </div>
         </div>
@@ -60,15 +60,15 @@
 
       @if (getQuoteCategory() === QUOTE_CATEGORIES.TAILORED) {
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'QUOTES.DETAILS._product' | translate }}</p>
-        <p class="text-sm font-medium text-gray-900 dark:text-white">{{ productName }}</p>
+        <p class="text-xs text-content-muted">{{ 'QUOTES.DETAILS._product' | translate }}</p>
+        <p class="text-sm font-medium text-content">{{ productName }}</p>
       </div>
       }
 
       <div>
-        <p class="mb-2 text-xs text-gray-500 dark:text-gray-400">{{ 'QUOTES.DETAILS._request' | translate }}</p>
-        <div class="rounded-2xl border border-[var(--card-border)] bg-[var(--card-bg)] p-4">
-          <p class="whitespace-pre-wrap break-words text-sm text-gray-900 dark:text-white">{{ quote.description || ('QUOTES.DETAILS._no_message' | translate) }}</p>
+        <p class="mb-2 text-xs text-content-muted">{{ 'QUOTES.DETAILS._request' | translate }}</p>
+        <div class="rounded-2xl border border-line bg-surface p-4">
+          <p class="whitespace-pre-wrap break-words text-sm text-content">{{ quote.description || ('QUOTES.DETAILS._no_message' | translate) }}</p>
         </div>
       </div>
 
@@ -76,13 +76,13 @@
       @if (getQuoteCategory() === QUOTE_CATEGORIES.TAILORED) {
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'QUOTES.DETAILS._requested_date' | translate }}</p>
-          <p class="text-sm font-medium text-gray-900 dark:text-white">{{ quote.requestedQuoteCompletionDate ? (quote.requestedQuoteCompletionDate | date:'dd/MM/yyyy') : '-' }}</p>
+          <p class="text-xs text-content-muted">{{ 'QUOTES.DETAILS._requested_date' | translate }}</p>
+          <p class="text-sm font-medium text-content">{{ quote.requestedQuoteCompletionDate ? (quote.requestedQuoteCompletionDate | date:'dd/MM/yyyy') : '-' }}</p>
         </div>
         <div>
-          <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'QUOTES.DETAILS._expected_date' | translate }}</p>
+          <p class="text-xs text-content-muted">{{ 'QUOTES.DETAILS._expected_date' | translate }}</p>
           <div class="flex items-center gap-2">
-            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ quote.expectedQuoteCompletionDate ? (quote.expectedQuoteCompletionDate | date:'dd/MM/yyyy') : '-' }}</p>
+            <p class="text-sm font-medium text-content">{{ quote.expectedQuoteCompletionDate ? (quote.expectedQuoteCompletionDate | date:'dd/MM/yyyy') : '-' }}</p>
             @if (canEditExpectedDate()) {
             <app-button type="button" variant="link" size="sm" prefixIcon="pen-to-square" dataCy="setExpectedDate"
               (click)="showExpectedDatePicker = true">
@@ -95,26 +95,26 @@
       } @else {
       <div class="grid grid-cols-2 gap-4">
         <div>
-          <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'QUOTES.DETAILS._tender_start' | translate }}</p>
-          <p class="text-sm font-medium text-gray-900 dark:text-white">{{ getTenderStartDate() ? (getTenderStartDate() | date:'dd/MM/yyyy') : '-' }}</p>
+          <p class="text-xs text-content-muted">{{ 'QUOTES.DETAILS._tender_start' | translate }}</p>
+          <p class="text-sm font-medium text-content">{{ getTenderStartDate() ? (getTenderStartDate() | date:'dd/MM/yyyy') : '-' }}</p>
         </div>
         <div>
-          <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'QUOTES.DETAILS._tender_end' | translate }}</p>
-          <p class="text-sm font-medium text-gray-900 dark:text-white">{{ getTenderEndDate() ? (getTenderEndDate() | date:'dd/MM/yyyy') : '-' }}</p>
+          <p class="text-xs text-content-muted">{{ 'QUOTES.DETAILS._tender_end' | translate }}</p>
+          <p class="text-sm font-medium text-content">{{ getTenderEndDate() ? (getTenderEndDate() | date:'dd/MM/yyyy') : '-' }}</p>
         </div>
       </div>
       }
 
       <!-- Status -->
-      <div class="border-t border-gray-200 dark:border-gray-700 pt-5">
+      <div class="border-t border-line pt-5">
         <div class="flex items-center gap-2 mb-3">
-          <p class="text-sm text-gray-700 dark:text-gray-300">{{ 'QUOTES.DETAILS._status_intro' | translate }}</p>
+          <p class="text-sm text-content-secondary">{{ 'QUOTES.DETAILS._status_intro' | translate }}</p>
           <bae-badge variant="status" [status]="getStatusBadge()" [label]="getStatusLabel() | translate"></bae-badge>
         </div>
-        <p class="mb-2 text-sm text-gray-600 dark:text-gray-400">{{ getStatusExplanation() | translate }}</p>
-        <p class="text-sm italic text-gray-500 dark:text-gray-400">{{ getAvailableActionsText() | translate }}</p>
+        <p class="mb-2 text-sm text-content-muted">{{ getStatusExplanation() | translate }}</p>
+        <p class="text-sm italic text-content-muted">{{ getAvailableActionsText() | translate }}</p>
         @if (canProviderAccept && !canAcceptQuote()) {
-        <p data-cy="expectedDateRequired" class="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-800 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-300">
+        <p data-cy="expectedDateRequired" class="mt-3 rounded-lg border border-warning-border bg-warning-soft px-3 py-2 text-sm text-warning">
           {{ 'QUOTES.DETAILS._expected_date_required' | translate }}
         </p>
         }
@@ -122,12 +122,12 @@
 
       <!-- Attachments -->
       @if (hasAttachment() || canUploadAttachment() || hasCoordinatorAttachment()) {
-      <div class="border-t border-gray-200 dark:border-gray-700 pt-5">
-        <p class="mb-3 text-sm font-semibold text-gray-900 dark:text-white">{{ 'QUOTES.DETAILS._attachments' | translate }}</p>
+      <div class="border-t border-line pt-5">
+        <p class="mb-3 text-sm font-semibold text-content">{{ 'QUOTES.DETAILS._attachments' | translate }}</p>
 
         @if (hasCoordinatorAttachment()) {
         <div class="flex items-center justify-between gap-3 mb-3">
-          <span class="text-sm text-gray-700 dark:text-gray-300 break-all">{{ 'QUOTES.DETAILS._customer_request' | translate }}: {{ getCoordinatorAttachmentName() }}</span>
+          <span class="text-sm text-content-secondary break-all">{{ 'QUOTES.DETAILS._customer_request' | translate }}: {{ getCoordinatorAttachmentName() }}</span>
           <app-button type="button" variant="link" size="sm" prefixIcon="download" (click)="downloadCoordinatorAttachment()">
             {{ 'QUOTES.DETAILS._download' | translate }}
           </app-button>
@@ -136,7 +136,7 @@
 
         @if (hasAttachment()) {
         <div class="flex items-center justify-between gap-3 mb-3">
-          <span class="text-sm text-gray-700 dark:text-gray-300 break-all">{{ getAttachmentName() }}</span>
+          <span class="text-sm text-content-secondary break-all">{{ getAttachmentName() }}</span>
           <app-button type="button" variant="link" size="sm" prefixIcon="download" dataCy="downloadQuoteAttachment"
             (click)="downloadAttachment()">
             {{ 'QUOTES.DETAILS._download' | translate }}
@@ -153,7 +153,7 @@
           <app-attachment-upload dataCy="uploadQuoteAttachment" accept=".pdf,application/pdf" [deferUpload]="true"
             [maxFileSize]="maxAttachmentSize" [files]="null" (filesChange)="onAttachmentPicked($event)" />
           }
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ 'QUOTES.DETAILS._max_size' | translate }}</p>
+          <p class="mt-1 text-xs text-content-muted">{{ 'QUOTES.DETAILS._max_size' | translate }}</p>
         </div>
         }
       </div>
@@ -214,12 +214,12 @@
 
 <!-- Expected date -->
 @if (showExpectedDatePicker) {
-<div class="flex fixed inset-0 z-[60] justify-center items-center w-full h-full bg-black/40 p-4">
+<div class="flex fixed inset-0 z-[60] justify-center items-center w-full h-full bg-overlay p-4">
   <app-card variant="modal" class="w-full max-w-sm">
-    <h3 appCardHeader class="text-lg font-bold text-gray-900 dark:text-white">{{ 'QUOTES.DETAILS._expected_date_title' | translate }}</h3>
-    <label for="quote-expected-date" class="mb-2 block text-sm text-gray-600 dark:text-gray-400">{{ 'QUOTES.DETAILS._expected_date_help' | translate }}</label>
+    <h3 appCardHeader class="text-lg font-bold text-content">{{ 'QUOTES.DETAILS._expected_date_title' | translate }}</h3>
+    <label for="quote-expected-date" class="mb-2 block text-sm text-content-muted">{{ 'QUOTES.DETAILS._expected_date_help' | translate }}</label>
     <input id="quote-expected-date" type="date" [(ngModel)]="selectedExpectedDate" [min]="minDate"
-      class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+      class="bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
     <div appCardFooter class="flex justify-end gap-3">
       <app-button type="button" variant="ghost" (click)="showExpectedDatePicker = false">{{ 'CONFIRM_MODAL._cancel' | translate }}</app-button>
       <app-button type="button" [disabled]="!selectedExpectedDate" (click)="saveExpectedDate()">{{ 'QUOTES.DETAILS._save' | translate }}</app-button>
@@ -230,13 +230,13 @@
 
 <!-- Broadcast message (coordinator) -->
 @if (showBroadcastModal) {
-<div class="flex fixed inset-0 z-[60] justify-center items-center w-full h-full bg-black/40 p-4">
+<div class="flex fixed inset-0 z-[60] justify-center items-center w-full h-full bg-overlay p-4">
   <app-card variant="modal" class="w-full max-w-md">
-    <h3 appCardHeader class="text-lg font-bold text-gray-900 dark:text-white">{{ 'QUOTES.DETAILS._broadcast' | translate }}</h3>
-    <label for="quote-broadcast" class="mb-2 block text-sm text-gray-600 dark:text-gray-400">{{ 'QUOTES.DETAILS._broadcast_modal_help' | translate }}</label>
+    <h3 appCardHeader class="text-lg font-bold text-content">{{ 'QUOTES.DETAILS._broadcast' | translate }}</h3>
+    <label for="quote-broadcast" class="mb-2 block text-sm text-content-muted">{{ 'QUOTES.DETAILS._broadcast_modal_help' | translate }}</label>
     <textarea id="quote-broadcast" rows="4" [(ngModel)]="broadcastMessage"
       [placeholder]="'QUOTES.DETAILS._broadcast_placeholder' | translate"
-      class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5"></textarea>
+      class="bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5"></textarea>
     <div appCardFooter class="flex justify-end gap-3">
       <app-button type="button" variant="ghost" (click)="closeBroadcastModal()">{{ 'CONFIRM_MODAL._cancel' | translate }}</app-button>
       <app-button type="button" [disabled]="!broadcastMessage || isBroadcastSending" (click)="sendBroadcastMessage()">

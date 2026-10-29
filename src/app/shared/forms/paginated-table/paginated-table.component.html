@@ -16,16 +16,16 @@
   </div>
 
   @if (error) {
-  <div class="text-sm text-red-600 dark:text-red-400 text-center py-2">
+  <div class="text-sm text-danger text-center py-2">
     {{ 'FORMS.PAGINATED_TABLE._error_loading' | translate }}
   </div>
   }
 
-  <div class="flex items-center justify-between flex-wrap gap-3 px-2 text-sm text-gray-600 dark:text-gray-300">
+  <div class="flex items-center justify-between flex-wrap gap-3 px-2 text-sm text-content-secondary">
     <div class="flex items-center gap-2">
       <span class="hidden sm:inline">{{ 'FORMS.PAGINATED_TABLE._rows_per_page' | translate }}</span>
       <select
-        class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-1.5 text-center"
+        class="bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-focus focus:border-primary-100 p-1.5 text-center"
         [ngModel]="pageSize" (ngModelChange)="onPageSizeChange($event)">
         @for (size of pageSizeOptions; track size) {
         <option [ngValue]="size">{{ size }}</option>

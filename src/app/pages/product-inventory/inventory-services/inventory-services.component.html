@@ -3,8 +3,8 @@
   <div [class.hidden]="showDetails">
     <app-card>
       <div appCardHeader>
-        <h2 class="text-2xl font-bold dark:text-white">{{ 'PRODUCT_INVENTORY._services' | translate }}</h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ 'PRODUCT_INVENTORY._services_subtitle' | translate }}</p>
+        <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_INVENTORY._services' | translate }}</h2>
+        <p class="text-sm text-content-muted mt-1">{{ 'PRODUCT_INVENTORY._services_subtitle' | translate }}</p>
       </div>
       <app-filtered-paginated-table data-cy="servicesTable" [columns]="serviceColumns" [fetchPage]="fetchServices"
         [filters]="serviceFilters" [filterColumns]="1" [clickable]="true" (rowClick)="selectService($event)"
@@ -24,12 +24,12 @@
           </li>
           <li aria-current="page">
             <div class="flex items-center">
-              <svg class="rtl:rotate-180  w-3 h-3 mx-1 text-gray-400 dark:text-white" aria-hidden="true"
+              <svg class="rtl:rotate-180  w-3 h-3 mx-1 text-content-muted" aria-hidden="true"
                 xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                   d="m1 9 4-4-4-4" />
               </svg>
-              <span class="ms-1 text-sm font-medium text-gray-500 dark:text-white md:ms-2 ">{{
+              <span class="ms-1 text-sm font-medium text-content-muted md:ms-2 ">{{
                 'PRODUCT_INVENTORY._serv_details' | translate }}</span>
             </div>
           </li>
@@ -43,28 +43,28 @@
                     'break-all': hasLongWord(selectedServ.description, 20),
                     'break-words': !hasLongWord(selectedServ.description, 20)
                     }"
-        class="bg-gray-50 text-wrap break-words dark:bg-secondary-300 dark:text-white text-gray-900 pb-4 text-center"
+        class="bg-surface-input text-wrap break-words text-content pb-4 text-center"
         [data]="selectedServ.description ? selectedServ.description : 'CATALOGS._no_desc' | translate"></markdown>
       @if(selectedServ.serviceCharacteristic != undefined && selectedServ.serviceCharacteristic.length>0) {
       <div #charsContent id="chars-container">
-        <h2 class="text-xl font-bold dark:text-white pb-4 px-4">{{ 'PRODUCT_INVENTORY._serv_chars' | translate }}</h2>
+        <h2 class="text-xl font-bold text-content pb-4 px-4">{{ 'PRODUCT_INVENTORY._serv_chars' | translate }}</h2>
         <div class="container mx-auto px-4">
           <div class="flex flex-wrap -mx-4">
             @for (char of selectedServ.serviceCharacteristic; track char.id; let idx = $index) {
             <div class="w-full md:w-1/2 lg:w-1/3 px-4 mb-8">
               <div
-                class="border border-gray-200 rounded-lg shadow bg-white dark:bg-secondary-200 dark:border-gray-800 shadow-md p-8 h-full">
-                <h3 class="text-2xl font-bold mb-4 dark:text-white">{{char.name}}</h3>
+                class="border border-line rounded-lg shadow bg-surface shadow-md p-8 h-full">
+                <h3 class="text-2xl font-bold mb-4 text-content">{{char.name}}</h3>
                 <div class="flex items-center pl-4">
                   <input disabled checked id="disabled-checked-checkbox" type="checkbox" value=""
-                    class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 dark:bg-gray-600 dark:border-gray-800 rounded-full focus:ring-blue-500 focus:ring-2">
+                    class="w-4 h-4 text-info bg-surface-muted border-line-input rounded-full focus:ring-focus focus:ring-2">
                   @if(char.value){
                   <label for="disabled-checked-checkbox"
-                    class="ms-2 text-sm font-medium text-gray-700 dark:text-gray-200 dark:bg-secondary-200 dark:border-gray-800 text-wrap break-all">{{char.value}}
+                    class="ms-2 text-sm font-medium text-content-secondary dark:bg-secondary-200 text-wrap break-all">{{char.value}}
                     ({{char.unitOfMeasure}})</label>
                   } @else {
                   <label for="disabled-checked-checkbox"
-                    class="ms-2 text-sm font-medium text-gray-700 dark:text-gray-200 dark:bg-secondary-200 dark:border-gray-800 text-wrap break-all">{{char.valueFrom}}
+                    class="ms-2 text-sm font-medium text-content-secondary dark:bg-secondary-200 text-wrap break-all">{{char.valueFrom}}
                     - {{char.valueTo}} ({{char?.unitOfMeasure}})</label>
                   }
                 </div>
@@ -73,7 +73,7 @@
             } @empty {
             <div class="flex justify-center items-center w-full">
               <div
-                class="flex items-center w-1/2 p-4 mb-4 text-sm text-primary-100 rounded-lg bg-white border border-gray-200 shadow-md dark:bg-secondary-200 dark:text-primary-50"
+                class="flex items-center w-1/2 p-4 mb-4 text-sm text-primary-100 rounded-lg bg-surface border border-line shadow-md dark:text-primary-50"
                 role="alert">
                 <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                   fill="currentColor" viewBox="0 0 20 20">

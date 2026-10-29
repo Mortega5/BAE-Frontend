@@ -1,7 +1,7 @@
 @if(bundleChecked){
 <div class="flex justify-center w-full m-4">
   <div
-    class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-blue-50 dark:bg-secondary-200 dark:text-primary-50"
+    class="flex w-full items-center p-4 text-sm text-primary-100 rounded-lg bg-info-soft dark:text-primary-50"
     role="alert">
     <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
       fill="currentColor" viewBox="0 0 20 20">
@@ -21,7 +21,7 @@
   <app-table-input data-cy="prodSpecs" [columns]="prodColumns" [items]="[selectedProdSpecInternal]" [multiple]="false"
     [readonly]="true" [ngModel]="selectedProdSpecInternal">
   </app-table-input>
-  <p data-cy="productSpecUpdateLocked" class="mt-1 text-xs text-[var(--form-hint-text)]">
+  <p data-cy="productSpecUpdateLocked" class="mt-1 text-xs text-content-muted">
     {{ 'CREATE_OFFER._product_spec_update_locked' | translate }}
   </p>
 </div>
@@ -41,7 +41,7 @@
   </app-paginated-table>
 
   @if (!prodSpecsTable.loading && prodSpecsTable.total === 0) {
-  <p class="text-sm text-gray-600 dark:text-gray-400 text-center mt-3">{{ 'CREATE_OFFER._no_prods' | translate }}</p>
+  <p class="text-sm text-content-muted text-center mt-3">{{ 'CREATE_OFFER._no_prods' | translate }}</p>
   }
 </div>
 }
@@ -50,7 +50,7 @@
 <app-modal data-cy="createProdSpecModal" [visible]="showCreateProdSpecModal" width="max-w-7xl"
   (closed)="closeCreateProdSpecModal()">
   <div appCardHeader class="flex items-center justify-between">
-    <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ 'CREATE_PROD_SPEC._new' | translate }}</h3>
+    <h3 class="text-xl font-bold text-content">{{ 'CREATE_PROD_SPEC._new' | translate }}</h3>
     <app-button type="button" (click)="closeCreateProdSpecModal()" variant="ghost" size="sm" prefixIcon="xmark" />
   </div>
 

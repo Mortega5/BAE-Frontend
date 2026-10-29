@@ -1,18 +1,18 @@
-<section class="right-for-you-section relative isolate w-full overflow-hidden bg-white font-[Blinker]">
+<section class="right-for-you-section relative isolate w-full overflow-hidden bg-surface font-[Blinker]">
   <div class="right-for-you-watermark pointer-events-none select-none"></div>
 
   <div class="mx-auto w-full max-w-[1440px] px-6 py-16 sm:px-8 lg:px-16 lg:py-[80px] xl:px-[160px]">
     <div class="right-for-you-layout">
       <div class="right-for-you-copy">
-        <h2 class="text-[48px] font-bold leading-[58px] text-[#0B1528]">
+        <h2 class="text-[48px] font-bold leading-[58px] text-content">
           {{ 'LANDINGPAGE.customers.rightForYou._titleStart' | translate }}
-          <span class="text-[#2D58A7]">
+          <span class="text-primary-100">
             {{ 'LANDINGPAGE.customers.rightForYou._titleAccent' | translate }}
           </span>
           {{ 'LANDINGPAGE.customers.rightForYou._titleEnd' | translate }}
         </h2>
 
-        <p class="mt-4 text-[20px] leading-[32px] text-[#0B1528]">
+        <p class="mt-4 text-[20px] leading-[32px] text-content">
           {{ 'LANDINGPAGE.customers.rightForYou._desc' | translate }}
         </p>
       </div>
@@ -23,16 +23,16 @@
           <div verticalScrollCard class="scroll-card">
             <div class="flex flex-col gap-6">
               <div
-                class="flex h-[72px] w-[72px] items-center justify-center rounded-[16px] bg-[#DDE6F6] text-[#2D58A7]">
+                class="flex h-[72px] w-[72px] items-center justify-center rounded-[16px] bg-secondary-50 text-primary-100">
                 <fa-icon [icon]="card.icon" class="text-[40px]"></fa-icon>
               </div>
 
               <div class="flex flex-col gap-2">
-                <h3 class="text-[24px] font-bold leading-[29px] text-[#0B1528]">
+                <h3 class="text-[24px] font-bold leading-[29px] text-content">
                   {{ card.titleKey | translate }}
                 </h3>
 
-                <p class="text-[20px] leading-[32px] text-[#324153]">
+                <p class="text-[20px] leading-[32px] text-content-secondary">
                   {{ card.descKey | translate }}
                 </p>
               </div>

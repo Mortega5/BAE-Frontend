@@ -163,7 +163,7 @@ describe('DynamicFormComponent', () => {
     component.fields = fields;
     component.formGroup = buildForm(fields);
     fixture.detectChanges();
-    const asterisk = fixture.nativeElement.querySelector('span.text-red-500');
+    const asterisk = fixture.nativeElement.querySelector('span.text-danger');
     expect(asterisk).toBeTruthy();
   });
 
@@ -172,7 +172,7 @@ describe('DynamicFormComponent', () => {
     component.fields = fields;
     component.formGroup = buildForm(fields);
     fixture.detectChanges();
-    const asterisk = fixture.nativeElement.querySelector('span.text-red-500');
+    const asterisk = fixture.nativeElement.querySelector('span.text-danger');
     expect(asterisk).toBeNull();
   });
 
@@ -206,12 +206,12 @@ describe('DynamicFormComponent', () => {
     component.formGroup = new FormGroup({ name: new FormControl('', Validators.required) });
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('p.text-red-600')).toBeNull();
+    expect(fixture.nativeElement.querySelector('p.text-danger')).toBeNull();
 
     component.formGroup.get('name')?.markAsTouched();
     fixture.detectChanges();
 
-    const error = fixture.nativeElement.querySelector('p.text-red-600');
+    const error = fixture.nativeElement.querySelector('p.text-danger');
     expect(error).toBeTruthy();
     expect(error.textContent).toContain('FORMS._required');
   });
@@ -223,7 +223,7 @@ describe('DynamicFormComponent', () => {
     component.formGroup.get('name')?.markAsTouched();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('p.text-red-600')).toBeNull();
+    expect(fixture.nativeElement.querySelector('p.text-danger')).toBeNull();
   });
 
   it('should render one block per field', () => {

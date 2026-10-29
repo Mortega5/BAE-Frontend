@@ -70,6 +70,36 @@ body {
   /* Helper line under a dynamic-form field (FormField.hint). */
   --form-hint-text: rgb(107 114 128);
   /* gray-500 */
+  /* Semantic roles used through the Tailwind theme colors (text-content, bg-surface,
+     border-line, ring-focus, text-danger...) — one per meaning, so the same kind of
+     element looks the same everywhere and follows the theme. See docs/theme-tokens.md. */
+  --theme-text-secondary: rgb(55 65 81);
+  /* gray-700: body copy below the main text */
+  --theme-text-muted: var(--form-hint-text);
+  /* hints, meta lines, secondary icons */
+  --theme-surface-muted: rgb(243 244 246);
+  /* gray-100: chips, hovered rows, soft wells */
+  --theme-skeleton: rgb(229 231 235);
+  /* gray-200: loading placeholders, empty tracks */
+  --theme-overlay: rgb(0 0 0 / 40%);
+  --theme-focus-ring: rgb(var(--theme-primary-100) / 50%);
+  --theme-danger-text: rgb(220 38 38);
+  --theme-danger-bg: rgb(254 242 242);
+  --theme-danger-border: rgb(254 202 202);
+  --theme-success-text: rgb(21 128 61);
+  --theme-success-bg: rgb(240 253 244);
+  --theme-success-border: rgb(187 247 208);
+  --theme-warning-text: rgb(180 83 9);
+  --theme-warning-bg: rgb(255 251 235);
+  --theme-warning-border: rgb(253 230 138);
+  --theme-info-text: rgb(var(--theme-primary-100));
+  --theme-info-bg: color-mix(in srgb, rgb(var(--theme-primary-100)) 8%, transparent);
+  --theme-info-border: color-mix(in srgb, rgb(var(--theme-primary-100)) 25%, transparent);
+  /* Brand-derived shades, so every theme gets its own hover/pressed and dark-hero tones. */
+  --theme-primary-hover: color-mix(in srgb, rgb(var(--theme-primary-100)) 80%, black);
+  --theme-primary-active: color-mix(in srgb, rgb(var(--theme-primary-100)) 60%, black);
+  --theme-hero-deep: color-mix(in srgb, rgb(var(--theme-secondary-100)) 50%, black);
+  --theme-hero-mid: color-mix(in srgb, rgb(var(--theme-secondary-100)) 80%, black);
   /* Offer page (product-details): body copy, secondary/meta text, emphasized text,
      the tinted icon chips and their hover, and placeholder/border tones. */
   --product-details-body-text: #526179;
@@ -277,6 +307,26 @@ body.theme-bae {
   /* slate-700 */
   --form-hint-text: rgb(156 163 175);
   /* gray-400 */
+  --theme-text-secondary: rgb(209 213 219);
+  /* gray-300 */
+  --theme-text-muted: var(--form-hint-text);
+  --theme-surface-muted: color-mix(in srgb, var(--card-bg), white 6%);
+  --theme-skeleton: rgb(55 65 81);
+  /* gray-700 */
+  --theme-overlay: rgb(0 0 0 / 60%);
+  --theme-focus-ring: rgb(var(--theme-primary-50) / 50%);
+  --theme-danger-text: rgb(248 113 113);
+  --theme-danger-bg: rgb(127 29 29 / 30%);
+  --theme-danger-border: rgb(153 27 27 / 60%);
+  --theme-success-text: rgb(74 222 128);
+  --theme-success-bg: rgb(20 83 45 / 30%);
+  --theme-success-border: rgb(22 101 52 / 60%);
+  --theme-warning-text: rgb(252 211 77);
+  --theme-warning-bg: rgb(120 53 15 / 30%);
+  --theme-warning-border: rgb(146 64 14 / 60%);
+  --theme-info-text: rgb(var(--theme-primary-50));
+  --theme-info-bg: color-mix(in srgb, rgb(var(--theme-primary-50)) 12%, transparent);
+  --theme-info-border: color-mix(in srgb, rgb(var(--theme-primary-50)) 30%, transparent);
   --product-details-body-text: rgb(156 163 175);
   --product-details-muted-text: rgb(156 163 175);
   --product-details-strong-text: rgb(209 213 219);
@@ -595,4 +645,18 @@ textarea:-webkit-autofill {
 
 textarea:-webkit-autofill::first-line {
   color: inherit;
+}
+
+/* Selectable option card (plan type, price tier...): reads the card tokens so templates only
+   toggle `.is-selected` instead of binding the variables. */
+.option-card {
+  background-color: var(--card-bg);
+  border-color: var(--card-border);
+}
+.option-card:hover:not(:disabled) {
+  border-color: var(--card-hover-border);
+}
+.option-card.is-selected {
+  background-color: var(--card-selected-bg);
+  border-color: var(--card-selected-border);
 }

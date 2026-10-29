@@ -1,6 +1,6 @@
 <div class="mb-4">
-  <h2 class="text-2xl font-bold dark:text-white">{{ 'PRODUCT_ORDERS._orders' | translate }}</h2>
-  <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._orders_subtitle' | translate }}</p>
+  <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_ORDERS._orders' | translate }}</h2>
+  <p class="mt-1 text-sm text-content-muted">{{ 'PRODUCT_ORDERS._orders_subtitle' | translate }}</p>
 </div>
 
 <app-tabs [activeTab]="role" (activeTabChange)="onRoleChange($event)" [fullWidth]="true">
@@ -23,10 +23,10 @@
   <app-card variant="modal" class="w-full md:w-3/4 lg:w-1/2 max-h-[90vh]" (click)="$event.stopPropagation();">
     <div appCardHeader class="flex items-center justify-between gap-3">
       <div>
-        <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 dark:text-white">
+        <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 dark:text-content">
           {{ 'PRODUCT_ORDERS._order_details' | translate }}
         </h2>
-        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{orderToShow.id}}</p>
+        <p class="text-sm text-content-muted mt-1">{{orderToShow.id}}</p>
       </div>
       <div class="flex items-center gap-3 shrink-0">
         <bae-badge data-cy="globalState" variant="status" [status]="orderStateBadgeVariant(orderToShow.state)"
@@ -40,23 +40,23 @@
       @if (loadingOrderDetails) {
       <app-loading-spinner containerClass="w-full h-40 flex justify-center items-center" />
       } @else {
-      <div class="rounded-2xl border border-gray-200 dark:border-gray-700 p-4 mb-4">
-        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">
+      <div class="rounded-2xl border border-line p-4 mb-4">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-content-muted mb-3">
           {{ 'PRODUCT_ORDERS._customer_info' | translate }}
         </h3>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
           <div>
-            <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._name' | translate }}</p>
-            <p class="text-sm font-medium text-gray-900 dark:text-white">{{ customerName }}</p>
+            <p class="text-xs text-content-muted">{{ 'PRODUCT_ORDERS._name' | translate }}</p>
+            <p class="text-sm font-medium text-content">{{ customerName }}</p>
           </div>
           <div>
-            <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._date' | translate }}</p>
-            <p class="text-sm font-medium text-gray-900 dark:text-white">{{orderToShow?.orderDate | date:'EEEE,
+            <p class="text-xs text-content-muted">{{ 'PRODUCT_ORDERS._date' | translate }}</p>
+            <p class="text-sm font-medium text-content">{{orderToShow?.orderDate | date:'EEEE,
               dd/MM/yy, HH:mm'}}</p>
           </div>
           <div>
-            <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._billing_address' | translate }}</p>
-            <p class="text-sm font-medium text-gray-900 dark:text-white">
+            <p class="text-xs text-content-muted">{{ 'PRODUCT_ORDERS._billing_address' | translate }}</p>
+            <p class="text-sm font-medium text-content">
               {{orderToShow.billingAccount.contact[0].contactMedium[1].characteristic.city}},
               {{orderToShow.billingAccount.contact[0].contactMedium[1].characteristic.street1}},
               {{orderToShow.billingAccount.contact[0].contactMedium[1].characteristic.country}}
@@ -64,54 +64,54 @@
             </p>
           </div>
           <div>
-            <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._email' | translate }}</p>
-            <p class="text-sm font-medium text-gray-900 dark:text-white">
+            <p class="text-xs text-content-muted">{{ 'PRODUCT_ORDERS._email' | translate }}</p>
+            <p class="text-sm font-medium text-content">
               {{orderToShow.billingAccount.contact[0].contactMedium[0].characteristic.emailAddress}}
             </p>
           </div>
         </div>
-        <a class="mt-3 inline-block cursor-pointer text-sm text-blue-600" (click)="goToCustomerDeatils()">
+        <a class="mt-3 inline-block cursor-pointer text-sm text-info" (click)="goToCustomerDeatils()">
           {{ 'PRODUCT_ORDERS._show_customer_details' | translate }}
         </a>
       </div>
 
       <app-item-card data-cy="financialSummary" class="mb-4" [selected]="true">
         <div class="w-full">
-          <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-3">
+          <h3 class="text-sm font-semibold uppercase tracking-wide text-content-muted mb-3">
             {{ 'PRODUCT_ORDERS._financial_summary' | translate }}
           </h3>
           @if (priceSummary.length === 0 && !hasCustomPricing) {
-          <p class="text-sm font-medium text-gray-900 dark:text-white">{{ 'PRODUCT_ORDERS._order_free' | translate }}
+          <p class="text-sm font-medium text-content">{{ 'PRODUCT_ORDERS._order_free' | translate }}
           </p>
           } @else {
           <div class="space-y-1">
             @for (line of priceSummary; track line.label) {
             <div class="flex justify-between text-sm">
-              <span class="text-gray-500 dark:text-gray-400 capitalize">{{ line.label }}</span>
-              <span class="font-semibold text-gray-900 dark:text-white">{{ line.amount | number:'1.2-2' }} {{ line.unit
+              <span class="text-content-muted capitalize">{{ line.label }}</span>
+              <span class="font-semibold text-content">{{ line.amount | number:'1.2-2' }} {{ line.unit
                 }}</span>
             </div>
             }
           </div>
           }
           @if (hasCustomPricing) {
-          <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._includes_custom_pricing' |
+          <p class="mt-2 text-xs text-content-muted">{{ 'PRODUCT_ORDERS._includes_custom_pricing' |
             translate }}</p>
           }
           @if (hasFreeItems && priceSummary.length > 0) {
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ 'PRODUCT_ORDERS._includes_free_items' | translate
+          <p class="mt-1 text-xs text-content-muted">{{ 'PRODUCT_ORDERS._includes_free_items' | translate
             }}</p>
           }
         </div>
       </app-item-card>
 
-      <div data-cy="orderItemsCard" class="rounded-2xl border border-gray-200 dark:border-gray-700 p-4">
+      <div data-cy="orderItemsCard" class="rounded-2xl border border-line p-4">
         <div class="flex flex-wrap items-start justify-between gap-3 mb-3">
           <div>
-            <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
+            <h3 class="text-sm font-semibold uppercase tracking-wide text-content-muted">
               {{ 'PRODUCT_ORDERS._order_items' | translate }}
             </h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            <p class="text-xs text-content-muted mt-0.5">
               {{ 'PRODUCT_ORDERS._items_count' | translate:{count: orderToShow.productOrderItems?.length ?? 0} }}
             </p>
           </div>
@@ -147,15 +147,15 @@
                 <img class="rounded-xl w-16 h-16 object-cover shrink-0" [src]="getProductImage(item)" alt="">
                 <div class="min-w-0 flex-1">
                   <div class="flex items-start justify-between gap-2">
-                    <p class="text-sm font-semibold text-gray-900 dark:text-white truncate">{{ item.name }}</p>
+                    <p class="text-sm font-semibold text-content truncate">{{ item.name }}</p>
                     <bae-badge variant="status" [status]="orderStateBadgeVariant(item.productOrderItem.state)"
                       [label]="orderStateLabel(item.productOrderItem.state) | translate"></bae-badge>
                   </div>
-                  <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ getPricePlanLabel(item) | translate }}
+                  <p class="text-xs text-content-muted mt-0.5">{{ getPricePlanLabel(item) | translate }}
                   </p>
                   @if (item.productOrderItem.action !== 'add') {
                   <p class="mt-2 flex items-center gap-1.5 text-xs font-medium"
-                    [ngClass]="item.productOrderItem.action === 'delete' ? 'text-red-600 dark:text-red-400' : 'text-amber-600 dark:text-amber-400'">
+                    [ngClass]="item.productOrderItem.action === 'delete' ? 'text-danger' : 'text-warning'">
                     <fa-icon [icon]="item.productOrderItem.action === 'delete' ? faTrash : faEdit"></fa-icon>
                     {{ ('PRODUCT_ORDERS._action_' + item.productOrderItem.action + '_desc') | translate }}
                   </p>
@@ -191,7 +191,7 @@
             </div>
           </app-item-card>
           } @empty {
-          <p class="text-sm text-gray-500 dark:text-gray-400 text-center py-6">{{ 'PRODUCT_ORDERS._no_orders' |
+          <p class="text-sm text-content-muted text-center py-6">{{ 'PRODUCT_ORDERS._no_orders' |
             translate }}</p>
           }
         </div>
@@ -205,15 +205,15 @@
 
 <!-- Confirm Modal -->
 <div #confirmModal id="confirmModal" tabindex="-1" aria-hidden="true"
-  class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full bg-black bg-opacity-50">
+  class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full bg-overlay">
   <app-card variant="modal" class="relative w-full max-w-md">
     <div appCardHeader class="flex items-start justify-between">
-      <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+      <h3 class="text-xl font-semibold text-content">
         {{ 'PRODUCT_ORDERS._confirm_action' | translate }}
       </h3>
       <app-button type="button" variant="ghost" size="sm" prefixIcon="xmark" (click)="closeModal()" />
     </div>
-    <p class="text-gray-500 dark:text-gray-300 text-center">
+    <p class="text-content-muted text-center">
       {{ 'PRODUCT_ORDERS._confirm_update_prefix' | translate }} <strong>{{ actionType }}</strong>{{ 'PRODUCT_ORDERS._confirm_update_suffix' | translate }}
     </p>
     <div appCardFooter class="flex gap-3">
@@ -239,7 +239,7 @@
 
 <!-- Backdrop (se muestra cuando el menú está abierto) -->
 @if (isDrawerOpen) {
-<div class="fixed inset-0 top-0 left-0 right-0 h-screen bg-black bg-opacity-50 z-40" (click)="closeDrawer()"></div>
+<div class="fixed inset-0 top-0 left-0 right-0 h-screen bg-overlay z-40" (click)="closeDrawer()"></div>
 
 <!-- Drawer for Notes -->
 <div id="drawer-notes"
@@ -249,7 +249,7 @@
 
   <!-- Header -->
   <div class="flex justify-between items-center border-b pb-3">
-    <h5 id="drawer-notes-label" class="flex items-center text-base font-semibold text-gray-500 dark:text-gray-400">
+    <h5 id="drawer-notes-label" class="flex items-center text-base font-semibold text-content-muted">
       <svg class="w-4 h-4 mr-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
         viewBox="0 0 448 512">
         <path
@@ -264,8 +264,8 @@
 
   <!-- Loading Spinner (visible for 1s) -->
   <div *ngIf="isLoading" class="flex flex-col items-center justify-center flex-1">
-    <div class="animate-spin rounded-full h-8 w-8 border-t-4 border-blue-500"></div>
-    <p class="text-gray-500 mt-2">{{ 'PRODUCT_ORDERS._loading_notes' | translate }}</p>
+    <div class="animate-spin rounded-full h-8 w-8 border-t-4 border-primary-100"></div>
+    <p class="text-content-muted mt-2">{{ 'PRODUCT_ORDERS._loading_notes' | translate }}</p>
   </div>
 
   <!-- Notes Container -->
@@ -273,7 +273,7 @@
     #noteContainer>
 
     <!-- Message when there are no notes -->
-    <div *ngIf="selectedOrder?.note.length === 0" class="text-center text-gray-500">
+    <div *ngIf="selectedOrder?.note.length === 0" class="text-center text-content-muted">
       <p>{{ 'PRODUCT_ORDERS._no_notes' | translate }}</p>
     </div>
 
@@ -282,10 +282,10 @@
       [ngClass]="{'justify-end': note.author === partyId, 'justify-start': note.author !== partyId}">
 
       <div class="max-w-xs p-3 rounded-lg shadow-md"
-        [ngClass]="{'bg-blue-200 text-blue-900': note.author === partyId, 'bg-gray-200 text-gray-800': note.author !== partyId}">
+        [ngClass]="{'bg-primary-100 text-on-primary': note.author === partyId, 'bg-skeleton text-content': note.author !== partyId}">
 
         <p class="text-sm">{{ note.text }}</p>
-        <span class="text-xs block mt-1 text-gray-500">
+        <span class="text-xs block mt-1 text-content-muted">
           <!-- Si el usuario está en caché, mostrarlo. Si no, mostrar "Loading..." mientras se obtiene el nombre -->
           {{ note.author === partyId
           ? currentUser

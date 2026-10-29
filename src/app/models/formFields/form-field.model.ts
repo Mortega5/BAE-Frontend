@@ -46,6 +46,8 @@ export interface NumberFormField extends BaseFormField {
 
 export interface DateFormField extends BaseFormField {
   type: 'date';
+  /** Defaults to 'date'; use 'datetime-local' when the time of day matters too. */
+  inputType?: 'date' | 'datetime-local';
   min?: string;
   max?: string;
 }
@@ -124,10 +126,10 @@ export type LifecycleStatus = typeof LIFECYCLE_STATUSES[number];
 const SELECTABLE_LIFECYCLE_STATUSES = ['Active', 'Launched', 'Retired'] as const;
 
 const LIFECYCLE_STATUS_ACTIVE_CLASSES: Record<LifecycleStatus, string> = {
-  Active: 'text-blue-500',
-  Launched: 'text-green-700 dark:text-green-400',
-  Retired: 'text-red-700 dark:text-red-400',
-  Obsolete: 'text-gray-700 dark:text-gray-400',
+  Active: 'text-info',
+  Launched: 'text-success',
+  Retired: 'text-danger',
+  Obsolete: 'text-content-secondary',
 };
 
 export function buildLifecycleStatusOptions(dataCyPrefix: string = '', disabledStatuses: string[] = []): StatusPickerOption[] {

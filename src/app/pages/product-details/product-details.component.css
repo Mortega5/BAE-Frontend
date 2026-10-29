@@ -100,3 +100,12 @@
   transform: translateY(0);
   opacity: 1;
 }
+
+/* Offer page colors: tokens live in styles.css (light/dark); templates use these classes. */
+.pd-body-text { color: var(--product-details-body-text); }
+.pd-muted-text { color: var(--product-details-muted-text); }
+.pd-strong-text { color: var(--product-details-strong-text); }
+.pd-chip { background-color: var(--product-details-chip-bg); }
+.pd-chip-hover:hover { background-color: var(--product-details-chip-hover-bg); }
+.pd-placeholder { background-color: var(--product-details-placeholder-bg); }
+.pd-border { border-color: var(--product-details-border); }

@@ -1,14 +1,14 @@
 <div class="flex flex-col gap-5">
   <div class="w-full md:w-1/2">
-    <label for="procurement" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">
+    <label for="procurement" class="block text-sm font-bold text-content mb-2">
       {{ 'FORMS.PROCUREMENT_MODE._title' | translate }}
     </label>
     <div class="relative">
       <button data-cy="procurement" id="procurement" type="button"
         (click)="showProcurementDropdown = !showProcurementDropdown"
-        class="flex items-center justify-between w-full p-3 bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] rounded-lg text-sm text-left text-gray-900 dark:text-white focus:ring-primary-100 focus:border-primary-100">
+        class="flex items-center justify-between w-full p-3 bg-surface-input border border-line-input rounded-lg text-sm text-left text-content focus:ring-primary-100 focus:border-primary-100">
         <span class="truncate">{{ selectedProcurementNameKey | translate }}</span>
-        <svg class="w-5 h-5 text-gray-500 dark:text-gray-400 shrink-0 transition-transform" [class.rotate-180]="showProcurementDropdown"
+        <svg class="w-5 h-5 text-content-muted shrink-0 transition-transform" [class.rotate-180]="showProcurementDropdown"
           xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
         </svg>
@@ -16,12 +16,12 @@
 
       @if(showProcurementDropdown){
         <div class="fixed inset-0 z-10" (click)="showProcurementDropdown = false"></div>
-        <ul class="absolute left-0 right-0 top-full mt-1 z-20 bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] rounded-lg py-1 overflow-hidden shadow-lg">
+        <ul class="absolute left-0 right-0 top-full mt-1 z-20 bg-surface-input border border-line-input rounded-lg py-1 overflow-hidden shadow-lg">
           @for(mode of procurementModes; track mode.id){
             <li>
               <button type="button" [attr.data-cy]="'procurement-' + mode.id" (click)="selectProcurementMode(mode.id)"
                 [attr.aria-disabled]="isModeUnavailable(mode.id)"
-                class="flex items-center w-full text-left px-4 h-14 text-base text-gray-900 dark:text-white transition-colors"
+                class="flex items-center w-full text-left px-4 h-14 text-base text-content transition-colors"
                 [class.opacity-50]="isModeUnavailable(mode.id)"
                 [class.cursor-not-allowed]="isModeUnavailable(mode.id)"
                 [ngClass]="procurementMode === mode.id ? 'bg-secondary-50 dark:bg-secondary-200' : 'hover:bg-secondary-50 dark:hover:bg-secondary-200'">
@@ -37,20 +37,20 @@
   @if (extBillingEnabledControl) {
     <div class="flex items-center gap-3">
       <input data-cy="extBillingToggle" id="extBilling" type="checkbox" [formControl]="extBillingEnabledControl"
-        class="w-4 h-4 text-primary-100 bg-[var(--theme-input-bg)] border-[var(--theme-input-border)] rounded focus:ring-primary-100"/>
-      <label for="extBilling" class="text-sm font-bold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._ext_billing' | translate }}</label>
+        class="w-4 h-4 text-primary-100 bg-surface-input border-line-input rounded focus:ring-primary-100"/>
+      <label for="extBilling" class="text-sm font-bold text-content">{{ 'CREATE_OFFER._ext_billing' | translate }}</label>
     </div>
   }
 
   @if (extBillingEnabledControl?.value && plaSpecIdControl) {
     <div>
-      <label for="plaSpecId" class="block text-sm font-bold text-gray-900 dark:text-white mb-2">{{ 'CREATE_OFFER._pla_spec_id' | translate }}</label>
+      <label for="plaSpecId" class="block text-sm font-bold text-content mb-2">{{ 'CREATE_OFFER._pla_spec_id' | translate }}</label>
       <input data-cy="plaSpecId" id="plaSpecId" type="url" [formControl]="plaSpecIdControl"
-        class="bg-[var(--theme-input-bg)] border dark:text-white text-gray-900 text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100"
-        [ngClass]="(plaSpecIdControl.invalid && plaSpecIdControl.touched) ? 'border-red-500' : 'border-[var(--theme-input-border)]'"
+        class="bg-surface-input border text-content text-sm rounded-lg block w-full p-3 focus:ring-primary-100 focus:border-primary-100"
+        [ngClass]="(plaSpecIdControl.invalid && plaSpecIdControl.touched) ? 'border-danger' : 'border-line-input'"
         placeholder="https://external-billing-engine.example.com"/>
       @if (plaSpecIdControl.invalid && plaSpecIdControl.touched) {
-        <p class="mt-1 text-xs text-red-600">{{ 'CREATE_OFFER._pla_spec_id_required' | translate }}</p>
+        <p class="mt-1 text-xs text-danger">{{ 'CREATE_OFFER._pla_spec_id_required' | translate }}</p>
       }
     </div>
   }
@@ -62,13 +62,13 @@
 >
     <div
       id="alert-additional-content-2"
-      class="relative p-4 mb-4 text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-red-900 dark:border-red-900 dark:text-white"
+      class="relative p-4 mb-4 text-danger border border-danger-border rounded-lg bg-danger-soft"
       role="alert"
     >
       <!-- Close button -->
       <button
         type="button"
-        class="absolute top-2 right-2 text-red-500 hover:text-red-700 dark:text-white dark:hover:text-gray-300"
+        class="absolute top-2 right-2 text-danger hover:text-content-secondary"
         (click)="showProcurementError = false"
         [attr.aria-label]="'COMMON._close' | translate"
       >
@@ -107,7 +107,7 @@
         <!-- Link under error message -->
         @if (gatewayUrl) {
         <p class="mt-2">
-          <a href="{{ gatewayUrl }}" target="_blank" class="text-sm font-medium text-red-600 hover:underline dark:text-red-300">
+          <a href="{{ gatewayUrl }}" target="_blank" class="text-sm font-medium text-danger hover:underline">
             {{ 'FORMS.PROCUREMENT_MODE._payment_gateway_link' | translate }}
           </a>
         </p>
