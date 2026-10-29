@@ -54,8 +54,10 @@
     <app-button type="button" (click)="closeCreateProdSpecModal()" variant="ghost" size="sm" prefixIcon="xmark" />
   </div>
 
+  @if (showCreateProdSpecModal) {
   <create-product-spec [embedded]="true" (created)="onProdSpecCreated($event)"
     (cancelled)="closeCreateProdSpecModal()" />
+  }
 </app-modal>
 
 <app-confirm-modal [visible]="showProdSpecChangeConfirm" [title]="'CREATE_OFFER._product_spec_change_title'"

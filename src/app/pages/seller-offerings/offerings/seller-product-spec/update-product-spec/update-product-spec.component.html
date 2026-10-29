@@ -567,8 +567,10 @@
     <app-button type="button" (click)="closeCreateResourceSpecModal()" variant="ghost" size="sm" prefixIcon="xmark" />
   </div>
 
+  @if (showCreateResourceSpecModal) {
   <app-resource-spec-form [embedded]="true" (created)="onResourceSpecCreated($event)"
     (cancelled)="closeCreateResourceSpecModal()" />
+  }
 </app-modal>
 
 <app-modal data-cy="createServiceSpecModal" [visible]="showCreateServiceSpecModal" width="max-w-7xl"
@@ -578,8 +580,10 @@
     <app-button type="button" (click)="closeCreateServiceSpecModal()" variant="ghost" size="sm" prefixIcon="xmark" />
   </div>
 
+  @if (showCreateServiceSpecModal) {
   <app-service-spec-form [embedded]="true" (created)="onServiceSpecCreated($event)"
     (cancelled)="closeCreateServiceSpecModal()" />
+  }
 </app-modal>
 
 <app-unsaved-changes-modal [canSaveDraft]="!loading && generalForm.valid" saveMode="update"
