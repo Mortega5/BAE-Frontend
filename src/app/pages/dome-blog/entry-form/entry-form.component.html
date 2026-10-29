@@ -108,7 +108,7 @@
                         <div class="mb-3 mt-2">
                           <input id="featuredImageFile" type="file" accept="image/*" (change)="onFeaturedImageSelected($event)"
                                  [disabled]="uploadingFeaturedImage"
-                                 class="block w-full text-sm text-content file:mr-4 file:rounded-lg file:border-0 file:bg-primary-100 file:px-4 file:py-2 file:text-white hover:file:bg-primary-50 disabled:opacity-60"/>
+                                 class="block w-full text-sm text-content file:mr-4 file:rounded-lg file:border-0 file:bg-primary-100 file:px-4 file:py-2 file:text-on-primary hover:file:bg-primary-50 disabled:opacity-60"/>
                           <p class="mt-2 text-xs text-content-muted">{{ 'BLOG_ENTRY._upload_hint' | translate }}</p>
                           @if(uploadingFeaturedImage){
                             <p class="mt-2 text-sm text-primary-100 dark:text-primary-50">{{ 'BLOG_ENTRY._uploading_featured_image' | translate }}</p>

@@ -34,7 +34,7 @@
 }
 
 .app-tile-card-media {
-  @apply relative overflow-hidden shrink-0 bg-gray-100 dark:bg-secondary-300;
+  @apply relative overflow-hidden shrink-0 bg-surface-muted;
 
   img {
     @apply w-full h-full object-cover transition-transform duration-300;

@@ -161,6 +161,8 @@ These remain as fixed colors because they are part of the component's design rat
 - The white knob of toggle switches.
 - Dark tooltips.
 - Translucent whites over the header bar and over primary chips (`white/10`, `white/20`).
+- Translucent whites used for hover or loading effects (`hover:bg-white/20`, `bg-white/60` in the paginated-table loading veil). Role colors have no alpha channel, so these stay as they are.
+- The neutral greys and white of the chatbot widget panel, which is a light surface in both modes. Its brand colors do come from the theme tokens.
 
 ## Known gaps
 
