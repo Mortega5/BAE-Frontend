@@ -93,7 +93,8 @@ describe('ApiServiceService', () => {
 
     await expectAsync(resultPromise).toBeResolvedTo({
       items: [{ id: 'catalog-1' }],
-      filteredPaginationToken: 'next-token'
+      filteredPaginationToken: 'next-token',
+      total: null
     });
   });
 
@@ -109,7 +110,8 @@ describe('ApiServiceService', () => {
 
     await expectAsync(resultPromise).toBeResolvedTo({
       items: [],
-      filteredPaginationToken: null
+      filteredPaginationToken: null,
+      total: null
     });
   });
 
@@ -125,7 +127,8 @@ describe('ApiServiceService', () => {
 
     await expectAsync(resultPromise).toBeResolvedTo({
       items: [],
-      filteredPaginationToken: null
+      filteredPaginationToken: null,
+      total: null
     });
   });
 
@@ -140,7 +143,8 @@ describe('ApiServiceService', () => {
 
     await expectAsync(resultPromise).toBeResolvedTo({
       items: [{ id: 'catalog-1' }],
-      filteredPaginationToken: null
+      filteredPaginationToken: null,
+      total: null
     });
   });
 
