@@ -4,7 +4,7 @@
 }
 
 .procure-steps-section {
-  background: #ebf0f7;
+  background: var(--theme-surface-muted);
 }
 
 .procure-steps-grid {
@@ -27,7 +27,7 @@
   min-height: 240px;
   padding: 24px;
   overflow: hidden;
-  background: #f7f9fd;
+  background: var(--theme-page-bg);
   border: 1px solid rgba(216, 218, 222, 0.6);
   border-radius: 16px;
 }
@@ -39,7 +39,7 @@
   z-index: 0;
   width: 120px;
   height: 120px;
-  color: #2d58a7;
+  color: rgb(var(--theme-primary-100));
   opacity: 0.08;
   transform: rotate(-15deg);
   pointer-events: none;
@@ -61,7 +61,7 @@
   font-size: 96px;
   line-height: 115px;
   letter-spacing: 1px;
-  background: linear-gradient(180deg, #1a3360 0%, #00add3 100%);
+  background: linear-gradient(180deg, var(--theme-primary-active) 0%, rgb(var(--theme-primary-50)) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -79,7 +79,7 @@
   font-weight: 600;
   font-size: 20px;
   line-height: 24px;
-  color: #0b1528;
+  color: var(--theme-default-text);
 }
 
 .procure-steps-cta {
@@ -99,8 +99,8 @@
   min-height: 48px;
   padding: 12px 28px;
   border-radius: 6px;
-  background: #2d58a7;
-  color: #ffffff;
+  background: rgb(var(--theme-primary-100));
+  color: var(--theme-primary-text);
   font-weight: 600;
   font-size: 16px;
   line-height: 24px;
@@ -110,8 +110,8 @@
 }
 
 .procure-steps-cta__button:hover {
-  background: #18b5d9;
-  color: #ffffff;
+  background: rgb(var(--theme-primary-50));
+  color: var(--theme-primary-text);
 }
 
 @media (min-width: 1024px) {
@@ -126,7 +126,7 @@
   width: 56px;
   height: 2px;
   align-self: center;
-  background: linear-gradient(90deg, #ebf0f7 0%, #00add3 50%, #ebf0f7 88.94%);
+  background: linear-gradient(90deg, var(--theme-surface-muted) 0%, rgb(var(--theme-primary-50)) 50%, var(--theme-surface-muted) 88.94%);
   border-radius: 0;
 }
 

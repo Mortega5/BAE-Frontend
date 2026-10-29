@@ -10,11 +10,11 @@
   <div class="browse-content mx-auto w-full max-w-[1440px] px-6 sm:px-10 lg:px-20 xl:px-[160px]">
 
     <div class="flex flex-col items-center text-center gap-8 pt-[100px] pb-16 sm:pt-[130px] sm:pb-20 lg:pt-[150px] lg:pb-24">
-      <h1 class="max-w-[900px] text-[36px] font-extrabold leading-[1.1] tracking-[0.5px] text-[#0b1220] sm:text-[48px] lg:text-[56px] xl:text-[64px] xl:leading-[77px]">
+      <h1 class="max-w-[900px] text-[36px] font-extrabold leading-[1.1] tracking-[0.5px] text-content sm:text-[48px] lg:text-[56px] xl:text-[64px] xl:leading-[77px]">
         {{ 'BROWSE.heroTitle1' | translate }}
-        <span class="text-[#3D71CC]">{{ 'BROWSE.heroAccent1' | translate }}</span>
+        <span class="text-primary-100">{{ 'BROWSE.heroAccent1' | translate }}</span>
         {{ 'BROWSE.heroTitle2' | translate }}
-        <span class="text-[#3D71CC]">{{ 'BROWSE.heroAccent2' | translate }}</span>
+        <span class="text-primary-100">{{ 'BROWSE.heroAccent2' | translate }}</span>
       </h1>
 
       <form class="w-full max-w-[700px] mt-4" (ngSubmit)="onSearch($event)">
@@ -23,12 +23,12 @@
             type="search"
             [(ngModel)]="searchQuery"
             name="searchQuery"
-            class="block w-full rounded-[16px] border border-line bg-surface py-4 pl-5 pr-14 text-[16px] text-content shadow-none placeholder:text-gray-400 hover:shadow-[0_3px_16px_rgba(0,0,0,0.25)] focus:ring-2 focus:ring-[#00ADD3] focus:border-[#00ADD3] focus:shadow-none transition-shadow outline-none sm:text-[17px]"
+            class="block w-full rounded-[16px] border border-line bg-surface py-4 pl-5 pr-14 text-[16px] text-content shadow-none placeholder:text-content-muted hover:shadow-[0_3px_16px_rgba(0,0,0,0.25)] focus:ring-2 focus:ring-primary-50 focus:border-primary-50 focus:shadow-none transition-shadow outline-none sm:text-[17px]"
             placeholder="{{ 'BROWSE.searchPlaceholder' | translate }}"
           />
           <button
             type="submit"
-            class="absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-lg text-content-muted hover:text-gray-600 transition-colors"
+            class="absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-lg text-content-muted hover:text-content-secondary transition-colors"
           >
             <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
@@ -40,17 +40,17 @@
 
     <div class="pb-16 sm:pb-20 lg:pb-24">
       <div class="flex flex-col items-center text-center gap-3 mb-12">
-        <h2 class="text-[28px] font-bold text-[#0b1220] sm:text-[32px] lg:text-[36px]">
+        <h2 class="text-[28px] font-bold text-content sm:text-[32px] lg:text-[36px]">
           {{ 'BROWSE.categoriesTitle' | translate }}
         </h2>
-        <p class="text-[16px] text-[#526179] sm:text-[18px]">
+        <p class="text-[16px] text-content-muted sm:text-[18px]">
           {{ 'BROWSE.categoriesSubtitle' | translate }}
         </p>
       </div>
 
       @if (loading) {
         <div class="flex justify-center py-12">
-          <svg class="h-8 w-8 animate-spin text-[#1f4fbf]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+          <svg class="h-8 w-8 animate-spin text-primary-100" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
@@ -60,10 +60,10 @@
           @for (category of categories; track category.id) {
             <button
               (click)="onCategoryClick(category)"
-              class="flex h-[72px] items-center gap-3 rounded-2xl border border-transparent bg-surface px-6 text-left shadow-[0_0_16px_rgba(45,88,167,0.24)] transition hover:border-[#2D58A7] hover:shadow-[0_0_22px_rgba(45,88,167,0.35)]"
+              class="flex h-[72px] items-center gap-3 rounded-2xl border border-transparent bg-surface px-6 text-left shadow-[0_0_16px_rgba(45,88,167,0.24)] transition hover:border-primary-100 hover:shadow-[0_0_22px_rgba(45,88,167,0.35)]"
             >
-              <fa-icon [icon]="iconForCategory(category.name)" class="text-[20px] text-[#2D58A7]"></fa-icon>
-              <span class="text-[15px] font-semibold text-[#0b1220] sm:text-[16px]">{{ category.name }}</span>
+              <fa-icon [icon]="iconForCategory(category.name)" class="text-[20px] text-primary-100"></fa-icon>
+              <span class="text-[15px] font-semibold text-content sm:text-[16px]">{{ category.name }}</span>
             </button>
           }
 
@@ -77,17 +77,17 @@
     @if (popularLoading || popularOffers.length > 0) {
       <div class="pb-16 sm:pb-20 lg:pb-24">
         <div class="flex flex-col items-center text-center gap-3 mb-12">
-          <h2 class="text-[28px] font-bold text-[#0b1220] sm:text-[32px] lg:text-[36px]">
+          <h2 class="text-[28px] font-bold text-content sm:text-[32px] lg:text-[36px]">
             {{ 'BROWSE.popularTitle' | translate }}
           </h2>
-          <p class="text-[16px] text-[#526179] sm:text-[18px]">
+          <p class="text-[16px] text-content-muted sm:text-[18px]">
             {{ 'BROWSE.popularSubtitle' | translate }}
           </p>
         </div>
 
         @if (popularLoading) {
           <div class="flex justify-center py-12">
-            <svg class="h-8 w-8 animate-spin text-[#1f4fbf]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg class="h-8 w-8 animate-spin text-primary-100" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -109,8 +109,8 @@
               @for (page of [popularPage]; track page) {
                 <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 popular-grid" [attr.data-direction]="popularDirection">
                   @for (offer of popularPages[page]; track offer.id) {
-                    <div class="popular-card flex h-[438px] flex-col rounded-[20px] border border-[#d5dace] bg-surface p-2">
-                      <div class="relative h-[170px] w-full shrink-0 overflow-hidden rounded-[14px] bg-[#e2e9f5] flex justify-center items-center">
+                    <div class="popular-card flex h-[438px] flex-col rounded-[20px] border border-line bg-surface p-2">
+                      <div class="relative h-[170px] w-full shrink-0 overflow-hidden rounded-[14px] bg-surface-muted flex justify-center items-center">
                         <div class="absolute inset-0 bg-cover bg-center opacity-75" [style.background-image]="'url(' + offer.imageUrl + ')'" style="filter: blur(20px);"></div>
                         <img
                           [src]="offer.imageUrl"
@@ -119,8 +119,8 @@
                         />
                       </div>
                       <div class="flex flex-1 flex-col gap-3 px-4 pt-6 pb-6">
-                        <h3 class="text-[20px] font-bold leading-[1.3] text-[#0b1220] line-clamp-2">{{ offer.name }}</h3>
-                        <p class="text-[15px] leading-[1.5] text-[#526179] line-clamp-3">{{ getShortDescription(offer.description) }}</p>
+                        <h3 class="text-[20px] font-bold leading-[1.3] text-content line-clamp-2">{{ offer.name }}</h3>
+                        <p class="text-[15px] leading-[1.5] text-content-muted line-clamp-3">{{ getShortDescription(offer.description) }}</p>
                         <app-button type="button" (click)="goToOffer(offer)" variant="primary" [outline]="true"
                           suffixIcon="arrow-right" class="mt-auto w-full">
                           {{ 'BROWSE.viewService' | translate }}

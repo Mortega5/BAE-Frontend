@@ -16,6 +16,8 @@ module.exports = {
         primary: {
           50: 'rgb(var(--theme-primary-50) / <alpha-value>)',   // Antes '#00add3'
           100: 'rgb(var(--theme-primary-100) / <alpha-value>)', // Antes '#2d58a7'
+          hover: 'var(--theme-primary-hover)',
+          active: 'var(--theme-primary-active)',
         },
         secondary: {
           50: 'rgb(var(--theme-secondary-50) / <alpha-value>)',  // Antes '#dde6f6'
@@ -24,6 +26,10 @@ module.exports = {
           300: 'rgb(var(--theme-secondary-300) / <alpha-value>)',// Antes '#182740'
           400: 'rgb(var(--theme-secondary-400) / <alpha-value>)',
           500: 'rgb(var(--theme-secondary-500) / <alpha-value>)'
+        },
+        hero: {
+          deep: 'var(--theme-hero-deep)',
+          mid: 'var(--theme-hero-mid)',
         },
         tertiary: {
           50: 'rgb(var(--theme-tertiary-50) / <alpha-value>)', //BG color for dark theme

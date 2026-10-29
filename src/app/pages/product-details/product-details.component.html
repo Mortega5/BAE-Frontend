@@ -886,8 +886,8 @@
 
     @if (!check_logged && isDomeTheme) {
     <div class="rounded-2xl bg-secondary-100 px-8 py-16 text-center mt-8">
-      <h2 class="text-[32px] font-bold text-white mb-3">{{ 'PRODUCT_DETAILS._ready_to_get_started' | translate }}</h2>
-      <p class="text-[16px] text-gray-300 mb-6">{{ 'PRODUCT_DETAILS._join_companies_using' | translate: { productName:
+      <h2 class="text-[32px] font-bold text-on-primary mb-3">{{ 'PRODUCT_DETAILS._ready_to_get_started' | translate }}</h2>
+      <p class="text-[16px] text-secondary-50 mb-6">{{ 'PRODUCT_DETAILS._join_companies_using' | translate: { productName:
         productOff?.name } }}</p>
       <a [href]="customersLink" target="_blank" rel="noopener noreferrer"
         class="inline-flex items-center px-8 py-3.5 rounded-lg bg-primary-100 text-on-primary text-[16px] font-medium hover:bg-primary-50 transition-colors">

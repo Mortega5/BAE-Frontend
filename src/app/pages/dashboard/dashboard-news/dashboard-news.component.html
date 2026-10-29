@@ -1,18 +1,18 @@
 @if (entries.length > 0) {
-<section class="bg-[#f5f7fb] py-24" data-cy="dashboard-news">
+<section class="bg-surface-muted py-24" data-cy="dashboard-news">
   <div class="max-w-[1180px] mx-auto px-6">
 
     <div class="flex flex-col gap-6 mb-16 md:flex-row md:items-start md:justify-between">
       <div>
-        <h2 class="text-[32px] md:text-[38px] lg:text-[42px] font-extrabold text-[#0f172a] leading-tight">
+        <h2 class="text-[32px] md:text-[38px] lg:text-[42px] font-extrabold text-content leading-tight">
           {{ 'DASHBOARD.news._title' | translate }}
         </h2>
-        <p class="mt-4 text-base md:text-lg text-slate-600">
+        <p class="mt-4 text-base md:text-lg text-content-secondary">
           {{ 'DASHBOARD.news._subtitle' | translate }}
         </p>
       </div>
 
-      <a [routerLink]="routeBase" class="flex items-center gap-2 text-blue-700 font-semibold" data-cy="dashboard-news-viewall">
+      <a [routerLink]="routeBase" class="flex items-center gap-2 text-primary-100 font-semibold" data-cy="dashboard-news-viewall">
         {{ 'DASHBOARD.news._viewAll' | translate }}
         <fa-icon [icon]="faArrowRight"></fa-icon>
       </a>
@@ -26,10 +26,10 @@
           <div class="flex flex-col gap-2">
             <h3 class="text-[20px] lg:text-[24px] font-bold leading-tight line-clamp-2 break-words">{{ entry.title }}</h3>
             @if (entryDate(entry); as date) {
-            <time class="text-[13px] text-[var(--form-hint-text)]" [attr.datetime]="date.toISOString()">{{ date | date:'dd MMM yyyy' }}</time>
+            <time class="text-[13px] text-content-muted" [attr.datetime]="date.toISOString()">{{ date | date:'dd MMM yyyy' }}</time>
             }
             <p class="text-[15px] leading-[24px] line-clamp-3">{{ excerpt(entry) }}</p>
-            <span class="mt-2 inline-flex items-center gap-2 font-semibold text-[var(--button-link-text)]">
+            <span class="mt-2 inline-flex items-center gap-2 font-semibold text-link">
               {{ 'DASHBOARD.news._readMore' | translate }}
               <fa-icon [icon]="faArrowRight"></fa-icon>
             </span>

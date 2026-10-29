@@ -99,6 +99,17 @@ Token values are defined in `src/styles.css` (light under `body`, dark under `.d
 
 Tokens: `--theme-<status>-text`, `--theme-<status>-bg`, `--theme-<status>-border`.
 
+### Brand-derived shades
+
+Computed from the theme's brand colors, so every theme gets its own value. Use them for hover/pressed states and dark hero surfaces.
+
+| Role | Class | Token |
+|---|---|---|
+| Hover on a primary fill | `bg-primary-hover` (also `border-primary-hover`) | `--theme-primary-hover` |
+| Pressed on a primary fill | `bg-primary-active` | `--theme-primary-active` |
+| Deep dark surface (hero, footer) | `bg-hero-deep` | `--theme-hero-deep` |
+| Mid dark surface | `bg-hero-mid` | `--theme-hero-mid` |
+
 ### Brand colors
 
 Brand colors keep using `primary-*` and `secondary-*`, which are already theme-driven. When a brand-colored title must turn white in dark mode, use `dark:text-content` rather than `dark:text-white`.
@@ -164,6 +175,10 @@ These remain as fixed colors because they are part of the component's design rat
 - Translucent whites used for hover or loading effects (`hover:bg-white/20`, `bg-white/60` in the paginated-table loading veil). Role colors have no alpha channel, so these stay as they are.
 - The neutral greys and white of the chatbot widget panel, which is a light surface in both modes. Its brand colors do come from the theme tokens.
 
+## Themes
+
+A theme only changes token values (`src/app/themes/*.theme.scss`). Components and templates never contain theme-specific colors or classes: if a page needs a different look in DOME, the token changes in `dome.theme.scss`, not the markup. DOME overrides the brand palette and its light-mode neutrals (`--theme-default-text`, `--theme-text-secondary`, `--form-hint-text`, `--theme-surface-muted`).
+
 ## Known gaps
 
-- DOME marketing pages (landing, DOME dashboard sections, browse, contact-us, about) still use fixed colors and will be migrated separately.
+- White with alpha (`text-white/65`, `border-white/25`…) and `ring-white` over dark surfaces stay as they are, because role colors have no alpha channel.

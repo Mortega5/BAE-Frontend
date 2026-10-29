@@ -95,6 +95,11 @@ body {
   --theme-info-text: rgb(var(--theme-primary-100));
   --theme-info-bg: color-mix(in srgb, rgb(var(--theme-primary-100)) 8%, transparent);
   --theme-info-border: color-mix(in srgb, rgb(var(--theme-primary-100)) 25%, transparent);
+  /* Brand-derived shades, so every theme gets its own hover/pressed and dark-hero tones. */
+  --theme-primary-hover: color-mix(in srgb, rgb(var(--theme-primary-100)) 80%, black);
+  --theme-primary-active: color-mix(in srgb, rgb(var(--theme-primary-100)) 60%, black);
+  --theme-hero-deep: color-mix(in srgb, rgb(var(--theme-secondary-100)) 50%, black);
+  --theme-hero-mid: color-mix(in srgb, rgb(var(--theme-secondary-100)) 80%, black);
   /* Offer page (product-details): body copy, secondary/meta text, emphasized text,
      the tinted icon chips and their hover, and placeholder/border tones. */
   --product-details-body-text: #526179;

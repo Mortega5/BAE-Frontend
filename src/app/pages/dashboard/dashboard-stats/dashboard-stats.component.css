@@ -3,7 +3,7 @@
 }
 
 .stats-section {
-  background: #ffffff;
+  background: var(--card-bg);
 }
 
 .stats-shell {
@@ -26,7 +26,7 @@
   font-size: 56px;
   line-height: 67px;
   letter-spacing: 0;
-  color: #111827;
+  color: var(--theme-default-text);
 }
 
 .stats-subtitle {
@@ -38,7 +38,7 @@
   font-size: 24px;
   line-height: 29px;
   text-align: center;
-  color: #324153;
+  color: var(--theme-text-secondary);
 }
 
 .stats-grid {
@@ -54,7 +54,7 @@
   min-height: 182px;
   padding: 24px 24px 16px;
   gap: 8px;
-  background: #f7f9fd;
+  background: var(--theme-page-bg);
   border-radius: 16px;
   overflow: hidden;
   transition: transform 0.35s ease, box-shadow 0.35s ease;
@@ -64,7 +64,7 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, #2d58a7 0%, #6f8fc9 100%);
+  background: linear-gradient(135deg, rgb(var(--theme-primary-100)) 0%, color-mix(in srgb, rgb(var(--theme-primary-100)) 60%, white) 100%);
   opacity: 0;
   transition: opacity 0.35s ease;
   z-index: 0;
@@ -81,7 +81,7 @@
 
 .stats-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 12px 40px rgba(45, 88, 167, 0.25);
+  box-shadow: 0 12px 40px rgb(var(--theme-primary-100) / 0.25);
 }
 
 .stats-number {
@@ -94,7 +94,7 @@
   font-size: 80px;
   line-height: 96px;
   letter-spacing: 1px;
-  color: #2d58a7;
+  color: rgb(var(--theme-primary-100));
   transition: color 0.3s ease;
 }
 
@@ -105,13 +105,13 @@
   font-weight: 400;
   font-size: 16px;
   line-height: 19px;
-  color: #324153;
+  color: var(--theme-text-secondary);
   transition: color 0.3s ease;
 }
 
 .stats-card:hover .stats-number,
 .stats-card:hover .stats-text {
-  color: #ffffff;
+  color: var(--theme-primary-text);
 }
 
 @media (max-width: 1279px) {
