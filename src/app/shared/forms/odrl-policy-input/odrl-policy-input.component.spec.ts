@@ -1,6 +1,6 @@
+import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { OdrlPolicyInputComponent } from './odrl-policy-input.component';
 
@@ -18,6 +18,16 @@ describe('OdrlPolicyInputComponent', () => {
   let component: TestOdrlPolicyInputComponent;
   let fixture: ComponentFixture<TestOdrlPolicyInputComponent>;
   const el = (selector: string) => fixture.nativeElement.querySelector(selector) as HTMLElement | null;
+  /** The modal is moved to <body>, so it is not inside the fixture. */
+  const inBody = (selector: string) => document.body.querySelector(selector) as HTMLElement | null;
+  const editorChanged = (policy: unknown) =>
+    inBody('odrl-policy-editor')!.dispatchEvent(new CustomEvent('policy-changed', { detail: { policy } }));
+
+  async function open(text = '{"@type":"odrl:Policy"}'): Promise<void> {
+    component.writeValue(text);
+    await component.openEditor();
+    fixture.detectChanges();
+  }
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
@@ -26,13 +36,34 @@ describe('OdrlPolicyInputComponent', () => {
 
     fixture = TestBed.createComponent(TestOdrlPolicyInputComponent);
     component = fixture.componentInstance;
+    component.label = 'My policy';
+    component.inputId = 'policy';
     fixture.detectChanges();
   });
 
-  it('should create with the raw textarea shown', () => {
+  it('should create with the textarea shown and no modal', () => {
     expect(component).toBeTruthy();
     expect(el('textarea')).not.toBeNull();
-    expect(el('odrl-policy-editor')).toBeNull();
+    expect(inBody('odrl-policy-editor')).toBeNull();
+  });
+
+  describe('label row', () => {
+    it('puts the open-editor button on the same row as the title', () => {
+      const row = el('label')!.parentElement!;
+
+      expect(row.contains(el('app-button'))).toBeTrue();
+      expect(row.classList).toContain('items-center');
+      expect(row.classList).toContain('justify-between');
+    });
+
+    it('points the label at the textarea and marks a required field', () => {
+      component.required = true;
+      fixture.detectChanges();
+
+      expect(el('label')!.getAttribute('for')).toBe('policy');
+      expect(el('textarea')!.id).toBe('policy');
+      expect(el('label')!.textContent).toContain('*');
+    });
   });
 
   it('writeValue shows the text, and stringifies an object', () => {
@@ -53,16 +84,6 @@ describe('OdrlPolicyInputComponent', () => {
     component.onInput('{"b":2}');
 
     expect(onChange).toHaveBeenCalledWith('{"b":2}');
-  });
-
-  it('marks the control as touched on blur and when going back to raw', () => {
-    const onTouched = jasmine.createSpy('onTouched');
-    component.registerOnTouched(onTouched);
-
-    component.onBlur();
-    component.showRaw();
-
-    expect(onTouched).toHaveBeenCalledTimes(2);
   });
 
   describe('JSON validity', () => {
@@ -87,73 +108,119 @@ describe('OdrlPolicyInputComponent', () => {
     });
   });
 
-  describe('visual editor', () => {
-    it('loads the bundle, passes the parsed policy and switches to the editor', async () => {
-      component.writeValue('{"@type":"odrl:Policy"}');
-
-      await component.showEditor();
-      fixture.detectChanges();
+  describe('visual editor modal', () => {
+    it('loads the bundle and opens the modal on <body> with the parsed policy', async () => {
+      await open();
 
       expect(component.loadCalls).toBe(1);
-      expect(component.mode).toBe('visual');
+      expect(component.editorOpen).toBeTrue();
       expect(component.editorPolicy).toEqual({ '@type': 'odrl:Policy' });
-      const editor = el('odrl-policy-editor')!;
+      const editor = inBody('odrl-policy-editor')!;
       expect(editor).not.toBeNull();
-      expect(el('textarea')).toBeNull();
-      // Nothing may go to a PAP backend.
+      // Moved out of the form so no ancestor's overflow/transform can clip it.
+      expect(fixture.nativeElement.contains(editor)).toBeFalse();
+      expect(document.body.contains(editor)).toBeTrue();
+      // The textarea stays in the form behind the modal.
+      expect(el('textarea')).not.toBeNull();
+    });
+
+    it('runs the editor with every PAP capability off', async () => {
+      await open();
+
+      const editor = inBody('odrl-policy-editor')!;
       for (const capability of ['load', 'save', 'validate', 'templates', 'mappings']) {
         expect(editor.getAttribute(capability)).toBe('none');
       }
       expect(editor.hasAttribute('api-base-url')).toBeFalse();
     });
 
-    it('writes edits from the editor back as JSON text', async () => {
+    it('keeps edits in a draft and only writes them on Apply', async () => {
       const onChange = jasmine.createSpy('onChange');
       component.registerOnChange(onChange);
-      await component.showEditor();
-      fixture.detectChanges();
+      await open('{"a":0}');
 
-      el('odrl-policy-editor')!.dispatchEvent(new CustomEvent('policy-changed', { detail: { policy: { a: 1 } } }));
+      editorChanged({ a: 1 });
+      expect(component.value).toBe('{"a":0}');
+      expect(onChange).not.toHaveBeenCalled();
+
+      component.applyEditor();
+      fixture.detectChanges();
 
       const expected = JSON.stringify({ a: 1 }, null, 2);
       expect(component.value).toBe(expected);
       expect(onChange).toHaveBeenCalledWith(expected);
+      expect(component.editorOpen).toBeFalse();
+      expect(inBody('odrl-policy-editor')).toBeNull();
+      expect((el('textarea') as HTMLTextAreaElement).value).toBe(expected);
+    });
+
+    it('discards the draft on Cancel', async () => {
+      const onChange = jasmine.createSpy('onChange');
+      component.registerOnChange(onChange);
+      await open('{"a":0}');
+      editorChanged({ a: 1 });
+
+      component.cancelEditor();
+      fixture.detectChanges();
+
+      expect(component.value).toBe('{"a":0}');
+      expect(onChange).not.toHaveBeenCalled();
+      expect(inBody('odrl-policy-editor')).toBeNull();
+    });
+
+    it('closes on Apply without touching the value when nothing was edited', async () => {
+      const onChange = jasmine.createSpy('onChange');
+      component.registerOnChange(onChange);
+      await open('{"a":0}');
+
+      component.applyEditor();
+
+      expect(component.value).toBe('{"a":0}');
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it('marks the control as touched when the modal closes', async () => {
+      const onTouched = jasmine.createSpy('onTouched');
+      component.registerOnTouched(onTouched);
+      await open();
+
+      component.cancelEditor();
+
+      expect(onTouched).toHaveBeenCalled();
     });
 
     it('ignores a policy-changed event without a policy', async () => {
-      component.writeValue('{"a":1}');
-      await component.showEditor();
+      await open('{"a":0}');
 
       component.onPolicyChanged(new CustomEvent('policy-changed', { detail: {} }));
+      component.applyEditor();
 
-      expect(component.value).toBe('{"a":1}');
+      expect(component.value).toBe('{"a":0}');
     });
 
-    it('shows the edited JSON again when going back to raw', async () => {
-      await component.showEditor();
-      fixture.detectChanges();
-      el('odrl-policy-editor')!.dispatchEvent(new CustomEvent('policy-changed', { detail: { policy: { a: 1 } } }));
-
-      component.showRaw();
-      fixture.detectChanges();
-
-      expect((el('textarea') as HTMLTextAreaElement).value).toBe(JSON.stringify({ a: 1 }, null, 2));
-    });
-
-    it('stays on the textarea and reports it when the bundle cannot be loaded', async () => {
+    it('stays closed and reports it when the bundle cannot be loaded', async () => {
       component.failLoad = true;
 
-      await component.showEditor();
+      await component.openEditor();
       fixture.detectChanges();
 
-      expect(component.mode).toBe('raw');
+      expect(component.editorOpen).toBeFalse();
       expect(component.editorLoadFailed).toBeTrue();
       expect(fixture.nativeElement.textContent).toContain('FORMS.ODRL_POLICY._editor_load_failed');
+    });
+
+    it('removes the modal from <body> when the component is destroyed while open', async () => {
+      await open();
+      expect(inBody('odrl-policy-editor')).not.toBeNull();
+
+      fixture.destroy();
+
+      expect(inBody('odrl-policy-editor')).toBeNull();
     });
   });
 
   describe('readonly', () => {
-    it('hides the editor switch and makes the textarea read-only', () => {
+    it('hides the open button and makes the textarea read-only', () => {
       component.readonly = true;
       fixture.detectChanges();
 
@@ -164,9 +231,9 @@ describe('OdrlPolicyInputComponent', () => {
     it('does not open the editor when disabled by the form', async () => {
       component.setDisabledState(true);
 
-      await component.showEditor();
+      await component.openEditor();
 
-      expect(component.mode).toBe('raw');
+      expect(component.editorOpen).toBeFalse();
       expect(component.loadCalls).toBe(0);
     });
   });
@@ -175,7 +242,7 @@ describe('OdrlPolicyInputComponent', () => {
 @Component({
   standalone: true,
   imports: [OdrlPolicyInputComponent, ReactiveFormsModule],
-  template: `<app-odrl-policy-input [formControl]="control" />`,
+  template: `<app-odrl-policy-input [formControl]="control" label="Policy" />`,
 })
 class HostComponent {
   control = new FormControl('{"x":1}');

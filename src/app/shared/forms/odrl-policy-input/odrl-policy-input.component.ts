@@ -1,25 +1,35 @@
-import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, Component, forwardRef, inject, Input } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, Component, ElementRef, forwardRef, inject, Input, OnDestroy, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FaIconComponent } from '@fortawesome/angular-fontawesome';
+import { IconDefinition } from '@fortawesome/fontawesome-svg-core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../../button/button.component';
+import { ModalComponent } from '../../modal/modal.component';
 
-type EditorMode = 'raw' | 'visual';
-
-/** An ODRL policy as raw JSON text, with a switch to the visual `<odrl-policy-editor>` from
- * `@seamware/odrl-policy-editor`. The form value is always the JSON text; the editor runs with every
- * PAP capability off, so nothing is loaded, saved or validated against a backend. The editor
- * bundle (it carries React) is only fetched the first time it is opened. */
+/** An ODRL policy as raw JSON text, with a button next to the title that opens the visual
+ * `<odrl-policy-editor>` from `@seamware/odrl-policy-editor` in a modal. The form value is always the
+ * JSON text and the modal edits a draft that only reaches it on Apply. The editor runs with every
+ * PAP capability off, so nothing is loaded, saved or validated against a backend. Its bundle (it
+ * carries React) is only fetched the first time the modal is opened.
+ *
+ * Renders its own label row, because the button has to sit on the title's line; dynamic-form skips
+ * its generic label for this field type. */
 @Component({
   selector: 'app-odrl-policy-input',
   standalone: true,
-  imports: [TranslateModule, ButtonComponent],
+  imports: [TranslateModule, ButtonComponent, ModalComponent, FaIconComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './odrl-policy-input.component.html',
   providers: [
     { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(() => OdrlPolicyInputComponent), multi: true },
   ],
 })
-export class OdrlPolicyInputComponent implements ControlValueAccessor {
+export class OdrlPolicyInputComponent implements ControlValueAccessor, OnDestroy {
+  @Input() label = '';
+  @Input() required = false;
+  @Input() icon?: IconDefinition;
+  /** Id of the textarea, so the label's `for` points at it (not bound as `id`: that is the host's own attribute). */
+  @Input() inputId?: string;
   @Input() rows = 8;
   @Input() placeholder = '';
   @Input() readonly = false;
@@ -27,16 +37,28 @@ export class OdrlPolicyInputComponent implements ControlValueAccessor {
 
   value = '';
   isDisabled = false;
-  mode: EditorMode = 'raw';
+  editorOpen = false;
   loadingEditor = false;
   editorLoadFailed = false;
-  /** Policy the editor starts from; set when it is opened. Edits come back through `(policy-changed)`. */
+  /** Policy the editor starts from, taken from the text when the modal opens. */
   editorPolicy?: Record<string, unknown>;
   editorTheme: 'light' | 'dark' = 'light';
+  /** Last policy the editor reported; committed to the control on Apply, dropped on Cancel. */
+  private draft: string | null = null;
+  private portalElement?: HTMLElement;
 
   private readonly cdr = inject(ChangeDetectorRef);
   private onChange: (v: string) => void = () => { };
   private onTouched: () => void = () => { };
+
+  /** The modal's markup is moved to <body> once rendered: an ancestor with `overflow`, `transform`
+   * or `filter` would otherwise clip or re-anchor its `fixed` backdrop. */
+  @ViewChild('portal') set portal(ref: ElementRef<HTMLElement> | undefined) {
+    this.portalElement = ref?.nativeElement;
+    if (this.portalElement && this.portalElement.parentElement !== document.body) {
+      document.body.appendChild(this.portalElement);
+    }
+  }
 
   get locked(): boolean {
     return this.readonly || this.isDisabled;
@@ -69,7 +91,7 @@ export class OdrlPolicyInputComponent implements ControlValueAccessor {
     this.onTouched();
   }
 
-  async showEditor(): Promise<void> {
+  async openEditor(): Promise<void> {
     if (!this.canOpenEditor) return;
     this.loadingEditor = true;
     this.editorLoadFailed = false;
@@ -77,7 +99,8 @@ export class OdrlPolicyInputComponent implements ControlValueAccessor {
       await this.loadEditor();
       this.editorPolicy = this.parse(this.value);
       this.editorTheme = document.documentElement.classList.contains('dark') ? 'dark' : 'light';
-      this.mode = 'visual';
+      this.draft = null;
+      this.editorOpen = true;
     } catch {
       this.editorLoadFailed = true;
     } finally {
@@ -86,21 +109,37 @@ export class OdrlPolicyInputComponent implements ControlValueAccessor {
     }
   }
 
-  showRaw(): void {
-    this.mode = 'raw';
-    this.onTouched();
+  applyEditor(): void {
+    if (this.draft !== null) {
+      this.value = this.draft;
+      this.onChange(this.value);
+    }
+    this.closeEditor();
+  }
+
+  cancelEditor(): void {
+    this.closeEditor();
   }
 
   onPolicyChanged(event: Event): void {
     const policy = (event as CustomEvent<{ policy: unknown }>).detail?.policy;
     if (policy == null) return;
-    this.value = JSON.stringify(policy, null, 2);
-    this.onChange(this.value);
+    this.draft = JSON.stringify(policy, null, 2);
+  }
+
+  ngOnDestroy(): void {
+    this.portalElement?.remove();
   }
 
   /** Registers `<odrl-policy-editor>`; a separate method so tests can skip loading the bundle. */
   protected loadEditor(): Promise<unknown> {
     return import('@seamware/odrl-policy-editor');
+  }
+
+  private closeEditor(): void {
+    this.editorOpen = false;
+    this.draft = null;
+    this.onTouched();
   }
 
   private parse(text: string): Record<string, unknown> | undefined {

@@ -248,4 +248,16 @@ describe('DynamicFormComponent', () => {
     expect(fixture.nativeElement.querySelector('app-odrl-policy-input')).not.toBeNull();
     expect(fixture.nativeElement.querySelector('[data-cy="policy-field-raw"]')).not.toBeNull();
   });
+
+  it('should not draw the generic label for an odrlPolicy field, which has its own label row', () => {
+    const fields: FormField[] = [{ name: 'policy', label: 'Policy', type: 'odrlPolicy', required: true }];
+    component.fields = fields;
+    component.formGroup = buildForm(fields);
+    fixture.detectChanges();
+
+    // One label only: the component's own, with the button on the same row.
+    const labels = fixture.nativeElement.querySelectorAll('label');
+    expect(labels.length).toBe(1);
+    expect(labels[0].parentElement.querySelector('app-button')).not.toBeNull();
+  });
 });
