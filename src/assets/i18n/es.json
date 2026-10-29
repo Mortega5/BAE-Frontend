@@ -3159,6 +3159,9 @@
     "MULTIPLE_SELECT": {
       "_add_items": "Añadir..."
     },
+    "CODE_EDITOR": {
+      "_format": "Formatear"
+    },
     "ATTACHMENT": {
       "_drop_label": "Suelta un archivo para adjuntarlo o",
       "_select_label": "selecciona un archivo.",

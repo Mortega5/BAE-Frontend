@@ -4,3 +4,10 @@
   [class.pointer-events-none]="readonly || isDisabled" [class.opacity-60]="readonly || isDisabled"
   [style.min-height]="minHeight" [style.max-height]="maxHeight">
 </div>
+@if (formatButton && language === 'json') {
+<div class="flex justify-end mt-1">
+  <app-button type="button" variant="ghost" size="sm" prefixIcon="code" class="format-button"
+    [class.format-button-ready]="canFormat" [disabled]="!canFormat"
+    (click)="format()">{{ 'FORMS.CODE_EDITOR._format' | translate }}</app-button>
+</div>
+}

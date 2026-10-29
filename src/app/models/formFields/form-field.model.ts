@@ -208,6 +208,10 @@ export interface CodeFormField extends BaseFormField {
   placeholder?: string;
   lineNumbers?: boolean;
   theme?: CodeTheme;
+  /** JSON only: pretty-prints what's pasted when the resulting document is valid JSON; anything else pastes untouched. */
+  formatOnPaste?: boolean;
+  /** JSON only: shows a Format button, disabled while the content isn't well-formed JSON. */
+  formatButton?: boolean;
 }
 
 export interface AttachmentFormField extends BaseFormField {
