@@ -167,4 +167,3 @@ These remain as fixed colors because they are part of the component's design rat
 ## Known gaps
 
 - DOME marketing pages (landing, DOME dashboard sections, browse, contact-us, about) still use fixed colors and will be migrated separately.
-- The offer card's compliance-level color scale has no tokens yet.

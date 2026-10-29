@@ -247,10 +247,8 @@
 
             <div class="h-fit overflow-x-hidden flex items-center flex-wrap">
               @if(complianceLevel=='NL'){
-              <a class="text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded-md mb-2 mr-2"
-                [ngClass]="complianceLevel == 'NL' ? 'bg-red-200 text-danger' : complianceLevel == 'BL' ? 'bg-orange-200 text-orange-700' : complianceLevel == 'P' ? 'bg-yellow-200 text-yellow-700' : 'bg-green-200 text-success'">
-                <fa-icon [icon]="faAtom" class="mr-2"
-                  [ngClass]="complianceLevel == 'NL' ? 'text-danger' : complianceLevel == 'BL' ? 'text-orange-700' : complianceLevel == 'P' ? 'text-yellow-700' : 'text-success'"></fa-icon>
+              <a class="text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded-md mb-2 mr-2 bg-danger-soft text-danger">
+                <fa-icon [icon]="faAtom" class="mr-2 text-danger"></fa-icon>
                 {{ 'CARD._no_level' | translate }}
               </a>
               }@else if(complianceLevel=='BL'){
