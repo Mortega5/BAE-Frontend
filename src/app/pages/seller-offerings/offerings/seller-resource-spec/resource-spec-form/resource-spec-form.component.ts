@@ -225,7 +225,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
     this.generalForm.controls['description'].setValue(this.res.description);
     this.generalForm.controls['baseTemplate'].setValue(this.res['@baseType'] ? this.res['@type'] : '');
     this.generalForm.controls['lifecycleStatus'].setValue(this.res.lifecycleStatus);
-    this.prodChars = this.res.resourceSpecCharacteristic;
+    this.prodChars = this.res.resourceSpecCharacteristic ?? [];
     this.characteristicItems = this.buildCharacteristicItems();
     this.loadedCharsSnapshot = JSON.stringify(this.prodChars ?? []);
 
@@ -242,8 +242,12 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
         this.resSpecService.getSoftwareSupportPackage(packageId)
           .subscribe(pkg => {
             const pkgChars = (pkg.resourceCharacteristic ?? []) as SoftwareCharacteristic[];
-            this.originalDeploymentChar = pkgChars.find(c => c.valueType === 'deployment') ?? null;
-            this.deploymentInitialValue = this.originalDeploymentChar?.value as SoftwareDeploymentDefinition | undefined;
+            const found = pkgChars.find(c => c.valueType?.toLowerCase() === 'deployment');
+            // The broker may round-trip the value as a one-element array.
+            const raw = (found as any)?.value;
+            const value = Array.isArray(raw) ? raw[0] : raw;
+            this.originalDeploymentChar = found ? { ...found, value } as SoftwareCharacteristic : null;
+            this.deploymentInitialValue = value as SoftwareDeploymentDefinition | undefined;
           });
       }
     }
@@ -313,6 +317,11 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
 
   onDeploymentFormReady(form: FormGroup): void {
     this.deploymentForm = form;
+    // The step is destroyed when the user moves away, so keep the latest value to re-seed the next instance.
+    form.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      if (this.deploymentForm === form) this.deploymentInitialValue = structuredClone(form.getRawValue());
+    });
+    if (form.pristine && this.deploymentInitialValue && !this.isUpdate) form.markAsDirty();
   }
 
   private getArtifactType(deployment: SoftwareDeploymentDefinition): string {
