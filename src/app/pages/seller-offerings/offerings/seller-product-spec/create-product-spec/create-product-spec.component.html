@@ -530,8 +530,7 @@
 <app-unsaved-changes-modal [canSaveDraft]="canSaveDraft" [blockUnload]="leaveNeedsConfirmation" />
 
 @if(itemModal.type){
-<div (click)="closeItemModal()" class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-overlay backdrop-blur-sm">
-  <app-card variant="modal" class="w-full max-w-[680px] max-h-[90vh]" (click)="$event.stopPropagation()">
+<app-modal [visible]="true" width="max-w-[680px] max-h-[90vh]" (closed)="closeItemModal()">
     <div appCardHeader class="flex justify-between items-start">
       <h2 class="text-2xl font-bold text-content">
         @if(itemModal.type === 'feature'){ {{ 'CREATE_PROD_SPEC._modal_title_feature' | translate }} }
@@ -599,13 +598,11 @@
         @else { {{ 'CREATE_PROD_SPEC._save_usecase' | translate }} }
       </app-button>
     </div>
-  </app-card>
-</div>
+  </app-modal>
 }
 
 @if(faqDeleteIdx !== null){
-<div (click)="cancelDeleteFaq()" class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-overlay backdrop-blur-sm">
-  <app-card variant="modal" class="w-full max-w-[480px]" (click)="$event.stopPropagation()">
+<app-modal [visible]="true" width="max-w-[480px]" (closed)="cancelDeleteFaq()">
     <div class="flex justify-end">
       <app-button type="button" (click)="cancelDeleteFaq()" variant="ghost" size="sm" prefixIcon="xmark" />
     </div>
@@ -627,6 +624,5 @@
           'CREATE_PROD_SPEC._confirm' | translate }}</app-button>
       </div>
     </div>
-  </app-card>
-</div>
+  </app-modal>
 }
