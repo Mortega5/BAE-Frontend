@@ -1,5 +1,4 @@
-<div class="fixed inset-0 z-[55] bg-overlay flex items-center justify-center p-4" (click)="cancel()">
-  <app-card data-cy="pricePlanCharacteristicsModal" variant="modal" class="w-full max-w-3xl" (click)="$event.stopPropagation()">
+<app-modal [visible]="true" width="max-w-3xl" (closed)="cancel()">
     <div appCardHeader class="flex justify-between items-start">
       <div>
         <h2 class="text-2xl font-bold text-content">
@@ -116,5 +115,4 @@
         {{ 'CREATE_OFFER._save_characteristics' | translate }}
       </app-button>
     </div>
-  </app-card>
-</div>
+</app-modal>

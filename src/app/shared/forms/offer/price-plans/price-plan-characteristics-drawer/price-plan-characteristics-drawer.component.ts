@@ -2,7 +2,7 @@ import { Component, EventEmitter, HostListener, Input, OnInit, Output } from '@a
 import { NgClass } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
-import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { ItemCardComponent } from 'src/app/shared/item-card/item-card.component';
 import {
   applyCharacteristicConstraints,
@@ -32,7 +32,7 @@ interface PricePlanCharacteristicSelection extends CharacteristicConstraintValue
     NgClass,
     TranslateModule,
     ButtonComponent,
-    ContentCardComponent,
+    ModalComponent,
     ItemCardComponent
   ],
   styleUrl: './price-plan-characteristics-drawer.component.css'

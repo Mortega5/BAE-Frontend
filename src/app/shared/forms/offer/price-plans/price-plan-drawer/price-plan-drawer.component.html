@@ -176,10 +176,6 @@
     </app-card>
 </app-drawer>
 
-  <!-- Overlay when child drawer is open - covers entire viewport and dims parent -->
-  <div *ngIf="showPriceComponentDrawer || showTierPricingDrawer"
-       class="fixed inset-0 bg-overlay pointer-events-none z-[51]"></div>
-
     <!-- Drawer para editar Price Components -->
     <app-price-component-drawer *ngIf="showPriceComponentDrawer"
                                 [component]="editingComponent"
