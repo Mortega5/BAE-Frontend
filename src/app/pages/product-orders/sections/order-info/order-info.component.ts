@@ -228,15 +228,6 @@ export class OrderInfoComponent implements OnInit, AfterViewInit, OnDestroy {
       })
   }
 
-  @HostListener('document:click')
-  onClick() {
-    if (this.showOrderDetails == true) {
-      this.showOrderDetails = false;
-      this.cdr.detectChanges();
-    }
-    //initFlowbite();
-  }
-
   openModal(action: string, item: any) {
     this.actionType = action;
     this.selectedItem = item;

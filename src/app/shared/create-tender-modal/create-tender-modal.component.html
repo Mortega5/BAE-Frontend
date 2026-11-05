@@ -1,4 +1,5 @@
-<app-modal [visible]="isOpen" width="lg:w-3/4 max-w-6xl max-h-[90vh]" (closed)="closeTenderModal()">
+@if (isOpen) {
+<app-modal [visible]="true" width="lg:w-3/4 max-w-6xl max-h-[90vh]" (closed)="closeTenderModal()">
     <div appCardHeader class="flex w-full flex-col gap-4" (click)="closeTenderFilterDropdowns()">
       <div class="flex items-center justify-between gap-3">
         <h2 class="text-2xl font-bold text-primary-100 dark:text-content">
@@ -285,6 +286,7 @@
       </app-stepper>
     </div>
 </app-modal>
+}
 
 <app-confirm-modal [visible]="showGenericConfirm" [title]="genericConfirmTitle" [message]="genericConfirmMessage"
   [confirmLabel]="genericConfirmButtonText" [confirmVariant]="genericConfirmVariant"

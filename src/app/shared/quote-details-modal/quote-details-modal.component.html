@@ -1,4 +1,5 @@
-<app-modal [visible]="isOpen" width="md:w-3/4 lg:w-1/2 max-h-[90vh]" (closed)="closeModal()">
+@if (isOpen) {
+<app-modal [visible]="true" width="md:w-3/4 lg:w-1/2 max-h-[90vh]" (closed)="closeModal()">
     <div appCardHeader class="flex items-center justify-between gap-3">
       <h2 class="text-2xl font-bold text-primary-100 dark:text-content">{{ getModalTitle() | translate }}</h2>
       <div class="flex items-center gap-3 shrink-0">
@@ -204,11 +205,13 @@
       }
     </div>
 </app-modal>
+}
 
 <app-chat-modal [isOpen]="showChatModal" [quoteId]="quoteId" (close)="closeChatModal()"></app-chat-modal>
 
 <!-- Expected date -->
-<app-modal [visible]="showExpectedDatePicker" width="max-w-sm" (closed)="showExpectedDatePicker = false">
+@if (showExpectedDatePicker) {
+<app-modal [visible]="true" width="max-w-sm" (closed)="showExpectedDatePicker = false">
     <h3 appCardHeader class="text-lg font-bold text-content">{{ 'QUOTES.DETAILS._expected_date_title' | translate }}</h3>
     <label for="quote-expected-date" class="mb-2 block text-sm text-content-muted">{{ 'QUOTES.DETAILS._expected_date_help' | translate }}</label>
     <input id="quote-expected-date" type="date" [(ngModel)]="selectedExpectedDate" [min]="minDate"
@@ -218,9 +221,11 @@
       <app-button type="button" [disabled]="!selectedExpectedDate" (click)="saveExpectedDate()">{{ 'QUOTES.DETAILS._save' | translate }}</app-button>
     </div>
 </app-modal>
+}
 
 <!-- Broadcast message (coordinator) -->
-<app-modal [visible]="showBroadcastModal" width="max-w-md" (closed)="closeBroadcastModal()">
+@if (showBroadcastModal) {
+<app-modal [visible]="true" width="max-w-md" (closed)="closeBroadcastModal()">
     <h3 appCardHeader class="text-lg font-bold text-content">{{ 'QUOTES.DETAILS._broadcast' | translate }}</h3>
     <label for="quote-broadcast" class="mb-2 block text-sm text-content-muted">{{ 'QUOTES.DETAILS._broadcast_modal_help' | translate }}</label>
     <textarea id="quote-broadcast" rows="4" [(ngModel)]="broadcastMessage"
@@ -233,6 +238,7 @@
       </app-button>
     </div>
 </app-modal>
+}
 
 <app-confirm-modal [visible]="showConfirmDialog" [title]="confirmDialogTitle" [message]="confirmDialogMessage"
   [confirmLabel]="confirmDialogButtonText" [confirmVariant]="confirmDialogVariant"

@@ -17,10 +17,8 @@
 
 
 <!-- ORDER DETAILS modal -->
-@if (showOrderDetails){
-<div id="order-details-modal" [ngClass]="showOrderDetails ? 'backdrop-blur-sm': ''" tabindex="-1" aria-hidden="true"
-  class="flex justify-center overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%)] max-h-full shadow-2xl">
-  <app-card variant="modal" class="w-full md:w-3/4 lg:w-1/2 max-h-[90vh]" (click)="$event.stopPropagation();">
+@if (showOrderDetails) {
+<app-modal [visible]="true" width="md:w-3/4 lg:w-1/2 max-h-[90vh]" (closed)="showOrderDetails=false">
     <div appCardHeader class="flex items-center justify-between gap-3">
       <div>
         <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 dark:text-content">
@@ -198,9 +196,7 @@
       </div>
       }
     </div>
-  </app-card>
-</div>
-
+</app-modal>
 }
 
 <!-- Confirm Modal -->

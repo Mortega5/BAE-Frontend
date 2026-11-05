@@ -1,4 +1,5 @@
-<app-modal [visible]="visible" width="max-w-md" (closed)="closed.emit()">
+@if (visible) {
+<app-modal [visible]="true" width="max-w-md" (closed)="closed.emit()">
   <div class="flex items-start justify-between gap-3">
     <h3 class="text-lg font-bold text-content">{{ title | translate }}</h3>
     <app-button type="button" variant="ghost" size="sm" prefixIcon="xmark"
@@ -24,3 +25,4 @@
     </app-button>
   </div>
 </app-modal>
+}
