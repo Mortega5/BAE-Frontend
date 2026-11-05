@@ -55,16 +55,14 @@
   (resolved)="$event ? confirmDiscardEditBill() : cancelDiscardEditBill()" (closed)="cancelDiscardEditBill()" />
 
 <!-- BILL ADDRESS DELETE modal -->
-@if (deleteBill){
-    <div id="delete-bill-modal" [ngClass]="deleteBill ? 'backdrop-blur-sm': ''" tabindex="-1" aria-hidden="true" 
-    class="flex overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-modal md:h-full shadow-2xl">
-        <div class="relative p-4 w-full max-w-md h-full md:h-auto" (click)="$event.stopPropagation();">
-            <!-- Modal content -->
-            <div class="relative p-4 text-center bg-secondary-50 dark:bg-secondary-100 rounded-lg shadow sm:p-5">
-                <app-button type="button" (click)="deleteBill=false;$event.stopPropagation();" variant="ghost" size="sm" prefixIcon="xmark"
-                  class="absolute top-2.5 right-2.5">
-                    <span class="sr-only">{{ 'BILLING._close_modal' | translate }}</span>
-                </app-button>
+@if (deleteBill) {
+<app-modal [visible]="true" width="max-w-md" (closed)="deleteBill=false">
+  <div appCardHeader class="flex justify-end">
+    <app-button type="button" (click)="deleteBill=false" variant="ghost" size="sm" prefixIcon="xmark">
+      <span class="sr-only">{{ 'BILLING._close_modal' | translate }}</span>
+    </app-button>
+  </div>
+  <div class="text-center">
 
                 <svg class="text-content-muted w-12 h-12 mb-3.5 mx-auto" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
@@ -80,10 +78,8 @@
                         {{ 'BILLING._delete' | translate }}
                     </app-button>
                 </div>
-            </div>
-        </div>
-    </div>
-
+  </div>
+</app-modal>
 }
 
 
