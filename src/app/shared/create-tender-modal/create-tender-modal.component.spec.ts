@@ -10,6 +10,9 @@ import { Provider, ProviderService } from 'src/app/services/provider.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { AccountServiceService } from 'src/app/services/account-service.service';
 
+// The modal renders in the CDK overlay container, not inside the fixture.
+const queryOverlay = (selector: string): any => document.querySelector(selector);
+
 describe('CreateTenderModalComponent', () => {
   let fixture: ComponentFixture<CreateTenderModalComponent>;
   let component: CreateTenderModalComponent;
@@ -54,6 +57,8 @@ describe('CreateTenderModalComponent', () => {
     component = fixture.componentInstance;
   });
 
+  afterEach(() => fixture.destroy());
+
   it('shows a compact tender setup summary in the provider selection step', () => {
     component.isOpen = true;
     component.customerId = 'customer-1';
@@ -65,7 +70,7 @@ describe('CreateTenderModalComponent', () => {
 
     fixture.detectChanges();
 
-    const summary = fixture.nativeElement.querySelector('[aria-label="Tender setup summary"]');
+    const summary = queryOverlay('[aria-label="Tender setup summary"]');
 
     expect(summary).not.toBeNull();
     expect(summary.querySelectorAll('[data-summary-item]').length).toBe(3);
@@ -80,13 +85,13 @@ describe('CreateTenderModalComponent', () => {
 
     fixture.detectChanges();
 
-    const body = fixture.nativeElement.querySelector('[data-testid="tender-modal-body"]');
+    const body = queryOverlay('[data-testid="tender-modal-body"]');
 
     expect(body).not.toBeNull();
     expect(body.className).toContain('overflow-x-hidden');
     // The provider step uses app-stepper's own actions plus the extra "save providers" one
-    expect(fixture.nativeElement.querySelector('[data-cy="stepperSubmit"]')).not.toBeNull();
-    expect(fixture.nativeElement.querySelector('[data-cy="tenderSaveProviders"]')).not.toBeNull();
+    expect(queryOverlay('[data-cy="stepperSubmit"]')).not.toBeNull();
+    expect(queryOverlay('[data-cy="tenderSaveProviders"]')).not.toBeNull();
   });
 
   it('closes filter dropdowns when clicking elsewhere in the modal', () => {
@@ -97,7 +102,7 @@ describe('CreateTenderModalComponent', () => {
 
     fixture.detectChanges();
 
-    const summary = fixture.nativeElement.querySelector('[aria-label="Tender setup summary"]');
+    const summary = queryOverlay('[aria-label="Tender setup summary"]');
     summary.dispatchEvent(new Event('click', { bubbles: true }));
     fixture.detectChanges();
 
@@ -121,7 +126,7 @@ describe('CreateTenderModalComponent', () => {
 
     fixture.detectChanges();
 
-    const selectedRow = fixture.nativeElement.querySelector('[data-testid="tender-provider-candidate"]');
+    const selectedRow = queryOverlay('[data-testid="tender-provider-candidate"]');
 
     expect(selectedRow).not.toBeNull();
     expect(selectedRow.getAttribute('data-selected')).not.toBeNull();
@@ -156,7 +161,7 @@ describe('CreateTenderModalComponent', () => {
     flushMicrotasks();
     fixture.detectChanges();
 
-    const summary = fixture.nativeElement.querySelector('[aria-label="Tender setup summary"]');
+    const summary = queryOverlay('[aria-label="Tender setup summary"]');
 
     expect(component.tenderCreationStep).toBe(3);
     expect(component.pdfAttachmentSet).toBeTrue();

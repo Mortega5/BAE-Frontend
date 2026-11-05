@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { faComments } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from '../button/button.component';
-import { ContentCardComponent } from '../content-card/content-card.component';
+import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { EmptyStateComponent } from '../empty-state/empty-state.component';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { QuoteService } from 'src/app/features/quotes/services/quote.service';
@@ -18,7 +18,7 @@ type QuoteNote = Note;
 @Component({
   selector: 'app-chat-modal',
   standalone: true,
-  imports: [NgClass, DatePipe, FormsModule, TranslateModule, ButtonComponent, ContentCardComponent, EmptyStateComponent, LoadingSpinnerComponent],
+  imports: [NgClass, DatePipe, FormsModule, TranslateModule, ButtonComponent, ModalComponent, EmptyStateComponent, LoadingSpinnerComponent],
   templateUrl: './chat-modal.component.html',
 })
 export class ChatModalComponent implements OnInit, OnDestroy, OnChanges {

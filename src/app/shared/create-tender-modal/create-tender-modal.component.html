@@ -1,9 +1,5 @@
-@if (isOpen) {
-<div data-cy="createTenderModal" tabindex="-1" (click)="closeTenderModal()"
-  class="flex fixed inset-0 z-50 justify-center items-center w-full h-full backdrop-blur-sm bg-overlay p-4">
-  <app-card variant="modal" class="w-full lg:w-3/4 max-w-6xl max-h-[90vh]"
-    (click)="closeTenderFilterDropdowns(); $event.stopPropagation()">
-    <div appCardHeader class="flex w-full flex-col gap-4">
+<app-modal [visible]="isOpen" width="lg:w-3/4 max-w-6xl max-h-[90vh]" (closed)="closeTenderModal()">
+    <div appCardHeader class="flex w-full flex-col gap-4" (click)="closeTenderFilterDropdowns()">
       <div class="flex items-center justify-between gap-3">
         <h2 class="text-2xl font-bold text-primary-100 dark:text-content">
           {{ (editingTenderId ? 'TENDERS.CREATE._title_edit' : 'TENDERS.CREATE._title_create') | translate }}
@@ -15,7 +11,7 @@
 
     </div>
 
-    <div data-testid="tender-modal-body" class="overflow-x-hidden">
+    <div data-testid="tender-modal-body" class="overflow-x-hidden" (click)="closeTenderFilterDropdowns()">
       <app-stepper [startAt]="tenderCreationStep - 1" [canAdvance]="canAdvanceStep" [beforeNext]="saveStep"
         submitLabel="TENDERS.CREATE._submit"
         [submitDisabled]="invitedProviders.length === 0 || tenderLoading || providerInviteSaving"
@@ -288,9 +284,7 @@
       </div>
       </app-stepper>
     </div>
-  </app-card>
-</div>
-}
+</app-modal>
 
 <app-confirm-modal [visible]="showGenericConfirm" [title]="genericConfirmTitle" [message]="genericConfirmMessage"
   [confirmLabel]="genericConfirmButtonText" [confirmVariant]="genericConfirmVariant"

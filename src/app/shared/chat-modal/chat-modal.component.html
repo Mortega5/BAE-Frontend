@@ -1,8 +1,5 @@
-@if (isOpen) {
-<!-- Above the quote details modal, which opens this chat too -->
-<div data-cy="chatModal" tabindex="-1" (click)="closeModal()"
-  class="flex fixed inset-0 z-[60] justify-center items-center w-full h-full backdrop-blur-sm bg-overlay p-4">
-  <app-card variant="modal" class="w-full md:w-3/4 lg:w-1/2 max-h-[90vh]" (click)="$event.stopPropagation()">
+<!-- Opened above the quote details modal too: overlays stack in opening order -->
+<app-modal [visible]="isOpen" width="md:w-3/4 lg:w-1/2 max-h-[90vh]" (closed)="closeModal()">
     <div appCardHeader class="flex items-center justify-between gap-3">
       <h2 class="text-2xl font-bold text-primary-100 dark:text-content">
         {{ 'CHAT_MODAL._title' | translate }}
@@ -48,6 +45,4 @@
         <span class="sr-only">{{ (isSending ? 'CHAT_MODAL._sending' : 'CHAT_MODAL._send') | translate }}</span>
       </app-button>
     </form>
-  </app-card>
-</div>
-}
+</app-modal>
