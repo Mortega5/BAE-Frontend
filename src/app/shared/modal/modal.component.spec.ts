@@ -7,99 +7,93 @@ import { ModalComponent } from './modal.component';
   standalone: true,
   imports: [ModalComponent],
   template: `
-    <app-modal [visible]="true">
-      <div appCardHeader class="my-header">HEADER</div>
-      <p class="my-body">BODY</p>
-      <div appCardFooter class="my-footer">FOOTER</div>
-    </app-modal>
+    <div style="transform: translateX(0)">
+      <app-modal [visible]="visible" [closeOnEscape]="closeOnEscape" (closed)="closes = closes + 1">
+        <div appCardHeader class="my-header">HEADER</div>
+        <p class="my-body">BODY</p>
+        <div appCardFooter class="my-footer">FOOTER</div>
+      </app-modal>
+    </div>
   `,
 })
-class ProjectionHostComponent { }
+class HostComponent {
+  visible = false;
+  closeOnEscape = true;
+  closes = 0;
+}
 
 describe('ModalComponent', () => {
-  let component: ModalComponent;
-  let fixture: ComponentFixture<ModalComponent>;
+  let fixture: ComponentFixture<HostComponent>;
+  let host: HostComponent;
+  const root = () => document.querySelector('.cdk-overlay-container') as HTMLElement;
+  const card = () => document.querySelector('.cdk-overlay-container app-card');
 
   beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ModalComponent],
-    }).compileComponents();
-
-    fixture = TestBed.createComponent(ModalComponent);
-    component = fixture.componentInstance;
+    await TestBed.configureTestingModule({ imports: [HostComponent] }).compileComponents();
+    fixture = TestBed.createComponent(HostComponent);
+    host = fixture.componentInstance;
     fixture.detectChanges();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
+  afterEach(() => fixture.destroy());
+
+  function setVisible(visible: boolean) {
+    host.visible = visible;
+    fixture.detectChanges();
+  }
 
   it('should render nothing when not visible', () => {
-    component.visible = false;
-    fixture.detectChanges();
+    expect(card()).toBeNull();
+  });
 
+  it('should render the card in the overlay container, outside the declaring element, when visible', () => {
+    setVisible(true);
+
+    expect(card()).toBeTruthy();
     expect(fixture.nativeElement.querySelector('app-card')).toBeNull();
   });
 
-  it('should render the card when visible', () => {
-    component.visible = true;
-    fixture.detectChanges();
+  it('should remove the card when hidden or destroyed', () => {
+    setVisible(true);
+    setVisible(false);
+    expect(card()).toBeNull();
 
-    expect(fixture.nativeElement.querySelector('app-card')).toBeTruthy();
+    setVisible(true);
+    fixture.destroy();
+    expect(card()).toBeNull();
   });
 
   it('should emit closed when the backdrop is clicked', () => {
-    spyOn(component.closed, 'emit');
-    component.visible = true;
-    fixture.detectChanges();
+    setVisible(true);
 
-    fixture.nativeElement.querySelector('.fixed').dispatchEvent(new MouseEvent('click'));
+    (root().querySelector('.cdk-overlay-backdrop') as HTMLElement).click();
 
-    expect(component.closed.emit).toHaveBeenCalled();
+    expect(host.closes).toBe(1);
   });
 
-  it('Escape key should emit closed only when visible', () => {
-    spyOn(component.closed, 'emit');
-    component.visible = false;
+  it('Escape key should emit closed while visible', () => {
+    setVisible(true);
 
-    component.onEscape();
-    expect(component.closed.emit).not.toHaveBeenCalled();
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
 
-    component.visible = true;
-    component.onEscape();
-    expect(component.closed.emit).toHaveBeenCalled();
+    expect(host.closes).toBe(1);
   });
 
   it('Escape key should be ignored when closeOnEscape is false', () => {
-    spyOn(component.closed, 'emit');
-    component.visible = true;
-    component.closeOnEscape = false;
+    host.closeOnEscape = false;
+    setVisible(true);
 
-    component.onEscape();
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
 
-    expect(component.closed.emit).not.toHaveBeenCalled();
-  });
-
-});
-
-describe('ModalComponent content projection', () => {
-  let hostFixture: ComponentFixture<ProjectionHostComponent>;
-
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [ProjectionHostComponent],
-    }).compileComponents();
-
-    hostFixture = TestBed.createComponent(ProjectionHostComponent);
-    hostFixture.detectChanges();
+    expect(host.closes).toBe(0);
   });
 
   it('should project appCardHeader/appCardFooter content into their own app-card slots, not into the default content slot', () => {
-    const root: HTMLElement = hostFixture.nativeElement;
+    setVisible(true);
 
-    const header = root.querySelector('.app-card-header');
-    const content = root.querySelector('.app-card-content');
-    const footer = root.querySelector('.app-card-footer');
+    const header = root().querySelector('.app-card-header');
+    const content = root().querySelector('.app-card-content');
+    const footer = root().querySelector('.app-card-footer');
 
     expect(header?.querySelector('.my-header')).withContext('header content should be inside .app-card-header').toBeTruthy();
     expect(content?.querySelector('.my-body')).withContext('plain content should be inside .app-card-content').toBeTruthy();

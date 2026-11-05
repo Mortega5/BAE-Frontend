@@ -86,7 +86,8 @@ describe('SetCountryModalComponent', () => {
     component.visible = true;
     fixture.detectChanges();
 
-    const root: HTMLElement = fixture.nativeElement;
+    // The modal renders in the CDK overlay container on <body>, not inside the fixture.
+    const root: HTMLElement = document.body;
     const inputRow: HTMLElement | null = root.querySelector('.search-select-root > div');
     const input: HTMLInputElement | null = root.querySelector('.search-select-root input');
     expect(input).withContext('search-select input should be rendered').toBeTruthy();

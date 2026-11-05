@@ -394,8 +394,6 @@
   }
   <!-- Main modal -->
   @if (showQuoteModal){
-  <app-quote-request-modal [ngClass]="showQuoteModal ? 'backdrop-blur-sm': ''"
-    class="flex justify-center overflow-x-hidden fixed top-0 right-0 left-0 z-40 justify-center items-center w-full md:inset-0 h-full max-h-full rounded-lg shadow-2xl"
-    (click)="$event.stopPropagation();" [productOff]="productOff" [prodSpec]="prodSpec" [orgInfo]="orgInfo"
+  <app-quote-request-modal [productOff]="productOff" [prodSpec]="prodSpec" [orgInfo]="orgInfo"
     [customerId]="customerId" [isOpen]="showQuoteModal"></app-quote-request-modal>
   }

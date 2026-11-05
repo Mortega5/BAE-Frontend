@@ -130,7 +130,7 @@ describe('OrgInfoComponent', () => {
     component.openAddMedium();
     fixture.detectChanges();
 
-    document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }));
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
 
     expect(component.showMediumModal).toBeFalse();
   });

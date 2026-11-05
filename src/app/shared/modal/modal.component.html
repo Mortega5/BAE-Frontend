@@ -1,10 +1,9 @@
-@if (visible) {
-<div class="fixed inset-0 z-50 bg-overlay flex items-center justify-center p-4"
-  (click)="closed.emit()">
-  <app-card variant="modal" class="w-full {{ width }}" (click)="$event.stopPropagation()">
-    <ng-content select="[appCardHeader]" ngProjectAs="[appCardHeader]"></ng-content>
-    <ng-content></ng-content>
-    <ng-content select="[appCardFooter]" ngProjectAs="[appCardFooter]"></ng-content>
-  </app-card>
-</div>
-}
+<ng-template #dialog>
+  <div class="flex justify-center p-4 pointer-events-none">
+    <app-card variant="modal" class="w-full pointer-events-auto {{ width }}">
+      <ng-content select="[appCardHeader]" ngProjectAs="[appCardHeader]"></ng-content>
+      <ng-content></ng-content>
+      <ng-content select="[appCardFooter]" ngProjectAs="[appCardFooter]"></ng-content>
+    </app-card>
+  </div>
+</ng-template>

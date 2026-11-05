@@ -6,6 +6,7 @@ import { components } from "../../models/product-catalog";
 type Product = components["schemas"]["ProductOffering"];
 type ProductSpecification = components["schemas"]["ProductSpecification"];
 import { QuoteService } from 'src/app/features/quotes/services/quote.service';
+import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { EventMessageService } from 'src/app/services/event-message.service';
 
 export interface QuoteRequestData {
@@ -18,15 +19,11 @@ export interface QuoteRequestData {
 @Component({
   selector: 'app-quote-request-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, ModalComponent],
   template: `
-    <div class="fixed inset-0 bg-overlay overflow-y-auto h-full w-full z-50 flex items-center justify-center p-4" 
-         (click)="onBackdropClick($event)">
-      <div class="relative bg-surface rounded-lg shadow-xl max-w-2xl w-full max-h-full overflow-hidden" 
-           (click)="$event.stopPropagation()">
-        
+    <app-modal [visible]="isOpen" width="max-w-2xl" (closed)="onClose()">
         <!-- Modal Header -->
-        <div class="flex items-center justify-between p-6 border-b border-line">
+        <div appCardHeader class="flex items-center justify-between">
           <h3 class="text-xl font-semibold text-content">
             Request Quote
           </h3>
@@ -41,7 +38,7 @@ export interface QuoteRequestData {
         </div>
         
         <!-- Modal Body -->
-        <div class="p-6 overflow-y-auto" style="max-height: calc(80vh - 220px);">
+        <div class="overflow-y-auto" style="max-height: calc(80vh - 220px);">
           <!-- Success Message -->
           @if (showSuccessMessage) {
             <div class="flex flex-col items-center justify-center py-12">
@@ -127,7 +124,7 @@ export interface QuoteRequestData {
         </div>
 
         <!-- Modal Footer -->
-        <div class="px-6 py-4 border-t border-line bg-surface-muted rounded-b-lg">
+        <div appCardFooter>
           <!-- Success/Error State: Only show Close button -->
           @if (showSuccessMessage || showErrorMessage) {
             <div class="flex justify-end">
@@ -172,8 +169,7 @@ export interface QuoteRequestData {
             </div>
           }
         </div>
-      </div>
-    </div>
+    </app-modal>
   `
 })
 export class QuoteRequestModalComponent {
@@ -219,12 +215,6 @@ export class QuoteRequestModalComponent {
   isFieldInvalid(fieldName: string): boolean {
     const field = this.quoteForm.get(fieldName);
     return !!(field && field.invalid && (field.dirty || field.touched));
-  }
-
-  onBackdropClick(event: Event): void {
-    if (event.target === event.currentTarget) {
-      this.onClose();
-    }
   }
 
   onClose(): void {
