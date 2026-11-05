@@ -53,6 +53,13 @@ describe('ModalComponent', () => {
     expect(fixture.nativeElement.querySelector('app-card')).toBeNull();
   });
 
+  it('should centre the card horizontally in the viewport', () => {
+    setVisible(true);
+
+    const rect = (card() as HTMLElement).getBoundingClientRect();
+    expect(Math.abs(rect.left - (window.innerWidth - rect.right))).toBeLessThan(2);
+  });
+
   it('should remove the card when hidden or destroyed', () => {
     setVisible(true);
     setVisible(false);
