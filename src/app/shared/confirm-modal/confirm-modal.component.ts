@@ -1,14 +1,14 @@
-import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent, ButtonVariant } from 'src/app/shared/button/button.component';
-import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { ModalComponent } from 'src/app/shared/modal/modal.component';
 
 /** Small confirm/cancel modal, stacked above whatever else is open (e.g. an edit
  * modal asking "discard unsaved changes?" before it lets itself be closed). */
 @Component({
   selector: 'app-confirm-modal',
   standalone: true,
-  imports: [TranslateModule, ButtonComponent, ContentCardComponent],
+  imports: [TranslateModule, ButtonComponent, ModalComponent],
   templateUrl: './confirm-modal.component.html',
 })
 export class ConfirmModalComponent {
@@ -28,9 +28,4 @@ export class ConfirmModalComponent {
    * click, Escape, or the close (X) button. Left for the caller to interpret;
    * it carries no assumption about what "closed" should do. */
   @Output() closed = new EventEmitter<void>();
-
-  @HostListener('document:keydown.escape')
-  onEscape(): void {
-    if (this.visible) this.closed.emit();
-  }
 }

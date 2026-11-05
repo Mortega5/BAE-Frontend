@@ -17,6 +17,8 @@ describe('ConfirmModalComponent', () => {
     fixture.detectChanges();
   });
 
+  afterEach(() => fixture.destroy());
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });
@@ -25,14 +27,14 @@ describe('ConfirmModalComponent', () => {
     component.visible = false;
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('app-card')).toBeNull();
+    expect(document.querySelector('.cdk-overlay-container app-card')).toBeNull();
   });
 
   it('should render the card when visible', () => {
     component.visible = true;
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('app-card')).toBeTruthy();
+    expect(document.querySelector('.cdk-overlay-container app-card')).toBeTruthy();
   });
 
   it('should emit resolved(true) when confirm is clicked', () => {
@@ -41,7 +43,7 @@ describe('ConfirmModalComponent', () => {
     fixture.detectChanges();
 
     // buttons order: close (X), cancel, confirm
-    const buttons = fixture.nativeElement.querySelectorAll('app-button');
+    const buttons = document.querySelectorAll('.cdk-overlay-container app-button');
     buttons[2].dispatchEvent(new MouseEvent('click'));
 
     expect(component.resolved.emit).toHaveBeenCalledWith(true);
@@ -52,7 +54,7 @@ describe('ConfirmModalComponent', () => {
     component.visible = true;
     fixture.detectChanges();
 
-    const buttons = fixture.nativeElement.querySelectorAll('app-button');
+    const buttons = document.querySelectorAll('.cdk-overlay-container app-button');
     buttons[1].dispatchEvent(new MouseEvent('click'));
 
     expect(component.resolved.emit).toHaveBeenCalledWith(false);
@@ -63,7 +65,7 @@ describe('ConfirmModalComponent', () => {
     component.visible = true;
     fixture.detectChanges();
 
-    const buttons = fixture.nativeElement.querySelectorAll('app-button');
+    const buttons = document.querySelectorAll('.cdk-overlay-container app-button');
     buttons[0].dispatchEvent(new MouseEvent('click'));
 
     expect(component.closed.emit).toHaveBeenCalled();
@@ -76,7 +78,7 @@ describe('ConfirmModalComponent', () => {
     fixture.detectChanges();
 
     // buttons order: close (X), cancel (pushed left), dismiss, confirm
-    const buttons = fixture.nativeElement.querySelectorAll('app-button');
+    const buttons = document.querySelectorAll('.cdk-overlay-container app-button');
     expect(buttons.length).toBe(4);
     expect(buttons[1].classList).toContain('mr-auto');
     buttons[2].dispatchEvent(new MouseEvent('click'));
@@ -89,19 +91,31 @@ describe('ConfirmModalComponent', () => {
     component.confirmDisabled = true;
     fixture.detectChanges();
 
-    const buttons = fixture.nativeElement.querySelectorAll('app-button button');
+    const buttons = document.querySelectorAll<HTMLButtonElement>('.cdk-overlay-container app-button button');
     expect(buttons[buttons.length - 1].disabled).toBeTrue();
   });
 
   it('Escape key should emit closed only when visible', () => {
     spyOn(component.closed, 'emit');
     component.visible = false;
+    fixture.detectChanges();
 
-    component.onEscape();
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
     expect(component.closed.emit).not.toHaveBeenCalled();
 
     component.visible = true;
-    component.onEscape();
+    fixture.detectChanges();
+    document.body.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+    expect(component.closed.emit).toHaveBeenCalled();
+  });
+
+  it('should emit closed when the backdrop is clicked', () => {
+    spyOn(component.closed, 'emit');
+    component.visible = true;
+    fixture.detectChanges();
+
+    (document.querySelector('.cdk-overlay-backdrop') as HTMLElement).click();
+
     expect(component.closed.emit).toHaveBeenCalled();
   });
 });
