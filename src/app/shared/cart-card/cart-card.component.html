@@ -1,10 +1,8 @@
-<div id="cart-selection-modal" [ngClass]="cartSelection ? 'backdrop-blur-sm': ''" tabindex="-1" aria-hidden="true"
-class="flex justify-center overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%)] max-h-full shadow-2xl">
-    <div class="relative w-full max-w-7xl max-h-full">
-        <!-- Modal content -->
-        <div class="relative bg-surface rounded-lg shadow bg-cover bg-right-bottom" (click)="$event.stopPropagation();">
+<app-modal [visible]="cartSelection" width="max-w-7xl" (closed)="hideCartSelection()">
+    <!-- Clicks inside must not reach the document:click listener that closes this dialog -->
+    <div id="cart-selection-modal" (click)="$event.stopPropagation()">
             <!-- Modal header -->
-            <div class="flex items-center justify-between pr-2 pt-2 rounded-t">
+            <div class="flex items-center justify-between rounded-t">
               <app-button (click)="hideCartSelection()" type="button" variant="ghost" size="sm" prefixIcon="xmark" class="ms-auto">
                   <span class="sr-only">{{ 'CARD._close' | translate }}</span>
               </app-button>
@@ -228,6 +226,5 @@ class="flex justify-center overflow-y-auto overflow-x-hidden fixed top-0 right-0
                   </div>
               </div>
             </div>
-        </div>
     </div>
-  </div>
+</app-modal>
