@@ -7,13 +7,13 @@ type FeatureCard = { html: string; hoverText: string; icon: any };
 type Step = { num: string; title: string; desc: string };
 
 @Component({
-  selector: "app-dashboard-providers",
+  selector: "app-landing-providers",
   standalone: true,
   imports: [FontAwesomeModule, TranslateModule],
-  templateUrl: "./dashboard-providers.component.html",
-  styleUrl: "./dashboard-providers.component.css",
+  templateUrl: "./landing-providers.component.html",
+  styleUrl: "./landing-providers.component.css",
 })
-export class DashboardProvidersComponent {
+export class LandingProvidersComponent {
   providersLink = input.required<string>();
 
   featureCards: FeatureCard[] = [

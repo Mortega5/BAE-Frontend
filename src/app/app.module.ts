@@ -67,7 +67,9 @@ import { CreateUsageSpecComponent } from './pages/seller-offerings/offerings/sel
 import { SellerUsageSpecComponent } from './pages/seller-offerings/offerings/seller-usage-spec/seller-usage-spec.component';
 import { UpdateUsageSpecComponent } from './pages/seller-offerings/offerings/seller-usage-spec/update-usage-spec/update-usage-spec.component';
 import { SellerServiceSpecComponent } from './pages/seller-offerings/offerings/seller-service-spec/seller-service-spec.component';
-import { SellerOfferingsComponent } from "./pages/seller-offerings/seller-offerings.component";
+import { DashboardComponent } from "./pages/dashboard/dashboard.component";
+import { DashboardComingSoonComponent } from "./pages/dashboard/dashboard-coming-soon/dashboard-coming-soon.component";
+import { DashboardOverviewComponent } from "./pages/dashboard/dashboard-overview/dashboard-overview.component";
 import { BillingInfoComponent } from './pages/user-profile/profile-sections/billing-info/billing-info.component';
 import { OrgInfoComponent } from './pages/user-profile/profile-sections/org-info/org-info.component';
 import { ProfileGeneralComponent } from './pages/user-profile/profile-sections/profile-general/profile-general.component';
@@ -140,7 +142,9 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     BillingAccountFormComponent,
     UserProfileComponent,
     OrgInfoComponent,
-    SellerOfferingsComponent,
+    DashboardComponent,
+    DashboardOverviewComponent,
+    DashboardComingSoonComponent,
     InventoryProductsComponent,
     UserInfoComponent,
     BillingInfoComponent,

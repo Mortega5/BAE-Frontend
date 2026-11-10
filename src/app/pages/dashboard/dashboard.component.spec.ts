@@ -1,38 +1,37 @@
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { QuoteService } from 'src/app/features/quotes/services/quote.service';
 import { environment } from 'src/environments/environment';
-import { SellerOfferingsPaths } from './seller-offerings.paths';
+import { SellerOfferingsPaths } from '../seller-offerings/seller-offerings.paths';
 
-import { SellerOfferingsComponent } from './seller-offerings.component';
+import { DashboardComponent } from './dashboard.component';
 
-describe('SellerOfferingsComponent', () => {
-  let component: SellerOfferingsComponent;
-  let fixture: ComponentFixture<SellerOfferingsComponent>;
+describe('DashboardComponent', () => {
+  let component: DashboardComponent;
+  let fixture: ComponentFixture<DashboardComponent>;
   let quoteServiceSpy: jasmine.SpyObj<QuoteService>;
   let routerSpy: jasmine.SpyObj<Router>;
 
   beforeEach(async () => {
     quoteServiceSpy = jasmine.createSpyObj<QuoteService>('QuoteService', ['getQuoteById']);
-    routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate'], { events: of(), url: '/my-offerings/offers' });
+    routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate'], { events: of(), url: '/dashboard/offerings/offers' });
 
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      declarations: [SellerOfferingsComponent],
+      declarations: [DashboardComponent],
       imports: [HttpClientTestingModule, TranslateModule.forRoot()],
       providers: [
         { provide: QuoteService, useValue: quoteServiceSpy },
         { provide: Router, useValue: routerSpy },
-        { provide: ActivatedRoute, useValue: {} },
       ],
     })
       .compileComponents();
 
-    fixture = TestBed.createComponent(SellerOfferingsComponent);
+    fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
   });
 
@@ -51,8 +50,8 @@ describe('SellerOfferingsComponent', () => {
 
     expect(quoteServiceSpy.getQuoteById).toHaveBeenCalledWith('quote-1');
     expect(routerSpy.navigate).toHaveBeenCalledWith(
-      [SellerOfferingsPaths.segments.offers, SellerOfferingsPaths.segments.custom],
-      { relativeTo: TestBed.inject(ActivatedRoute), queryParams: { offerId: 'offer-1', partyId: 'buyer-1' } }
+      [SellerOfferingsPaths.offers.custom()],
+      { queryParams: { offerId: 'offer-1', partyId: 'buyer-1' } }
     );
   });
 

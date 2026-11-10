@@ -1,233 +1,177 @@
-import { NgClass } from '@angular/common';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit, SecurityContext } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { DomSanitizer } from '@angular/platform-browser';
-import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
-import { initFlowbite } from 'flowbite';
-import moment from 'moment';
-import { map, Subject, takeUntil } from 'rxjs';
-import { LoginInfo } from 'src/app/models/interfaces';
-import { ProductOffering } from 'src/app/models/product.model';
-import { FeaturedComponent } from 'src/app/offerings/featured/featured.component';
+import { Component, OnDestroy, OnInit } from '@angular/core';
+import { NavigationEnd, Router } from '@angular/router';
+import { IconName } from '@fortawesome/fontawesome-svg-core';
+import { firstValueFrom, Subject } from 'rxjs';
+import { filter, takeUntil } from 'rxjs/operators';
+import { QuoteService } from 'src/app/features/quotes/services/quote.service';
+import { AuthGuard } from 'src/app/guard/auth.guard';
 import { EventMessageService } from 'src/app/services/event-message.service';
-import { LocalStorageService } from 'src/app/services/local-storage.service';
-import { LoginServiceService } from 'src/app/services/login-service.service';
-import { NotificationService } from 'src/app/services/notification.service';
-import { ApiServiceService } from 'src/app/services/product-service.service';
-import { StatsServiceService } from 'src/app/services/stats-service.service';
 import { ThemeService } from 'src/app/services/theme.service';
-import { ThemeConfig } from 'src/app/themes';
+import { SideNavSection } from 'src/app/shared/side-nav/side-nav.model';
+import { WorkspaceHelpConfig } from 'src/app/themes';
 import { environment } from 'src/environments/environment';
-import { DashboardCustomersComponent } from './dashboard-customers/dashboard-customers.component';
-import { DashboardEcosystemComponent } from './dashboard-ecosystem/dashboard-ecosystem.component';
-import { DashboardHeroComponent } from './dashboard-hero/dashboard-hero.component';
-import { DashboardProvidersComponent } from './dashboard-providers/dashboard-providers.component';
-import { DashboardNewsComponent } from './dashboard-news/dashboard-news.component';
-import { DashboardServicesComponent } from './dashboard-services/dashboard-services.component';
-import { DashboardStatsComponent } from './dashboard-stats/dashboard-stats.component';
-import { DashboardWhatsDome } from './dashboard-whatsdome/dashboard-whatsdome.component';
-import { ButtonComponent } from 'src/app/shared/button/button.component';
-import { SearchInputComponent } from 'src/app/shared/search-input/search-input.component';
+import { AnalyticsPaths } from '../analytics/analytics.paths';
+import { ProductInventoryPaths } from '../product-inventory/product-inventory.paths';
+import { ProductOrdersPaths } from '../product-orders/product-orders.paths';
+import { SellerOfferingsPaths } from '../seller-offerings/seller-offerings.paths';
+import { DashboardPaths } from './dashboard.paths';
 
-export interface IDashboardStats {
-  services: number;
-  providers: number;
-}
-
+/** Shell of the user workspace: a side menu with everything the user owns and the routed page next to it. */
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
-  styleUrl: './dashboard.component.css',
-  standalone: true,
-  imports: [TranslateModule, FeaturedComponent, NgClass, DashboardWhatsDome, DashboardHeroComponent, DashboardStatsComponent, DashboardServicesComponent, DashboardCustomersComponent, DashboardProvidersComponent, DashboardNewsComponent, DashboardEcosystemComponent, ButtonComponent, SearchInputComponent],
+  styleUrl: './dashboard.component.css'
 })
 export class DashboardComponent implements OnInit, OnDestroy {
-  customersLink = environment.DOME_CUSTOMER_REGISTER_LINK;
-  providersLink = environment.DOME_REGISTER_LINK;
 
+  catalogManagementEnabled: boolean = environment.CATALOG_MANAGEMENT_ENABLED;
+  /** False on the create/edit pages of an offering, which take the full width (the mobile menu stays). */
+  isListView = true;
 
-  private unSub = new Subject<void>();
-  productOfferings?: ProductOffering[];
-  protected MAX_CATEGORIES_PER_PRODUCT_OFFERING = 3;
+  workspaceHelpAction?: WorkspaceHelpConfig;
 
-  providerThemeName = environment.providerThemeName;
-  currentTheme: ThemeConfig | null = null;
+  sections: SideNavSection[] = this.buildSections();
 
-  private rotationIntervalId?: ReturnType<typeof setInterval>;
-
-  isFilterPanelShown = false;
-  searchField = new FormControl();
-
-  domeRegister: string = environment.DOME_REGISTER_LINK;
-
-  services: string[] = [];
-  publishers: string[] = [];
-  currentIndexServ = 0;
-  currentIndexPub = 0;
-  delay = 2000;
-
-  stats?: IDashboardStats;
+  private destroy$ = new Subject<void>();
 
   constructor(
-    private productService: ApiServiceService,
-    private domSanitizer: DomSanitizer,
-    private route: ActivatedRoute,
-    private loginService: LoginServiceService,
-    private localStorage: LocalStorageService,
-    private eventMessage: EventMessageService,
-    private cdr: ChangeDetectorRef,
     private router: Router,
-    private statsService: StatsServiceService,
+    private quoteService: QuoteService,
     private themeService: ThemeService,
-    private notificationService: NotificationService,
-  ) { }
-
-  ngOnInit() {
-    this.themeService.currentTheme$.pipe(takeUntil(this.unSub)).subscribe((theme) => {
-      this.currentTheme = theme;
-    });
-
-    this.getFirstThreeRandomProductOfferings();
-    this.checkRouteForToken();
-    this.getStats();
-  }
-
-  private startTagTransition() {
-    if (this.rotationIntervalId) {
-      clearInterval(this.rotationIntervalId);
-    }
-
-    this.rotationIntervalId = setInterval(() => {
-      if (this.services.length > 0) {
-        this.currentIndexServ = (this.currentIndexServ + 1) % this.services.length;
-      }
-      if (this.publishers.length > 0) {
-        this.currentIndexPub = (this.currentIndexPub + 1) % this.publishers.length;
-      }
-    }, this.delay);
-  }
-
-  private getStats() {
-    this.statsService.getStats().then((data) => {
-      this.services = data?.services || [];
-      this.publishers = data?.organizations || [];
-
-      this.stats = {
-        services: this.services.length,
-        providers: this.publishers.length,
-      };
-
-      this.startTagTransition();
-    });
-  }
-
-  private checkRouteForToken() {
-    const token = this.route.snapshot.queryParamMap.get('token')
-    if (token != null) {
-      console.log(`Token ${token}`)
-      this.loginService.getLogin(token).then((data) => {
-        const info = {
-          id: data.id,
-          user: data.username,
-          email: data.email,
-          token: data.accessToken,
-          expire: data.expire,
-          partyId: data.partyId,
-          roles: data.roles,
-          organizations: data.organizations,
-          logged_as: data.id,
-        } as LoginInfo;
-
-        // Using organization session by default if provided
-        if (info.organizations != null && info.organizations.length > 0) {
-          info.logged_as = info.organizations[0].id;
-        }
-
-        this.localStorage.addLoginInfo(info);
-        this.eventMessage.emitLogin(info);
-        initFlowbite();
-      }).catch((error) => {
-        console.error('Error exchanging login token', error);
-        this.notificationService.showError('There was an error logging you in. Please try again.');
-      });
-      this.router.navigate(['/dashboard']);
-    } else {
-      const aux = this.localStorage.getObject('login_items') as LoginInfo;
-      if (JSON.stringify(aux) != '{}') {
-        console.debug(aux);
-        console.debug('moment');
-        console.info(`Expire: ${new Date(aux['expire'] * 1000)}`);
-        console.debug(`Now: ${Date.now()}`);
-        console.debug(`Remain: ${aux['expire'] - moment().unix()}s`);
-        console.debug(aux['expire'] - moment().unix() <= 5);
-      }
-    }
-
-    this.cdr.detectChanges();
-    console.log('----')
-  }
-
-  private getFirstThreeRandomProductOfferings(): void {
-    this.productService
-      .getAllProducts()
+    private authGuard: AuthGuard,
+    private eventMessage: EventMessageService,
+  ) {
+    this.router.events
       .pipe(
-        map((items) =>
-          items.map((el) => ({
-            ...el,
-            description: el.description
-              ? (this.domSanitizer.sanitize(SecurityContext.HTML, el.description) ?? undefined)
-              : el.description,
-          })),
-        ),
-        map((items) => {
-          const result = new Set<number>();
-          const max = Math.min(15, items.length);
-
-          while (result.size < max) {
-            result.add(Math.floor(Math.random() * items.length));
-          }
-
-          return [...result].map((i) => items[i]);
-        }),
-        takeUntil(this.unSub),
+        filter((ev): ev is NavigationEnd => ev instanceof NavigationEnd),
+        takeUntil(this.destroy$),
       )
-      .subscribe((picked) => {
-        this.productService.getProductsDetails(picked).then((data) => {
-          this.productOfferings = (data as ProductOffering[]).filter((offering) =>
-            offering.attachment?.some(
-              (a) => a.attachmentType === 'Picture' || a.name === 'Profile Picture'
-            )
-          );
-        })
+      .subscribe(() => this.updateIsListView());
+    // The menu depends on the roles of the active session
+    this.eventMessage.messages$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(ev => {
+        if (ev.type === 'ChangedSession') {
+          this.sections = this.buildSections();
+        }
       });
+    this.updateIsListView();
   }
 
-  goToSearch() {
-    this.router.navigate(['/search']);
-  }
+  async ngOnInit() {
+    const theme = this.themeService.getCurrentThemeConfig();
+    this.workspaceHelpAction = theme?.workspace?.sellerOfferingsHelp;
 
-  filterSearch() {
-    if (this.searchField.value != '' && this.searchField.value != null) {
-      this.router.navigate(['/search'], { queryParams: { keyword: this.searchField.value } });
-    } else {
-      this.router.navigate(['/search']);
+    const state = history.state as { quoteId?: string };
+    if (state && state.quoteId) {
+      const quote = await firstValueFrom(this.quoteService.getQuoteById(state.quoteId));
+      const offerId = quote?.quoteItem?.[0]?.productOffering?.id;
+      const quoteBuyer = quote?.relatedParty?.find((party: any) => party.role.toLowerCase() === environment.BUYER_ROLE.toLowerCase());
+      if (offerId) {
+        this.router.navigate([SellerOfferingsPaths.offers.custom()], {
+          queryParams: { offerId, partyId: quoteBuyer?.id },
+        });
+      }
     }
-  }
-
-  hasLongWord(str: string | undefined, threshold = 20) {
-    if (str) {
-      return str.split(/\s+/).some((word) => word.length > threshold);
-    }
-    return false;
   }
 
   ngOnDestroy() {
-    if (this.rotationIntervalId) {
-      clearInterval(this.rotationIntervalId);
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  goToResources() {
+    const targetUrl = environment.KNOWLEDGE_BASE_URL || environment.KB_GUIDELNES_URL;
+    if (!targetUrl) return;
+    window.open(targetUrl, '_blank', 'noopener');
+  }
+
+  private updateIsListView() {
+    const path = this.router.url.split('?')[0];
+    // <area>/<section>/<id|new> is a form; anything else is a list
+    const areas = [DashboardPaths.offerings()];
+    this.isListView = !areas.some(area =>
+      path.startsWith(`${area}/`) && path.slice(area.length + 1).split('/').filter(Boolean).length > 1);
+  }
+
+  private buildSections(): SideNavSection[] {
+    const isSeller = this.authGuard.hasAnyRole(['seller']);
+    const tendersEnabled = environment.TENDER_ENABLED && environment.QUOTES_ENABLED;
+
+    const sections: SideNavSection[] = [
+      {
+        items: [
+          { label: 'WORKSPACE._overview', routerLink: DashboardPaths.overview(), icon: 'chart-pie' as IconName, dataCy: 'overviewSection' },
+          // One entry: products, services and resources are tabs inside the page
+          { label: 'HEADER._inventory', routerLink: ProductInventoryPaths.root(), icon: 'layer-group' as IconName, dataCy: 'inventorySection' },
+        ],
+      },
+    ];
+
+    if (isSeller) {
+      sections.push(
+        {
+          label: 'WORKSPACE._products',
+          items: [
+            // The product list: the offers the seller sells
+            { label: 'WORKSPACE._products', routerLink: SellerOfferingsPaths.offers.list(), icon: 'box' as IconName, dataCy: 'offerSection' },
+            ...(environment.DATASETS_ENABLED
+              ? [{ label: 'WORKSPACE._datasets', routerLink: SellerOfferingsPaths.datasets.list(), icon: 'database' as IconName, dataCy: 'datasetSection' }]
+              : []),
+            ...(environment.API_ACCESS_ENABLED
+              ? [{ label: 'WORKSPACE._apis', routerLink: SellerOfferingsPaths.apis.list(), icon: 'code' as IconName, dataCy: 'apiSection' }]
+              : []),
+          ],
+        },
+        {
+          label: 'WORKSPACE._product_specs',
+          defaultCollapsed: true,
+          items: [
+            ...(this.catalogManagementEnabled
+              ? [{
+                label: 'OFFERINGS._catalogs',
+                routerLink: SellerOfferingsPaths.catalogues.list(),
+                icon: 'bars' as IconName,
+                dataCy: 'catalogSection',
+              }]
+              : []),
+            { label: 'OFFERINGS._products', routerLink: SellerOfferingsPaths.productSpecs.list(), icon: 'layer-group' as IconName, dataCy: 'prdSpecSection' },
+            { label: 'OFFERINGS._services', routerLink: SellerOfferingsPaths.serviceSpecs.list(), icon: 'plug-circle-plus' as IconName, dataCy: 'servSpecSection' },
+            { label: 'OFFERINGS._resources', routerLink: SellerOfferingsPaths.resourceSpecs.list(), icon: 'server' as IconName, dataCy: 'resSpecSection' },
+            { label: 'USAGE_SPECS._usage_spec', routerLink: SellerOfferingsPaths.usageSpecs.list(), icon: 'chart-line' as IconName, dataCy: 'usageSpecSection' },
+          ],
+        },
+      );
     }
 
-    this.unSub.next();
-    this.unSub.complete();
+    sections.push({
+      label: 'WORKSPACE._activity',
+      items: [
+        { label: 'PRODUCT_ORDERS._orders', routerLink: ProductOrdersPaths.orders(), icon: 'clipboard-list' as IconName, dataCy: 'ordersSection' },
+        { label: 'PRODUCT_ORDERS._invoices', routerLink: ProductOrdersPaths.invoice(), icon: 'file-lines' as IconName, dataCy: 'invoices' },
+        ...(environment.QUOTES_ENABLED
+          ? [{ label: 'WORKSPACE._quotes', routerLink: DashboardPaths.quotes(), icon: 'handshake' as IconName, dataCy: 'quotesSection' }]
+          : []),
+        ...(tendersEnabled
+          ? [{ label: 'WORKSPACE._tenders', routerLink: DashboardPaths.tenders(), icon: 'scale-balanced' as IconName, dataCy: 'tendersSection' }]
+          : []),
+      ],
+    });
+
+    if (environment.analyticsEnabled) {
+      sections.push({
+        label: 'ANALYTICS._analytics',
+        defaultCollapsed: true,
+        items: [
+          { label: 'ANALYTICS._business_insights', routerLink: AnalyticsPaths.businessInsights(), icon: 'chart-line' as IconName, dataCy: 'analyticsBusinessInsights' },
+          ...(this.authGuard.hasAnyRole(['admin'])
+            ? [{ label: 'ANALYTICS._usage_monitor', routerLink: AnalyticsPaths.usageMonitor(), icon: 'display-chart-up' as IconName, dataCy: 'analyticsUsageMonitor' }]
+            : []),
+        ],
+      });
+    }
+
+    // Every titled group can be folded and is set off by a rule
+    return sections.map(section => section.label ? { ...section, collapsible: true, divider: true } : section);
   }
 }

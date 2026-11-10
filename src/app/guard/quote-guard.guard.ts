@@ -12,7 +12,7 @@ export class quoteGuardGuard implements CanActivate {
 
   canActivate(): boolean {
     if (!environment.QUOTES_ENABLED) {
-      this.router.navigate(['/dashboard']);  // redirect somewhere safe
+      this.router.navigate(['/']);  // redirect somewhere safe
       return false;
     }
     return true;

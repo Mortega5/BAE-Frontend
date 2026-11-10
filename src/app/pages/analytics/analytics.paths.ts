@@ -3,8 +3,10 @@
  * and every component that navigates here import from this file instead of
  * hardcoding path strings.
  */
-const rootSegment = 'analytics';
-const root = `/${rootSegment}`;
+import { DashboardPaths } from '../dashboard/dashboard.paths';
+
+const rootSegment = DashboardPaths.segments.analytics;
+const root = DashboardPaths.analytics();
 
 const segments = {
   businessInsights: 'business-insights',

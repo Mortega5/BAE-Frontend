@@ -9,13 +9,13 @@ type FeatureCard = { html: string; hoverText: string; icon: any };
 type Step = { num: string; title: string; desc: string };
 
 @Component({
-  selector: "app-dashboard-customers",
+  selector: "app-landing-customers",
   standalone: true,
   imports: [FontAwesomeModule, TranslateModule, RouterLink],
-  templateUrl: "./dashboard-customers.component.html",
-  styleUrl: "./dashboard-customers.component.css"
+  templateUrl: "./landing-customers.component.html",
+  styleUrl: "./landing-customers.component.css"
 })
-export class DashboardCustomersComponent {
+export class LandingCustomersComponent {
   customerLink = input.required<string>();
 
   featureCards: FeatureCard[] = [

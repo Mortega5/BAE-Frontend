@@ -8,14 +8,14 @@ import { CarouselComponent } from '../../../shared/carousel/carousel.component';
 import { getShortOfferDescription } from '../../../shared/card/offer-card-text.util';
 
 @Component({
-  selector: 'app-dashboard-services',
+  selector: 'app-landing-services',
   standalone: true,
-  templateUrl: './dashboard-services.component.html',
-  styleUrl: './dashboard-services.component.css',
+  templateUrl: './landing-services.component.html',
+  styleUrl: './landing-services.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [FontAwesomeModule, TranslateModule, CarouselComponent, RouterLink]
 })
-export class DashboardServicesComponent implements OnInit {
+export class LandingServicesComponent implements OnInit {
   faArrowRight = faArrowRight;
   productOfferings = input.required<ProductOffering[]>();
   visibleItems = 3;

@@ -10,12 +10,12 @@ type Milestone = {
 };
 
 @Component({
-  selector: "app-dashboard-ecosystem",
+  selector: "app-landing-ecosystem",
   standalone: true,
-  templateUrl: "./dashboard-ecosystem.component.html",
+  templateUrl: "./landing-ecosystem.component.html",
   imports: [TranslateModule, RouterLink]
 })
-export class DashboardEcosystemComponent {
+export class LandingEcosystemComponent {
 
   milestones: Milestone[] = [
     {

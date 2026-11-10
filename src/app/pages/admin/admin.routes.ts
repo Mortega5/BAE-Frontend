@@ -20,7 +20,7 @@ const { segments } = AdminPaths;
 const adminLandingGuard: CanActivateFn = () => {
   const auth = inject(AuthGuard);
   const section = ADMIN_SECTION_ORDER.find(s => canOpenAdminSection(auth, s));
-  return inject(Router).parseUrl(section ? adminSectionUrl(section) : '/dashboard');
+  return inject(Router).parseUrl(section ? adminSectionUrl(section) : '/');
 };
 
 /** A section the session can't open bounces back to /admin, which lands on an allowed one. */

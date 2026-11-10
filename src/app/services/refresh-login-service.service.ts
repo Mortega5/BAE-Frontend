@@ -90,7 +90,7 @@ export class RefreshLoginServiceService {
           console.error('Error during logout:', err);
         })
 
-      this.router.navigate(['/dashboard']).then(() => {
+      this.router.navigate(['/']).then(() => {
         this.notificationService.showInfo('Your session has expired. Please log in again.');
       })
     }

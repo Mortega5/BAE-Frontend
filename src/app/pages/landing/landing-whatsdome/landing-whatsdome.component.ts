@@ -5,14 +5,14 @@ import { faEye, faPuzzlePiece, faShieldCheck } from '@fortawesome/pro-solid-svg-
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
-  selector: 'app-dashboard-whatsdome',
+  selector: 'app-landing-whatsdome',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  templateUrl: './dashboard-whatsdome.component.html',
-  styleUrls: ['./dashboard-whatsdome.component.css'],
+  templateUrl: './landing-whatsdome.component.html',
+  styleUrls: ['./landing-whatsdome.component.css'],
   imports: [FontAwesomeModule, TranslateModule],
 })
-export class DashboardWhatsDome {
+export class LandingWhatsDome {
   faShieldCheck = faShieldCheck;
   faEye = faEye;
   faPuzzle = faPuzzlePiece;

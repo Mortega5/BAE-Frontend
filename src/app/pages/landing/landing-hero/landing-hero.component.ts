@@ -5,14 +5,14 @@ import { TranslateModule } from '@ngx-translate/core';
 type HeroLogo = { name: string; file: string; height: number };
 
 @Component({
-  selector: 'app-dashboard-hero',
+  selector: 'app-landing-hero',
   standalone: true,
-  templateUrl: './dashboard-hero.component.html',
-  styleUrl: './dashboard-hero.component.css',
+  templateUrl: './landing-hero.component.html',
+  styleUrl: './landing-hero.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [TranslateModule, RouterLink]
 })
-export class DashboardHeroComponent {
+export class LandingHeroComponent {
   heroLogos: HeroLogo[] = [
     { name: 'Team Dev', file: 'Team Dev.svg', height: 52 },
     { name: 'Elliot Cloud', file: 'Elliot Cloud.svg', height: 27 },

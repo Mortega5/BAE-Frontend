@@ -3,8 +3,10 @@
  * product-orders.routes.ts and every component that navigates here import
  * from this file instead of hardcoding path strings.
  */
-const rootSegment = 'product-orders';
-const root = `/${rootSegment}`;
+import { DashboardPaths } from '../dashboard/dashboard.paths';
+
+const rootSegment = DashboardPaths.segments.productOrders;
+const root = DashboardPaths.productOrders();
 
 const segments = {
   orders: 'orders',

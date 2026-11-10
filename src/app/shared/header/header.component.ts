@@ -36,7 +36,7 @@ import { LocaleService } from 'src/app/services/locale.service';
 import { AdminPaths } from 'src/app/pages/admin/admin.paths';
 import { ProductInventoryPaths } from 'src/app/pages/product-inventory/product-inventory.paths';
 import { ProductOrdersPaths } from 'src/app/pages/product-orders/product-orders.paths';
-import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
+import { DashboardPaths } from 'src/app/pages/dashboard/dashboard.paths';
 import { UserProfilePaths } from 'src/app/pages/user-profile/user-profile.paths';
 import { EventMessageService } from '../../services/event-message.service';
 import { LocalStorageService } from '../../services/local-storage.service';
@@ -56,7 +56,7 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   readonly productInventoryPaths = ProductInventoryPaths;
   readonly adminPaths = AdminPaths;
   readonly productOrdersPaths = ProductOrdersPaths;
-  readonly sellerOfferingsPaths = SellerOfferingsPaths;
+  readonly dashboardPaths = DashboardPaths;
 
   @ViewChild('navbarbutton') navbarbutton?: ElementRef<HTMLElement>;
 
@@ -397,10 +397,10 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
     this.refreshApi.stopInterval();
     this.eventMessage.emitLogin({} as LoginInfo);
 
-    if (this.router.url === '/dashboard') {
+    if (this.router.url === '/') {
       window.location.reload();
     } else {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/']);
     }
 
     await this.loginService.logout();

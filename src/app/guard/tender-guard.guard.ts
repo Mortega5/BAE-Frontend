@@ -12,7 +12,7 @@ export class tenderGuardGuard implements CanActivate {
 
   canActivate(): boolean {
     if (!environment.QUOTES_ENABLED || !environment.TENDER_ENABLED) {
-      this.router.navigate(['/dashboard']);
+      this.router.navigate(['/']);
       return false;
     }
     return true;

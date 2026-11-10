@@ -3,8 +3,10 @@
  * every component that navigates here import from this file instead of
  * hardcoding path strings.
  */
-const rootSegment = 'tenders';
-const root = `/${rootSegment}`;
+import { DashboardPaths } from '../../pages/dashboard/dashboard.paths';
+
+const rootSegment = DashboardPaths.segments.tenders;
+const root = DashboardPaths.tenders();
 
 const segments = {
   id: ':id',

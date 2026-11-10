@@ -117,7 +117,7 @@ export class ContactUsFormComponent implements OnDestroy {
       marketingAccepted: false
     });
 
-    this.router.navigate(['/dashboard'])
+    this.router.navigate(['/'])
   }
 
   ngOnDestroy(): void {

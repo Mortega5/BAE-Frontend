@@ -20,6 +20,8 @@ export interface SideNavItem {
 export interface SideNavSection {
   /** Optional i18n key for a small uppercase divider label above this group of items. */
   label?: string;
+  /** Draws a horizontal rule above this group (ignored on the first one). Defaults to false. */
+  divider?: boolean;
   /** Turns the label into a toggle that shows/hides the items. Needs `label`; defaults to false (always shown). */
   collapsible?: boolean;
   /** Initial state of a `collapsible` section: true starts it collapsed, unless the current page is one of its items.

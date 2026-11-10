@@ -50,6 +50,6 @@ describe('quoteGuardGuard', () => {
     const canActivate = guard.canActivate();
 
     expect(canActivate).toBeFalse();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
   });
 });

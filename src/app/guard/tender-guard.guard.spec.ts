@@ -40,7 +40,7 @@ describe('tenderGuardGuard', () => {
     environment.TENDER_ENABLED = false;
 
     expect(guard.canActivate()).toBeFalse();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
   });
 
   it('redirects to the dashboard when quotes are disabled, even with tenders on', () => {
@@ -48,6 +48,6 @@ describe('tenderGuardGuard', () => {
     environment.TENDER_ENABLED = true;
 
     expect(guard.canActivate()).toBeFalse();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
   });
 });

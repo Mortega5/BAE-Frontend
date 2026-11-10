@@ -181,7 +181,7 @@ export const DOME_THEME_CONFIG: ThemeConfig = {
     { property: 'og:title', content: 'DOME Marketplace - Dashboard' },
     { property: 'og:description', content: 'The European federated ecosystem for secure and trusted Cloud and Edge service procurement.' },
     { property: 'og:image', content: 'https://dome-marketplace.eu' },
-    { property: 'og:url', content: 'https://dome-marketplace.eu/dashboard' },
+    { property: 'og:url', content: 'https://dome-marketplace.eu/' },
     { property: 'og:type', content: 'website' }
   ]
 };

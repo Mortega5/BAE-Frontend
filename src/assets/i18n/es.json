@@ -3899,5 +3899,24 @@
         }
       }
     }
+  },
+  "WORKSPACE": {
+    "_dashboard": "Panel",
+    "_overview": "Resumen",
+    "_overview_subtitle": "Tus últimos productos y accesos directos para crear nuevos",
+    "_overview_soon": "Próximamente",
+    "_overview_soon_desc": "Aquí verás tus últimos productos y accesos directos para crear nuevos.",
+    "_products": "Productos",
+    "_product_specs": "Especificaciones",
+    "_activity": "Actividad",
+    "_quotes": "Cotizaciones",
+    "_tenders": "Licitaciones",
+    "_analytics": "Analítica",
+    "_datasets": "Datasets",
+    "_datasets_subtitle": "Datasets que publicas como productos",
+    "_apis": "APIs",
+    "_apis_subtitle": "APIs cuyo acceso vendes como productos",
+    "_coming_soon": "Próximamente",
+    "_coming_soon_desc": "Esta sección todavía no está disponible."
   }
 }

@@ -200,7 +200,7 @@ describe("ContactUsFormComponent", () => {
       privacyAccepted: false,
       marketingAccepted: false
     });
-    expect(router.navigate).toHaveBeenCalledWith(["/dashboard"]);
+    expect(router.navigate).toHaveBeenCalledWith(["/"]);
   });
 
   it("should emit and complete unsub subject on destroy", () => {

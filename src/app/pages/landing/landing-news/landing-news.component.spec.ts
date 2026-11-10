@@ -1,14 +1,14 @@
 import { ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { DomeBlogServiceService } from 'src/app/services/dome-blog-service.service';
-import { DashboardNewsComponent, NEWS_WIDGET_CARD_COUNT } from './dashboard-news.component';
+import { LandingNewsComponent, NEWS_WIDGET_CARD_COUNT } from './landing-news.component';
 
-describe('DashboardNewsComponent', () => {
+describe('LandingNewsComponent', () => {
   const build = (getBlogEntries: jasmine.Spy) => {
     const blog = { getBlogEntries } as unknown as DomeBlogServiceService;
     const router = jasmine.createSpyObj<Router>('Router', ['navigate']);
     const cdr = { markForCheck: jasmine.createSpy('markForCheck') } as unknown as ChangeDetectorRef;
-    return { component: new DashboardNewsComponent(blog, router, cdr), router };
+    return { component: new LandingNewsComponent(blog, router, cdr), router };
   };
 
   it('should request the latest news and keep only news entries, newest first', async () => {

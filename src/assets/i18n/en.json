@@ -3899,5 +3899,24 @@
         }
       }
     }
+  },
+  "WORKSPACE": {
+    "_dashboard": "Dashboard",
+    "_overview": "Overview",
+    "_overview_subtitle": "Your latest products and shortcuts to create new ones",
+    "_overview_soon": "Coming soon",
+    "_overview_soon_desc": "Here you will see your latest products and shortcuts to create new ones.",
+    "_products": "Products",
+    "_product_specs": "Specifications",
+    "_activity": "Activity",
+    "_quotes": "Quotes",
+    "_tenders": "Tenders",
+    "_analytics": "Analytics",
+    "_datasets": "Datasets",
+    "_datasets_subtitle": "Datasets you publish as products",
+    "_apis": "APIs",
+    "_apis_subtitle": "APIs you sell access to as products",
+    "_coming_soon": "Coming soon",
+    "_coming_soon_desc": "This section is not available yet."
   }
 }

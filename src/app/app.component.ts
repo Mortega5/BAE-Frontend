@@ -29,7 +29,7 @@ export class AppComponent implements OnInit {
   isProduction:boolean = environment.isProduction;
   showHeaderAndFooter = false;
   isWorkspaceRoute = false;
-  private workspaceRoutes = ['/my-offerings'];
+  private workspaceRoutes = ['/dashboard'];
 
   constructor(private localeService: LocaleService,
               private localStorage: LocalStorageService,

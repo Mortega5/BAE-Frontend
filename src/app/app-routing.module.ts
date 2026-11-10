@@ -1,38 +1,25 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { QuoteListComponent } from "src/app/features/quotes/pages/quote-list/quote-list.component";
 import { AboutDomeComponent } from "src/app/pages/about-dome/about-dome.component";
 import { BlogEntryDetailComponent } from "src/app/pages/dome-blog/blog-entry-detail/blog-entry-detail.component";
 import { DomeBlogComponent } from "src/app/pages/dome-blog/dome-blog.component";
 import { EntryFormComponent } from "src/app/pages/dome-blog/entry-form/entry-form.component";
 import { FaqComponent } from "src/app/offerings/faq/faq.component";
 import { AuthGuard } from './guard/auth.guard';
-import { quoteGuardGuard } from './guard/quote-guard.guard';
-import { tenderGuardGuard } from './guard/tender-guard.guard';
-import { TendersPaths } from './features/tenders/tenders.paths';
 import { AdminComponent } from "./pages/admin/admin.component";
 import { AdminPaths } from "./pages/admin/admin.paths";
 import { adminRoutes } from "./pages/admin/admin.routes";
-import { AnalyticsComponent } from "./pages/analytics/analytics.component";
-import { AnalyticsPaths } from "./pages/analytics/analytics.paths";
-import { analyticsRoutes } from "./pages/analytics/analytics.routes";
+import { loginTokenRedirectGuard } from './guard/login-token-redirect.guard';
 import { CatalogsComponent } from "./pages/catalogs/catalogs.component";
 import { CheckoutComponent } from "./pages/checkout/checkout.component";
 import { ContactUsFormComponent } from "./pages/contact-us/contact-us-form.component";
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import { DashboardPaths } from './pages/dashboard/dashboard.paths';
+import { dashboardRoutes } from './pages/dashboard/dashboard.routes';
+import { LandingComponent } from './pages/landing/landing.component';
 import { OrganizationDetailsComponent } from "./pages/organization-details/organization-details.component";
 import { ProductDetailsComponent } from "./pages/product-details/product-details.component";
-import { ProductInvDetailComponent } from './pages/product-inventory/inventory-items/product-inv-detail/product-inv-detail.component';
-import { ProductInventoryComponent } from './pages/product-inventory/product-inventory.component';
-import { ProductInventoryPaths } from './pages/product-inventory/product-inventory.paths';
-import { productInventoryRoutes } from './pages/product-inventory/product-inventory.routes';
-import { ProductOrdersComponent } from './pages/product-orders/product-orders.component';
-import { ProductOrdersPaths } from './pages/product-orders/product-orders.paths';
-import { productOrdersRoutes } from './pages/product-orders/product-orders.routes';
 import { SearchComponent } from "./pages/search/search.component";
-import { SellerOfferingsComponent } from "./pages/seller-offerings/seller-offerings.component";
-import { SellerOfferingsPaths } from "./pages/seller-offerings/seller-offerings.paths";
-import { sellerOfferingsRoutes } from "./pages/seller-offerings/seller-offerrings.routes";
 import { UserProfileComponent } from "./pages/user-profile/user-profile.component";
 import { unsavedChangesGuard } from "./guard/unsaved-changes.guard";
 import { UserProfilePaths } from "./pages/user-profile/user-profile.paths";
@@ -40,11 +27,35 @@ import { userProfileRoutes } from "./pages/user-profile/user-profile.routes";
 
 
 
+/** Redirects `/<oldSegment>`, `/<oldSegment>/:section` and `/<oldSegment>/:section/:id` to the same place under the dashboard. */
+function legacyRedirects(newSegment: string, oldSegment: string = newSegment): Routes {
+  const target = `${DashboardPaths.root()}/${newSegment}`;
+  return [
+    { path: oldSegment, redirectTo: target, pathMatch: 'full' },
+    { path: `${oldSegment}/:section`, redirectTo: `${target}/:section`, pathMatch: 'full' },
+    { path: `${oldSegment}/:section/:id`, redirectTo: `${target}/:section/:id`, pathMatch: 'full' },
+  ];
+}
+
 const routes: Routes = [
   {
-    path: 'dashboard',
-    component: DashboardComponent
+    path: '',
+    pathMatch: 'full',
+    component: LandingComponent
   },
+  {
+    path: DashboardPaths.rootSegment,
+    component: DashboardComponent,
+    canActivate: [loginTokenRedirectGuard, AuthGuard], data: { roles: [] },
+    children: dashboardRoutes,
+  },
+  // Everything the user owns moved under the dashboard; keep the old URLs working
+  ...legacyRedirects(DashboardPaths.segments.offerings, 'my-offerings'),
+  ...legacyRedirects(DashboardPaths.segments.productOrders),
+  ...legacyRedirects(DashboardPaths.segments.inventory),
+  ...legacyRedirects(DashboardPaths.segments.analytics),
+  ...legacyRedirects(DashboardPaths.segments.quotes),
+  ...legacyRedirects(DashboardPaths.segments.tenders),
   {
     path: 'about',
     component: AboutDomeComponent
@@ -82,26 +93,10 @@ const routes: Routes = [
     canActivate: [AuthGuard], data: { roles: [] }
   },
   {
-    path: ProductInventoryPaths.rootSegment,
-    component: ProductInventoryComponent,
-    canActivate: [AuthGuard], data: { roles: [] },
-    children: productInventoryRoutes,
-  },
-  {
-    path: `${ProductInventoryPaths.rootSegment}/:id`,
-    component: ProductInvDetailComponent
-  },
-  {
     path: UserProfilePaths.rootSegment,
     component: UserProfileComponent,
     canActivate: [AuthGuard], data: { roles: [] },
     children: userProfileRoutes,
-  },
-  {
-    path: SellerOfferingsPaths.rootSegment,
-    component: SellerOfferingsComponent,
-    canActivate: [AuthGuard], data: { roles: ['seller'] },
-    children: sellerOfferingsRoutes,
   },
   {
     path: AdminPaths.rootSegment,
@@ -112,29 +107,6 @@ const routes: Routes = [
   {
     path: 'contact-us',
     component: ContactUsFormComponent
-  },
-  {
-    path: ProductOrdersPaths.rootSegment,
-    component: ProductOrdersComponent,
-    canActivate: [AuthGuard], data: { roles: [] },
-    children: productOrdersRoutes,
-  },
-  {
-    path: AnalyticsPaths.rootSegment,
-    component: AnalyticsComponent,
-    canActivate: [AuthGuard], data: { roles: [] },
-    children: analyticsRoutes,
-  },
-  {
-    path: 'quote-list',
-    component: QuoteListComponent,
-    canActivate: [AuthGuard, quoteGuardGuard], data: { roles: [] }
-  },
-  {
-    path: TendersPaths.rootSegment,
-    loadChildren: () => import('./features/tenders/tenders.module').then(m => m.TendersModule),
-    canActivate: [AuthGuard, tenderGuardGuard],
-    data: { roles: [] }
   },
   {
     path: 'blog',
@@ -192,7 +164,7 @@ const routes: Routes = [
     }]
   },
 
-  { path: '**', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '**', redirectTo: '', pathMatch: 'full' },
 ]
 
 @NgModule({

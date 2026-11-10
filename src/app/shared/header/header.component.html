@@ -3,7 +3,7 @@
   <div class="mx-auto" [ngClass]="longNav ? 'max-w-[1280px]' : 'max-w-[1180px]'">
     <!-- 87px + the nav's 1px bottom border = the 88px the rest of the app subtracts from the viewport. -->
     <div class="flex h-[87px] items-center justify-between gap-6">
-      <a (click)="goTo('/dashboard')" class="flex shrink-0 items-center gap-4 cursor-pointer select-none">
+      <a (click)="goTo('/')" class="flex shrink-0 items-center gap-4 cursor-pointer select-none">
         @if (currentTheme?.assets?.logoUrl) {
         <img [src]="currentTheme?.assets?.logoUrl" class="h-[51.7px] w-auto"
           alt="{{ currentTheme?.displayName }} Logo" />
@@ -70,13 +70,11 @@
           </button>
         </li>
 
-        @if (roles.includes(sellerRole)) {
         <li>
-          <button id="myOfferings" type="button" class="dropdown-item" (click)="goTo(sellerOfferingsPaths.root())">
-            <fa-icon [icon]="faHandHoldingBox" class="mr-2"></fa-icon>{{ 'HEADER._offerings' | translate }}
+          <button id="dashboard" data-cy="dashboard" type="button" class="dropdown-item" (click)="goTo(dashboardPaths.root())">
+            <fa-icon [icon]="faHandHoldingBox" class="mr-2"></fa-icon>{{ 'WORKSPACE._dashboard' | translate }}
           </button>
         </li>
-        }
 
         @if ((isAdmin && loggedAsOrg === false) || roles.includes(certifierRole)) {
         <li>
@@ -85,42 +83,6 @@
           </button>
         </li>
         }
-
-        <li>
-          <button id="productOrders" type="button" class="dropdown-item" (click)="goTo(productOrdersPaths.root())">
-            <fa-icon [icon]="faReceipt" class="mr-2"></fa-icon>{{ 'HEADER._orders' | translate }}
-          </button>
-        </li>
-
-        @if (quotesEnabled) {
-        <li>
-          <button id="quotelist" type="button" class="dropdown-item" (click)="goTo('/quote-list')">
-            <fa-icon [icon]="faReceipt" class="mr-2"></fa-icon>Quotes
-          </button>
-        </li>
-        }
-
-        @if (tenderEnabled) {
-        <li>
-          <button id="tenderlist" type="button" class="dropdown-item" (click)="goTo('/tenders')">
-            <fa-icon [icon]="faReceipt" class="mr-2"></fa-icon>Tenders
-          </button>
-        </li>
-        }
-
-        @if (analyticsEnabled) {
-        <li>
-          <a id="analytics" class="dropdown-item" routerLink="/analytics" (click)="closeUserDropdown()">
-            <fa-icon [icon]="faPieChart" class="mr-2"></fa-icon>Analytics
-          </a>
-        </li>
-        }
-
-        <li>
-          <button id="myInventory" type="button" class="dropdown-item" (click)="goTo(productInventoryPaths.root())">
-            <fa-icon [icon]="faBoxesStacked" class="mr-2"></fa-icon>{{ 'HEADER._inventory' | translate }}
-          </button>
-        </li>
 
         <li>
           <button id="myShoppingCart" type="button" class="dropdown-item" (click)="goTo('/checkout')">
@@ -435,43 +397,15 @@
       <fa-icon [icon]="faAddressCard" class="mr-2"></fa-icon>{{ 'HEADER._profile' | translate }}
     </button>
 
-    @if (roles.includes(sellerRole)) {
-    <button type="button" class="mobile-nav-item" (click)="goTo(sellerOfferingsPaths.root())">
-      <fa-icon [icon]="faHandHoldingBox" class="mr-2"></fa-icon>{{ 'HEADER._offerings' | translate }}
+    <button type="button" class="mobile-nav-item" (click)="goTo(dashboardPaths.root())">
+      <fa-icon [icon]="faHandHoldingBox" class="mr-2"></fa-icon>{{ 'WORKSPACE._dashboard' | translate }}
     </button>
-    }
 
     @if ((isAdmin && loggedAsOrg === false) || roles.includes(certifierRole)) {
     <button type="button" class="mobile-nav-item" (click)="goTo(adminPaths.root())">
       <fa-icon [icon]="faCogs" class="mr-2"></fa-icon>{{ 'HEADER._admin' | translate }}
     </button>
     }
-
-    <button type="button" class="mobile-nav-item" (click)="goTo(productOrdersPaths.root())">
-      <fa-icon [icon]="faReceipt" class="mr-2"></fa-icon>{{ 'HEADER._orders' | translate }}
-    </button>
-
-    @if (quotesEnabled) {
-    <button type="button" class="mobile-nav-item" (click)="goTo('/quote-list')">
-      <fa-icon [icon]="faReceipt" class="mr-2"></fa-icon>Quotes
-    </button>
-    }
-
-    @if (tenderEnabled) {
-    <button type="button" class="mobile-nav-item" (click)="goTo('/tenders')">
-      <fa-icon [icon]="faReceipt" class="mr-2"></fa-icon>Tenders
-    </button>
-    }
-
-    @if (analyticsEnabled) {
-    <a class="mobile-nav-item" routerLink="/analytics" (click)="isNavBarOpen = false">
-      <fa-icon [icon]="faPieChart" class="mr-2"></fa-icon>Analytics
-    </a>
-    }
-
-    <button type="button" class="mobile-nav-item" (click)="goTo(productInventoryPaths.root())">
-      <fa-icon [icon]="faBoxesStacked" class="mr-2"></fa-icon>{{ 'HEADER._inventory' | translate }}
-    </button>
 
     <button type="button" class="mobile-nav-item" (click)="goTo('/checkout')">
       <fa-icon [icon]="faCartShopping" class="mr-2"></fa-icon>{{ 'HEADER._cart' | translate }}

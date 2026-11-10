@@ -43,7 +43,7 @@ describe('AuthGuard', () => {
     const canActivate = guard.canActivate(routeWithRoles([]), state);
 
     expect(canActivate).toBeFalse();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
   });
 
   it('should allow access for a valid individual with a required role', () => {
@@ -73,6 +73,6 @@ describe('AuthGuard', () => {
     const canActivate = guard.canActivate(routeWithRoles(['seller']), state);
 
     expect(canActivate).toBeFalse();
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/dashboard']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith(['/']);
   });
 });

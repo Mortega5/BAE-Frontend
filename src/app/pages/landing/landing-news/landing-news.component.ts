@@ -15,13 +15,13 @@ export const NEWS_WIDGET_CARD_COUNT = 3;
 
 /** Latest news on the DOME dashboard, one at a time. Hidden when there are none or they fail to load. */
 @Component({
-  selector: 'app-dashboard-news',
+  selector: 'app-landing-news',
   standalone: true,
-  templateUrl: './dashboard-news.component.html',
+  templateUrl: './landing-news.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [DatePipe, TranslateModule, RouterLink, FontAwesomeModule, CarouselComponent, TileCardComponent]
 })
-export class DashboardNewsComponent implements OnInit {
+export class LandingNewsComponent implements OnInit {
   protected readonly faArrowRight = faArrowRight;
   readonly routeBase = '/news';
   entries: any[] = [];

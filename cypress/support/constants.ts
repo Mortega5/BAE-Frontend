@@ -320,7 +320,7 @@ export const loginAcc = () => {
         }
         ).as('login_token');
 
-    cy.visit('/dashboard?token=test', {onBeforeLoad(win) {
+    cy.visit('/?token=test', {onBeforeLoad(win) {
         win.localStorage.setItem('login_items', '{}');
         win.document.documentElement.classList.add('dark');
         }})
@@ -334,7 +334,7 @@ export const loginAcc = () => {
       expect(interception.response?.statusCode).to.eq(200)
       expect(interception.response?.body).to.have.property('accessToken')
     })
-    cy.location('pathname').should('eq', '/dashboard')
+    cy.location('pathname').should('eq', '/')
     cy.location('search').should('eq', '')
     cy.window().should((win) => {
       const session = JSON.parse(win.localStorage.getItem('login_items') || '{}')

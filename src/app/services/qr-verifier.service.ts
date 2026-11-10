@@ -91,7 +91,7 @@ export class QrVerifierService {
 
   pollServer(qrWindow: Window | null, state: string): void {
     this.poll(qrWindow, state, environment.SIOP_INFO.pollPath, () => {
-      window.location.replace('/dashboard?token=local')
+      window.location.replace('/?token=local')
     })
   }
 

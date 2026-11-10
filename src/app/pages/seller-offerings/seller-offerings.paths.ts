@@ -1,11 +1,13 @@
 /**
- * Single source of truth for every seller-offerings ("my-offerings") route.
+ * Single source of truth for every seller-offerings ("offerings", mounted under the dashboard) route.
  * Both seller-offerrings.routes.ts (the Routes config) and every component that
  * navigates here import from this file instead of hardcoding path strings -
  * change `rootSegment` or any entry in `segments` and every consumer updates.
  */
-const rootSegment = 'my-offerings';
-const root = `/${rootSegment}`;
+import { DashboardPaths } from '../dashboard/dashboard.paths';
+
+const rootSegment = DashboardPaths.segments.offerings;
+const root = DashboardPaths.offerings();
 
 const segments = {
   catalogues: 'catalogues',

@@ -1,5 +1,5 @@
 @if (entries.length > 0) {
-<section class="bg-surface-muted py-24" data-cy="dashboard-news">
+<section class="bg-surface-muted py-24" data-cy="landing-news">
   <div class="max-w-[1180px] mx-auto px-6">
 
     <div class="flex flex-col gap-6 mb-16 md:flex-row md:items-start md:justify-between">
@@ -12,7 +12,7 @@
         </p>
       </div>
 
-      <a [routerLink]="routeBase" class="flex items-center gap-2 text-primary-100 font-semibold" data-cy="dashboard-news-viewall">
+      <a [routerLink]="routeBase" class="flex items-center gap-2 text-primary-100 font-semibold" data-cy="landing-news-viewall">
         {{ 'DASHBOARD.news._viewAll' | translate }}
         <fa-icon [icon]="faArrowRight"></fa-icon>
       </a>
@@ -22,7 +22,7 @@
       @for (entry of entries; track entry._id) {
       <div class="shrink-0 w-full px-3 md:px-4">
         <app-tile-card viewMode="list" [image]="featuredImage(entry) ?? undefined" [imageAlt]="entry.title"
-          [clickable]="true" (cardClick)="openEntry(entry)" data-cy="dashboard-news-card">
+          [clickable]="true" (cardClick)="openEntry(entry)" data-cy="landing-news-card">
           <div class="flex flex-col gap-2">
             <h3 class="text-[20px] lg:text-[24px] font-bold leading-tight line-clamp-2 break-words">{{ entry.title }}</h3>
             @if (entryDate(entry); as date) {

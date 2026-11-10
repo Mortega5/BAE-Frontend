@@ -42,7 +42,7 @@ describe('ThemeService', () => {
     expect(getMetaContent('og:title')).toBe('DOME Marketplace - Dashboard');
     expect(getMetaContent('og:description')).toBe('The European federated ecosystem for secure and trusted Cloud and Edge service procurement.');
     expect(getMetaContent('og:image')).toBe('https://dome-marketplace.eu');
-    expect(getMetaContent('og:url')).toBe('https://dome-marketplace.eu/dashboard');
+    expect(getMetaContent('og:url')).toBe('https://dome-marketplace.eu/');
     expect(getMetaContent('og:type')).toBe('website');
   });
 

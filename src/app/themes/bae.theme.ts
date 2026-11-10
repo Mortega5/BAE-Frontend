@@ -3,7 +3,7 @@ import { NavLink, ThemeConfig } from './theme.interfaces';
 const baeHeaderLinks: NavLink[] = [
   {
     label: 'HEADER._home',
-    url: '/dashboard',
+    url: '/',
     isRouterLink: true
   },
   {

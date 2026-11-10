@@ -1,6 +1,6 @@
 import { init_config, init_stat, checkHeaderPreLogin, loginAcc } from "../support/constants"
 
-describe('/dashboard',{
+describe('/',{
     viewportHeight: 800,
     viewportWidth: 1080,
   },

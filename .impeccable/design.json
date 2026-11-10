@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-10T12:00:00Z",
+  "title": "Design System: BAE Marketplace Frontend",
+  "extensions": {
+    "colorMeta": {
+      "primary": { "role": "primary", "displayName": "Marketplace Green", "canonical": "#00724d", "tonalRamp": ["#00281b", "#00402c", "#00583c", "#00724d", "#339988", "#7fc4b4", "#bfe2d9", "#d7f0e5"] },
+      "primary-bright": { "role": "primary", "displayName": "Bright Leaf", "canonical": "#339988", "tonalRamp": ["#0f2e29", "#1a4d44", "#256e62", "#339988", "#5cb0a2", "#8ac7bc", "#b9ded7", "#e0f1ee"] },
+      "primary-tint": { "role": "secondary", "displayName": "Mint Tint", "canonical": "#d7f0e5", "tonalRamp": ["#0f3f2e", "#145c41", "#2f8764", "#5fb08d", "#92cdb3", "#b5e0cc", "#d7f0e5", "#eef8f3"] },
+      "page-bg": { "role": "neutral", "displayName": "Cool Page White", "canonical": "#F7F9FD", "tonalRamp": ["#0b1117", "#1a2530", "#334155", "#6b7280", "#cbd5e1", "#EBECEE", "#F7F9FD", "#ffffff"] },
+      "danger": { "role": "tertiary", "displayName": "Signal Red", "canonical": "#dc2626", "tonalRamp": ["#450a0a", "#7f1d1d", "#b91c1c", "#dc2626", "#f87171", "#fca5a5", "#fecaca", "#fef2f2"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Hero and page titles." },
+      "body": { "displayName": "Body", "purpose": "Paragraphs and form values." },
+      "label": { "displayName": "Label", "purpose": "Buttons, form labels, table headers." }
+    },
+    "shadows": [
+      { "name": "rest", "value": "none", "purpose": "Cards sit flat with a 1px border." },
+      { "name": "hover", "value": "0 4px 6px -1px rgb(0 0 0 / 0.1)", "purpose": "Hover on cards (shadow-md)." },
+      { "name": "floating", "value": "0 10px 15px -3px rgb(0 0 0 / 0.1)", "purpose": "Dropdown panels (shadow-lg)." },
+      { "name": "overlay", "value": "0 25px 50px -12px rgb(0 0 0 / 0.25)", "purpose": "Modals and drawers (shadow-2xl)." }
+    ],
+    "motion": [
+      { "name": "color-transition", "value": "transition-colors 150ms", "purpose": "Button and control state changes." },
+      { "name": "collapse", "value": "300ms ease-in-out", "purpose": "Card content padding collapse." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main action; solid brand fill.",
+      "html": "<button class=\"ds-btn-primary\">Save changes</button>",
+      "css": ".ds-btn-primary{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#00724d;color:#fff;font:600 14px Blinker,system-ui,sans-serif;padding:10px 20px;border:1px solid transparent;border-radius:8px;cursor:pointer;transition:background-color .15s}.ds-btn-primary:hover{background:#00c48c}.ds-btn-primary:focus-visible{outline:none;box-shadow:0 0 0 4px rgb(51 153 136 / 30%)}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Outlined alternative action.",
+      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
+      "css": ".ds-btn-secondary{display:inline-flex;align-items:center;background:transparent;color:#111827;font:600 14px Blinker,system-ui,sans-serif;padding:10px 20px;border:1px solid #00724d;border-radius:8px;cursor:pointer;transition:background-color .15s}.ds-btn-secondary:hover{background:rgb(51 153 136 / 10%)}.ds-btn-secondary:focus-visible{outline:none;box-shadow:0 0 0 4px rgb(51 153 136 / 30%)}"
+    },
+    {
+      "name": "Danger Button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Destructive confirmation.",
+      "html": "<button class=\"ds-btn-danger\">Delete</button>",
+      "css": ".ds-btn-danger{background:#dc2626;color:#fff;font:600 14px Blinker,system-ui,sans-serif;padding:10px 20px;border:1px solid transparent;border-radius:8px;cursor:pointer;transition:background-color .15s}.ds-btn-danger:hover{background:#b91c1c}.ds-btn-danger:focus-visible{outline:none;box-shadow:0 0 0 4px rgb(252 165 165 / 50%)}"
+    },
+    {
+      "name": "Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Flat panel with border; swaps to primary border on hover.",
+      "html": "<div class=\"ds-card\"><strong>Offering</strong><p>Short description of the product.</p></div>",
+      "css": ".ds-card{background:#fff;border:1px solid #EBECEE;border-radius:16px;padding:20px;font-family:Blinker,system-ui,sans-serif;color:#000;transition:border-color .15s}.ds-card:hover{border-color:#00724d}.ds-card p{margin:6px 0 0;color:#6b7280}"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Form field with ring focus.",
+      "html": "<input class=\"ds-input\" placeholder=\"Name\">",
+      "css": ".ds-input{background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:10px 12px;font:400 14px Blinker,system-ui,sans-serif;color:#000;width:220px}.ds-input:focus-visible{outline:none;border-color:#339988;box-shadow:0 0 0 3px rgb(51 153 136 / 50%)}"
+    },
+    {
+      "name": "Status Badge",
+      "kind": "chip",
+      "refersTo": "status-badge",
+      "description": "Tinted text, fill and border of the status color.",
+      "html": "<span class=\"ds-badge\">Active</span>",
+      "css": ".ds-badge{display:inline-flex;align-items:center;padding:2px 10px;border-radius:9999px;font:600 12px Blinker,system-ui,sans-serif;color:#15803d;background:rgb(34 197 94 / 12%);border:1px solid rgb(34 197 94 / 35%)}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Themed Marketplace",
+    "overview": "One neutral, token-driven shell that rebrands per tenant. The structure never changes between BAE, DOME and any future theme; only the brand roles do. Every color in a template is a role, never a literal.",
+    "keyCharacteristics": [
+      "Roles over literals: text-content, bg-surface, border-line, text-on-primary; no dark: variants on roles.",
+      "Two brand colors per theme (a deep primary and a brighter sibling) plus a tinted secondary ramp.",
+      "Light and dark are first-class; dark drops the tenant tint from inputs in favor of one neutral slate.",
+      "Shared components own their styling; pages compose them."
+    ],
+    "rules": [
+      { "name": "The Role Rule", "body": "Templates carry class names only. No Tailwind palette colors, no hex, no var() in HTML.", "section": "colors" },
+      { "name": "The One Source Rule", "body": "A shared component's colors are CSS variables in src/styles.css, never hardcoded in its own scss.", "section": "colors" },
+      { "name": "The Tint Not Swap Rule", "body": "Hover, selected and info surfaces are derived from the primary with color-mix() or alpha.", "section": "colors" },
+      { "name": "The One Family Rule", "body": "Blinker everywhere; change the family through the theme font variables.", "section": "typography" },
+      { "name": "The Flat-At-Rest Rule", "body": "Surfaces are flat until hovered, opened or floating.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do pick a role class and omit dark: variants.",
+      "Do reach for an existing shared component before styling markup by hand.",
+      "Do define new component colors as CSS variables in src/styles.css.",
+      "Do give every new i18n key a real Spanish translation.",
+      "Do keep primary-colored surfaces to action and selection; status colors for status only."
+    ],
+    "donts": [
+      "Don't use Tailwind palette colors, hex or rgb() in templates or component stylesheets.",
+      "Don't write text-[var(--x)] or inline var() in HTML.",
+      "Don't hardcode a shared component's colors in its own scss.",
+      "Don't bind title, id or hidden as plain attributes on a custom component.",
+      "Don't add shadows at rest to cards."
+    ]
+  }
+}
