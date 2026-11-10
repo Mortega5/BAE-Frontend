@@ -77,7 +77,7 @@
   <div class="grid transition-[grid-template-rows,visibility] duration-200 ease-in-out motion-reduce:transition-none"
     [ngClass]="isCollapsed(section, $index) ? 'grid-rows-[0fr] invisible' : 'grid-rows-[1fr]'"
     [attr.inert]="isCollapsed(section, $index) ? '' : null">
-  <div class="flex flex-col gap-2 min-h-0 overflow-hidden pb-3" [class.pl-4]="section.collapsible">
+  <div class="flex flex-col gap-2 min-h-0 overflow-hidden pb-3">
     @for (item of section.items; track $index) {
     @if (item.routerLink) {
     <a [attr.data-cy]="item.dataCy" [routerLink]="item.routerLink" routerLinkActive
