@@ -3374,7 +3374,7 @@
     "_visibility_fixed_hint": "No se puede cambiar después: sube el archivo de nuevo como un dataset nuevo para cambiarla.",
     "_url": "URL del dataset",
     "_url_hint": "Dirección, que empiece por http:// o https://, donde tu DSP sirve el dataset.",
-    "_url_invalid": "Introduce una dirección válida, que empiece por http:// o https:// y con un path (https://host/path): el acceso se concede a ese path.",
+    "_url_invalid": "Introduce una dirección válida, que empiece por http:// o https://. El acceso se concede a su path; si no tiene, a /.",
     "_url_placeholder": "https://dsp.ejemplo.com/datasets/mi-dataset",
     "_change_url": "Cambiar la dirección",
     "_change_url_hint": "El id del dataset y el acceso de los compradores no cambian; los compradores reciben los datos de la nueva dirección.",

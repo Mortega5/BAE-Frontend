@@ -6,14 +6,14 @@ import { Dataset, DATASET_ACCEPT_ATTR, DATASET_MAX_SIZE_BYTES, datasetFormat, Da
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { datasetVisibility } from '../dataset-table';
 
-/** An address the browser can parse, with an http(s) scheme, a host and a path of its own (the access policy is restricted
- * to the path, so the root would grant the whole host). Empty is left to `required`. */
+/** An address the browser can parse, with an http(s) scheme and a host. Without a path (or with only a slash) its path is
+ * `/`, which is what the access policy is restricted to. Empty is left to `required`. */
 export function httpUrlValidator(control: AbstractControl): ValidationErrors | null {
   const value = String(control.value ?? '').trim();
   if (!value) return null;
   try {
     const url = new URL(value);
-    return (url.protocol === 'http:' || url.protocol === 'https:') && url.hostname && url.pathname !== '/' ? null : { url: true };
+    return (url.protocol === 'http:' || url.protocol === 'https:') && url.hostname ? null : { url: true };
   } catch {
     return { url: true };
   }
