@@ -44,7 +44,7 @@ import {
   faUsers,
   faUserShield,
 } from '@fortawesome/free-solid-svg-icons';
-import { faAnglesLeft, faAnglesRight, faArrowDown, faArrowRight, faBars, faBullhorn, faCartShopping, faCheck, faCommentDots, faChevronDown, faChevronLeft, faChevronRight, faDisplayChartUp, faDownload, faEdit, faLayerGroup, faPaperPlane, faPersonArrowDownToLine, faPersonArrowUpFromLine, faPlus, faRocketLaunch, faRotate, faSave, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons';
+import { faAnglesLeft, faAnglesRight, faArrowDown, faArrowRight, faBars, faBullhorn, faCartShopping, faCheck, faCommentDots, faCopy, faChevronDown, faChevronLeft, faChevronRight, faDisplayChartUp, faDownload, faEdit, faLayerGroup, faPaperPlane, faPersonArrowDownToLine, faPersonArrowUpFromLine, faPlus, faRocketLaunch, faRotate, faSave, faTrash, faXmark } from '@fortawesome/pro-solid-svg-icons';
 
 export interface PopularIcon {
   name: string;
@@ -157,6 +157,7 @@ const BUTTON_ICONS: Partial<Record<IconName, IconDefinition>> = {
   [faAnglesLeft.iconName]: faAnglesLeft,
   [faAnglesRight.iconName]: faAnglesRight,
   [faDownload.iconName]: faDownload,
+  [faCopy.iconName]: faCopy,
   [faRocketLaunch.iconName]: faRocketLaunch,
   [faRotate.iconName]: faRotate,
   [faBullhorn.iconName]: faBullhorn,

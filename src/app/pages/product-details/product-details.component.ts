@@ -1,3 +1,4 @@
+import { NotificationService } from 'src/app/services/notification.service';
 import { DATASET_URL_CHARACTERISTIC } from 'src/app/services/dataset.service';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -223,7 +224,8 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     private accService: AccountServiceService,
     private usageService: UsageServiceService,
     private location: Location,
-    private themeService: ThemeService
+    private themeService: ThemeService,
+    private notificationService: NotificationService
   ) {
     this.showTermsMore = false;
     this.eventMessage.messages$
@@ -1213,6 +1215,24 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     const characteristic = (service?.specCharacteristic ?? []).find((c: any) => c?.name === DATASET_URL_CHARACTERISTIC);
     const value = characteristic?.characteristicValueSpecification?.[0]?.value;
     return typeof value === 'string' && /^https?:\/\//i.test(value) ? value : null;
+  }
+
+  /** The address of the dataset the seller serves, when this product sells one. */
+  get datasetAddress(): string | null {
+    for (const service of this.serviceSpecs) {
+      const url = this.datasetUrl(service);
+      if (url) return url;
+    }
+    return null;
+  }
+
+  async copyDatasetAddress(url: string): Promise<void> {
+    try {
+      await navigator.clipboard.writeText(url);
+      this.notificationService.showSuccess('PRODUCT_DETAILS._dataset_address_copied');
+    } catch {
+      this.notificationService.showError('PRODUCT_DETAILS._dataset_address_copy_error');
+    }
   }
 
   goToLink(url: any) {

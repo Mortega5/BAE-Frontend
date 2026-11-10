@@ -217,6 +217,24 @@
             <span class="text-[16px] font-semibold text-secondary-100 dark:text-content">{{prodSpec.name}}</span>
           </div>
         </div>
+        @if(orgInfo!=undefined){
+        <div class="flex items-center gap-4">
+          <div
+            class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full pd-chip">
+            <svg class="h-6 w-6 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" fill="none"
+              viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
+            </svg>
+          </div>
+          <div>
+            <span class="text-[14px] pd-muted-text block">{{ 'PRODUCT_DETAILS._owner' | translate
+              }}</span>
+            <a (click)="goToOrgDetails(orgInfo.id)"
+              class="text-[16px] font-semibold text-primary-100 dark:text-primary-50 cursor-pointer hover:underline">{{orgInfo.tradingName}}</a>
+          </div>
+        </div>
+        }
         @if(prodSpec.productNumber){
         <div class="flex items-center gap-4">
           <div
@@ -251,8 +269,8 @@
           </div>
         </div>
         }
-        @if(orgInfo!=undefined){
-        <div class="flex items-center gap-4">
+        @if (datasetAddress; as url) {
+        <div class="flex items-center gap-4 md:col-span-2">
           <div
             class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full pd-chip">
             <svg class="h-6 w-6 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg" fill="none"
@@ -261,11 +279,15 @@
                 d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244" />
             </svg>
           </div>
-          <div>
-            <span class="text-[14px] pd-muted-text block">{{ 'PRODUCT_DETAILS._owner' | translate
-              }}</span>
-            <a (click)="goToOrgDetails(orgInfo.id)"
-              class="text-[16px] font-semibold text-primary-100 dark:text-primary-50 cursor-pointer hover:underline">{{orgInfo.tradingName}}</a>
+          <div class="min-w-0">
+            <span class="text-[14px] pd-muted-text block">{{ 'PRODUCT_DETAILS._dataset_address' | translate }}</span>
+            <div class="flex items-center gap-1">
+              <a [href]="url" target="_blank" rel="noopener noreferrer" data-cy="datasetAddress"
+                class="text-[16px] font-semibold break-all text-primary-100 dark:text-primary-50 hover:underline">{{ url }}</a>
+              <app-button type="button" variant="link" size="sm" prefixIcon="copy" class="shrink-0" dataCy="copyDatasetAddress"
+                [attr.aria-label]="'PRODUCT_DETAILS._copy_dataset_address' | translate"
+                [attr.title]="'PRODUCT_DETAILS._copy_dataset_address' | translate" (click)="copyDatasetAddress(url)" />
+            </div>
           </div>
         </div>
         }
@@ -415,13 +437,6 @@
           <span class="font-semibold text-secondary-100 dark:text-content">{{service.name}}</span>@if (service.description) {:
           <markdown class="text-[16px] pd-strong-text inline" [data]="service.description">
           </markdown>
-          }
-          @if (datasetUrl(service); as url) {
-          <div class="mt-1 text-[16px]">
-            <span class="font-semibold text-secondary-100 dark:text-content">{{ 'PRODUCT_DETAILS._dataset_address' | translate }}:</span>
-            <a [href]="url" target="_blank" rel="noopener noreferrer" data-cy="datasetAddress"
-              class="break-all text-primary-100 dark:text-primary-50 underline">{{ url }}</a>
-          </div>
           }
         </div>
         }

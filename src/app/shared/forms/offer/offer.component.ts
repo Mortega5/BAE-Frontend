@@ -1,3 +1,5 @@
+import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
+import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
@@ -264,7 +266,9 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     private localStorage: LocalStorageService,
     private notificationService: NotificationService,
     private datasetService: DatasetService,
-    private prodSpecService: ProductSpecServiceService) {
+    private prodSpecService: ProductSpecServiceService,
+    private resSpecService: ResourceSpecServiceService,
+    private servSpecService: ServiceSpecServiceService) {
 
     this.productOfferForm = this.fb.group({
       generalInfo: this.fb.group({}),
@@ -1249,6 +1253,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   async createOffer(lifecycleStatus: 'Active' | 'Launched' = 'Active') {
     this.loading = true;
     if (this.dataset && !(await this.createDatasetProduct(lifecycleStatus))) return;
+    if (this.dataset && lifecycleStatus === 'Launched' && !(await this.publishDatasetSpecs(this.createdSpec))) return;
     const plans = this.productOfferForm.value.pricePlans;
 
     if (plans.length === 0) {
@@ -1448,8 +1453,33 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     });
   }
 
-  private publishOffer() {
+  /** A published offer of a dataset needs what it sells to be published too: the dataset itself (a resource specification for a
+   * file, a service specification for an address) and the product specification that points at it. Resolves false, after
+   * telling the seller, when one fails. */
+  private async publishDatasetSpecs(prodSpec: any): Promise<boolean> {
+    if (!prodSpec) return true;
+    const launched = { lifecycleStatus: 'Launched' };
+    try {
+      await Promise.all([
+        ...(prodSpec.resourceSpecification ?? []).map((ref: any) => lastValueFrom(this.resSpecService.updateResSpec(launched, ref.id))),
+        ...(prodSpec.serviceSpecification ?? []).map((ref: any) => lastValueFrom(this.servSpecService.updateServSpec(launched, ref.id))),
+      ]);
+      if (prodSpec.lifecycleStatus !== 'Launched') {
+        await lastValueFrom(this.prodSpecService.updateProdSpec(launched, prodSpec.id));
+        prodSpec.lifecycleStatus = 'Launched';
+      }
+      return true;
+    } catch (error: any) {
+      console.error('There was an error while publishing the dataset!', error);
+      this.loading = false;
+      this.notificationService.showError('UPDATE_OFFER._publish_error', { details: this.extractErrorDetail(error) });
+      return false;
+    }
+  }
+
+  private async publishOffer() {
     this.loading = true;
+    if (this.datasetProduct && !(await this.publishDatasetSpecs(this.selectedProdSpec))) return;
     this.api.updateProductOffering({ lifecycleStatus: 'Launched' }, this.offer.id).subscribe({
       next: () => {
         this.loading = false;
