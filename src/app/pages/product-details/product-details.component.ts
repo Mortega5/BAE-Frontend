@@ -1,3 +1,4 @@
+import { DATASET_URL_CHARACTERISTIC } from 'src/app/services/dataset.service';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { faArrowProgress, faArrowRightArrowLeft, faAtom, faBook, faDownload, faGlobe, faMinus, faObjectExclude, faPlus, faScaleBalanced, faShieldHalved, faSwap } from "@fortawesome/pro-solid-svg-icons";
@@ -1205,6 +1206,13 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
 
   toggleTermsReadMore() {
     this.showTermsMore = !this.showTermsMore;
+  }
+
+  /** The address of a dataset the seller serves from their own DSP: public, so it is shown to anyone looking at the product. */
+  datasetUrl(service: any): string | null {
+    const characteristic = (service?.specCharacteristic ?? []).find((c: any) => c?.name === DATASET_URL_CHARACTERISTIC);
+    const value = characteristic?.characteristicValueSpecification?.[0]?.value;
+    return typeof value === 'string' && /^https?:\/\//i.test(value) ? value : null;
   }
 
   goToLink(url: any) {

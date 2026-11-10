@@ -416,6 +416,13 @@
           <markdown class="text-[16px] pd-strong-text inline" [data]="service.description">
           </markdown>
           }
+          @if (datasetUrl(service); as url) {
+          <div class="mt-1 text-[16px]">
+            <span class="font-semibold text-secondary-100 dark:text-content">{{ 'PRODUCT_DETAILS._dataset_address' | translate }}:</span>
+            <a [href]="url" target="_blank" rel="noopener noreferrer" data-cy="datasetAddress"
+              class="break-all text-primary-100 dark:text-primary-50 underline">{{ url }}</a>
+          </div>
+          }
         </div>
         }
       </div>

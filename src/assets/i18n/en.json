@@ -1073,6 +1073,7 @@
     "_no_sla": "No SLA included",
     "_no_relatioships": "No relationships included",
     "_service_spec": "This offering includes the following service specifications",
+    "_dataset_address": "Dataset address",
     "_resource_spec": "This offering includes the following resource specifications",
     "_self_attestation": "You can find the self attestation document here.",
     "_product_pricing": "Pricing plans",
