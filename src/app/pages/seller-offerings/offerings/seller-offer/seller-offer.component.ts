@@ -15,6 +15,8 @@ import { PriceServiceService } from 'src/app/services/price-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
 import { expandLifecycleStatusFilter, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
+import { environment } from 'src/environments/environment';
+import { SplitButtonAction } from 'src/app/shared/split-button/split-button.component';
 import { SellerOfferingsPaths } from '../../seller-offerings.paths';
 
 @Component({
@@ -113,6 +115,17 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
 
   goToCreate() {
     this.router.navigate([SellerOfferingsPaths.offers.new()])
+  }
+
+  readonly datasetsEnabled = !!environment.DATASETS_ENABLED;
+  readonly createActions: SplitButtonAction[] = [
+    { id: 'dataset', label: 'DATASETS._add_dataset', icon: 'database', dataCy: 'newDatasetOffering' },
+  ];
+
+  onCreateAction(id: string) {
+    if (id === 'dataset') {
+      this.router.navigate([SellerOfferingsPaths.datasets.new()]);
+    }
   }
 
   goToUpdate(offerId: any) {

@@ -5,9 +5,16 @@
       <p class="text-sm text-content-muted mt-1">{{ 'OFFERINGS._manage_offers_subtitle' | translate }}</p>
     </div>
 
+    @if (datasetsEnabled) {
+    <app-split-button dataCy="newOffering" prefixIcon="plus" [actions]="createActions" (mainClick)="goToCreate()"
+      (actionSelected)="onCreateAction($event)">
+      {{ 'OFFERINGS._add_new_offer' | translate }}
+    </app-split-button>
+    } @else {
     <app-button dataCy="newOffering" (click)="goToCreate()" prefixIcon="plus">
       {{ 'OFFERINGS._add_new_offer' | translate }}
     </app-button>
+    }
   </div>
   <app-filtered-paginated-table data-cy="offers" [columns]="offerColumns" [fetchPage]="fetchOffers"
     [filters]="offerFilters" [filterColumns]="1" [clickable]="true" (rowClick)="goToUpdate($event.id)"

@@ -6,6 +6,8 @@ import { findButtonIcon } from 'src/app/config/popular-icons';
 export type ButtonVariant = 'primary' | 'secondary' | 'danger' | 'link' | 'ghost' | 'neutral';
 export type ButtonSize = 'sm' | 'md';
 export type ButtonShape = 'default' | 'pill';
+/** Squares off the edge that touches a sibling button (used by app-split-button). */
+export type ButtonJoin = 'start' | 'end';
 
 /** Shared button used to consolidate the many near-duplicate Tailwind button styles
  * scattered across the app. Adopt incrementally when touching a file, not as a
@@ -23,6 +25,7 @@ export class ButtonComponent {
   @Input() size: ButtonSize = 'md';
   @Input() shape: ButtonShape = 'default';
   @Input() outline = false;
+  @Input() joined?: ButtonJoin;
   @Input() type: 'button' | 'submit' = 'button';
   @Input() disabled = false;
   @Input() prefixIcon?: IconName;

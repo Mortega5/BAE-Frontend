@@ -1,0 +1,25 @@
+<div class="split-button" [class.is-open]="open">
+  <app-button [variant]="variant" [size]="size" [disabled]="disabled" [prefixIcon]="prefixIcon" [dataCy]="dataCy"
+    joined="start" (click)="mainClick.emit()">
+    <ng-content></ng-content>
+  </app-button>
+  <app-button [variant]="variant" [size]="size" [disabled]="disabled" suffixIcon="chevron-down" joined="end"
+    [dataCy]="dataCy ? dataCy + 'Menu' : undefined" [attr.aria-label]="menuLabel | translate"
+    (click)="toggle(); $event.stopPropagation()"></app-button>
+
+  @if (open) {
+  <app-dropdown-panel class="split-button-menu">
+    <div class="flex flex-col p-1">
+      @for (action of actions; track action.id) {
+      <button type="button" [attr.data-cy]="action.dataCy || null" (click)="select(action)"
+        class="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm text-content hover:bg-surface-hover">
+        @if (icon(action.icon); as ic) {
+        <fa-icon [icon]="ic" class="text-content-muted" aria-hidden="true"></fa-icon>
+        }
+        <span>{{ action.label | translate }}</span>
+      </button>
+      }
+    </div>
+  </app-dropdown-panel>
+  }
+</div>

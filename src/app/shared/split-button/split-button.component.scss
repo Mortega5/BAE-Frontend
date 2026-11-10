@@ -1,0 +1,22 @@
+:host {
+  display: inline-block;
+}
+
+.split-button {
+  @apply relative inline-flex;
+}
+
+/* The chevron lives inside app-button's template, so it is reached through ::ng-deep,
+   scoped under this component's own wrapper. */
+.split-button ::ng-deep fa-icon {
+  transition: transform 200ms;
+}
+
+.split-button.is-open ::ng-deep app-button:last-of-type fa-icon {
+  transform: rotate(180deg);
+}
+
+.split-button-menu {
+  /* Opens under the button, as wide as the whole split button (main + chevron). */
+  @apply absolute inset-x-0 top-full z-40 mt-2;
+}

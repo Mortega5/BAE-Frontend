@@ -11,6 +11,7 @@ import { ButtonComponent } from './button/button.component';
 import { ContentCardComponent } from './content-card/content-card.component';
 import { DropdownPanelComponent } from './dropdown-panel/dropdown-panel.component';
 import { DrawerComponent } from './drawer/drawer.component';
+import { SplitButtonComponent } from './split-button/split-button.component';
 import { SideNavComponent } from './side-nav/side-nav.component';
 import { TabDirective } from './tabs/tab.directive';
 import { TabsComponent } from './tabs/tabs.component';
@@ -50,6 +51,7 @@ const STANDALONE_IMPORTS = [
   RouterLink,
   LoadingSpinnerComponent,
   ButtonComponent,
+  SplitButtonComponent,
   ContentCardComponent,
   ModalComponent,
   DropdownPanelComponent,

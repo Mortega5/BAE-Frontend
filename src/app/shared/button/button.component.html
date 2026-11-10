@@ -1,5 +1,5 @@
 <button class="app-button" [type]="type" [disabled]="disabled" [attr.data-cy]="dataCy || null"
-  [attr.data-variant]="variant" [attr.data-size]="size" [attr.data-shape]="shape"
+  [attr.data-variant]="variant" [attr.data-size]="size" [attr.data-shape]="shape" [attr.data-joined]="joined || null"
   [attr.data-outline]="outline ? '' : null" [attr.data-spread]="resolvedPrefixIcon && resolvedSuffixIcon ? '' : null">
   <span class="app-button-group">
     @if (resolvedPrefixIcon) {
