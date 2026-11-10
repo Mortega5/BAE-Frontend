@@ -102,6 +102,15 @@ export class AccountServiceService {
     return this.http.patch<any>(url, profile);
   }
 
+  /** The address of the org's own contract management (its DSP), when it has one. Like the country, it is a
+   * `partyCharacteristic` entry (`contractManagement`, see org-info.component.ts). */
+  async getOrgContractManagementAddress(partyId: any): Promise<string | null> {
+    const profile = await this.getOrgInfo(partyId);
+    const chars = Array.isArray(profile?.partyCharacteristic) ? profile.partyCharacteristic : [];
+    const address = chars.find((c: any) => c?.name === 'contractManagement')?.value?.address;
+    return typeof address === 'string' && address.trim() ? address.trim() : null;
+  }
+
   /** The org's country lives as a `partyCharacteristic` entry (see org-info.component.ts),
    * not a top-level field. */
   async getOrgCountry(partyId: any): Promise<string | null> {

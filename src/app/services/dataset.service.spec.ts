@@ -3,6 +3,9 @@ import { HttpClientTestingModule, HttpTestingController } from '@angular/common/
 import { HttpErrorResponse } from '@angular/common/http';
 import { Dataset, datasetFormat, datasetPolicyUid, datasetSize, DatasetService } from './dataset.service';
 import { environment } from 'src/environments/environment';
+import { lastValueFrom } from 'rxjs';
+import { AccountServiceService } from './account-service.service';
+import { LocalStorageService } from './local-storage.service';
 
 /** FormData keeps insertion order; the proxy needs the text fields before the file. */
 function fieldOrder(form: FormData): string[] {
@@ -23,6 +26,36 @@ describe('DatasetService', () => {
   });
 
   afterEach(() => httpMock.verify());
+
+  describe('source', () => {
+    const asOrganization = { id: 'user-1', logged_as: 'org-1', partyId: 'party-user', organizations: [{ id: 'org-1', partyId: 'party-org' }] };
+    const asAddress = (address: unknown) =>
+      spyOn(TestBed.inject(AccountServiceService), 'getOrgInfo').and.resolveTo({
+        partyCharacteristic: [{ name: 'country', value: 'ES' }, { name: 'contractManagement', value: { address } }],
+      });
+    const login = (info: unknown) => spyOn(TestBed.inject(LocalStorageService), 'getValidLoginInfo').and.returnValue(info as any);
+
+    it('is url when the organization has a contract management address, without asking the proxy', async () => {
+      login(asOrganization);
+      const orgInfo = asAddress('https://dsp.example.org');
+      expect(await lastValueFrom(service.source())).toBe('url');
+      expect(orgInfo).toHaveBeenCalledWith('party-org');
+      httpMock.expectNone(`${api}/source`);
+    });
+
+    it('is file when the organization has none, or an empty one', async () => {
+      login(asOrganization);
+      asAddress('  ');
+      expect(await lastValueFrom(service.source())).toBe('file');
+    });
+
+    it('is file, with no request at all, for a seller acting as themselves', async () => {
+      login({ ...asOrganization, logged_as: 'user-1' });
+      const orgInfo = asAddress('https://dsp.example.org');
+      expect(await lastValueFrom(service.source())).toBe('file');
+      expect(orgInfo).not.toHaveBeenCalled();
+    });
+  });
 
   it('lists with offset and limit', () => {
     service.list(10, 5).subscribe();

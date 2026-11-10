@@ -1,11 +1,13 @@
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { lastValueFrom, map, Observable } from 'rxjs';
+import { from, lastValueFrom, map, Observable, of } from 'rxjs';
 import { fetchAllPages } from 'src/app/models/pagination.model';
 import { environment } from 'src/environments/environment';
+import { AccountServiceService } from './account-service.service';
+import { LocalStorageService } from './local-storage.service';
 
 /** How the datasets of the seller are made, which is not their choice: a file the marketplace keeps, or the address where their
- * own DSP serves it. It follows whether the organization has a contract management of its own (the proxy knows). */
+ * own DSP serves it. It follows whether the organization has a contract management of its own (see `DatasetService.source`). */
 export type DatasetSource = 'file' | 'url';
 
 export type DatasetVisibility = 'private' | 'public' | 'custom';
@@ -121,7 +123,7 @@ export class DatasetService {
 
   private readonly API = `${environment.BASE_URL}/dataset`;
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private account: AccountServiceService, private localStorage: LocalStorageService) { }
 
   list(offset = 0, limit = 20): Observable<Dataset[]> {
     return this.http.get<Dataset[]>(`${this.API}?offset=${offset}&limit=${limit}`);
@@ -135,9 +137,22 @@ export class DatasetService {
     });
   }
 
-  /** How the datasets of the seller are made. */
+  /**
+   * How the datasets of the seller are made, from what the organization they act as has: an address for the contract
+   * management of its own means it serves its data (`url`), otherwise the marketplace keeps the file. Nothing is asked
+   * of the proxy. A seller acting as themselves, not as an organization, has none.
+   */
   source(): Observable<DatasetSource> {
-    return this.http.get<{ source: DatasetSource }>(`${this.API}/source`).pipe(map(answer => answer.source));
+    const partyId = this.organizationPartyId();
+    if (!partyId) return of('file');
+    return from(this.account.getOrgContractManagementAddress(partyId)).pipe(map(address => address ? 'url' : 'file'));
+  }
+
+  /** The party of the organization the seller is logged in as, if any. */
+  private organizationPartyId(): string | undefined {
+    const session = this.localStorage.getValidLoginInfo();
+    if (!session || session.logged_as == session.id) return undefined;
+    return session.organizations?.find((org: any) => org.id == session.logged_as)?.partyId;
   }
 
   get(id: string): Observable<Dataset> {
