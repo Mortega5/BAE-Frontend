@@ -85,14 +85,6 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
     return [
       {
         items: [
-          ...(this.catalogManagementEnabled
-            ? [{
-              label: 'OFFERINGS._catalogs',
-              routerLink: segments.catalogues,
-              icon: 'bars' as IconName,
-              dataCy: 'catalogSection',
-            }]
-            : []),
           {
             label: 'OFFERINGS._product_offers',
             routerLink: segments.offers,
@@ -108,9 +100,27 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
           // },
         ],
       },
+      ...(environment.DATASETS_ENABLED
+        ? [{
+          label: 'DATASETS._section_label',
+          items: [
+            { label: 'DATASETS._section', routerLink: segments.datasets, icon: 'database' as IconName, dataCy: 'datasetSection' },
+          ],
+        }]
+        : []),
       {
         label: 'OFFERINGS._specifications',
+        collapsible: true,
+        defaultCollapsed: true,
         items: [
+          ...(this.catalogManagementEnabled
+            ? [{
+              label: 'OFFERINGS._catalogs',
+              routerLink: segments.catalogues,
+              icon: 'bars' as IconName,
+              dataCy: 'catalogSection',
+            }]
+            : []),
           { label: 'OFFERINGS._products', routerLink: segments.productSpecs, icon: 'layer-group' as IconName, dataCy: 'prdSpecSection' },
           { label: 'OFFERINGS._services', routerLink: segments.serviceSpecs, icon: 'plug-circle-plus' as IconName, dataCy: 'servSpecSection' },
           { label: 'OFFERINGS._resources', routerLink: segments.resourceSpecs, icon: 'server' as IconName, dataCy: 'resSpecSection' },

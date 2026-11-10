@@ -3,10 +3,19 @@ import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } 
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import moment from 'moment';
+import { HttpEventType, HttpResponse } from '@angular/common/http';
 import { lastValueFrom, Subject, Subscription } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { filter, map, takeUntil, tap } from 'rxjs/operators';
 import { searchCategoriesConfig } from 'src/app/data/availableFilters';
-import { SelectOption } from 'src/app/models/formFields/form-field.model';
+import { FormField, SelectOption } from 'src/app/models/formFields/form-field.model';
+import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
+import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { Dataset, DatasetSource, datasetReference, datasetReferenceIds, DatasetReplacement, DatasetService, DatasetVisibility } from 'src/app/services/dataset.service';
+import { DATASET_SOLD_VISIBILITY_FIELD } from 'src/app/pages/seller-offerings/offerings/seller-datasets/dataset-visibility';
+import { DATASET_FILE_FIELD, DATASET_REPLACE_FIELDS, DATASET_URL_FIELD, DatasetFilePanelComponent, datasetReplacement, showStoredDataset } from 'src/app/pages/seller-offerings/offerings/seller-datasets/dataset-file-panel/dataset-file-panel.component';
+import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
+import { buildDatasetPolicyCharacteristic, checkDatasetPolicy, DATASET_POLICY_TEMPLATE } from 'src/app/pages/seller-offerings/offerings/seller-datasets/dataset-policy';
+import { DatasetUploadProgressComponent } from 'src/app/pages/seller-offerings/offerings/seller-datasets/dataset-upload-progress/dataset-upload-progress.component';
 import { fetchAllPages } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
@@ -62,6 +71,9 @@ import { previewPricesFromPlans } from './offer-preview.util';
     SearchSelectComponent,
     StepperComponent,
     StepperStepDirective,
+    DynamicFormComponent,
+    DatasetUploadProgressComponent,
+    DatasetFilePanelComponent,
   ],
   templateUrl: './offer.component.html',
   styleUrl: './offer.component.css'
@@ -71,9 +83,118 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   @Input() formType: 'create' | 'update' = 'create';
   @Input() offer: any = {};
   @Input() partyId: any;
+  /** Selling a dataset: the dataset and its product are made, from the name of the offer, right before the offer itself. */
+  @Input() dataset = false;
   @Output() previewRequested = new EventEmitter<any>();
   /** Submitting first shows the preview; the host calls publish()/saveDraft()/confirmUpdate() once it's confirmed there. */
   @Output() submitPreviewRequested = new EventEmitter<any>();
+
+  //DATASET MODE: what the seller says about the dataset. Its name and the one of its product come from the offer's, with a suffix.
+  readonly datasetFields: FormField[] = [
+    DATASET_SOLD_VISIBILITY_FIELD,
+  ];
+  readonly datasetForm: FormGroup = buildFormGroup(this.datasetFields);
+  readonly datasetFileFields: FormField[] = [DATASET_FILE_FIELD];
+  readonly datasetFileForm: FormGroup = buildFormGroup(this.datasetFileFields);
+  readonly datasetUrlFields: FormField[] = [DATASET_URL_FIELD];
+  readonly datasetUrlForm: FormGroup = buildFormGroup(this.datasetUrlFields);
+  /** The seller's access policy for a custom dataset */
+  readonly policyForm = new FormGroup({ policy: new FormControl(DATASET_POLICY_TEMPLATE) });
+  readonly policyFields: FormField[] = [{
+    type: 'code', language: 'json', name: 'policy', label: 'DATASETS._policy_title', hint: 'DATASETS._policy_hint',
+    formatOnPaste: true, formatButton: true, lineNumbers: false, dataCy: 'datasetPolicy',
+  }];
+  /** The proxy's message when it refuses the policy (422), shown next to the editor */
+  policyServerError = '';
+  /** Upload progress of the dataset file while saving, or null when nothing is being uploaded */
+  uploadProgress: number | null = null;
+  //UPDATE of an offer that sells a dataset: its file is shown and can be replaced
+  /** The product of the offer sells a dataset, so the product step is replaced by the file of the dataset. */
+  datasetProduct = false;
+  /** The file service's view of the stored dataset (format, size, checksum...). */
+  storedDataset?: Dataset;
+  readonly replaceForm: FormGroup = buildFormGroup(DATASET_REPLACE_FIELDS);
+
+  /** What the seller changed in the stored dataset: a newly picked file, or another address. */
+  get replacement(): DatasetReplacement | null {
+    return datasetReplacement(this.replaceForm, this.storedDataset);
+  }
+  get canReplace(): boolean {
+    return !!this.replacement;
+  }
+  private setStoredDataset(dataset: Dataset): void {
+    this.storedDataset = dataset;
+    showStoredDataset(this.replaceForm, dataset);
+  }
+
+  /** The dataset a product sells, when it sells one; the product of a dataset carries a characteristic of value type `dataset`. */
+  private async loadStoredDataset(prodSpec: any): Promise<void> {
+    const isDataset = (prodSpec?.productSpecCharacteristic ?? []).some((char: any) => char.valueType === 'dataset');
+    const ids = datasetReferenceIds(prodSpec);
+    if (!isDataset || ids.length === 0) return;
+    this.datasetProduct = true;
+    // The dataset is a resource (a file) or a service (an address); the product may reference others next to it, which are not datasets (404)
+    for (const id of ids) {
+      try {
+        this.setStoredDataset(await lastValueFrom(this.datasetService.get(id)));
+        return;
+      } catch (error: any) {
+        if (error?.status === 404) continue;
+        const { key, message } = DatasetService.toError(error);
+        this.notificationService.showError(key, { details: message });
+        return;
+      }
+    }
+  }
+
+  /** The id and the buyers' access stay, the content is the new one. Resolves false, after telling the seller, when it fails. */
+  private async replaceDatasetFile(): Promise<boolean> {
+    try {
+      const dataset = await lastValueFrom(this.datasetService.replace(this.storedDataset!.id, this.replacement!).pipe(
+        tap(event => {
+          if (event.type === HttpEventType.UploadProgress && event.total) {
+            this.uploadProgress = Math.round((100 * event.loaded) / event.total);
+          }
+        }),
+        filter((event): event is HttpResponse<Dataset> => event.type === HttpEventType.Response),
+        map(event => event.body as Dataset),
+      ));
+      this.uploadProgress = null;
+      this.setStoredDataset(dataset);
+      this.notificationService.showSuccess('DATASETS._replace_success');
+      return true;
+    } catch (error) {
+      this.loading = false;
+      this.uploadProgress = null;
+      const { key, message } = DatasetService.toError(error);
+      this.notificationService.showError(key, { details: message });
+      return false;
+    }
+  }
+
+  /** The dataset and product made so far, kept so that saving again after a later request fails does not duplicate them. */
+  private createdDataset: Dataset | null = null;
+  private createdSpec: any = null;
+
+  get customDatasetSelected(): boolean {
+    return this.datasetForm.value.visibility === 'custom';
+  }
+
+  /** First problem with the policy draft, when the dataset is custom. */
+  get policyError(): string | undefined {
+    return this.customDatasetSelected ? checkDatasetPolicy(this.policyForm.value.policy).error : undefined;
+  }
+
+  /** How the datasets of the seller are made, which the proxy says: null until it has. */
+  datasetSource: DatasetSource | null = null;
+
+  get urlSource(): boolean {
+    return this.datasetSource === 'url';
+  }
+
+  get datasetValid(): boolean {
+    return this.datasetSource !== null && this.datasetForm.valid && (this.urlSource ? this.datasetUrlForm.valid : this.datasetFileForm.valid) && !this.policyError;
+  }
 
   productOfferForm: FormGroup;
   currentStepId = 'general';
@@ -141,7 +262,9 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     private router: Router,
     private accountService: AccountServiceService,
     private localStorage: LocalStorageService,
-    private notificationService: NotificationService) {
+    private notificationService: NotificationService,
+    private datasetService: DatasetService,
+    private prodSpecService: ProductSpecServiceService) {
 
     this.productOfferForm = this.fb.group({
       generalInfo: this.fb.group({}),
@@ -223,7 +346,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   }
 
   get canSubmit(): boolean {
-    return this.isFormValid && this.hasRootCategory;
+    return this.isFormValid && this.hasRootCategory && (!this.dataset || this.datasetValid);
   }
 
   validateCurrentStep(): boolean {
@@ -232,6 +355,8 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
         return this.productOfferForm.get('generalInfo')?.valid || false;
       case 'productSpec':
         return !!this.productOfferForm.get('prodSpec')?.value;
+      case 'dataset':
+        return this.datasetValid;
       case 'category':
         return this.hasRootCategory;
       case 'license':
@@ -268,6 +393,19 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   }
 
   async ngOnInit() {
+    if (this.dataset) {
+      // The product does not exist yet: it is made when the offer is saved
+      this.productOfferForm.get('prodSpec')?.clearValidators();
+      this.productOfferForm.get('prodSpec')?.updateValueAndValidity();
+      // Whether the dataset is uploaded or given by its address is not the seller's choice
+      this.datasetService.source().pipe(takeUntil(this.destroy$)).subscribe({
+        next: source => this.datasetSource = source,
+        error: error => {
+          const { key, message } = DatasetService.toError(error);
+          this.notificationService.showError(key, { details: message });
+        },
+      });
+    }
     if (this.formType === 'update' && this.offer) {
       this.loadingData = true;
       await this.loadCategories();
@@ -506,6 +644,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
       await this.api.getProductSpecification(this.offer.productSpecification.id).then(async data => {
         this.selectedProdSpec = data;
       })
+      await this.loadStoredDataset(this.selectedProdSpec);
       this.productOfferForm.patchValue({
         prodSpec: this.selectedProdSpec || null // Cargar si existe, o dejar en null
       });
@@ -1043,8 +1182,73 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     return updatedPrice;
   }
 
+  /** A dataset is sold in three requests: the dataset (its resource specification), the product specification that
+   * points at it, and then the offer. Each is kept once made, so saving again after a later one fails does not
+   * duplicate the earlier ones. Resolves false, after telling the seller, when one of the first two fails. */
+  private async createDatasetProduct(lifecycleStatus: 'Active' | 'Launched'): Promise<boolean> {
+    const general = this.productOfferForm.value.generalInfo;
+    const name = (general.name ?? '').trim();
+    const { visibility } = this.datasetForm.value;
+    const url = this.urlSource ? (this.datasetUrlForm.value.url ?? '').trim() : undefined;
+    const file: File | undefined = this.urlSource ? undefined : this.datasetFileForm.value.file.file;
+    let step: 'dataset' | 'product' = 'dataset';
+    try {
+      if (!this.createdDataset) {
+        this.createdDataset = await lastValueFrom(this.datasetService.create({ name: `${name} dataset`, visibility, ...(url ? { url } : {}) }, file).pipe(
+          tap(event => {
+            if (event.type === HttpEventType.UploadProgress && event.total) {
+              this.uploadProgress = Math.round((100 * event.loaded) / event.total);
+            }
+          }),
+          filter((event): event is HttpResponse<Dataset> => event.type === HttpEventType.Response),
+          map(event => event.body as Dataset),
+        ));
+      }
+      this.uploadProgress = null;
+      step = 'product';
+      if (!this.createdSpec) {
+        const dataset = this.createdDataset;
+        // The proxy marks the product itself, and writes the policy of a private dataset; the one of a custom
+        // dataset carries the seller's policy, which names the dataset
+        const policy = this.customDatasetSelected ? checkDatasetPolicy(this.policyForm.value.policy).policy : undefined;
+        this.createdSpec = await lastValueFrom(this.prodSpecService.postProdSpec({
+          name: `${name} product spec`,
+          description: general.description || '',
+          version: general.version,
+          brand: '',
+          productNumber: '',
+          lifecycleStatus,
+          isBundle: false,
+          bundledProductSpecification: [],
+          productSpecCharacteristic: policy ? [buildDatasetPolicyCharacteristic(dataset.id, policy)] : [],
+          productSpecificationRelationship: [],
+          attachment: [],
+          relatedParty: [{ id: this.partyId, role: environment.SELLER_ROLE, '@referredType': '' }],
+          // A file is a resource of the marketplace, an address is a service the seller offers: the id says which
+          ...datasetReference(dataset),
+        }));
+      }
+      this.productOfferForm.patchValue({ prodSpec: { ...this.createdSpec, href: this.createdSpec.href ?? this.createdSpec.id } });
+      return true;
+    } catch (error: any) {
+      console.error('There was an error while making the dataset product!', error);
+      this.loading = false;
+      this.uploadProgress = null;
+      if (step === 'dataset') {
+        const { key, message } = DatasetService.toError(error);
+        this.notificationService.showError(key, { details: message });
+      } else {
+        const details = error?.error?.error || error?.error?.message || error?.message;
+        if (error?.status === 422 && this.customDatasetSelected) this.policyServerError = details;
+        this.notificationService.showError('CREATE_PROD_SPEC._save_error', { details });
+      }
+      return false;
+    }
+  }
+
   async createOffer(lifecycleStatus: 'Active' | 'Launched' = 'Active') {
     this.loading = true;
+    if (this.dataset && !(await this.createDatasetProduct(lifecycleStatus))) return;
     const plans = this.productOfferForm.value.pricePlans;
 
     if (plans.length === 0) {
@@ -1187,7 +1391,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   }
 
   get leaveNeedsConfirmation(): boolean {
-    return !this.leaveAllowed && (this.productOfferForm.dirty || (this.isUpdate && this.hasChanges));
+    return !this.leaveAllowed && (this.productOfferForm.dirty || this.canReplace || (this.isUpdate && this.hasChanges));
   }
 
   confirmLeave(): boolean | Promise<boolean> {
@@ -1200,7 +1404,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   }
 
   goBack() {
-    this.router.navigate([SellerOfferingsPaths.offers.list()]);
+    this.router.navigate([this.dataset ? SellerOfferingsPaths.datasets.list() : SellerOfferingsPaths.offers.list()]);
   }
 
   statusBadgeVariant(status: string): BadgeStatus {
@@ -1293,6 +1497,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
 
   async updateOffer() {
     this.loading = true;
+    if (this.canReplace && !(await this.replaceDatasetFile())) return;
     console.log('🔄 Starting offer update process...');
     console.log('📝 Current form changes:', this.formChanges);
 

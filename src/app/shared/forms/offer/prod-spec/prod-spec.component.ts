@@ -18,6 +18,7 @@ import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
 import { lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { ModalComponent } from 'src/app/shared/modal/modal.component';
+import { productSpecTypeLabel } from 'src/app/pages/seller-offerings/offerings/seller-product-spec/product-spec-type';
 import { ProductSpecServiceService } from "../../../../services/product-spec-service.service";
 import { PaginatedTableComponent } from '../../paginated-table/paginated-table.component';
 import { TableInputComponent } from '../../table-input/table-input.component';
@@ -83,7 +84,7 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
 
   prodColumns: TableColumn[] = [
     { header: 'Name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
-    { header: 'Product Type', getValue: (item: any) => item['@type'] ?? 'ProductSpecification', hideOnMobile: true },
+    { header: 'Product Type', getValue: (item: any) => productSpecTypeLabel(item), hideOnMobile: true, type: 'badge' },
     { header: 'Status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-40', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
     { header: 'Last update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-52', sortKey: 'lastUpdate' },
   ];

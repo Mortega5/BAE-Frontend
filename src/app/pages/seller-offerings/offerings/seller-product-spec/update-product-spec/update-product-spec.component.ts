@@ -4,8 +4,9 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { initFlowbite } from 'flowbite';
-import { lastValueFrom, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { forkJoin, lastValueFrom, of, Subject } from 'rxjs';
+import { HttpEventType, HttpResponse } from '@angular/common/http';
+import { catchError, filter, map, takeUntil, tap } from 'rxjs/operators';
 import { IconCategory, POPULAR_ICON_CATEGORIES } from 'src/app/config/popular-icons';
 import { certifications } from 'src/app/models/certification-standards.const';
 import { FormField, SelectOption, TableFormField } from 'src/app/models/formFields/form-field.model';
@@ -15,6 +16,7 @@ import { components } from "src/app/models/product-catalog";
 import { faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
+import { Dataset, datasetReferenceIds, DatasetReplacement, DatasetService, datasetPolicyUid } from 'src/app/services/dataset.service';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { NotificationService } from 'src/app/services/notification.service';
@@ -35,6 +37,8 @@ import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
 import { BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
+import { datasetVisibility } from '../../seller-datasets/dataset-table';
+import { DATASET_REPLACE_FIELDS, datasetReplacement, showStoredDataset } from '../../seller-datasets/dataset-file-panel/dataset-file-panel.component';
 import { buildBundleProductColumns } from '../bundle-product-columns';
 import { buildSpecContentItemColumns, SpecContentItem, SpecContentItemType } from '../spec-content-item-columns';
 
@@ -46,7 +50,7 @@ type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecific
 type ServiceSpecificationRef = components["schemas"]["ServiceSpecificationRef"];
 type ResourceSpecificationRef = components["schemas"]["ResourceSpecificationRef"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
-type ProductSpecFormStep = 'general' | 'productDetails' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'relationships' | 'faqs' | 'orchestrationPlan' | 'dsp_config';
+type ProductSpecFormStep = 'general' | 'productDetails' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' | 'relationships' | 'faqs' | 'orchestrationPlan' | 'dsp_config' | 'datasets';
 
 const DSP_CHARS: string[] = ['endpointUrl', 'upstreamAddress', 'targetSpecification', 'serviceConfiguration', 'credentialsConfig', 'authorizationPolicy', 'transferPath', 'transferType'];
 
@@ -57,6 +61,7 @@ const BASE_TEMPLATE_OPTIONS = [
 
 import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
+import { resourceSpecTypeLabel } from '../../seller-resource-spec/resource-spec-type';
 @Component({
   selector: 'update-product-spec',
   templateUrl: './update-product-spec.component.html',
@@ -215,7 +220,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
   @ViewChild('resourceSpecsTable') private resourceSpecsTable?: PaginatedTableComponent;
   resColumns: TableColumn[] = [
     { header: 'CREATE_PROD_SPEC._name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
-    { header: 'CREATE_PROD_SPEC._type', getValue: (item: any) => item['@type'] ?? 'ResourceSpecification', hideOnMobile: true },
+    { header: 'CREATE_PROD_SPEC._type', getValue: (item: any) => resourceSpecTypeLabel(item), hideOnMobile: true, type: 'badge' },
     { header: 'CREATE_PROD_SPEC._status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
     { header: 'CREATE_PROD_SPEC._last_update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-[200px]', sortKey: 'lastUpdate' },
   ];
@@ -309,8 +314,91 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
   readonly selfAttestationFields = [this.complianceFields[0]];
   readonly additionalAttachmentFields = [this.complianceFields[1]];
 
+  /** The TMF template (@type) of the spec; "dataset" is only a label for dataset products, which have none. */
   get templateName(): string {
-    return this.generalForm.get('baseTemplate')?.value || '';
+    const value = this.generalForm.get('baseTemplate')?.value || '';
+    return value === 'dataset' ? '' : value;
+  }
+
+  //DATASETS (a product selling datasets):
+  /** The proxy refuses changes to what a dataset product sells, so those editors are replaced by a read-only list. */
+  get datasetMode(): boolean {
+    return (this.prod?.productSpecCharacteristic ?? []).some((char: any) => char.valueType === 'dataset');
+  }
+  selectedDatasets: Dataset[] = [];
+  /** The file of the dataset the product sells, and the form to replace it: the new file is sent when the product is saved. */
+  readonly replaceForm: FormGroup = buildFormGroup(DATASET_REPLACE_FIELDS);
+  /** Upload progress of the new file while saving, or null when nothing is being uploaded */
+  uploadProgress: number | null = null;
+
+  /** What the seller changed in the stored dataset: a newly picked file, or another address. */
+  get replacement(): DatasetReplacement | null {
+    return datasetReplacement(this.replaceForm, this.selectedDatasets[0]);
+  }
+  get canReplace(): boolean {
+    return !!this.replacement;
+  }
+
+  private showStoredFile(dataset?: Dataset): void {
+    showStoredDataset(this.replaceForm, dataset);
+  }
+
+  /** The id and the buyers' access stay, the content is the new one. Resolves false, after telling the seller, when it fails. */
+  private async replaceDatasetFile(): Promise<boolean> {
+    const stored = this.selectedDatasets[0];
+    try {
+      const dataset = await lastValueFrom(this.datasetService.replace(stored.id, this.replacement!).pipe(
+        tap(event => {
+          if (event.type === HttpEventType.UploadProgress && event.total) {
+            this.uploadProgress = Math.round((100 * event.loaded) / event.total);
+          }
+        }),
+        filter((event): event is HttpResponse<Dataset> => event.type === HttpEventType.Response),
+        map(event => event.body as Dataset),
+      ));
+      this.uploadProgress = null;
+      this.selectedDatasets = [dataset, ...this.selectedDatasets.slice(1)];
+      this.showStoredFile(dataset);
+      this.notificationService.showSuccess('DATASETS._replace_success');
+      return true;
+    } catch (error) {
+      this.loading = false;
+      this.uploadProgress = null;
+      const { key, message } = DatasetService.toError(error);
+      this.notificationService.showError(key, { details: message });
+      return false;
+    }
+  }
+  /** The policy of a custom dataset as stored (the proxy has added the path of the file); read-only. */
+  readonly datasetPolicyForm = new FormGroup({ policy: new FormControl('') });
+  readonly datasetPolicyFields: FormField[] = [{
+    type: 'code', language: 'json', name: 'policy', label: 'DATASETS._policy_title', readonly: true, lineNumbers: false, dataCy: 'datasetPolicy',
+  }];
+  showDatasetPolicy = false;
+
+  /** The datasets are the product's referenced resource specs. It may reference others next to them (the answer is a 404
+   * for those, and they are left out); a dataset that cannot be read for any other reason is shown by its id. */
+  private async loadDatasets(): Promise<void> {
+    // A file is referenced as a resource, an address as a service; the ones that are not datasets answer 404 and are left out
+    const ids: string[] = datasetReferenceIds(this.prod);
+    const found: (Dataset | null)[] = await lastValueFrom(forkJoin(ids.map(id =>
+      this.datasetService.get(id).pipe(catchError(error => of(error?.status === 404 ? null : { id, name: id } as Dataset)))
+    )).pipe(catchError(() => of([] as (Dataset | null)[]))), { defaultValue: [] });
+    this.selectedDatasets = found.filter(dataset => dataset !== null) as Dataset[];
+    this.showStoredFile(this.selectedDatasets[0]);
+    this.loadDatasetPolicy();
+  }
+
+  /** Only a custom dataset has a policy of the seller; it is told apart from the product's other policies by its uid. */
+  private loadDatasetPolicy(): void {
+    const custom = this.selectedDatasets.find(dataset => datasetVisibility(dataset) === 'custom');
+    const policies: any[] = (this.prod.productSpecCharacteristic ?? [])
+      .filter((char: any) => char.valueType === 'authorizationPolicy')
+      .flatMap((char: any) => (char.productSpecCharacteristicValue ?? []).flatMap((value: any) => value.value ?? []));
+    const own = custom ? policies.filter(policy => String(policy?.['odrl:uid'] ?? '').startsWith(datasetPolicyUid(custom.id))) : [];
+
+    this.showDatasetPolicy = own.length > 0;
+    this.datasetPolicyForm.setValue({ policy: own.length ? JSON.stringify(own.length === 1 ? own[0] : own, null, 2) : '' });
   }
 
   constructor(
@@ -327,6 +415,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
     private router: Router,
     private translate: TranslateService,
     private notificationService: NotificationService,
+    private datasetService: DatasetService,
   ) {
     for (let i = 0; i < certifications.length; i++) {
       this.availableISOS.push(certifications[i])
@@ -358,6 +447,10 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
     try {
       this.prod = await this.prodSpecService.getResSpecById(id);
       this.populateProductInfo();
+      if (this.datasetMode) {
+        this.generalForm.patchValue({ baseTemplate: 'dataset' });
+        await this.loadDatasets();
+      }
       this.initialEditSignature = this.editSignature();
       initFlowbite();
     } catch (error) {
@@ -587,7 +680,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
     { type: 'string', name: 'brand', label: 'UPDATE_PROD_SPEC._product_brand', colSpan: 1 },
     { type: 'string', name: 'version', label: 'UPDATE_PROD_SPEC._product_version', required: true, colSpan: 1 },
     { type: 'string', name: 'number', label: 'UPDATE_PROD_SPEC._id_number', colSpan: 1 },
-    { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS, readonly: true },
+    { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: [...BASE_TEMPLATE_OPTIONS, { value: 'dataset', label: 'Dataset' }], readonly: true },
 
     { type: 'markdownTextarea', name: 'description', label: 'UPDATE_PROD_SPEC._product_description', placeholder: 'CREATE_PROD_SPEC._product_description_placeholder' },
   ];
@@ -806,7 +899,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
   }
 
   hasUnsavedChanges(): boolean {
-    return this.generalForm.dirty || this.dspConfigForm.dirty || this.editSignature() !== this.initialEditSignature;
+    return this.generalForm.dirty || this.dspConfigForm.dirty || this.canReplace || this.editSignature() !== this.initialEditSignature;
   }
 
   private editSignature(): string {
@@ -825,7 +918,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
   }
 
   goBack() {
-    this.router.navigate([SellerOfferingsPaths.productSpecs.list()]);
+    const fromDatasets = environment.DATASETS_ENABLED && this.route.snapshot.data['dataset'] === true;
+    this.router.navigate([fromDatasets ? SellerOfferingsPaths.datasets.list() : SellerOfferingsPaths.productSpecs.list()]);
   }
 
   toggleBundleCheck() {
@@ -1350,6 +1444,12 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
         serviceSpecification: this.selectedServiceSpecs.map((res: any) => ({ id: res.id, href: res.href }))
       }
     }
+    if (this.datasetMode && this.productSpecToUpdate) {
+      // The proxy answers 403 to a PATCH that contains any of these, even unchanged
+      const locked = this.productSpecToUpdate as any;
+      ['productSpecCharacteristic', 'resourceSpecification', 'bundledProductSpecification', 'isBundle',
+        'serviceSpecification', 'productSpecificationRelationship'].forEach(field => delete locked[field]);
+    }
     if (this.blueprintConfig) {
       this.productSpecToUpdate!['@schemaLocation'] = environment.BLUEPRINT_SCHEMA;
       (this.productSpecToUpdate as any).orchestrationPlan = {
@@ -1358,9 +1458,10 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
     }
   }
 
-  updateProduct() {
+  async updateProduct() {
     this.setProductData();
     this.loading = true;
+    if (this.datasetMode && this.canReplace && !(await this.replaceDatasetFile())) return;
     this.prodSpecService.updateProdSpec(this.productSpecToUpdate, this.prod.id).subscribe({
       next: data => {
         this.loading = false;

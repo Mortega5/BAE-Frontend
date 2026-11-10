@@ -39,7 +39,7 @@
   } @else {
   <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance"
     [submitLabel]="isUpdate ? 'UPDATE_SERV_SPEC._update_serv' : 'CREATE_SERV_SPEC._create_serv'"
-    [submitDisabled]="!generalForm.valid || loading" [submitAlwaysVisible]="isUpdate"
+    [submitDisabled]="!submittable || loading" [submitAlwaysVisible]="isUpdate"
     (stepChanged)="onStepChanged($event)" (submitted)="save()">
 
     <!-- Step 1: General Info -->
@@ -55,6 +55,22 @@
       </div>
     </ng-template>
 
+    <!-- Dataset: where the data is and who can read it (create), or its address to change (update) -->
+    @if (datasetMode) {
+    <ng-template stepperStep="{{ 'SPEC_STEPS._datasets' | translate }}" stepId="dataset">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._datasets_step' | translate }}</h2>
+          <p class="text-sm text-content-muted mt-2">{{ 'CREATE_SERV_SPEC._dataset_desc' | translate }}</p>
+        </div>
+        @if (!isUpdate) {
+        <app-dynamic-form class="block" [fields]="datasetFields" [formGroup]="datasetForm" />
+        } @else if (dataset) {
+        <app-dataset-file-panel [dataset]="dataset" [form]="replaceForm" />
+        }
+      </div>
+    </ng-template>
+    } @else {
     <!-- Step 2: Characteristics -->
     <ng-template stepperStep="{{ 'SPEC_STEPS._configuration_options' | translate }}" stepId="characteristics">
       <div class="flex flex-col gap-5">
@@ -66,6 +82,7 @@
           (characteristicsChange)="onCharacteristicsChange($event)" />
       </div>
     </ng-template>
+    }
 
   </app-stepper>
   }

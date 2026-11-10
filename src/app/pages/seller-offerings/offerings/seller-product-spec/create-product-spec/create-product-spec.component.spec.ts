@@ -2,6 +2,8 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, Subject, throwError } from 'rxjs';
+import { environment } from 'src/environments/environment';
+import { DatasetService } from 'src/app/services/dataset.service';
 
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
@@ -41,7 +43,7 @@ describe('CreateProductSpecComponent', () => {
     localStorageSpy = jasmine.createSpyObj<LocalStorageService>('LocalStorageService', ['getValidLoginInfo']);
     eventMessageSpy = jasmine.createSpyObj<EventMessageService>('EventMessageService', ['emitSellerProductSpec'], { messages$: messagesSubject.asObservable() });
     servSpecServiceSpy = jasmine.createSpyObj<ServiceSpecServiceService>('ServiceSpecServiceService', ['getServiceSpecByUserPaged']);
-    resSpecServiceSpy = jasmine.createSpyObj<ResourceSpecServiceService>('ResourceSpecServiceService', ['getResourceSpecByUserPaged']);
+    resSpecServiceSpy = jasmine.createSpyObj<ResourceSpecServiceService>('ResourceSpecServiceService', ['getResourceSpecByUserPaged', 'postResSpec', 'updateResSpec']);
     paginationServiceSpy = jasmine.createSpyObj<PaginationService>('PaginationService', ['getItemsPaginated']);
 
     localStorageSpy.getValidLoginInfo.and.returnValue({} as any);
@@ -61,7 +63,8 @@ describe('CreateProductSpecComponent', () => {
         { provide: EventMessageService, useValue: eventMessageSpy },
         { provide: ServiceSpecServiceService, useValue: servSpecServiceSpy },
         { provide: ResourceSpecServiceService, useValue: resSpecServiceSpy },
-        { provide: PaginationService, useValue: paginationServiceSpy }
+        { provide: PaginationService, useValue: paginationServiceSpy },
+        { provide: DatasetService, useValue: jasmine.createSpyObj<DatasetService>('DatasetService', ['list']) }
       ]
     })
       .overrideComponent(CreateProductSpecComponent, {
@@ -531,5 +534,175 @@ describe('CreateProductSpecComponent', () => {
     expect(component.prodRelationships.length).toBe(1);
     expect(component.prodRelationships[0].relationshipType).toBe('dependency');
     expect(component.prodRelationships[0].id).toBe('i1');
+  });
+
+  describe('dataset mode', () => {
+    const datasets = [
+      { id: 'urn:ngsi-ld:resource-specification:1', name: 'DS 1', visibility: 'private' },
+      { id: 'urn:ngsi-ld:resource-specification:2', name: 'DS 2', visibility: 'custom' },
+      { id: 'urn:ngsi-ld:resource-specification:3', name: 'DS 3', visibility: 'public' },
+    ] as any[];
+    let notificationSpy: jasmine.SpyObj<NotificationService>;
+    let originalFlag: boolean;
+    const flush = () => new Promise<void>(resolve => setTimeout(resolve));
+
+    beforeEach(() => {
+      originalFlag = environment.DATASETS_ENABLED;
+      environment.DATASETS_ENABLED = true;
+      notificationSpy = TestBed.inject(NotificationService) as jasmine.SpyObj<NotificationService>;
+      spyOn(notificationSpy, 'showError');
+      spyOn(notificationSpy, 'showSuccess');
+      component.ngOnInit();
+      component.partyId = 'org-1';
+      component.generalForm.patchValue({ name: 'Madrid data', version: '1.0', baseTemplate: 'dataset' });
+      component.onDatasetChange(datasets[0]);
+      prodSpecServiceSpy.postProdSpec.and.returnValue(of({ id: 'prod-1' } as any));
+      component.embedded = true;
+    });
+
+    afterEach(() => { environment.DATASETS_ENABLED = originalFlag; });
+
+    it('opened from the datasets section, is a dataset without a template to choose and goes back to the datasets list', () => {
+      (component as any).route = { snapshot: { data: { dataset: true } } };
+      component.generalForm.patchValue({ baseTemplate: '' });
+      component.ngOnInit();
+
+      expect(component.datasetOnly).toBeTrue();
+      expect(component.datasetMode).toBeTrue();
+      expect(component.generalFormFields.map(f => f.name)).not.toContain('baseTemplate');
+
+      component.embedded = false;
+      component.goBack();
+      expect(routerSpy.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.datasets.list()]);
+    });
+
+    it('is only active when the flag is on and the dataset template is chosen', () => {
+      expect(component.datasetMode).toBeTrue();
+      environment.DATASETS_ENABLED = false;
+      expect(component.datasetMode).toBeFalse();
+    });
+
+    it('offers the dataset template only when the flag is on', () => {
+      const options = (component.generalFormFields.find(f => f.name === 'baseTemplate') as any).options;
+      expect(options.map((o: any) => o.value)).not.toContain('dataset');
+    });
+
+    it('builds a product spec with the one dataset, no datasets characteristic and no policy for a private one', () => {
+      component.prodChars = [{ name: 'authorizationPolicy' } as any];
+      component.bundleChecked = true;
+      component.showFinish();
+
+      const spec = component.productSpecToCreate as any;
+      expect(spec['@type']).toBeUndefined();
+      expect(spec.isBundle).toBeFalse();
+      expect(spec.resourceSpecification).toEqual([
+        { id: 'urn:ngsi-ld:resource-specification:1', href: 'urn:ngsi-ld:resource-specification:1' },
+      ]);
+      expect(spec.serviceSpecification).toEqual([]);
+      expect(spec.productSpecCharacteristic).toEqual([]);
+    });
+
+    it('sends the seller policy of a custom dataset with its uid forced', () => {
+      component.onDatasetChange(datasets[1]);
+      component.policyForm.patchValue({ policy: JSON.stringify({ 'odrl:uid': 'mine', 'odrl:permission': { 'odrl:action': { '@id': 'odrl:read' } } }) });
+      component.showFinish();
+
+      const chars = (component.productSpecToCreate as any).productSpecCharacteristic;
+      expect(chars.map((c: any) => c.name)).toEqual(['authorizationPolicy']);
+      expect(chars[0].productSpecCharacteristicValue[0].value).toEqual([
+        { 'odrl:uid': 'urn:policy:dataset:2', 'odrl:permission': { 'odrl:action': { '@id': 'odrl:read' } } },
+      ]);
+    });
+
+    it('creates the product spec in a single request and never touches resource specs', async () => {
+      component.showFinish();
+      component.publish();
+      await flush();
+
+      expect(prodSpecServiceSpy.postProdSpec).toHaveBeenCalledTimes(1);
+      const body = prodSpecServiceSpy.postProdSpec.calls.mostRecent().args[0] as any;
+      expect(body.lifecycleStatus).toBe('Launched');
+      expect(body.authorizationPolicy).toBeUndefined();
+      expect(body.resourceSpecification.map((r: any) => r.id)).toEqual([datasets[0].id]);
+      expect(JSON.stringify(body)).not.toContain('authorizationPolicy');
+      expect(resSpecServiceSpy.postResSpec).not.toHaveBeenCalled();
+      expect(resSpecServiceSpy.updateResSpec).not.toHaveBeenCalled();
+    });
+
+    it('uses the draft status when saving a draft', async () => {
+      component.showFinish();
+      component.saveDraft();
+      await flush();
+
+      expect((prodSpecServiceSpy.postProdSpec.calls.mostRecent().args[0] as any).lifecycleStatus).toBe('Active');
+    });
+
+    it('shows the proxy message when the product spec fails', async () => {
+      prodSpecServiceSpy.postProdSpec.and.returnValue(throwError(() => ({ error: { error: 'dataset X is not active' } })));
+      component.showFinish();
+      component.publish();
+      await flush();
+
+      expect(notificationSpy.showError).toHaveBeenCalledWith('CREATE_PROD_SPEC._save_error', { details: 'dataset X is not active' });
+      expect(component.loading).toBeFalse();
+    });
+
+    it('requires a dataset to leave the datasets step', () => {
+      component.currentStepId = 'datasets';
+      component.onDatasetChange(null);
+      expect(component.canAdvance).toBeFalse();
+      component.onDatasetChange(datasets[0]);
+      expect(component.canAdvance).toBeTrue();
+    });
+
+    it('does not leave the step while the policy of a custom dataset is invalid', () => {
+      component.currentStepId = 'datasets';
+      component.onDatasetChange(datasets[1]);
+      expect(component.canAdvance).toBeTrue();
+
+      component.policyForm.patchValue({ policy: '{' });
+      expect(component.policyError).toBe('DATASETS._policy_error_invalid_json');
+      expect(component.canAdvance).toBeFalse();
+    });
+
+    it('keeps the policy draft for the same dataset and drops it when the selection changes', () => {
+      component.onDatasetChange(datasets[1]);
+      component.policyForm.patchValue({ policy: 'draft' });
+      component.onDatasetChange({ ...datasets[1] });
+      expect(component.policyForm.value.policy).toBe('draft');
+
+      component.onDatasetChange(datasets[0]);
+      component.onDatasetChange(datasets[1]);
+      expect(component.policyForm.value.policy).not.toBe('draft');
+    });
+
+    it('does not offer public datasets', async () => {
+      const datasetService = TestBed.inject(DatasetService) as jasmine.SpyObj<DatasetService>;
+      (datasetService as any).listAll = jasmine.createSpy().and.resolveTo(datasets);
+
+      const page = await component.fetchDatasets({ offset: 0, limit: 10 } as any);
+      expect(page.items.map(d => d.id)).toEqual([datasets[0].id, datasets[1].id]);
+    });
+
+    it('selects a freshly uploaded dataset, except a public one', () => {
+      component.showUploadDatasetModal = true;
+      component.onDatasetCreated(datasets[1]);
+      expect(component.showUploadDatasetModal).toBeFalse();
+      expect(component.selectedDataset).toBe(datasets[1]);
+
+      component.onDatasetCreated(datasets[2]);
+      expect(component.selectedDataset).toBe(datasets[1]);
+      expect(component.publicDatasetSkipped).toBeTrue();
+    });
+
+    it('shows the proxy message next to the policy editor on a 422', async () => {
+      component.onDatasetChange(datasets[1]);
+      prodSpecServiceSpy.postProdSpec.and.returnValue(throwError(() => ({ status: 422, error: { error: 'bad policy' } })));
+      component.showFinish();
+      component.publish();
+      await flush();
+
+      expect(component.policyServerError).toBe('bad policy');
+    });
   });
 });

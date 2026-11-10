@@ -15,6 +15,7 @@ import { ResourceSpecServiceService } from 'src/app/services/resource-spec-servi
 import { expandLifecycleStatusFilter, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { SellerOfferingsPaths } from '../../seller-offerings.paths';
+import { resourceSpecTypeLabel } from './resource-spec-type';
 
 @Component({
   selector: 'seller-resource-spec',
@@ -66,7 +67,7 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
       },
       {
         header: 'OFFERINGS._type',
-        getValue: (item: any) => item['@type'] ?? 'ResourceSpecification',
+        getValue: (item: any) => resourceSpecTypeLabel(item),
         width: 'w-[230px]',
         hideOnMobile: true,
         type: 'badge'

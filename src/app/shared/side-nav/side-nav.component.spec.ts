@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslateModule } from '@ngx-translate/core';
 
@@ -26,7 +27,7 @@ describe('SideNavComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [HostComponent, RouterTestingModule, TranslateModule.forRoot()],
+      imports: [HostComponent, RouterTestingModule.withRoutes([{ path: 'closed', children: [] }]), TranslateModule.forRoot()],
     }).compileComponents();
 
     hostFixture = TestBed.createComponent(HostComponent);
@@ -147,5 +148,48 @@ describe('SideNavComponent', () => {
 
     expect(hostFixture.componentInstance.onActionClick).toHaveBeenCalledTimes(1);
     expect(drawer().classList).toContain('-translate-x-full');
+  });
+
+  describe('collapsible sections', () => {
+    // A collapsed section stays in the DOM (so it can animate) but is inert
+    const hrefs = () => Array.from(desktopLinks()).filter(a => !a.closest('[inert]')).map(a => a.getAttribute('href'));
+    const header = (text: string) => Array.from(hostFixture.nativeElement.querySelectorAll('[data-cy="sideNavDesktop"] button'))
+      .find((b: any) => b.textContent.includes(text)) as HTMLButtonElement;
+
+    beforeEach(() => {
+      hostFixture.componentInstance.sections = [
+        ...hostFixture.componentInstance.sections,
+        { label: 'NS._open', collapsible: true, items: [{ label: 'NS._open_item', routerLink: '/open' }] },
+        { label: 'NS._closed', collapsible: true, defaultCollapsed: true, items: [{ label: 'NS._closed_item', routerLink: '/closed' }] },
+      ];
+      hostFixture.detectChanges();
+    });
+
+    it('starts expanded unless defaultCollapsed is set', () => {
+      expect(hrefs()).toContain('/open');
+      expect(hrefs()).not.toContain('/closed');
+    });
+
+    it('opens a section that starts collapsed while the current page is one of its items', async () => {
+      await TestBed.inject(Router).navigateByUrl('/closed');
+      hostFixture.detectChanges();
+      expect(hrefs()).toContain('/closed');
+    });
+
+    it('toggles the items when the label is clicked', () => {
+      header('NS._closed').click();
+      hostFixture.detectChanges();
+      expect(hrefs()).toContain('/closed');
+      expect(header('NS._closed').getAttribute('aria-expanded')).toBe('true');
+
+      header('NS._open').click();
+      hostFixture.detectChanges();
+      expect(hrefs()).not.toContain('/open');
+    });
+
+    it('keeps a plain labelled section as a non-interactive label that always shows its items', () => {
+      expect(header('NS._specs')).toBeUndefined();
+      expect(hrefs()).toContain('/products');
+    });
   });
 });

@@ -13,12 +13,12 @@
       <h1 class="text-3xl font-extrabold text-content truncate">
         {{ (isUpdate ? 'UPDATE_RES_SPEC._update_res' : 'CREATE_RES_SPEC._new') | translate }}
       </h1>
-      @if (isUpdate && !notFound) {
+      @if (isUpdate && res) {
       <bae-badge variant="status" [status]="statusBadgeVariant(res?.lifecycleStatus ?? '')"
         [label]="statusLabel(res?.lifecycleStatus ?? '') | translate"></bae-badge>
       }
     </div>
-    @if (isUpdate && !notFound) {
+    @if (isUpdate && res) {
     <div class="flex items-center gap-3 shrink-0">
       <app-button type="button" variant="danger" size="sm" [disabled]="loading" (click)="showDeleteConfirm = true">
         {{ 'UPDATE_RES_SPEC._delete' | translate }}
@@ -34,12 +34,14 @@
   </div>
   }
 
-  @if (notFound) {
+  @if (loadingRes) {
+  <app-loading-spinner containerClass="w-full h-40 flex justify-center items-center" />
+  } @else if (notFound) {
   <app-not-found-state message="UPDATE_RES_SPEC._not_found" (back)="goBack()" />
   } @else {
   <app-stepper [allUnlocked]="isUpdate" [canAdvance]="canAdvance"
     [submitLabel]="isUpdate ? 'UPDATE_RES_SPEC._update_res' : 'CREATE_RES_SPEC._create_res'"
-    [submitAlwaysVisible]="isUpdate" [submitDisabled]="!generalForm.valid || loading"
+    [submitAlwaysVisible]="isUpdate" [submitDisabled]="!generalValid || (datasetMode && !isUpdate && datasetForm.invalid) || loading || upload.uploading"
     (stepChanged)="onStepChanged($event)" (submitted)="save()">
 
     <!-- Step 1: General Info -->
@@ -55,7 +57,51 @@
       </div>
     </ng-template>
 
+    <!-- Dataset: the file (create) or its details and replacement (update) -->
+    @if (datasetMode) {
+    <ng-template stepperStep="{{ 'SPEC_STEPS._dataset_file' | translate }}" stepId="dataset">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-content">{{ 'DATASETS._file_step_title' | translate }}</h2>
+          <p class="text-sm text-content-muted mt-2">
+            {{ (isUpdate ? 'DATASETS._file_step_desc_update' : 'DATASETS._file_step_desc_create') | translate }}
+          </p>
+        </div>
+
+        @if (!isUpdate) {
+        <app-dynamic-form class="block" [fields]="datasetCreateFields" [formGroup]="datasetForm" [columns]="2" />
+        <p data-cy="datasetVisibilityHint" class="text-sm text-content-muted">{{ datasetVisibilityHintKey | translate }}</p>
+        } @else {
+        <dl data-cy="datasetFileInfo" class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+          <div><dt class="text-content-muted">{{ 'DATASETS._file' | translate }}</dt><dd class="text-content break-all">{{ datasetFileName }}</dd></div>
+          <div><dt class="text-content-muted">{{ 'DATASETS._format' | translate }}</dt><dd class="text-content">{{ datasetFormatLabel }}</dd></div>
+          <div><dt class="text-content-muted">{{ 'DATASETS._visibility' | translate }}</dt><dd data-cy="datasetVisibilityValue" class="text-content">{{ datasetVisibilityLabelKey | translate }}</dd></div>
+          @if (!canReplace) {
+          <div><dt class="text-content-muted">{{ 'DATASETS._size' | translate }}</dt><dd class="text-content">{{ datasetSizeLabel }}</dd></div>
+          }
+          <div><dt class="text-content-muted">{{ 'DATASETS._checksum' | translate }}</dt><dd class="text-content break-all">{{ dataset?.checksum || '-' }}</dd></div>
+        </dl>
+        <p class="text-sm text-content-muted">{{ datasetVisibilityHintKey | translate }} {{ 'DATASETS._visibility_fixed_hint' | translate }}</p>
+        @if (dataset?.incomplete) {
+        <p class="text-sm text-content-muted">{{ 'DATASETS._incomplete_hint' | translate }}</p>
+        }
+
+        <div class="flex flex-col gap-3 border-t border-line pt-5">
+          <h3 class="text-lg font-semibold text-content">{{ 'DATASETS._replace_file' | translate }}</h3>
+          <p class="text-sm text-content-muted">{{ 'DATASETS._replace_hint' | translate }}</p>
+          <app-dynamic-form class="block" [fields]="datasetReplaceFields" [formGroup]="replaceForm" />
+        </div>
+        }
+
+        @if (upload.uploading) {
+        <app-dataset-upload-progress [progress]="upload.progress" />
+        }
+      </div>
+    </ng-template>
+    }
+
     <!-- Step 2: Characteristics -->
+    @if (!datasetMode) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._configuration_options' | translate }}" stepId="characteristics">
       <div class="flex flex-col gap-5">
         <div>
@@ -66,6 +112,7 @@
           (characteristicsChange)="onCharacteristicsChange($event)" />
       </div>
     </ng-template>
+    }
 
     <!-- Step 3: Package Deployment -->
     @if (requiresPackageDeployment) {
@@ -83,6 +130,7 @@
     }
 
     <!-- Step 4: Configuration -->
+    @if (!datasetMode) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._configuration' | translate }}" stepId="configuration">
       <div class="flex flex-col gap-5">
         <div>
@@ -133,6 +181,7 @@
         </div>
       </div>
     </ng-template>
+    }
 
   </app-stepper>
   }

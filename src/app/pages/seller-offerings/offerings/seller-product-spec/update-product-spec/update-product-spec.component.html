@@ -160,7 +160,29 @@
       </div>
     </ng-template>
 
-    @if (BUNDLE_ENABLED) {
+    @if (datasetMode) {
+    <ng-template stepperStep="{{ 'SPEC_STEPS._datasets' | translate }}" stepId="datasets">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._datasets_step' | translate }}</h2>
+          <p class="text-sm text-content-muted mt-2">{{ 'DATASETS._file_step_desc_update' | translate }}</p>
+        </div>
+        @if (selectedDatasets.length > 0) {
+        <app-dataset-file-panel [dataset]="selectedDatasets[0]" [form]="replaceForm" />
+        } @else {
+        <p data-cy="datasetEmpty" class="text-sm text-content-muted">{{ 'DATASETS._empty' | translate }}</p>
+        }
+        @if (uploadProgress !== null) {
+        <app-dataset-upload-progress [progress]="uploadProgress" />
+        }
+        @if (showDatasetPolicy) {
+        <app-dynamic-form [fields]="datasetPolicyFields" [formGroup]="datasetPolicyForm" />
+        }
+      </div>
+    </ng-template>
+    }
+
+    @if (BUNDLE_ENABLED && !datasetMode) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._bundle' | translate }}" stepId="bundle">
       <div class="flex flex-col gap-5">
         <div>
@@ -195,7 +217,7 @@
       </div>
     </ng-template>
     }
-    @if (DATA_SPACE_ENABLED && !prod?.externalId) {
+    @if (DATA_SPACE_ENABLED && !prod?.externalId && !datasetMode) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._dataspace_configuration' | translate }}" stepId="dataspace">
       <div class="flex flex-col gap-5">
         <div>
@@ -210,6 +232,7 @@
       </div>
     </ng-template>
     }
+    @if (!datasetMode) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._resource_specifications' | translate }}" stepId="resource">
       <div class="flex flex-col gap-5">
         <div>
@@ -232,6 +255,8 @@
         </div>
       </div>
     </ng-template>
+    }
+    @if (!datasetMode) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._configuration_options' | translate }}" stepId="characteristics">
       <div class="flex flex-col gap-5">
         <div>
@@ -243,6 +268,8 @@
           (characteristicsChange)="onCharacteristicsChange($event)" />
       </div>
     </ng-template>
+    }
+    @if (!datasetMode) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._service_specifications' | translate }}" stepId="service">
       <div class="flex flex-col gap-5">
         <div>
@@ -265,8 +292,9 @@
         </div>
       </div>
     </ng-template>
+    }
 
-    @if (showDspConfigStep) {
+    @if (showDspConfigStep && !datasetMode) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._dsp_config' | translate }}" stepId="dsp_config">
       <div class="m-4 flex flex-col gap-5">
         <div>
@@ -309,7 +337,7 @@
     </ng-template>
     }
 
-    @if(!templateName) {
+    @if(!templateName && !datasetMode) {
 
     <ng-template stepperStep="{{ 'SPEC_STEPS._relationships' | translate }}" stepId="relationships">
       <div class="m-4 flex flex-col gap-5">
@@ -491,6 +519,7 @@
       </div>
     </ng-template>
 
+    @if (!datasetMode) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._compliance_profile' | translate }}" stepId="compliance">
       <div class="flex flex-col gap-5">
         <div>
@@ -555,6 +584,7 @@
         <app-dynamic-form class="block" [fields]="additionalAttachmentFields" [formGroup]="complianceForm" />
       </div>
     </ng-template>
+    }
 
   </app-stepper>
   }

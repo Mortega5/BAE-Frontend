@@ -74,6 +74,32 @@ describe('AppInitService runtime config', () => {
     expect(environment.DSP_ENABLED).toBeFalse();
   });
 
+  it('loads datasets enabled from the runtime config', async () => {
+    environment.DATASETS_ENABLED = false;
+
+    const initPromise = service.init();
+
+    const req = httpMock.expectOne(`${environment.BASE_URL}/config`);
+    req.flush(buildConfig({ datasetsEnabled: true }));
+
+    await initPromise;
+
+    expect(environment.DATASETS_ENABLED).toBeTrue();
+  });
+
+  it('keeps datasets disabled when the runtime config does not provide the flag', async () => {
+    environment.DATASETS_ENABLED = false;
+
+    const initPromise = service.init();
+
+    const req = httpMock.expectOne(`${environment.BASE_URL}/config`);
+    req.flush(buildConfig());
+
+    await initPromise;
+
+    expect(environment.DATASETS_ENABLED).toBeFalse();
+  });
+
   function buildConfig(overrides: Record<string, unknown> = {}): Record<string, unknown> {
     return {
       siop: {},

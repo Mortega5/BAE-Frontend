@@ -303,8 +303,13 @@ export class CreateOfferComponent implements OnInit, OnDestroy, LeaveConfirmable
     return this.offerForm?.confirmLeave() ?? true;
   }
 
+  /** Opened from the datasets section: the offer sells a dataset, made with it. */
+  get dataset(): boolean {
+    return environment.DATASETS_ENABLED && this.route.snapshot.data['dataset'] === true;
+  }
+
   goBack() {
-    this.router.navigate([SellerOfferingsPaths.offers.list()]);
+    this.router.navigate([this.dataset ? SellerOfferingsPaths.datasets.list() : SellerOfferingsPaths.offers.list()]);
   }
 
   onPreviewRequested(productOff: any, submitMode: 'create' | 'update' | null = null): void {

@@ -1,0 +1,16 @@
+<div class="flex flex-col gap-5">
+  <app-dynamic-form class="block" [fields]="fields" [formGroup]="form" />
+  <p data-cy="datasetVisibilityHint" class="text-sm text-content-muted">{{ visibilityHint | translate }}</p>
+
+  @if (upload.uploading) {
+  <app-dataset-upload-progress [progress]="upload.progress" />
+  }
+
+  <div class="flex justify-end gap-2">
+    <app-button type="button" variant="ghost" (click)="cancel()">{{ 'DATASETS._cancel' | translate }}</app-button>
+    <app-button type="button" dataCy="datasetUpload" prefixIcon="upload" [disabled]="form.invalid || upload.uploading"
+      (click)="submit()">
+      {{ 'DATASETS._upload' | translate }}
+    </app-button>
+  </div>
+</div>

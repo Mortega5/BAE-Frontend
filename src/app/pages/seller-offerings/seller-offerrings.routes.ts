@@ -7,6 +7,7 @@ import { CreateCustomOfferComponent } from './offerings/seller-offer/create-cust
 import { CreateOfferComponent } from './offerings/seller-offer/create-offer/create-offer.component';
 import { SellerOfferComponent } from './offerings/seller-offer/seller-offer.component';
 import { UpdateOfferComponent } from './offerings/seller-offer/update-offer/update-offer.component';
+import { SellerDatasetListComponent } from './offerings/seller-datasets/seller-dataset-list/seller-dataset-list.component';
 import { CreateProductSpecComponent } from './offerings/seller-product-spec/create-product-spec/create-product-spec.component';
 import { SellerProductSpecComponent } from './offerings/seller-product-spec/seller-product-spec.component';
 import { UpdateProductSpecComponent } from './offerings/seller-product-spec/update-product-spec/update-product-spec.component';
@@ -22,7 +23,7 @@ import { SellerOfferingsPaths } from './seller-offerings.paths';
 const { segments } = SellerOfferingsPaths;
 
 export const sellerOfferingsRoutes: Routes = [
-  { path: '', pathMatch: 'full', redirectTo: segments.catalogues },
+  { path: '', pathMatch: 'full', redirectTo: segments.offers },
   {
     path: segments.catalogues,
     children: [
@@ -49,6 +50,16 @@ export const sellerOfferingsRoutes: Routes = [
   //     { path: segments.id, component: UpdateSoftwareComponent },
   //   ],
   // },
+  // A dataset is a product spec: the same forms, opened in dataset mode.
+  {
+    path: segments.datasets,
+    children: [
+      { path: '', component: SellerDatasetListComponent },
+      // Selling a dataset starts from the offer form: it makes the dataset and its product before the offer
+      { path: segments.new, component: CreateOfferComponent, data: { dataset: true }, canDeactivate: [unsavedChangesGuard] },
+      { path: segments.id, component: UpdateProductSpecComponent, data: { dataset: true }, canDeactivate: [unsavedChangesGuard] },
+    ],
+  },
   {
     path: segments.productSpecs,
     children: [

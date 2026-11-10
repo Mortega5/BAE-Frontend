@@ -64,10 +64,20 @@
 <!-- Shared section/item list, rendered into both the mobile drawer and the desktop sidebar -->
 <ng-template #navSections let-closeOnClick="closeOnClick">
   @for (section of sections; track $index) {
-  @if (section.label) {
+  @if (section.label && section.collapsible) {
+  <button type="button" (click)="toggleSection(section, $index)" [attr.aria-expanded]="!isCollapsed(section, $index)"
+    class="flex items-center justify-between w-full text-xs uppercase font-semibold text-content-muted tracking-wider mb-3 px-4 cursor-pointer focus:outline-none">
+    {{ section.label | translate }}
+    <fa-icon [icon]="chevronIcon" class="w-3 h-3 transition-transform" [class.-rotate-90]="isCollapsed(section, $index)"></fa-icon>
+  </button>
+  } @else if (section.label) {
   <p class="text-xs uppercase font-semibold text-content-muted tracking-wider mb-3 px-4">{{ section.label | translate }}</p>
   }
-  <div class="flex flex-col gap-2 mb-3">
+  <!-- Always rendered so the height can animate (0fr <-> 1fr); a collapsed one is inert and invisible once closed -->
+  <div class="grid transition-[grid-template-rows,visibility] duration-200 ease-in-out motion-reduce:transition-none"
+    [ngClass]="isCollapsed(section, $index) ? 'grid-rows-[0fr] invisible' : 'grid-rows-[1fr]'"
+    [attr.inert]="isCollapsed(section, $index) ? '' : null">
+  <div class="flex flex-col gap-2 min-h-0 overflow-hidden pb-3" [class.pl-4]="section.collapsible">
     @for (item of section.items; track $index) {
     @if (item.routerLink) {
     <a [attr.data-cy]="item.dataCy" [routerLink]="item.routerLink" routerLinkActive
@@ -84,6 +94,7 @@
     </button>
     }
     }
+  </div>
   </div>
   }
 </ng-template>

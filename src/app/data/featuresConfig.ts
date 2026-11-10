@@ -10,7 +10,8 @@ export type FeatureFlagKey =
   | 'launchValidationEnabled'
   | 'tenderDevButtonsOpenCloseEnabled';
 
-export type RuntimeFeatureFlagKey = FeatureFlagKey | 'searchEnabled';
+// Runtime-only flags come from the deployment, not from the admin toggles in FEATURE_FLAG_DEFINITIONS
+export type RuntimeFeatureFlagKey = FeatureFlagKey | 'searchEnabled' | 'datasetsEnabled';
 
 export type FeaturesConfig = Partial<Record<RuntimeFeatureFlagKey, boolean>> & Record<string, boolean | undefined>;
 
@@ -78,6 +79,7 @@ export function readFeaturesConfig(config: any): FeaturesConfig {
   const result: FeaturesConfig = {};
 
   result.searchEnabled = readBoolean(source, 'searchEnabled');
+  result.datasetsEnabled = readBoolean(source, 'datasetsEnabled');
   result.purchaseEnabled = readBoolean(source, 'purchaseEnabled');
   result.quotesEnabled = readBoolean(source, 'quotesEnabled');
   result.tenderingEnabled = readBoolean(source, 'tenderingEnabled');
@@ -94,6 +96,7 @@ export function applyRuntimeFeaturesConfig(config: any): void {
   const features = readFeaturesConfig(config);
 
   environment.SEARCH_ENABLED = features.searchEnabled ?? environment.SEARCH_ENABLED;
+  environment.DATASETS_ENABLED = features.datasetsEnabled ?? environment.DATASETS_ENABLED;
   environment.PURCHASE_ENABLED = features.purchaseEnabled ?? true;
   environment.QUOTES_ENABLED = features.quotesEnabled ?? false;
   environment.TENDER_ENABLED = features.tenderingEnabled ?? false;

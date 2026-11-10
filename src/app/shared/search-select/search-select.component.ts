@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnDestroy, Output, ViewChild, forwardRef } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SelectOption } from 'src/app/models/formFields/form-field.model';
 
 /** Single/multi-select with a text input that filters `options` by label as the user types.
@@ -24,9 +24,18 @@ import { SelectOption } from 'src/app/models/formFields/form-field.model';
 export class SearchSelectComponent implements ControlValueAccessor, OnDestroy {
   @ViewChild('inputRow') private inputRowRef?: ElementRef<HTMLElement>;
 
+  constructor(private translate: TranslateService) { }
+
+  /** A label can be a translation key (the template translates it); plain names come back as they are. */
+  private labelOf(option?: SelectOption): string {
+    return option?.label ? this.translate.instant(option.label) : '';
+  }
+
   @Input() options: SelectOption[] = [];
   @Input() multiple: boolean = false;
   @Input() readonly: boolean = false;
+  /** False turns it into a plain dropdown: the input cannot be typed in, so there is no search, and the selection cannot be cleared. */
+  @Input() typeable: boolean = true;
   @Input() placeholder: string = '';
   @Input() id?: string;
   @Input() dataCy?: string;
@@ -70,7 +79,7 @@ export class SearchSelectComponent implements ControlValueAccessor, OnDestroy {
   get filteredOptions(): SelectOption[] {
     const q = this.query.trim().toLowerCase();
     if (!q) return this.options;
-    return this.options.filter(opt => (opt.label ?? '').toLowerCase().includes(q));
+    return this.options.filter(opt => this.labelOf(opt).toLowerCase().includes(q));
   }
 
   get selectedOptions(): SelectOption[] {
@@ -81,14 +90,14 @@ export class SearchSelectComponent implements ControlValueAccessor, OnDestroy {
     if (!this.allowCreate || this.isCreating) return false;
     const q = this.query.trim();
     if (!q) return false;
-    return !this.options.some(opt => (opt.label ?? '').toLowerCase() === q.toLowerCase());
+    return !this.options.some(opt => this.labelOf(opt).toLowerCase() === q.toLowerCase());
   }
 
   /** What the text input shows: the live search query while open, otherwise the single
    * selection's label (multi mode always shows the query — its selections are the chips). */
   get displayValue(): string {
-    if (this.isOpen || this.multiple) return this.query;
-    return this.selectedOptions[0]?.label ?? '';
+    if ((this.isOpen && this.typeable) || this.multiple) return this.query;
+    return this.labelOf(this.selectedOptions[0]);
   }
 
   @HostListener('document:click', ['$event'])
@@ -101,9 +110,19 @@ export class SearchSelectComponent implements ControlValueAccessor, OnDestroy {
   }
 
   onFocus(): void {
-    if (this.isReadonly) return;
+    if (this.isReadonly || !this.typeable) return;
     this.openDropdown();
     this.query = '';
+  }
+
+  /** Without search the input is only a button: a click opens or closes the list. */
+  onInputClick(): void {
+    if (this.typeable || this.isReadonly) return;
+    if (this.isOpen) {
+      this.closeDropdown();
+    } else {
+      this.openDropdown();
+    }
   }
 
   onQueryChange(event: Event): void {

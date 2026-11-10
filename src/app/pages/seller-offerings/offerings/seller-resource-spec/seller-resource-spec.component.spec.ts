@@ -47,6 +47,14 @@ describe('SellerResourceSpecComponent', () => {
     expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.resourceSpecs.edit(res.id)]);
   });
 
+  it('shows Dataset as the type of a dataset resource spec and the @type of the rest', () => {
+    const type = component.resSpecColumns.find(c => c.header === 'OFFERINGS._type')!;
+
+    expect(type.getValue!({ category: 'dataset', '@type': 'ResourceSpecification' })).toBe('Dataset');
+    expect(type.getValue!({ '@type': 'SoftwareSpecification' })).toBe('SoftwareSpecification');
+    expect(type.getValue!({})).toBe('ResourceSpecification');
+  });
+
   it('hasLongWord should detect long words and handle undefined', () => {
     expect(component.hasLongWord('short text', 20)).toBeFalse();
     expect(component.hasLongWord('averyveryverylongword', 10)).toBeTrue();

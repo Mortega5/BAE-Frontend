@@ -5,6 +5,7 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, Subject, throwError } from 'rxjs';
+import { DatasetService } from 'src/app/services/dataset.service';
 
 import { UpdateProductSpecComponent } from './update-product-spec.component';
 import { ApiServiceService } from 'src/app/services/product-service.service';
@@ -37,6 +38,7 @@ describe('UpdateProductSpecComponent', () => {
   let resSpecServiceSpy: jasmine.SpyObj<ResourceSpecServiceService>;
   let paginationServiceSpy: jasmine.SpyObj<PaginationService>;
   let routerSpy: jasmine.SpyObj<Router>;
+  let datasetServiceSpy: jasmine.SpyObj<DatasetService>;
   let activatedRouteStub: { snapshot: { paramMap: any } };
 
   const defaultPaginationData = {
@@ -64,6 +66,7 @@ describe('UpdateProductSpecComponent', () => {
   };
 
   beforeEach(async () => {
+    datasetServiceSpy = jasmine.createSpyObj<DatasetService>('DatasetService', ['get']);
     messages$ = new Subject<any>();
     apiSpy = jasmine.createSpyObj<ApiServiceService>('ApiServiceService', ['getProducts']);
     prodSpecServiceSpy = jasmine.createSpyObj<ProductSpecServiceService>('ProductSpecServiceService', [
@@ -100,6 +103,7 @@ describe('UpdateProductSpecComponent', () => {
         { provide: ResourceSpecServiceService, useValue: resSpecServiceSpy },
         { provide: PaginationService, useValue: paginationServiceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: DatasetService, useValue: datasetServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteStub },
       ]
     })
@@ -688,5 +692,57 @@ describe('UpdateProductSpecComponent', () => {
     expect(component.prodRelationships).toEqual([
       { id: 'i1', href: 'h1', relationshipType: 'dependency', name: 'Item 1' }
     ]);
+  });
+
+  describe('dataset product', () => {
+    const datasetProd = {
+      ...baseProd,
+      productSpecCharacteristic: [
+        { name: 'dataset', valueType: 'dataset', productSpecCharacteristicValue: [{ isDefault: true, value: true }] },
+        { name: 'authorizationPolicy', valueType: 'authorizationPolicy', productSpecCharacteristicValue: [{ value: [
+          { 'odrl:uid': 'urn:policy:dataset:rs-1:file-1', 'odrl:permission': { 'odrl:action': { '@id': 'odrl:read' } } },
+          { 'odrl:uid': 'urn:policy:other', 'odrl:permission': { 'odrl:action': { '@id': 'odrl:use' } } },
+        ] }] },
+      ],
+      resourceSpecification: [{ id: 'rs-1', href: 'rs-1' }, { id: 'rs-2', href: 'rs-2' }, { id: 'rs-3', href: 'rs-3' }],
+      isBundle: false,
+    };
+
+    beforeEach(async () => {
+      prodSpecServiceSpy.getResSpecById.and.resolveTo(JSON.parse(JSON.stringify(datasetProd)));
+      datasetServiceSpy.get.and.callFake((id: string) =>
+        id === 'rs-1' ? of({ id, name: 'DS 1', version: '1.0', visibility: 'custom', mimeType: 'text/csv', size: 2048 } as any)
+          : throwError(() => ({ status: id === 'rs-2' ? 404 : 502 })));
+      await component.ngOnInit();
+    });
+
+    it('is detected from the dataset mark and shows the template as Dataset', () => {
+      expect(component.datasetMode).toBeTrue();
+      expect(component.generalForm.value.baseTemplate).toBe('dataset');
+      expect(component.templateName).toBe('');
+    });
+
+    it('lists the referenced datasets, leaves out what is not one (404) and shows by id what cannot be read', async () => {
+      expect(component.selectedDatasets.map(d => d.name)).toEqual(['DS 1', 'rs-3']);
+    });
+
+    it('shows only the policy of the custom dataset, read-only', () => {
+      expect(component.showDatasetPolicy).toBeTrue();
+      expect(JSON.parse(component.datasetPolicyForm.value.policy!)['odrl:uid']).toBe('urn:policy:dataset:rs-1:file-1');
+    });
+
+    it('does not send what the proxy refuses to change', () => {
+      component.showFinish();
+
+      const body = component.productSpecToUpdate as any;
+      ['productSpecCharacteristic', 'resourceSpecification', 'bundledProductSpecification', 'isBundle', 'serviceSpecification', 'productSpecificationRelationship']
+        .forEach(field => expect(field in body).withContext(field).toBeFalse());
+      expect(body.name).toBe('Product');
+      expect(body.attachment).toEqual([]);
+    });
+
+    it('does not mark an untouched dataset product as changed', () => {
+      expect(component.hasUnsavedChanges()).toBeFalse();
+    });
   });
 });

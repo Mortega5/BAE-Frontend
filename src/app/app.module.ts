@@ -46,6 +46,7 @@ import { CreateOfferComponent } from './pages/seller-offerings/offerings/seller-
 import { SellerOfferComponent } from './pages/seller-offerings/offerings/seller-offer/seller-offer.component';
 import { UpdateOfferComponent } from './pages/seller-offerings/offerings/seller-offer/update-offer/update-offer.component';
 import { BlueprintProductFormComponent } from './pages/seller-offerings/offerings/seller-product-spec/blueprint-product-form/blueprint-product-form.component';
+import { SellerDatasetListComponent } from './pages/seller-offerings/offerings/seller-datasets/seller-dataset-list/seller-dataset-list.component';
 import { SellerProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/seller-product-spec.component';
 import { CreateCustomOfferComponent } from './pages/seller-offerings/offerings/seller-offer/create-custom-offer/create-custom-offer.component';
 import { UpdateProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/update-product-spec.component';
@@ -101,6 +102,8 @@ export function createThemeAwareLoader(http: HttpClient, themeService: ThemeServ
 import { AboutDomeComponent } from "src/app/pages/about-dome/about-dome.component";
 import { ProviderRevenueSharingComponent } from "src/app/pages/user-profile/profile-sections/provider-revenue-sharing/provider-revenue-sharing.component";
 import { DynamicFormComponent } from "src/app/shared/forms/dynamic-form/dynamic-form.component";
+import { DatasetFilePanelComponent } from "./pages/seller-offerings/offerings/seller-datasets/dataset-file-panel/dataset-file-panel.component";
+import { DatasetUploadProgressComponent } from "./pages/seller-offerings/offerings/seller-datasets/dataset-upload-progress/dataset-upload-progress.component";
 import { ConfirmModalComponent } from "src/app/shared/confirm-modal/confirm-modal.component";
 import { UnsavedChangesModalComponent } from "src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component";
 import { ItemCardComponent } from "src/app/shared/item-card/item-card.component";
@@ -142,6 +145,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     ProfileGeneralComponent,
     SellerCatalogsComponent,
     SellerProductSpecComponent,
+    SellerDatasetListComponent,
     SellerServiceSpecComponent,
     SellerResourceSpecComponent,
     SellerOfferComponent,
@@ -216,6 +220,8 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     AboutDomeComponent,
     MarkdownTextareaComponent,
     DynamicFormComponent,
+    DatasetFilePanelComponent,
+    DatasetUploadProgressComponent,
     ConfirmModalComponent,
     UnsavedChangesModalComponent,
     ItemCardComponent,

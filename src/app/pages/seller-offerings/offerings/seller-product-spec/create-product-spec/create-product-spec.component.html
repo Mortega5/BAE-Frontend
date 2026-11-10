@@ -24,7 +24,7 @@
         </div>
         <app-dynamic-form class="block" [fields]="generalFormFields" [formGroup]="generalForm" [columns]="2" />
 
-        @if (dspEnable) {
+        @if (dspEnable && !datasetMode) {
         <label
           class="flex items-start gap-3 p-4 rounded-lg border border-line cursor-pointer">
           <input data-cy="prodSpecDspCompatible" type="checkbox" [formControl]="generalForm.controls.dspCompatible"
@@ -137,7 +137,45 @@
       </div>
     </ng-template>
 
-    @if (BUNDLE_ENABLED) {
+    @if (datasetMode) {
+    <ng-template stepperStep="{{ 'SPEC_STEPS._datasets' | translate }}" stepId="datasets">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._datasets_step' | translate }}</h2>
+          <p class="text-sm text-content-muted mt-2">{{ 'CREATE_PROD_SPEC._datasets_desc' | translate }}</p>
+        </div>
+        <div class="w-full">
+          <div data-cy="datasetsPublicHint" role="note" class="p-4 mb-3 text-sm rounded-lg border"
+            [ngClass]="publicDatasetSkipped ? 'text-warning bg-warning-soft border-warning-border' : 'text-primary-100 dark:text-primary-50 bg-info-soft border-info-border'">
+            {{ 'DATASETS._public_not_offered' | translate }}
+          </div>
+          <div class="flex justify-end mb-2">
+            <app-button data-cy="uploadDatasetFromProduct" type="button" size="sm" prefixIcon="plus"
+              (click)="showUploadDatasetModal = true">
+              {{ 'DATASETS._upload_new' | translate }}
+            </app-button>
+          </div>
+          <app-paginated-table #datasetsTable data-cy="tableDatasets" [columns]="datasetColumns"
+            [fetchPage]="fetchDatasets" [selectable]="true" [selected]="selectedDataset"
+            (selectedChange)="onDatasetChange($event)" emptyMessage="DATASETS._empty">
+          </app-paginated-table>
+          @if (!selectedDataset) {
+          <p data-cy="datasetRequired" class="text-sm text-content-muted mt-2">{{ 'DATASETS._dataset_required' | translate }}</p>
+          }
+          @if (customDatasetSelected) {
+          <div class="mt-5">
+            <app-dynamic-form [fields]="policyFields" [formGroup]="policyForm" />
+            @if (policyError || policyServerError) {
+            <p data-cy="datasetPolicyError" class="text-sm text-danger mt-1">{{ policyError ? (policyError | translate) : policyServerError }}</p>
+            }
+          </div>
+          }
+        </div>
+      </div>
+    </ng-template>
+    }
+
+    @if (BUNDLE_ENABLED && !datasetMode) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._bundle' | translate }}" stepId="bundle">
       <div class="flex flex-col gap-5">
         <div>
@@ -173,7 +211,7 @@
     </ng-template>
     }
 
-    @if (DATA_SPACE_ENABLED && !showDspConfigStep) {
+    @if (DATA_SPACE_ENABLED && !showDspConfigStep && !datasetMode) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._dataspace_configuration' | translate }}" stepId="dataspace">
       <div class="flex flex-col gap-5">
         <div>
@@ -189,7 +227,7 @@
     </ng-template>
     }
 
-    @if (showDspConfigStep) {
+    @if (showDspConfigStep && !datasetMode) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._dsp_config' | translate }}" stepId="dsp_config">
       <div class="m-4 flex flex-col gap-5">
         <div>
@@ -232,6 +270,7 @@
     </ng-template>
     }
 
+    @if (!datasetMode) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._resource_specifications' | translate }}" stepId="resource">
       <div class="flex flex-col gap-5">
         <div>
@@ -290,6 +329,7 @@
         </div>
       </div>
     </ng-template>
+    }
 
     @if(!templateName) {
     <ng-template stepperStep="{{ 'SPEC_STEPS._relationships' | translate }}" stepId="relationships">
@@ -519,6 +559,18 @@
   @if (showCreateServiceSpecModal) {
   <app-service-spec-form [embedded]="true" (created)="onServiceSpecCreated($event)"
     (cancelled)="closeCreateServiceSpecModal()" />
+  }
+</app-modal>
+
+<app-modal data-cy="uploadDatasetModal" [visible]="showUploadDatasetModal" width="max-w-3xl"
+  (closed)="showUploadDatasetModal = false">
+  <div appCardHeader class="flex items-center justify-between">
+    <h3 class="text-xl font-bold text-content">{{ 'DATASETS._upload_new' | translate }}</h3>
+    <app-button type="button" (click)="showUploadDatasetModal = false" variant="ghost" size="sm" prefixIcon="xmark" />
+  </div>
+
+  @if (showUploadDatasetModal) {
+  <app-dataset-upload-form (created)="onDatasetCreated($event)" (cancelled)="showUploadDatasetModal = false" />
   }
 </app-modal>
 

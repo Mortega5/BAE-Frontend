@@ -15,6 +15,7 @@ import { ProductSpecServiceService } from 'src/app/services/product-spec-service
 import { expandLifecycleStatusFilter, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
 import { SellerOfferingsPaths } from '../../seller-offerings.paths';
+import { productSpecTypeLabel } from './product-spec-type';
 
 @Component({
   selector: 'seller-product-spec',
@@ -65,7 +66,7 @@ export class SellerProductSpecComponent implements OnInit, OnDestroy {
       },
       {
         header: 'OFFERINGS._type',
-        getValue: (item: any) => item['@type'] ?? 'ProductSpecification',
+        getValue: (item: any) => productSpecTypeLabel(item),
         type: 'badge',
         hideOnMobile: true,
         width: 'w-[230px]'

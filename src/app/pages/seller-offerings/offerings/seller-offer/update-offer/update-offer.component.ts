@@ -282,8 +282,8 @@ export class UpdateOfferComponent implements OnInit, OnDestroy, LeaveConfirmable
     this.loading = true;
     const id = this.route.snapshot.paramMap.get('id')!;
     try {
+      // The form (app-offer-form) loads the product specification, categories and prices of the offer itself
       this.offer = await this.api.getProductById(id);
-      this.populateOfferInfo();
     } catch (error) {
       console.error('Error loading offer', error);
     } finally {

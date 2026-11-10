@@ -7,7 +7,7 @@
   </div>
   <!-- End Breadcrumb -->
 
-  <app-offer-form [partyId]="partyId" [formType]="'create'"
+  <app-offer-form [partyId]="partyId" [formType]="'create'" [dataset]="dataset"
     (previewRequested)="onPreviewRequested($event)"
     (submitPreviewRequested)="onPreviewRequested($event, 'create')"></app-offer-form>
 

@@ -103,6 +103,44 @@
       </div>
     </ng-template>
 
+    @if (dataset) {
+    <ng-template stepperStep="SPEC_STEPS._datasets" stepId="dataset">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._datasets_step' | translate }}</h2>
+          <p class="text-sm text-content-muted mt-2">{{ 'CREATE_PROD_SPEC._datasets_desc' | translate }}</p>
+        </div>
+        @if (datasetSource) {
+        <app-dynamic-form class="block" [fields]="datasetFields" [formGroup]="datasetForm" />
+        @if (urlSource) {
+        <app-dynamic-form class="block" [fields]="datasetUrlFields" [formGroup]="datasetUrlForm" />
+        } @else {
+        <app-dynamic-form class="block" [fields]="datasetFileFields" [formGroup]="datasetFileForm" />
+        }
+        } @else {
+        <app-loading-spinner containerClass="w-full h-24 flex justify-center items-center" />
+        }
+        @if (customDatasetSelected) {
+        <div>
+          <app-dynamic-form [fields]="policyFields" [formGroup]="policyForm" />
+          @if (policyError || policyServerError) {
+          <p data-cy="datasetPolicyError" class="text-sm text-danger mt-1">{{ policyError ? (policyError | translate) : policyServerError }}</p>
+          }
+        </div>
+        }
+      </div>
+    </ng-template>
+    } @else if (datasetProduct) {
+    <ng-template stepperStep="SPEC_STEPS._datasets" stepId="dataset">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._datasets_step' | translate }}</h2>
+          <p class="text-sm text-content-muted mt-2">{{ 'DATASETS._file_step_desc_update' | translate }}</p>
+        </div>
+        <app-dataset-file-panel [dataset]="storedDataset" [form]="replaceForm" />
+      </div>
+    </ng-template>
+    } @else {
     <ng-template stepperStep="CREATE_OFFER._product_specifications" stepId="productSpec">
       <div class="flex flex-col gap-5">
         <div>
@@ -117,6 +155,7 @@
         </app-prod-spec-form>
       </div>
     </ng-template>
+    }
 
     <ng-template stepperStep="CREATE_OFFER._step_terms" stepId="license">
       <div class="flex flex-col gap-5">
@@ -169,6 +208,12 @@
   </app-stepper>
 
 </form>
+}
+
+@if (uploadProgress !== null) {
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-[1000] w-80 p-4 rounded-xl bg-surface border border-line shadow-lg">
+  <app-dataset-upload-progress [progress]="uploadProgress" />
+</div>
 }
 
 <app-unsaved-changes-modal [canSaveDraft]="canSaveDraft" [saveMode]="isUpdate ? 'update' : 'draft'"

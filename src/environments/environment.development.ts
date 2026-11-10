@@ -110,6 +110,7 @@ export const environment = {
   LAUNCH_VALIDATION_ENABLED: false,
   TENDER_DEV_BUTTONS_OPEN_CLOSE_ENABLED: true,
   DSP_ENABLED: true,
+  DATASETS_ENABLED: false,
   DSP_CONTRACT_DEFINITION_SCHEMA: 'https://raw.githubusercontent.com/wistefan/edc-dsc/refs/heads/init/schemas/contract-definition.json',
   DSP_SCHEMA: 'https://raw.githubusercontent.com/wistefan/edc-dsc/refs/heads/init/schemas/external-id.json',
   BLUEPRINT_SCHEMA: 'https://gist.githubusercontent.com/vramperez/8a16d77f6fc2cdf5fea22dc11b325d52/raw/ad9ef7a1e933cd079732279218609141a731e3b2/blueprint-product-spec.json'

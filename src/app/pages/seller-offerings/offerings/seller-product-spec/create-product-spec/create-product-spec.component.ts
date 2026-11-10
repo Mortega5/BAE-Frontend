@@ -1,7 +1,7 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { ChangeDetectorRef, Component, DoCheck, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, DoCheck, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, Optional } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
 import { faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -14,6 +14,7 @@ import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { components } from "src/app/models/product-catalog";
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
+import { Dataset, DatasetService } from 'src/app/services/dataset.service';
 import { EventMessageService } from "src/app/services/event-message.service";
 import { LocalStorageService } from "src/app/services/local-storage.service";
 import { NotificationService } from 'src/app/services/notification.service';
@@ -44,11 +45,15 @@ import { jsonValidator, noWhitespaceValidator } from 'src/app/validators/validat
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { StepChangedEvent } from '../../../../../shared/stepper/stepper.component';
+import { buildDatasetColumns, datasetVisibility, pageOfDatasets } from '../../seller-datasets/dataset-table';
+import { buildDatasetPolicyCharacteristic, checkDatasetPolicy, DATASET_POLICY_TEMPLATE } from '../../seller-datasets/dataset-policy';
+import { DatasetUploadFormComponent } from '../../seller-datasets/dataset-upload-form/dataset-upload-form.component';
 import { ResourceSpecFormComponent } from '../../seller-resource-spec/resource-spec-form/resource-spec-form.component';
 import { ServiceSpecFormComponent } from '../../seller-service-spec/service-spec-form/service-spec-form.component';
 import { BlueprintProductFormComponent, BlueprintProductFormValue } from '../blueprint-product-form/blueprint-product-form.component';
 import { buildBundleProductColumns } from '../bundle-product-columns';
 import { buildSpecContentItemColumns, SpecContentItem, SpecContentItemType } from '../spec-content-item-columns';
+import { resourceSpecTypeLabel } from '../../seller-resource-spec/resource-spec-type';
 
 type CharacteristicValueSpecification = components["schemas"]["CharacteristicValueSpecification"];
 type ProductSpecification_Create = components["schemas"]["ProductSpecification_Create"];
@@ -56,12 +61,14 @@ type BundledProductSpecification = components["schemas"]["BundledProductSpecific
 type ProductSpecificationCharacteristic = components["schemas"]["ProductSpecificationCharacteristic"];
 type AttachmentRefOrValue = components["schemas"]["AttachmentRefOrValue"];
 type ProductSpecFormStep = 'general' | 'productDetails' | 'bundle' | 'compliance' | 'characteristics' | 'dataspace' | 'resource' | 'service' |
-  'relationships' | 'faqs' | 'orchestrationPlan' | 'dsp_config';
+  'relationships' | 'faqs' | 'orchestrationPlan' | 'dsp_config' | 'datasets';
 
 const BASE_TEMPLATE_OPTIONS = [
   { value: '', label: 'None' },
   { value: 'BlueprintProductSpecification', label: 'Blueprint Product Specification' },
 ];
+/** Not a TMF @type: it only switches the wizard to dataset mode (a dataset ProductSpec has no custom @type). */
+export const DATASET_TEMPLATE = 'dataset';
 @Component({
   selector: 'create-product-spec',
   standalone: true,
@@ -90,6 +97,7 @@ const BASE_TEMPLATE_OPTIONS = [
     BlueprintProductFormComponent,
     ResourceSpecFormComponent,
     ServiceSpecFormComponent,
+    DatasetUploadFormComponent,
   ],
   templateUrl: './create-product-spec.component.html',
   styleUrl: './create-product-spec.component.css',
@@ -240,10 +248,27 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
   defaultResSort: TableSort = { key: 'lastUpdate', direction: 'desc' };
   selectedResourceSpecs: any[] = [];
   showCreateResourceSpecModal = false;
+
+  //DATASETS (dataset mode):
+  /** A product sells exactly one dataset, and never a public one (anyone can read it, so there is nothing to sell). */
+  selectedDataset: Dataset | null = null;
+  /** A public dataset was just uploaded from the picker: it is not selected, and the hint says why. */
+  publicDatasetSkipped = false;
+  /** The seller's access policy for a custom dataset; kept while the same dataset stays selected. */
+  readonly policyForm = new FormGroup({ policy: new FormControl(DATASET_POLICY_TEMPLATE) });
+  readonly policyFields: FormField[] = [{
+    type: 'code', language: 'json', name: 'policy', label: 'DATASETS._policy_title', hint: 'DATASETS._policy_hint',
+    formatOnPaste: true, formatButton: true, lineNumbers: false, dataCy: 'datasetPolicy',
+  }];
+  /** The proxy's message when it refuses the policy (422), shown next to the editor */
+  policyServerError = '';
+  showUploadDatasetModal = false;
+  @ViewChild('datasetsTable') private datasetsTable?: PaginatedTableComponent<Dataset>;
+  readonly datasetColumns = buildDatasetColumns();
   @ViewChild('resourceSpecsTable') private resourceSpecsTable?: PaginatedTableComponent;
   resColumns: TableColumn[] = [
     { header: 'CREATE_PROD_SPEC._name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
-    { header: 'CREATE_PROD_SPEC._type', getValue: (item: any) => item['@type'] ?? 'ResourceSpecification', hideOnMobile: true },
+    { header: 'CREATE_PROD_SPEC._type', getValue: (item: any) => resourceSpecTypeLabel(item), hideOnMobile: true, type: 'badge' },
     { header: 'CREATE_PROD_SPEC._status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
     { header: 'CREATE_PROD_SPEC._last_update', getValue: (item: any) => this.datePipe.transform(item.lastUpdate, 'EEEE, dd/MM/yy, HH:mm') ?? '-', width: 'w-[200px]', sortKey: 'lastUpdate' },
   ];
@@ -327,12 +352,16 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
     return environment.DSP_ENABLED && this.DATA_SPACE_ENABLED;
   }
 
+  private readonly baseTemplateOptions = environment.DATASETS_ENABLED
+    ? [...BASE_TEMPLATE_OPTIONS, { value: DATASET_TEMPLATE, label: 'Dataset' }]
+    : BASE_TEMPLATE_OPTIONS;
+
   generalFormFields: FormField[] = [
     { type: 'string', name: 'name', label: 'CREATE_PROD_SPEC._product_name', required: true, maxLength: 100, colSpan: 1, dataCy: 'inputName', placeholder: 'CREATE_PROD_SPEC._name_placeholder' },
     { type: 'string', name: 'brand', label: 'CREATE_PROD_SPEC._product_brand', colSpan: 1, dataCy: 'inputBrand' },
     { type: 'string', name: 'version', label: 'CREATE_PROD_SPEC._product_version', required: true, colSpan: 1, dataCy: 'inputVersion' },
     { type: 'string', name: 'number', label: 'CREATE_PROD_SPEC._id_number', colSpan: 1, dataCy: 'inputIdNumber' },
-    { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: BASE_TEMPLATE_OPTIONS, colSpan: 1 },
+    { type: 'select', name: 'baseTemplate', label: 'CREATE_PROD_SPEC._base_template', options: this.baseTemplateOptions, colSpan: 1 },
     { type: 'markdownTextarea', name: 'description', label: 'CREATE_PROD_SPEC._product_description', placeholder: 'CREATE_PROD_SPEC._product_description_placeholder' },
   ];
 
@@ -357,11 +386,32 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
     if (this.currentStepId === 'dsp_config') {
       return this.dspConfigForm.valid ?? false
     }
+    if (this.currentStepId === 'datasets') {
+      return !!this.selectedDataset && !this.policyError;
+    }
 
     if (this.currentStepId === 'orchestrationPlan') {
       return this.blueprintConfig?.valid ?? false;
     }
     return true;
+  }
+
+  get customDatasetSelected(): boolean {
+    return !!this.selectedDataset && datasetVisibility(this.selectedDataset) === 'custom';
+  }
+
+  /** First problem with the policy draft, when the selected dataset is custom. */
+  get policyError(): string | undefined {
+    return this.customDatasetSelected ? checkDatasetPolicy(this.policyForm.value.policy).error : undefined;
+  }
+
+  /** Opened from the datasets section: the product is always a dataset, so there is no template to choose. */
+  get datasetOnly(): boolean {
+    return environment.DATASETS_ENABLED && this.route?.snapshot?.data?.['dataset'] === true;
+  }
+
+  get datasetMode(): boolean {
+    return environment.DATASETS_ENABLED && this.templateName === DATASET_TEMPLATE;
   }
 
   get templateName(): string {
@@ -380,6 +430,8 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
     private router: Router,
     private translate: TranslateService,
     private notificationService: NotificationService,
+    private datasetService: DatasetService,
+    @Optional() private route?: ActivatedRoute,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -391,6 +443,10 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
   }
 
   ngOnInit() {
+    if (this.datasetOnly) {
+      this.generalForm.patchValue({ baseTemplate: DATASET_TEMPLATE });
+      this.generalFormFields = this.generalFormFields.filter(field => field.name !== 'baseTemplate');
+    }
     this.complianceForm.get('selfAttestation')!.valueChanges
       .pipe(takeUntil(this.destroy$))
       .subscribe(file => this.onSelfAttestationChange(file));
@@ -632,7 +688,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
       this.cancelled.emit();
       return;
     }
-    this.router.navigate([SellerOfferingsPaths.productSpecs.list()]);
+    this.router.navigate([this.datasetOnly ? SellerOfferingsPaths.datasets.list() : SellerOfferingsPaths.productSpecs.list()]);
   }
 
   toggleBundleCheck() {
@@ -837,6 +893,31 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
     this.syncHelmDeploymentCharacteristics(needsHelmDefaults);
   }
 
+  /** The dataset list endpoint has no total, so all of the seller's datasets are loaded and paged here. */
+  fetchDatasets = async (params: PageRequest): Promise<PageResult<Dataset>> =>
+    pageOfDatasets((await this.datasetService.listAll()).filter(dataset => datasetVisibility(dataset) !== 'public'), params);
+
+  onDatasetChange(dataset: Dataset | null): void {
+    this.selectDataset(dataset);
+    this.publicDatasetSkipped = false;
+  }
+
+  private selectDataset(dataset: Dataset | null): void {
+    // The draft is only worth keeping for the dataset it was written for
+    if (dataset?.id !== this.selectedDataset?.id) {
+      this.policyForm.reset({ policy: DATASET_POLICY_TEMPLATE });
+    }
+    this.selectedDataset = dataset;
+    this.policyServerError = '';
+  }
+
+  onDatasetCreated(created: Dataset): void {
+    this.showUploadDatasetModal = false;
+    this.publicDatasetSkipped = datasetVisibility(created) === 'public';
+    if (!this.publicDatasetSkipped) this.selectDataset(created);
+    this.datasetsTable?.refresh(true);
+  }
+
   closeCreateResourceSpecModal(): void {
     this.showCreateResourceSpecModal = false;
   }
@@ -894,10 +975,12 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
     this.finishChars = [];
     console.log('--- set product data')
     console.log(this.prodChars)
-    for (let i = 0; i < this.prodChars.length; i++) {
-      const index = this.finishChars.findIndex(item => item.name === this.prodChars[i].name);
+    // A dataset product has no configurable characteristics: only compliance ones and the datasets one.
+    const editedChars = this.datasetMode ? [] : this.prodChars;
+    for (let i = 0; i < editedChars.length; i++) {
+      const index = this.finishChars.findIndex(item => item.name === editedChars[i].name);
       if (index == -1) {
-        this.finishChars.push(this.prodChars[i])
+        this.finishChars.push(editedChars[i])
       }
     }
 
@@ -966,10 +1049,10 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
         brand: this.generalForm.value.brand,
         productNumber: this.generalForm.value.number != null ? this.generalForm.value.number : '',
         lifecycleStatus: "Active",
-        isBundle: this.bundleChecked,
-        bundledProductSpecification: this.prodSpecsBundle,
+        isBundle: !this.datasetMode && this.bundleChecked,
+        bundledProductSpecification: this.datasetMode ? [] : this.prodSpecsBundle,
         productSpecCharacteristic: this.finishChars,
-        productSpecificationRelationship: rels,
+        productSpecificationRelationship: this.datasetMode ? [] : rels,
         attachment: this.prodAttachments,
         relatedParty: [
           {
@@ -979,10 +1062,21 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
             "@referredType": ''
           }
         ],
-        resourceSpecification: this.selectedResourceSpecs.map(res => ({ id: res.id, href: res.href })),
-        serviceSpecification: this.selectedServiceSpecs.map(res => ({ id: res.id, href: res.href }))
+        resourceSpecification: this.datasetMode
+          ? (this.selectedDataset ? [{ id: this.selectedDataset.id, href: this.selectedDataset.id }] : [])
+          : this.selectedResourceSpecs.map(res => ({ id: res.id, href: res.href })),
+        serviceSpecification: this.datasetMode ? [] : this.selectedServiceSpecs.map(res => ({ id: res.id, href: res.href }))
       }
-      if (this.blueprintConfig) {
+      if (this.datasetMode) {
+        // The proxy marks the product itself, and writes the policy of a private dataset; only a custom one carries the seller's
+        const policy = this.customDatasetSelected ? checkDatasetPolicy(this.policyForm.value.policy).policy : undefined;
+        if (policy) {
+          this.productSpecToCreate.productSpecCharacteristic = [
+            ...this.finishChars,
+            buildDatasetPolicyCharacteristic(this.selectedDataset!.id, policy),
+          ];
+        }
+      } else if (this.blueprintConfig) {
         this.productSpecToCreate['@type'] = 'BlueprintProductSpecification';
         this.productSpecToCreate['@schemaLocation'] = environment.BLUEPRINT_SCHEMA;
         this.productSpecToCreate['@baseType'] = 'ProductSpecification';
@@ -991,7 +1085,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
         }
       }
     }
-    if (this.generalForm.value.dspCompatible) {
+    if (!this.datasetMode && this.generalForm.value.dspCompatible) {
       this.productSpecToCreate!.productSpecCharacteristic = this.productSpecToCreate?.productSpecCharacteristic || [];
       (this.productSpecToCreate! as any).externalId = uuidv4();
       this.productSpecToCreate!['@schemaLocation'] = environment.DSP_SCHEMA;
@@ -1107,7 +1201,9 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
         console.error('There was an error while creating!', error);
         this.loading = false;
         this.showPublishDraftModal = false;
-        this.notificationService.showError('CREATE_PROD_SPEC._save_error', { details: error?.error?.error || error?.error?.message || error?.message });
+        const details = error?.error?.error || error?.error?.message || error?.message;
+        if (error?.status === 422 && this.customDatasetSelected) this.policyServerError = details;
+        this.notificationService.showError('CREATE_PROD_SPEC._save_error', { details });
       }
     });
   }

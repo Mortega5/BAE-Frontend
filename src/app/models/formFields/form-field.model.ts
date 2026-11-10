@@ -72,6 +72,8 @@ export interface SelectableFormField extends BaseFormField {
   multiple?: boolean;
   /** Renders as a filter-as-you-type search-select instead of a native `<select>`/`multiple-select`. */
   searchable?: boolean;
+  /** Only honored when `searchable`: false hides the typing/search, leaving a plain dropdown (still with option subtitles). */
+  showSearch?: boolean;
   placeholder?: string;
   /** Only honored when `searchable` — shows a "Create '<query>'" option when nothing matches. */
   allowCreate?: boolean;

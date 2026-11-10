@@ -20,9 +20,9 @@
     }
     <input type="text"
       class="flex-1 min-w-[6rem] bg-transparent border-0 outline-none focus:ring-0 text-sm text-content rounded-lg p-2.5"
-      [value]="displayValue" (input)="onQueryChange($event)" (focus)="onFocus()" [placeholder]="placeholder | translate"
-      [readonly]="isReadonly" />
-    @if (!multiple && selectedOptions.length > 0) {
+      [class.cursor-pointer]="!typeable" [class.caret-transparent]="!typeable" [value]="displayValue" (input)="onQueryChange($event)" (focus)="onFocus()"
+      (click)="onInputClick()" [placeholder]="placeholder | translate" [readonly]="isReadonly || !typeable" />
+    @if (!multiple && typeable && selectedOptions.length > 0) {
     <button type="button" class="mr-2.5 text-content-muted hover:text-content-secondary"
       (click)="clearSelection($event)">
       <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
