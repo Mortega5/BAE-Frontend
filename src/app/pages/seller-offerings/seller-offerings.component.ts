@@ -84,6 +84,7 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
   private buildSections(): SideNavSection[] {
     return [
       {
+        label: 'DATASETS._section_label',
         items: [
           {
             label: 'OFFERINGS._product_offers',
@@ -92,22 +93,11 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
             dataCy: 'offerSection',
           },
           // Software is now managed inside Resources (SoftwareSpecification / SoftwareSupportPackageSpecification baseTemplate).
-          // {
-          //   label: 'Software',
-          //   routerLink: segments.softwares,
-          //   icon: 'microchip' as IconName,
-          //   dataCy: 'softwareSection',
-          // },
+          ...(environment.DATASETS_ENABLED
+            ? [{ label: 'DATASETS._section', routerLink: segments.datasets, icon: 'database' as IconName, dataCy: 'datasetSection' }]
+            : []),
         ],
       },
-      ...(environment.DATASETS_ENABLED
-        ? [{
-          label: 'DATASETS._section_label',
-          items: [
-            { label: 'DATASETS._section', routerLink: segments.datasets, icon: 'database' as IconName, dataCy: 'datasetSection' },
-          ],
-        }]
-        : []),
       {
         label: 'OFFERINGS._specifications',
         collapsible: true,
