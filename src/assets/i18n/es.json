@@ -2095,7 +2095,10 @@
     "_type_opennebula": "OpenNebula",
     "_opennebula_properties": "Propiedades de OpenNebula",
     "_enforced_opennebula_values": "Valores forzados",
-    "_enforced_opennebula_values_hint": "Campos de este backend que ningún pedido puede cambiar, p. ej. templateId: 237. Un pedido que fije alguno con otro valor se rechaza."
+    "_enforced_opennebula_values_hint": "Campos de este backend que ningún pedido puede cambiar, p. ej. templateId: 237. Un pedido que fije alguno con otro valor se rechaza.",
+    "_older_schema_version": "Este paquete se escribió con una versión anterior del esquema de despliegue y se edita en esa versión, porque su definición no es válida en la actual:",
+    "_read_only_unsupported": "La definición de despliegue de este paquete usa un esquema que este formulario no soporta. Se conserva tal cual al guardar la especificación.",
+    "_read_only_unreachable": "No se ha podido cargar el esquema con el que se escribió la definición de despliegue de este paquete. Se conserva tal cual al guardar la especificación."
   },
   "UPDATE_SERV_SPEC": {
     "_not_found": "No se pudo encontrar esta especificación de servicio.",

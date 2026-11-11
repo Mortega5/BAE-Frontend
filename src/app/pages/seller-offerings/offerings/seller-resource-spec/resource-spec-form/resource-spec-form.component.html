@@ -77,7 +77,8 @@
           <p class="text-sm text-content-muted mt-2">{{ i18nPrefix + '._package_deployment_subtitle' |
             translate }}</p>
         </div>
-        <app-package-deployment [initialValue]="deploymentInitialValue" (formReady)="onDeploymentFormReady($event)" />
+        <app-package-deployment [initialValue]="deploymentInitialValue" [schemaLocation]="deploymentSchemaLocation"
+          (formReady)="onDeploymentFormReady($event)" (readOnly)="onDeploymentReadOnly()" />
       </div>
     </ng-template>
     }

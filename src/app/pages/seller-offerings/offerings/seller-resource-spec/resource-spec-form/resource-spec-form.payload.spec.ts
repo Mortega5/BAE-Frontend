@@ -19,7 +19,7 @@ describe('ResourceSpecFormComponent payload', () => {
     const c = new ResourceSpecFormComponent(
       { getValidLoginInfo: () => undefined } as any,
       { messages$: of() } as any,
-      {} as any, {} as any, {} as any, {} as any, {} as any,
+      {} as any, {} as any, {} as any, {} as any, {} as any, {} as any,
     );
     c.generalForm.patchValue({ name: 'demo', baseTemplate: 'SoftwareSpecification' });
     return c;
@@ -71,5 +71,45 @@ describe('ResourceSpecFormComponent payload', () => {
     expect(loaded.validate(definition.value)).toEqual([]);
     expect(artifact.value).toBe('HelmChart');
     expect(environmentType.value).toBe('kubernetes-cluster');
+  });
+
+  describe('schema version', () => {
+    const V1 = DEPLOYMENT_DEFINITION_V1_URL;
+    const OLDER = 'https://tm-forum-model-66feba.pages.o-cei.eu/schemas/v0/deployment-definition.json';
+    const stored = (value: any, location: string) => ({ name: 'deploymentDefinition', valueType: 'DeploymentDefinition', '@schemaLocation': location, value });
+
+    it('stamps the version the opened form was built from', () => {
+      const c = component();
+      const form = createSchemaForm({ ...loaded, url: OLDER }, structuredClone(MODEL_DEPLOYMENT_DEFINITIONS['hello-world/sw-support-pkg.json']), DEPLOYMENT_DEFINITION_OVERLAY);
+      c.onDeploymentFormReady(form);
+      expect(prepare(c).resourceCharacteristic[0]['@schemaLocation']).toBe(OLDER);
+      expect(c.deploymentSchemaLocation).toBe(OLDER);
+    });
+
+    it('resends an unopened package through the chosen version: arrays unwrapped, stamped with it', () => {
+      const c = component();
+      const value = { type: 'helm', version: '1.0', properties: { repository: 'https://r.example', chart: 'c', version: '1', values: ['a: 1'], releaseName: 'x' } };
+      (c as any).originalDeploymentChar = stored(value, OLDER);
+      (c as any).storedDeploymentChoice = { url: V1, loaded, upgraded: true };
+
+      const [definition] = prepare(c).resourceCharacteristic;
+      expect(definition['@schemaLocation']).toBe(V1);
+      expect(definition.value.properties).toEqual({ repository: 'https://r.example', chart: 'c', version: '1', values: 'a: 1' });
+      expect(loaded.validate(definition.value)).toEqual([]);
+    });
+
+    it('resends a read-only package exactly as stored and does not block saving', () => {
+      const c = component();
+      const value = { type: 'nuvla-helm', version: '1.0', properties: { chart: 'redis', releaseName: 'x' } };
+      const original = stored(value, 'urn:ocei:schema:nuvla-helm-deployment-definition');
+      (c as any).originalDeploymentChar = original;
+      (c as any).storedDeploymentChoice = { url: original['@schemaLocation'], upgraded: false, readOnlyReason: 'unsupported' };
+      c.onDeploymentReadOnly();
+
+      const data = prepare(c);
+      expect(data.resourceCharacteristic).toEqual([original]);
+      expect(data.resourceSpecCharacteristic).toEqual([]);
+      expect(c.canSaveDraft).toBeTrue();
+    });
   });
 });

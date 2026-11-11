@@ -23,7 +23,9 @@ import { CharacteristicItem, CharacteristicsEditorComponent } from 'src/app/shar
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { PackageDeploymentComponent } from 'src/app/shared/forms/package-deployment/package-deployment';
-import { SchemaFormGroup } from 'src/app/shared/json-schema/schema-form-group';
+import { createSchemaForm, SchemaFormGroup } from 'src/app/shared/json-schema/schema-form-group';
+import { SchemaRegistryService } from 'src/app/shared/json-schema/schema-registry.service';
+import { chooseSchema, documentValidates, SchemaChoice } from 'src/app/shared/json-schema/schema-version';
 import { deploymentProfile } from 'src/app/models/deployment-profiles';
 import { StepperComponent, StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
@@ -120,6 +122,12 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
   deploymentForm: SchemaFormGroup | null = null;
   deploymentInitialValue?: SoftwareDeploymentDefinition;
   private originalDeploymentChar: SoftwareCharacteristic | null = null;
+  /** The `@schemaLocation` the deployment step opens with: the stored one, then the one it chose. */
+  deploymentSchemaLocation?: string;
+  /** Schema version for resending the stored definition when the step is not opened. */
+  private storedDeploymentChoice?: SchemaChoice;
+  /** The stored definition cannot be edited here (unknown schema) and is resent as it is. */
+  deploymentReadOnly = false;
 
   get requiresPackageDeployment(): boolean {
     const type = this.isUpdate ? this.res?.['@type'] : this.generalForm.value.baseTemplate;
@@ -158,6 +166,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
     private router: Router,
     private notificationService: NotificationService,
     private translate: TranslateService,
+    private schemaRegistry: SchemaRegistryService,
   ) {
     this.eventMessage.messages$
       .pipe(takeUntil(this.destroy$))
@@ -258,6 +267,8 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
             const value = Array.isArray(raw) ? raw[0] : raw;
             this.originalDeploymentChar = found ? { ...found, value } as SoftwareCharacteristic : null;
             this.deploymentInitialValue = value as SoftwareDeploymentDefinition | undefined;
+            this.deploymentSchemaLocation = (found as any)?.['@schemaLocation'];
+            if (found && value) this.chooseStoredDeploymentSchema(value);
           });
       }
     }
@@ -290,7 +301,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
 
   get canSaveDraft(): boolean {
     return !this.loading && this.generalForm.valid
-      && (!this.requiresPackageDeployment || !!this.deploymentForm?.valid)
+      && (!this.requiresPackageDeployment || this.deploymentReadOnly || !!this.deploymentForm?.valid)
       && (this.templateConfigFields.length === 0 || this.templateConfigForm.valid);
   }
 
@@ -325,8 +336,29 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
     }));
   }
 
+  /** Picks the version the stored definition is resent in if the deployment step is never opened. */
+  private chooseStoredDeploymentSchema(value: Record<string, unknown>): void {
+    chooseSchema(this.schemaRegistry, environment.DEPLOYMENT_SCHEMA_LOCATION, this.deploymentSchemaLocation,
+      loaded => documentValidates(loaded, value))
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: choice => {
+          this.storedDeploymentChoice = choice;
+          this.deploymentReadOnly = !!choice.readOnlyReason;
+        },
+        error: error => console.error('Could not load the deployment schema', error),
+      });
+  }
+
+  onDeploymentReadOnly(): void {
+    this.deploymentReadOnly = true;
+  }
+
   onDeploymentFormReady(form: SchemaFormGroup): void {
     this.deploymentForm = form;
+    this.deploymentReadOnly = false;
+    // Reopening the step must not pick a version again: it keeps editing in this one.
+    this.deploymentSchemaLocation = form.schemaUrl;
     // The step is destroyed when the user moves away, so keep the latest value to re-seed the next instance.
     form.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
       if (this.deploymentForm === form) this.deploymentInitialValue = structuredClone(form.schemaValue()) as unknown as SoftwareDeploymentDefinition;
@@ -335,21 +367,38 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
   }
 
   /**
-   * Prepares a stored deploymentDefinition for resending. Packages published before the release
-   * identity moved to the InstalledSoftware still carry `releaseName` and `namespace` under
-   * `properties`, which the API now rejects. The value is re-stamped with the current schema
-   * location: every older revision's valid values are valid in it. The original characteristic is
-   * left untouched — only the copy sent to the API is migrated.
+   * Prepares a stored deploymentDefinition for resending when the deployment step was not opened.
+   *
+   * - Read-only (its schema is not one this form can load): resent exactly as stored.
+   * - Otherwise it is read through the form of the version {@link chooseSchema} picked and stamped
+   *   with that version. That is what the form would have saved: it unwraps the one-element arrays
+   *   the broker returns (`values`), and drops what the schema does not describe, such as the release
+   *   identity older packages carry, which the API now rejects.
+   * - Before the version is known (the schema is still loading), the release identity is dropped and
+   *   the arrays unwrapped by hand, and the current version is stamped.
+   *
+   * The original characteristic is left untouched — only the copy sent to the API is migrated.
    */
   private migrateStoredDefinition(char: SoftwareCharacteristic): any {
+    const choice = this.storedDeploymentChoice;
+    if (choice?.readOnlyReason) return { ...(char as any) };
+
     const definition = (char as any).value as SoftwareDeploymentDefinition | undefined;
-    const properties = (definition?.properties ?? {}) as Record<string, any>;
-    const { releaseName, namespace, ...rest } = properties;
+    let value: SoftwareDeploymentDefinition | undefined;
+    if (definition && choice?.loaded) {
+      value = createSchemaForm(choice.loaded, structuredClone(definition) as any).schemaValue() as unknown as SoftwareDeploymentDefinition;
+    } else if (definition) {
+      const { releaseName, namespace, ...rest } = (definition.properties ?? {}) as Record<string, any>;
+      for (const key of Object.keys(rest)) {
+        if (Array.isArray(rest[key]) && rest[key].length === 1 && typeof rest[key][0] === 'string') rest[key] = rest[key][0];
+      }
+      value = { ...definition, properties: rest };
+    }
     return {
       ...(char as any),
       valueType: DEPLOYMENT_DEFINITION_VALUE_TYPE,
-      value: definition ? { ...definition, properties: rest } : definition,
-      '@schemaLocation': environment.DEPLOYMENT_SCHEMA_LOCATION,
+      value,
+      '@schemaLocation': choice?.url ?? environment.DEPLOYMENT_SCHEMA_LOCATION,
     };
   }
 
@@ -363,7 +412,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
           name: 'deploymentDefinition',
           valueType: DEPLOYMENT_DEFINITION_VALUE_TYPE,
           value,
-          '@schemaLocation': environment.DEPLOYMENT_SCHEMA_LOCATION,
+          '@schemaLocation': this.deploymentForm.schemaUrl ?? environment.DEPLOYMENT_SCHEMA_LOCATION,
         },
       };
     }
@@ -559,7 +608,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
   get canAdvance(): boolean {
     if (this.currentStepId === 'general') return this.generalForm?.valid ?? false;
     if (this.currentStepId === 'packageDeployment') {
-      return !this.requiresPackageDeployment || (this.deploymentForm?.valid ?? false);
+      return !this.requiresPackageDeployment || this.deploymentReadOnly || (this.deploymentForm?.valid ?? false);
     }
     if (this.currentStepId === 'configuration') return this.templateConfigFields.length === 0 || this.templateConfigForm.valid;
     return true;

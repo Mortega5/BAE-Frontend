@@ -1,7 +1,24 @@
 <div class="flex flex-col gap-6">
 
+  @if (choice?.readOnlyReason) {
+  <div class="flex flex-col gap-2 p-3 text-sm text-content bg-surface-input border border-line rounded-lg" role="status"
+    data-cy="deploymentReadOnly">
+    <span>{{ 'PACKAGE_DEPLOYMENT._read_only_' + choice!.readOnlyReason | translate }}</span>
+    <span class="font-mono text-xs break-all text-content-muted">{{ choice!.url }}</span>
+    <pre class="max-h-64 overflow-auto p-2 text-xs font-mono bg-surface rounded">{{ initialValue | json }}</pre>
+  </div>
+  } @else if (schemaUrl) {
+  @if (olderVersion) {
+  <p class="p-3 text-sm text-content bg-surface-input border border-line rounded-lg" role="status" data-cy="deploymentOlderVersion">
+    {{ 'PACKAGE_DEPLOYMENT._older_schema_version' | translate }}
+    <span class="font-mono text-xs break-all text-content-muted">{{ schemaUrl }}</span>
+  </p>
+  }
   <app-schema-form [schemaUrl]="schemaUrl" [overlay]="overlay" [initialValue]="initialValue" [columns]="4"
     (formReady)="onFormReady($event)"></app-schema-form>
+  } @else {
+  <p class="text-sm text-content-muted">{{ 'SCHEMA_FORM._loading' | translate }}</p>
+  }
 
   @if (shadowedKeys.length > 0) {
   <div

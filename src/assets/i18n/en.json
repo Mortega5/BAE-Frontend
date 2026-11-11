@@ -2095,7 +2095,10 @@
     "_type_opennebula": "OpenNebula",
     "_opennebula_properties": "OpenNebula Properties",
     "_enforced_opennebula_values": "Enforced values",
-    "_enforced_opennebula_values_hint": "Fields of this backend that no order can change, e.g. templateId: 237. An order that sets one of them to another value is rejected."
+    "_enforced_opennebula_values_hint": "Fields of this backend that no order can change, e.g. templateId: 237. An order that sets one of them to another value is rejected.",
+    "_older_schema_version": "This package was written with an older version of the deployment schema, and is edited in that version because its definition is not valid in the current one:",
+    "_read_only_unsupported": "This package's deployment definition uses a schema this form does not support. It is kept exactly as it is when you save the specification.",
+    "_read_only_unreachable": "The schema this package's deployment definition was written with could not be loaded. It is kept exactly as it is when you save the specification."
   },
   "UPDATE_SERV_SPEC": {
     "_not_found": "This service specification could not be found.",

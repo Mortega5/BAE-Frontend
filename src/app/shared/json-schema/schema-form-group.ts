@@ -31,6 +31,8 @@ export class SchemaFormGroup extends FormGroup {
   /** Optional nested objects the user has switched on. */
   readonly enabledObjects = new Set<string>();
   branchTitle?: string;
+  /** On the root group: the URL of the schema it was built from, to stamp as `@schemaLocation`. */
+  schemaUrl?: string;
 
   private readonly initialKeys: Set<string>;
   private discriminatorSubscriptions: Subscription[] = [];
@@ -173,6 +175,7 @@ export class SchemaFormGroup extends FormGroup {
 /** Builds the root group for a loaded schema and makes the whole document's validity part of it. */
 export function createSchemaForm(loaded: LoadedSchema, initialValue: ObjectValue | undefined, overlay?: SchemaUiOverlay): SchemaFormGroup {
   const root = new SchemaFormGroup(loaded.schema, '', { overlay }, initialValue);
+  root.schemaUrl = loaded.url;
   root.addValidators(schemaValidator(loaded, root));
   root.updateValueAndValidity();
   return root;
