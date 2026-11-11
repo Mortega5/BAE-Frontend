@@ -40,6 +40,8 @@ export type SchemaEntry = SchemaFieldEntry | SchemaObjectEntry;
  * | Schema | Control |
  * |---|---|
  * | `enum` | select (with an empty option when optional) |
+ * | `array` of an `enum` | multiple select |
+ * | `string` with `format: date` / `date-time` | date / date-time input |
  * | `string` | text input, or a code editor / textarea when the overlay says so |
  * | `integer` / `number` | number input with `minimum` / `maximum` |
  * | `boolean` | checkbox |
@@ -107,6 +109,18 @@ function buildFieldEntry(name: string, pointer: string, schema: JsonSchema, requ
     });
   }
 
+  const itemEnum = enumOfItems(schema);
+  if (itemEnum && !hint.type) {
+    const options: SelectOption[] = itemEnum.map(value => ({
+      value,
+      label: hint.optionLabels?.[String(value)] ?? String(value),
+    }));
+    const codec = listCodec();
+    return entry(name, pointer, schema, codec, {
+      ...base, type: 'select', multiple: true, options, colSpan: hint.colSpan ?? 2, defaultValue: codec.toControl(initial),
+    });
+  }
+
   if (hint.type === 'textarea') {
     const codec = scalarCodec();
     return entry(name, pointer, schema, codec, {
@@ -122,6 +136,15 @@ function buildFieldEntry(name: string, pointer: string, schema: JsonSchema, requ
     return entry(name, pointer, schema, codec, {
       ...base, type: 'code', language, placeholder: hint.placeholder, defaultValue: codec.toControl(initial),
       validators: language === 'json' ? [jsonValidator] : [yamlValidator],
+    });
+  }
+
+  if (type === 'string' && (schema.format === 'date' || schema.format === 'date-time')) {
+    const dateTime = schema.format === 'date-time';
+    const codec = dateTime ? dateTimeCodec() : scalarCodec();
+    return entry(name, pointer, schema, codec, {
+      ...base, type: 'date', inputType: dateTime ? 'datetime-local' : 'date', colSpan: hint.colSpan ?? 2,
+      defaultValue: codec.toControl(initial),
     });
   }
 
@@ -183,6 +206,44 @@ function numberCodec(): ValueCodec {
       if (isEmpty(value)) return undefined;
       const n = Number(value);
       return Number.isNaN(n) ? value : n; // let schema validation report what is not a number
+    },
+  };
+}
+
+/** The values of an array property whose items are an `enum`, or `undefined` for any other schema. */
+function enumOfItems(schema: JsonSchema): unknown[] | undefined {
+  if (typeOf(schema) !== 'array' || !schema.items || typeof schema.items !== 'object') return undefined;
+  return schema.items.enum?.length ? schema.items.enum : undefined;
+}
+
+/** A multi-select holds an array; an empty one leaves the property out. */
+function listCodec(): ValueCodec {
+  return {
+    toControl: value => (Array.isArray(value) ? value : isEmpty(value) ? [] : [value]),
+    fromControl: value => (Array.isArray(value) && value.length > 0 ? value : undefined),
+  };
+}
+
+/**
+ * `<input type="datetime-local">` edits a local `YYYY-MM-DDTHH:mm[:ss]` text with no zone, while
+ * `format: date-time` wants an RFC 3339 instant. The control shows local time; the value is UTC.
+ */
+function dateTimeCodec(): ValueCodec {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return {
+    toControl: value => {
+      const text = unwrap(value);
+      if (isEmpty(text)) return '';
+      const date = new Date(String(text));
+      if (Number.isNaN(date.getTime())) return String(text);
+      const day = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+      const time = `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+      return date.getSeconds() === 0 ? `${day}T${time}` : `${day}T${time}:${pad(date.getSeconds())}`;
+    },
+    fromControl: value => {
+      if (isEmpty(value)) return undefined;
+      const date = new Date(String(value));
+      return Number.isNaN(date.getTime()) ? value : date.toISOString().replace('.000Z', 'Z');
     },
   };
 }
