@@ -100,7 +100,7 @@ export const environment = {
   analyticsGuestTokenEndpoint: '/analytics/guest-token',
   feedbackCampaign: false,
   feedbackCampaignExpiration: 0,
-  DEPLOYMENT_SCHEMA_LOCATION: 'https://gist.githubusercontent.com/vramperez/e50df47dde789a05e0a4bdca39cf7349/raw/057beb0c9cd8aae6e5d5fbd8841c8035b5304996/deployment-definition.json',
+  DEPLOYMENT_SCHEMA_LOCATION: 'https://tm-forum-model-66feba.pages.o-cei.eu/schemas/v1/deployment-definition.json',
   SELLER_ROLE: 'Seller',
   BUYER_ROLE: 'Buyer',
   ADMIN_ROLE: 'Admin',
@@ -112,5 +112,5 @@ export const environment = {
   DSP_ENABLED: true,
   DSP_CONTRACT_DEFINITION_SCHEMA: 'https://raw.githubusercontent.com/wistefan/edc-dsc/refs/heads/init/schemas/contract-definition.json',
   DSP_SCHEMA: 'https://raw.githubusercontent.com/wistefan/edc-dsc/refs/heads/init/schemas/external-id.json',
-  BLUEPRINT_SCHEMA: 'https://gist.githubusercontent.com/vramperez/8a16d77f6fc2cdf5fea22dc11b325d52/raw/ad9ef7a1e933cd079732279218609141a731e3b2/blueprint-product-spec.json'
+  BLUEPRINT_SCHEMA: 'https://tm-forum-model-66feba.pages.o-cei.eu/schemas/v1/blueprint-product-spec.json'
 };

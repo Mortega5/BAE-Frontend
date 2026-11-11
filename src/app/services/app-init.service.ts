@@ -49,6 +49,7 @@ export class AppInitService {
           environment.DSP_CONTRACT_DEFINITION_SCHEMA = config.dspContractDefinitionSchema || environment.DSP_CONTRACT_DEFINITION_SCHEMA
           environment.DSP_SCHEMA = config.dspSchema || environment.DSP_SCHEMA
           environment.BLUEPRINT_SCHEMA = config.blueprintSchema ?? environment.BLUEPRINT_SCHEMA
+          environment.DEPLOYMENT_SCHEMA_LOCATION = config.deploymentDefinitionSchema ?? environment.DEPLOYMENT_SCHEMA_LOCATION
           applyRuntimeFeaturesConfig(config);
           applyRuntimeSearchFiltersConfig(config);
 
