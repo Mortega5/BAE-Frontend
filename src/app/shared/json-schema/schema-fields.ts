@@ -65,7 +65,7 @@ export function buildEntries(
     const hint = hints.get(name)!;
     const required = resolved.required.includes(name);
     const propPointer = childPointer(pointer, name);
-    if (isObjectWithProperties(schema) && !hint.widget) {
+    if (isObjectWithProperties(schema) && !hint.type) {
       return { kind: 'object', name, pointer: propPointer, schema, required, hint };
     }
     return buildFieldEntry(name, propPointer, schema, required, hint);
@@ -95,7 +95,7 @@ function buildFieldEntry(name: string, pointer: string, schema: JsonSchema, requ
   const type = typeOf(schema);
   const initial = schema.default ?? hint.defaultValue;
 
-  if (schema.enum && !hint.widget) {
+  if (schema.enum && !hint.type) {
     const options: SelectOption[] = schema.enum.map(value => ({
       value,
       label: hint.optionLabels?.[String(value)] ?? String(value),
@@ -107,7 +107,7 @@ function buildFieldEntry(name: string, pointer: string, schema: JsonSchema, requ
     });
   }
 
-  if (hint.widget === 'textarea') {
+  if (hint.type === 'textarea') {
     const codec = scalarCodec();
     return entry(name, pointer, schema, codec, {
       ...base, type: 'textarea', placeholder: hint.placeholder, defaultValue: codec.toControl(initial),
@@ -115,7 +115,7 @@ function buildFieldEntry(name: string, pointer: string, schema: JsonSchema, requ
     });
   }
 
-  if (hint.widget === 'code' || !isScalar(type)) {
+  if (hint.type === 'code' || !isScalar(type)) {
     const language: CodeLanguage = hint.language ?? 'yaml';
     // A string property holds the text itself; anything else holds the parsed document.
     const codec = type === 'string' ? scalarCodec() : documentCodec(language);
