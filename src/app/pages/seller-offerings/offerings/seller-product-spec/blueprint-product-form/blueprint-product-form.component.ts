@@ -16,9 +16,16 @@ import { TableInputComponent } from 'src/app/shared/forms/table-input/table-inpu
 import { yamlValidator } from 'src/app/validators/validators';
 import { SchemaIssuePipe } from 'src/app/shared/json-schema/schema-issue.pipe';
 import { LoadedSchema, SchemaRegistryService, SchemaValidationError } from 'src/app/shared/json-schema/schema-registry.service';
+import { valueAtPointer } from 'src/app/shared/json-schema/ui-overlay';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { components } from '../../../../../models/product-catalog';
+
+/** Step properties that the step form edits under another name. */
+const STEP_PROPERTY_FIELD: Record<string, string> = {
+  installedSoftwareTemplate: 'defaultValues',
+  enforcedCharacteristic: 'enforcedValues',
+};
 
 /** A TMF Characteristic as the orchestration plan carries it. The `name` discriminates the deployment
  * type, the same convention installedSoftwareTemplate.resourceCharacteristic uses, so a docker step
@@ -34,7 +41,7 @@ export interface OrchestrationStep {
   componentProductSpec: string;
   dependsOn: OrchestrationStep[];
   waitForHealthy: boolean;
-  timeoutSeconds: number | string;
+  timeoutSeconds?: number | string;
   onFailure: 'abort' | 'continue' | 'retry';
   /** Curated defaults for this component in this composition. The consumer may override them. */
   installedSoftwareTemplate?: { '@type': string; '@baseType': string; resourceCharacteristic: StepCharacteristic[] } | null;
@@ -94,7 +101,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     componentProductSpec: new FormControl<any>(null, [Validators.required]),
     dependsOn: new FormControl<OrchestrationStep[]>([]),
     waitForHealthy: new FormControl(true),
-    timeoutSeconds: new FormControl<number | string>(1),
+    timeoutSeconds: new FormControl<number | string | null>(null),
     onFailure: new FormControl<string>('abort'),
     defaultValues: new FormControl('', [yamlValidator]),
     enforcedValues: new FormControl('', [yamlValidator]),
@@ -180,6 +187,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
+    this.stepForm.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => this.validateStepForm());
     this.initPartyInfo();
     this.blueprintConfig?.selectedItems?.forEach(item => this.specsCache.set(item.id, item));
     if (this.blueprintConfig) {
@@ -190,6 +198,8 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
       .subscribe({
         next: loaded => {
           this.blueprintSchema = loaded;
+          const timeout = this.stepForm.controls['timeoutSeconds'];
+          if (!timeout.dirty && this.editingIndex === null) timeout.setValue(this.defaultTimeoutSeconds);
           if (this.orchestrationSteps.length > 0) this.emitFormChange();
         },
         // The TMF API validates the Blueprint against this schema on write, so it stays enforced.
@@ -257,14 +267,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     if (!this.stepForm.value.id) {
       this.stepForm.controls['id'].setValue(this.buildStepId(this.stepForm.value.componentProductSpec));
     }
-    const raw = this.stepForm.value as any;
-    const { defaultValues, enforcedValues, ...rest } = raw;
-    const step: OrchestrationStep = {
-      ...rest,
-      componentProductSpec: raw.componentProductSpec?.id ?? raw.componentProductSpec ?? '',
-      installedSoftwareTemplate: this.toTemplate(defaultValues),
-      enforcedCharacteristic: this.toCharacteristics(enforcedValues),
-    };
+    const step = this.stepFromForm();
 
     const candidate = this.editingIndex !== null
       ? this.orchestrationSteps.map((s, i) => i === this.editingIndex ? step : s)
@@ -285,6 +288,11 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
       this.cycleError = null;
       return;
     }
+
+    // The schema's verdict on this step, shown under the form as the author typed it. A step it
+    // rejects is not added, so the plan never holds a step already known to be wrong.
+    this.validateStepForm();
+    if (this.stepIssues.length > 0) return;
 
     this.referenceError = null;
     this.cycleError = null;
@@ -469,6 +477,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     const step = this.orchestrationSteps[index];
     this.stepForm.patchValue({
       ...step,
+      timeoutSeconds: step.timeoutSeconds ?? null,
       componentProductSpec: this.findSpec(step.componentProductSpec) ?? null,
       defaultValues: this.fromCharacteristics(step.installedSoftwareTemplate?.resourceCharacteristic),
       enforcedValues: this.fromCharacteristics(step.enforcedCharacteristic),
@@ -484,13 +493,82 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   }
 
   private resetStepForm(): void {
-    this.stepForm.reset({ id: '', componentProductSpec: null, dependsOn: [], waitForHealthy: true, timeoutSeconds: 1, onFailure: 'abort', defaultValues: '', enforcedValues: '' });
+    this.stepForm.reset({ id: '', componentProductSpec: null, dependsOn: [], waitForHealthy: true, timeoutSeconds: this.defaultTimeoutSeconds, onFailure: 'abort', defaultValues: '', enforcedValues: '' });
+    this.stepIssues = [];
   }
 
   deleteStep(index: number): void {
     this.orchestrationSteps = this.orchestrationSteps.filter((_, i) => i !== index);
     if (this.editingIndex === index) this.cancelEdit();
     this.emitFormChange();
+  }
+
+  /** What the schema says a step's `timeoutSeconds` is when the author does not set it. */
+  private get defaultTimeoutSeconds(): number | null {
+    const value = valueAtPointer(this.blueprintSchema?.schema, '/properties/orchestrationPlan/properties/steps/items/properties/timeoutSeconds/default');
+    return typeof value === 'number' ? value : null;
+  }
+
+  /** Errors of the schema about the step being written, each with the label of the field it is about. */
+  stepIssues: (SchemaValidationError & { label: string; suffix: string })[] = [];
+
+  /**
+   * The step as the form holds it now. A step without an id gets the one it would be given when saved
+   * (not set on the form: it is generated once, at save).
+   */
+  private stepFromForm(): OrchestrationStep {
+    const raw = this.stepForm.value as any;
+    const { defaultValues, enforcedValues, timeoutSeconds, ...rest } = raw;
+    return {
+      ...rest,
+      id: raw.id || this.buildStepId(raw.componentProductSpec),
+      // An optional number left empty is left out; the schema rejects a `null` or `''` in its place.
+      ...(timeoutSeconds === null || timeoutSeconds === undefined || timeoutSeconds === '' ? {} : { timeoutSeconds: Number(timeoutSeconds) }),
+      componentProductSpec: raw.componentProductSpec?.id ?? raw.componentProductSpec ?? '',
+      installedSoftwareTemplate: this.toTemplate(defaultValues),
+      enforcedCharacteristic: this.toCharacteristics(enforcedValues),
+    };
+  }
+
+  /**
+   * Checks the plan with the step being written in it and keeps what the schema says about that step.
+   * `required` errors are left out: the form already asks for the component, and the id is generated.
+   */
+  private validateStepForm(): void {
+    this.stepIssues = [];
+    if (!this.showStepForm || !this.blueprintSchema) return;
+    // Text that is not valid YAML yet is the editor's own error; there is no step to check.
+    if (this.stepForm.controls['defaultValues'].errors || this.stepForm.controls['enforcedValues'].errors) return;
+
+    const step = this.stepFromForm();
+    const index = this.editingIndex ?? this.orchestrationSteps.length;
+    const steps = this.editingIndex !== null
+      ? this.orchestrationSteps.map((s, i) => i === index ? step : s)
+      : [...this.orchestrationSteps, step];
+    const prefix = `/orchestrationPlan/steps/${index}/`;
+    this.stepIssues = this.blueprintSchema
+      .validate({ orchestrationPlan: { steps: this.toPlanSteps(steps) } })
+      .filter(error => error.path.startsWith(prefix) && error.keyword !== 'required')
+      .map(error => {
+        const [property, ...rest] = error.path.slice(prefix.length).split('/');
+        const field = this.stepFormFields.find(f => f.name === (STEP_PROPERTY_FIELD[property] ?? property));
+        return { ...error, label: field?.label ?? property, suffix: rest.length > 0 ? ` › ${rest.join(' › ')}` : '' };
+      });
+  }
+
+  /** The steps as the plan carries them: `dependsOn` as ids, the empty value channels left out. */
+  private toPlanSteps(steps: OrchestrationStep[]): any[] {
+    // Both value channels are optional: a step that curates nothing and locks nothing should not
+    // publish empty containers for them.
+    return steps.map(s => {
+      const { installedSoftwareTemplate, enforcedCharacteristic, ...rest } = s;
+      return {
+        ...rest,
+        dependsOn: s.dependsOn.map(d => d.id),
+        ...(installedSoftwareTemplate ? { installedSoftwareTemplate } : {}),
+        ...(enforcedCharacteristic ? { enforcedCharacteristic } : {}),
+      };
+    });
   }
 
   private emitFormChange(): void {
@@ -500,15 +578,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
 
     // Both value channels are optional: a step that curates nothing and locks nothing should not
     // publish empty containers for them.
-    const orchestrationSteps = this.orchestrationSteps.map(s => {
-        const { installedSoftwareTemplate, enforcedCharacteristic, ...rest } = s;
-        return {
-          ...rest,
-          dependsOn: s.dependsOn.map(d => d.id),
-          ...(installedSoftwareTemplate ? { installedSoftwareTemplate } : {}),
-          ...(enforcedCharacteristic ? { enforcedCharacteristic } : {}),
-        };
-      });
+    const orchestrationSteps = this.toPlanSteps(this.orchestrationSteps);
     this.schemaErrors = this.blueprintSchema?.validate({ orchestrationPlan: { steps: orchestrationSteps } }) ?? [];
 
     this.formChange.emit({

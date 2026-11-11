@@ -35,6 +35,15 @@
     <div class="bg-surface-input border border-line rounded-lg p-4 mt-4">
       <app-dynamic-form [fields]="stepFormFields" [formGroup]="stepForm" [columns]="6" />
 
+      @if (stepIssues.length > 0) {
+      <ul class="mt-3 p-3 text-sm text-danger bg-danger-soft rounded-lg list-disc list-inside dark:bg-secondary-200" role="alert"
+        data-cy="blueprintStepIssues">
+        @for (issue of stepIssues; track issue.path + issue.message) {
+        <li><span class="font-semibold">{{ issue.label | translate }}</span>{{ issue.suffix }}: {{ issue | schemaIssue }}</li>
+        }
+      </ul>
+      }
+
       @if (cycleError) {
       <div
         class="flex items-start gap-2 mt-3 p-3 text-sm text-danger bg-danger-soft rounded-lg dark:bg-secondary-200"
