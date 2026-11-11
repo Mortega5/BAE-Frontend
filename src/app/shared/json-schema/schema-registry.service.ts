@@ -4,6 +4,7 @@ import Ajv, { ErrorObject, ValidateFunction } from 'ajv';
 import addFormats from 'ajv-formats';
 import { Observable, catchError, map, shareReplay, throwError } from 'rxjs';
 import { JsonSchema } from './json-schema.model';
+import { childPointer, valueAtPointer } from './ui-overlay';
 
 /** A fetched schema plus its compiled validator. */
 export interface LoadedSchema {
@@ -13,8 +14,10 @@ export interface LoadedSchema {
 }
 
 export interface SchemaValidationError {
-  /** JSON pointer of the offending value, `''` for the root. */
+  /** JSON pointer of the value the message is about, `''` for the root. A missing or forbidden
+   * property is reported at that property, not at the object that lacks or holds it. */
   path: string;
+  /** What is wrong with the value at `path`, e.g. `is required`. It does not repeat the path. */
   message: string;
 }
 
@@ -62,11 +65,34 @@ export function createAjv(): Ajv {
 export function runValidator(validator: ValidateFunction, value: unknown): SchemaValidationError[] {
   if (validator(value)) return [];
   const errors = validator.errors ?? [];
-  const rejected = rejectedBranches(errors);
+  const rejected = [...rejectedBranches(errors), ...undecidedBlocks(errors, validator.schema, value)];
   return dedupe(errors
     .filter(isReportable)
     .filter(error => !rejected.some(branch => error.schemaPath.startsWith(`${branch}/`)))
     .map(toValidationError));
+}
+
+/**
+ * `if: { properties: { backend: { const: 'vm' } } }` is true while `backend` is absent, because
+ * `properties` only checks the properties that exist. With `backend` unset, ajv would therefore apply
+ * the `then` of every block at once and report each backend's requirements. Those blocks are not
+ * the one the user is filling in (none is, yet), so their `then` errors are noise; the missing
+ * discriminator is reported on its own by the `required` that every such schema also has.
+ */
+function undecidedBlocks(errors: ErrorObject[], root: unknown, value: unknown): string[] {
+  const blocks = new Set<string>();
+  for (const error of errors) {
+    if (error.keyword !== 'if') continue;
+    const block = /^#(\/.*\/allOf\/\d+)\/if$/.exec(error.schemaPath)?.[1];
+    if (!block) continue;
+    const condition = (valueAtPointer(root, block) as JsonSchema | undefined)?.if;
+    const discriminators = Object.keys(condition?.properties ?? {});
+    const target = valueAtPointer(value, error.instancePath);
+    if (target && typeof target === 'object' && discriminators.some(name => !(name in target))) {
+      blocks.add(`#${block}/then`);
+    }
+  }
+  return [...blocks];
 }
 
 /**
@@ -91,9 +117,22 @@ function isReportable(error: ErrorObject): boolean {
 
 function toValidationError(error: ErrorObject): SchemaValidationError {
   const params = error.params as Record<string, unknown>;
-  const extra = params['additionalProperty'] ?? params['missingProperty'] ?? params['allowedValues'] ?? params['propertyName'];
-  const detail = extra === undefined ? '' : ` (${Array.isArray(extra) ? extra.join(', ') : extra})`;
-  return { path: error.instancePath, message: `${error.message ?? error.keyword}${detail}` };
+  switch (error.keyword) {
+    case 'required':
+      return { path: childPointer(error.instancePath, String(params['missingProperty'])), message: 'is required' };
+    case 'additionalProperties':
+      return { path: childPointer(error.instancePath, String(params['additionalProperty'])), message: 'is not allowed here' };
+    case 'false schema':
+      return { path: error.instancePath, message: 'is not allowed here' };
+    case 'enum':
+      return { path: error.instancePath, message: `must be one of: ${(params['allowedValues'] as unknown[]).join(', ')}` };
+    case 'const':
+      return { path: error.instancePath, message: `must be ${params['allowedValue']}` };
+    default: {
+      const extra = params['propertyName'];
+      return { path: error.instancePath, message: `${error.message ?? error.keyword}${extra === undefined ? '' : ` (${extra})`}` };
+    }
+  }
 }
 
 function dedupe(errors: SchemaValidationError[]): SchemaValidationError[] {

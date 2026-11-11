@@ -56,4 +56,32 @@ describe('SchemaFormComponent', () => {
     expect(ready).toBeDefined();
     expect(fixture.nativeElement.querySelector('[data-cy="schemaLoadError"]')).toBeNull();
   });
+
+  it('lists each error under the label of its field', () => {
+    render({ type: 'opennebula', version: '1.0', properties: {} });
+    http.expectOne(DEPLOYMENT_DEFINITION_V1_URL).flush(DEPLOYMENT_DEFINITION_V1);
+    ready!.markAsDirty();
+    fixture.detectChanges();
+
+    const list = (fixture.nativeElement as HTMLElement).querySelector('[data-cy="schemaErrors"]')!;
+    expect(list.textContent).toContain('Backend');
+    expect(list.textContent).toContain('is required');
+    expect(list.textContent).not.toContain('/properties');
+    expect(list.querySelectorAll('li').length).toBe(1);
+  });
+
+  it('takes the user to the field when its label in the error list is clicked', () => {
+    render({ type: 'opennebula', version: '1.0', properties: {} });
+    http.expectOne(DEPLOYMENT_DEFINITION_V1_URL).flush(DEPLOYMENT_DEFINITION_V1);
+    ready!.markAsDirty();
+    fixture.detectChanges();
+
+    const link = (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('[data-cy="schemaErrors"] button')!;
+    link.click();
+
+    const focused = document.activeElement as HTMLElement;
+    expect(focused.id).toBe('backend');
+    // `version` also exists at the root: the link must lead to the one inside `properties`.
+    expect((fixture.nativeElement as HTMLElement).querySelector('[data-schema-pointer="/properties"]')!.contains(focused)).toBeTrue();
+  });
 });

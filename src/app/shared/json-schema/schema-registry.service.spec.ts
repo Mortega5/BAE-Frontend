@@ -42,6 +42,33 @@ describe('SchemaRegistryService', () => {
     expect(errors).toEqual([{ path: '/properties/repository', message: 'must match format "uri"' }]);
   });
 
+  it('reports a missing property at that property', () => {
+    const { validate } = service.compile(DEPLOYMENT_DEFINITION_V1_URL, DEPLOYMENT_DEFINITION_V1);
+    const errors = validate({ type: 'helm', version: '1.0', properties: {} });
+    expect(errors).toContain({ path: '/properties/chart', message: 'is required' });
+  });
+
+  describe('a discriminator that is not set yet', () => {
+    const opennebula = (properties: object) => ({ type: 'opennebula', version: '1.0', properties });
+
+    it('asks only for the discriminator, not for what every branch would need', () => {
+      const { validate } = service.compile(DEPLOYMENT_DEFINITION_V1_URL, DEPLOYMENT_DEFINITION_V1);
+      expect(validate(opennebula({ flavour: 'standalone', workerFlavour: 'small' })))
+        .toEqual([{ path: '/properties/backend', message: 'is required' }]);
+    });
+
+    it('asks for what the chosen branch needs once it is set', () => {
+      const { validate } = service.compile(DEPLOYMENT_DEFINITION_V1_URL, DEPLOYMENT_DEFINITION_V1);
+      expect(validate(opennebula({ backend: 'vm' }))).toEqual([{ path: '/properties/templateId', message: 'is required' }]);
+    });
+
+    it('rejects a field the chosen branch forbids', () => {
+      const { validate } = service.compile(DEPLOYMENT_DEFINITION_V1_URL, DEPLOYMENT_DEFINITION_V1);
+      expect(validate(opennebula({ backend: 'vm', templateId: 1, flavour: 'ha' })))
+        .toEqual([{ path: '/properties/flavour', message: 'is not allowed here' }]);
+    });
+  });
+
   it('validates a Blueprint orchestration plan', () => {
     const { validate } = service.compile(BLUEPRINT_PRODUCT_SPEC_V1_URL, BLUEPRINT_PRODUCT_SPEC_V1);
     const step = { id: 'step-web', componentProductSpec: 'urn:ngsi-ld:product-specification:1', dependsOn: [] };

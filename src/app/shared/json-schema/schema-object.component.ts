@@ -21,7 +21,8 @@ import { SchemaFormGroup } from './schema-form-group';
       <app-dynamic-form [fields]="group.fields" [formGroup]="group" [columns]="columns"></app-dynamic-form>
       }
       @for (entry of group.objects; track entry.pointer) {
-      <fieldset class="flex flex-col gap-3 border-t border-line pt-4" [attr.data-cy]="'schema-object-' + entry.name">
+      <fieldset class="flex flex-col gap-3 border-t border-line pt-4" [attr.data-cy]="'schema-object-' + entry.name"
+        [attr.data-schema-pointer]="entry.pointer">
         <legend class="flex items-center gap-3 text-sm font-bold text-content">
           @if (!entry.required) {
           <input type="checkbox" class="rounded border-line-input" [id]="entry.pointer"
