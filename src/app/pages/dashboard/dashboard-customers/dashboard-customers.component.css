@@ -10,7 +10,7 @@
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  background: #f3f6ff;
+  background: var(--theme-surface-muted);
 }
 
 .dc-content {
@@ -69,13 +69,13 @@
   min-height: 240px;
   border-radius: 8px;
   overflow: hidden;
-  background: #F7F9FD;
+  background: var(--theme-page-bg);
   isolation: isolate;
   transition: background-color 450ms ease, transform 450ms ease, box-shadow 450ms ease;
 }
 
 .dc-feature-card:hover {
-  background: #E2E9F5;
+  background: var(--theme-surface-muted);
   transform: translateY(-2px);
   box-shadow: 0 16px 38px rgba(13, 33, 74, 0.12);
 }
@@ -105,7 +105,7 @@
   font-size: 30px;
   font-weight: 700;
   line-height: 36px;
-  color: #2D58A7;
+  color: rgb(var(--theme-primary-100));
   display: flex;
   align-items: flex-end;
 }
@@ -118,7 +118,7 @@
   height: 120px;
   font-size: 120px;
   line-height: 1;
-  color: #DDE6F6;
+  color: rgb(var(--theme-secondary-50));
   transform: rotate(-15deg);
   transform-origin: center;
   z-index: 0;
@@ -143,7 +143,7 @@
   font-size: 18px;
   line-height: 28px;
   font-weight: 400;
-  color: #0B1528;
+  color: var(--theme-default-text);
 }
 
 .dc-feature-card:hover .dc-feature-card__base {
@@ -152,7 +152,7 @@
 
 .dc-feature-card:hover .dc-feature-card__icon {
   transform: rotate(-15deg) scale(1.5);
-  color: #C4D3EC;
+  color: rgb(var(--theme-secondary-50));
 }
 
 .dc-feature-card:hover .dc-feature-card__hover {
@@ -164,7 +164,7 @@
 .dc-howcard {
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.7);
-  border: 2px solid #FFFFFF;
+  border: 2px solid var(--card-bg);
   backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);
   min-height: 504px;
@@ -186,7 +186,7 @@
   font-weight: 700;
   font-size: 36px;
   line-height: 43px;
-  color: #111827;
+  color: var(--theme-default-text);
 }
 
 .dc-steps {
@@ -210,7 +210,7 @@
   font-weight: 700;
   font-size: 18px;
   line-height: 22px;
-  color: #2D58A7;
+  color: rgb(var(--theme-primary-100));
   flex: none;
 }
 
@@ -227,7 +227,7 @@
   font-weight: 600;
   font-size: 20px;
   line-height: 24px;
-  color: #111827;
+  color: var(--theme-default-text);
 }
 
 .dc-step__desc {
@@ -235,7 +235,7 @@
   font-weight: 400;
   font-size: 18px;
   line-height: 28px;
-  color: #4C5A6B;
+  color: var(--theme-text-secondary);
 }
 
 .dc-howcard__cta {
@@ -245,14 +245,14 @@
   padding: 12px 16px;
   gap: 8px;
   height: 40px;
-  background: #2D58A7;
+  background: rgb(var(--theme-primary-100));
   border-radius: 6px;
   font-family: 'Blinker', sans-serif;
   font-weight: 600;
   font-size: 14px;
   line-height: 16px;
   letter-spacing: 0.5px;
-  color: #FFFFFF;
+  color: var(--theme-primary-text);
   text-decoration: none;
   transition: filter 200ms ease;
 }

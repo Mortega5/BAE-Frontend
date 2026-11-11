@@ -4,7 +4,6 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { initFlowbite } from 'flowbite';
-import { jwtDecode } from "jwt-decode";
 import { lastValueFrom, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { IconCategory, POPULAR_ICON_CATEGORIES } from 'src/app/config/popular-icons';
@@ -24,6 +23,7 @@ import { ApiServiceService } from 'src/app/services/product-service.service';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
+import { extractComplianceLevelFromVcToken } from 'src/app/shared/compliance-credential.utils';
 import { BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
 import { CharacteristicItem } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
@@ -55,13 +55,15 @@ const BASE_TEMPLATE_OPTIONS = [
   { value: 'BlueprintProductSpecification', label: 'Blueprint Product Specification' },
 ];
 
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
 @Component({
   selector: 'update-product-spec',
   templateUrl: './update-product-spec.component.html',
   styleUrl: './update-product-spec.component.css',
   providers: [DatePipe],
 })
-export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
+export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, LeaveConfirmable {
 
   prod: any;
 
@@ -195,6 +197,11 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   selectedServiceSpecs: any[] = [];
   showCreateServiceSpecModal = false;
   @ViewChild('serviceSpecsTable') private serviceSpecsTable?: PaginatedTableComponent;
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  /** Set once the spec is saved or deleted, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
+  /** Everything editable outside generalForm, as loaded, to tell an edit apart from an untouched spec. */
+  private initialEditSignature = '';
   servColumns: TableColumn[] = [
     { header: 'CREATE_PROD_SPEC._name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
     { header: 'CREATE_PROD_SPEC._status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
@@ -284,6 +291,23 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   ];
 
   private destroy$ = new Subject<void>();
+  /** The compliance step's two uploads, as app-dynamic-form attachment fields. Filled from the
+   * self-attestation/additional-certificate state when the step opens; edits flow back through
+   * onSelfAttestationChange/onComplianceAttachmentsChange. */
+  readonly complianceFields: FormField[] = [
+    {
+      type: 'attachment', name: 'selfAttestation', label: 'CREATE_PROD_SPEC._upload_self_attestation',
+      accept: '.pdf,.doc,.docx', hint: 'CREATE_PROD_SPEC._compliance_panel_desc', dataCy: 'productSpecSelfAttestation'
+    },
+    {
+      type: 'attachment', name: 'additionalAttachments', label: 'CREATE_PROD_SPEC._additional_attachments',
+      accept: '.pdf,.doc,.docx', multiple: true, dataCy: 'productSpecComplianceAttachments'
+    },
+  ];
+  readonly complianceForm = buildFormGroup(this.complianceFields);
+  /** Rendered as two forms so the existing certifications list sits between them. */
+  readonly selfAttestationFields = [this.complianceFields[0]];
+  readonly additionalAttachmentFields = [this.complianceFields[1]];
 
   get templateName(): string {
     return this.generalForm.get('baseTemplate')?.value || '';
@@ -314,6 +338,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
           this.initPartyInfo();
           if (!belongsToParty(this.prod, this.partyId)) {
             this.notificationService.showInfo(this.translate.instant('UPDATE_PROD_SPEC._wrong_org_notice'));
+            this.leaveAllowed = true;
             this.goBack();
           }
         }
@@ -321,12 +346,19 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   async ngOnInit() {
+    this.complianceForm.get('selfAttestation')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(file => this.onSelfAttestationChange(file));
+    this.complianceForm.get('additionalAttachments')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(files => this.onComplianceAttachmentsChange(files));
     this.initPartyInfo();
     this.loading = true;
     const id = this.route.snapshot.paramMap.get('id')!;
     try {
       this.prod = await this.prodSpecService.getResSpecById(id);
       this.populateProductInfo();
+      this.initialEditSignature = this.editSignature();
       initFlowbite();
     } catch (error) {
       console.error('Error loading product spec', error);
@@ -585,6 +617,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     this.currentStepId = event.stepId as ProductSpecFormStep;
     if (this.currentStepId === 'characteristics' || this.currentStepId === 'dataspace') { this.characteristicItems = this.buildCharacteristicItems(); }
     if (this.currentStepId === 'relationships') { this.getProdSpecsRel(false); }
+    if (this.currentStepId === 'compliance') { this.syncComplianceForm(); }
     if (event.isLastStep) { this.showFinish(); }
   }
 
@@ -763,6 +796,34 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
     }
   }
 
+  get leaveNeedsConfirmation(): boolean {
+    return !this.leaveAllowed && !!this.prod && this.hasUnsavedChanges();
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (!this.leaveNeedsConfirmation) return true;
+    return this.unsavedChangesModal?.confirm(() => this.updateProduct()) ?? true;
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.generalForm.dirty || this.dspConfigForm.dirty || this.editSignature() !== this.initialEditSignature;
+  }
+
+  private editSignature(): string {
+    const ids = (list: any[] | undefined) => (list ?? []).map(item => item?.id);
+    return JSON.stringify({
+      details: this.serializeProductDetails(),
+      chars: this.prodChars,
+      endpoints: this.endpointUrls,
+      services: ids(this.selectedServiceSpecs),
+      resources: ids(this.selectedResourceSpecs),
+      relationships: ids(this.prodRelationships),
+      bundle: ids(this.prodSpecsBundle),
+      attachments: this.prodAttachments,
+      compliance: this.getCurrentComplianceEvidenceSignature(),
+    });
+  }
+
   goBack() {
     this.router.navigate([SellerOfferingsPaths.productSpecs.list()]);
   }
@@ -805,35 +866,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   private applyComplianceDataFromVcToken(vcToken: any) {
-    if (!vcToken || typeof vcToken !== 'string') {
-      this.complianceLevel = 'NL';
-      return;
-    }
-
-    const allowedLevels = ['NL', 'BL', 'P', 'PP'];
-
-    try {
-      const decoded: any = jwtDecode(vcToken);
-      let credential: any = null;
-
-      if ('verifiableCredential' in decoded) {
-        credential = decoded.verifiableCredential;
-      } else if ('vc' in decoded) {
-        credential = decoded.vc;
-      }
-
-      const subject = credential?.credentialSubject;
-      if (!subject) {
-        this.complianceLevel = 'NL';
-        return;
-      }
-
-      const level = subject['gx:labelLevel'];
-      this.complianceLevel = (typeof level === 'string' && allowedLevels.includes(level)) ? level : 'NL';
-    } catch (error) {
-      this.complianceLevel = 'NL';
-      console.log(error);
-    }
+    this.complianceLevel = extractComplianceLevelFromVcToken(vcToken);
   }
 
   openRequestValidationModal() {
@@ -884,6 +917,13 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
       const existing = this.additionalISOS.find(c => c.url === f.url);
       return { id: existing?.id, name: 'Compliance:' + f.name, url: f.url };
     });
+  }
+
+  private syncComplianceForm(): void {
+    this.complianceForm.setValue({
+      selfAttestation: this.selfAttFile,
+      additionalAttachments: this.additionalAttestationFiles,
+    }, { emitEvent: false });
   }
 
   downloadSelfAttestationTemplate(): void {
@@ -1325,6 +1365,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
       next: data => {
         this.loading = false;
         this.notificationService.showSuccess('CREATE_PROD_SPEC._update_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: error => {
@@ -1355,6 +1396,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
       next: () => {
         this.loading = false;
         this.notificationService.showSuccess('UPDATE_PROD_SPEC._delete_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: error => {

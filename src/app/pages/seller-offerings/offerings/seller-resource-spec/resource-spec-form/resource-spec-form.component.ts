@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -16,6 +16,8 @@ import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/r
 import { BadgeComponent, BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { NotFoundStateComponent } from 'src/app/shared/not-found-state/not-found-state.component';
 import { CharacteristicItem, CharacteristicsEditorComponent } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
@@ -68,11 +70,12 @@ const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
     CharacteristicsEditorComponent,
     PackageDeploymentComponent,
     ConfirmModalComponent,
+    UnsavedChangesModalComponent,
   ],
   templateUrl: './resource-spec-form.component.html',
 
 })
-export class ResourceSpecFormComponent implements OnInit, OnDestroy {
+export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirmable {
   /** True when embedded inside another flow (e.g. the product spec form's resource picker)
    * instead of routed to as its own page — swaps navigating away for emitting `created`. */
   @Input() embedded = false;
@@ -124,6 +127,11 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
   characteristicItems: CharacteristicItem[] = [];
 
   showPublishDraftModal = false;
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  /** Set once the spec is saved, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
+  /** Characteristics as loaded, to tell an edit apart from an untouched spec. */
+  private loadedCharsSnapshot = '[]';
   showDeleteConfirm = false;
   showPublishConfirm = false;
   loading = false;
@@ -148,6 +156,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
           this.initPartyInfo();
           if (!belongsToParty(this.res, this.partyId)) {
             this.notificationService.showInfo(this.translate.instant('UPDATE_RES_SPEC._wrong_org_notice'));
+            this.leaveAllowed = true;
             this.goBack();
           }
         }
@@ -216,8 +225,9 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
     this.generalForm.controls['description'].setValue(this.res.description);
     this.generalForm.controls['baseTemplate'].setValue(this.res['@baseType'] ? this.res['@type'] : '');
     this.generalForm.controls['lifecycleStatus'].setValue(this.res.lifecycleStatus);
-    this.prodChars = this.res.resourceSpecCharacteristic;
+    this.prodChars = this.res.resourceSpecCharacteristic ?? [];
     this.characteristicItems = this.buildCharacteristicItems();
+    this.loadedCharsSnapshot = JSON.stringify(this.prodChars ?? []);
 
     const configs = type ? buildResourceConfigUpdate({ partyId: this.partyId, resSpecService: this.resSpecService }) : undefined;
     const templateConfig = configs && type ? configs[type] : undefined;
@@ -232,11 +242,46 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
         this.resSpecService.getSoftwareSupportPackage(packageId)
           .subscribe(pkg => {
             const pkgChars = (pkg.resourceCharacteristic ?? []) as SoftwareCharacteristic[];
-            this.originalDeploymentChar = pkgChars.find(c => c.valueType === 'deployment') ?? null;
-            this.deploymentInitialValue = this.originalDeploymentChar?.value as SoftwareDeploymentDefinition | undefined;
+            const found = pkgChars.find(c => c.valueType?.toLowerCase() === 'deployment');
+            // The broker may round-trip the value as a one-element array.
+            const raw = (found as any)?.value;
+            const value = Array.isArray(raw) ? raw[0] : raw;
+            this.originalDeploymentChar = found ? { ...found, value } as SoftwareCharacteristic : null;
+            this.deploymentInitialValue = value as SoftwareDeploymentDefinition | undefined;
           });
       }
     }
+  }
+
+  get leaveNeedsConfirmation(): boolean {
+    return !(this.embedded || this.leaveAllowed || !this.hasUnsavedChanges());
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (!this.leaveNeedsConfirmation) return true;
+    return this.unsavedChangesModal?.confirm(() => {
+      if (this.isUpdate) {
+        this.save();
+      } else {
+        this.prepareData();
+        this.saveDraft();
+      }
+    }) ?? true;
+  }
+
+  hasUnsavedChanges(): boolean {
+    if (this.isUpdate) {
+      return this.generalForm.dirty || this.templateConfigForm.dirty || !!this.deploymentForm?.dirty
+      || JSON.stringify(this.prodChars ?? []) !== this.loadedCharsSnapshot;
+    }
+    return this.generalForm.dirty || this.templateConfigForm.dirty || !!this.deploymentForm?.dirty
+      || this.prodChars.length > 0;
+  }
+
+  get canSaveDraft(): boolean {
+    return !this.loading && this.generalForm.valid
+      && (!this.requiresPackageDeployment || !!this.deploymentForm?.valid)
+      && (this.templateConfigFields.length === 0 || this.templateConfigForm.valid);
   }
 
   goBack(): void {
@@ -272,6 +317,11 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
 
   onDeploymentFormReady(form: FormGroup): void {
     this.deploymentForm = form;
+    // The step is destroyed when the user moves away, so keep the latest value to re-seed the next instance.
+    form.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
+      if (this.deploymentForm === form) this.deploymentInitialValue = structuredClone(form.getRawValue());
+    });
+    if (form.pristine && this.deploymentInitialValue && !this.isUpdate) form.markAsDirty();
   }
 
   private getArtifactType(deployment: SoftwareDeploymentDefinition): string {
@@ -388,6 +438,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
           next: () => {
             this.loading = false;
             this.notificationService.showSuccess('CREATE_RES_SPEC._update_success');
+            this.leaveAllowed = true;
             this.goBack();
           },
           error: e => this.handleError(e),
@@ -418,6 +469,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
           if (this.embedded) {
             this.created.emit(created);
           } else {
+            this.leaveAllowed = true;
             this.goBack();
           }
         },
@@ -461,6 +513,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy {
       next: () => {
         this.loading = false;
         this.notificationService.showSuccess('UPDATE_RES_SPEC._delete_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: (error: any) => {

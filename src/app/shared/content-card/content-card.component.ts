@@ -3,7 +3,7 @@ import { Component, Input } from '@angular/core';
 export type ContentCardVariant = 'panel' | 'modal' | 'inset' | 'accent';
 
 /** Shared white/dark box used to consolidate the many near-duplicate
- * `bg-white dark:bg-secondary-100 rounded-2xl border ... shadow-*` boxes scattered
+ * `bg-surface rounded-2xl border ... shadow-*` boxes scattered
  * across steppers, drawers and modals. Adopt incrementally when touching a file,
  * not as a one-shot sweep — same approach as ButtonComponent. */
 @Component({

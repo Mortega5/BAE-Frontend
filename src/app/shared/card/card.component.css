@@ -2,3 +2,13 @@
     transition: all linear 500ms;
     opacity: 1;
 }
+
+/* Offer card colors: tokens live in styles.css (light/dark); templates use these classes. */
+.oc-heading { color: var(--offer-card-heading-text); }
+.oc-muted { color: var(--offer-card-muted-text); }
+.oc-label { color: var(--offer-card-label-text); }
+.oc-body { color: var(--offer-card-body-text); }
+.oc-free { color: var(--offer-card-free-text); }
+.oc-chip { background-color: var(--offer-card-chip-bg); }
+.oc-image { background-color: var(--offer-card-image-bg); }
+.oc-border { border-color: var(--offer-card-border); }

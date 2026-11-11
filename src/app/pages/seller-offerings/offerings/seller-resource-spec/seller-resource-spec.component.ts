@@ -67,9 +67,9 @@ export class SellerResourceSpecComponent implements OnInit, OnDestroy {
       {
         header: 'OFFERINGS._type',
         getValue: (item: any) => item['@type'] ?? 'ResourceSpecification',
-        width: 'w-[180px]',
+        width: 'w-[230px]',
         hideOnMobile: true,
-        type: 'text'
+        type: 'badge'
       },
       {
         header: 'OFFERINGS._status',

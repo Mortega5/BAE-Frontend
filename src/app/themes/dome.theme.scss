@@ -26,6 +26,18 @@ body.theme-dome {
   /* CARD/MODAL BG COLOR */
   --theme-tertiary-100: 20 39 74;
 
+  /* Neutrals (light mode only: styles.css's `.dark body` block comes later and
+     wins in dark mode). DOME uses a navy-tinted neutral scale instead of the
+     default grays. */
+  /* HEX: #0b1528 */
+  --theme-default-text: rgb(11 21 40);
+  /* HEX: #324153 */
+  --theme-text-secondary: rgb(50 65 83);
+  /* HEX: #526179 */
+  --form-hint-text: rgb(82 97 121);
+  /* HEX: #ebf0f7 */
+  --theme-surface-muted: rgb(235 240 247);
+
   /* Header v2 tokens (scoped to avoid collisions with shared theme tokens) */
   --theme-header-v2-top-bg: #070f24;
   --theme-header-v2-glass-bg: rgba(7, 18, 40, 0.55);

@@ -16,5 +16,9 @@
     "_hero_subtitle": "Discover verified providers offering innovative digital services and solutions across industries.",
     "_all_providers": "All providers",
     "_bc_current": "Providers catalog"
+  },
+  "CREATE_OFFER": {
+    "_cant_find_cat_title": "¿No encuentras la categoría adecuada?",
+    "_cant_find_cat_text": "Ponte en contacto con nuestro equipo de soporte en <strong>support&#64;dome-marketplace.eu</strong> y te ayudaremos a clasificar correctamente tu producto."
   }
 }

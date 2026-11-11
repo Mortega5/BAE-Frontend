@@ -8,7 +8,7 @@ export interface EventMessage {
   'SellerProductSpec' |
   'CategoryAdded' | 'ChangedSession' | 'CloseCartCard' |
   'SavePricePlan' | 'UpdatePricePlan' |
-  'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'AiSearchFacets' | 'AiSearchCleared' | 'FiltersCommitted';
+  'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'FiltersCommitted';
   text?: string,
   value?: object | boolean | FormChangeState | PricePlanChangeState
 }
@@ -97,15 +97,7 @@ export class EventMessageService {
     this.eventMessageSubject.next({ type: 'UpdateOffer', value: show })
   }
 
-  emitAiSearchFacets(facets: Record<string, Record<string | number, number>>) {
-    this.eventMessageSubject.next({ type: 'AiSearchFacets', value: facets })
-  }
-
   emitFiltersCommitted() {
     this.eventMessageSubject.next({ type: 'FiltersCommitted', value: true });
-  }
-
-  emitAiSearchCleared() {
-    this.eventMessageSubject.next({ type: 'AiSearchCleared', value: true })
   }
 }

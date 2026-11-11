@@ -1,6 +1,6 @@
 <app-card>
   <div appCardHeader>
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'ADMIN._searchFilters' | translate }}</h2>
+    <h2 class="text-2xl font-bold text-content">{{ 'ADMIN._searchFilters' | translate }}</h2>
   </div>
 
   @if(loading){
@@ -10,9 +10,9 @@
   } @else {
   <div appCardContent data-cy="adminSearchFiltersConfig" class="flex flex-col gap-6">
     <div>
-      <label for="search-filters-provided-json" class="font-bold text-sm dark:text-white">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._provide_json' | translate }}</label>
+      <label for="search-filters-provided-json" class="font-bold text-sm text-content">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._provide_json' | translate }}</label>
       <textarea id="search-filters-provided-json" data-cy="adminSearchFiltersJson" [(ngModel)]="providedJson" [ngModelOptions]="{ standalone: true }" rows="8"
-        class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 font-mono"></textarea>
+        class="mt-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 font-mono"></textarea>
       <div class="flex gap-2 justify-end mt-2">
         <app-button data-cy="adminLoadSearchFiltersJson" type="button" (click)="loadProvidedJsonIntoForm()" variant="secondary">
           {{ 'ADMIN._load_json' | translate }}
@@ -25,27 +25,27 @@
 
     <form class="flex flex-col gap-4" [formGroup]="searchFiltersForm">
       <div>
-        <label for="search-filters-mode" class="font-bold text-sm dark:text-white">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._primary_mode' | translate }}</label>
+        <label for="search-filters-mode" class="font-bold text-sm text-content">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._primary_mode' | translate }}</label>
         <select formControlName="primaryCategoriesMode" id="search-filters-mode" (change)="onPrimaryModeChange()"
-          class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5">
+          class="mt-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5">
           <option value="catalogFirstLevel">catalogFirstLevel</option>
           <option value="rooted">rooted</option>
         </select>
       </div>
 
       @if(isCatalogFirstLevelMode){
-      <div class="p-3 text-sm rounded-lg text-primary-100 bg-blue-50 dark:bg-secondary-200 dark:text-primary-50">
+      <div class="p-3 text-sm rounded-lg text-primary-100 bg-info-soft dark:text-primary-50">
         {{ 'ADMIN.SEARCH_FILTERS_CONFIG._notice_prefix' | translate }} <span class="font-semibold">catalogFirstLevel</span>{{ 'ADMIN.SEARCH_FILTERS_CONFIG._notice_suffix' | translate }}
       </div>
       } @else {
       <div>
-        <label for="search-filters-root-name" class="font-bold text-sm dark:text-white">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._primary_root_name' | translate }}</label>
+        <label for="search-filters-root-name" class="font-bold text-sm text-content">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._primary_root_name' | translate }}</label>
         <input formControlName="primaryRootName" type="text" id="search-filters-root-name"
-          class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+          class="mt-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
       </div>
 
       <div class="flex items-center justify-between">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._filters_title' | translate }}</h3>
+        <h3 class="text-lg font-bold text-content">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._filters_title' | translate }}</h3>
         <app-button type="button" (click)="addFilter()" prefixIcon="plus">
           {{ 'ADMIN.SEARCH_FILTERS_CONFIG._add_filter' | translate }}
         </app-button>
@@ -57,33 +57,33 @@
           <div appCardContent class="flex flex-col gap-4">
             <div class="grid md:grid-cols-2 gap-4">
               <div>
-                <label class="font-semibold text-sm dark:text-white">{{ 'ADMIN._name' | translate }}</label>
+                <label class="font-semibold text-sm text-content">{{ 'ADMIN._name' | translate }}</label>
                 <input formControlName="name" type="text"
-                  class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+                  class="mt-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
               </div>
               <div>
-                <label class="font-semibold text-sm dark:text-white">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._label' | translate }}</label>
+                <label class="font-semibold text-sm text-content">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._label' | translate }}</label>
                 <input formControlName="label" type="text"
-                  class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+                  class="mt-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
               </div>
               <div>
-                <label class="font-semibold text-sm dark:text-white">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._source' | translate }}</label>
+                <label class="font-semibold text-sm text-content">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._source' | translate }}</label>
                 <select formControlName="source" (change)="onFilterSourceChange(i)"
-                  class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5">
+                  class="mt-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5">
                   <option value="configured">configured</option>
                   <option value="categoryRoot">categoryRoot</option>
                 </select>
               </div>
               @if(filtersArray.at(i).get('source')?.value === 'categoryRoot'){
               <div>
-                <label class="font-semibold text-sm dark:text-white">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._root_name' | translate }}</label>
+                <label class="font-semibold text-sm text-content">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._root_name' | translate }}</label>
                 <input formControlName="rootName" type="text"
-                  class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+                  class="mt-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
               </div>
               <div>
-                <label class="font-semibold text-sm dark:text-white">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._offer_form_placement' | translate }}</label>
+                <label class="font-semibold text-sm text-content">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._offer_form_placement' | translate }}</label>
                 <select formControlName="offerFormPlacement"
-                  class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5">
+                  class="mt-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5">
                   <option value="none">none</option>
                   <option value="generalInfo">generalInfo</option>
                   <option value="categorySection">categorySection</option>
@@ -95,7 +95,7 @@
             @if(filtersArray.at(i).get('source')?.value === 'configured'){
             <div class="flex flex-col gap-2">
               <div class="flex items-center justify-between">
-                <h4 class="font-semibold text-sm dark:text-white">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._options' | translate }}</h4>
+                <h4 class="font-semibold text-sm text-content">{{ 'ADMIN.SEARCH_FILTERS_CONFIG._options' | translate }}</h4>
                 <app-button type="button" (click)="addOption(i)" size="sm" prefixIcon="plus">
                   {{ 'ADMIN.SEARCH_FILTERS_CONFIG._add_option' | translate }}
                 </app-button>
@@ -104,9 +104,9 @@
                 @for(optionControl of getOptionsArray(i).controls; track j; let j = $index){
                 <div [formGroupName]="j" class="grid md:grid-cols-3 gap-2">
                   <input formControlName="name" type="text" [attr.placeholder]="'ADMIN.SEARCH_FILTERS_CONFIG._option_name_placeholder' | translate"
-                    class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg block w-full p-2.5" />
+                    class="bg-surface-input border border-line-input text-content text-sm rounded-lg block w-full p-2.5" />
                   <input formControlName="label" type="text" [attr.placeholder]="'ADMIN.SEARCH_FILTERS_CONFIG._option_label_placeholder' | translate"
-                    class="bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg block w-full p-2.5" />
+                    class="bg-surface-input border border-line-input text-content text-sm rounded-lg block w-full p-2.5" />
                   <app-button type="button" (click)="removeOption(i, j)" variant="danger" [outline]="true" size="sm">
                     {{ 'COMMON._remove' | translate }}
                   </app-button>

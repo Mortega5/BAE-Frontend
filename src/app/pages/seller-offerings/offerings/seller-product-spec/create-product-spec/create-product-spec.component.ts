@@ -24,6 +24,8 @@ import { ServiceSpecServiceService } from 'src/app/services/service-spec-service
 import { BadgeComponent, BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 import { DropdownPanelComponent } from 'src/app/shared/dropdown-panel/dropdown-panel.component';
 import { AttachmentUploadComponent } from 'src/app/shared/forms/attachment-upload/attachment-upload.component';
@@ -84,6 +86,7 @@ const BASE_TEMPLATE_OPTIONS = [
     ContentCardComponent,
     ModalComponent,
     ConfirmModalComponent,
+    UnsavedChangesModalComponent,
     BlueprintProductFormComponent,
     ResourceSpecFormComponent,
     ServiceSpecFormComponent,
@@ -92,7 +95,7 @@ const BASE_TEMPLATE_OPTIONS = [
   styleUrl: './create-product-spec.component.css',
   providers: [DatePipe],
 })
-export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
+export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, LeaveConfirmable {
   /** True when embedded inside another flow (e.g. the offer form's product spec picker)
    * instead of routed to as its own page — swaps navigating away for emitting `created`. */
   @Input() embedded = false;
@@ -224,6 +227,9 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   selectedServiceSpecs: any[] = [];
   showCreateServiceSpecModal = false;
   @ViewChild('serviceSpecsTable') private serviceSpecsTable?: PaginatedTableComponent;
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  /** Set once the spec is saved, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
   servColumns: TableColumn[] = [
     { header: 'CREATE_PROD_SPEC._name', getValue: (item: any) => item.name ?? '-', sortKey: 'name' },
     { header: 'CREATE_PROD_SPEC._status', getValue: (item: any) => lifecycleStatusLabel(item.lifecycleStatus ?? ''), width: 'w-[140px]', type: 'status-badge', getStatus: (item: any) => lifecycleStatusBadgeVariant(item.lifecycleStatus), sortKey: 'lifecycleStatus' },
@@ -302,6 +308,20 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   ];
 
   private destroy$ = new Subject<void>();
+  /** The compliance step's two uploads, as app-dynamic-form attachment fields. Filled from the
+   * self-attestation/additional-certificate state when the step opens; edits flow back through
+   * onSelfAttestationChange/onComplianceAttachmentsChange. */
+  readonly complianceFields: FormField[] = [
+    {
+      type: 'attachment', name: 'selfAttestation', label: 'CREATE_PROD_SPEC._upload_self_attestation',
+      accept: '.pdf,.doc,.docx', hint: 'CREATE_PROD_SPEC._compliance_panel_desc', dataCy: 'productSpecSelfAttestation'
+    },
+    {
+      type: 'attachment', name: 'additionalAttachments', label: 'CREATE_PROD_SPEC._additional_attachments',
+      accept: '.pdf,.doc,.docx', multiple: true, dataCy: 'productSpecComplianceAttachments'
+    },
+  ];
+  readonly complianceForm = buildFormGroup(this.complianceFields);
 
   get dspEnable(): boolean {
     return environment.DSP_ENABLED && this.DATA_SPACE_ENABLED;
@@ -371,6 +391,12 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
   }
 
   ngOnInit() {
+    this.complianceForm.get('selfAttestation')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(file => this.onSelfAttestationChange(file));
+    this.complianceForm.get('additionalAttachments')!.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(files => this.onComplianceAttachmentsChange(files));
     this.initPartyInfo();
     this.generalForm.get('dspCompatible')!.valueChanges
       .pipe(takeUntil(this.destroy$))
@@ -552,6 +578,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
   onStepChanged(event: StepChangedEvent): void {
     this.currentStepId = event.stepId as ProductSpecFormStep
+    if (this.currentStepId === 'compliance') { this.syncComplianceForm(); }
     switch (this.currentStepId) {
       case 'characteristics':
       case 'dataspace':
@@ -574,6 +601,30 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
         this.partyId = loggedOrg.partyId
       }
     }
+  }
+
+  get leaveNeedsConfirmation(): boolean {
+    return !(this.embedded || this.leaveAllowed || !this.hasUnsavedChanges());
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (!this.leaveNeedsConfirmation) return true;
+    return this.unsavedChangesModal?.confirm(() => {
+      this.showFinish();
+      this.saveDraft();
+    }) ?? true;
+  }
+
+  hasUnsavedChanges(): boolean {
+    return this.generalForm.dirty || this.dspConfigForm.dirty || !!this.howItWorks?.trim()
+      || this.hasSelfAttestation()
+      || [this.prodAttachments, this.keyFeatures, this.businessBenefits, this.useCases, this.faqs, this.endpointUrls,
+        this.prodChars, this.prodSpecsBundle, this.selectedServiceSpecs, this.selectedResourceSpecs,
+        this.prodRelationships, this.additionalISOS].some(list => list.length > 0);
+  }
+
+  get canSaveDraft(): boolean {
+    return !this.loading && this.generalForm.valid && (!this.generalForm.value.dspCompatible || this.dspConfigForm.valid);
   }
 
   goBack() {
@@ -630,6 +681,13 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
 
   onComplianceAttachmentsChange(files: any[]): void {
     this.additionalISOS = (files || []).map(f => ({ name: 'Compliance:' + f.name, url: f.url }));
+  }
+
+  private syncComplianceForm(): void {
+    this.complianceForm.setValue({
+      selfAttestation: this.selfAttFile,
+      additionalAttachments: this.additionalAttestationFiles,
+    }, { emitEvent: false });
   }
 
   downloadSelfAttestationTemplate(): void {
@@ -1041,6 +1099,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck {
         if (this.embedded) {
           this.created.emit(data);
         } else {
+          this.leaveAllowed = true;
           this.goBack();
         }
       },

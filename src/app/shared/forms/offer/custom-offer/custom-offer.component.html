@@ -1,4 +1,4 @@
-<h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">
+<h1 class="text-3xl font-extrabold text-content mb-6">
   {{ 'CREATE_OFFER._create' | translate }}
 </h1>
 
@@ -33,7 +33,4 @@
     </form>
   }
 
-<app-confirm-modal [visible]="showPublishDraftModal" [title]="'PUBLISH_DRAFT_MODAL._title'"
-  message="PUBLISH_DRAFT_MODAL._message" cancelLabel="PUBLISH_DRAFT_MODAL._save_draft"
-  confirmLabel="PUBLISH_DRAFT_MODAL._publish" confirmVariant="primary" (resolved)="$event ? publish() : saveDraft()"
-  (closed)="showPublishDraftModal = false" />
+<app-unsaved-changes-modal [canSaveDraft]="canSaveDraft" [blockUnload]="leaveNeedsConfirmation" />

@@ -1,10 +1,10 @@
 <app-modal data-cy="setCountryModal" [visible]="visible" width="max-w-md" (closed)="close()">
   <div appCardHeader class="flex items-center justify-between">
-    <h3 class="text-xl font-bold text-gray-900 dark:text-white">{{ 'PRICE_PLAN_DRAWER._set_country_title' | translate }}</h3>
+    <h3 class="text-xl font-bold text-content">{{ 'PRICE_PLAN_DRAWER._set_country_title' | translate }}</h3>
     <app-button type="button" (click)="close()" variant="ghost" size="sm" prefixIcon="xmark" />
   </div>
 
-  <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">{{ 'PRICE_PLAN_DRAWER._set_country_desc' | translate }}</p>
+  <p class="text-sm text-content-muted mb-4">{{ 'PRICE_PLAN_DRAWER._set_country_desc' | translate }}</p>
   <app-dynamic-form [fields]="countryFields" [formGroup]="form" [columns]="1" />
 
   <div appCardFooter class="flex justify-end gap-3">

@@ -1,8 +1,9 @@
 import { Routes } from '@angular/router';
-import { CustomOfferComponent } from 'src/app/shared/forms/offer/custom-offer/custom-offer.component';
+import { unsavedChangesGuard } from 'src/app/guard/unsaved-changes.guard';
 import { CreateCatalogComponent } from './offerings/seller-catalogs/create-catalog/create-catalog.component';
 import { SellerCatalogsComponent } from './offerings/seller-catalogs/seller-catalogs.component';
 import { UpdateCatalogComponent } from './offerings/seller-catalogs/update-catalog/update-catalog.component';
+import { CreateCustomOfferComponent } from './offerings/seller-offer/create-custom-offer/create-custom-offer.component';
 import { CreateOfferComponent } from './offerings/seller-offer/create-offer/create-offer.component';
 import { SellerOfferComponent } from './offerings/seller-offer/seller-offer.component';
 import { UpdateOfferComponent } from './offerings/seller-offer/update-offer/update-offer.component';
@@ -26,17 +27,17 @@ export const sellerOfferingsRoutes: Routes = [
     path: segments.catalogues,
     children: [
       { path: '', component: SellerCatalogsComponent },
-      { path: segments.new, component: CreateCatalogComponent },
-      { path: segments.id, component: UpdateCatalogComponent },
+      { path: segments.new, component: CreateCatalogComponent, canDeactivate: [unsavedChangesGuard] },
+      { path: segments.id, component: UpdateCatalogComponent, canDeactivate: [unsavedChangesGuard] },
     ],
   },
   {
     path: segments.offers,
     children: [
       { path: '', component: SellerOfferComponent },
-      { path: segments.new, component: CreateOfferComponent },
-      { path: segments.custom, component: CustomOfferComponent },
-      { path: segments.id, component: UpdateOfferComponent },
+      { path: segments.new, component: CreateOfferComponent, canDeactivate: [unsavedChangesGuard] },
+      { path: segments.custom, component: CreateCustomOfferComponent, canDeactivate: [unsavedChangesGuard] },
+      { path: segments.id, component: UpdateOfferComponent, canDeactivate: [unsavedChangesGuard] },
     ],
   },
   // Software is now managed inside Resources (SoftwareSpecification / SoftwareSupportPackageSpecification baseTemplate).
@@ -52,32 +53,32 @@ export const sellerOfferingsRoutes: Routes = [
     path: segments.productSpecs,
     children: [
       { path: '', component: SellerProductSpecComponent },
-      { path: segments.new, component: CreateProductSpecComponent },
-      { path: segments.id, component: UpdateProductSpecComponent },
+      { path: segments.new, component: CreateProductSpecComponent, canDeactivate: [unsavedChangesGuard] },
+      { path: segments.id, component: UpdateProductSpecComponent, canDeactivate: [unsavedChangesGuard] },
     ],
   },
   {
     path: segments.serviceSpecs,
     children: [
       { path: '', component: SellerServiceSpecComponent },
-      { path: segments.new, component: ServiceSpecFormComponent, data: { mode: 'create' } },
-      { path: segments.id, component: ServiceSpecFormComponent, data: { mode: 'update' } },
+      { path: segments.new, component: ServiceSpecFormComponent, data: { mode: 'create' }, canDeactivate: [unsavedChangesGuard] },
+      { path: segments.id, component: ServiceSpecFormComponent, data: { mode: 'update' }, canDeactivate: [unsavedChangesGuard] },
     ],
   },
   {
     path: segments.resourceSpecs,
     children: [
       { path: '', component: SellerResourceSpecComponent },
-      { path: segments.new, component: ResourceSpecFormComponent, data: { mode: 'create' } },
-      { path: segments.id, component: ResourceSpecFormComponent, data: { mode: 'update' } },
+      { path: segments.new, component: ResourceSpecFormComponent, data: { mode: 'create' }, canDeactivate: [unsavedChangesGuard] },
+      { path: segments.id, component: ResourceSpecFormComponent, data: { mode: 'update' }, canDeactivate: [unsavedChangesGuard] },
     ],
   },
   {
     path: segments.usageSpecs,
     children: [
       { path: '', component: SellerUsageSpecComponent },
-      { path: segments.new, component: CreateUsageSpecComponent },
-      { path: segments.id, component: UpdateUsageSpecComponent },
+      { path: segments.new, component: CreateUsageSpecComponent, canDeactivate: [unsavedChangesGuard] },
+      { path: segments.id, component: UpdateUsageSpecComponent, canDeactivate: [unsavedChangesGuard] },
     ],
   },
 ];

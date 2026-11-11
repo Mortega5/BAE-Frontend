@@ -4,7 +4,7 @@
 <app-card>
   <div appCardBody>
     <div>
-      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._organization'
+      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-content m-4">{{ 'PROFILE._organization'
         |
         translate }}</h2>
     </div>
@@ -12,7 +12,7 @@
 
     @if(!isReadOnly){
     <div class="flex">
-      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._add_logo' |
+      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-content m-4">{{ 'PROFILE._add_logo' |
         translate }}</h2>
       <div class="flex inline-flex ml-2 align-middle">
         <svg data-popover-target="popover-logo" class="flex self-center w-6 h-6 text-primary-100" clip-rule="evenodd"
@@ -23,9 +23,9 @@
       </div>
     </div>
     <div data-popover id="popover-logo" role="tooltip"
-      class="absolute z-20 invisible inline-block w-64 text-sm text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:border-gray-600 dark:bg-gray-800">
-      <div class="px-3 py-2 bg-gray-100 border-b border-gray-200 rounded-t-lg dark:border-gray-600 dark:bg-gray-700">
-        <h3 class="font-semibold text-gray-900 dark:text-white">{{ 'PROFILE._logo_requirements' | translate }}</h3>
+      class="absolute z-20 invisible inline-block w-64 text-sm text-content-muted transition-opacity duration-300 bg-surface border border-line rounded-lg shadow-sm opacity-0">
+      <div class="px-3 py-2 bg-surface-muted border-b border-line rounded-t-lg">
+        <h3 class="font-semibold text-content">{{ 'PROFILE._logo_requirements' | translate }}</h3>
       </div>
       <div class="px-3 py-2 inline-block">
         <p class="inline-block">{{ 'PROFILE._logo_requirements_desc' | translate }}
@@ -33,7 +33,7 @@
       </div>
       <div data-popper-arrow></div>
     </div>
-    <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
+    <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-content border-0">
     @if(showImgPreview){
     <div
       class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl px-8 pb-8 pt-40 max-w-sm mx-auto m-4 shadow-lg">
@@ -53,7 +53,7 @@
                 d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2" />
             </svg>
             <div class="flex w-full justify-center">
-              <p class="text-gray-500 mr-2 w-fit">{{ 'CREATE_PROD_SPEC._drop_files' | translate }}
+              <p class="text-content-muted mr-2 w-fit">{{ 'CREATE_PROD_SPEC._drop_files' | translate }}
                 <app-button (click)="openFileSelector()" variant="link">{{ 'CREATE_PROD_SPEC._select_files' | translate
                   }}</app-button>
               </p>
@@ -62,7 +62,7 @@
         </ng-template>
       </ngx-file-drop>
     </div>
-    <label class="font-bold pl-6 dark:text-white">{{ 'PROFILE._add_logo_url' | translate }}</label>
+    <label class="font-bold pl-6 text-content">{{ 'PROFILE._add_logo_url' | translate }}</label>
     <div class="relative w-full pl-6 mt-2 mb-2">
       <!-- Tooltip (Above the Input, Positioned Up) -->
       <div *ngIf="attImageName.invalid && attImageName.touched"
@@ -75,8 +75,8 @@
       <div class="flex items-center h-fit w-full justify-between">
         <!-- Input Field -->
         <input #imgURL type="text" id="att-name" [formControl]="attImageName" (blur)="attImageName.markAsTouched()"
-          class="w-full bg-gray-50 border border-gray-300 text-gray-900 dark:bg-secondary-300 dark:border-secondary-200 dark:text-white text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5"
-          [ngClass]="attImageName.invalid && attImageName.touched ? 'border-red-500' : 'dark:border-secondary-200'" />
+          class="w-full bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-focus focus:border-primary-100 p-2.5"
+          [ngClass]="attImageName.invalid && attImageName.touched ? 'border-danger' : 'dark:border-secondary-200'" />
 
         <!-- Submit Button -->
         <app-button (click)="saveImgFromURL()" [disabled]="!attImageName.valid" shape="pill" size="sm"
@@ -87,7 +87,7 @@
     }
 
     <div class="flex items-center justify-between">
-      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-white m-4">{{ 'PROFILE._contact_info'
+      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-content m-4">{{ 'PROFILE._contact_info'
         |
         translate }}</h2>
       @if (!isReadOnly && contactmediums.length > 0) {
@@ -96,13 +96,13 @@
       </app-button>
       }
     </div>
-    <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-white border-0">
+    <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-content border-0">
     <div class="m-4">
       @if (contactmediums.length === 0) {
       <div
-        class="rounded-2xl border border-dashed border-gray-300 dark:border-gray-700 flex flex-col items-center justify-center px-6 py-12 text-center">
+        class="rounded-2xl border border-dashed border-line-input flex flex-col items-center justify-center px-6 py-12 text-center">
         <div
-          class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 bg-[#DDE6F6] dark:bg-secondary-300">
+          class="w-[72px] h-[72px] rounded-full flex items-center justify-center mb-5 bg-secondary-50 dark:bg-secondary-300">
           <svg class="w-10 h-10 text-primary-100 dark:text-primary-50" xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24" fill="currentColor">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -111,7 +111,7 @@
               d="M3.087 9l.54 9.176A3 3 0 006.62 21h10.757a3 3 0 002.995-2.824L20.913 9H3.087zm6.133 2.845a.75.75 0 011.06 0l1.72 1.72 1.72-1.72a.75.75 0 111.06 1.06l-1.72 1.72 1.72 1.72a.75.75 0 11-1.06 1.06L12 15.685l-1.72 1.72a.75.75 0 11-1.06-1.06l1.72-1.72-1.72-1.72a.75.75 0 010-1.06z" />
           </svg>
         </div>
-        <p class="text-base font-semibold text-gray-900 dark:text-white mb-1">{{ 'PROFILE._no_mediums' | translate }}
+        <p class="text-base font-semibold text-content mb-1">{{ 'PROFILE._no_mediums' | translate }}
         </p>
         @if (!isReadOnly) {
         <app-button type="button" (click)="openAddMedium()" variant="secondary" suffixIcon="plus" class="mt-4">
@@ -140,7 +140,7 @@
 }
 <app-modal [visible]="showMediumModal" width="max-w-2xl" (closed)="cancelMedium()">
   <div appCardHeader class="flex items-center justify-between">
-    <h3 class="text-xl font-bold text-gray-900 dark:text-white">
+    <h3 class="text-xl font-bold text-content">
       {{ (selectedMedium ? 'PROFILE._edit' : 'PROFILE._add_new_contact') | translate }}
     </h3>
     <app-button type="button" (click)="cancelMedium()" variant="ghost" size="sm" prefixIcon="xmark" />
@@ -166,9 +166,9 @@
 <!-- INFO (CREATED/UPDATED/ERROR) TOAST -->
 @if (toastVisibility) {
 <div id="toast-warning"
-  class="flex m-2 items-center w-fit max-w-xs p-4 text-gray-500 bg-white rounded-lg shadow dark:text-gray-400 dark:bg-gray-800 fixed top-1/2 right-0 z-50 justify-center"
+  class="flex m-2 items-center w-fit max-w-xs p-4 text-content-muted bg-surface rounded-lg shadow fixed top-1/2 right-0 z-50 justify-center"
   role="alert">
-  <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 bg-red-700 text-red-200 rounded-lg">
+  <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 bg-danger-soft text-danger rounded-lg">
     <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
       <path
         d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM10 15a1 1 0 1 1 0-2 1 1 0 0 1 0 2Zm1-4a1 1 0 0 1-2 0V6a1 1 0 0 1 2 0v5Z" />

@@ -11,7 +11,6 @@ import { EventMessageService } from '../../services/event-message.service';
 import { SearchStateService } from '../../services/search-state.service';
 import { LoginServiceService } from 'src/app/services/login-service.service';
 import { ThemeService } from 'src/app/services/theme.service';
-import { AiSearchService } from 'src/app/services/ai-search.service';
 
 describe('SearchComponent', () => {
   let component: SearchComponent;
@@ -19,7 +18,6 @@ describe('SearchComponent', () => {
   let apiSpy: jasmine.SpyObj<ApiServiceService>;
   let localStorageSpy: jasmine.SpyObj<LocalStorageService>;
   let eventMessageSpy: jasmine.SpyObj<EventMessageService>;
-  let aiSearchSpy: jasmine.SpyObj<AiSearchService>;
   let stateMock: {
     products: any[];
     page: number;
@@ -60,10 +58,7 @@ describe('SearchComponent', () => {
       'setItem',
       'setObject',
     ]);
-    eventMessageSpy = jasmine.createSpyObj<EventMessageService>('EventMessageService', [
-      'emitAiSearchCleared',
-    ]);
-    aiSearchSpy = jasmine.createSpyObj<AiSearchService>('AiSearchService', ['search', 'searchWithAnswer']);
+    eventMessageSpy = {} as jasmine.SpyObj<EventMessageService>;
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate'], {
       events: undefined,
     });
@@ -98,11 +93,6 @@ describe('SearchComponent', () => {
     apiSpy.getDefaultCategories.and.resolveTo([]);
     apiSpy.getCategoriesByParentId.and.resolveTo([]);
     apiSpy.getCatalogsPaged.and.resolveTo({ items: [], total: 0 });
-    aiSearchSpy.search.and.resolveTo({ items: [], total_count: 0, facets: {} } as any);
-    aiSearchSpy.searchWithAnswer.and.resolveTo({
-      searchResponse: { items: [], total_count: 0, facets: {} },
-      answer: '',
-    } as any);
     localStorageSpy.getObject.and.callFake((key: string) => {
       if (key === 'login_items') return {};
       if (key === 'feedback') return {};
@@ -122,7 +112,6 @@ describe('SearchComponent', () => {
         { provide: EventMessageService, useValue: eventMessageSpy },
         { provide: SearchStateService, useValue: stateMock },
         { provide: LoginServiceService, useValue: {} },
-        { provide: AiSearchService, useValue: aiSearchSpy },
         { provide: ThemeService, useValue: { currentTheme$: new Subject<any>().asObservable() } },
         { provide: Router, useValue: routerSpy },
         {
@@ -139,7 +128,6 @@ describe('SearchComponent', () => {
 
     fixture = TestBed.createComponent(SearchComponent);
     component = fixture.componentInstance;
-    component.aiSearchEnabled = false;
   });
 
   afterEach(() => {
@@ -171,8 +159,7 @@ describe('SearchComponent', () => {
 
   describe('non-AI mode', () => {
     beforeEach(() => {
-      component.aiSearchEnabled = false;
-    });
+      });
 
     it('ngOnInit should load category/catalog options and both offering sections', async () => {
       localStorageSpy.getValidLoginInfo.and.returnValue({ id: 'u1', logged_as: 'u1', partyId: 'party-1', organizations: [] } as any);

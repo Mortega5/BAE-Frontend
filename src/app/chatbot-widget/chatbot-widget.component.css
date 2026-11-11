@@ -14,15 +14,12 @@
 }
 
 .chatbot-widget * {
-    --primaryGradient: linear-gradient(93.12deg, #581B98 0.52%, #9C1DE7 100%);
-    --secondaryGradient: linear-gradient(268.91deg, #581B98 -2.14%, #9C1DE7 99.69%);
     --primaryBoxShadow: 0px 10px 15px rgba(0, 0, 0, 0.1);
     --secondaryBoxShadow: 0px -10px 15px rgba(0, 0, 0, 0.1);
-    --primary: #581B98;
-    --primary-dark-blue: #2D58A7;
-    --secondary-dark-blue: #1D3C78;
-    --secondary-light-blue: #DDE6F6;
-    --type-white: #FFFFFF;
+    --primary-dark-blue: rgb(var(--theme-primary-100));
+    --secondary-dark-blue: rgb(var(--theme-secondary-100));
+    --secondary-light-blue: rgb(var(--theme-secondary-50));
+    --type-white: #FFFFFF; /* the panel is a light surface in both modes */
 }
 
 /* CHATBOX */
@@ -128,14 +125,14 @@
 
 .chatbox__heading--header {
     font-size: 1.4rem;
-    color: #fff;
+    color: var(--theme-primary-text);
     font-family: 'Blinker', sans-serif;
     font-weight: 600;
 }
 
 .chatbox__description--header {
     font-size: 1rem;
-    color: #fff;
+    color: var(--theme-primary-text);
     font-family: 'Blinker', sans-serif;
     font-weight: 300;
 }
@@ -205,7 +202,7 @@
 
 .chatbox__send--footer {
     background: var(--primary-dark-blue);
-    color: white;
+    color: var(--theme-primary-text);
     font-size: 1.05rem;
     border: none;
     height: 48px;

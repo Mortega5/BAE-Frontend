@@ -12,7 +12,7 @@ import { Component } from '@angular/core';
       class="h-[18px] w-auto"
     />
 
-    <p class="text-[14px] text-gray-500 dark:text-gray-400 leading-none">
+    <p class="text-[14px] text-content-muted leading-none">
       {{ 'europeTrademark' | translate }}
     </p>
 

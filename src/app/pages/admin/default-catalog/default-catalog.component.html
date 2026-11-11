@@ -1,12 +1,12 @@
 <app-card>
   <div appCardHeader>
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'ADMIN._defaultCatalog' | translate }}</h2>
+    <h2 class="text-2xl font-bold text-content">{{ 'ADMIN._defaultCatalog' | translate }}</h2>
     @if(defaultCatalogId){
-    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+    <p class="mt-1 text-sm text-content-muted">
       {{ 'ADMIN._defaultCatalogId' | translate }}: <span class="font-semibold">{{ defaultCatalogId }}</span>
     </p>
     } @else {
-    <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ 'ADMIN._noDefaultCatalogConfigured' | translate }}</p>
+    <p class="mt-1 text-sm text-content-muted">{{ 'ADMIN._noDefaultCatalogConfigured' | translate }}</p>
     }
   </div>
 

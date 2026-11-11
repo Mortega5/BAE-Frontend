@@ -16,7 +16,7 @@ import { API_ROLES } from '../../models/roles.constants';
 import { ChatModalComponent } from '../chat-modal/chat-modal.component';
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
 import { ButtonComponent, ButtonVariant } from '../button/button.component';
-import { ContentCardComponent } from '../content-card/content-card.component';
+import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { BadgeComponent, BadgeStatus, quoteStateBadgeVariant } from '../badge/badge.component';
 import { AttachmentUploadComponent, UploadedAttachment } from '../forms/attachment-upload/attachment-upload.component';
@@ -29,7 +29,7 @@ const COORDINATOR_INFO_STATES: string[] = KNOWN_STATES.filter(state => state !==
   selector: 'app-quote-details-modal',
   standalone: true,
   imports: [DatePipe, FormsModule, TranslateModule, ChatModalComponent, ConfirmModalComponent, ButtonComponent,
-    ContentCardComponent, LoadingSpinnerComponent, BadgeComponent, AttachmentUploadComponent],
+    ModalComponent, LoadingSpinnerComponent, BadgeComponent, AttachmentUploadComponent],
   templateUrl: './quote-details-modal.component.html',
 })
 export class QuoteDetailsModalComponent implements OnInit, OnChanges {

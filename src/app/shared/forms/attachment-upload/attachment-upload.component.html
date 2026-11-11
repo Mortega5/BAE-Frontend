@@ -1,7 +1,7 @@
 <div class="w-full" [attr.data-cy]="dataCy">
   @if (canAddMore && !isReadonly) {
   <div class="flex w-full justify-center justify-items-center">
-    <ngx-file-drop class="m-4 p-4 w-full" [dropZoneClassName]="'rounded-2xl border border-dashed border-gray-300 dark:border-secondary-200'"
+    <ngx-file-drop class="m-4 p-4 w-full" [dropZoneClassName]="'rounded-2xl border border-dashed border-line-input'"
       dropZoneLabel="Drop files here" [accept]="accept" [multiple]="multiple" [disabled]="uploading"
       (onFileDrop)="dropped($event)">
       <ng-template class="w-full" ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
@@ -12,7 +12,7 @@
               d="M15 17h3a3 3 0 0 0 0-6h-.025a5.56 5.56 0 0 0 .025-.5A5.5 5.5 0 0 0 7.207 9.021C7.137 9.017 7.071 9 7 9a4 4 0 1 0 0 8h2.167M12 19v-9m0 0-2 2m2-2 2 2" />
           </svg>
           <div class="flex w-full justify-center">
-            <p class="text-gray-500 dark:text-gray-400 mr-2 w-fit">{{ dropLabel | translate }}
+            <p class="text-content-muted mr-2 w-fit">{{ dropLabel | translate }}
               <button type="button" [attr.data-cy]="dataCy ? dataCy + 'SelectFile' : null" (click)="openFileSelector()"
                 class="font-medium text-primary-100 dark:text-primary-50 hover:underline">{{ selectLabel | translate }}</button>
             </p>
@@ -24,7 +24,7 @@
   }
 
   @if (errorMessage) {
-  <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ errorMessage | translate }}</p>
+  <p class="text-sm text-danger mt-1">{{ errorMessage | translate }}</p>
   }
 
   @if (attachments.length > 0 || uploading) {
@@ -32,7 +32,7 @@
     @if (uploading) {
     <div class="relative shrink-0 w-28 snap-start" [attr.data-cy]="dataCy ? dataCy + 'Uploading' : null">
       <div
-        class="relative w-28 h-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-secondary-300 border border-gray-200 dark:border-secondary-200 flex items-center justify-center">
+        class="relative w-28 h-20 rounded-lg overflow-hidden bg-surface-muted dark:bg-secondary-300 border border-line flex items-center justify-center">
         <svg class="w-6 h-6 text-primary-100 dark:text-primary-50 animate-spin" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
           <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -40,14 +40,14 @@
             d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Zm2 5.291A7.962 7.962 0 0 1 4 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647Z" />
         </svg>
       </div>
-      <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 text-center truncate">{{ 'FORMS.ATTACHMENT._uploading' |
+      <p class="mt-1 text-xs text-content-muted text-center truncate">{{ 'FORMS.ATTACHMENT._uploading' |
         translate }} {{ uploadProgress }}%</p>
     </div>
     }
     @for (att of attachments; track att.url || att.name) {
     <div class="relative shrink-0 w-28 snap-start">
       <div
-        class="relative w-28 h-20 rounded-lg overflow-hidden bg-gray-100 dark:bg-secondary-300 border border-gray-200 dark:border-secondary-200 flex items-center justify-center">
+        class="relative w-28 h-20 rounded-lg overflow-hidden bg-surface-muted dark:bg-secondary-300 border border-line flex items-center justify-center">
         @if (isImage(att)) {
         <img [src]="att.url" [alt]="att.name" class="w-full h-full object-cover" />
         } @else {
@@ -59,7 +59,7 @@
           </svg>
           @if (fileExtension(att)) {
           <span
-            class="px-1.5 py-0.5 text-[10px] leading-none font-bold uppercase tracking-wide text-primary-100 dark:text-primary-50 bg-white dark:bg-secondary-200 border border-primary-100/40 dark:border-primary-50/40 rounded">
+            class="px-1.5 py-0.5 text-[10px] leading-none font-bold uppercase tracking-wide text-primary-100 dark:text-primary-50 bg-surface border border-primary-100/40 dark:border-primary-50/40 rounded">
             {{ fileExtension(att) }}
           </span>
           }
@@ -70,7 +70,7 @@
           variant="danger" size="sm" prefixIcon="xmark" class="z-10 absolute top-1 right-1 shadow" />
         }
       </div>
-      <p class="mt-1 text-xs text-gray-700 dark:text-gray-300 text-center truncate" [title]="att.name">{{ att.name }}
+      <p class="mt-1 text-xs text-content-secondary text-center truncate" [title]="att.name">{{ att.name }}
       </p>
     </div>
     }

@@ -17,7 +17,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ChatbotWidgetComponent } from './chatbot-widget/chatbot-widget.component';
 import { RequestInterceptor } from './interceptors/requests-interceptor';
-import { FaqComponent } from './offerings/faq/faq.component';
 import { AdminComponent } from './pages/admin/admin.component';
 import { AnalyticsConfigComponent } from './pages/admin/analytics-config/analytics-config.component';
 import { CategoriesComponent } from './pages/admin/categories/categories.component';
@@ -33,6 +32,7 @@ import { BillingAddressComponent } from "./pages/checkout/billing-address/billin
 import { CheckoutComponent } from "./pages/checkout/checkout.component";
 import { OrganizationDetailsComponent } from './pages/organization-details/organization-details.component';
 import { ProductDetailsComponent } from "./pages/product-details/product-details.component";
+import { CarouselComponent } from "./shared/carousel/carousel.component";
 import { OfferPreviewModalComponent } from './shared/forms/offer/offer-preview-modal/offer-preview-modal.component';
 import { InventoryProductsComponent } from './pages/product-inventory/inventory-items/inventory-products/inventory-products.component';
 import { ProductInvDetailComponent } from './pages/product-inventory/inventory-items/product-inv-detail/product-inv-detail.component';
@@ -47,6 +47,7 @@ import { SellerOfferComponent } from './pages/seller-offerings/offerings/seller-
 import { UpdateOfferComponent } from './pages/seller-offerings/offerings/seller-offer/update-offer/update-offer.component';
 import { BlueprintProductFormComponent } from './pages/seller-offerings/offerings/seller-product-spec/blueprint-product-form/blueprint-product-form.component';
 import { SellerProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/seller-product-spec.component';
+import { CreateCustomOfferComponent } from './pages/seller-offerings/offerings/seller-offer/create-custom-offer/create-custom-offer.component';
 import { UpdateProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/update-product-spec/update-product-spec.component';
 import { ResourceSpecFormComponent } from './pages/seller-offerings/offerings/seller-resource-spec/resource-spec-form/resource-spec-form.component';
 import { ServiceSpecFormComponent } from './pages/seller-offerings/offerings/seller-service-spec/service-spec-form/service-spec-form.component';
@@ -101,6 +102,7 @@ import { AboutDomeComponent } from "src/app/pages/about-dome/about-dome.componen
 import { ProviderRevenueSharingComponent } from "src/app/pages/user-profile/profile-sections/provider-revenue-sharing/provider-revenue-sharing.component";
 import { DynamicFormComponent } from "src/app/shared/forms/dynamic-form/dynamic-form.component";
 import { ConfirmModalComponent } from "src/app/shared/confirm-modal/confirm-modal.component";
+import { UnsavedChangesModalComponent } from "src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component";
 import { ItemCardComponent } from "src/app/shared/item-card/item-card.component";
 import { MarkdownTextareaComponent } from "src/app/shared/forms/markdown-textarea/markdown-textarea.component";
 import { AttachmentUploadComponent } from "src/app/shared/forms/attachment-upload/attachment-upload.component";
@@ -146,6 +148,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     CreateOfferComponent,
     CategoriesRecursionComponent,
     UpdateProductSpecComponent,
+    CreateCustomOfferComponent,
     UpdateOfferComponent,
     UpdateCatalogComponent,
     ErrorMessageComponent,
@@ -164,13 +167,13 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     InventoryServicesComponent,
     ProductInvDetailComponent,
     OrganizationDetailsComponent,
-    FaqComponent,
     SellerSoftware,
     CreateSoftwareComponent,
     UpdateSoftwareComponent
   ],
   imports: [
     RequestValidationModalComponent,
+    CarouselComponent,
     TruncateValuePipe,
     BrowserModule,
     FontAwesomeModule,
@@ -214,6 +217,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     MarkdownTextareaComponent,
     DynamicFormComponent,
     ConfirmModalComponent,
+    UnsavedChangesModalComponent,
     ItemCardComponent,
     AttachmentUploadComponent,
     ProviderRevenueSharingComponent,

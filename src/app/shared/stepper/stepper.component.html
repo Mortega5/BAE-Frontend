@@ -7,8 +7,8 @@
         <span
           class="flex items-center justify-center w-8 h-8 dark:border-primary-50 shrink-0 rounded-full text-sm font-semibold transition-colors duration-300"
           [ngClass]="currentStep === i
-            ? 'bg-primary-100 text-white'
-            : (i < highestStep ? 'bg-primary-50 dark:bg-primary-100/30 text-white dark:text-primary-50' : 'border-2 border-primary-50 stepper-pending-text')">
+            ? 'bg-primary-100 text-on-primary'
+            : (i < highestStep ? 'bg-primary-50 dark:bg-primary-100/30 text-on-primary dark:text-primary-50' : 'border-2 border-primary-50 stepper-pending-text')">
           @if (i < highestStep && currentStep !==i) { <svg class="w-4 h-4" xmlns="http://www.w3.org/2000/svg"
             fill="none" viewBox="0 0 24 24" stroke-width="3" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" />
@@ -18,12 +18,11 @@
             }
         </span>
         @if (!last) {
-        <span class="w-px flex-1 min-h-8 bg-gray-300 dark:bg-gray-700 my-1"></span>
+        <span class="w-px flex-1 min-h-8 bg-skeleton my-1"></span>
         }
       </div>
       <span class="mt-1 text-base font-medium transition-colors duration-300"
-        [class.text-primary-100]="currentStep === i" [class.text-gray-500]="currentStep !== i"
-        class="dark:text-gray-400">
+        [class.text-primary-100]="currentStep === i" [class.text-content-muted]="currentStep !== i">
         {{ step.stepperStep | translate }}
       </span>
     </div>
@@ -31,7 +30,7 @@
   </div>
 
   <div class="flex-1 min-w-0 flex flex-col gap-4">
-    <h3 class="block lg:hidden mt-2 text-center text-2xl text-primary-100 dark:text-white pb-4">
+    <h3 class="block lg:hidden mt-2 text-center text-2xl text-primary-100 dark:text-content pb-4">
       {{ (stepTemplates.get(currentStep)?.stepperStep ?? '') | translate }}
     </h3>
 

@@ -1,53 +1,56 @@
-import { Component, OnInit } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import {MarkdownTextareaComponent} from "src/app/shared/forms/markdown-textarea/markdown-textarea.component";
+import { Component, OnInit, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { DomeBlogServiceService } from "src/app/services/dome-blog-service.service"
-import { AttachmentServiceService } from "src/app/services/attachment-service.service";
 import {LocalStorageService} from "src/app/services/local-storage.service";
-import { ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import moment from 'moment';
 import { ConfirmModalComponent } from "src/app/shared/confirm-modal/confirm-modal.component";
-import { environment } from "src/environments/environment";
 import { DomeBlogContentType } from "src/app/services/dome-blog-service.service";
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
+import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
+import { UploadedAttachment } from 'src/app/shared/forms/attachment-upload/attachment-upload.component';
+import { FormField } from 'src/app/models/formFields/form-field.model';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { NotificationService } from 'src/app/services/notification.service';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-entry-form',
   standalone: true,
-  imports: [MarkdownTextareaComponent, ReactiveFormsModule, ConfirmModalComponent,
-    LoadingSpinnerComponent, ButtonComponent, TranslateModule
+  imports: [ConfirmModalComponent, LoadingSpinnerComponent, ButtonComponent, TranslateModule,
+    ContentCardComponent, DynamicFormComponent, UnsavedChangesModalComponent
   ],
   templateUrl: './entry-form.component.html',
   styleUrl: './entry-form.component.css'
 })
-export class EntryFormComponent implements OnInit {
+export class EntryFormComponent implements OnInit, LeaveConfirmable {
   private readonly slugRegex = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
-  private readonly filenameRegex = /^[A-Za-z0-9_.-]+$/;
-  readonly maxFileSize: number = environment.MAX_FILE_SIZE;
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private localStorage: LocalStorageService,
     private domeBlogService: DomeBlogServiceService,
-    private attachmentService: AttachmentServiceService,
     private notificationService: NotificationService,
     private translate: TranslateService
   ) {
   }
 
+  /** Slugs are unique per content type, so the check depends on the form's own content type too. */
+  private readonly slugTakenValidator: ValidatorFn = control =>
+    this.isSlugValueTaken(control.value) ? { slugTaken: true } : null;
+
   entryForm = new FormGroup({
     contentType: new FormControl<DomeBlogContentType>('blog', [Validators.required]),
     title: new FormControl('', [Validators.required]),
-    slug: new FormControl('', [Validators.required, Validators.pattern(this.slugRegex)]),
-    featuredImage: new FormControl(''),
+    slug: new FormControl('', [Validators.required, Validators.pattern(this.slugRegex), this.slugTakenValidator]),
+    featuredImage: new FormControl<UploadedAttachment | string | null>(null),
     metaDescription: new FormControl('', [Validators.maxLength(160)]),
     excerpt: new FormControl('', [Validators.maxLength(300)]),
-    tags: new FormControl(''),
+    tags: new FormControl<string[]>([]),
     author: new FormControl(''),
     date: new FormControl(''),
     content: new FormControl('', [Validators.required]),
@@ -63,7 +66,10 @@ export class EntryFormComponent implements OnInit {
   deleteConfirmTitle = 'BLOG_ENTRY._delete_entry';
   deleteConfirmMessage = '';
   deleteConfirmButtonText = 'BLOG_ENTRY._delete';
-  uploadingFeaturedImage = false;
+  /** Set once the entry is saved or deleted, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  fields: FormField[] = [];
   contentTypes: { value: DomeBlogContentType; label: string }[] = [
     { value: 'blog', label: 'BLOG_ENTRY._content_type_blog' },
     { value: 'news', label: 'BLOG_ENTRY._content_type_news' },
@@ -83,10 +89,10 @@ export class EntryFormComponent implements OnInit {
       this.entryForm.controls['title'].setValue(blogInfo.title);
       const slugValue = this.slugify(blogInfo.slug || blogInfo.title || '');
       this.entryForm.controls['slug'].setValue(slugValue, { emitEvent: false });
-      this.entryForm.controls['featuredImage'].setValue(this.extractFeaturedImageUrl(blogInfo.featuredImage));
+      this.entryForm.controls['featuredImage'].setValue(this.toAttachment(this.extractFeaturedImageUrl(blogInfo.featuredImage)));
       this.entryForm.controls['metaDescription'].setValue(blogInfo.metaDescription || '');
       this.entryForm.controls['excerpt'].setValue(blogInfo.excerpt || '');
-      this.entryForm.controls['tags'].setValue(this.formatTagsForInput(blogInfo.tags));
+      this.entryForm.controls['tags'].setValue(this.tagsToList(blogInfo.tags));
       this.entryForm.controls['author'].setValue((blogInfo.author || '').toString().trim());
       this.entryForm.controls['date'].setValue(this.formatDateForInput(blogInfo.date));
       this.slugManuallyEdited = slugValue.length > 0 && slugValue !== this.slugify(blogInfo.title || '');
@@ -95,6 +101,15 @@ export class EntryFormComponent implements OnInit {
       this.entryForm.controls['slug'].setValue(this.slugify(this.entryForm.value.title || ''), { emitEvent: false });
     }
     this.initPartyInfo();
+  }
+
+  get leaveNeedsConfirmation(): boolean {
+    return !this.leaveAllowed && this.entryForm.dirty;
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (!this.leaveNeedsConfirmation) return true;
+    return this.unsavedChangesModal?.confirm(() => this.blogId ? this.update() : this.create()) ?? true;
   }
 
   goBack(){
@@ -119,6 +134,7 @@ export class EntryFormComponent implements OnInit {
     this.domeBlogService.createBlogEntry(body).subscribe({
       next: data => {
         this.loading=false;
+        this.leaveAllowed = true;
         this.notificationService.showSuccess('BLOG_ENTRY._create_success');
         this.goBack();
       },
@@ -149,6 +165,7 @@ export class EntryFormComponent implements OnInit {
     try {
       await this.domeBlogService.updateBlogEntry(body,this.blogId)
       this.loading=false;
+      this.leaveAllowed = true;
       this.notificationService.showSuccess('BLOG_ENTRY._update_success');
       this.goBack();
     } catch (error: any) {
@@ -182,6 +199,7 @@ export class EntryFormComponent implements OnInit {
     try {
       await this.domeBlogService.deleteBlogEntry(this.blogId);
       this.loading=false;
+      this.leaveAllowed = true;
       this.notificationService.showSuccess('BLOG_ENTRY._delete_success');
       this.goBack();
     } catch (error: any) {
@@ -212,6 +230,7 @@ export class EntryFormComponent implements OnInit {
     } catch (error) {
       this.existingEntries = [];
     }
+    this.entryForm.controls['slug'].updateValueAndValidity({ emitEvent: false });
   }
 
   setupSlugHandlers() {
@@ -252,7 +271,11 @@ export class EntryFormComponent implements OnInit {
   }
 
   isSlugTaken(): boolean {
-    const slug = this.slugify(this.entryForm.controls['slug'].value || '');
+    return this.isSlugValueTaken(this.entryForm.controls['slug'].value);
+  }
+
+  private isSlugValueTaken(value: string | null): boolean {
+    const slug = this.slugify(value || '');
     if (!slug) {
       return false;
     }
@@ -265,91 +288,7 @@ export class EntryFormComponent implements OnInit {
   }
 
   canSubmit(): boolean {
-    return !this.loading && !this.uploadingFeaturedImage && this.entryForm.valid && !this.isSlugTaken();
-  }
-
-  onFeaturedImageSelected(event: Event) {
-    const inputElement = event.target as HTMLInputElement;
-    const file = inputElement.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    if (!file.type.startsWith('image/')) {
-      this.showTemporaryError('BLOG_ENTRY._invalid_image_format');
-      inputElement.value = '';
-      return;
-    }
-
-    if (file.size > this.maxFileSize) {
-      this.showTemporaryError('BLOG_ENTRY._image_too_large');
-      inputElement.value = '';
-      return;
-    }
-
-    const sanitizedFileName = file.name.replace(/[^A-Za-z0-9_.-]/g, '_');
-    const uploadFileName = `blogcover_${Date.now()}_${sanitizedFileName}`;
-    if (!this.filenameRegex.test(uploadFileName)) {
-      this.showTemporaryError('BLOG_ENTRY._invalid_filename');
-      inputElement.value = '';
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-      const rawResult = e.target?.result;
-      if (typeof rawResult !== 'string' || !rawResult.includes(',')) {
-        this.showTemporaryError('BLOG_ENTRY._image_process_error');
-        inputElement.value = '';
-        return;
-      }
-
-      const base64String = rawResult.split(',')[1];
-      const fileBody = {
-        content: {
-          name: uploadFileName,
-          data: base64String
-        },
-        contentType: file.type,
-        isPublic: true
-      };
-
-      this.uploadingFeaturedImage = true;
-      this.attachmentService.uploadFile(fileBody).subscribe({
-        next: (data) => {
-          const uploadedUrl = (data?.content || '').toString();
-          if (!uploadedUrl) {
-            this.showTemporaryError('BLOG_ENTRY._image_upload_error');
-            return;
-          }
-
-          this.entryForm.controls['featuredImage'].setValue(uploadedUrl);
-        },
-        error: (error) => {
-          console.error('There was an error while uploading featured image!', error);
-          if (error.status === 413) {
-            this.showTemporaryError('BLOG_ENTRY._image_too_large');
-            return;
-          }
-          this.showTemporaryError('BLOG_ENTRY._image_upload_error', error?.error?.error || error?.message || undefined);
-        },
-        complete: () => {
-          this.uploadingFeaturedImage = false;
-          inputElement.value = '';
-        }
-      });
-    };
-
-    reader.onerror = () => {
-      this.showTemporaryError('BLOG_ENTRY._image_read_error');
-      inputElement.value = '';
-    };
-
-    reader.readAsDataURL(file);
-  }
-
-  removeFeaturedImage() {
-    this.entryForm.controls['featuredImage'].setValue('');
+    return !this.loading && this.entryForm.valid && !this.isSlugTaken();
   }
 
   isFaqEntry(): boolean {
@@ -382,13 +321,8 @@ export class EntryFormComponent implements OnInit {
   }
 
   parseTagsFromForm(): string[] {
-    const rawValue = (this.entryForm.controls['tags'].value || '').toString();
-    if (!rawValue.trim()) {
-      return [];
-    }
-
     const dedupedTags = new Map<string, string>();
-    rawValue.split(',').forEach((tag) => {
+    (this.entryForm.controls['tags'].value ?? []).forEach((tag) => {
       const normalizedTag = tag.trim().replace(/\s+/g, ' ');
       if (!normalizedTag) {
         return;
@@ -403,23 +337,15 @@ export class EntryFormComponent implements OnInit {
     return Array.from(dedupedTags.values());
   }
 
-  private formatTagsForInput(tags: any): string {
-    if (Array.isArray(tags)) {
-      return tags
-        .map((tag) => (tag ?? '').toString().trim())
-        .filter((tag) => tag.length > 0)
-        .join(', ');
-    }
+  private tagsToList(tags: any): string[] {
+    const list = Array.isArray(tags) ? tags : typeof tags === 'string' ? tags.split(',') : [];
+    return list
+      .map((tag) => (tag ?? '').toString().trim())
+      .filter((tag) => tag.length > 0);
+  }
 
-    if (typeof tags === 'string') {
-      return tags
-        .split(',')
-        .map((tag) => tag.trim())
-        .filter((tag) => tag.length > 0)
-        .join(', ');
-    }
-
-    return '';
+  private toAttachment(url: string): UploadedAttachment | null {
+    return url ? { name: url.split('/').pop() || url, url, attachmentType: 'image/*' } : null;
   }
 
   private extractFeaturedImageUrl(featuredImage: any): string {
@@ -455,12 +381,66 @@ export class EntryFormComponent implements OnInit {
     if (this.isFaqEntry()) {
       this.entryForm.controls['slug'].clearValidators();
       this.entryForm.controls['slug'].setValue(this.slugify(this.entryForm.controls['title'].value || ''), { emitEvent: false });
-      this.entryForm.controls['featuredImage'].setValue('', { emitEvent: false });
+      this.entryForm.controls['featuredImage'].setValue(null, { emitEvent: false });
     } else {
-      this.entryForm.controls['slug'].setValidators([Validators.required, Validators.pattern(this.slugRegex)]);
+      this.entryForm.controls['slug'].setValidators([Validators.required, Validators.pattern(this.slugRegex), this.slugTakenValidator]);
     }
 
     this.entryForm.controls['slug'].updateValueAndValidity({ emitEvent: false });
+    this.fields = this.buildFields();
+  }
+
+  private buildFields(): FormField[] {
+    const faq = this.isFaqEntry();
+    const contentType: FormField = {
+      type: 'select', name: 'contentType', label: 'BLOG_ENTRY._content_type', required: true, colSpan: 2,
+      options: this.contentTypes, dataCy: 'blogEntryContentType'
+    };
+    const title: FormField = {
+      type: 'string', name: 'title', label: this.getTitleLabel(), required: true, colSpan: 2, dataCy: 'blogEntryTitle'
+    };
+    const content: FormField = {
+      type: 'markdownTextarea', name: 'content', label: this.getContentLabel(), required: true, colSpan: 2,
+      dataCy: 'blogEntryContent'
+    };
+    if (faq) {
+      return [contentType, title, content];
+    }
+
+    return [
+      contentType,
+      title,
+      {
+        type: 'string', name: 'slug', label: 'BLOG_ENTRY._url_slug', required: true, colSpan: 2,
+        placeholder: 'my-blog-entry', hint: 'BLOG_ENTRY._slug_help', dataCy: 'blogEntrySlug',
+        errorMessages: { pattern: 'BLOG_ENTRY._slug_hint', slugTaken: 'BLOG_ENTRY._slug_taken' }
+      },
+      {
+        type: 'textarea', name: 'metaDescription', label: 'BLOG_ENTRY._meta_description', rows: 3, maxLength: 160,
+        colSpan: 2, placeholder: 'BLOG_ENTRY._meta_description_placeholder', dataCy: 'blogEntryMetaDescription'
+      },
+      {
+        type: 'textarea', name: 'excerpt', label: 'BLOG_ENTRY._excerpt', rows: 4, maxLength: 300, colSpan: 2,
+        placeholder: 'BLOG_ENTRY._excerpt_placeholder', dataCy: 'blogEntryExcerpt'
+      },
+      {
+        type: 'multiValueString', name: 'tags', label: 'BLOG_ENTRY._tags', colSpan: 2,
+        hint: 'BLOG_ENTRY._tags_hint', dataCy: 'blogEntryTags'
+      },
+      {
+        type: 'string', name: 'author', label: 'BLOG_ENTRY._author', placeholder: 'BLOG_ENTRY._author_placeholder',
+        dataCy: 'blogEntryAuthor'
+      },
+      {
+        type: 'date', inputType: 'datetime-local', name: 'date', label: 'BLOG_ENTRY._date', hint: 'BLOG_ENTRY._date_hint',
+        dataCy: 'blogEntryDate'
+      },
+      {
+        type: 'attachment', name: 'featuredImage', label: 'BLOG_ENTRY._featured_image', accept: 'image/*', colSpan: 2,
+        hint: 'BLOG_ENTRY._upload_hint', dataCy: 'blogEntryFeaturedImage'
+      },
+      content
+    ];
   }
 
   private buildEntryBody(extraFields: any = {}): any {
@@ -529,11 +509,6 @@ export class EntryFormComponent implements OnInit {
     }
 
     return parsedDate.format('YYYY-MM-DDTHH:mm');
-  }
-
-  private showTemporaryError(key: string, details?: string) {
-    this.uploadingFeaturedImage = false;
-    this.notificationService.showError(key, details ? { details } : undefined);
   }
 
 }

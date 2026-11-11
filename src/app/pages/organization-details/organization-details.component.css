@@ -1,0 +1,7 @@
+
+
+/* Primary-action colors (CTA, selected filter option, count badge), from the button tokens. */
+.od-primary-bg { background-color: var(--button-primary-bg); }
+.od-primary-bg-hover:hover { background-color: var(--button-primary-bg-hover); }
+.od-primary-text { color: var(--button-primary-text); }
+.od-primary-border { border-color: var(--button-primary-bg); }

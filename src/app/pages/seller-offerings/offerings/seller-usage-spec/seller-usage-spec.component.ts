@@ -3,14 +3,17 @@ import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
+import { faSwatchbook } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { TableColumn, TableSort } from 'src/app/models/table-column.model';
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { UsageServiceService } from 'src/app/services/usage-service.service';
+import { expandLifecycleStatusFilter, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 import { FilteredPaginatedTableComponent } from 'src/app/shared/forms/filtered-paginated-table/filtered-paginated-table.component';
@@ -45,6 +48,30 @@ export class SellerUsageSpecComponent implements OnInit, OnDestroy {
       header: 'USAGE_SPECS._description',
       hideOnMobile: true,
       getValue: (usage: any) => usage.description,
+    },
+    {
+      header: 'OFFERINGS._status',
+      getValue: (usage: any) => lifecycleStatusLabel(usage.lifecycleStatus ?? ''),
+      type: 'status-badge',
+      width: 'w-[150px]',
+      sortKey: 'lifecycleStatus',
+      getStatus: (usage: any) => lifecycleStatusBadgeVariant(usage.lifecycleStatus ?? ''),
+    },
+  ];
+
+  usageSpecFilters: FormField[] = [
+    {
+      name: 'status',
+      label: 'OFFERINGS._filter_state',
+      type: 'select',
+      icon: faSwatchbook,
+      multiple: true,
+      defaultValue: ['Active', 'Launched'],
+      options: [
+        { value: 'Active', label: 'OFFERINGS._active' },
+        { value: 'Launched', label: 'OFFERINGS._launched' },
+        { value: 'Retired', label: 'OFFERINGS._retired' },
+      ],
     },
   ];
 
@@ -101,7 +128,8 @@ export class SellerUsageSpecComponent implements OnInit, OnDestroy {
   }
 
   fetchUsageSpecs = (params: PageRequest, filters: Record<string, any>): Promise<PageResult<any>> => {
-    return this.usageService.getUsageSpecByUserPaged(params, this.filter, this.partyId);
+    const status = expandLifecycleStatusFilter((filters['status'] ?? []) as string[]);
+    return this.usageService.getUsageSpecByUserPaged(params, this.filter, status, this.partyId);
   }
 
   goToCreate() {

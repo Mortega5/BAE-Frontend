@@ -62,11 +62,10 @@ This is why it wasn't used for the `price-plans` tier picker, `plan-subtype-moda
 or the priceType dropdown in `price-component-drawer`: those are native `<button>`
 elements (keyboard activation, form semantics, screen-reader role all come for
 free). Wrapping them in a `<div>`-rooted component would mean rebuilding that by
-hand. Left as plain buttons — but still updated to reference the same
-`bg-[var(--card-selected-bg)] border-[var(--card-selected-border)]` /
-`bg-[var(--card-bg)] border-[var(--card-border)] hover:border-[var(--card-hover-border)]`
-tokens via Tailwind's arbitrary-value syntax, instead of their own hardcoded cyan
-copy. Only migrate one of these to the actual component if you're also willing to
+hand. Left as plain buttons, but they use the same tokens through the shared
+`.option-card` class (`class="option-card …" [class.is-selected]="…"`, defined in
+`src/styles.css`) instead of their own hardcoded cyan copy. Templates don't bind
+the variables directly (see `docs/theme-tokens.md`). Only migrate one of these to the actual component if you're also willing to
 reintroduce its keyboard/ARIA behavior explicitly.
 
 ## `class` doesn't reach the inner box

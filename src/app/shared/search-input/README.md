@@ -13,14 +13,13 @@ and `/search/catalogue/:id` each had.
 |---|---|
 | `control` (required) | The `FormControl` the caller owns and reads. |
 | `placeholder` | Already-translated placeholder text. |
-| `ai` | AI search mode: purple border and a sparkles icon before the text. |
 | `loading` | Shows a spinner instead of the magnifier. |
 | `(search)` | Submit: Enter key or the magnifier. |
 
 ## Clearing is the caller's job
 
 The clear button only calls `control.reset()`. What an emptied search means
-(reload the list, drop the URL param, reset AI state...) differs per page, so each
+(reload the list, drop the URL param, ...) differs per page, so each
 caller subscribes to its own `control.valueChanges` and reacts to an empty value.
 That also covers the user deleting the text by hand.
 
@@ -28,8 +27,7 @@ That also covers the user deleting the text by hand.
 
 The box reuses the global form tokens (`--theme-input-bg`, `--theme-input-border`,
 `--theme-default-text`, `--form-hint-text`) and the danger-button tokens
-(`--button-danger-*`) for the clear button. For AI mode it uses the shared
-`--ai-border` and `--ai-accent` tokens. All of them are defined in [src/styles.css](../../../styles.css) (`body` / `.dark body`);
+(`--button-danger-*`) for the clear button. All of them are defined in [src/styles.css](../../../styles.css) (`body` / `.dark body`);
 `search-input.component.scss` only consumes them.
 
 ## Width

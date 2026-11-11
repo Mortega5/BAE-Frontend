@@ -30,7 +30,7 @@ import {
 import { ConfirmModalComponent } from '../confirm-modal/confirm-modal.component';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent, ButtonVariant } from '../button/button.component';
-import { ContentCardComponent } from '../content-card/content-card.component';
+import { ModalComponent } from '../modal/modal.component';
 import { DropdownPanelComponent } from '../dropdown-panel/dropdown-panel.component';
 import { LoadingSpinnerComponent } from '../loading-spinner/loading-spinner.component';
 import { StepChangedEvent, StepperComponent } from '../stepper/stepper.component';
@@ -44,7 +44,7 @@ import {
   selector: 'app-create-tender-modal',
   standalone: true,
   imports: [NgClass, FormsModule, TranslateModule, ConfirmModalComponent, DynamicFormComponent, ButtonComponent,
-    ContentCardComponent, DropdownPanelComponent, LoadingSpinnerComponent, StepperComponent, StepperStepDirective],
+    ModalComponent, DropdownPanelComponent, LoadingSpinnerComponent, StepperComponent, StepperStepDirective],
   templateUrl: './create-tender-modal.component.html',
   styleUrl: './create-tender-modal.component.scss',
 })

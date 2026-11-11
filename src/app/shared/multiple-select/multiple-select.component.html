@@ -1,9 +1,9 @@
 <div class="relative w-full" [attr.id]="id" [attr.data-cy]="dataCy">
   <div
-    class="min-h-[2.75rem] bg-gray-50/60 dark:bg-secondary-300 border border-gray-200 dark:border-secondary-200 rounded-xl p-2 flex flex-wrap items-center gap-2 cursor-pointer"
+    class="min-h-[2.75rem] bg-surface-input border border-line rounded-xl p-2 flex flex-wrap items-center gap-2 cursor-pointer"
     [class.pointer-events-none]="isReadonly" [class.opacity-60]="isReadonly" (click)="toggleDropdown()">
     @for (item of selectedLabels; track item.value) {
-    <span class="bg-primary-100 text-white text-xs font-semibold leading-none pl-3 pr-1.5 py-1.5 rounded-full shadow-sm inline-flex items-center gap-1.5">
+    <span class="bg-primary-100 text-on-primary text-xs font-semibold leading-none pl-3 pr-1.5 py-1.5 rounded-full shadow-sm inline-flex items-center gap-1.5">
       <span>{{ item.label | translate }}</span>
       <button type="button"
         class="inline-flex items-center justify-center w-4 h-4 p-0 border-0 leading-none rounded-full hover:bg-white/20"
@@ -15,7 +15,7 @@
       </button>
     </span>
     }
-    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 px-1 py-1 rounded-lg hover:bg-gray-200/50 dark:hover:bg-secondary-200/50">
+    <span class="inline-flex items-center gap-1.5 text-xs font-medium text-content-muted px-1 py-1 rounded-lg hover:bg-surface-muted dark:hover:bg-secondary-200/50">
       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
         stroke-linejoin="round" viewBox="0 0 24 24">
         <path d="M12 4.5v15m7.5-7.5h-15" />
@@ -26,13 +26,13 @@
 
   @if (isOpen) {
   <div
-    class="absolute mt-1 w-full bg-[var(--theme-input-bg)] dark:text-white border border-[var(--theme-input-border)] rounded-lg shadow-lg z-10">
+    class="absolute mt-1 w-full bg-surface-input text-content border border-line-input rounded-lg shadow-lg z-10">
     <ul class="max-h-48 overflow-y-auto">
       @for (option of normalizedOptions; track option.value) {
       <li (click)="toggleSelection(option)"
-        class="cursor-pointer p-2 hover:bg-gray-100 dark:hover:bg-secondary-200 flex items-center">
+        class="cursor-pointer p-2 hover:bg-surface-muted flex items-center">
         <input type="checkbox" [checked]="isSelected(option)"
-          class="w-4 h-4 mr-2 bg-gray-100 checked:bg-primary-100 dark:checked:bg-primary-100 border-gray-300 rounded text-primary-600 focus:ring-primary-100" />
+          class="w-4 h-4 mr-2 bg-surface-muted checked:bg-primary-100 dark:checked:bg-primary-100 border-line-input rounded text-primary-600 focus:ring-primary-100" />
         {{ option.label | translate }}
       </li>
       }

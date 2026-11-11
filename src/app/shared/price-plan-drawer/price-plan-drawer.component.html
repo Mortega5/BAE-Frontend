@@ -4,12 +4,12 @@
     aria-labelledby="drawer-right-label">
 
     <div class="flex items-center pb-2">
-      <fa-icon [icon]="faCircleInfo" class="w-4 h-4 me-2.5 text-gray-500 dark:text-gray-400"
+      <fa-icon [icon]="faCircleInfo" class="w-4 h-4 me-2.5 text-content-muted"
         aria-hidden="true"></fa-icon>
       <h5 id="drawer-right-label" [ngClass]="{
       'break-all': hasLongWord(productOff?.name, 20),
       'break-words': !hasLongWord(productOff?.name, 20)
-      }" class="flex-1 min-w-0 text-base font-semibold text-gray-500 dark:text-gray-400 text-xl">
+      }" class="flex-1 min-w-0 text-base font-semibold text-content-muted text-xl">
         {{ (mode === 'modify' ? 'PRICE_PLAN_DRAWER._modifying' : 'PRICE_PLAN_DRAWER._adding') | translate }}
         {{productOff?.name}}
         {{ mode === 'modify' ? '' : ('PRICE_PLAN_DRAWER._to_cart_suffix' | translate) }}
@@ -19,17 +19,17 @@
       </app-button>
     </div>
 
-    <hr class="h-px my-2 bg-gray-200 border-0 dark:bg-gray-700">
+    <hr class="h-px my-2 bg-skeleton border-0">
 
     <!-- Scrollable content -->
     <form [formGroup]="form" class="flex-1 min-h-0 w-full overflow-y-auto md:p-2 space-y-4">
       @if (mode === 'modify' && existingCharacteristics.length > 0) {
-      <div class="mb-4 rounded-lg border border-gray-200 bg-gray-50 dark:bg-gray-700 dark:border-gray-600 p-3">
-        <h6 class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">{{
+      <div class="mb-4 rounded-lg border border-line bg-surface-muted p-3">
+        <h6 class="text-sm font-semibold text-content-secondary mb-2">{{
           'PRICE_PLAN_DRAWER._current_characteristics' | translate }}</h6>
         <div class="grid grid-cols-2 gap-1">
           @for (char of existingCharacteristics; track char.name) {
-          <div class="text-xs text-gray-600 dark:text-gray-400">
+          <div class="text-xs text-content-muted">
             <span class="font-medium">{{char.name}}:</span> {{char.value}}
           </div>
           }
@@ -38,24 +38,24 @@
       }
 
       @if (!isFree) {
-      <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 text-wrap break-words">{{ (mode === 'modify' ?
+      <p class="mb-6 text-sm text-content-muted text-wrap break-words">{{ (mode === 'modify' ?
         'PRICE_PLAN_DRAWER._modify_intro' : 'PRICE_PLAN_DRAWER._add_intro') | translate }} <b>{{productOff?.name}}</b>{{
         mode === 'modify' ? ('PRICE_PLAN_DRAWER._modify_intro_end' | translate) : ' ' +
         ('PRICE_PLAN_DRAWER._add_intro_end' | translate) }}</p>
-      <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 text-wrap break-words">{{
+      <p class="mb-6 text-sm text-content-muted text-wrap break-words">{{
         'PRICE_PLAN_DRAWER._select_price_plan' | translate }}</p>
       @for (pp of productOff?.productOfferingPrice; track pp.id){
       <div [attr.data-cy]="'pricePlan-' + pp.name"
-        class="price-plan flex flex-col rounded-lg border border-dashed border-primary-100 bg-white dark:bg-gray-800 p-2 m-2 gap-1 cursor-pointer hover:bg-sky-50 transition-all duration-200"
+        class="price-plan flex flex-col rounded-lg border border-dashed border-primary-100 bg-surface p-2 m-2 gap-1 cursor-pointer hover:bg-surface-hover transition-all duration-200"
         [ngClass]="{
                     'border-primary-100 text-wrap border': pp.id !== form.get('selectedPricePlan')?.value?.id,
-                    'border-transparent outline outline-2 outline-teal-500 bg-teal-50 dark:bg-teal-900/40 ring-1 ring-teal-500': pp.id === form.get('selectedPricePlan')?.value?.id
+                    'border-transparent outline outline-2 outline-primary-100 bg-surface-selected ring-1 ring-primary-100': pp.id === form.get('selectedPricePlan')?.value?.id
               }" (click)="onPricePlanSelected(pp)">
         <div
-          class="text-base font-semibold text-primary-100 dark:text-gray-400 flex justify-between content-center text-wrap break-words">
+          class="text-base font-semibold text-primary-100 dark:text-content-muted flex justify-between content-center text-wrap break-words">
           <span class="flex items-center gap-1.5">
             @if (pp.id === form.get('selectedPricePlan')?.value?.id){
-            <svg class="w-4 h-4 text-teal-600 dark:text-teal-400 shrink-0" viewBox="0 0 20 20" fill="currentColor"
+            <svg class="w-4 h-4 text-link shrink-0" viewBox="0 0 20 20" fill="currentColor"
               aria-hidden="true">
               <path fill-rule="evenodd"
                 d="M16.704 5.29a1 1 0 010 1.42l-7.5 7.5a1 1 0 01-1.42 0l-3.5-3.5a1 1 0 011.42-1.42l2.79 2.79 6.79-6.79a1 1 0 011.42 0z"
@@ -66,14 +66,14 @@
           </span>
           @if (pp.prodSpecCharValueUse){
           <span
-            class="bg-indigo-100 text-indigo-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-indigo-900 dark:text-indigo-300">{{
+            class="bg-info-soft text-info text-xs font-medium me-2 px-2.5 py-0.5 rounded-full">{{
             'PRICE_PLAN_DRAWER._profile_badge' | translate }}</span>
           }
         </div>
         <markdown [ngClass]="{
             'break-all': hasLongWord(pp.description, 20),
             'break-words': !hasLongWord(pp.description, 20)
-          }" class="text-gray-500 dark:text-gray-400 text-wrap" [data]="pp.description"></markdown>
+          }" class="text-content-muted text-wrap" [data]="pp.description"></markdown>
       </div>
       } @empty {
       <div>{{ 'PRICE_PLAN_DRAWER._offering_free' | translate }}</div>
@@ -81,7 +81,7 @@
       }
 
       @if (hasProfile) {
-      <p class="mt-6 text-sm text-gray-500 dark:text-gray-400">{{ 'PRICE_PLAN_DRAWER._profile_associated' | translate }}
+      <p class="mt-6 text-sm text-content-muted">{{ 'PRICE_PLAN_DRAWER._profile_associated' | translate }}
       </p>
       <div class="grid grid-cols-3 gap-2 m-2">
         @for (ch of profileCharacteristics ; track ch.id) {
@@ -101,7 +101,7 @@
         <div class="space-y-4">
           @if (booleanCharacteristics.length > 0) {
           <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-primary-100 dark:text-gray-300">{{
+            <p class="text-xs font-semibold uppercase tracking-wide text-primary-100 dark:text-content-secondary">{{
               'PRICE_PLAN_DRAWER._boolean_toggles' | translate }}
             </p>
             <div class="grid grid-cols-1 gap-2">
@@ -128,7 +128,7 @@
                   <input type="checkbox" [checked]="!disabledCharacteristics.includes(ch.id)"
                     (change)="onToggleChange($event, ch.name)" class="sr-only peer">
                   <div
-                    class="relative w-9 h-5 bg-gray-300 border border-gray-400 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 dark:border-gray-500 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:start-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:after:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
+                    class="relative w-9 h-5 bg-skeleton border border-line-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-focus rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:start-[1px] after:bg-white after:border-line-input after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-100 ">
                   </div>
                 </label>
                 }
@@ -145,7 +145,7 @@
           }
           @if (rangeCharacteristics.length > 0) {
           <div class="space-y-2">
-            <p class="text-xs font-semibold uppercase tracking-wide text-primary-100 dark:text-gray-300">{{
+            <p class="text-xs font-semibold uppercase tracking-wide text-primary-100 dark:text-content-secondary">{{
               'PRICE_PLAN_DRAWER._ranges' | translate }}</p>
             <div class="grid grid-cols-1 gap-2">
               @for (ch of rangeCharacteristics ; track ch.id) {
@@ -155,7 +155,7 @@
                   <input type="checkbox" [checked]="!disabledCharacteristics.includes(ch.id)"
                     (change)="onToggleChange($event, ch.name)" class="sr-only peer">
                   <div
-                    class="relative w-9 h-5 bg-gray-300 border border-gray-400 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 dark:border-gray-500 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:start-[1px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:after:border-gray-500 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
+                    class="relative w-9 h-5 bg-skeleton border border-line-input peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-focus rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[1px] after:start-[1px] after:bg-white after:border-line-input after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-primary-100 ">
                   </div>
                 </label>
                 }
@@ -175,7 +175,7 @@
       }
 
       @if(metrics.length>0){
-      <p class="mt-4  text-sm text-gray-500 dark:text-gray-400">{{ 'PRICE_PLAN_DRAWER._simulate_prices' | translate }}
+      <p class="mt-4 text-sm text-content-muted">{{ 'PRICE_PLAN_DRAWER._simulate_prices' | translate }}
       </p>
       <div class="grid grid-cols-4 gap-2 mb-4">
         @for (metric of metrics || []; track metric.unitOfMeasure) {
@@ -183,10 +183,10 @@
           <h5 [ngClass]="{
               'break-all': hasLongWord(metric.unitOfMeasure, 20),
               'break-words': !hasLongWord(metric.unitOfMeasure, 20)
-              }" class="text-wrap break-words text-base text-primary-100 dark:text-gray-400">{{ metric.unitOfMeasure }}
+              }" class="text-wrap break-words text-base text-primary-100 dark:text-content-muted">{{ metric.unitOfMeasure }}
           </h5>
           <input type="number" (input)="onMetricChange($event, metric)"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm dark:bg-secondary-300 dark:text-white"
+            class="mt-1 block w-full rounded-md border-line-input shadow-sm focus:border-primary-100 focus:ring-focus sm:text-sm dark:bg-secondary-300 text-content"
             placeholder="{{metric.value}}" />
         </div>
 
@@ -195,15 +195,15 @@
       </div>
       }
       @if (form.get('selectedPricePlan')?.value && form.get('characteristics')?.valid && (tsAndCs.description!='' || termsFileAttachments.length > 0)) {
-      <div class="mb-6 text-sm text-gray-500 dark:text-gray-400">
-        <h5 class="text-wrap break-words text-base font-semibold text-primary-100 dark:text-gray-400">{{
+      <div class="mb-6 text-sm text-content-muted">
+        <h5 class="text-wrap break-words text-base font-semibold text-primary-100 dark:text-content-muted">{{
           'PRICE_PLAN_DRAWER._terms_conditions' | translate }}</h5>
         @if (tsAndCs.description != '') {
         <div class="max-h-[300px] overflow-y-auto mb-2">
           <markdown [ngClass]="{
           'break-all': hasLongWord(tsAndCs.description, 20),
           'break-words': !hasLongWord(tsAndCs.description, 20)
-          }" class="text-gray-500 dark:text-gray-400 text-wrap break-words" [data]="tsAndCs.description"></markdown>
+          }" class="text-content-muted text-wrap break-words" [data]="tsAndCs.description"></markdown>
         </div>
         }
         @if (termsFileAttachments.length > 0) {
@@ -225,11 +225,11 @@
       }
     </form>
 
-    <div data-cy="bottom-banner" class="shrink-0 border-t border-gray-200 dark:border-gray-700 md:px-2 pt-4">
+    <div data-cy="bottom-banner" class="shrink-0 border-t border-line md:px-2 pt-4">
       <div class="min-h-16 flex flex-col justify-center mb-4">
       @if (missingBuyerCountry && !isCustom && !isFree) {
       <div data-cy="missingCountryBanner"
-        class="flex items-center justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 p-3 text-sm text-amber-900 dark:text-amber-200">
+        class="flex items-center justify-between gap-3 rounded-lg border border-warning-border bg-warning-soft p-3 text-sm text-warning">
         <p>{{ 'PRICE_PLAN_DRAWER._country_required_banner' | translate }}</p>
         <app-button data-cy="setBuyerCountry" type="button" size="sm" class="shrink-0" (click)="openSetCountryModal()">
           {{ 'PRICE_PLAN_DRAWER._set_country_button' | translate }}
@@ -239,15 +239,15 @@
       <app-loading-spinner containerClass="w-full flex justify-center items-center"
         [label]="'PRICE_PLAN_DRAWER._loading_price' | translate" />
       } @else if (isCustom){
-      <div class="text-sm text-gray-500 dark:text-gray-400">
+      <div class="text-sm text-content-muted">
         <p>{{ 'PRICE_PLAN_DRAWER._custom_price_plan' | translate }}</p>
       </div>
       } @else if (isFree){
-      <div class="text-sm text-gray-500 dark:text-gray-400">
+      <div class="text-sm text-content-muted">
         <p>{{ 'PRICE_PLAN_DRAWER._offer_free' | translate }}</p>
       </div>
       } @else if (price) {
-      <div class="text-sm text-gray-900 dark:text-white">
+      <div class="text-sm text-content">
         @for (item of price; track item) {
         <div data-cy="previewPrices" class="flex justify-between mb-2">
           <span class="font-medium capitalize">{{ item['priceType'] }}:</span>
@@ -261,7 +261,7 @@
         }
       </div>
       } @else {
-      <p class="text-sm text-gray-500 dark:text-gray-400">{{ 'PRICE_PLAN_DRAWER._select_plan_price' | translate }}
+      <p class="text-sm text-content-muted">{{ 'PRICE_PLAN_DRAWER._select_plan_price' | translate }}
       </p>
       }
       </div>

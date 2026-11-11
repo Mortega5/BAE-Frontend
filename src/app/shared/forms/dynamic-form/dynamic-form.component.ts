@@ -18,6 +18,16 @@ import { CodeEditorComponent } from '../code-editor/code-editor.component';
 import { MultipleSelectComponent } from 'src/app/shared/multiple-select/multiple-select.component';
 import { SearchSelectComponent } from 'src/app/shared/search-select/search-select.component';
 
+/** Written out in full, not built as `col-span-${n}`: Tailwind only generates classes it finds
+ * literally in the source, so an interpolated one that is never spelled elsewhere (e.g. col-span-4)
+ * silently has no CSS and the field collapses to one column. */
+const GRID_COLS_CLASSES: Record<number, string> = {
+  1: 'grid-cols-1', 2: 'grid-cols-2', 3: 'grid-cols-3', 4: 'grid-cols-4', 5: 'grid-cols-5', 6: 'grid-cols-6',
+};
+const COL_SPAN_CLASSES: Record<number, string> = {
+  1: 'col-span-1', 2: 'col-span-2', 3: 'col-span-3', 4: 'col-span-4', 5: 'col-span-5', 6: 'col-span-6',
+};
+
 @Component({
   selector: 'app-dynamic-form',
   templateUrl: './dynamic-form.component.html',
@@ -30,12 +40,12 @@ export class DynamicFormComponent {
   @Input() columns: number = 1;
 
   gridColsClass(): string {
-    return `grid-cols-${this.columns}`;
+    return GRID_COLS_CLASSES[Math.min(Math.max(this.columns, 1), 6)];
   }
 
   colSpanClass(field: FormField): string {
     const span = field.colSpan ?? this.columns ?? 1;
-    return `col-span-${Math.min(span, this.columns)}`;
+    return COL_SPAN_CLASSES[Math.min(Math.max(span, 1), this.columns, 6)];
   }
 
   asSelectable(field: FormField): SelectableFormField {

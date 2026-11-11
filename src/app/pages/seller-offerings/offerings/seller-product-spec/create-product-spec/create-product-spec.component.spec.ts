@@ -77,6 +77,31 @@ describe('CreateProductSpecComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  describe('compliance uploads', () => {
+    beforeEach(() => component.ngOnInit());
+
+    it('should keep the self-attestation and certificates in sync with the compliance form', () => {
+      component.complianceForm.get('selfAttestation')!.setValue({ name: 'self.pdf', url: 'https://files/self.pdf' });
+      component.complianceForm.get('additionalAttachments')!.setValue([{ name: 'iso.pdf', url: 'https://files/iso.pdf' }]);
+
+      expect(component.selfAtt?.productSpecCharacteristicValue?.[0]?.value).toBe('https://files/self.pdf');
+      expect(component.additionalISOS).toEqual([{ name: 'Compliance:iso.pdf', url: 'https://files/iso.pdf' }]);
+
+      component.complianceForm.get('selfAttestation')!.setValue(null);
+      expect(component.selfAtt).toBeNull();
+    });
+
+    it('should fill the compliance form from the current state when the step opens', () => {
+      component.additionalISOS = [{ name: 'Compliance:iso.pdf', url: 'https://files/iso.pdf' }];
+
+      component.onStepChanged({ step: 0, stepId: 'compliance', isLastStep: false } as any);
+
+      expect(component.complianceForm.value.additionalAttachments).toEqual([
+        jasmine.objectContaining({ url: 'https://files/iso.pdf' }),
+      ]);
+    });
+  });
+
   it('should react to ChangedSession event', () => {
     const initSpy = spyOn(component, 'initPartyInfo');
     messagesSubject.next({ type: 'ChangedSession' });

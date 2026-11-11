@@ -3,17 +3,17 @@
     <div appCardHeader class="flex w-full flex-col md:flex-row md:items-center justify-between gap-3">
       <div>
         <div class="flex items-center gap-2">
-          <h2 class="text-2xl font-bold dark:text-white">{{ 'QUOTES._title' | translate }}</h2>
+          <h2 class="text-2xl font-bold text-content">{{ 'QUOTES._title' | translate }}</h2>
           @if (guideUrl) {
           <a [href]="guideUrl" target="_blank" rel="noopener noreferrer" [title]="'QUOTES._guide' | translate"
             data-cy="tailoredOfferingGuide"
-            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition-colors">
+            class="text-content-muted hover:text-content transition-colors">
             <fa-icon [icon]="faCircleQuestion" aria-hidden="true" />
             <span class="sr-only">{{ 'QUOTES._guide' | translate }}</span>
           </a>
           }
         </div>
-        <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ 'QUOTES._subtitle' | translate }}</p>
+        <p class="mt-1 text-sm text-content-muted">{{ 'QUOTES._subtitle' | translate }}</p>
       </div>
 
       <app-button dataCy="refreshQuotes" variant="secondary" prefixIcon="rotate" (click)="refreshQuotes()">

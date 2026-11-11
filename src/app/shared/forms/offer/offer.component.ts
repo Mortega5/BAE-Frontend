@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
@@ -17,6 +17,8 @@ import { NotificationService } from 'src/app/services/notification.service';
 import { BadgeComponent, BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { LoadingSpinnerComponent } from 'src/app/shared/loading-spinner/loading-spinner.component';
 import { SearchSelectComponent } from 'src/app/shared/search-select/search-select.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
@@ -39,6 +41,7 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
 const CONSTRAINT_PRICE_TYPE = 'constraint';
 const DISCOUNT_PRICE_TYPE = 'discount';
 
+import { previewPricesFromPlans } from './offer-preview.util';
 @Component({
   selector: 'app-offer-form',
   standalone: true,
@@ -54,6 +57,7 @@ const DISCOUNT_PRICE_TYPE = 'discount';
     BadgeComponent,
     ButtonComponent,
     ConfirmModalComponent,
+    UnsavedChangesModalComponent,
     LoadingSpinnerComponent,
     SearchSelectComponent,
     StepperComponent,
@@ -62,12 +66,14 @@ const DISCOUNT_PRICE_TYPE = 'discount';
   templateUrl: './offer.component.html',
   styleUrl: './offer.component.css'
 })
-export class OfferComponent implements OnInit, OnDestroy {
+export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
 
   @Input() formType: 'create' | 'update' = 'create';
   @Input() offer: any = {};
   @Input() partyId: any;
   @Output() previewRequested = new EventEmitter<any>();
+  /** Submitting first shows the preview; the host calls publish()/saveDraft()/confirmUpdate() once it's confirmed there. */
+  @Output() submitPreviewRequested = new EventEmitter<any>();
 
   productOfferForm: FormGroup;
   currentStepId = 'general';
@@ -75,7 +81,9 @@ export class OfferComponent implements OnInit, OnDestroy {
   isFormValid = false;
   selectedProdSpec: any;
   pricePlans: any = [];
-  showPublishDraftModal: boolean = false;
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  /** Set once the offer is saved, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
   showDeleteConfirm: boolean = false;
   showPublishConfirm: boolean = false;
   loading: boolean = false;
@@ -243,17 +251,12 @@ export class OfferComponent implements OnInit, OnDestroy {
 
   submitForm() {
     if (!this.canSubmit) return;
-    if (this.formType === 'update') {
-      this.eventMessage.emitUpdateOffer(true);
-      console.log('🔄 Starting offer update process...');
-      console.log('📝 Current form changes:', this.formChanges);
+    this.submitPreviewRequested.emit(this.buildPreviewProductOff());
+  }
 
-      // Aquí irá la lógica de actualización
-      // Por ahora solo mostramos los cambios
-      this.updateOffer();
-    } else {
-      this.showPublishDraftModal = true;
-    }
+  confirmUpdate() {
+    this.eventMessage.emitUpdateOffer(true);
+    this.updateOffer();
   }
 
   saveDraft() {
@@ -419,6 +422,8 @@ export class OfferComponent implements OnInit, OnDestroy {
       ...this.availableCatalogs,
       { value: catalog, label: catalog.name, subtitle: catalog.description || '-' }
     ];
+    // Creating a catalogue also creates its category, which the category step must offer.
+    this.loadCategories();
   }
 
   /** Update mode: once the offer's category array is loaded, figure out which root/subcategory it matches. */
@@ -521,7 +526,7 @@ export class OfferComponent implements OnInit, OnDestroy {
       // Mantener el primer término (licencia) incluso si está vacío
       //const licenseTerm = this.offer.productOfferingTerm[0];
       const licenseTerm = this.offer.productOfferingTerm.find(
-        (element: { name: string; }) => element.name === 'License'
+        (element: { name: string; }) => this.isLicenseTerm(element)
       );
 
       // Filtrar el resto de términos
@@ -552,7 +557,7 @@ export class OfferComponent implements OnInit, OnDestroy {
 
       //PROCUREMENT
       const procurementTerm = this.offer.productOfferingTerm.find(
-        (element: { name: string; }) => element.name === 'procurement'
+        (element: { name: string; }) => this.isProcurementTerm(element)
       );
       if (procurementTerm) {
         const procurementValue = {
@@ -621,6 +626,7 @@ export class OfferComponent implements OnInit, OnDestroy {
 
         let priceInfo: any = {
           id: pricePlan.id,
+          isBundle: pricePlan.isBundle,
           name: pricePlan.name,
           description: pricePlan.description,
           lifecycleStatus: pricePlan.lifecycleStatus,
@@ -798,7 +804,6 @@ export class OfferComponent implements OnInit, OnDestroy {
   private handleApiError(error: any): void {
     console.error('Error while creating offer price!', error);
     this.loading = false;
-    this.showPublishDraftModal = false;
     this.notificationService.showError('CREATE_OFFER._price_create_error', {
       details: this.extractErrorDetail(error)
     });
@@ -952,12 +957,14 @@ export class OfferComponent implements OnInit, OnDestroy {
   }
 
   private createBundledPricePlan(plan: any, compRel: any[], constraintPopRelationship: any[] = []): ProductOfferingPrice {
+    // A custom (negotiated) plan with no price components is a plain price, not a bundle.
+    const isCustomNoComponents = (plan?.priceType === 'custom' || plan?.newValue?.priceType === 'custom') && compRel.length === 0;
     const price: ProductOfferingPrice = {
       name: plan.name ?? plan?.newValue?.name,
-      isBundle: true,
+      isBundle: !isCustomNoComponents,
       description: plan.description ?? plan?.newValue?.description,
       lifecycleStatus: plan.lifecycleStatus ?? plan?.newValue?.lifecycleStatus,
-      bundledPopRelationship: compRel
+      ...(isCustomNoComponents ? {} : { bundledPopRelationship: compRel })
     };
 
     if (constraintPopRelationship.length > 0) {
@@ -1011,10 +1018,12 @@ export class OfferComponent implements OnInit, OnDestroy {
     console.log(plan)
     console.log(plan.id)
     console.log(compRel)
+    // Keep the plan's bundle kind: a non-bundle plan has no bundled components to send.
+    const isBundle = plan?.oldValue?.isBundle ?? plan?.newValue?.isBundle;
     let price: ProductOfferingPrice = {
       name: plan.newValue.name,
-      isBundle: true,
-      bundledPopRelationship: compRel
+      isBundle,
+      ...(isBundle ? { bundledPopRelationship: compRel } : {})
     }
     if (modifiedFields.includes('description')) {
       price.description = plan.newValue.description
@@ -1150,7 +1159,6 @@ export class OfferComponent implements OnInit, OnDestroy {
       : this.autoCatalogue?.id;
     if (this.formType === 'create' && !catalogueId) {
       this.loading = false;
-      this.showPublishDraftModal = false;
       this.notificationService.showError('CREATE_OFFER._no_catalogue_available');
       return;
     }
@@ -1164,19 +1172,31 @@ export class OfferComponent implements OnInit, OnDestroy {
         console.log('product offer created:');
         console.log(data);
         this.loading = false;
-        this.showPublishDraftModal = false;
         this.notificationService.showSuccess(this.formType === 'create' ? 'CREATE_OFFER._create_success' : 'UPDATE_OFFER._update_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: (error) => {
         console.error('Error during offer save/update:', error);
         this.loading = false;
-        this.showPublishDraftModal = false;
         this.notificationService.showError(this.formType === 'create' ? 'CREATE_OFFER._save_error' : 'UPDATE_OFFER._update_error', {
           details: this.extractErrorDetail(error)
         });
       }
     });
+  }
+
+  get leaveNeedsConfirmation(): boolean {
+    return !this.leaveAllowed && (this.productOfferForm.dirty || (this.isUpdate && this.hasChanges));
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (!this.leaveNeedsConfirmation) return true;
+    return this.unsavedChangesModal?.confirm(() => this.isUpdate ? this.confirmUpdate() : this.saveDraft()) ?? true;
+  }
+
+  get canSaveDraft(): boolean {
+    return !this.loading && this.canSubmit;
   }
 
   goBack() {
@@ -1211,6 +1231,7 @@ export class OfferComponent implements OnInit, OnDestroy {
       next: () => {
         this.loading = false;
         this.notificationService.showSuccess('UPDATE_OFFER._delete_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: (error: any) => {
@@ -1289,7 +1310,8 @@ export class OfferComponent implements OnInit, OnDestroy {
         }
       }),
       validFor: this.offer.validFor,
-      productOfferingTerm: this.offer.productOfferingTerm
+      // Cloned so editing the payload's terms doesn't change the loaded offer if the update fails.
+      productOfferingTerm: (this.offer.productOfferingTerm || []).map((term: any) => ({ ...term }))
     };
 
     // Procesar cada cambio emitido por los subformularios
@@ -1323,7 +1345,7 @@ export class OfferComponent implements OnInit, OnDestroy {
 
         case 'license':
           // Actualizar términos de licencia
-          const licenseTerm = basePayload.productOfferingTerm.find((term: any) => term.name === 'License');
+          const licenseTerm = basePayload.productOfferingTerm.find((term: any) => this.isLicenseTerm(term));
           if (licenseTerm) {
             licenseTerm.description = change.currentValue.description;
           } else {
@@ -1414,7 +1436,7 @@ export class OfferComponent implements OnInit, OnDestroy {
 
         case 'procurement':
           // Actualizar modo de adquisición
-          const procurementTerm = basePayload.productOfferingTerm.find((term: any) => term.name === 'procurement');
+          const procurementTerm = basePayload.productOfferingTerm.find((term: any) => this.isProcurementTerm(term));
           if (procurementTerm) {
             procurementTerm.description = change.currentValue.id;
           } else {
@@ -1459,6 +1481,8 @@ export class OfferComponent implements OnInit, OnDestroy {
       }
     }
 
+    basePayload.productOfferingTerm = this.removeDuplicateFormTerms(basePayload.productOfferingTerm);
+
     // Eliminar campos undefined o null
     Object.keys(basePayload).forEach(key => {
       if (basePayload[key] === undefined || basePayload[key] === null) {
@@ -1495,6 +1519,7 @@ export class OfferComponent implements OnInit, OnDestroy {
       console.log('✅ Offer updated successfully');
       this.loading = false;
       this.notificationService.showSuccess('UPDATE_OFFER._update_success');
+      this.leaveAllowed = true;
       this.goBack();
     } catch (error: any) {
       console.error('❌ Error updating offer:', error);
@@ -1503,6 +1528,33 @@ export class OfferComponent implements OnInit, OnDestroy {
         details: this.extractErrorDetail(error)
       });
     }
+  }
+
+  /** Called when the seller switches to another product spec: plans priced on the old spec's characteristics no longer apply. */
+  clearPricePlans(): void {
+    this.pricePlans = [];
+    this.productOfferForm.get('pricePlans')?.setValue([]);
+  }
+
+  // Older offers may store these terms as 'license' or 'Procurement'.
+  private isLicenseTerm(term: any): boolean {
+    return String(term?.name || '').toLowerCase() === 'license';
+  }
+
+  private isProcurementTerm(term: any): boolean {
+    return String(term?.name || '').toLowerCase() === 'procurement';
+  }
+
+  /** Keeps only the first license and procurement term, so an update never sends both casings. */
+  private removeDuplicateFormTerms(terms: any[]): any[] {
+    const seen = new Set<string>();
+    return terms.filter(term => {
+      if (!this.isLicenseTerm(term) && !this.isProcurementTerm(term)) return true;
+      const name = String(term.name).toLowerCase();
+      if (seen.has(name)) return false;
+      seen.add(name);
+      return true;
+    });
   }
 
   private isdEdcCompatible() {
@@ -1542,24 +1594,7 @@ export class OfferComponent implements OnInit, OnDestroy {
       });
     }
 
-    // Flatten every plan's price components into top-level prices (no bundledPopRelationship
-    // refs to resolve) so the details page's usage-metrics lookup works on this data as-is.
-    const prices: any[] = [];
-    for (const plan of (formValue.pricePlans || [])) {
-      for (const component of (plan.priceComponents || [])) {
-        prices.push({
-          id: component.id,
-          href: component.id,
-          name: component.name || plan.name,
-          description: component.description || plan.description,
-          priceType: component.priceType,
-          price: component.price != null ? { value: component.price, unit: plan.currency || component.currency || 'EUR' } : undefined,
-          recurringChargePeriodType: component.recurringPeriod,
-          usageSpecId: component.usageSpecId,
-          unitOfMeasure: component.usageUnit
-        });
-      }
-    }
+    const prices = previewPricesFromPlans(formValue.pricePlans);
 
     return {
       id: this.formType === 'update' && this.offer?.id ? this.offer.id : 'preview',

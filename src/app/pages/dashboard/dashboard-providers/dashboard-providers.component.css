@@ -3,7 +3,7 @@
   width: 100%;
   overflow: hidden;
   isolation: isolate;
-  background: #0f1b33;
+  background: var(--theme-hero-mid);
 }
 
 /* BACKGROUND LAYER */
@@ -26,7 +26,7 @@
 .dp-ellipse {
   position: absolute;
   border-radius: 9999px;
-  background: #14274A;
+  background: rgb(var(--theme-secondary-100));
   transform: rotate(180deg);
   filter: blur(70px);
   opacity: 0.95;
@@ -78,7 +78,7 @@
   min-height: 240px;
   border-radius: 8px;
   overflow: hidden;
-  background: #111827;
+  background: var(--theme-default-text);
   border: 0.75px solid rgba(255, 255, 255, 0.07);
   box-shadow: 0 22px 60px rgba(0, 0, 0, 0.45);
   isolation: isolate;
@@ -86,7 +86,7 @@
 }
 
 .dp-feature-card:hover {
-  background: #18233B;
+  background: rgb(var(--theme-secondary-300));
   transform: translateY(-2px);
 }
 
@@ -115,7 +115,7 @@
   font-size: 30px;
   font-weight: 700;
   line-height: 36px;
-  color: #FFFFFF;
+  color: var(--theme-primary-text);
   display: flex;
   align-items: flex-end;
 }
@@ -175,7 +175,7 @@
 .dp-howcard {
   border-radius: 8px;
   background: rgba(17, 24, 39, 0.5);
-  border: 1px solid #111827;
+  border: 1px solid var(--theme-default-text);
   box-shadow: 0 26px 70px rgba(0, 0, 0, 0.45);
   min-height: 504px;
 }
@@ -196,7 +196,7 @@
   font-weight: 700;
   font-size: 36px;
   line-height: 43px;
-  color: #FFFFFF;
+  color: var(--theme-primary-text);
 }
 
 .dp-steps {
@@ -220,7 +220,7 @@
   font-weight: 700;
   font-size: 24px;
   line-height: 29px;
-  color: #06B6D4;
+  color: rgb(var(--theme-primary-50));
   flex: none;
 }
 
@@ -237,7 +237,7 @@
   font-weight: 600;
   font-size: 20px;
   line-height: 24px;
-  color: #FFFFFF;
+  color: var(--theme-primary-text);
 }
 
 .dp-step__desc {
@@ -245,7 +245,7 @@
   font-weight: 400;
   font-size: 18px;
   line-height: 28px;
-  color: #BCBFC7;
+  color: var(--theme-text-muted);
 }
 
 .dp-howcard__cta {
@@ -255,14 +255,14 @@
   padding: 12px 16px;
   gap: 8px;
   height: 40px;
-  background: #2D58A7;
+  background: rgb(var(--theme-primary-100));
   border-radius: 6px;
   font-family: 'Blinker', sans-serif;
   font-weight: 600;
   font-size: 14px;
   line-height: 16px;
   letter-spacing: 0.5px;
-  color: #FFFFFF;
+  color: var(--theme-primary-text);
   text-decoration: none;
   transition: filter 200ms ease;
 }

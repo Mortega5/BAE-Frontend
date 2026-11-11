@@ -23,7 +23,7 @@
   opacity: 0.5;
   pointer-events: none;
   user-select: none;
-  background-color: #dde6f6;
+  background-color: rgb(var(--theme-secondary-50));
   mask-image: url("/assets/logos/DOME_Icon_White.svg");
   -webkit-mask-image: url("/assets/logos/DOME_Icon_White.svg");
   mask-repeat: no-repeat;
@@ -47,7 +47,7 @@
 .scroll-card {
   width: 548px;
   max-width: 100%;
-  background: #ebf0f7;
+  background: var(--theme-surface-muted);
   border-radius: 16px;
   padding: 24px;
   box-sizing: border-box;
@@ -60,7 +60,7 @@
 }
 
 .scroll-card.is-active {
-  background: #ebf0f7;
+  background: var(--theme-surface-muted);
 }
 
 @media (max-width: 1279px) {

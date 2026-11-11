@@ -1,58 +1,50 @@
-<div class="bg-secondary-50 dark:bg-secondary-200 flex min-h-full flex-col">
-  <section class="w-full bg-secondary-50">
-    <div class="mx-auto flex w-full max-w-[1440px] flex-col gap-6 px-6 py-10 sm:px-8 md:px-10 md:py-12 lg:px-16 xl:px-[160px]">
-      <div class="flex flex-row items-start justify-between gap-4">
-        <h1 class="text-[clamp(2.75rem,2.1rem+2.1vw,3.75rem)] font-extrabold leading-[0.95] tracking-[0.02em] text-secondary-200 dark:text-white">
-          {{ 'FAQ._title' | translate }}
-        </h1>
+<div class="mx-auto w-full max-w-screen-xl flex-1 flex flex-col px-4 pb-16 sm:px-8">
+  <div class="flex items-start justify-between gap-4 py-6">
+    <h1 class="text-3xl font-extrabold text-content">{{ 'FAQ._title' | translate }}</h1>
 
-        <app-button *ngIf="checkAdmin" type="button" data-cy="newFaqEntry" (click)="goToCreate()" prefixIcon="plus">
-          {{ 'FAQ._add_faq' | translate }}
-        </app-button>
-      </div>
-    </div>
-  </section>
+    @if (checkAdmin) {
+    <app-button type="button" data-cy="newFaqEntry" (click)="goToCreate()" prefixIcon="plus">
+      {{ 'FAQ._add_faq' | translate }}
+    </app-button>
+    }
+  </div>
 
-  <div class="flex-1 mx-auto w-full max-w-[1440px] px-6 pb-16 pt-8 sm:px-8 md:px-10 lg:px-16 xl:px-[160px]">
-    <div class="mx-auto flex w-full max-w-[1120px] flex-col gap-4 lg:gap-6">
-      <article *ngFor="let faq of faqs" class="faq-card" [class.faq-card--open]="isOpen(getEntryId(faq))">
-        <div class="flex items-start gap-3">
-          <button type="button" class="faq-question" (click)="toggleFaq(getEntryId(faq))" [attr.aria-expanded]="isOpen(getEntryId(faq))">
-            <span class="faq-question__title">{{ faq.title }}</span>
+  <div class="flex flex-col gap-4">
+    @for (faq of faqs; track getEntryId(faq)) {
+    <app-card [contentPadding]="isOpen(getEntryId(faq))">
+      <div appCardHeader class="flex items-center gap-2">
+        <button type="button" class="min-w-0 flex-1 text-left" (click)="toggleFaq(getEntryId(faq))"
+          [attr.aria-expanded]="isOpen(getEntryId(faq))">
+          <span class="text-xl font-bold text-content break-words">{{ faq.title }}</span>
+        </button>
 
-            <span class="faq-icon" [class.faq-icon--open]="isOpen(getEntryId(faq))">
-              <svg *ngIf="!isOpen(getEntryId(faq))" class="h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14m-7 7V5"/>
-              </svg>
-              <svg *ngIf="isOpen(getEntryId(faq))" class="h-5 w-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14"/>
-              </svg>
-            </span>
-          </button>
-
-          <div *ngIf="canManageEntry()" class="flex shrink-0 items-center gap-2 pt-1">
-            <app-button type="button" (click)="goToUpdate(faq)" shape="pill" prefixIcon="pen-to-square" [title]="'FAQ._edit_faq' | translate">
-              <span class="sr-only">{{ 'FAQ._edit_faq' | translate }}</span>
-            </app-button>
-            <app-button type="button" (click)="openDeleteDialog(faq)" [disabled]="isDeletingEntry(faq)"
-                    variant="danger" prefixIcon="trash" [title]="'FAQ._delete_faq' | translate">
-              <span class="sr-only">{{ 'FAQ._delete_faq' | translate }}</span>
-            </app-button>
-          </div>
+        @if (canManageEntry()) {
+        <div class="flex shrink-0 items-center">
+          <app-button type="button" (click)="goToUpdate(faq)" variant="ghost" size="sm" prefixIcon="pen-to-square"
+            [title]="'FAQ._edit_faq' | translate">
+            <span class="sr-only">{{ 'FAQ._edit_faq' | translate }}</span>
+          </app-button>
+          <app-button type="button" (click)="openDeleteDialog(faq)" [disabled]="isDeletingEntry(faq)" variant="ghost"
+            size="sm" prefixIcon="trash" [title]="'FAQ._delete_faq' | translate">
+            <span class="sr-only">{{ 'FAQ._delete_faq' | translate }}</span>
+          </app-button>
         </div>
+        }
 
-        <div class="faq-answer" [class.faq-answer--open]="isOpen(getEntryId(faq))">
-          <div class="faq-answer__inner">
-            <div class="faq-divider"></div>
-            <markdown class="faq-answer__content" [data]="faq.content"></markdown>
-          </div>
-        </div>
-      </article>
-
-      <div *ngIf="faqs.length === 0" class="rounded-lg border border-gray-300 bg-white p-8 text-center text-gray-600 dark:border-secondary-300 dark:bg-secondary-100 dark:text-secondary-50">
-        {{ 'FAQ._no_faqs' | translate }}
+        <!-- The question button above is the accessible toggle; the caret is just a second click target. -->
+        <button type="button" class="flex shrink-0 items-center p-2 text-content-muted" tabindex="-1" aria-hidden="true"
+          (click)="toggleFaq(getEntryId(faq))">
+          <fa-icon [icon]="faChevronDown" class="transition-transform" [class.rotate-180]="isOpen(getEntryId(faq))"></fa-icon>
+        </button>
       </div>
-    </div>
+
+      @if (isOpen(getEntryId(faq))) {
+      <markdown class="block text-content-secondary break-words" [data]="faq.content"></markdown>
+      }
+    </app-card>
+    } @empty {
+    <app-empty-state [icon]="faCircleQuestion" heading="FAQ._no_faqs" />
+    }
   </div>
 </div>
 

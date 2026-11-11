@@ -32,10 +32,6 @@ describe('EntryFormComponent', () => {
       deleteBlogEntry: jasmine.createSpy('deleteBlogEntry').and.resolveTo({ ok: true })
     } as any;
 
-    const attachmentService = {
-      uploadFile: jasmine.createSpy('uploadFile').and.returnValue(of({ content: 'https://cdn/image.png' }))
-    } as any;
-
     const notificationService = {
       showSuccess: jasmine.createSpy('showSuccess'),
       showError: jasmine.createSpy('showError'),
@@ -52,7 +48,6 @@ describe('EntryFormComponent', () => {
       router,
       localStorageService,
       domeBlogService,
-      attachmentService,
       notificationService,
       translateService
     );
@@ -73,7 +68,7 @@ describe('EntryFormComponent', () => {
 
   it('should parse tags as deduped normalized array', () => {
     const { component } = buildComponent();
-    component.entryForm.controls['tags'].setValue('AI,  growth  marketing, ai, , Product   Updates ');
+    component.entryForm.controls['tags'].setValue(['AI', '  growth  marketing', 'ai', '', 'Product   Updates ']);
 
     expect(component.parseTagsFromForm()).toEqual(['AI', 'growth marketing', 'Product Updates']);
   });
@@ -98,8 +93,10 @@ describe('EntryFormComponent', () => {
 
     expect(domeBlogService.getBlogEntryById).toHaveBeenCalledWith('entry-1');
     expect(component.entryForm.controls['slug'].value).toBe('post-title');
-    expect(component.entryForm.controls['featuredImage'].value).toBe('https://cdn/cover.png');
-    expect(component.entryForm.controls['tags'].value).toBe('one, two');
+    expect(component.entryForm.controls['featuredImage'].value).toEqual({
+      name: 'cover.png', url: 'https://cdn/cover.png', attachmentType: 'image/*'
+    });
+    expect(component.entryForm.controls['tags'].value).toEqual(['one', 'two']);
   });
 
   it('should include tags and seo fields in create payload and fallback author from session info', async () => {
@@ -113,7 +110,7 @@ describe('EntryFormComponent', () => {
       featuredImage: 'https://cdn/cover.png',
       metaDescription: 'Meta',
       excerpt: 'Excerpt',
-      tags: 'AI, ai, Launches',
+      tags: ['AI', 'ai', 'Launches'],
       author: '',
       date: '',
       content: 'Body'
@@ -155,21 +152,21 @@ describe('EntryFormComponent', () => {
     expect(component.isSlugTaken()).toBeTrue();
   });
 
-  it('should block submit while featured image is uploading', () => {
+  it('should block submit while loading', () => {
     const { component } = buildComponent();
     component.entryForm.setValue({
       contentType: 'blog',
       title: 'My Entry',
       slug: 'my-entry',
-      featuredImage: '',
+      featuredImage: null,
       metaDescription: '',
       excerpt: '',
-      tags: '',
+      tags: [],
       author: '',
       date: '',
       content: 'Body'
     });
-    component.uploadingFeaturedImage = true;
+    component.loading = true;
 
     expect(component.canSubmit()).toBeFalse();
   });
@@ -181,10 +178,10 @@ describe('EntryFormComponent', () => {
       contentType: 'blog',
       title: 'Updated entry',
       slug: 'updated-entry',
-      featuredImage: '',
+      featuredImage: null,
       metaDescription: '',
       excerpt: '',
-      tags: 'one, two',
+      tags: ['one', 'two'],
       author: 'Manual Author',
       date: '2026-05-27T10:30',
       content: 'Updated body'
@@ -215,5 +212,31 @@ describe('EntryFormComponent', () => {
     expect(domeBlogService.deleteBlogEntry).toHaveBeenCalledWith('entry-9');
     expect(router.navigate).toHaveBeenCalledWith(['/blog']);
     expect(component.loading).toBeFalse();
+  });
+
+  it('should only offer the question, answer and type fields for a FAQ', async () => {
+    const { component } = buildComponent();
+    await component.ngOnInit();
+    expect(component.fields.map(f => f.name)).toContain('slug');
+
+    component.entryForm.controls['contentType'].setValue('faq');
+
+    expect(component.fields.map(f => f.name)).toEqual(['contentType', 'title', 'content']);
+  });
+
+  it('should flag a slug that is already used by the same content type', async () => {
+    const { component } = buildComponent({ entries: [{ _id: 'other', slug: 'taken', contentType: 'blog' }] });
+    await component.ngOnInit();
+    component.entryForm.controls['slug'].setValue('taken');
+
+    expect(component.entryForm.controls['slug'].hasError('slugTaken')).toBeTrue();
+  });
+
+  it('should only ask before leaving when the form has unsaved changes', () => {
+    const { component } = buildComponent();
+    expect(component.confirmLeave()).toBeTrue();
+
+    component.entryForm.controls['title'].markAsDirty();
+    expect(component.leaveNeedsConfirmation).toBeTrue();
   });
 });

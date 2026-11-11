@@ -46,7 +46,7 @@ export class CharacteristicValueSpecFormComponent {
       default:
         if (JSON_VALUE_TYPES.includes(this.valueType)) {
           return [
-            { type: 'code', name: 'value', label: 'CHAR_SPEC._value', language: 'json', required: valueRequired, readonly: ro, colSpan: 3, minHeight: '140px', lineNumbers: false, placeholder: '{"key": "value"}' }
+            { type: 'code', name: 'value', label: 'CHAR_SPEC._value', language: 'json', formatOnPaste: true, formatButton: true, required: valueRequired, readonly: ro, colSpan: 3, minHeight: '140px', lineNumbers: false, placeholder: '{"key": "value"}' }
           ];
         }
         return [];

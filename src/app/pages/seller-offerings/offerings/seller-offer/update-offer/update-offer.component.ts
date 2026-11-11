@@ -3,6 +3,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offerings.paths';
+import { OfferComponent } from 'src/app/shared/forms/offer/offer.component';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { currencies } from 'currencies.json';
 import { initFlowbite } from 'flowbite';
 import { lastValueFrom, Subject } from 'rxjs';
@@ -31,7 +33,7 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
   templateUrl: './update-offer.component.html',
   styleUrl: './update-offer.component.css'
 })
-export class UpdateOfferComponent implements OnInit, OnDestroy {
+export class UpdateOfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   offer: any;
   loading = false;
 
@@ -62,6 +64,7 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
 
   showPreview: boolean = false;
   previewProductOff: any = null;
+  previewSubmitMode: 'create' | 'update' | null = null;
   showEmoji: boolean = false;
   description: string = '';
   partyId: any = '';
@@ -205,6 +208,7 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
 
   private destroy$ = new Subject<void>();
 
+  @ViewChild(OfferComponent) private offerForm?: OfferComponent;
   @ViewChild('updatemetric') updatemetric!: ElementRef;
   @ViewChild('responsemetric') responsemetric!: ElementRef;
   @ViewChild('delaymetric') delaymetric!: ElementRef;
@@ -401,13 +405,31 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
     }
   }
 
+  confirmLeave(): boolean | Promise<boolean> {
+    return this.offerForm?.confirmLeave() ?? true;
+  }
+
   goBack() {
     this.router.navigate([SellerOfferingsPaths.offers.list()]);
   }
 
-  onPreviewRequested(productOff: any): void {
+  onPreviewRequested(productOff: any, submitMode: 'create' | 'update' | null = null): void {
     this.previewProductOff = productOff;
+    this.previewSubmitMode = submitMode;
   }
+
+  onPreviewSubmitted(action: 'draft' | 'publish' | 'update'): void {
+    this.closePreview();
+    if (action === 'draft') this.offerForm?.saveDraft();
+    else if (action === 'publish') this.offerForm?.publish();
+    else this.offerForm?.confirmUpdate();
+  }
+
+  closePreview(): void {
+    this.previewProductOff = null;
+    this.previewSubmitMode = null;
+  }
+
 
   setOfferStatus(status: any) {
     this.offerStatus = status;
@@ -1637,10 +1659,10 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
     if (index !== -1) {
       this.stepsElements.splice(index, 1);
       this.selectMenu(document.getElementById(step), 'text-primary-100 dark:text-primary-50')
-      this.unselectMenu(document.getElementById(step), 'text-gray-500')
+      this.unselectMenu(document.getElementById(step), 'text-content-muted')
       for (let i = 0; i < this.stepsElements.length; i++) {
         this.unselectMenu(document.getElementById(this.stepsElements[i]), 'text-primary-100 dark:text-primary-50')
-        this.selectMenu(document.getElementById(this.stepsElements[i]), 'text-gray-500')
+        this.selectMenu(document.getElementById(this.stepsElements[i]), 'text-content-muted')
       }
       this.stepsElements.push(step);
     }
@@ -1648,10 +1670,10 @@ export class UpdateOfferComponent implements OnInit, OnDestroy {
     if (index !== -1) {
       this.stepsCircles.splice(circleIndex, 1);
       this.selectMenu(document.getElementById(stepCircle), 'border-primary-100 dark:border-primary-50')
-      this.unselectMenu(document.getElementById(stepCircle), 'border-gray-400');
+      this.unselectMenu(document.getElementById(stepCircle), 'border-line-input');
       for (let i = 0; i < this.stepsCircles.length; i++) {
         this.unselectMenu(document.getElementById(this.stepsCircles[i]), 'border-primary-100 dark:border-primary-50')
-        this.selectMenu(document.getElementById(this.stepsCircles[i]), 'border-gray-400');
+        this.selectMenu(document.getElementById(this.stepsCircles[i]), 'border-line-input');
       }
       this.stepsCircles.push(stepCircle);
     }

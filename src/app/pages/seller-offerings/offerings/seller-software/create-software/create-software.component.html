@@ -7,7 +7,7 @@
   </div>
   <!-- End Breadcrumb -->
 
-  <h1 class="text-3xl font-extrabold text-gray-900 dark:text-white mb-6">{{ 'CREATE_SOFTWARE._new' | translate }}</h1>
+  <h1 class="text-3xl font-extrabold text-content mb-6">{{ 'CREATE_SOFTWARE._new' | translate }}</h1>
 
   <app-stepper [canAdvance]="canAdvance" submitLabel="CREATE_SOFTWARE._create"
     [submitDisabled]="!generalForm.valid || loading" (stepChanged)="onStepChanged($event)"

@@ -64,7 +64,7 @@ export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
       },
       {
         header: 'CREATE_SOFTWARE._values', getValue: (c: any) => this.displayValue(c),
-        cellClass: () => 'break-all text-gray-500 dark:text-gray-300',
+        cellClass: () => 'break-all text-content-muted',
       },
     ];
     if (!this.readonly) {

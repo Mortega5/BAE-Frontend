@@ -15,6 +15,7 @@ import {
   CreateProductSpecComponent
 } from 'src/app/pages/seller-offerings/offerings/seller-product-spec/create-product-spec/create-product-spec.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
+import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
 import { lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { ProductSpecServiceService } from "../../../../services/product-spec-service.service";
@@ -41,6 +42,7 @@ interface ProductSpec {
     PaginatedTableComponent,
     ButtonComponent,
     ModalComponent,
+    ConfirmModalComponent,
     CreateProductSpecComponent,
   ],
   providers: [
@@ -59,7 +61,10 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
   @Input() data: any;
   @Input() partyId: any;
   @Input() bundleChecked: boolean = false;
+  /** Price plans are built against the selected spec's characteristics, so switching specs asks before dropping them. */
+  @Input() hasPricePlans: boolean = false;
   @Output() formChange = new EventEmitter<FormChangeState>();
+  @Output() pricePlansCleared = new EventEmitter<void>();
 
   selectedProdSpecInternal: ProductSpec | null = null;
   private originalValue: ProductSpec | null = null;
@@ -68,6 +73,8 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
   isEditMode: boolean = false;
 
   showCreateProdSpecModal = false;
+  pendingProdSpec: ProductSpec | null = null;
+  showProdSpecChangeConfirm = false;
   @ViewChild('prodSpecsTable') private prodSpecsTable?: PaginatedTableComponent;
 
   protected readonly FormControl = FormControl;
@@ -124,6 +131,28 @@ export class ProdSpecComponent implements ControlValueAccessor, OnInit, OnDestro
   }
 
   onProdSpecChange(prod: ProductSpec | null): void {
+    const previous = this.selectedProdSpecInternal;
+    if (this.hasPricePlans && previous && prod?.id !== previous.id) {
+      this.pendingProdSpec = prod;
+      this.showProdSpecChangeConfirm = true;
+      // Keep the table showing the current spec until the change is confirmed.
+      if (this.prodSpecsTable) this.prodSpecsTable.selected = previous;
+      return;
+    }
+    this.applyProdSpec(prod);
+  }
+
+  onProdSpecChangeResolved(confirmed: boolean): void {
+    const pending = this.pendingProdSpec;
+    this.showProdSpecChangeConfirm = false;
+    this.pendingProdSpec = null;
+    if (!confirmed) return;
+    this.pricePlansCleared.emit();
+    this.applyProdSpec(pending);
+    if (this.prodSpecsTable) this.prodSpecsTable.selected = pending;
+  }
+
+  private applyProdSpec(prod: ProductSpec | null): void {
     this.selectedProdSpecInternal = prod;
     this.onChange(prod);
     this.onTouched();

@@ -1,6 +1,6 @@
 <app-card>
   <div appCardHeader>
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white">{{ 'ADMIN._analytics' | translate }}</h2>
+    <h2 class="text-2xl font-bold text-content">{{ 'ADMIN._analytics' | translate }}</h2>
   </div>
 
   @if(loading){
@@ -10,9 +10,9 @@
   } @else {
   <div appCardContent data-cy="adminAnalyticsConfig" class="flex flex-col gap-6">
     <div>
-      <label for="analytics-provided-json" class="font-bold text-sm dark:text-white">{{ 'ADMIN.ANALYTICS_CONFIG._provide_json' | translate }}</label>
+      <label for="analytics-provided-json" class="font-bold text-sm text-content">{{ 'ADMIN.ANALYTICS_CONFIG._provide_json' | translate }}</label>
       <textarea id="analytics-provided-json" data-cy="adminAnalyticsJson" [(ngModel)]="providedJson" [ngModelOptions]="{ standalone: true }" rows="10"
-        class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 font-mono"></textarea>
+        class="mt-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 font-mono"></textarea>
       <div class="flex gap-2 justify-end mt-2">
         <app-button data-cy="adminLoadAnalyticsJson" type="button" (click)="loadProvidedJsonIntoForm()" variant="secondary">
           {{ 'ADMIN._load_json' | translate }}
@@ -25,43 +25,43 @@
 
     <form class="flex flex-col gap-6" [formGroup]="analyticsForm">
       <section class="flex flex-col gap-4">
-        <div class="flex items-center justify-between gap-4 p-4 border border-gray-200 dark:border-secondary-200 rounded-lg bg-gray-50 dark:bg-secondary-300">
+        <div class="flex items-center justify-between gap-4 p-4 border border-line rounded-lg bg-surface-input">
           <div>
-            <p class="font-semibold text-gray-900 dark:text-white">{{ 'ADMIN.ANALYTICS_CONFIG._analytics_enabled' | translate }}</p>
-            <p class="text-sm text-gray-500 dark:text-gray-400">analyticsEnabled</p>
+            <p class="font-semibold text-content">{{ 'ADMIN.ANALYTICS_CONFIG._analytics_enabled' | translate }}</p>
+            <p class="text-sm text-content-muted">analyticsEnabled</p>
           </div>
           <label class="inline-flex items-center cursor-pointer">
             <input type="checkbox" formControlName="analyticsEnabled" class="sr-only peer">
-            <div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-primary-50 dark:peer-focus:ring-secondary-200 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-100"></div>
+            <div class="relative w-11 h-6 bg-skeleton rounded-full peer peer-focus:ring-4 peer-focus:ring-primary-50 dark:peer-focus:ring-secondary-200 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-line-input after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-line-input peer-checked:bg-primary-100"></div>
           </label>
         </div>
 
         <div>
-          <label for="analytics-url" class="font-semibold text-sm dark:text-white">{{ 'ADMIN.ANALYTICS_CONFIG._analytics_url' | translate }}</label>
+          <label for="analytics-url" class="font-semibold text-sm text-content">{{ 'ADMIN.ANALYTICS_CONFIG._analytics_url' | translate }}</label>
           <input id="analytics-url" formControlName="analytics" type="url"
-            class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+            class="mt-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
         </div>
       </section>
 
       <section formGroupName="analyticsDashboards" class="flex flex-col gap-4">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'ADMIN.ANALYTICS_CONFIG._dashboard_ids' | translate }}</h3>
+        <h3 class="text-lg font-bold text-content">{{ 'ADMIN.ANALYTICS_CONFIG._dashboard_ids' | translate }}</h3>
         <div class="grid gap-4 xl:grid-cols-3">
           @for(section of dashboardSections; track section.key){
           <div>
-            <label [for]="'dashboard-' + section.key" class="font-semibold text-sm dark:text-white">{{ section.labelKey | translate }}</label>
+            <label [for]="'dashboard-' + section.key" class="font-semibold text-sm text-content">{{ section.labelKey | translate }}</label>
             <input [id]="'dashboard-' + section.key" [formControlName]="section.key" type="text"
-              class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+              class="mt-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
           </div>
           }
         </div>
       </section>
 
       <section formGroupName="analyticsSuperset" class="flex flex-col gap-4">
-        <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ 'ADMIN.ANALYTICS_CONFIG._superset_guest_token' | translate }}</h3>
+        <h3 class="text-lg font-bold text-content">{{ 'ADMIN.ANALYTICS_CONFIG._superset_guest_token' | translate }}</h3>
         <div>
-          <label for="superset-guest-token-path" class="font-semibold text-sm dark:text-white">{{ 'ADMIN.ANALYTICS_CONFIG._guest_token_path' | translate }}</label>
+          <label for="superset-guest-token-path" class="font-semibold text-sm text-content">{{ 'ADMIN.ANALYTICS_CONFIG._guest_token_path' | translate }}</label>
           <input id="superset-guest-token-path" formControlName="guestTokenPath" type="text"
-            class="mt-1 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
+            class="mt-1 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5" />
         </div>
       </section>
     </form>

@@ -16,6 +16,8 @@ module.exports = {
         primary: {
           50: 'rgb(var(--theme-primary-50) / <alpha-value>)',   // Antes '#00add3'
           100: 'rgb(var(--theme-primary-100) / <alpha-value>)', // Antes '#2d58a7'
+          hover: 'var(--theme-primary-hover)',
+          active: 'var(--theme-primary-active)',
         },
         secondary: {
           50: 'rgb(var(--theme-secondary-50) / <alpha-value>)',  // Antes '#dde6f6'
@@ -25,16 +27,46 @@ module.exports = {
           400: 'rgb(var(--theme-secondary-400) / <alpha-value>)',
           500: 'rgb(var(--theme-secondary-500) / <alpha-value>)'
         },
+        hero: {
+          deep: 'var(--theme-hero-deep)',
+          mid: 'var(--theme-hero-mid)',
+        },
         tertiary: {
           50: 'rgb(var(--theme-tertiary-50) / <alpha-value>)', //BG color for dark theme
           100: 'rgb(var(--theme-tertiary-100) / <alpha-value>)' //BG color for dark theme
         },
-        // Puedes añadir más colores temáticos aquí si es necesario
-        // Ejemplo:
-        // 'accent': 'var(--theme-accent-color)',
-        // 'background': 'var(--theme-background-color)',
-        // 'text-default': 'var(--theme-text-color)',
-        // 'text-muted': 'var(--theme-text-muted-color)',
+        // Semantic roles backed by theme tokens in src/styles.css (light + dark). Use these
+        // instead of fixed palette colors (gray-*, red-*...) — see docs/theme-tokens.md.
+        // Full colors, not channels: opacity modifiers (/50) don't apply to them.
+        content: {
+          DEFAULT: 'var(--theme-default-text)',
+          secondary: 'var(--theme-text-secondary)',
+          muted: 'var(--theme-text-muted)',
+        },
+        surface: {
+          DEFAULT: 'var(--card-bg)',
+          input: 'var(--theme-input-bg)',
+          muted: 'var(--theme-surface-muted)',
+          inset: 'var(--card-inset-bg)',
+          selected: 'var(--card-selected-bg)',
+          hover: 'var(--dropdown-item-hover-bg)',
+        },
+        line: {
+          DEFAULT: 'var(--card-border)',
+          input: 'var(--theme-input-border)',
+        },
+        // Text/icons on primary-colored surfaces (filled chips, active steps, selected options).
+        'on-primary': 'var(--theme-primary-text)',
+        // Links and link-styled actions.
+        link: 'var(--button-link-text)',
+        page: 'var(--theme-page-bg)',
+        skeleton: 'var(--theme-skeleton)',
+        overlay: 'var(--theme-overlay)',
+        focus: 'var(--theme-focus-ring)',
+        danger: { DEFAULT: 'var(--theme-danger-text)', soft: 'var(--theme-danger-bg)', border: 'var(--theme-danger-border)' },
+        success: { DEFAULT: 'var(--theme-success-text)', soft: 'var(--theme-success-bg)', border: 'var(--theme-success-border)' },
+        warning: { DEFAULT: 'var(--theme-warning-text)', soft: 'var(--theme-warning-bg)', border: 'var(--theme-warning-border)' },
+        info: { DEFAULT: 'var(--theme-info-text)', soft: 'var(--theme-info-bg)', border: 'var(--theme-info-border)' },
       },
       transitionProperty: {
         width: "width"

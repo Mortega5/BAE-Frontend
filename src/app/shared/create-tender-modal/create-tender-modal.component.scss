@@ -1,6 +1,6 @@
 /* Rows inside the provider filter dropdowns (app-dropdown-panel only supplies the box). */
 .tender-filter-option {
-  @apply flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-gray-900 dark:text-white;
+  @apply flex w-full items-center gap-3 px-4 py-2 text-left text-sm text-content;
 
   &:hover {
     background-color: var(--dropdown-item-hover-bg);

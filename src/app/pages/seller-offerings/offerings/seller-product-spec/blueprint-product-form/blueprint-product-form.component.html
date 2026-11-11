@@ -2,7 +2,7 @@
 
   <!-- Section: Orchestration Plan -->
   <div>
-    <h3 class="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+    <h3 class="text-xl font-semibold text-content mb-4">
       {{ 'BLUEPRINT_PROD._orchestration_plan' | translate }}
     </h3>
 
@@ -11,7 +11,7 @@
     <app-table-input [columns]="stepsTableColumns" [items]="orchestrationSteps" [selectable]="false"></app-table-input>
     } @else {
     <div
-      class="flex w-full items-center p-4 text-sm text-red-700 rounded-lg bg-red-50 dark:bg-secondary-200 dark:text-red-400"
+      class="flex w-full items-center p-4 text-sm text-danger rounded-lg bg-danger-soft dark:bg-secondary-200"
       role="alert">
       <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
         fill="currentColor" viewBox="0 0 20 20">
@@ -24,12 +24,12 @@
 
     <!-- Toggle / Step form -->
     @if (showStepForm) {
-    <div class="bg-white dark:bg-secondary-300 border border-gray-200 dark:border-gray-700 rounded-lg p-4 mt-4">
+    <div class="bg-surface-input border border-line rounded-lg p-4 mt-4">
       <app-dynamic-form [fields]="stepFormFields" [formGroup]="stepForm" [columns]="6" />
 
       @if (cycleError) {
       <div
-        class="flex items-start gap-2 mt-3 p-3 text-sm text-red-700 bg-red-50 rounded-lg dark:bg-secondary-200 dark:text-red-400"
+        class="flex items-start gap-2 mt-3 p-3 text-sm text-danger bg-danger-soft rounded-lg dark:bg-secondary-200"
         role="alert">
         <svg class="w-4 h-4 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
           viewBox="0 0 20 20">
@@ -45,7 +45,7 @@
 
       @if (referenceError) {
       <div
-        class="flex items-start gap-2 mt-3 p-3 text-sm text-red-700 bg-red-50 rounded-lg dark:bg-secondary-200 dark:text-red-400"
+        class="flex items-start gap-2 mt-3 p-3 text-sm text-danger bg-danger-soft rounded-lg dark:bg-secondary-200"
         role="alert">
         <svg class="w-4 h-4 flex-shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
           viewBox="0 0 20 20">

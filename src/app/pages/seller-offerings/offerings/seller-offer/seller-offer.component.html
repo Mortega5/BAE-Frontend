@@ -1,8 +1,8 @@
 <app-card>
   <div appCardHeader class="flex w-full flex-cols items-center justify-between">
     <div>
-      <h2 class="text-2xl font-bold dark:text-white">{{ 'OFFERINGS._prod_offer' | translate }}</h2>
-      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ 'OFFERINGS._manage_offers_subtitle' | translate }}</p>
+      <h2 class="text-2xl font-bold text-content">{{ 'OFFERINGS._prod_offer' | translate }}</h2>
+      <p class="text-sm text-content-muted mt-1">{{ 'OFFERINGS._manage_offers_subtitle' | translate }}</p>
     </div>
 
     <app-button dataCy="newOffering" (click)="goToCreate()" prefixIcon="plus">

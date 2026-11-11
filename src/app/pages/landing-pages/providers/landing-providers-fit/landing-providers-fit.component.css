@@ -16,7 +16,7 @@
 
 .good-fit-title {
   margin: 0;
-  color: #0b1528;
+  color: var(--theme-default-text);
   font-size: 48px;
   font-weight: 700;
   line-height: 58px;
@@ -25,7 +25,7 @@
 
 .good-fit-description {
   margin: 24px 0 0;
-  color: #1f2937;
+  color: var(--theme-default-text);
   font-size: 20px;
   line-height: 1.6;
 }
@@ -43,7 +43,7 @@
 
 .good-fit-card {
   width: 100%;
-  background: #ebf0f7;
+  background: var(--theme-surface-muted);
   border-radius: 20px;
   padding: 28px 30px;
   box-sizing: border-box;
@@ -59,14 +59,14 @@
   width: 76px;
   height: 76px;
   border-radius: 18px;
-  background: #dfe7f5;
-  color: #2f58a7;
+  background: var(--theme-surface-muted);
+  color: rgb(var(--theme-primary-100));
   flex: 0 0 auto;
 }
 
 .good-fit-card__title {
   margin: 0;
-  color: #0b1528;
+  color: var(--theme-default-text);
   font-size: 24px;
   font-weight: 700;
   line-height: 1.2;
@@ -74,7 +74,7 @@
 
 .good-fit-card__desc {
   margin: 0;
-  color: #4a5a70;
+  color: var(--theme-text-secondary);
   font-size: 20px;
   line-height: 1.65;
 }
@@ -86,7 +86,7 @@
   width: 560px;
   height: 560px;
   opacity: 0.5;
-  background-color: #edf2f8;
+  background-color: var(--theme-surface-muted);
   mask-image: url("/assets/logos/DOME_Icon_White.svg");
   -webkit-mask-image: url("/assets/logos/DOME_Icon_White.svg");
   mask-repeat: no-repeat;

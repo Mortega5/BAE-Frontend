@@ -49,7 +49,7 @@ export class RequestValidationModalComponent implements OnChanges {
   @Output() closeModal = new EventEmitter<void>();
 
   /** Shared by both tables: a missing value reads "Not provided" in red instead of an empty cell. */
-  private static readonly MISSING_CELL = 'font-medium text-red-600 dark:text-red-400';
+  private static readonly MISSING_CELL = 'font-medium text-danger';
 
   readonly evidenceColumns: TableColumn<ValidationEvidenceRow>[] = [
     { header: 'REQUEST_VALIDATION._type', getValue: row => row.type, width: 'w-56' },

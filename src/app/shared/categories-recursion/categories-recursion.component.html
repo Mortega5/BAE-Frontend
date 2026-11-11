@@ -1,6 +1,6 @@
 
 
-<tr data-cy="adminParentCategoryRow" class="flex border-b hover:bg-gray-200 dark:border-gray-700 dark:bg-secondary-300 dark:hover:bg-secondary-200 w-full justify-between">
+<tr data-cy="adminParentCategoryRow" class="flex border-b hover:bg-surface-muted dark:border-line dark:bg-secondary-300 w-full justify-between">
     <td data-cy="adminParentCategoryName" class="flex px-6 py-4 w-3/5 text-wrap break-all">
         {{path}} / <b>{{child.name}}</b>
     </td>
@@ -8,7 +8,7 @@
         {{child.lastUpdate | date:'EEEE, dd/MM/yy, HH:mm'}} 
     </td> 
     <td class="flex px-6 py-4 w-fit justify-end">
-        <input id="select-checkbox" data-cy="adminParentCategoryCheckbox" [checked]="isCategorySelected(child)" type="checkbox" value="" (click)="addCategory(child)" class="flex w-4 h-4 justify-end text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+        <input id="select-checkbox" data-cy="adminParentCategoryCheckbox" [checked]="isCategorySelected(child)" type="checkbox" value="" (click)="addCategory(child)" class="flex w-4 h-4 justify-end text-info bg-surface-muted border-line-input rounded focus:ring-focus ring-offset-surface focus:ring-2">
     </td>
 </tr>
 

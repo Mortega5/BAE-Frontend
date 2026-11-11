@@ -234,25 +234,25 @@ export class CartCardComponent implements OnInit {
   //STEPS CSS EFFECTS:
   selectStep(step:string,stepCircle:string, stepText:string){
 
-    this.unselectTag(document.getElementById(step),'text-gray-400 after:border-gray-400');
-    this.selectTag(document.getElementById(step),'text-white after:border-primary-100');
+    this.unselectTag(document.getElementById(step),'text-content-muted after:border-line-input');
+    this.selectTag(document.getElementById(step),'text-on-primary after:border-primary-100');
 
-    this.unselectTag(document.getElementById(stepCircle),'bg-white dark:bg-secondary-100 border-2 border-gray-400');
+    this.unselectTag(document.getElementById(stepCircle),'bg-surface border-2 border-line-input');
     this.selectTag(document.getElementById(stepCircle),'bg-primary-100');
 
-    this.unselectTag(document.getElementById(stepText),'text-gray-400');
+    this.unselectTag(document.getElementById(stepText),'text-content-muted');
     this.selectTag(document.getElementById(stepText),'text-primary-100');
   }
 
   unselectStep(step:string,stepCircle:string, stepText:string){
 
-    this.selectTag(document.getElementById(step),'text-gray-400 after:border-gray-400');
-    this.unselectTag(document.getElementById(step),'text-white after:border-primary-100');
+    this.selectTag(document.getElementById(step),'text-content-muted after:border-line-input');
+    this.unselectTag(document.getElementById(step),'text-on-primary after:border-primary-100');
 
-    this.selectTag(document.getElementById(stepCircle),'bg-white dark:bg-secondary-100 border-2 border-gray-400');
+    this.selectTag(document.getElementById(stepCircle),'bg-surface border-2 border-line-input');
     this.unselectTag(document.getElementById(stepCircle),'bg-primary-100');
 
-    this.selectTag(document.getElementById(stepText),'text-gray-400');
+    this.selectTag(document.getElementById(stepText),'text-content-muted');
     this.unselectTag(document.getElementById(stepText),'text-primary-100');
   }
 

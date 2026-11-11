@@ -8,8 +8,8 @@
   <li data-cy="searchSubcategoryItem" class="flex items-center gap-3 cursor-pointer rounded-lg py-3 pl-4 pr-2 hover:bg-secondary-50/70 transition-colors"
     (click)="onClick(cat)">
     <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-md border-2" [ngClass]="isCheckedCategory(cat)
-            ? 'bg-primary-100 border-primary-100 text-white'
-            : 'border-[#C0C7D1] bg-white'">
+            ? 'bg-primary-100 border-primary-100 text-on-primary'
+            : 'border-line-input bg-surface-input'">
       @if (isCheckedCategory(cat)) {
       <svg class="h-3.5 w-3.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="3"
         stroke="currentColor">
@@ -17,7 +17,7 @@
       </svg>
       }
     </div>
-    <span class="text-[16px] text-[#4C5A6B]">{{ cat.name }}</span>
+    <span class="text-[16px] text-content-secondary">{{ cat.name }}</span>
   </li>
   }
 </ul>
@@ -60,7 +60,7 @@
   @if (category.children) {
   @if (category.children.length != 0) {
   <div [id]="'accordion-body-'+idx" class="hidden" [attr.aria-labelledby]="'accordion-heading-'+idx">
-    <div class="p-2 border border-gray-200 dark:border-gray-700 dark:bg-secondary-500">
+    <div class="p-2 border border-line dark:bg-secondary-500">
       <ul class="grid w-full gap-2">
         @for(child of category.children; track child.id) {
         <li>

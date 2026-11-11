@@ -230,10 +230,10 @@ export class ProductInvDetailComponent implements OnInit {
 
   priceTypeBadgeClass(priceType: string | undefined): string {
     switch (priceType) {
-      case 'recurring': return 'bg-green-100 text-green-600 border-green-400 dark:bg-secondary-200';
-      case 'usage': return 'bg-yellow-100 text-yellow-600 border-yellow-400 dark:bg-secondary-200';
-      case 'custom': return 'bg-purple-100 text-purple-600 border-purple-400 dark:bg-secondary-200';
-      default: return 'bg-blue-100 text-blue-600 border-blue-400 dark:bg-secondary-200';
+      case 'recurring': return 'bg-success-soft text-success border-success-border';
+      case 'usage': return 'bg-warning-soft text-warning border-warning-border';
+      case 'custom': return 'bg-surface-muted text-content-secondary border-line-input';
+      default: return 'bg-info-soft text-info border-info-border';
     }
   }
 

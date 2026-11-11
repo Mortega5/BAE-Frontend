@@ -1,5 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
-import { NgClass } from '@angular/common';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ModalComponent } from 'src/app/shared/modal/modal.component';
@@ -8,16 +7,19 @@ import { ModalComponent } from 'src/app/shared/modal/modal.component';
   selector: 'app-plan-subtype-modal',
   standalone: true,
   templateUrl: './plan-subtype-modal.component.html',
-  imports: [NgClass, TranslateModule, ButtonComponent, ModalComponent]
+  imports: [TranslateModule, ButtonComponent, ModalComponent]
 })
 export class PlanSubtypeModalComponent {
 
+  /** Standard plans price a configuration profile, so they need a product spec with configuration options. */
+  @Input() standardAvailable = true;
   @Output() select = new EventEmitter<'standard' | 'flex'>();
   @Output() closed = new EventEmitter<void>();
 
   selectedType: 'standard' | 'flex' | null = null;
 
   pick(type: 'standard' | 'flex'): void {
+    if (type === 'standard' && !this.standardAvailable) return;
     this.selectedType = type;
   }
 

@@ -1,0 +1,5 @@
+/* The button's own tokens inherit from the host, so overriding them here recolors the inner ghost button. */
+.format-button-ready {
+  --button-ghost-text: var(--code-editor-format-text);
+  --button-ghost-text-hover: var(--code-editor-format-text);
+}

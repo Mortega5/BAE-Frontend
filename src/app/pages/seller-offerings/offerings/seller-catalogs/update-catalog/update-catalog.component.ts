@@ -1,4 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
@@ -24,7 +26,10 @@ type Catalog_Update = components['schemas']['Catalog_Update'];
   templateUrl: './update-catalog.component.html',
   styleUrl: './update-catalog.component.css'
 })
-export class UpdateCatalogComponent implements OnInit, OnDestroy {
+export class UpdateCatalogComponent implements OnInit, OnDestroy, LeaveConfirmable {
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  /** Set once the catalogue is saved or deleted, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
 
   cat: any;
 
@@ -72,6 +77,7 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
           this.initPartyInfo();
           if (!belongsToParty(this.cat, this.partyId)) {
             this.notificationService.showInfo(this.translate.instant('UPDATE_CATALOG._wrong_org_notice'));
+            this.leaveAllowed = true;
             this.goBack();
           }
         }
@@ -126,6 +132,15 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
     }
   }
 
+  get leaveNeedsConfirmation(): boolean {
+    return !this.leaveAllowed && !!this.cat && this.generalForm.dirty;
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (!this.leaveNeedsConfirmation) return true;
+    return this.unsavedChangesModal?.confirm(() => this.updateCatalog()) ?? true;
+  }
+
   goBack() {
     this.router.navigate([SellerOfferingsPaths.catalogues.list()]);
   }
@@ -157,6 +172,7 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
       next: () => {
         this.loading = false;
         this.notificationService.showSuccess('UPDATE_CATALOG._update_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: error => {
@@ -189,6 +205,7 @@ export class UpdateCatalogComponent implements OnInit, OnDestroy {
       next: () => {
         this.loading = false;
         this.notificationService.showSuccess('UPDATE_CATALOG._delete_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: error => {

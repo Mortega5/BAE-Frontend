@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -14,6 +14,8 @@ import { belongsToParty } from 'src/app/shared/session-ownership.util';
 import { BadgeComponent, BadgeStatus, lifecycleStatusBadgeVariant, lifecycleStatusLabel } from 'src/app/shared/badge/badge.component';
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { ConfirmModalComponent } from 'src/app/shared/confirm-modal/confirm-modal.component';
+import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
+import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { NotFoundStateComponent } from 'src/app/shared/not-found-state/not-found-state.component';
 import { CharValueType } from 'src/app/shared/forms/characteristic-value-spec/characteristic-value-spec-form.component';
 import { CharacteristicItem, CharacteristicsEditorComponent } from 'src/app/shared/forms/characteristics-editor/characteristics-editor.component';
@@ -53,10 +55,11 @@ const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
     DynamicFormComponent,
     CharacteristicsEditorComponent,
     ConfirmModalComponent,
+    UnsavedChangesModalComponent,
   ],
   templateUrl: './service-spec-form.component.html',
 })
-export class ServiceSpecFormComponent implements OnInit, OnDestroy {
+export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirmable {
   /** True when embedded inside another flow (e.g. the product spec form's service picker)
    * instead of routed to as its own page — swaps navigating away for emitting `created`. */
   @Input() embedded = false;
@@ -92,6 +95,11 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
   allowedChars: CharValueType[] = ['string', 'number', 'range', 'object'];
 
   showPublishDraftModal = false;
+  @ViewChild(UnsavedChangesModalComponent) private unsavedChangesModal?: UnsavedChangesModalComponent;
+  /** Set once the spec is saved, so the navigation back to the list isn't asked about. */
+  private leaveAllowed = false;
+  /** Characteristics as loaded, to tell an edit apart from an untouched spec. */
+  private loadedCharsSnapshot = '[]';
   showDeleteConfirm = false;
   showPublishConfirm = false;
 
@@ -113,6 +121,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
           this.initPartyInfo();
           if (!belongsToParty(this.serv, this.partyId)) {
             this.notificationService.showInfo(this.translate.instant('UPDATE_SERV_SPEC._wrong_org_notice'));
+            this.leaveAllowed = true;
             this.goBack();
           }
         }
@@ -167,6 +176,34 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
     });
     this.prodChars = this.serv.specCharacteristic;
     this.characteristicItems = this.buildCharacteristicItems();
+    this.loadedCharsSnapshot = JSON.stringify(this.prodChars ?? []);
+  }
+
+  get leaveNeedsConfirmation(): boolean {
+    return !(this.embedded || this.leaveAllowed || !this.hasUnsavedChanges());
+  }
+
+  confirmLeave(): boolean | Promise<boolean> {
+    if (!this.leaveNeedsConfirmation) return true;
+    return this.unsavedChangesModal?.confirm(() => {
+      if (this.isUpdate) {
+        this.save();
+      } else {
+        this.setServiceData();
+        this.saveDraft();
+      }
+    }) ?? true;
+  }
+
+  hasUnsavedChanges(): boolean {
+    if (this.isUpdate) {
+      return this.generalForm.dirty || JSON.stringify(this.prodChars ?? []) !== this.loadedCharsSnapshot;
+    }
+    return this.generalForm.dirty || this.prodChars.length > 0;
+  }
+
+  get canSaveDraft(): boolean {
+    return !this.loading && this.generalForm.valid;
   }
 
   goBack(): void {
@@ -226,6 +263,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
         next: () => {
           this.loading = false;
           this.notificationService.showSuccess('CREATE_SERV_SPEC._update_success');
+          this.leaveAllowed = true;
           this.goBack();
         },
         error: e => this.handleError(e),
@@ -255,6 +293,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
         if (this.embedded) {
           this.created.emit(created);
         } else {
+          this.leaveAllowed = true;
           this.goBack();
         }
       },
@@ -298,6 +337,7 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy {
       next: () => {
         this.loading = false;
         this.notificationService.showSuccess('UPDATE_SERV_SPEC._delete_success');
+        this.leaveAllowed = true;
         this.goBack();
       },
       error: (error: any) => {

@@ -97,6 +97,7 @@ export class AdminComponent implements OnDestroy {
         items: [
           ...item('email', 'ADMIN._email'),
           ...item('analytics', 'ADMIN._analytics', 'adminAnalyticsSection'),
+          ...item('search', 'ADMIN._search', 'adminSearchSection'),
           ...item('searchFilters', 'ADMIN._searchFilters', 'adminSearchFiltersSection'),
           ...item('features', 'ADMIN._features', 'adminFeaturesSection'),
         ],

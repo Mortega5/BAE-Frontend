@@ -1,16 +1,16 @@
 <!--@if (treatmentControl) {
-  <label for="prod-name" class="font-bold text-lg dark:text-white">{{ 'CREATE_OFFER._treatment' | translate }}</label>
+  <label for="prod-name" class="font-bold text-lg text-content">{{ 'CREATE_OFFER._treatment' | translate }}</label>
   <input data-cy="treatment" id="prod-name" type="text" [formControl]="treatmentControl" maxLength="100"
-         class="mb-2 bg-gray-50 dark:bg-secondary-300 border border-gray-300 dark:border-secondary-200 dark:text-white text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"/>
+         class="mb-2 bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-focus focus:border-primary-100 block w-full p-2.5"/>
 }-->
 
 <div class="col-span-2 flex flex-col gap-5">
-  <label class="flex items-start gap-3 p-4 rounded-lg border border-gray-200 dark:border-secondary-200 cursor-pointer">
+  <label class="flex items-start gap-3 p-4 rounded-lg border border-line cursor-pointer">
     <input type="checkbox" id="dsp-compatible" [formControl]="dspCompatibleControl"
       class="mt-1 w-4 h-4 text-primary-100 focus:ring-primary-100 rounded"/>
     <span class="flex flex-col">
-      <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ 'CREATE_OFFER._dsp_contract_enabled' | translate }}</span>
-      <span class="text-xs text-gray-500 dark:text-gray-400">{{ 'CREATE_OFFER._dsp_contract_enabled_desc' | translate }}</span>
+      <span class="text-sm font-semibold text-content">{{ 'CREATE_OFFER._dsp_contract_enabled' | translate }}</span>
+      <span class="text-xs text-content-muted">{{ 'CREATE_OFFER._dsp_contract_enabled_desc' | translate }}</span>
     </span>
   </label>
   @if(dspCompatible) {

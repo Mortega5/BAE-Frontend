@@ -10,7 +10,7 @@
   z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  background: #f3f6ff;
+  background: var(--theme-surface-muted);
 }
 
 .browse-content {
@@ -81,7 +81,7 @@
 }
 
 .popular-card:hover {
-  border-color: #3d71cc;
+  border-color: rgb(var(--theme-primary-100));
   box-shadow: 0 6px 20px rgba(45, 88, 167, 0.12);
 }
 
@@ -123,14 +123,14 @@
   width: 44px;
   height: 44px;
   border-radius: 9999px;
-  background: #ffffff;
-  color: #0b1220;
+  background: var(--card-bg);
+  color: var(--theme-default-text);
   box-shadow: 0 4px 16px rgba(45, 88, 167, 0.2);
   transition: color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
 .popular-arrow:hover:not(:disabled) {
-  color: #1f4fbf;
+  color: rgb(var(--theme-primary-100));
   box-shadow: 0 4px 18px rgba(45, 88, 167, 0.32);
 }
 
@@ -151,16 +151,16 @@
   width: 10px;
   height: 10px;
   border-radius: 9999px;
-  background: #d8dade;
+  background: var(--card-border);
   transition: background 0.2s ease, width 0.2s ease;
 }
 
 .popular-dot:hover {
-  background: #b8babf;
+  background: var(--theme-skeleton);
 }
 
 .popular-dot-active {
-  background: #3d71cc;
+  background: rgb(var(--theme-primary-100));
   width: 28px;
 }
 

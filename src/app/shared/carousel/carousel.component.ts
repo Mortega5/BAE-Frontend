@@ -221,7 +221,7 @@ export class CarouselComponent<T> implements OnChanges {
   get leftButtonClass(): string {
     return this.arrowTheme === 'dark'
       ? 'absolute left-2 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-white/90 bg-transparent text-white transition hover:bg-white/10 disabled:opacity-40'
-      : 'absolute left-2 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-md transition disabled:opacity-40';
+      : 'absolute left-2 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-content shadow-md transition disabled:opacity-40';
   }
 
   /**
@@ -230,7 +230,7 @@ export class CarouselComponent<T> implements OnChanges {
   get rightButtonClass(): string {
     return this.arrowTheme === 'dark'
       ? 'absolute right-2 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-white/90 bg-transparent text-white transition hover:bg-white/10 disabled:opacity-40'
-      : 'absolute right-2 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-900 shadow-md transition disabled:opacity-40';
+      : 'absolute right-2 top-1/2 z-10 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full border border-line bg-surface text-content shadow-md transition disabled:opacity-40';
   }
 
   /**
@@ -245,13 +245,13 @@ export class CarouselComponent<T> implements OnChanges {
 
     if (this.dotsTheme === 'accent') {
       return active
-        ? 'bg-[#00ADD3]'
-        : 'bg-[#D1F7FF]';
+        ? 'bg-primary-50'
+        : 'bg-primary-50/20';
     }
 
     return active
-      ? 'bg-blue-700'
-      : 'bg-slate-300';
+      ? 'bg-primary-100'
+      : 'bg-skeleton';
   }
 
   /**

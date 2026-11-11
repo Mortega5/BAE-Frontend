@@ -13,17 +13,25 @@ export const pricePlanValidator: ValidatorFn = (form: AbstractControl): Validati
   return null; // Validation passes
 };
 
+/** Group-level: flags `nonUniqueName` on the group when its `name` control clashes. */
 export function uniqueNameValidatorFactory(getExistingNames: () => string[]): ValidatorFn {
+  const isUnique = uniqueValueValidatorFactory(getExistingNames);
   return (control: AbstractControl): ValidationErrors | null => {
     const nameControl = control.get('name');
-    if (!nameControl) return null;
+    return nameControl ? isUnique(nameControl) : null;
+  };
+}
 
-    const name = nameControl.value?.trim().toLowerCase();
-    if (!name) return null;
+/** Control-level: flags `nonUniqueName` on the control itself, so app-dynamic-form can show it
+ * through the field's `errorMessages`. Case- and surrounding-whitespace-insensitive. */
+export function uniqueValueValidatorFactory(getExistingValues: () => string[]): ValidatorFn {
+  return (control: AbstractControl): ValidationErrors | null => {
+    const value = control.value?.trim().toLowerCase();
+    if (!value) return null;
 
-    const existingNames = getExistingNames().map(n => n?.trim().toLowerCase());
+    const existingValues = getExistingValues().map(n => n?.trim().toLowerCase());
 
-    return existingNames.includes(name)
+    return existingValues.includes(value)
       ? { nonUniqueName: true }
       : null;
   };

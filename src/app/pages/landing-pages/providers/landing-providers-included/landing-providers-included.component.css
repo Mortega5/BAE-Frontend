@@ -3,13 +3,13 @@
 }
 
 .providers-included-section {
-  background: linear-gradient(180deg, #0e1e3c 0%, #14274a 50%, #0e1e3c 100%);
+  background: linear-gradient(180deg, var(--theme-hero-mid) 0%, rgb(var(--theme-secondary-100)) 50%, var(--theme-hero-mid) 100%);
 }
 
 .providers-included-glow {
   position: absolute;
   border-radius: 999999px;
-  background: #234481;
+  background: var(--theme-primary-hover);
   opacity: 0.25;
   filter: blur(120px);
   pointer-events: none;
@@ -36,6 +36,6 @@
   width: calc(100% - 18px);
   height: 2px;
   transform: translateX(-50%);
-  background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, #00add3 50%, rgba(0, 0, 0, 0) 100%);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgb(var(--theme-primary-50)) 50%, rgba(0, 0, 0, 0) 100%);
   opacity: 0.75;
 }

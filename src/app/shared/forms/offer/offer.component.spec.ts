@@ -253,22 +253,29 @@ describe('OfferComponent', () => {
       component.selectedRootCategory = { id: 'cat-root' };
     });
 
-    it('should open the publish draft modal in create mode', () => {
+    it('should ask for the preview before creating', () => {
       const createSpy = spyOn(component, 'createOffer');
+      const previewSpy = spyOn(component.submitPreviewRequested, 'emit');
 
       component.formType = 'create';
       component.submitForm();
 
-      expect(component.showPublishDraftModal).toBeTrue();
+      expect(previewSpy).toHaveBeenCalled();
       expect(createSpy).not.toHaveBeenCalled();
     });
 
-    it('should emit UpdateOffer and update the offer in update mode', () => {
+    it('should ask for the preview before updating, and update once confirmed', () => {
       const updateSpy = spyOn(component, 'updateOffer');
       const emitSpy = spyOn(eventMessage, 'emitUpdateOffer');
+      const previewSpy = spyOn(component.submitPreviewRequested, 'emit');
 
       component.formType = 'update';
       component.submitForm();
+
+      expect(previewSpy).toHaveBeenCalled();
+      expect(updateSpy).not.toHaveBeenCalled();
+
+      component.confirmUpdate();
 
       expect(emitSpy).toHaveBeenCalledWith(true);
       expect(updateSpy).toHaveBeenCalled();
@@ -279,10 +286,12 @@ describe('OfferComponent', () => {
       const emitSpy = spyOn(eventMessage, 'emitUpdateOffer');
 
       component.formType = 'update';
+      const previewSpy = spyOn(component.submitPreviewRequested, 'emit');
       component.selectedRootCategory = null;
       component.submitForm();
 
       expect(component.canSubmit).toBeFalse();
+      expect(previewSpy).not.toHaveBeenCalled();
       expect(emitSpy).not.toHaveBeenCalled();
       expect(updateSpy).not.toHaveBeenCalled();
     });
@@ -880,6 +889,57 @@ describe('OfferComponent', () => {
     });
   });
 
+  describe('onCatalogCreated', () => {
+    it('should add the new catalogue and reload the categories, since creating it also creates its category', () => {
+      const loadSpy = spyOn(component, 'loadCategories').and.resolveTo();
+      component.availableCatalogs = [];
+
+      component.onCatalogCreated({ id: 'cat-new', name: 'New catalogue' });
+
+      expect(component.availableCatalogs.map(c => c.label)).toEqual(['New catalogue']);
+      expect(loadSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('price plan bundle kind', () => {
+    it('should create a custom plan without components as a plain price', () => {
+      const price = (component as any).createBundledPricePlan({ name: 'Negotiated', priceType: 'custom' }, []);
+
+      expect(price.isBundle).toBeFalse();
+      expect(price.bundledPopRelationship).toBeUndefined();
+      expect(price.priceType).toBe('custom');
+    });
+
+    it('should create a plan with components as a bundle', () => {
+      const compRel = [{ id: 'pc-1', href: 'pc-1', name: 'monthly' }];
+      const price = (component as any).createBundledPricePlan({ name: 'Paid', priceType: 'custom' }, compRel);
+
+      expect(price.isBundle).toBeTrue();
+      expect(price.bundledPopRelationship).toEqual(compRel);
+    });
+
+    it('should keep a non-bundle plan as such when updating it', async () => {
+      const updateSpy = spyOn(api, 'updateOfferingPrice').and.returnValue(of({}));
+
+      await component.updatePricePlan({ id: 'plan-1', oldValue: { isBundle: false }, newValue: { name: 'Plan' } }, [], ['name']);
+
+      const sent = updateSpy.calls.mostRecent().args[0];
+      expect(sent.isBundle).toBeFalse();
+      expect(sent.bundledPopRelationship).toBeUndefined();
+    });
+
+    it('should keep sending the components of a bundle plan when updating it', async () => {
+      const updateSpy = spyOn(api, 'updateOfferingPrice').and.returnValue(of({}));
+      const compRel = [{ id: 'pc-1' }];
+
+      await component.updatePricePlan({ id: 'plan-1', oldValue: { isBundle: true }, newValue: { name: 'Plan' } }, compRel, ['name']);
+
+      const sent = updateSpy.calls.mostRecent().args[0];
+      expect(sent.isBundle).toBeTrue();
+      expect(sent.bundledPopRelationship).toEqual(compRel);
+    });
+  });
+
   describe('calculateDiscountDuration', () => {
     it('should compute the difference between two dates in the given unit', () => {
       const duration = component.calculateDiscountDuration(
@@ -959,6 +1019,70 @@ describe('OfferComponent', () => {
 
       const payload = updateSpy.calls.mostRecent().args[0];
       expect(payload.productOfferingTerm[0]).toEqual({ name: 'License', description: 'New terms' });
+    });
+
+    it('should update a lowercase license term instead of adding a second one', async () => {
+      component.offer = { ...baseOffer(), productOfferingTerm: [{ name: 'license', description: 'Old terms' }] };
+      eventMessage.emitSubformChange({
+        subformType: 'license', isDirty: true, dirtyFields: ['description'],
+        originalValue: { description: 'Old terms' }, currentValue: { description: 'New terms' }
+      });
+      const updateSpy = spyOn(api, 'updateProductOffering').and.returnValue(of({}));
+
+      await component.updateOffer();
+
+      const payload = updateSpy.calls.mostRecent().args[0];
+      const licenseTerms = payload.productOfferingTerm.filter((t: any) => t.name.toLowerCase() === 'license');
+      expect(licenseTerms).toEqual([{ name: 'license', description: 'New terms' }]);
+    });
+
+    it('should update a differently-cased procurement term instead of adding a second one', async () => {
+      component.offer = { ...baseOffer(), productOfferingTerm: [{ name: 'Procurement', description: 'manual' }] };
+      eventMessage.emitSubformChange({
+        subformType: 'procurement', isDirty: true, dirtyFields: ['id'],
+        originalValue: { id: 'manual' }, currentValue: { id: 'automatic' }
+      });
+      const updateSpy = spyOn(api, 'updateProductOffering').and.returnValue(of({}));
+
+      await component.updateOffer();
+
+      const payload = updateSpy.calls.mostRecent().args[0];
+      const procurementTerms = payload.productOfferingTerm.filter((t: any) => t.name.toLowerCase() === 'procurement');
+      expect(procurementTerms).toEqual([{ name: 'Procurement', description: 'automatic' }]);
+    });
+
+    it('should drop duplicated license and procurement terms already stored on the offer', async () => {
+      component.offer = {
+        ...baseOffer(),
+        productOfferingTerm: [
+          { name: 'License', description: 'Terms' },
+          { name: 'procurement', description: 'manual' },
+          { name: 'license', description: 'Duplicated terms' },
+          { name: 'Procurement', description: 'automatic' }
+        ]
+      };
+      const updateSpy = spyOn(api, 'updateProductOffering').and.returnValue(of({}));
+
+      await component.updateOffer();
+
+      const payload = updateSpy.calls.mostRecent().args[0];
+      expect(payload.productOfferingTerm).toEqual([
+        { name: 'License', description: 'Terms' },
+        { name: 'procurement', description: 'manual' }
+      ]);
+    });
+
+    it('should not mutate the loaded offer terms while building the payload', async () => {
+      component.offer = baseOffer();
+      eventMessage.emitSubformChange({
+        subformType: 'license', isDirty: true, dirtyFields: ['description'],
+        originalValue: { description: 'Old terms' }, currentValue: { description: 'New terms' }
+      });
+      spyOn(api, 'updateProductOffering').and.returnValue(of({}));
+
+      await component.updateOffer();
+
+      expect(component.offer.productOfferingTerm).toEqual([{ name: 'License', description: 'Old terms' }]);
     });
 
     it('should add a terms-file term when a new T&C document is uploaded', async () => {

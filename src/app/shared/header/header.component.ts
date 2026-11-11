@@ -134,6 +134,12 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
 
   currentTheme: ThemeConfig | null = null;
   headerLinks: NavLink[] = [];
+
+  /** A theme with many links (DOME has five) doesn't fit the desktop layout below xl, so it
+   * switches to the burger menu one breakpoint later than a short nav like BAE's. */
+  get longNav(): boolean {
+    return this.headerLinks.length > 3;
+  }
   themeAuthUrls?: ThemeAuthUrlsConfig;
   /** Dev-only: lets a developer try out every registered provider theme without
    * changing environment config. Never shown in production. */

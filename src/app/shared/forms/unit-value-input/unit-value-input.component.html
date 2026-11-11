@@ -3,10 +3,10 @@
   <div class="flex gap-2 flex-wrap">
     <input type="number" [(ngModel)]="inputValue" [placeholder]="valuePlaceholder | translate"
       (keyup.enter)="add()"
-      class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-sm rounded-lg p-2.5 flex-1 min-w-24" />
+      class="bg-surface-input border border-line-input text-content text-sm rounded-lg p-2.5 flex-1 min-w-24" />
     <input type="text" [(ngModel)]="inputUnit" [placeholder]="unitPlaceholder | translate"
       (keyup.enter)="add()"
-      class="bg-[var(--theme-input-bg)] border border-[var(--theme-input-border)] dark:text-white text-sm rounded-lg p-2.5 w-28" />
+      class="bg-surface-input border border-line-input text-content text-sm rounded-lg p-2.5 w-28" />
     <app-button type="button" (click)="add()" [disabled]="!canAdd" size="sm" class="whitespace-nowrap">
       {{ addLabel | translate }}
     </app-button>
@@ -16,11 +16,11 @@
   <div class="flex flex-wrap gap-2">
     @for (entry of entries; track entry; let i = $index) {
     <span
-      class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-blue-100 dark:bg-secondary-300 text-blue-800 dark:text-white">
+      class="inline-flex items-center gap-1 px-2 py-1 text-xs rounded-full bg-info-soft text-info">
       {{ entry.value }} ({{ entry.unit }})
       @if (!isReadonly) {
       <button type="button" (click)="remove(i)"
-        class="ml-1 text-blue-500 dark:text-gray-300 hover:text-red-500">✕</button>
+        class="ml-1 text-info hover:text-danger">✕</button>
       }
     </span>
     }
