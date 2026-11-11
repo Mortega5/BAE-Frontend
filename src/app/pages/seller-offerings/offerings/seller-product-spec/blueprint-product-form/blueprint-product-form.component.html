@@ -22,6 +22,14 @@
     </div>
     }
 
+    @if (schemaErrors.length > 0) {
+    <ul class="mt-4 p-3 text-sm text-danger bg-danger-soft rounded-lg list-disc list-inside" role="alert" data-cy="blueprintSchemaErrors">
+      @for (error of schemaErrors; track error.path + error.message) {
+      <li><span class="font-mono">{{ error.path || '/' }}</span>: {{ error.message }}</li>
+      }
+    </ul>
+    }
+
     <!-- Toggle / Step form -->
     @if (showStepForm) {
     <div class="bg-surface-input border border-line rounded-lg p-4 mt-4">

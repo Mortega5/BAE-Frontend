@@ -4,7 +4,7 @@ import { Completion, CompletionContext, CompletionResult } from '@codemirror/aut
 import { faCopy, faEdit, faTrash } from '@fortawesome/pro-solid-svg-icons';
 import { TranslateModule } from '@ngx-translate/core';
 import * as yaml from 'js-yaml';
-import { Subject } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { PageRequest, PageResult } from 'src/app/models/pagination.model';
 import { TableColumn } from 'src/app/models/table-column.model';
@@ -14,6 +14,8 @@ import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { yamlValidator } from 'src/app/validators/validators';
+import { LoadedSchema, SchemaRegistryService, SchemaValidationError } from 'src/app/shared/json-schema/schema-registry.service';
+import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { components } from '../../../../../models/product-catalog';
 
@@ -32,7 +34,7 @@ export interface OrchestrationStep {
   dependsOn: OrchestrationStep[];
   waitForHealthy: boolean;
   timeoutSeconds: number | string;
-  onFailure: 'abort' | 'nothing' | '';
+  onFailure: 'abort' | 'continue' | 'retry';
   /** Curated defaults for this component in this composition. The consumer may override them. */
   installedSoftwareTemplate?: { '@type': string; '@baseType': string; resourceCharacteristic: StepCharacteristic[] } | null;
   /** Locks. Applied after everything the consumer sets, and below the component provider's own
@@ -67,7 +69,12 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   @Input() blueprintId: string
   @Output() formChange = new EventEmitter<BlueprintProductFormValue>();
 
-  get isValid(): boolean { return this.orchestrationSteps.length > 0; }
+  get isValid(): boolean { return this.orchestrationSteps.length > 0 && this.schemaErrors.length === 0; }
+
+  /** Errors of the plan against the published Blueprint schema (`environment.BLUEPRINT_SCHEMA`). The
+   * DAG checks below (cycles, references) are not expressible in JSON Schema and stay hand-written. */
+  schemaErrors: SchemaValidationError[] = [];
+  private blueprintSchema?: LoadedSchema;
 
   partyId = '';
   // Every product spec ever seen (initial config + fetched pages), so ids can be resolved to
@@ -168,6 +175,7 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
   constructor(
     private prodSpecService: ProductSpecServiceService,
     private localStorage: LocalStorageService,
+    private schemaRegistry: SchemaRegistryService,
   ) { }
 
   ngOnInit(): void {
@@ -176,6 +184,16 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     if (this.blueprintConfig) {
       this.loadProdData();
     }
+    this.schemaRegistry.get(environment.BLUEPRINT_SCHEMA)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: loaded => {
+          this.blueprintSchema = loaded;
+          if (this.orchestrationSteps.length > 0) this.emitFormChange();
+        },
+        // The TMF API validates the Blueprint against this schema on write, so it stays enforced.
+        error: error => console.error('Could not load the Blueprint schema', error),
+      });
   }
 
   ngOnDestroy(): void {
@@ -479,11 +497,9 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
       .map(s => this.findSpec(s.componentProductSpec))
       .filter(Boolean);
 
-    this.formChange.emit({
-      selectedItems,
-      // Both value channels are optional: a step that curates nothing and locks nothing should not
-      // publish empty containers for them.
-      orchestrationSteps: this.orchestrationSteps.map(s => {
+    // Both value channels are optional: a step that curates nothing and locks nothing should not
+    // publish empty containers for them.
+    const orchestrationSteps = this.orchestrationSteps.map(s => {
         const { installedSoftwareTemplate, enforcedCharacteristic, ...rest } = s;
         return {
           ...rest,
@@ -491,7 +507,12 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
           ...(installedSoftwareTemplate ? { installedSoftwareTemplate } : {}),
           ...(enforcedCharacteristic ? { enforcedCharacteristic } : {}),
         };
-      }),
+      });
+    this.schemaErrors = this.blueprintSchema?.validate({ orchestrationPlan: { steps: orchestrationSteps } }) ?? [];
+
+    this.formChange.emit({
+      selectedItems,
+      orchestrationSteps,
       valid: this.isValid
     });
   }
