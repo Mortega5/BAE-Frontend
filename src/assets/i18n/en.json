@@ -3764,6 +3764,7 @@
   },
   "SCHEMA_FORM": {
     "_none": "—",
+    "_select_option": "Select an option",
     "_loading": "Loading the form…",
     "_load_error": "The form could not be loaded because its schema is unreachable:",
     "_retry": "Retry",

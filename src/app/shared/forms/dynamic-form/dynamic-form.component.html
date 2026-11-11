@@ -96,7 +96,8 @@
       [attr.data-cy]="field.dataCy ?? field.name"
       class="bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5">
       @for (opt of asSelectable(field).options; track opt.value) {
-      <option [value]="opt.value">{{ opt.label | translate }}</option>
+      <!-- On a required field the empty option is only the starting placeholder: shown while nothing is picked, left out of the list, and never selectable again. -->
+      <option [value]="opt.value" [disabled]="field.required && opt.value === ''" [hidden]="field.required && opt.value === ''">{{ opt.label | translate }}</option>
       }
     </select>
     }

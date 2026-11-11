@@ -3764,6 +3764,7 @@
   },
   "SCHEMA_FORM": {
     "_none": "—",
+    "_select_option": "Selecciona una opción",
     "_loading": "Cargando el formulario…",
     "_load_error": "No se ha podido cargar el formulario porque su esquema no está accesible:",
     "_retry": "Reintentar",
