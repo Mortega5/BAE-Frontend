@@ -70,6 +70,18 @@
         }
       </div>
     </ng-template>
+    } @else if (apiMode) {
+    <!-- API: where it is served from and its operations -->
+    <ng-template stepperStep="{{ 'SPEC_STEPS._apis' | translate }}" stepId="api">
+      <div class="flex flex-col gap-5">
+        <div>
+          <h2 class="text-2xl font-bold text-content">{{ 'API_ACCESS._step' | translate }}</h2>
+          <p class="text-sm text-content-muted mt-2">{{ 'API_ACCESS._step_desc' | translate }}</p>
+        </div>
+        <app-api-definition-fields [form]="apiForm" [operations]="apiOperations"
+          (operationsChange)="onApiOperationsChange($event)" />
+      </div>
+    </ng-template>
     } @else {
     <!-- Step 2: Characteristics -->
     <ng-template stepperStep="{{ 'SPEC_STEPS._configuration_options' | translate }}" stepId="characteristics">

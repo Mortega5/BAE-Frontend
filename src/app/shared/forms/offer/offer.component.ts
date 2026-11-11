@@ -1,4 +1,9 @@
 import { reveal } from 'src/app/shared/animations/reveal.animation';
+import { ApiDefinitionFieldsComponent } from 'src/app/pages/seller-offerings/offerings/seller-apis/api-definition-fields/api-definition-fields.component';
+import { ApiDefinition, ApiOperation } from 'src/app/models/api-access.model';
+import { ApiService, apiIdOf, isApiProduct, readApiDefinition } from 'src/app/services/api.service';
+import { apiConnectionForm } from 'src/app/pages/seller-offerings/offerings/seller-apis/api-fields';
+import { hasErrors, operationErrors } from 'src/app/pages/seller-offerings/offerings/seller-apis/api-validation';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
@@ -78,6 +83,7 @@ import { previewPricesFromPlans } from './offer-preview.util';
     DynamicFormComponent,
     DatasetUploadProgressComponent,
     DatasetFilePanelComponent,
+    ApiDefinitionFieldsComponent,
   ],
   templateUrl: './offer.component.html',
   styleUrl: './offer.component.css'
@@ -89,9 +95,73 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   @Input() partyId: any;
   /** Selling a dataset: the dataset and its product are made, from the name of the offer, right before the offer itself. */
   @Input() dataset = false;
+  /** Selling an API: the API and its product are made, from the name of the offer, right before the offer itself. */
+  @Input() apiOffer = false;
   @Output() previewRequested = new EventEmitter<any>();
   /** Submitting first shows the preview; the host calls publish()/saveDraft()/confirmUpdate() once it's confirmed there. */
   @Output() submitPreviewRequested = new EventEmitter<any>();
+
+  //API MODE: where the API is served from and which operations it has. Its name and the one of its product come from the offer's.
+  readonly apiForm: FormGroup = apiConnectionForm();
+  apiOperations: ApiOperation[] = [];
+  /** The product of the offer sells an API, so the product step is replaced by the API's definition (update). */
+  apiProduct = false;
+  /** The API as stored when the offer was loaded: what an edit is compared with, and the id of its service. */
+  private storedApi?: { id: string; definition: ApiDefinition };
+  /** The API and product made so far, kept so that saving again after a later request fails does not duplicate them. */
+  private createdApi: any = null;
+
+  get apiValid(): boolean {
+    return this.apiForm.valid && this.apiOperations.length > 0 && !hasErrors(operationErrors(this.apiOperations));
+  }
+
+  /** What the seller changed in the stored API: its address or its operations. */
+  get apiChanged(): boolean {
+    if (!this.storedApi) return false;
+    const { definition } = this.storedApi;
+    return (this.apiForm.value.url ?? '').trim() !== (definition.url ?? '')
+      || JSON.stringify(this.apiOperations.map(o => ({ ...o, description: o.description ?? '' })))
+        !== JSON.stringify(definition.operations.map(o => ({ ...o, description: o.description ?? '' })));
+  }
+
+  onApiOperationsChange(operations: ApiOperation[]): void {
+    this.apiOperations = operations;
+    this.apiForm.markAsDirty();
+  }
+
+  /** The API a product sells, when it sells one: the product of an API carries the `apiAccess` marker with its id. */
+  private async loadStoredApi(prodSpec: any): Promise<void> {
+    if (!isApiProduct(prodSpec)) return;
+    const id = apiIdOf(prodSpec) ?? prodSpec.serviceSpecification?.[0]?.id;
+    if (!id) return;
+    this.apiProduct = true;
+    try {
+      const definition = readApiDefinition(await this.apiAccess.get(id));
+      this.storedApi = { id, definition };
+      this.apiForm.patchValue({ url: definition.url ?? '' }, { emitEvent: false });
+      this.apiOperations = definition.operations;
+    } catch (error: any) {
+      this.notificationService.showError('API_ACCESS._load_error', { details: this.extractErrorDetail(error) });
+    }
+  }
+
+  /** The API is saved first and then the policy of its product, so what contract-management installs is what the seller left.
+   * Purchases already made keep the policy they were installed with. Resolves false, after telling the seller, when it fails. */
+  private async saveApi(): Promise<boolean> {
+    const { id, definition } = this.storedApi!;
+    const edited: ApiDefinition = { ...definition, url: (this.apiForm.value.url ?? '').trim(), operations: this.apiOperations };
+    try {
+      await lastValueFrom(this.apiAccess.update(id, edited));
+      await lastValueFrom(this.apiAccess.updateProductPolicy(this.selectedProdSpec.id, id, edited));
+      this.storedApi = { id, definition: edited };
+      return true;
+    } catch (error: any) {
+      console.error('There was an error while saving the API!', error);
+      this.loading = false;
+      this.notificationService.showError('API_ACCESS._save_error', { details: this.extractErrorDetail(error) });
+      return false;
+    }
+  }
 
   //DATASET MODE: what the seller says about the dataset. Its name and the one of its product come from the offer's, with a suffix.
   readonly datasetFields: FormField[] = [
@@ -280,7 +350,8 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     private datasetService: DatasetService,
     private prodSpecService: ProductSpecServiceService,
     private resSpecService: ResourceSpecServiceService,
-    private servSpecService: ServiceSpecServiceService) {
+    private servSpecService: ServiceSpecServiceService,
+    private apiAccess: ApiService) {
 
     this.productOfferForm = this.fb.group({
       generalInfo: this.fb.group({}),
@@ -362,7 +433,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   }
 
   get canSubmit(): boolean {
-    return this.isFormValid && this.hasRootCategory && (!this.dataset || this.datasetValid);
+    return this.isFormValid && this.hasRootCategory && (!this.dataset || this.datasetValid) && (!(this.apiOffer || this.apiProduct) || this.apiValid);
   }
 
   validateCurrentStep(): boolean {
@@ -373,6 +444,8 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
         return !!this.productOfferForm.get('prodSpec')?.value;
       case 'dataset':
         return this.datasetValid;
+      case 'api':
+        return this.apiValid;
       case 'category':
         return this.hasRootCategory;
       case 'license':
@@ -409,6 +482,11 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   }
 
   async ngOnInit() {
+    if (this.apiOffer) {
+      // The product does not exist yet: it is made when the offer is saved
+      this.productOfferForm.get('prodSpec')?.clearValidators();
+      this.productOfferForm.get('prodSpec')?.updateValueAndValidity();
+    }
     if (this.dataset) {
       // The product does not exist yet: it is made when the offer is saved
       this.productOfferForm.get('prodSpec')?.clearValidators();
@@ -653,6 +731,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
         this.selectedProdSpec = data;
       })
       await this.loadStoredDataset(this.selectedProdSpec);
+      await this.loadStoredApi(this.selectedProdSpec);
       this.productOfferForm.patchValue({
         prodSpec: this.selectedProdSpec || null // Cargar si existe, o dejar en null
       });
@@ -1254,10 +1333,43 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     }
   }
 
+  /** An API is sold in three requests: the API (its service specification), the product specification that points at it
+   * and carries its access policy, and then the offer. Each is kept once made, so saving again after a later one fails
+   * does not duplicate the earlier ones. Resolves false, after telling the seller, when one of the first two fails. */
+  private async createApiProduct(lifecycleStatus: 'Active' | 'Launched'): Promise<boolean> {
+    const general = this.productOfferForm.value.generalInfo;
+    const name = (general.name ?? '').trim();
+    const definition: ApiDefinition = {
+      name: `${name} API`,
+      description: general.description || '',
+      version: general.version,
+      url: (this.apiForm.value.url ?? '').trim(),
+      operations: this.apiOperations,
+    };
+    let step: 'api' | 'product' = 'api';
+    try {
+      if (!this.createdApi) {
+        this.createdApi = await lastValueFrom(this.apiAccess.create(definition, this.partyId, lifecycleStatus));
+      }
+      step = 'product';
+      if (!this.createdSpec) {
+        this.createdSpec = await lastValueFrom(this.apiAccess.createProduct(this.createdApi, definition, this.partyId, lifecycleStatus));
+      }
+      this.productOfferForm.patchValue({ prodSpec: { ...this.createdSpec, href: this.createdSpec.href ?? this.createdSpec.id } });
+      return true;
+    } catch (error: any) {
+      console.error('There was an error while making the API product!', error);
+      this.loading = false;
+      this.notificationService.showError(step === 'api' ? 'API_ACCESS._save_error' : 'CREATE_PROD_SPEC._save_error', { details: this.extractErrorDetail(error) });
+      return false;
+    }
+  }
+
   async createOffer(lifecycleStatus: 'Active' | 'Launched' = 'Active') {
     this.loading = true;
     if (this.dataset && !(await this.createDatasetProduct(lifecycleStatus))) return;
-    if (this.dataset && lifecycleStatus === 'Launched' && !(await this.publishDatasetSpecs(this.createdSpec))) return;
+    if (this.apiOffer && !(await this.createApiProduct(lifecycleStatus))) return;
+    if (this.dataset && lifecycleStatus === 'Launched' && !(await this.publishSoldSpecs(this.createdSpec))) return;
     const plans = this.productOfferForm.value.pricePlans;
 
     if (plans.length === 0) {
@@ -1400,7 +1512,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   }
 
   get leaveNeedsConfirmation(): boolean {
-    return !this.leaveAllowed && (this.productOfferForm.dirty || this.canReplace || (this.isUpdate && this.hasChanges));
+    return !this.leaveAllowed && (this.productOfferForm.dirty || this.canReplace || this.apiChanged || (this.isUpdate && this.hasChanges));
   }
 
   confirmLeave(): boolean | Promise<boolean> {
@@ -1415,7 +1527,8 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   /** Back to the section the offer is in: the one of datasets when it was opened from there, even to edit an existing offer. */
   goBack() {
     const inDatasets = this.dataset || (environment.DATASETS_ENABLED && this.route.snapshot.data['dataset'] === true);
-    this.router.navigate([inDatasets ? SellerOfferingsPaths.datasets.list() : SellerOfferingsPaths.offers.list()]);
+    const inApis = this.apiOffer || (environment.API_ACCESS_ENABLED && this.route.snapshot.data['api'] === true);
+    this.router.navigate([inDatasets ? SellerOfferingsPaths.datasets.list() : inApis ? SellerOfferingsPaths.apis.list() : SellerOfferingsPaths.offers.list()]);
   }
 
   statusBadgeVariant(status: string): BadgeStatus {
@@ -1462,13 +1575,20 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   /** A published offer of a dataset needs what it sells to be published too: the dataset itself (a resource specification for a
    * file, a service specification for an address) and the product specification that points at it. Resolves false, after
    * telling the seller, when one fails. */
-  private async publishDatasetSpecs(prodSpec: any): Promise<boolean> {
+  private async publishSoldSpecs(prodSpec: any): Promise<boolean> {
     if (!prodSpec) return true;
     const launched = { lifecycleStatus: 'Launched' };
     try {
+      // Only what is not launched yet: the proxy makes the resource of a dataset file already launched and refuses to change its status
       await Promise.all([
-        ...(prodSpec.resourceSpecification ?? []).map((ref: any) => lastValueFrom(this.resSpecService.updateResSpec(launched, ref.id))),
-        ...(prodSpec.serviceSpecification ?? []).map((ref: any) => lastValueFrom(this.servSpecService.updateServSpec(launched, ref.id))),
+        ...(prodSpec.resourceSpecification ?? []).map(async (ref: any) => {
+          const spec = await this.resSpecService.getResSpecById(ref.id);
+          if (spec?.lifecycleStatus !== 'Launched') await lastValueFrom(this.resSpecService.updateResSpec(launched, ref.id));
+        }),
+        ...(prodSpec.serviceSpecification ?? []).map(async (ref: any) => {
+          const spec = await this.servSpecService.getServSpecById(ref.id);
+          if (spec?.lifecycleStatus !== 'Launched') await lastValueFrom(this.servSpecService.updateServSpec(launched, ref.id));
+        }),
       ]);
       if (prodSpec.lifecycleStatus !== 'Launched') {
         await lastValueFrom(this.prodSpecService.updateProdSpec(launched, prodSpec.id));
@@ -1485,7 +1605,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
 
   private async publishOffer() {
     this.loading = true;
-    if (this.datasetProduct && !(await this.publishDatasetSpecs(this.selectedProdSpec))) return;
+    if ((this.datasetProduct || this.apiProduct) && !(await this.publishSoldSpecs(this.selectedProdSpec))) return;
     this.api.updateProductOffering({ lifecycleStatus: 'Launched' }, this.offer.id).subscribe({
       next: () => {
         this.loading = false;
@@ -1534,6 +1654,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   async updateOffer() {
     this.loading = true;
     if (this.canReplace && !(await this.replaceDatasetFile())) return;
+    if (this.apiChanged && !(await this.saveApi())) return;
     console.log('🔄 Starting offer update process...');
     console.log('📝 Current form changes:', this.formChanges);
 
@@ -1543,7 +1664,8 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
       description: this.offer.description,
       lifecycleStatus: this.offer.lifecycleStatus,
       version: this.offer.version,
-      category: this.offer.category,
+      // Only the references: the TM Forum answers the whole category, and its extra fields are refused when sent back
+      category: (this.offer.category ?? []).map((cat: any) => ({ id: cat.id, href: cat.href ?? cat.id })),
       productOfferingPrice: this.offer.productOfferingPrice?.map((price: any) => {
         return { // WORKARROUND ISSUE WITH THE PRICE PLAN TO BE INCLUDED IN THE REF
           id: price.id,

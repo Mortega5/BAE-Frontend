@@ -96,6 +96,9 @@ export class SellerOfferingsComponent implements OnInit, OnDestroy {
           ...(environment.DATASETS_ENABLED
             ? [{ label: 'DATASETS._section', routerLink: segments.datasets, icon: 'database' as IconName, dataCy: 'datasetSection' }]
             : []),
+          ...(environment.API_ACCESS_ENABLED
+            ? [{ label: 'API_ACCESS._section', routerLink: segments.apis, icon: 'code' as IconName, dataCy: 'apiSection' }]
+            : []),
         ],
       },
       {

@@ -1,0 +1,17 @@
+<app-card>
+  <div appCardHeader class="flex w-full flex-cols items-center md:flex-row justify-between">
+    <div>
+      <h2 class="text-2xl font-bold text-content">{{ 'API_ACCESS._list_title' | translate }}</h2>
+      <p class="text-sm text-content-muted mt-1">{{ 'API_ACCESS._list_subtitle' | translate }}</p>
+    </div>
+
+    <app-button dataCy="createApi" (click)="goToCreate()" prefixIcon="plus">
+      <span class="hidden lg:inline">{{ 'API_ACCESS._add_api' | translate }}</span>
+      <span class="inline lg:hidden">{{ 'API_ACCESS._add_api_short' | translate }}</span>
+    </app-button>
+  </div>
+  <app-filtered-paginated-table data-cy="apiTable" [columns]="columns" [fetchPage]="fetchApis"
+    [filters]="filters" [filterColumns]="1" [clickable]="true" (rowClick)="goToUpdate($event.id)"
+    [defaultSort]="defaultSort">
+  </app-filtered-paginated-table>
+</app-card>

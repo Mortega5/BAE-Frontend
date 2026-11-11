@@ -117,14 +117,18 @@ export class SellerOfferComponent implements OnInit, OnDestroy {
     this.router.navigate([SellerOfferingsPaths.offers.new()])
   }
 
-  readonly datasetsEnabled = !!environment.DATASETS_ENABLED;
   readonly createActions: SplitButtonAction[] = [
-    { id: 'dataset', label: 'DATASETS._add_dataset', icon: 'database', dataCy: 'newDatasetOffering' },
+    ...(environment.DATASETS_ENABLED ? [{ id: 'dataset', label: 'DATASETS._add_dataset', icon: 'database' as const, dataCy: 'newDatasetOffering' }] : []),
+    ...(environment.API_ACCESS_ENABLED ? [{ id: 'api', label: 'API_ACCESS._add_api', icon: 'code' as const, dataCy: 'newApiOffering' }] : []),
   ];
+  /** The split button is only worth showing when there is another kind of offer to make. */
+  readonly hasCreateActions = this.createActions.length > 0;
 
   onCreateAction(id: string) {
     if (id === 'dataset') {
       this.router.navigate([SellerOfferingsPaths.datasets.new()]);
+    } else if (id === 'api') {
+      this.router.navigate([SellerOfferingsPaths.apis.new()]);
     }
   }
 

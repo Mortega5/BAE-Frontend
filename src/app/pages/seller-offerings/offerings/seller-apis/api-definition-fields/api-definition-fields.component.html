@@ -1,0 +1,8 @@
+<div class="flex flex-col gap-5" data-cy="apiDefinitionFields">
+  <app-dynamic-form class="block" [fields]="fields" [formGroup]="form" [columns]="2" />
+  <div>
+    <h3 class="mb-1 text-lg font-semibold text-content">{{ 'API_ACCESS._operations_title' | translate }}</h3>
+    <p class="mb-3 text-sm text-content-muted">{{ 'API_ACCESS._product_new_operations_desc' | translate }}</p>
+    <app-api-operations-editor [operations]="operations" (operationsChange)="operationsChange.emit($event)" />
+  </div>
+</div>

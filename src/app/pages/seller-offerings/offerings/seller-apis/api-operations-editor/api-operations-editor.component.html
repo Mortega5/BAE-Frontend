@@ -1,0 +1,48 @@
+<div class="flex flex-col gap-4" data-cy="apiOperationsEditor">
+  @for (row of rows; track row; let i = $index) {
+  <div class="rounded-lg border border-line" data-cy="apiOperationRow">
+    <div class="flex items-center gap-2 p-3">
+      <button type="button" data-cy="apiOperationToggle" (click)="toggle(row)"
+        class="flex min-w-0 flex-1 items-center gap-3 text-left" [attr.aria-expanded]="row.open"
+        [attr.aria-controls]="'api-operation-' + i">
+        <svg class="h-4 w-4 shrink-0 text-primary-100 dark:text-primary-50 transition-transform duration-300 ease-out"
+          [style.transform]="row.open ? 'rotateX(180deg)' : 'rotateX(0deg)'" aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 9-7 7-7-7" />
+        </svg>
+        <span class="shrink-0 font-medium text-content" data-cy="apiOperationSummaryId">{{ summary(row).id || ('API_ACCESS._new_operation' | translate) }}</span>
+        <span class="shrink-0 rounded bg-surface-muted px-1.5 py-0.5 text-xs uppercase text-content-secondary"
+          data-cy="apiOperationSummaryAction">{{ 'API_ACCESS._action_' + summary(row).action | translate }}</span>
+        <span class="min-w-0 truncate font-mono text-xs text-content-muted" data-cy="apiOperationSummaryPath">{{ summary(row).path }}</span>
+        @if (hasProblems(row)) {
+        <span class="shrink-0 text-xs text-danger" data-cy="apiOperationProblems">{{ 'API_ACCESS._operation_has_errors' | translate }}</span>
+        }
+      </button>
+      <app-button type="button" variant="ghost" size="sm" prefixIcon="xmark" dataCy="apiOperationRemove"
+        (click)="remove(i)">
+        <span class="sr-only">{{ 'API_ACCESS._remove_operation' | translate }}</span>
+      </app-button>
+    </div>
+    <div [id]="'api-operation-' + i" class="grid transition-[grid-template-rows] duration-300 ease-out"
+      [style.grid-template-rows]="row.open ? '1fr' : '0fr'" [class.invisible]="!row.open"
+      [attr.inert]="row.open ? null : ''">
+      <div class="overflow-hidden">
+        <div class="p-3 pt-0">
+          <app-dynamic-form class="block" [fields]="row.fields" [formGroup]="row.group" [columns]="3" />
+          @if (isUse(row)) {
+          <p class="mt-2 text-xs text-content-muted">{{ 'API_ACCESS._action_use_hint' | translate }}</p>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+  } @empty {
+  <p class="text-sm text-content-muted">{{ 'API_ACCESS._operations_empty' | translate }}</p>
+  }
+
+  <div>
+    <app-button type="button" variant="secondary" size="sm" prefixIcon="plus" dataCy="apiOperationAdd" (click)="add()">
+      {{ 'API_ACCESS._add_operation' | translate }}
+    </app-button>
+  </div>
+</div>

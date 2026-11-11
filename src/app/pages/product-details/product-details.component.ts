@@ -1,3 +1,5 @@
+import { ApiDefinition } from 'src/app/models/api-access.model';
+import { isApiSpec, readApiDefinition } from 'src/app/services/api.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { DATASET_URL_CHARACTERISTIC } from 'src/app/services/dataset.service';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, HostListener, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
@@ -1222,6 +1224,28 @@ export class ProductDetailsComponent implements OnInit, OnDestroy, AfterViewInit
     for (const service of this.serviceSpecs) {
       const url = this.datasetUrl(service);
       if (url) return url;
+    }
+    return null;
+  }
+
+  /** The API a service specification defines, when it is one. */
+  apiOf(service: any): ApiDefinition | null {
+    return isApiSpec(service) ? readApiDefinition(service) : null;
+  }
+
+  /** What the product sells that is served from an address of the seller: a dataset or an API, with the label to show. */
+  get soldAddress(): { label: string; url: string } | null {
+    const dataset = this.datasetAddress;
+    if (dataset) return { label: 'PRODUCT_DETAILS._dataset_address', url: dataset };
+    for (const service of this.serviceSpecs) {
+      const url = this.apiOf(service)?.url;
+      if (url) return { label: 'PRODUCT_DETAILS._api_address', url };
+    }
+    // A dataset that is a file: the proxy keeps where it is read from in the resource specification
+    for (const resource of this.resourceSpecs) {
+      const characteristic = (resource?.resourceSpecCharacteristic ?? []).find((c: any) => c?.name === 'fileUrl');
+      const url = characteristic?.resourceSpecCharacteristicValue?.[0]?.value;
+      if (typeof url === 'string' && /^https?:\/\//i.test(url)) return { label: 'PRODUCT_DETAILS._dataset_address', url };
     }
     return null;
   }

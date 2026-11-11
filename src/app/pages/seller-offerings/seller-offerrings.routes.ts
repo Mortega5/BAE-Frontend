@@ -8,6 +8,7 @@ import { CreateOfferComponent } from './offerings/seller-offer/create-offer/crea
 import { SellerOfferComponent } from './offerings/seller-offer/seller-offer.component';
 import { UpdateOfferComponent } from './offerings/seller-offer/update-offer/update-offer.component';
 import { SellerDatasetListComponent } from './offerings/seller-datasets/seller-dataset-list/seller-dataset-list.component';
+import { SellerApiListComponent } from './offerings/seller-apis/seller-api-list/seller-api-list.component';
 import { CreateProductSpecComponent } from './offerings/seller-product-spec/create-product-spec/create-product-spec.component';
 import { SellerProductSpecComponent } from './offerings/seller-product-spec/seller-product-spec.component';
 import { UpdateProductSpecComponent } from './offerings/seller-product-spec/update-product-spec/update-product-spec.component';
@@ -59,6 +60,14 @@ export const sellerOfferingsRoutes: Routes = [
       { path: segments.new, component: CreateOfferComponent, data: { dataset: true }, canDeactivate: [unsavedChangesGuard] },
       // The rows of the list are the offers of the datasets: one opens here, so its back button returns to the datasets
       { path: segments.id, component: UpdateOfferComponent, data: { dataset: true }, canDeactivate: [unsavedChangesGuard] },
+    ],
+  },
+  // An API is sold like a dataset served from an address: its offer is made with the API and its product.
+  {
+    path: segments.apis,
+    children: [
+      { path: '', component: SellerApiListComponent },
+      { path: segments.new, component: CreateOfferComponent, data: { api: true }, canDeactivate: [unsavedChangesGuard] },
     ],
   },
   {

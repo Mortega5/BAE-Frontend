@@ -11,6 +11,11 @@ import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { Dataset, DatasetService, DatasetVisibility, isDatasetServiceSpec } from 'src/app/services/dataset.service';
+import { ApiOperation } from 'src/app/models/api-access.model';
+import { buildApiCharacteristics, isApiSpec, readApiDefinition } from 'src/app/services/api.service';
+import { ApiDefinitionFieldsComponent } from '../../seller-apis/api-definition-fields/api-definition-fields.component';
+import { apiConnectionForm } from '../../seller-apis/api-fields';
+import { hasErrors, operationErrors } from '../../seller-apis/api-validation';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { DATASET_REPLACE_FIELDS, DATASET_URL_FIELD, DatasetFilePanelComponent, datasetReplacement, showStoredDataset } from '../../seller-datasets/dataset-file-panel/dataset-file-panel.component';
 import { DATASET_SOLD_VISIBILITY_FIELD, datasetVisibilityHint } from '../../seller-datasets/dataset-visibility';
@@ -39,22 +44,23 @@ type ServiceSpecificationCharacteristic = components['schemas']['CharacteristicS
 
 /** Not a TMF @type: it only switches the form to dataset mode (a dataset served by the seller is a service specification with the address of the data). */
 export const DATASET_TEMPLATE = 'dataset';
+/** Not a TMF @type either: it switches the form to API mode (an API is a service specification with its address and operations). */
+export const API_TEMPLATE = 'api';
 const SERVICE_TEMPLATE = '';
 
-const TEMPLATE_OPTIONS = [
-  { value: SERVICE_TEMPLATE, label: 'CREATE_SERV_SPEC._template_none' },
-  { value: DATASET_TEMPLATE, label: 'Dataset' },
-];
+const TEMPLATE_NONE = { value: SERVICE_TEMPLATE, label: 'CREATE_SERV_SPEC._template_none' };
+const TEMPLATE_DATASET = { value: DATASET_TEMPLATE, label: 'Dataset' };
+const TEMPLATE_API = { value: API_TEMPLATE, label: 'API' };
 
 const GENERAL_FORM_FIELDS_CREATE: FormField[] = [
   { type: 'string', name: 'name', label: 'CREATE_SERV_SPEC._name', required: true, maxLength: 100, dataCy: 'servSpecName', placeholder: 'CREATE_SERV_SPEC._name_placeholder' },
-  { type: 'select', name: 'baseTemplate', label: 'CREATE_SERV_SPEC._base_template', options: TEMPLATE_OPTIONS, dataCy: 'servSpecTemplate' },
+  { type: 'select', name: 'baseTemplate', label: 'CREATE_SERV_SPEC._base_template', options: [], dataCy: 'servSpecTemplate' },
   { type: 'markdownTextarea', name: 'description', label: 'CREATE_SERV_SPEC._description', placeholder: 'CREATE_SERV_SPEC._description_placeholder' },
 ];
 
 const GENERAL_FORM_FIELDS_UPDATE: FormField[] = [
   { type: 'string', name: 'name', label: 'UPDATE_SERV_SPEC._name', required: true, maxLength: 100, dataCy: 'servSpecName', placeholder: 'CREATE_SERV_SPEC._name_placeholder' },
-  { type: 'select', name: 'baseTemplate', label: 'CREATE_SERV_SPEC._base_template', options: TEMPLATE_OPTIONS, readonly: true, dataCy: 'servSpecTemplate' },
+  { type: 'select', name: 'baseTemplate', label: 'CREATE_SERV_SPEC._base_template', options: [], readonly: true, dataCy: 'servSpecTemplate' },
   { type: 'markdownTextarea', name: 'description', label: 'UPDATE_SERV_SPEC._description', placeholder: 'CREATE_SERV_SPEC._description_placeholder' },
 ];
 
@@ -74,6 +80,7 @@ const DATASET_FIELDS: FormField[] = [DATASET_SOLD_VISIBILITY_FIELD, DATASET_URL_
     DynamicFormComponent,
     CharacteristicsEditorComponent,
     DatasetFilePanelComponent,
+    ApiDefinitionFieldsComponent,
     ConfirmModalComponent,
     UnsavedChangesModalComponent,
   ],
@@ -95,17 +102,29 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
   get notFound(): boolean { return this.isUpdate && !this.loading && !this.serv; }
   get isDraft(): boolean { return this.serv?.lifecycleStatus === 'Active'; }
 
-  /** The template is not offered when embedded, nor when datasets are off: a product that is not a dataset one must not sell datasets. */
+  /** A dataset the seller serves from an address is made here, whether or not their organization has a contract management. */
+  private get datasetTemplateAvailable(): boolean {
+    return environment.DATASETS_ENABLED || this.datasetMode;
+  }
+
+  private get apiTemplateAvailable(): boolean {
+    return environment.API_ACCESS_ENABLED || this.apiMode;
+  }
+
+  /** The templates are not offered when embedded: a product that is not a dataset or API one must not sell them. */
   private get templateAvailable(): boolean {
-    return (environment.DATASETS_ENABLED && !this.embedded) || this.datasetMode;
+    return this.datasetTemplateAvailable || this.apiTemplateAvailable;
   }
 
   get generalFormFields(): FormField[] {
     const fields = this.isUpdate ? GENERAL_FORM_FIELDS_UPDATE : GENERAL_FORM_FIELDS_CREATE;
-    const key = `${this.isUpdate}|${this.templateAvailable}`;  // the template is only there when datasets are on
+    const available = !this.embedded && this.templateAvailable;
+    const key = `${this.isUpdate}|${available}|${this.datasetTemplateAvailable}|${this.apiTemplateAvailable}`;
     if (this.generalFieldsKey !== key) {
       this.generalFieldsKey = key;
-      this.generalFieldsCache = this.templateAvailable ? fields : fields.filter(field => field.name !== 'baseTemplate');
+      const options = [TEMPLATE_NONE, ...(this.datasetTemplateAvailable ? [TEMPLATE_DATASET] : []), ...(this.apiTemplateAvailable ? [TEMPLATE_API] : [])];
+      this.generalFieldsCache = (available ? fields : fields.filter(field => field.name !== 'baseTemplate'))
+        .map((field): FormField => field.name === 'baseTemplate' ? ({ ...field, options } as FormField) : field);
     }
     return this.generalFieldsCache;
   }
@@ -118,6 +137,30 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
   get datasetMode(): boolean {
     if (this.isUpdate) return isDatasetServiceSpec(this.serv);
     return environment.DATASETS_ENABLED && this.generalForm.value.baseTemplate === DATASET_TEMPLATE;
+  }
+
+  /** An API: chosen as the template on create, and fixed once it exists, so on update it is what the service specification is. */
+  get apiMode(): boolean {
+    if (this.isUpdate) return isApiSpec(this.serv);
+    return environment.API_ACCESS_ENABLED && !this.embedded && this.generalForm.value.baseTemplate === API_TEMPLATE;
+  }
+
+  //API mode: where the API is served from and its operations (the name and description are the general step's).
+  readonly apiForm: FormGroup = apiConnectionForm();
+  apiOperations: ApiOperation[] = [];
+  private loadedApiSnapshot = '';
+
+  get apiValid(): boolean {
+    return this.apiForm.valid && this.apiOperations.length > 0 && !hasErrors(operationErrors(this.apiOperations));
+  }
+
+  onApiOperationsChange(operations: ApiOperation[]): void {
+    this.apiOperations = operations;
+    this.apiForm.markAsDirty();
+  }
+
+  private get apiSnapshot(): string {
+    return JSON.stringify([(this.apiForm.value.url ?? '').trim(), this.apiOperations]);
   }
 
   //DATASET mode:
@@ -214,12 +257,13 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
   get canAdvance(): boolean {
     if (this.currentStepId === 'general') return this.generalForm?.valid ?? false;
     if (this.currentStepId === 'dataset' && !this.isUpdate) return this.datasetForm.valid;
+    if (this.currentStepId === 'api') return this.apiValid;
     return true;
   }
 
   /** What is needed to save: on create a dataset asks for its visibility and address, which are in a step of their own. */
   get submittable(): boolean {
-    return this.generalForm.valid && (!this.datasetMode || this.isUpdate || this.datasetForm.valid);
+    return this.generalForm.valid && (!this.datasetMode || this.isUpdate || this.datasetForm.valid) && (!this.apiMode || this.apiValid);
   }
 
   private initPartyInfo(): void {
@@ -241,7 +285,13 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
       lifecycleStatus: this.serv.lifecycleStatus,
       description: this.serv.description,
     });
-    this.generalForm.patchValue({ baseTemplate: this.datasetMode ? DATASET_TEMPLATE : SERVICE_TEMPLATE });
+    this.generalForm.patchValue({ baseTemplate: this.datasetMode ? DATASET_TEMPLATE : this.apiMode ? API_TEMPLATE : SERVICE_TEMPLATE });
+    if (this.apiMode) {
+      const definition = readApiDefinition(this.serv);
+      this.apiForm.patchValue({ url: definition.url ?? '' }, { emitEvent: false });
+      this.apiOperations = definition.operations;
+      this.loadedApiSnapshot = this.apiSnapshot;
+    }
     this.prodChars = this.serv.specCharacteristic;
     this.characteristicItems = this.buildCharacteristicItems();
     this.loadedCharsSnapshot = JSON.stringify(this.prodChars ?? []);
@@ -275,6 +325,9 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
   }
 
   hasUnsavedChanges(): boolean {
+    if (this.apiMode) {
+      return this.generalForm.dirty || (this.isUpdate ? this.apiSnapshot !== this.loadedApiSnapshot : this.apiForm.dirty);
+    }
     if (this.datasetMode) {
       return this.generalForm.dirty || (this.isUpdate ? !!this.urlReplacement : this.datasetForm.dirty);
     }
@@ -325,7 +378,9 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
       name: this.generalForm.value.name,
       description: this.generalForm.value.description ?? '',
       lifecycleStatus: this.generalForm.value.lifecycleStatus ?? 'Active',
-      specCharacteristic: this.prodChars,
+      // An API keeps its address and operations in the characteristics of its specification, and has a version to start with
+      specCharacteristic: this.apiMode ? buildApiCharacteristics({ name: '', version: '', url: (this.apiForm.value.url ?? '').trim(), operations: this.apiOperations }) : this.prodChars,
+      ...(this.apiMode && !this.isUpdate && { version: '1.0' }),
       ...(!this.isUpdate && {
         relatedParty: [{ id: this.partyId, role: environment.SELLER_ROLE, '@referredType': '' }],
       }),

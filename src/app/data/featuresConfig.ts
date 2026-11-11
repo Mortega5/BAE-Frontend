@@ -9,7 +9,8 @@ export type FeatureFlagKey =
   | 'catalogManagementEnabled'
   | 'launchValidationEnabled'
   | 'tenderDevButtonsOpenCloseEnabled'
-  | 'datasetsEnabled';
+  | 'datasetsEnabled'
+  | 'apiAccessEnabled';
 
 // Runtime-only flags come from the deployment, not from the admin toggles in FEATURE_FLAG_DEFINITIONS.
 // Whether datasets can be made from a file depends on a file service being deployed, which an admin toggle cannot guarantee.
@@ -68,6 +69,11 @@ export const FEATURE_FLAG_DEFINITIONS: FeatureFlagDefinition[] = [
     key: 'datasetsEnabled',
     labelKey: 'ADMIN.FEATURES._datasets_label',
     descriptionKey: 'ADMIN.FEATURES._datasets_description'
+  },
+  {
+    key: 'apiAccessEnabled',
+    labelKey: 'ADMIN.FEATURES._api_access_label',
+    descriptionKey: 'ADMIN.FEATURES._api_access_description'
   }
 ];
 
@@ -88,6 +94,7 @@ export function readFeaturesConfig(config: any): FeaturesConfig {
   result.searchEnabled = readBoolean(source, 'searchEnabled');
   result.datasetsEnabled = readBoolean(source, 'datasetsEnabled');
   result.datasetFilesEnabled = readBoolean(source, 'datasetFilesEnabled');
+  result.apiAccessEnabled = readBoolean(source, 'apiAccessEnabled');
   result.purchaseEnabled = readBoolean(source, 'purchaseEnabled');
   result.quotesEnabled = readBoolean(source, 'quotesEnabled');
   result.tenderingEnabled = readBoolean(source, 'tenderingEnabled');
@@ -111,6 +118,7 @@ export function applyRuntimeFeaturesConfig(config: any): void {
   environment.SEARCH_ENABLED = features.searchEnabled ?? environment.SEARCH_ENABLED;
   environment.DATASETS_ENABLED = features.datasetsEnabled ?? environment.DATASETS_ENABLED;
   environment.DATASET_FILES_ENABLED = features.datasetFilesEnabled ?? environment.DATASET_FILES_ENABLED;
+  environment.API_ACCESS_ENABLED = features.apiAccessEnabled ?? environment.API_ACCESS_ENABLED;
   environment.PURCHASE_ENABLED = features.purchaseEnabled ?? true;
   environment.QUOTES_ENABLED = features.quotesEnabled ?? false;
   environment.TENDER_ENABLED = features.tenderingEnabled ?? false;

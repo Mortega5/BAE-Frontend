@@ -47,6 +47,7 @@ import { CreateOfferComponent } from './pages/seller-offerings/offerings/seller-
 import { SellerOfferComponent } from './pages/seller-offerings/offerings/seller-offer/seller-offer.component';
 import { UpdateOfferComponent } from './pages/seller-offerings/offerings/seller-offer/update-offer/update-offer.component';
 import { BlueprintProductFormComponent } from './pages/seller-offerings/offerings/seller-product-spec/blueprint-product-form/blueprint-product-form.component';
+import { SellerApiListComponent } from './pages/seller-offerings/offerings/seller-apis/seller-api-list/seller-api-list.component';
 import { SellerDatasetListComponent } from './pages/seller-offerings/offerings/seller-datasets/seller-dataset-list/seller-dataset-list.component';
 import { SellerProductSpecComponent } from './pages/seller-offerings/offerings/seller-product-spec/seller-product-spec.component';
 import { CreateCustomOfferComponent } from './pages/seller-offerings/offerings/seller-offer/create-custom-offer/create-custom-offer.component';
@@ -147,6 +148,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     SellerCatalogsComponent,
     SellerProductSpecComponent,
     SellerDatasetListComponent,
+    SellerApiListComponent,
     SellerServiceSpecComponent,
     SellerResourceSpecComponent,
     SellerOfferComponent,

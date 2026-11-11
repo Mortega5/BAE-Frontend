@@ -269,7 +269,7 @@
           </div>
         </div>
         }
-        @if (datasetAddress; as url) {
+        @if (soldAddress; as sold) {
         <div class="flex items-center gap-4 md:col-span-2">
           <div
             class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full pd-chip">
@@ -280,13 +280,13 @@
             </svg>
           </div>
           <div class="min-w-0">
-            <span class="text-[14px] pd-muted-text block">{{ 'PRODUCT_DETAILS._dataset_address' | translate }}</span>
+            <span class="text-[14px] pd-muted-text block">{{ sold.label | translate }}</span>
             <div class="flex items-center gap-1">
-              <a [href]="url" target="_blank" rel="noopener noreferrer" data-cy="datasetAddress"
-                class="text-[16px] font-semibold break-all text-primary-100 dark:text-primary-50 hover:underline">{{ url }}</a>
+              <a [href]="sold.url" target="_blank" rel="noopener noreferrer" data-cy="soldAddress"
+                class="text-[16px] font-semibold break-all text-primary-100 dark:text-primary-50 hover:underline">{{ sold.url }}</a>
               <app-button type="button" variant="link" size="sm" prefixIcon="copy" class="shrink-0" dataCy="copyDatasetAddress"
                 [attr.aria-label]="'PRODUCT_DETAILS._copy_dataset_address' | translate"
-                [attr.title]="'PRODUCT_DETAILS._copy_dataset_address' | translate" (click)="copyDatasetAddress(url)" />
+                [attr.title]="'PRODUCT_DETAILS._copy_dataset_address' | translate" (click)="copyDatasetAddress(sold.url)" />
             </div>
           </div>
         </div>
@@ -437,6 +437,24 @@
           <span class="font-semibold text-secondary-100 dark:text-content">{{service.name}}</span>@if (service.description) {:
           <markdown class="text-[16px] pd-strong-text inline" [data]="service.description">
           </markdown>
+          }
+          @if (apiOf(service); as api) {
+          @if (api.operations.length > 0) {
+          <div class="mt-2">
+            <span class="text-[14px] pd-muted-text block mb-1">{{ 'PRODUCT_DETAILS._api_operations' | translate }}</span>
+            <ul class="flex flex-col gap-1" data-cy="apiOperations">
+              @for (operation of api.operations; track operation.id) {
+              <li class="flex items-baseline gap-2 text-[15px]">
+                <span class="shrink-0 rounded pd-chip px-1.5 py-0.5 text-xs uppercase text-primary-100 dark:text-primary-50">{{ 'API_ACCESS._action_' + operation.action | translate }}</span>
+                <span class="font-mono text-[14px] break-all pd-strong-text">{{ operation.path }}</span>
+                @if (operation.description) {
+                <span class="pd-body-text">{{ operation.description }}</span>
+                }
+              </li>
+              }
+            </ul>
+          </div>
+          }
           }
         </div>
         }
