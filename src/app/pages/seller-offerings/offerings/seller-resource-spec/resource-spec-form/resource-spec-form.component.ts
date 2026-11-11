@@ -14,7 +14,7 @@ import { DatasetUploadProgressComponent } from '../../seller-datasets/dataset-up
 import { DatasetUploadTracker } from '../../seller-datasets/dataset-upload-tracker';
 import { DATASET_VISIBILITY_FIELD, datasetVisibilityHint } from '../../seller-datasets/dataset-visibility';
 import { datasetVisibility } from '../../seller-datasets/dataset-table';
-import { Dataset, datasetFileField, datasetFormat, datasetSize, DatasetService, DatasetSource, DatasetVisibility } from 'src/app/services/dataset.service';
+import { Dataset, datasetFileField, datasetFormat, datasetSize, DatasetService, DatasetVisibility } from 'src/app/services/dataset.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { belongsToParty } from 'src/app/shared/session-ownership.util';
 import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/resource-spec-service.service';
@@ -134,13 +134,10 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
   private generalFieldsKey = '';
   private generalFieldsCache: FormField[] = [];
 
-  /** How the datasets of the seller are made: the ones that upload them (this form) are the ones without a contract management of
-   * their own, the others serve them from their DSP (in the service form). Null until the proxy says. */
-  datasetSource: DatasetSource | null = null;
-
-  /** The dataset template is not offered when embedded: a product that is not a dataset one must not sell datasets. */
+  /** The dataset template is not offered when embedded: a product that is not a dataset one must not sell datasets. A dataset made
+   * from a file needs the file service; the ones served by the seller are made in the service form. */
   private get templateOptions() {
-    return (environment.DATASETS_ENABLED && !this.embedded && this.datasetSource === 'file') || this.datasetMode
+    return (environment.DATASETS_ENABLED && environment.DATASET_FILES_ENABLED && !this.embedded) || this.datasetMode
       ? [...BASE_TEMPLATE_OPTIONS, { value: DATASET_TEMPLATE, label: 'Dataset' }]
       : BASE_TEMPLATE_OPTIONS;
   }
@@ -256,13 +253,6 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
         this.loadingRes = false;
       }
     } else {
-      if (environment.DATASETS_ENABLED && !this.embedded) {
-        this.datasetService.source().pipe(takeUntil(this.destroy$)).subscribe({
-          next: source => this.datasetSource = source,
-          // Without knowing it the template is not offered: nothing breaks for the rest of the resources
-          error: error => console.error('Could not know how the datasets are made', error),
-        });
-      }
       this.generalForm.get('baseTemplate')!.valueChanges
         .pipe(takeUntil(this.destroy$))
         .subscribe((value: string | null) => {

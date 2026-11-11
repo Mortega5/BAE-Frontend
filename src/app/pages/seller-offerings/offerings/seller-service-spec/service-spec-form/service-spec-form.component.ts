@@ -10,7 +10,7 @@ import { SellerOfferingsPaths } from 'src/app/pages/seller-offerings/seller-offe
 import { EventMessageService } from 'src/app/services/event-message.service';
 import { LocalStorageService } from 'src/app/services/local-storage.service';
 import { NotificationService } from 'src/app/services/notification.service';
-import { Dataset, DatasetService, DatasetSource, DatasetVisibility, isDatasetServiceSpec } from 'src/app/services/dataset.service';
+import { Dataset, DatasetService, DatasetVisibility, isDatasetServiceSpec } from 'src/app/services/dataset.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { DATASET_REPLACE_FIELDS, DATASET_URL_FIELD, DatasetFilePanelComponent, datasetReplacement, showStoredDataset } from '../../seller-datasets/dataset-file-panel/dataset-file-panel.component';
 import { DATASET_SOLD_VISIBILITY_FIELD, datasetVisibilityHint } from '../../seller-datasets/dataset-visibility';
@@ -97,16 +97,12 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
 
   /** The template is not offered when embedded, nor when datasets are off: a product that is not a dataset one must not sell datasets. */
   private get templateAvailable(): boolean {
-    return (environment.DATASETS_ENABLED && !this.embedded && this.datasetSource === 'url') || this.datasetMode;
+    return (environment.DATASETS_ENABLED && !this.embedded) || this.datasetMode;
   }
-
-  /** How the datasets of the seller are made: a dataset served by the seller (this form) is only for the ones that serve it from
-   * their own DSP, the others upload it (in the resource form). Null until the proxy says. */
-  datasetSource: DatasetSource | null = null;
 
   get generalFormFields(): FormField[] {
     const fields = this.isUpdate ? GENERAL_FORM_FIELDS_UPDATE : GENERAL_FORM_FIELDS_CREATE;
-    const key = `${this.isUpdate}|${this.templateAvailable}`;  // the template is only there for the sellers that serve their datasets
+    const key = `${this.isUpdate}|${this.templateAvailable}`;  // the template is only there when datasets are on
     if (this.generalFieldsKey !== key) {
       this.generalFieldsKey = key;
       this.generalFieldsCache = this.templateAvailable ? fields : fields.filter(field => field.name !== 'baseTemplate');
@@ -195,13 +191,6 @@ export class ServiceSpecFormComponent implements OnInit, OnDestroy, LeaveConfirm
   async ngOnInit(): Promise<void> {
     this.mode = this.route.snapshot.data['mode'] ?? 'create';
     this.initPartyInfo();
-    if (!this.isUpdate && environment.DATASETS_ENABLED && !this.embedded) {
-      this.datasetService.source().pipe(takeUntil(this.destroy$)).subscribe({
-        next: source => this.datasetSource = source,
-        // Without knowing it the template is not offered: nothing breaks for the rest of the services
-        error: error => console.error('Could not know how the datasets are made', error),
-      });
-    }
     if (this.isUpdate) {
       this.loading = true;
       const id = this.route.snapshot.paramMap.get('id')!;

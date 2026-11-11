@@ -20,6 +20,7 @@ describe('ResourceSpecFormComponent (dataset mode)', () => {
   let notificationSpy: jasmine.SpyObj<NotificationService>;
   let routerSpy: jasmine.SpyObj<Router>;
   let originalFlag: boolean;
+  let originalFilesFlag: boolean;
   let routeData: any;
   const csv = new File(['a,b'], 'madrid-consumption.2025.csv', { type: 'text/csv' });
   const flush = () => new Promise<void>(resolve => setTimeout(resolve));
@@ -48,15 +49,15 @@ describe('ResourceSpecFormComponent (dataset mode)', () => {
   beforeEach(() => {
     originalFlag = environment.DATASETS_ENABLED;
     environment.DATASETS_ENABLED = true;
-    datasetSpy = jasmine.createSpyObj<DatasetService>('DatasetService', ['create', 'get', 'replaceFile', 'remove', 'source']);
-    // The seller uploads its datasets: it has no contract management of its own
-    datasetSpy.source.and.returnValue(of('file'));
+    originalFilesFlag = environment.DATASET_FILES_ENABLED;
+    environment.DATASET_FILES_ENABLED = true;
+    datasetSpy = jasmine.createSpyObj<DatasetService>('DatasetService', ['create', 'get', 'replaceFile', 'remove']);
     resSpecSpy = jasmine.createSpyObj<ResourceSpecServiceService>('ResourceSpecServiceService', ['getResSpecById', 'updateResSpec', 'postResSpec', 'deleteResSpec']);
     notificationSpy = jasmine.createSpyObj<NotificationService>('NotificationService', ['showSuccess', 'showError', 'showInfo']);
     routerSpy = jasmine.createSpyObj<Router>('Router', ['navigate']);
   });
 
-  afterEach(() => { environment.DATASETS_ENABLED = originalFlag; });
+  afterEach(() => { environment.DATASETS_ENABLED = originalFlag; environment.DATASET_FILES_ENABLED = originalFilesFlag; });
 
   describe('create', () => {
     beforeEach(async () => {
@@ -76,10 +77,10 @@ describe('ResourceSpecFormComponent (dataset mode)', () => {
       expect(values()).not.toContain('dataset');
     });
 
-    it('does not offer the Dataset template to a seller that serves its datasets from its own DSP: it is made in the service form', () => {
+    it('does not offer the Dataset template when the marketplace has no file service: the datasets are made from a url, in the service form', () => {
       const values = () => (component.generalFormFields.find(f => f.name === 'baseTemplate') as any).options.map((o: any) => o.value);
       component.generalForm.patchValue({ baseTemplate: '' });
-      component.datasetSource = 'url';
+      environment.DATASET_FILES_ENABLED = false;
 
       expect(values()).not.toContain('dataset');
     });

@@ -1,13 +1,13 @@
 <div class="border-b border-line mb-2">
-  <ul role="tablist" class="flex flex-wrap -mb-px text-sm font-medium text-center">
+  <ul #strip role="tablist" class="relative flex flex-wrap -mb-px text-sm font-medium text-center">
     @for (tab of visibleTabs; track tab.tabId) {
     <li role="presentation" [ngClass]="fullWidth ? 'flex-1' : 'me-2'">
-      <button type="button" role="tab" [attr.aria-selected]="tab === currentTab" [attr.data-cy]="tab.dataCy"
+      <button #tabButton type="button" role="tab" [attr.aria-selected]="tab === currentTab" [attr.data-cy]="tab.dataCy"
         (click)="select(tab)" [class.w-full]="fullWidth"
-        class="inline-flex items-center justify-center p-4 border-b-2 rounded-t-lg"
+        class="inline-flex items-center justify-center p-4 border-b-2 border-transparent rounded-t-lg"
         [ngClass]="tab === currentTab
-          ? 'text-primary-100 border-primary-100 dark:text-primary-50 dark:border-primary-50'
-          : 'border-transparent text-content-muted hover:text-content-secondary hover:border-line-input'">
+          ? 'text-primary-100 dark:text-primary-50'
+          : 'text-content-muted hover:text-content-secondary hover:border-line-input'">
         @if (iconFor(tab); as icon) {
         <fa-icon [icon]="icon" class="me-2" />
         }
@@ -15,6 +15,9 @@
       </button>
     </li>
     }
+    <!-- Slides under the active tab; moved from the code, not bound, so it can animate between tabs -->
+    <span #indicator aria-hidden="true"
+      class="tabs-indicator absolute left-0 top-0 h-0.5 w-0 bg-primary-100 dark:bg-primary-50"></span>
   </ul>
 </div>
 

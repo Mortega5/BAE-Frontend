@@ -110,15 +110,14 @@
           <h2 class="text-2xl font-bold text-content">{{ 'CREATE_PROD_SPEC._datasets_step' | translate }}</h2>
           <p class="text-sm text-content-muted mt-2">{{ 'CREATE_PROD_SPEC._datasets_desc' | translate }}</p>
         </div>
-        @if (datasetSource) {
+        @if (filesEnabled) {
+        <app-dynamic-form class="block" [fields]="datasetSourceFields" [formGroup]="datasetSourceForm" />
+        }
         <app-dynamic-form class="block" [fields]="datasetFields" [formGroup]="datasetForm" />
         @if (urlSource) {
         <app-dynamic-form class="block" [fields]="datasetUrlFields" [formGroup]="datasetUrlForm" />
         } @else {
         <app-dynamic-form class="block" [fields]="datasetFileFields" [formGroup]="datasetFileForm" />
-        }
-        } @else {
-        <app-loading-spinner containerClass="w-full h-24 flex justify-center items-center" />
         }
         @if (customDatasetSelected) {
         <div>

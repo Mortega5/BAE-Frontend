@@ -109,6 +109,8 @@ export const environment = {
   TENDER_DEV_BUTTONS_OPEN_CLOSE_ENABLED: true,
   DSP_ENABLED: false,
   DATASETS_ENABLED: false,
+  // Whether a dataset can be made from a file: it needs a file service in the proxy. Without it, only from an address
+  DATASET_FILES_ENABLED: false,
   // Largest dataset file in bytes. The proxy sets it from /config (BAE_LP_FILE_SERVICE_MAX_SIZE_MB); this is the fallback
   DATASET_MAX_SIZE_BYTES: 100 * 1024 * 1024,
   DSP_CONTRACT_DEFINITION_SCHEMA: 'https://raw.githubusercontent.com/wistefan/edc-dsc/refs/heads/init/schemas/contract-definition.json',

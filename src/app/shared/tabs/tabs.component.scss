@@ -1,0 +1,14 @@
+.tabs-indicator {
+  // Hidden until the first position is set, so it does not slide in from the corner
+  opacity: 0;
+  will-change: transform, width;
+
+  &.is-placed {
+    opacity: 1;
+    transition: transform 250ms cubic-bezier(0.4, 0, 0.2, 1), width 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none !important;
+  }
+}

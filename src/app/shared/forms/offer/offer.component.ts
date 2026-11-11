@@ -12,7 +12,7 @@ import { searchCategoriesConfig } from 'src/app/data/availableFilters';
 import { FormField, SelectOption } from 'src/app/models/formFields/form-field.model';
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
-import { Dataset, DatasetSource, datasetReference, datasetReferenceIds, DatasetReplacement, DatasetService, DatasetVisibility } from 'src/app/services/dataset.service';
+import { Dataset, DATASET_SOURCE_FIELD, DatasetSource, datasetReference, datasetReferenceIds, DatasetReplacement, DatasetService, DatasetVisibility } from 'src/app/services/dataset.service';
 import { DATASET_SOLD_VISIBILITY_FIELD } from 'src/app/pages/seller-offerings/offerings/seller-datasets/dataset-visibility';
 import { DATASET_FILE_FIELD, DATASET_REPLACE_FIELDS, DATASET_URL_FIELD, DatasetFilePanelComponent, datasetReplacement, showStoredDataset } from 'src/app/pages/seller-offerings/offerings/seller-datasets/dataset-file-panel/dataset-file-panel.component';
 import { ProductSpecServiceService } from 'src/app/services/product-spec-service.service';
@@ -96,6 +96,8 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     DATASET_SOLD_VISIBILITY_FIELD,
   ];
   readonly datasetForm: FormGroup = buildFormGroup(this.datasetFields);
+  readonly datasetSourceFields: FormField[] = [DATASET_SOURCE_FIELD];
+  readonly datasetSourceForm: FormGroup = buildFormGroup(this.datasetSourceFields);
   readonly datasetFileFields: FormField[] = [DATASET_FILE_FIELD];
   readonly datasetFileForm: FormGroup = buildFormGroup(this.datasetFileFields);
   readonly datasetUrlFields: FormField[] = [DATASET_URL_FIELD];
@@ -187,15 +189,22 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     return this.customDatasetSelected ? checkDatasetPolicy(this.policyForm.value.policy).error : undefined;
   }
 
-  /** How the datasets of the seller are made, which the proxy says: null until it has. */
-  datasetSource: DatasetSource | null = null;
+  /** Whether the seller chooses how the dataset is made: it can be a file only when the marketplace has a file service. */
+  get filesEnabled(): boolean {
+    return !!environment.DATASET_FILES_ENABLED;
+  }
+
+  /** What the dataset is made from: the seller's choice when files are possible, otherwise the address where they serve it. */
+  get datasetSource(): DatasetSource {
+    return this.filesEnabled ? this.datasetSourceForm.value.source : 'url';
+  }
 
   get urlSource(): boolean {
     return this.datasetSource === 'url';
   }
 
   get datasetValid(): boolean {
-    return this.datasetSource !== null && this.datasetForm.valid && (this.urlSource ? this.datasetUrlForm.valid : this.datasetFileForm.valid) && !this.policyError;
+    return this.datasetForm.valid && (this.urlSource ? this.datasetUrlForm.valid : this.datasetFileForm.valid) && !this.policyError;
   }
 
   productOfferForm: FormGroup;
@@ -401,14 +410,6 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
       // The product does not exist yet: it is made when the offer is saved
       this.productOfferForm.get('prodSpec')?.clearValidators();
       this.productOfferForm.get('prodSpec')?.updateValueAndValidity();
-      // Whether the dataset is uploaded or given by its address is not the seller's choice
-      this.datasetService.source().pipe(takeUntil(this.destroy$)).subscribe({
-        next: source => this.datasetSource = source,
-        error: error => {
-          const { key, message } = DatasetService.toError(error);
-          this.notificationService.showError(key, { details: message });
-        },
-      });
     }
     if (this.formType === 'update' && this.offer) {
       this.loadingData = true;

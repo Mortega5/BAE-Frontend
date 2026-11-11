@@ -1,15 +1,22 @@
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { from, lastValueFrom, map, Observable, of } from 'rxjs';
+import { lastValueFrom, map, Observable } from 'rxjs';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { fetchAllPages } from 'src/app/models/pagination.model';
 import { environment } from 'src/environments/environment';
-import { AccountServiceService } from './account-service.service';
-import { LocalStorageService } from './local-storage.service';
 
-/** How the datasets of the seller are made, which is not their choice: a file the marketplace keeps, or the address where their
- * own DSP serves it. It follows whether the organization has a contract management of its own (see `DatasetService.source`). */
+/** How a dataset is made: a file the marketplace keeps (only when it has a file service), or the address where the seller serves it. */
 export type DatasetSource = 'file' | 'url';
+
+/** What a dataset is made from, to choose when the marketplace has a file service: without one it is always an address. */
+export const DATASET_SOURCE_FIELD: FormField = {
+  type: 'select', name: 'source', label: 'DATASETS._source', required: true, defaultValue: 'file', dataCy: 'datasetSource',
+  options: [
+    { value: 'file', label: 'DATASETS._source_file', subtitle: 'DATASETS._source_file_hint' },
+    { value: 'url', label: 'DATASETS._source_url', subtitle: 'DATASETS._source_url_hint' },
+  ],
+  searchable: true, showSearch: false,
+} as FormField;
 
 export type DatasetVisibility = 'private' | 'public' | 'custom';
 export const DATASET_VISIBILITIES: DatasetVisibility[] = ['private', 'public', 'custom'];
@@ -138,7 +145,7 @@ export class DatasetService {
 
   private readonly API = `${environment.BASE_URL}/dataset`;
 
-  constructor(private http: HttpClient, private account: AccountServiceService, private localStorage: LocalStorageService) { }
+  constructor(private http: HttpClient) { }
 
   list(offset = 0, limit = 20): Observable<Dataset[]> {
     return this.http.get<Dataset[]>(`${this.API}?offset=${offset}&limit=${limit}`);
@@ -150,24 +157,6 @@ export class DatasetService {
       const items = await lastValueFrom(this.list(offset, limit));
       return { items, total: items.length < limit ? offset + items.length : offset + items.length + 1 };
     });
-  }
-
-  /**
-   * How the datasets of the seller are made, from what the organization they act as has: an address for the contract
-   * management of its own means it serves its data (`url`), otherwise the marketplace keeps the file. Nothing is asked
-   * of the proxy. A seller acting as themselves, not as an organization, has none.
-   */
-  source(): Observable<DatasetSource> {
-    const partyId = this.organizationPartyId();
-    if (!partyId) return of('file');
-    return from(this.account.getOrgContractManagementAddress(partyId)).pipe(map(address => address ? 'url' : 'file'));
-  }
-
-  /** The party of the organization the seller is logged in as, if any. */
-  private organizationPartyId(): string | undefined {
-    const session = this.localStorage.getValidLoginInfo();
-    if (!session || session.logged_as == session.id) return undefined;
-    return session.organizations?.find((org: any) => org.id == session.logged_as)?.partyId;
   }
 
   get(id: string): Observable<Dataset> {

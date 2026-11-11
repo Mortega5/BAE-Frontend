@@ -48,3 +48,10 @@ for every tab.
 - `dataCy?`: `data-cy` on the tab button.
 
 The tab buttons are real `<button role="tab">` elements with `aria-selected`.
+
+## Animation
+
+A single indicator under the strip slides (250 ms) to the active tab instead of the border
+jumping from one to the other. It is positioned from the code after each view check and on
+resize, not bound in the template. It starts without a transition, so it does not slide in
+on first render, and `prefers-reduced-motion` turns the transition off.
