@@ -41,6 +41,8 @@
     "@ngx-translate/http-loader": "^8.0.0",
     "@superset-ui/embedded-sdk": "^0.4.0",
     "@types/tailwindcss": "^3.1.0",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^2.1.1",
     "codemirror": "^6.0.2",
     "currencies.json": "^1.0.2",
     "fast-average-color": "^9.4.0",

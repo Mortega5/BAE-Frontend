@@ -32,7 +32,9 @@
             "allowedCommonJsDependencies": [
               "moment",
               "currencies.json",
-              "@superset-ui/embedded-sdk"
+              "@superset-ui/embedded-sdk",
+              "ajv",
+              "ajv-formats"
             ]
           },
           "configurations": {
