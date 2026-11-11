@@ -87,6 +87,19 @@ describe('AppInitService runtime config', () => {
     expect(environment.DATASETS_ENABLED).toBeTrue();
   });
 
+  it('loads the dataset size limit from the runtime config', async () => {
+    environment.DATASET_MAX_SIZE_BYTES = 100 * 1024 * 1024;
+
+    const initPromise = service.init();
+
+    const req = httpMock.expectOne(`${environment.BASE_URL}/config`);
+    req.flush(buildConfig({ datasetMaxSizeBytes: 5 * 1024 * 1024 }));
+
+    await initPromise;
+
+    expect(environment.DATASET_MAX_SIZE_BYTES).toBe(5 * 1024 * 1024);
+  });
+
   it('keeps datasets disabled when the runtime config does not provide the flag', async () => {
     environment.DATASETS_ENABLED = false;
 

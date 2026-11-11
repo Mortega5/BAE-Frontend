@@ -14,7 +14,7 @@ import { DatasetUploadProgressComponent } from '../../seller-datasets/dataset-up
 import { DatasetUploadTracker } from '../../seller-datasets/dataset-upload-tracker';
 import { DATASET_VISIBILITY_FIELD, datasetVisibilityHint } from '../../seller-datasets/dataset-visibility';
 import { datasetVisibility } from '../../seller-datasets/dataset-table';
-import { Dataset, DATASET_ACCEPT_ATTR, DATASET_MAX_SIZE_BYTES, datasetFormat, datasetSize, DatasetService, DatasetSource, DatasetVisibility } from 'src/app/services/dataset.service';
+import { Dataset, datasetFileField, datasetFormat, datasetSize, DatasetService, DatasetSource, DatasetVisibility } from 'src/app/services/dataset.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { belongsToParty } from 'src/app/shared/session-ownership.util';
 import { ResourceSpecServiceService, ResourceSpecType } from 'src/app/services/resource-spec-service.service';
@@ -56,11 +56,11 @@ const DATASET_CATEGORY = 'dataset';
 
 const DATASET_CREATE_FIELDS: FormField[] = [
   DATASET_VISIBILITY_FIELD,
-  { type: 'attachment', name: 'file', label: 'DATASETS._file', required: true, deferUpload: true, accept: DATASET_ACCEPT_ATTR, maxFileSize: DATASET_MAX_SIZE_BYTES, hint: 'DATASETS._file_hint', dataCy: 'datasetFile' },
+  datasetFileField('datasetFile'),
 ];
 
 const DATASET_REPLACE_FIELDS: FormField[] = [
-  { type: 'attachment', name: 'file', label: 'DATASETS._file', required: true, deferUpload: true, accept: DATASET_ACCEPT_ATTR, maxFileSize: DATASET_MAX_SIZE_BYTES, hint: 'DATASETS._file_hint', dataCy: 'datasetReplaceFile' },
+  datasetFileField('datasetReplaceFile'),
 ];
 
 const GENERAL_FORM_FIELDS_CREATE: FormField[] = [

@@ -1,6 +1,7 @@
 import { HttpClient, HttpErrorResponse, HttpEvent, HttpResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { from, lastValueFrom, map, Observable, of } from 'rxjs';
+import { FormField } from 'src/app/models/formFields/form-field.model';
 import { fetchAllPages } from 'src/app/models/pagination.model';
 import { environment } from 'src/environments/environment';
 import { AccountServiceService } from './account-service.service';
@@ -74,7 +75,21 @@ export interface DatasetReplacement {
 
 export const DATASET_ACCEPTED_TYPES = ['text/csv', 'application/json'];
 export const DATASET_ACCEPT_ATTR = '.csv,.json,text/csv,application/json';
-export const DATASET_MAX_SIZE_BYTES = 100 * 1024 * 1024;
+
+/** The largest dataset file. It is configured in the proxy and arrives with /config, so it is read when used, never at load. */
+export function datasetMaxSizeBytes(): number {
+  return environment.DATASET_MAX_SIZE_BYTES;
+}
+
+/** The file field of a dataset form. The limit is read when the field is rendered, which is after /config has loaded. */
+export function datasetFileField(dataCy: string): FormField {
+  return {
+    type: 'attachment', name: 'file', label: 'DATASETS._file', required: true, deferUpload: true,
+    accept: DATASET_ACCEPT_ATTR, hint: 'DATASETS._file_hint', dataCy,
+    get maxFileSize() { return datasetMaxSizeBytes(); },
+    get hintParams() { return { size: `${Math.round(datasetMaxSizeBytes() / (1024 * 1024))} MB` }; },
+  };
+}
 
 /** CSV/JSON from the mime type, else from the file extension; '-' when neither is known. */
 export function datasetFormat(dataset: Dataset): string {

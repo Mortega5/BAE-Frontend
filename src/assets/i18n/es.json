@@ -3367,7 +3367,7 @@
     "_description": "Descripción",
     "_version": "Versión",
     "_file": "Archivo",
-    "_file_hint": "CSV o JSON, hasta 100 MB.",
+    "_file_hint": "CSV o JSON, hasta {{size}}.",
     "_visibility": "Visibilidad",
     "_visibility_private": "Solo compradores",
     "_visibility_public": "Público",

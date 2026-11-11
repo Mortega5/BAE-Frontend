@@ -17,6 +17,8 @@ interface BaseFormField {
   /** Translation key for a short line under the control explaining what the field does. Use it when
    * the label alone cannot carry the meaning — two adjacent editors whose difference is semantic, say. */
   hint?: string;
+  /** Interpolation values for `hint`, for a hint that mentions a value only known at runtime. */
+  hintParams?: Record<string, unknown>;
   /** Extra validators merged with the ones `buildFormGroup` derives automatically (e.g. required, code-language checks). */
   validators?: ValidatorFn[];
   /** Maps a validator error key (e.g. 'email', 'maxlength', or a custom key set via `setErrors`)

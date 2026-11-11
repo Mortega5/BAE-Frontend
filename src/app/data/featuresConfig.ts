@@ -95,6 +95,11 @@ export function readFeaturesConfig(config: any): FeaturesConfig {
 export function applyRuntimeFeaturesConfig(config: any): void {
   const features = readFeaturesConfig(config);
 
+  const maxSize = isRecord(config) ? config['datasetMaxSizeBytes'] : undefined;
+  if (typeof maxSize === 'number' && maxSize > 0) {
+    environment.DATASET_MAX_SIZE_BYTES = maxSize;
+  }
+
   environment.SEARCH_ENABLED = features.searchEnabled ?? environment.SEARCH_ENABLED;
   environment.DATASETS_ENABLED = features.datasetsEnabled ?? environment.DATASETS_ENABLED;
   environment.PURCHASE_ENABLED = features.purchaseEnabled ?? true;

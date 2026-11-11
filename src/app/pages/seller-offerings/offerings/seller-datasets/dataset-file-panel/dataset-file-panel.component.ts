@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { AbstractControl, FormGroup, ValidationErrors } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormField } from 'src/app/models/formFields/form-field.model';
-import { Dataset, DATASET_ACCEPT_ATTR, DATASET_MAX_SIZE_BYTES, datasetFormat, DatasetReplacement, datasetSize, DatasetVisibility, isExternalDataset } from 'src/app/services/dataset.service';
+import { Dataset, datasetFileField, datasetFormat, DatasetReplacement, datasetSize, DatasetVisibility, isExternalDataset } from 'src/app/services/dataset.service';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { datasetVisibility } from '../dataset-table';
 
@@ -20,10 +20,7 @@ export function httpUrlValidator(control: AbstractControl): ValidationErrors | n
 }
 
 /** The file of the dataset, only uploaded when the seller saves. */
-export const DATASET_FILE_FIELD: FormField = {
-  type: 'attachment', name: 'file', label: 'DATASETS._file', required: true, deferUpload: true,
-  accept: DATASET_ACCEPT_ATTR, maxFileSize: DATASET_MAX_SIZE_BYTES, hint: 'DATASETS._file_hint', dataCy: 'datasetFile'
-};
+export const DATASET_FILE_FIELD: FormField = datasetFileField('datasetFile');
 
 /** The address of the dataset, for one the seller serves from their own DSP. */
 export const DATASET_URL_FIELD: FormField = {
@@ -34,7 +31,7 @@ export const DATASET_URL_FIELD: FormField = {
 /** What can be replaced: the file of an uploaded dataset, or the address of one that is not. Both controls exist in the
  * form; the panel shows the one that applies to the dataset. */
 export const DATASET_REPLACE_FIELDS: FormField[] = [
-  { ...DATASET_FILE_FIELD, dataCy: 'datasetReplaceFile' },
+  datasetFileField('datasetReplaceFile'),
   { ...DATASET_URL_FIELD, dataCy: 'datasetReplaceUrl' },
 ];
 

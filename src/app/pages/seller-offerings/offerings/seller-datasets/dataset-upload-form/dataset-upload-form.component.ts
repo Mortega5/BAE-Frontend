@@ -2,7 +2,7 @@ import { Component, EventEmitter, Output } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FormField } from 'src/app/models/formFields/form-field.model';
-import { Dataset, DATASET_ACCEPT_ATTR, DATASET_MAX_SIZE_BYTES, DatasetService, DatasetVisibility } from 'src/app/services/dataset.service';
+import { Dataset, datasetFileField, DatasetService, DatasetVisibility } from 'src/app/services/dataset.service';
 import { NotificationService } from 'src/app/services/notification.service';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
 import { DatasetUploadProgressComponent } from '../dataset-upload-progress/dataset-upload-progress.component';
@@ -27,10 +27,7 @@ export class DatasetUploadFormComponent {
   readonly fields: FormField[] = [
     { type: 'string', name: 'name', label: 'DATASETS._name', required: true, maxLength: 100, dataCy: 'datasetName', placeholder: 'DATASETS._name_placeholder', validators: [noWhitespaceValidator] },
     DATASET_VISIBILITY_FIELD,
-    {
-      type: 'attachment', name: 'file', label: 'DATASETS._file', required: true, deferUpload: true,
-      accept: DATASET_ACCEPT_ATTR, maxFileSize: DATASET_MAX_SIZE_BYTES, hint: 'DATASETS._file_hint', dataCy: 'datasetFile'
-    },
+    datasetFileField('datasetFile'),
   ];
   readonly form: FormGroup = buildFormGroup(this.fields);
 

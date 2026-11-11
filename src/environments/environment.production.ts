@@ -110,6 +110,8 @@ export const environment = {
   TENDER_DEV_BUTTONS_OPEN_CLOSE_ENABLED: false,
   DSP_ENABLED: false,
   DATASETS_ENABLED: false,
+  // Largest dataset file in bytes. The proxy sets it from /config (BAE_LP_FILE_SERVICE_MAX_SIZE_MB); this is the fallback
+  DATASET_MAX_SIZE_BYTES: 100 * 1024 * 1024,
   DSP_CONTRACT_DEFINITION_SCHEMA: 'https://raw.githubusercontent.com/wistefan/edc-dsc/refs/heads/init/schemas/contract-definition.json',
   DSP_SCHEMA: 'https://raw.githubusercontent.com/wistefan/edc-dsc/refs/heads/init/schemas/external-id.json',
   BLUEPRINT_SCHEMA: 'https://gist.githubusercontent.com/vramperez/8a16d77f6fc2cdf5fea22dc11b325d52/raw/ad9ef7a1e933cd079732279218609141a731e3b2/blueprint-product-spec.json'

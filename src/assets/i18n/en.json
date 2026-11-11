@@ -3367,7 +3367,7 @@
     "_description": "Description",
     "_version": "Version",
     "_file": "File",
-    "_file_hint": "CSV or JSON, up to 100 MB.",
+    "_file_hint": "CSV or JSON, up to {{size}}.",
     "_visibility": "Visibility",
     "_visibility_private": "Buyers only",
     "_visibility_public": "Public",
