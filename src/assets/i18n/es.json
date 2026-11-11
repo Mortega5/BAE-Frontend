@@ -3765,6 +3765,10 @@
   "SCHEMA_FORM": {
     "_none": "—",
     "_select_option": "Selecciona una opción",
+    "_issue_required": "es obligatorio",
+    "_issue_not_allowed": "no se admite aquí",
+    "_issue_one_of": "debe ser uno de: {{values}}",
+    "_issue_must_be": "debe ser {{value}}",
     "_loading": "Cargando el formulario…",
     "_load_error": "No se ha podido cargar el formulario porque su esquema no está accesible:",
     "_retry": "Reintentar",

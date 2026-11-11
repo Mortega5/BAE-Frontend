@@ -14,6 +14,7 @@ import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
 import { yamlValidator } from 'src/app/validators/validators';
+import { SchemaIssuePipe } from 'src/app/shared/json-schema/schema-issue.pipe';
 import { LoadedSchema, SchemaRegistryService, SchemaValidationError } from 'src/app/shared/json-schema/schema-registry.service';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
@@ -60,7 +61,7 @@ const ON_FAILURE_OPTIONS = [
 @Component({
   selector: 'app-blueprint-product-form',
   standalone: true,
-  imports: [TranslateModule, ButtonComponent, DynamicFormComponent, TableInputComponent],
+  imports: [TranslateModule, ButtonComponent, DynamicFormComponent, TableInputComponent, SchemaIssuePipe],
   templateUrl: './blueprint-product-form.component.html',
 })
 export class BlueprintProductFormComponent implements OnInit, OnDestroy {

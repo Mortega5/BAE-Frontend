@@ -17,8 +17,12 @@ export interface SchemaValidationError {
   /** JSON pointer of the value the message is about, `''` for the root. A missing or forbidden
    * property is reported at that property, not at the object that lacks or holds it. */
   path: string;
-  /** What is wrong with the value at `path`, e.g. `is required`. It does not repeat the path. */
+  /** What is wrong with the value at `path`, e.g. `is required`, in English. It does not repeat the
+   * path. Show it through `schemaIssue` to get it in the language of the app. */
   message: string;
+  /** The ajv keyword that failed and its parameters, for wording the message in another language. */
+  keyword?: string;
+  params?: Record<string, unknown>;
 }
 
 /**
@@ -117,20 +121,21 @@ function isReportable(error: ErrorObject): boolean {
 
 function toValidationError(error: ErrorObject): SchemaValidationError {
   const params = error.params as Record<string, unknown>;
+  const at = (path: string, message: string): SchemaValidationError => ({ path, message, keyword: error.keyword, params });
   switch (error.keyword) {
     case 'required':
-      return { path: childPointer(error.instancePath, String(params['missingProperty'])), message: 'is required' };
+      return at(childPointer(error.instancePath, String(params['missingProperty'])), 'is required');
     case 'additionalProperties':
-      return { path: childPointer(error.instancePath, String(params['additionalProperty'])), message: 'is not allowed here' };
+      return at(childPointer(error.instancePath, String(params['additionalProperty'])), 'is not allowed here');
     case 'false schema':
-      return { path: error.instancePath, message: 'is not allowed here' };
+      return at(error.instancePath, 'is not allowed here');
     case 'enum':
-      return { path: error.instancePath, message: `must be one of: ${(params['allowedValues'] as unknown[]).join(', ')}` };
+      return at(error.instancePath, `must be one of: ${(params['allowedValues'] as unknown[]).join(', ')}`);
     case 'const':
-      return { path: error.instancePath, message: `must be ${params['allowedValue']}` };
+      return at(error.instancePath, `must be ${params['allowedValue']}`);
     default: {
       const extra = params['propertyName'];
-      return { path: error.instancePath, message: `${error.message ?? error.keyword}${extra === undefined ? '' : ` (${extra})`}` };
+      return at(error.instancePath, `${error.message ?? error.keyword}${extra === undefined ? '' : ` (${extra})`}`);
     }
   }
 }

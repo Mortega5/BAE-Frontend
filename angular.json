@@ -34,7 +34,8 @@
               "currencies.json",
               "@superset-ui/embedded-sdk",
               "ajv",
-              "ajv-formats"
+              "ajv-formats",
+              "ajv-i18n/localize/es"
             ]
           },
           "configurations": {

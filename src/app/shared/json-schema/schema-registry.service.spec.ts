@@ -39,13 +39,13 @@ describe('SchemaRegistryService', () => {
   it('reports only the errors of the branch being filled in', () => {
     const { validate } = service.compile(DEPLOYMENT_DEFINITION_V1_URL, DEPLOYMENT_DEFINITION_V1);
     const errors = validate({ type: 'helm', version: '1.0', properties: { repository: 'not a url', chart: 'x', version: '1' } });
-    expect(errors).toEqual([{ path: '/properties/repository', message: 'must match format "uri"' }]);
+    expect(errors).toEqual([jasmine.objectContaining({ path: '/properties/repository', message: 'must match format "uri"' })]);
   });
 
   it('reports a missing property at that property', () => {
     const { validate } = service.compile(DEPLOYMENT_DEFINITION_V1_URL, DEPLOYMENT_DEFINITION_V1);
     const errors = validate({ type: 'helm', version: '1.0', properties: {} });
-    expect(errors).toContain({ path: '/properties/chart', message: 'is required' });
+    expect(errors).toContain(jasmine.objectContaining({ path: '/properties/chart', message: 'is required' }));
   });
 
   describe('a discriminator that is not set yet', () => {
@@ -54,18 +54,18 @@ describe('SchemaRegistryService', () => {
     it('asks only for the discriminator, not for what every branch would need', () => {
       const { validate } = service.compile(DEPLOYMENT_DEFINITION_V1_URL, DEPLOYMENT_DEFINITION_V1);
       expect(validate(opennebula({ flavour: 'standalone', workerFlavour: 'small' })))
-        .toEqual([{ path: '/properties/backend', message: 'is required' }]);
+        .toEqual([jasmine.objectContaining({ path: '/properties/backend', message: 'is required' })]);
     });
 
     it('asks for what the chosen branch needs once it is set', () => {
       const { validate } = service.compile(DEPLOYMENT_DEFINITION_V1_URL, DEPLOYMENT_DEFINITION_V1);
-      expect(validate(opennebula({ backend: 'vm' }))).toEqual([{ path: '/properties/templateId', message: 'is required' }]);
+      expect(validate(opennebula({ backend: 'vm' }))).toEqual([jasmine.objectContaining({ path: '/properties/templateId', message: 'is required' })]);
     });
 
     it('rejects a field the chosen branch forbids', () => {
       const { validate } = service.compile(DEPLOYMENT_DEFINITION_V1_URL, DEPLOYMENT_DEFINITION_V1);
       expect(validate(opennebula({ backend: 'vm', templateId: 1, flavour: 'ha' })))
-        .toEqual([{ path: '/properties/flavour', message: 'is not allowed here' }]);
+        .toEqual([jasmine.objectContaining({ path: '/properties/flavour', message: 'is not allowed here' })]);
     });
   });
 

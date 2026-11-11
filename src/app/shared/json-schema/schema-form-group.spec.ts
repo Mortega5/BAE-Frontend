@@ -108,7 +108,7 @@ describe('SchemaFormGroup (deployment-definition v1)', () => {
       const f = form({ type: 'opennebula', version: '1.0', properties: { backend: 'lxc' } });
       expect(f.valid).toBeFalse();
       const errors = f.errors?.['schema'];
-      expect(errors).toEqual([{ path: '/properties/templateId', message: 'is required' }]);
+      expect(errors).toEqual([jasmine.objectContaining({ path: '/properties/templateId', message: 'is required' })]);
     });
 
     it('rejects a lock on a field the backend does not have', () => {

@@ -5,6 +5,7 @@ import { Subscription } from 'rxjs';
 import { ButtonComponent } from '../button/button.component';
 import { humanize } from './schema-fields';
 import { createSchemaForm, SchemaFormGroup } from './schema-form-group';
+import { SchemaIssuePipe } from './schema-issue.pipe';
 import { SchemaObjectComponent } from './schema-object.component';
 import { SchemaRegistryService, SchemaValidationError } from './schema-registry.service';
 import { SchemaUiOverlay } from './ui-overlay';
@@ -29,7 +30,7 @@ interface SchemaIssue extends SchemaValidationError {
 @Component({
   selector: 'app-schema-form',
   standalone: true,
-  imports: [CommonModule, TranslateModule, ButtonComponent, SchemaObjectComponent],
+  imports: [CommonModule, TranslateModule, ButtonComponent, SchemaObjectComponent, SchemaIssuePipe],
   template: `
     @if (loadError) {
     <div class="flex items-center justify-between gap-3 p-3 text-sm text-danger bg-danger-soft rounded-lg" role="alert" data-cy="schemaLoadError">
@@ -44,7 +45,7 @@ interface SchemaIssue extends SchemaValidationError {
       <li>
         @if (issue.target) {<button type="button" class="font-semibold underline hover:no-underline" (click)="goTo(issue.target)">{{ issue.label | translate }}</button>{{ issue.suffix }}: }
         @else if (issue.label) {<span class="font-semibold">{{ issue.label | translate }}</span>{{ issue.suffix }}: }
-        {{ issue.message }}
+        {{ issue | schemaIssue }}
       </li>
       }
     </ul>

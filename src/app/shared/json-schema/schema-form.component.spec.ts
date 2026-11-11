@@ -1,6 +1,6 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DEPLOYMENT_DEFINITION_OVERLAY } from './overlays/deployment-definition.ui';
 import { SchemaFormComponent } from './schema-form.component';
 import { SchemaFormGroup } from './schema-form-group';
@@ -58,6 +58,9 @@ describe('SchemaFormComponent', () => {
   });
 
   it('lists each error under the label of its field', () => {
+    const translate = TestBed.inject(TranslateService);
+    translate.setTranslation('en', { 'SCHEMA_FORM._issue_required': 'is required' });
+    translate.use('en');
     render({ type: 'opennebula', version: '1.0', properties: {} });
     http.expectOne(DEPLOYMENT_DEFINITION_V1_URL).flush(DEPLOYMENT_DEFINITION_V1);
     ready!.markAsDirty();
