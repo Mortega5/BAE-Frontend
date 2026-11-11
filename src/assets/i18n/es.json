@@ -2091,7 +2091,11 @@
     "_image_tag": "Etiqueta de la imagen",
     "_compose_file": "Archivo compose (YAML)",
     "_env_file": "Archivo env",
-    "_shadowed_keys": "Estas claves están en ambos canales. Un valor por defecto que también está forzado nunca tendrá efecto: deja cada clave solo en uno de los dos."
+    "_shadowed_keys": "Estas claves están en ambos canales. Un valor por defecto que también está forzado nunca tendrá efecto: deja cada clave solo en uno de los dos.",
+    "_type_opennebula": "OpenNebula",
+    "_opennebula_properties": "Propiedades de OpenNebula",
+    "_enforced_opennebula_values": "Valores forzados",
+    "_enforced_opennebula_values_hint": "Campos de este backend que ningún pedido puede cambiar, p. ej. templateId: 237. Un pedido que fije alguno con otro valor se rechaza."
   },
   "UPDATE_SERV_SPEC": {
     "_not_found": "No se pudo encontrar esta especificación de servicio.",
@@ -3757,5 +3761,20 @@
         }
       }
     }
+  },
+  "SCHEMA_FORM": {
+    "_none": "—",
+    "_loading": "Cargando el formulario…",
+    "_load_error": "No se ha podido cargar el formulario porque su esquema no está accesible:",
+    "_retry": "Reintentar",
+    "_error_pattern": "El valor no tiene el formato esperado.",
+    "_error_min": "El valor es menor que el mínimo.",
+    "_error_max": "El valor es mayor que el máximo.",
+    "_error_minlength": "El valor es demasiado corto.",
+    "_error_maxlength": "El valor es demasiado largo.",
+    "_error_integer": "Introduce un número entero.",
+    "_error_uri": "Introduce una URL completa, p. ej. https://example.com.",
+    "_error_yaml": "No es YAML válido.",
+    "_error_json": "No es JSON válido."
   }
 }

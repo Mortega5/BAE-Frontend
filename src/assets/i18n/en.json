@@ -2091,7 +2091,11 @@
     "_image_tag": "Image tag",
     "_compose_file": "Compose file (YAML)",
     "_env_file": "Env file",
-    "_shadowed_keys": "These keys are in both channels. A default that is also enforced can never take effect — keep each key in one of the two."
+    "_shadowed_keys": "These keys are in both channels. A default that is also enforced can never take effect — keep each key in one of the two.",
+    "_type_opennebula": "OpenNebula",
+    "_opennebula_properties": "OpenNebula Properties",
+    "_enforced_opennebula_values": "Enforced values",
+    "_enforced_opennebula_values_hint": "Fields of this backend that no order can change, e.g. templateId: 237. An order that sets one of them to another value is rejected."
   },
   "UPDATE_SERV_SPEC": {
     "_not_found": "This service specification could not be found.",
@@ -3757,5 +3761,20 @@
         }
       }
     }
+  },
+  "SCHEMA_FORM": {
+    "_none": "—",
+    "_loading": "Loading the form…",
+    "_load_error": "The form could not be loaded because its schema is unreachable:",
+    "_retry": "Retry",
+    "_error_pattern": "The value does not have the expected format.",
+    "_error_min": "The value is below the minimum.",
+    "_error_max": "The value is above the maximum.",
+    "_error_minlength": "The value is too short.",
+    "_error_maxlength": "The value is too long.",
+    "_error_integer": "Enter a whole number.",
+    "_error_uri": "Enter a full URL, e.g. https://example.com.",
+    "_error_yaml": "This is not valid YAML.",
+    "_error_json": "This is not valid JSON."
   }
 }

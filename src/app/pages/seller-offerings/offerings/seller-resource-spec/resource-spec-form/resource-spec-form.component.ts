@@ -23,6 +23,8 @@ import { CharacteristicItem, CharacteristicsEditorComponent } from 'src/app/shar
 import { buildFormGroup } from 'src/app/shared/forms/dynamic-form/build-form-group.util';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { PackageDeploymentComponent } from 'src/app/shared/forms/package-deployment/package-deployment';
+import { SchemaFormGroup } from 'src/app/shared/json-schema/schema-form-group';
+import { deploymentProfile } from 'src/app/models/deployment-profiles';
 import { StepperComponent, StepChangedEvent } from 'src/app/shared/stepper/stepper.component';
 import { StepperStepDirective } from 'src/app/shared/stepper/stepper-step.directive';
 import { noWhitespaceValidator } from 'src/app/validators/validators';
@@ -43,6 +45,14 @@ const BASE_TEMPLATE_OPTIONS = [
   // when creating a SoftwareSpecification, not as their own resource spec type.
   // { value: 'SoftwareSupportPackageSpecification', label: 'Software Support Package Specification' },
 ];
+
+/** The model's value type for the deploymentDefinition characteristic. Older packages used 'deployment'. */
+const DEPLOYMENT_DEFINITION_VALUE_TYPE = 'DeploymentDefinition';
+
+function isDeploymentDefinitionChar(char: SoftwareCharacteristic): boolean {
+  return char.name === 'deploymentDefinition'
+    || ['deployment', 'deploymentdefinition'].includes(char.valueType?.toLowerCase() ?? '');
+}
 
 const GENERAL_FORM_FIELDS_CREATE: FormField[] = [
   { type: 'string', name: 'name', label: 'CREATE_RES_SPEC._name', required: true, maxLength: 100, dataCy: 'resSpecName', placeholder: 'CREATE_RES_SPEC._name_placeholder' },
@@ -107,7 +117,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
   templateConfigForm: FormGroup = new FormGroup({});
   advancedConfigOpen = false;
 
-  deploymentForm: FormGroup | null = null;
+  deploymentForm: SchemaFormGroup | null = null;
   deploymentInitialValue?: SoftwareDeploymentDefinition;
   private originalDeploymentChar: SoftwareCharacteristic | null = null;
 
@@ -242,7 +252,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
         this.resSpecService.getSoftwareSupportPackage(packageId)
           .subscribe(pkg => {
             const pkgChars = (pkg.resourceCharacteristic ?? []) as SoftwareCharacteristic[];
-            const found = pkgChars.find(c => c.valueType?.toLowerCase() === 'deployment');
+            const found = pkgChars.find(isDeploymentDefinitionChar);
             // The broker may round-trip the value as a one-element array.
             const raw = (found as any)?.value;
             const value = Array.isArray(raw) ? raw[0] : raw;
@@ -315,82 +325,87 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
     }));
   }
 
-  onDeploymentFormReady(form: FormGroup): void {
+  onDeploymentFormReady(form: SchemaFormGroup): void {
     this.deploymentForm = form;
     // The step is destroyed when the user moves away, so keep the latest value to re-seed the next instance.
     form.valueChanges.pipe(takeUntil(this.destroy$)).subscribe(() => {
-      if (this.deploymentForm === form) this.deploymentInitialValue = structuredClone(form.getRawValue());
+      if (this.deploymentForm === form) this.deploymentInitialValue = structuredClone(form.schemaValue()) as unknown as SoftwareDeploymentDefinition;
     });
     if (form.pristine && this.deploymentInitialValue && !this.isUpdate) form.markAsDirty();
   }
 
-  private getArtifactType(deployment: SoftwareDeploymentDefinition): string {
-    switch (deployment.type) {
-      case 'helm':
-        return 'HelmChart';
-      case 'docker':
-        return deployment.properties?.composeFile ? 'DockerCompose' : 'DockerImage';
-    }
-  }
-
   /**
-   * Drops the release identity from a stored deploymentDefinition. Packages published before the
+   * Prepares a stored deploymentDefinition for resending. Packages published before the release
    * identity moved to the InstalledSoftware still carry `releaseName` and `namespace` under
-   * `properties`, and the API now rejects a deploymentDefinition that declares either. The original
-   * characteristic is left untouched — only the copy sent to the API is migrated.
+   * `properties`, which the API now rejects. The value is re-stamped with the current schema
+   * location: every older revision's valid values are valid in it. The original characteristic is
+   * left untouched — only the copy sent to the API is migrated.
    */
-  private stripReleaseIdentity(char: SoftwareCharacteristic): any {
+  private migrateStoredDefinition(char: SoftwareCharacteristic): any {
     const definition = (char as any).value as SoftwareDeploymentDefinition | undefined;
-    const properties = definition?.properties as Record<string, any> | undefined;
-    if (!properties || !('releaseName' in properties || 'namespace' in properties)) return char;
-
+    const properties = (definition?.properties ?? {}) as Record<string, any>;
     const { releaseName, namespace, ...rest } = properties;
     return {
       ...(char as any),
-      value: { ...definition, properties: rest },
-      // The stored pin still points at the gist revision that required releaseName; the migrated
-      // value only validates against the current one.
+      valueType: DEPLOYMENT_DEFINITION_VALUE_TYPE,
+      value: definition ? { ...definition, properties: rest } : definition,
       '@schemaLocation': environment.DEPLOYMENT_SCHEMA_LOCATION,
     };
   }
 
-  /** "Package Deployment" step characteristics — deploymentDefinition + artifactType.
-   * These go under `resourceCharacteristic` (the Resource-instance field), not the
-   * spec's own `resourceSpecCharacteristic`: the proxy moves them onto the software
-   * support package resource automatically, for both create and update. */
-  private buildDeploymentCharacteristics(): any[] {
-    if (!this.requiresPackageDeployment) return [];
-
-    const chars: any[] = [];
-    let deployValue: SoftwareDeploymentDefinition | undefined;
-
+  /** The deploymentDefinition being saved: the form's when the step was opened, the stored one otherwise. */
+  private currentDeploymentDefinition(): { char: any; value: SoftwareDeploymentDefinition } | undefined {
     if (this.deploymentForm) {
-      // The package describes WHAT is deployed, never WHERE or under WHICH NAME: the release identity
-      // (deploymentName, namespace) is chosen per deployment and lives on the InstalledSoftware.
-      deployValue = this.deploymentForm.value;
-      chars.push({
-        name: 'deploymentDefinition',
-        valueType: 'deployment',
-        value: deployValue,
-        '@schemaLocation': environment.DEPLOYMENT_SCHEMA_LOCATION,
-      });
-    } else if (this.originalDeploymentChar) {
+      const value = this.deploymentForm.schemaValue() as unknown as SoftwareDeploymentDefinition;
+      return {
+        value,
+        char: {
+          name: 'deploymentDefinition',
+          valueType: DEPLOYMENT_DEFINITION_VALUE_TYPE,
+          value,
+          '@schemaLocation': environment.DEPLOYMENT_SCHEMA_LOCATION,
+        },
+      };
+    }
+    if (this.originalDeploymentChar) {
       // The deployment step renders lazily, so editing a spec without opening it leaves no form to
       // read. Resend what was stored — migrated, or the save fails on a field the user never saw.
-      const migrated = this.stripReleaseIdentity(this.originalDeploymentChar);
-      deployValue = migrated.value as SoftwareDeploymentDefinition;
-      chars.push(migrated);
+      const char = this.migrateStoredDefinition(this.originalDeploymentChar);
+      return { char, value: char.value as SoftwareDeploymentDefinition };
     }
+    return undefined;
+  }
 
-    if (deployValue) {
-      chars.push({
-        name: 'artifactType',
-        valueType: 'string',
-        value: this.getArtifactType(deployValue),
-      });
+  /** "Package Deployment" step characteristics — deploymentDefinition, artifactType and
+   * requiredEnvironmentType. These go under `resourceCharacteristic` (the Resource-instance field),
+   * not the spec's own `resourceSpecCharacteristic`: the proxy moves them onto the software support
+   * package resource automatically, for both create and update. */
+  private buildDeploymentCharacteristics(): any[] {
+    if (!this.requiresPackageDeployment) return [];
+    const current = this.currentDeploymentDefinition();
+    if (!current) return [];
+
+    const chars: any[] = [current.char];
+    const profile = deploymentProfile(current.value);
+    if (profile) {
+      chars.push(
+        { name: 'artifactType', valueType: 'string', value: profile.artifactType(current.value) },
+        { name: 'requiredEnvironmentType', valueType: 'string', value: profile.requiredEnvironmentType },
+      );
     }
-
     return chars;
+  }
+
+  /** The user's characteristics plus the deployment-time ones the deployment type requires
+   * (deploymentName, namespace, ...). Existing ones are never replaced or removed. */
+  private buildSpecCharacteristics(): ResourceSpecificationCharacteristic[] {
+    const current = this.requiresPackageDeployment ? this.currentDeploymentDefinition() : undefined;
+    const required = deploymentProfile(current?.value)?.specCharacteristics(current!.value) ?? [];
+    const declared = new Set(this.prodChars.map(c => c.name));
+    return [
+      ...this.prodChars,
+      ...required.filter(c => !declared.has(c.name)) as ResourceSpecificationCharacteristic[],
+    ];
   }
 
   private prepareData(): void {
@@ -402,7 +417,7 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
       name: this.generalForm.value.name,
       description: this.generalForm.value.description ?? '',
       lifecycleStatus: this.generalForm.value.lifecycleStatus ?? 'Active',
-      resourceSpecCharacteristic: this.prodChars,
+      resourceSpecCharacteristic: this.buildSpecCharacteristics(),
       ...(deploymentChars.length > 0 && { resourceCharacteristic: deploymentChars }),
       ...(!this.isUpdate && {
         relatedParty: [{ id: this.partyId, role: environment.SELLER_ROLE, '@referredType': '' }],

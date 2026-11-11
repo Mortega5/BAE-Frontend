@@ -14,6 +14,7 @@ import { TableInputComponent } from 'src/app/shared/forms/table-input/table-inpu
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
 import { PackageDeploymentComponent } from '../../../../../shared/forms/package-deployment/package-deployment';
+import { SchemaFormGroup } from '../../../../../shared/json-schema/schema-form-group';
 
 type Characteristic = components['schemas']['Characteristic'];
 type CharType = 'string' | 'number' | 'range' | 'deployment';
@@ -138,7 +139,8 @@ export class SoftwareCharacteristicsComponent implements OnInit, OnDestroy {
     const formValue = this.charForm.get('value')?.value;
     let value: any;
     if (this.charType === 'deployment') {
-      value = this.deploymentForm!.value;
+      // The schema form's controls hold editor text; schemaValue() is the deploymentDefinition document.
+      value = (this.deploymentForm as SchemaFormGroup).schemaValue();
     } else if (this.charType === 'range') {
       value = formValue;
     } else if (this.charType === 'number') {

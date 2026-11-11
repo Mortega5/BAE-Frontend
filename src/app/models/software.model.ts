@@ -7,36 +7,16 @@ export type SoftwareResource = components['schemas']['SoftwareResource'];
 export type SoftwareSpecification = components['schemas']['SoftwareSpecification'];
 export type SoftwareCharacteristic = components['schemas']['Characteristic'];
 
-export interface HelmDeploymentProperties {
-  repository: string;
-  chart: string;
+/**
+ * A deploymentDefinition document. Its shape is owned by the published `deployment-definition`
+ * JSON Schema (selected by `type`), not by this type: the form is generated from the schema, and a
+ * new deployment type needs no change here.
+ */
+export interface SoftwareDeploymentDefinition {
+  type: string;
   version: string;
-  /** Provider defaults — applied below everything the consumer sets, so the consumer can override them. */
-  values?: string | string[];
-  /** Provider locks — applied last; an order that sets one of these keys is rejected. */
-  enforcedValues?: string | string[];
+  properties: Record<string, any>;
 }
-
-export interface DockerDeploymentProperties {
-  image: string;
-  tag?: string;
-  composeFile?: string;
-  envFile?: string;
-}
-
-export interface HelmDeploymentDefinition {
-  type: 'helm';
-  version: string;
-  properties: HelmDeploymentProperties;
-}
-
-export interface DockerDeploymentDefinition {
-  type: 'docker';
-  version: string;
-  properties: DockerDeploymentProperties;
-}
-
-export type SoftwareDeploymentDefinition = HelmDeploymentDefinition | DockerDeploymentDefinition;
 
 export type ResourceStatusType = components['schemas']['ResourceStatusType'];
 export const RESOURCE_STATUS_TYPES: ResourceStatusType[] = ['standby', 'alarm', 'available', 'reserved', 'unknown', 'suspended'];
