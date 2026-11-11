@@ -115,12 +115,12 @@
         }
         <app-dynamic-form class="block" [fields]="datasetFields" [formGroup]="datasetForm" />
         @if (urlSource) {
-        <app-dynamic-form class="block" [fields]="datasetUrlFields" [formGroup]="datasetUrlForm" />
+        <app-dynamic-form @reveal class="block" [fields]="datasetUrlFields" [formGroup]="datasetUrlForm" />
         } @else {
-        <app-dynamic-form class="block" [fields]="datasetFileFields" [formGroup]="datasetFileForm" />
+        <app-dynamic-form @reveal class="block" [fields]="datasetFileFields" [formGroup]="datasetFileForm" />
         }
         @if (customDatasetSelected) {
-        <div>
+        <div @reveal>
           <app-dynamic-form [fields]="policyFields" [formGroup]="policyForm" />
           @if (policyError || policyServerError) {
           <p data-cy="datasetPolicyError" class="text-sm text-danger mt-1">{{ policyError ? (policyError | translate) : policyServerError }}</p>

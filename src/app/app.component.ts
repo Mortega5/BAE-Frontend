@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, HostBinding, OnInit} from '@angular/core';
 import { initFlowbite } from 'flowbite';
 import {LocalStorageService} from "./services/local-storage.service";
 import {Category} from "./models/interfaces";
@@ -20,6 +20,9 @@ import { filter } from 'rxjs';
   styleUrls: ['./app.component.css'], 
 })
 export class AppComponent implements OnInit {
+  /** Turns every Angular animation off for whoever asks the system for less motion. */
+  @HostBinding('@.disabled') readonly reducedMotion = !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
   title = 'BAE Marketplace';
   showPanel = false;
   providerThemeName=environment.providerThemeName;

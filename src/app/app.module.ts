@@ -4,6 +4,7 @@ import { HTTP_INTERCEPTORS, HttpClient } from '@angular/common/http';
 import { APP_INITIALIZER, NgModule } from '@angular/core';
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
 import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { PickerComponent } from '@ctrl/ngx-emoji-mart';
 import { FaIconComponent, FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
@@ -180,6 +181,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     CarouselComponent,
     TruncateValuePipe,
     BrowserModule,
+    BrowserAnimationsModule,
     FontAwesomeModule,
     SharedModule,
     AppRoutingModule,

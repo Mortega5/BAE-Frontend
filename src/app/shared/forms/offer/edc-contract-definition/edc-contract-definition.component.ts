@@ -1,3 +1,4 @@
+import { reveal } from 'src/app/shared/animations/reveal.animation';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { AbstractControl, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
@@ -17,6 +18,7 @@ interface EdcContractDefinition {
 }
 
 @Component({
+  animations: [reveal],
   selector: 'app-edc-contract-definition-form',
   standalone: true,
   imports: [

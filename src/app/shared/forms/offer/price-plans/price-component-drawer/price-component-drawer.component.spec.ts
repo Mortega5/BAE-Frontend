@@ -1,3 +1,4 @@
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -13,7 +14,7 @@ describe('PriceComponentDrawerComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [PriceComponentDrawerComponent, HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()]
+      imports: [NoopAnimationsModule, PriceComponentDrawerComponent, HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()]
     })
     .compileComponents();
     

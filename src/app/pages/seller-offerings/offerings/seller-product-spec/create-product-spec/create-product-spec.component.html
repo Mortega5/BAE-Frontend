@@ -163,7 +163,7 @@
           <p data-cy="datasetRequired" class="text-sm text-content-muted mt-2">{{ 'DATASETS._dataset_required' | translate }}</p>
           }
           @if (customDatasetSelected) {
-          <div class="mt-5">
+          <div @reveal class="mt-5">
             <app-dynamic-form [fields]="policyFields" [formGroup]="policyForm" />
             @if (policyError || policyServerError) {
             <p data-cy="datasetPolicyError" class="text-sm text-danger mt-1">{{ policyError ? (policyError | translate) : policyServerError }}</p>

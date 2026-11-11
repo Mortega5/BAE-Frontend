@@ -1,3 +1,4 @@
+import { reveal } from 'src/app/shared/animations/reveal.animation';
 import { DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, DoCheck, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -63,6 +64,7 @@ import { LeaveConfirmable } from 'src/app/guard/unsaved-changes.guard';
 import { UnsavedChangesModalComponent } from 'src/app/shared/unsaved-changes-modal/unsaved-changes-modal.component';
 import { resourceSpecTypeLabel } from '../../seller-resource-spec/resource-spec-type';
 @Component({
+  animations: [reveal],
   selector: 'update-product-spec',
   templateUrl: './update-product-spec.component.html',
   styleUrl: './update-product-spec.component.css',

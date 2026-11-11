@@ -1,3 +1,4 @@
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -34,7 +35,7 @@ describe('OfferComponent', () => {
 
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [OfferComponent, HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule, OfferComponent, HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()],
     }).compileComponents();
 
     fixture = TestBed.createComponent(OfferComponent);

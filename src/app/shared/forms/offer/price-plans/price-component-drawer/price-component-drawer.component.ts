@@ -1,3 +1,4 @@
+import { reveal } from 'src/app/shared/animations/reveal.animation';
 import {Component, EventEmitter, HostListener, Input, OnInit, Output, ChangeDetectorRef} from '@angular/core';
 import {FormsModule, FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormControl} from '@angular/forms';
 import {MarkdownTextareaComponent} from "../../../markdown-textarea/markdown-textarea.component";
@@ -14,6 +15,7 @@ import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-
 import { FormField } from 'src/app/models/formFields/form-field.model';
 
 @Component({
+  animations: [reveal],
   selector: 'app-price-component-drawer',
   standalone: true,
   templateUrl: './price-component-drawer.component.html',

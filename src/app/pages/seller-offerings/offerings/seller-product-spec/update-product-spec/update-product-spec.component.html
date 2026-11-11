@@ -176,7 +176,7 @@
         <app-dataset-upload-progress [progress]="uploadProgress" />
         }
         @if (showDatasetPolicy) {
-        <app-dynamic-form [fields]="datasetPolicyFields" [formGroup]="datasetPolicyForm" />
+        <app-dynamic-form @reveal class="block" [fields]="datasetPolicyFields" [formGroup]="datasetPolicyForm" />
         }
       </div>
     </ng-template>

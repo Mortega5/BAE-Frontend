@@ -1,3 +1,4 @@
+import { reveal } from 'src/app/shared/animations/reveal.animation';
 import { CommonModule, DatePipe } from '@angular/common';
 import { ChangeDetectorRef, Component, DoCheck, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild, Optional } from '@angular/core';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -70,6 +71,7 @@ const BASE_TEMPLATE_OPTIONS = [
 /** Not a TMF @type: it only switches the wizard to dataset mode (a dataset ProductSpec has no custom @type). */
 export const DATASET_TEMPLATE = 'dataset';
 @Component({
+  animations: [reveal],
   selector: 'create-product-spec',
   standalone: true,
   imports: [

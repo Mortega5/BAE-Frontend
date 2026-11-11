@@ -1,3 +1,4 @@
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
@@ -26,7 +27,7 @@ describe('EdcContractDefinitionComponent', () => {
 
     await TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [EdcContractDefinitionComponent, ReactiveFormsModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule, EdcContractDefinitionComponent, ReactiveFormsModule, TranslateModule.forRoot()],
       providers: [{ provide: EventMessageService, useValue: eventMessageSpy }]
     }).compileComponents();
 

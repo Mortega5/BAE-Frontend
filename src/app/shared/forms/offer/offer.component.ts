@@ -1,3 +1,4 @@
+import { reveal } from 'src/app/shared/animations/reveal.animation';
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
@@ -54,6 +55,7 @@ const DISCOUNT_PRICE_TYPE = 'discount';
 
 import { previewPricesFromPlans } from './offer-preview.util';
 @Component({
+  animations: [reveal],
   selector: 'app-offer-form',
   standalone: true,
   imports: [
