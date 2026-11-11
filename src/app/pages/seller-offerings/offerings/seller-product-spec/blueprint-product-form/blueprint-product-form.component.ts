@@ -16,6 +16,7 @@ import { TableInputComponent } from 'src/app/shared/forms/table-input/table-inpu
 import { yamlValidator } from 'src/app/validators/validators';
 import { SchemaIssuePipe } from 'src/app/shared/json-schema/schema-issue.pipe';
 import { LoadedSchema, SchemaRegistryService, SchemaValidationError } from 'src/app/shared/json-schema/schema-registry.service';
+import { chooseSchema } from 'src/app/shared/json-schema/schema-version';
 import { valueAtPointer } from 'src/app/shared/json-schema/ui-overlay';
 import { environment } from 'src/environments/environment';
 import { v4 as uuidv4 } from 'uuid';
@@ -57,6 +58,9 @@ export interface BlueprintProductFormValue {
   selectedItems: any[];
   orchestrationSteps: OrchestrationStepEmit[];
   valid: boolean;
+  /** The Blueprint schema version the plan follows, to stamp as the root `@schemaLocation`. On
+   * input, the one the stored Blueprint has. */
+  schemaLocation?: string;
 }
 
 const ON_FAILURE_OPTIONS = [
@@ -83,6 +87,9 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
    * DAG checks below (cycles, references) are not expressible in JSON Schema and stay hand-written. */
   schemaErrors: SchemaValidationError[] = [];
   private blueprintSchema?: LoadedSchema;
+  /** The version the plan is edited in: the current one when the stored plan is valid there, the
+   * Blueprint's own otherwise (see chooseSchema). */
+  private blueprintSchemaUrl?: string;
 
   partyId = '';
   // Every product spec ever seen (initial config + fetched pages), so ids can be resolved to
@@ -193,10 +200,20 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     if (this.blueprintConfig) {
       this.loadProdData();
     }
-    this.schemaRegistry.get(environment.BLUEPRINT_SCHEMA)
+    const storedSteps = this.blueprintConfig?.orchestrationSteps ?? [];
+    chooseSchema(this.schemaRegistry, environment.BLUEPRINT_SCHEMA, this.blueprintConfig?.schemaLocation,
+      loaded => loaded.validate({ orchestrationPlan: { steps: storedSteps } }).length === 0)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: loaded => {
+        next: choice => {
+          this.blueprintSchemaUrl = choice.url;
+          // A version this form cannot load (an old gist) is kept as it is, unvalidated here: the TMF
+          // API still validates the Blueprint against it on write.
+          if (!choice.loaded) {
+            if (this.orchestrationSteps.length > 0) this.emitFormChange();
+            return;
+          }
+          const loaded = choice.loaded;
           this.blueprintSchema = loaded;
           const timeout = this.stepForm.controls['timeoutSeconds'];
           if (!timeout.dirty && this.editingIndex === null) timeout.setValue(this.defaultTimeoutSeconds);
@@ -584,7 +601,8 @@ export class BlueprintProductFormComponent implements OnInit, OnDestroy {
     this.formChange.emit({
       selectedItems,
       orchestrationSteps,
-      valid: this.isValid
+      valid: this.isValid,
+      schemaLocation: this.blueprintSchemaUrl ?? this.blueprintConfig?.schemaLocation,
     });
   }
 }

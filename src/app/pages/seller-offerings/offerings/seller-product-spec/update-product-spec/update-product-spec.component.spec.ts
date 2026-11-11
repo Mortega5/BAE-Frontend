@@ -367,14 +367,17 @@ describe('UpdateProductSpecComponent', () => {
     });
 
     it('should build orchestration plan config when prod has an orchestrationPlan', () => {
-      component.prod = { ...baseProd, orchestrationPlan: { steps: [{ id: 'step-1' }] } };
+      const schemaLocation = 'https://tm-forum-model-66feba.pages.o-cei.eu/schemas/v1/blueprint-product-spec.json';
+      component.prod = { ...baseProd, '@schemaLocation': schemaLocation, orchestrationPlan: { steps: [{ id: 'step-1' }] } };
 
       component.populateProductInfo();
 
+      // The stored schema version travels with the plan, so the form can keep editing in it.
       expect(component.blueprintConfig).toEqual({
         selectedItems: [],
         orchestrationSteps: [{ id: 'step-1' }],
-        valid: true
+        valid: true,
+        schemaLocation,
       } as any);
     });
   });

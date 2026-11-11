@@ -984,7 +984,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
       }
       if (this.blueprintConfig) {
         this.productSpecToCreate['@type'] = 'BlueprintProductSpecification';
-        this.productSpecToCreate['@schemaLocation'] = environment.BLUEPRINT_SCHEMA;
+        this.productSpecToCreate['@schemaLocation'] = this.blueprintConfig.schemaLocation ?? environment.BLUEPRINT_SCHEMA;
         this.productSpecToCreate['@baseType'] = 'ProductSpecification';
         (this.productSpecToCreate as any).orchestrationPlan = {
           steps: this.blueprintConfig.orchestrationSteps,

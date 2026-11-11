@@ -786,7 +786,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
       this.blueprintConfig = {
         selectedItems: [],
         orchestrationSteps: this.prod.orchestrationPlan.steps,
-        valid: true
+        valid: true,
+        schemaLocation: this.prod['@schemaLocation'],
       }
     }
 
@@ -1351,7 +1352,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
       }
     }
     if (this.blueprintConfig) {
-      this.productSpecToUpdate!['@schemaLocation'] = environment.BLUEPRINT_SCHEMA;
+      this.productSpecToUpdate!['@schemaLocation'] = this.blueprintConfig.schemaLocation ?? environment.BLUEPRINT_SCHEMA;
       (this.productSpecToUpdate as any).orchestrationPlan = {
         steps: this.blueprintConfig.orchestrationSteps,
       }
