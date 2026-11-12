@@ -29,12 +29,12 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should render the usage specs link in the navigation for a logged-in seller', () => {
+  it('should not render a usage specs link in the navigation: it lives in my offerings', () => {
     component.is_logged = true;
     component.roles = [component.sellerRole];
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.querySelector('#usageSpecs')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('#usageSpecs')).toBeNull();
   });
 
   it('toggleCartDrawer should flip the cart visibility', () => {

@@ -12,7 +12,6 @@ import {
   faClipboardCheck,
   faCogs,
   faDisplay,
-  faGauge,
   faHandHoldingBox,
   faLanguage,
   faMoon,
@@ -531,7 +530,6 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   protected readonly faUsers = faUsers;
   protected readonly faCogs = faCogs;
   protected readonly faReceipt = faReceipt;
-  protected readonly faGauge = faGauge;
   protected readonly faPieChart = faPieChart;
   protected readonly faBars = faBars;
   protected readonly faArrowRight = faArrowRight;
