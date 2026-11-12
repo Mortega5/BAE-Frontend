@@ -102,9 +102,11 @@ function buildFieldEntry(name: string, pointer: string, schema: JsonSchema, requ
       value,
       label: hint.optionLabels?.[String(value)] ?? String(value),
     }));
-    // Empty starting option. On a required field it is only a placeholder (dynamic-form keeps it from
-    // being picked again), so it says what to do; on an optional one it means "no value".
-    if (!required || initial === undefined) {
+    // Empty starting option, only when there is no default to start from. On a required field it is
+    // only a placeholder (dynamic-form keeps it from being picked again), so it says what to do; on an
+    // optional one it means "no value". With a default the field is never empty: leaving it out would
+    // mean the default anyway, so an empty option would only offer a second way to say the same.
+    if (initial === undefined) {
       options.unshift({ value: '', label: required ? hint.placeholder ?? 'SCHEMA_FORM._select_option' : 'SCHEMA_FORM._none' });
     }
     const codec = scalarCodec();

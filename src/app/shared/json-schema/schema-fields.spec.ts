@@ -12,7 +12,11 @@ const SCHEMA: JsonSchema = {
     instant: { type: 'string', format: 'date-time' },
     tags: { type: 'array', items: { type: 'string', enum: ['a', 'b', 'c'] } },
     free: { type: 'array', items: { type: 'string' } },
+    protocol: { type: 'string', enum: ['http', 'https'], default: 'http' },
+    flavour: { type: 'string', enum: ['standalone', 'ha'] },
+    backend: { type: 'string', enum: ['vm', 'lxc'] },
   },
+  required: ['backend'],
 };
 
 describe('schema field mapping', () => {
@@ -48,6 +52,27 @@ describe('schema field mapping', () => {
       const value = form.schemaValue()['instant'] as string;
       expect(value).toMatch(/Z$/);
       expect(new Date(value).getTime()).toBe(new Date('2026-06-01T08:15').getTime());
+    });
+  });
+
+  describe('enum', () => {
+    const options = (name: string) => (create().fields.find(f => f.name === name) as SelectableFormField).options.map(o => o.value);
+
+    it('has no empty option when the schema gives a default, required or not', () => {
+      expect(options('protocol')).toEqual(['http', 'https']);
+      expect(create().get('protocol')!.value).toBe('http');
+    });
+
+    it('lets an optional enum without a default be left empty', () => {
+      expect(options('flavour')).toEqual(['', 'standalone', 'ha']);
+      const field = create().fields.find(f => f.name === 'flavour') as SelectableFormField;
+      expect(field.options[0].label).toBe('SCHEMA_FORM._none');
+    });
+
+    it('starts a required enum without a default on a placeholder', () => {
+      const field = create().fields.find(f => f.name === 'backend') as SelectableFormField;
+      expect(field.options.map(o => o.value)).toEqual(['', 'vm', 'lxc']);
+      expect(field.options[0].label).toBe('SCHEMA_FORM._select_option');
     });
   });
 
