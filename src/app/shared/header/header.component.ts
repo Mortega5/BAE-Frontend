@@ -137,7 +137,12 @@ export class HeaderComponent implements OnInit, AfterViewInit, DoCheck, OnDestro
   /** A theme with many links (DOME has five) doesn't fit the desktop layout below xl, so it
    * switches to the burger menu one breakpoint later than a short nav like BAE's. */
   get longNav(): boolean {
-    return this.headerLinks.length > 3;
+    return this.visibleLinks.length > 3;
+  }
+
+  /** The theme's links the user can see: the ones that ask for a login are left out until there is one. */
+  get visibleLinks(): NavLink[] {
+    return this.headerLinks.filter(link => !link.requiresLogin || this.is_logged);
   }
   themeAuthUrls?: ThemeAuthUrlsConfig;
   /** Dev-only: lets a developer try out every registered provider theme without

@@ -1,3 +1,4 @@
+import { DashboardPaths } from '../pages/dashboard/dashboard.paths';
 import { NavLink, ThemeConfig } from './theme.interfaces';
 
 const baeHeaderLinks: NavLink[] = [
@@ -5,6 +6,12 @@ const baeHeaderLinks: NavLink[] = [
     label: 'HEADER._home',
     url: '/',
     isRouterLink: true
+  },
+  {
+    label: 'WORKSPACE._dashboard',
+    url: DashboardPaths.root(),
+    isRouterLink: true,
+    requiresLogin: true
   },
   {
     label: 'HEADER._browse',

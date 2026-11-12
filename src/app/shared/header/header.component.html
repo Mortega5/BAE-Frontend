@@ -150,7 +150,7 @@
   </app-dropdown-panel>
 
   <ng-template #navLinksTemplate let-mobile="mobile">
-    @for (link of headerLinks; track link.label) {
+    @for (link of visibleLinks; track link.label) {
     @if (link.children?.length) {
     @if (!mobile) {
     <li class="relative">

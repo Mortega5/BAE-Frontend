@@ -29,6 +29,9 @@ export interface NavLink {
   children?: NavLink[];
 
   icon?: string; // Optional: icon next to the link
+
+  /** Shown only while the user is logged in. */
+  requiresLogin?: boolean;
 }
 
 export interface ThemeLinkConfig {

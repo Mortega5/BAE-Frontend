@@ -3902,7 +3902,7 @@
     }
   },
   "WORKSPACE": {
-    "_dashboard": "Panel",
+    "_dashboard": "Dashboard",
     "_overview": "Resumen",
     "_overview_subtitle": "Tus últimos productos y accesos directos para crear nuevos",
     "_overview_soon": "Próximamente",
