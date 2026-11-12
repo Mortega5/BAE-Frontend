@@ -98,7 +98,7 @@ describe('ResourceSpecFormComponent payload', () => {
       expect(loaded.validate(definition.value)).toEqual([]);
     });
 
-    it('resends a read-only package exactly as stored and does not block saving', () => {
+    it('leaves a read-only package out of the update and does not block saving', () => {
       const c = component();
       const value = { type: 'nuvla-helm', version: '1.0', properties: { chart: 'redis', releaseName: 'x' } };
       const original = stored(value, 'urn:ocei:schema:nuvla-helm-deployment-definition');
@@ -107,7 +107,8 @@ describe('ResourceSpecFormComponent payload', () => {
       c.onDeploymentReadOnly();
 
       const data = prepare(c);
-      expect(data.resourceCharacteristic).toEqual([original]);
+      // Not sent: the proxy would overwrite the whole package with it and cannot validate its schema.
+      expect(data.resourceCharacteristic).toBeUndefined();
       expect(data.resourceSpecCharacteristic).toEqual([]);
       expect(c.canSaveDraft).toBeTrue();
     });

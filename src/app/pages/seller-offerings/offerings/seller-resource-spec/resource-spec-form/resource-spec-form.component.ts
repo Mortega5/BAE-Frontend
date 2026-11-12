@@ -369,7 +369,8 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
   /**
    * Prepares a stored deploymentDefinition for resending when the deployment step was not opened.
    *
-   * - Read-only (its schema is not one this form can load): resent exactly as stored.
+   * - Read-only (its schema is not one this form can load): kept as stored. It is not sent at all
+   *   (see buildDeploymentCharacteristics); this copy only feeds the declared spec characteristics.
    * - Otherwise it is read through the form of the version {@link chooseSchema} picked and stamped
    *   with that version. That is what the form would have saved: it unwraps the one-element arrays
    *   the broker returns (`values`), and drops what the schema does not describe, such as the release
@@ -431,6 +432,10 @@ export class ResourceSpecFormComponent implements OnInit, OnDestroy, LeaveConfir
    * package resource automatically, for both create and update. */
   private buildDeploymentCharacteristics(): any[] {
     if (!this.requiresPackageDeployment) return [];
+    // A definition this form cannot edit is not sent at all: the proxy writes resourceCharacteristic
+    // over the whole package, so resending only the definition would drop the package's other
+    // characteristics, and the proxy cannot validate a schema it does not know either.
+    if (this.deploymentReadOnly) return [];
     const current = this.currentDeploymentDefinition();
     if (!current) return [];
 
