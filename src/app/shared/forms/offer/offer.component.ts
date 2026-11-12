@@ -1926,9 +1926,9 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     return prodSpec && (prodSpec as any).externalId;
   }
 
-  /** What the offer sells is made when it is saved (a dataset), so there is nothing real to preview while creating it. */
+  /** What the offer sells is made when it is saved (a dataset or an API), so there is nothing real to preview while creating it. */
   get previewable(): boolean {
-    return !this.dataset;
+    return !this.dataset && !this.apiOffer;
   }
 
   emitPreview(): void {

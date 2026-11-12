@@ -870,11 +870,14 @@ describe('OfferComponent', () => {
   });
 
   describe('previewable', () => {
-    it('can be previewed, except while a dataset is being made: it does not exist yet', () => {
+    it('can be previewed, except while a dataset or an API is being made: they do not exist yet', () => {
       expect(component.previewable).toBeTrue();
 
       component.dataset = true;
+      expect(component.previewable).toBeFalse();
 
+      component.dataset = false;
+      component.apiOffer = true;
       expect(component.previewable).toBeFalse();
     });
   });
