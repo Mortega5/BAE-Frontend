@@ -81,6 +81,15 @@ my-offerings passes `[showDesktopSidebar]="isListView"` so the create/edit
 child routes get the full width on desktop but the mobile nav stays reachable
 throughout.
 
+`storageKey` names the menu in `localStorage` (`side_nav_collapsed:<key>`), where the
+sections the user folded are kept as `{ "<section label>": true|false }` and come back
+on the next visit. **Give every menu its own key** — two menus with the same one would
+share their folds — and keep it stable, so a retitled or translated menu doesn't lose
+what users had saved. It falls back to `title`; a menu with neither keeps nothing.
+Precedence: what the user toggled this visit, then what was saved, then the section's
+`defaultCollapsed`; a section still opens by itself while the current page is one of
+its items.
+
 The `<router-outlet>` is projected in by the page, not owned by this
 component — it lands in the unnamed default slot (everything that isn't
 tagged `sideNavFooter`), so it can go anywhere in the tag's content, in any

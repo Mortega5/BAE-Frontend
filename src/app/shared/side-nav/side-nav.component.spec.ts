@@ -10,10 +10,11 @@ import { SideNavSection } from './side-nav.model';
 @Component({
   standalone: true,
   imports: [SideNavComponent],
-  template: `<app-side-nav [sections]="sections" [title]="title" [showDesktopSidebar]="showDesktopSidebar"><div>Body content</div><div sideNavFooter>Help card</div></app-side-nav>`,
+  template: `<app-side-nav [sections]="sections" [title]="title" [storageKey]="storageKey" [showDesktopSidebar]="showDesktopSidebar"><div>Body content</div><div sideNavFooter>Help card</div></app-side-nav>`,
 })
 class HostComponent {
   title = 'NS._title';
+  storageKey?: string;
   showDesktopSidebar = true;
   onActionClick = jasmine.createSpy('onActionClick');
   sections: SideNavSection[] = [
@@ -157,6 +158,7 @@ describe('SideNavComponent', () => {
       .find((b: any) => b.textContent.includes(text)) as HTMLButtonElement;
 
     beforeEach(() => {
+      localStorage.clear();
       hostFixture.componentInstance.sections = [
         ...hostFixture.componentInstance.sections,
         { label: 'NS._open', collapsible: true, items: [{ label: 'NS._open_item', routerLink: '/open' }] },
@@ -185,6 +187,35 @@ describe('SideNavComponent', () => {
       header('NS._open').click();
       hostFixture.detectChanges();
       expect(hrefs()).not.toContain('/open');
+    });
+
+    it('remembers what the user left folded for the next visit', () => {
+      header('NS._open').click();
+      hostFixture.detectChanges();
+      const saved = Object.values(localStorage).find(v => v.includes('NS._open'))!;
+      expect(JSON.parse(saved)).toEqual({ 'NS._open': true });
+
+      // A new menu starts from what was saved
+      const fresh = TestBed.createComponent(HostComponent);
+      fresh.componentInstance.sections = hostFixture.componentInstance.sections;
+      fresh.detectChanges();
+      const links = Array.from(fresh.nativeElement.querySelectorAll('[data-cy="sideNavDesktop"] a'))
+        .filter((a: any) => !a.closest('[inert]')).map((a: any) => a.getAttribute('href'));
+      expect(links).not.toContain('/open');
+    });
+
+    it('keeps the folds under the storage key when there is one, and nowhere without a key or title', () => {
+      hostFixture.componentInstance.storageKey = 'my-menu';
+      hostFixture.detectChanges();
+      header('NS._open').click();
+      expect(JSON.parse(localStorage.getItem('side_nav_collapsed:my-menu')!)).toEqual({ 'NS._open': true });
+
+      localStorage.clear();
+      hostFixture.componentInstance.storageKey = undefined;
+      hostFixture.componentInstance.title = undefined as any;
+      hostFixture.detectChanges();
+      header('NS._open').click();
+      expect(Object.keys(localStorage).filter(k => k.startsWith('side_nav_collapsed'))).toEqual([]);
     });
 
     it('keeps a plain labelled section as a non-interactive label that always shows its items', () => {
