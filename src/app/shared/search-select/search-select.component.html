@@ -52,9 +52,9 @@
           class="w-4 h-4 flex-shrink-0 bg-surface-muted checked:bg-primary-100 dark:checked:bg-primary-100 border-line-input rounded text-primary-600 focus:ring-primary-100" />
         }
         <span class="flex-1 min-w-0 flex flex-col">
-          <span class="truncate">{{ option.label | translate }}</span>
+          <span class="truncate" [title]="option.label | translate">{{ option.label | translate }}</span>
           @if (option.subtitle) {
-          <span class="truncate text-xs text-content-muted">{{ option.subtitle | translate }}</span>
+          <span class="truncate text-xs text-content-muted" [title]="option.subtitle | translate">{{ option.subtitle | translate }}</span>
           }
         </span>
       </li>
