@@ -4,8 +4,8 @@ import { DEPLOYMENT_DEFINITION_OVERLAY } from 'src/app/shared/json-schema/overla
 import { createSchemaForm } from 'src/app/shared/json-schema/schema-form-group';
 import { SchemaRegistryService } from 'src/app/shared/json-schema/schema-registry.service';
 import {
-  DEPLOYMENT_DEFINITION_V1,
-  DEPLOYMENT_DEFINITION_V1_URL,
+  DEPLOYMENT_DEFINITION_V2,
+  DEPLOYMENT_DEFINITION_V2_URL,
   MODEL_DEPLOYMENT_DEFINITIONS,
 } from 'src/app/shared/json-schema/testing/model-fixtures';
 import { environment } from 'src/environments/environment';
@@ -13,7 +13,7 @@ import { ResourceSpecFormComponent } from './resource-spec-form.component';
 
 /** What a SoftwareSpecification sends: the package characteristics and the declared spec ones. */
 describe('ResourceSpecFormComponent payload', () => {
-  const loaded = new SchemaRegistryService({} as HttpClient).compile(DEPLOYMENT_DEFINITION_V1_URL, DEPLOYMENT_DEFINITION_V1);
+  const loaded = new SchemaRegistryService({} as HttpClient).compile(DEPLOYMENT_DEFINITION_V2_URL, DEPLOYMENT_DEFINITION_V2);
 
   function component(): ResourceSpecFormComponent {
     const c = new ResourceSpecFormComponent(
@@ -74,7 +74,7 @@ describe('ResourceSpecFormComponent payload', () => {
   });
 
   describe('schema version', () => {
-    const V1 = DEPLOYMENT_DEFINITION_V1_URL;
+    const CURRENT = DEPLOYMENT_DEFINITION_V2_URL;
     const OLDER = 'https://tm-forum-model-66feba.pages.o-cei.eu/schemas/v0/deployment-definition.json';
     const stored = (value: any, location: string) => ({ name: 'deploymentDefinition', valueType: 'DeploymentDefinition', '@schemaLocation': location, value });
 
@@ -90,10 +90,10 @@ describe('ResourceSpecFormComponent payload', () => {
       const c = component();
       const value = { type: 'helm', version: '1.0', properties: { repository: 'https://r.example', chart: 'c', version: '1', values: ['a: 1'], releaseName: 'x' } };
       (c as any).originalDeploymentChar = stored(value, OLDER);
-      (c as any).storedDeploymentChoice = { url: V1, loaded, upgraded: true };
+      (c as any).storedDeploymentChoice = { url: CURRENT, loaded, upgraded: true };
 
       const [definition] = prepare(c).resourceCharacteristic;
-      expect(definition['@schemaLocation']).toBe(V1);
+      expect(definition['@schemaLocation']).toBe(CURRENT);
       expect(definition.value.properties).toEqual({ repository: 'https://r.example', chart: 'c', version: '1', values: 'a: 1' });
       expect(loaded.validate(definition.value)).toEqual([]);
     });

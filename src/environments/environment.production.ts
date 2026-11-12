@@ -99,7 +99,7 @@ export const environment = {
   analyticsGuestTokenEndpoint: '/analytics/guest-token',
   feedbackCampaign: false,
   feedbackCampaignExpiration: 0,
-  DEPLOYMENT_SCHEMA_LOCATION: 'https://tm-forum-model-66feba.pages.o-cei.eu/schemas/v1/deployment-definition.json',
+  DEPLOYMENT_SCHEMA_LOCATION: 'https://tm-forum-model-66feba.pages.o-cei.eu/schemas/v2/deployment-definition.json',
   SELLER_ROLE: 'Seller',
   BUYER_ROLE: 'Buyer',
   ADMIN_ROLE: 'Admin',
