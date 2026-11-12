@@ -11,6 +11,7 @@ import { EventMessageService } from '../../services/event-message.service';
 import { SearchStateService } from '../../services/search-state.service';
 import { LoginServiceService } from 'src/app/services/login-service.service';
 import { ThemeService } from 'src/app/services/theme.service';
+import { environment } from 'src/environments/environment';
 
 describe('SearchComponent', () => {
   let component: SearchComponent;
@@ -19,6 +20,7 @@ describe('SearchComponent', () => {
   let localStorageSpy: jasmine.SpyObj<LocalStorageService>;
   let eventMessageSpy: jasmine.SpyObj<EventMessageService>;
   let stateMock: {
+    sort: string;
     products: any[];
     page: number;
     page_check: boolean;
@@ -81,6 +83,7 @@ describe('SearchComponent', () => {
       selectedCatalogId: null,
       activeCategoryName: null,
       offerTab: 'public',
+      sort: 'recent',
       publicPage: 1,
       privatePage: 1,
       hasState: jasmine.createSpy('hasState').and.returnValue(false),
@@ -218,6 +221,8 @@ describe('SearchComponent', () => {
         catalogId: undefined,
         keywords: undefined,
         visibility: 'public',
+        orderBy: 'lastUpdate',
+        orderDirection: 'desc',
       });
       expect(component.publicItems).toEqual([{ id: 'p1' }] as any);
       expect(component.publicTotal).toBe(25);
@@ -238,6 +243,8 @@ describe('SearchComponent', () => {
         catalogId: undefined,
         keywords: undefined,
         visibility: 'private',
+        orderBy: 'lastUpdate',
+        orderDirection: 'desc',
       });
       expect(component.privateItems).toEqual([{ id: 'p1' }] as any);
       expect(component.privateTotal).toBe(3);
@@ -279,6 +286,84 @@ describe('SearchComponent', () => {
       }));
       expect(component.publicPage).toBe(2);
       expect(component.publicItems).toEqual([{ id: 'p1' }, { id: 'p2' }] as any);
+    });
+
+    describe('sort', () => {
+      let searchEnabled: boolean;
+      beforeEach(() => {
+        searchEnabled = environment.SEARCH_ENABLED;
+        localStorageSpy.getValidLoginInfo.and.returnValue({ id: 'u1', logged_as: 'u1', partyId: 'party-1', organizations: [] } as any);
+      });
+      afterEach(() => { environment.SEARCH_ENABLED = searchEnabled; });
+
+      const lastRequests = () => apiSpy.getOfferingsPaged.calls.allArgs().map(args => args[0]);
+
+      it('asks for the latest first by default, in both sections', async () => {
+        await component.ngOnInit();
+
+        expect(lastRequests().length).toBeGreaterThan(0);
+        for (const request of lastRequests()) {
+          expect(request).toEqual(jasmine.objectContaining({ orderBy: 'lastUpdate', orderDirection: 'desc' }));
+        }
+      });
+
+      it('takes the sort from the URL', async () => {
+        routeQueryParams['sort'] = 'name_desc';
+
+        await component.ngOnInit();
+
+        expect(component.sort).toBe('name_desc');
+        expect(lastRequests()[0]).toEqual(jasmine.objectContaining({ orderBy: 'name', orderDirection: 'desc' }));
+      });
+
+      it('ignores a sort in the URL that does not exist', async () => {
+        routeQueryParams['sort'] = 'nonsense';
+
+        await component.ngOnInit();
+
+        expect(component.sort).toBe('recent');
+      });
+
+      it('selectSort should refresh both sections in that order and keep it in the URL', async () => {
+        await component.ngOnInit();
+        apiSpy.getOfferingsPaged.calls.reset();
+        routerSpy.navigate.calls.reset();
+
+        component.selectSort('name_asc');
+        await Promise.resolve();
+        await new Promise(resolve => setTimeout(resolve));
+
+        expect(lastRequests().length).toBeGreaterThan(0);
+        for (const request of lastRequests()) {
+          expect(request).toEqual(jasmine.objectContaining({ orderBy: 'name', orderDirection: 'asc', offset: 0 }));
+        }
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/search'], jasmine.objectContaining({
+          queryParams: jasmine.objectContaining({ sort: 'name_asc' }),
+        }));
+      });
+
+      it('leaves the default sort out of the URL', async () => {
+        await component.ngOnInit();
+        routerSpy.navigate.calls.reset();
+
+        component.selectSort('recent');
+
+        expect(routerSpy.navigate).toHaveBeenCalledWith(['/search'], jasmine.objectContaining({
+          queryParams: jasmine.objectContaining({ sort: null }),
+        }));
+      });
+
+      it('keeps the relevance of a search engine unless a name is chosen', async () => {
+        environment.SEARCH_ENABLED = true;
+        component.keywords = 'sensor';
+
+        await component.loadPublicOfferings(1);
+        expect(lastRequests()[lastRequests().length - 1].orderBy).toBeUndefined();
+
+        component.sort = 'name_asc';
+        await component.loadPublicOfferings(1);
+        expect(lastRequests()[lastRequests().length - 1]).toEqual(jasmine.objectContaining({ orderBy: 'name', orderDirection: 'asc' }));
+      });
     });
 
     it('onCategoryChange should set the filter and refresh both sections', async () => {
@@ -358,7 +443,7 @@ describe('SearchComponent', () => {
     component.syncUrl();
 
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/search'], {
-      queryParams: { keyword: 'ai', category: 'cat-1', catalog: null, tab: null },
+      queryParams: { keyword: 'ai', category: 'cat-1', catalog: null, tab: null, sort: null },
       replaceUrl: true,
     });
   });

@@ -7,6 +7,7 @@ export class SearchStateService {
   selectedCatalogId: string | null = null;
   activeCategoryName: string | null = null;
   offerTab: 'public' | 'private' = 'public';
+  sort: 'recent' | 'name_asc' | 'name_desc' = 'recent';
   publicPage: number = 1;
   privatePage: number = 1;
 
@@ -34,6 +35,7 @@ export class SearchStateService {
     this.selectedCatalogId = null;
     this.activeCategoryName = null;
     this.offerTab = 'public';
+    this.sort = 'recent';
     this.publicPage = 1;
     this.privatePage = 1;
     this.hasStandardState = false;

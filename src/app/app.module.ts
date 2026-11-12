@@ -40,6 +40,7 @@ import { ProductInvDetailComponent } from './pages/product-inventory/inventory-i
 import { InventoryResourcesComponent } from './pages/product-inventory/inventory-resources/inventory-resources.component';
 import { InventoryServicesComponent } from './pages/product-inventory/inventory-services/inventory-services.component';
 import { ProductInventoryComponent } from "./pages/product-inventory/product-inventory.component";
+import { SortDropdownComponent } from "./shared/sort-dropdown/sort-dropdown.component";
 import { SegmentedToggleComponent } from "./shared/segmented-toggle/segmented-toggle.component";
 import { OrderDetailsComponent } from "./shared/order-details/order-details.component";
 import { InventoryTabsComponent } from "./pages/product-inventory/inventory-tabs/inventory-tabs.component";
@@ -212,6 +213,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     InventoryTabsComponent,
     OrderDetailsComponent,
     SegmentedToggleComponent,
+    SortDropdownComponent,
     SearchInputComponent,
     ViewToggleComponent,
     EmptyStateComponent,

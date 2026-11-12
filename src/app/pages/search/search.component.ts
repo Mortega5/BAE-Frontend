@@ -154,6 +154,8 @@ export class SearchComponent implements OnInit, OnDestroy {
     this.activeCategoryName = this.categoryOptions.find(o => o.value === this.selectedCategoryId)?.label ?? null;
     this.selectedCatalogId = this.catalogFilterEnabled ? query.get('catalog') : null;
     this.offerTab = query.get('tab') === 'private' ? 'private' : 'public';
+    const sort = query.get('sort');
+    this.sort = this.sortOptions.find(option => option.value === sort)?.value ?? 'recent';
 
     // The saved state only adds how many "load more" pages were open, and only applies when
     // it was saved for this very search (e.g. back from an offer's details).
@@ -322,6 +324,31 @@ export class SearchComponent implements OnInit, OnDestroy {
   /** `append: true` (a "load more" click) fetches just the next chunk and appends it;
    * otherwise (initial load, filter change, or restoring saved state) it fetches every
    * item from the start up to `page` in one request and replaces the list. */
+  /** What the user chose to sort by. "Recently added" is the default: asked for no order, the server answers with the
+   * oldest first, which leaves what was just published at the very end. */
+  sort: 'recent' | 'name_asc' | 'name_desc' = 'recent';
+  readonly sortOptions: { value: 'recent' | 'name_asc' | 'name_desc'; label: string }[] = [
+    { value: 'recent', label: 'CATALOGS._sort_recent' },
+    { value: 'name_asc', label: 'CATALOGS._sort_name_asc' },
+    { value: 'name_desc', label: 'CATALOGS._sort_name_desc' },
+  ];
+
+  /** What the sort asks the server for. A search with an engine behind it is ordered by relevance, which "recent"
+   * (the default, not a choice) would undo; choosing a name does ask for that order. */
+  private get offerOrder(): { orderBy?: string; orderDirection?: 'asc' | 'desc' } {
+    switch (this.sort) {
+      case 'name_asc': return { orderBy: 'name', orderDirection: 'asc' };
+      case 'name_desc': return { orderBy: 'name', orderDirection: 'desc' };
+      default: return this.keywords && environment.SEARCH_ENABLED ? {} : { orderBy: 'lastUpdate', orderDirection: 'desc' };
+    }
+  }
+
+  selectSort(sort: 'recent' | 'name_asc' | 'name_desc'): void {
+    this.sort = sort;
+    this.syncUrl();
+    void this.refreshOfferings();
+  }
+
   async loadPublicOfferings(page: number, options?: { append?: boolean }): Promise<void> {
     const append = options?.append ?? false;
     if (append) {
@@ -337,6 +364,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         catalogId: this.selectedCatalogId ?? undefined,
         keywords: this.keywords,
         visibility: 'public',
+        ...this.offerOrder,
       });
       const enriched = await this.api.getProductsDetails(result.items);
       this.publicItems = append ? [...this.publicItems, ...enriched] : enriched;
@@ -376,6 +404,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         catalogId: this.selectedCatalogId ?? undefined,
         keywords: this.keywords,
         visibility: 'private',
+        ...this.offerOrder,
       });
       const enriched = await this.api.getProductsDetails(result.items);
       this.privateItems = append ? [...this.privateItems, ...enriched] : enriched;
@@ -410,6 +439,7 @@ export class SearchComponent implements OnInit, OnDestroy {
       selectedCatalogId: this.selectedCatalogId,
       activeCategoryName: this.activeCategoryName,
       offerTab: this.offerTab,
+      sort: this.sort,
       publicPage: this.publicPage,
       privatePage: this.privatePage,
     });
@@ -429,6 +459,7 @@ export class SearchComponent implements OnInit, OnDestroy {
         category: this.selectedCategoryId || null,
         catalog: this.selectedCatalogId || null,
         tab: this.offerTab === 'private' ? 'private' : null,
+        sort: this.sort === 'recent' ? null : this.sort,
       },
       replaceUrl: true,
     });
@@ -437,7 +468,8 @@ export class SearchComponent implements OnInit, OnDestroy {
   private stateMatchesFilters(): boolean {
     return (this.state.keywords ?? undefined) === this.keywords
       && this.state.selectedCategoryId === this.selectedCategoryId
-      && this.state.selectedCatalogId === this.selectedCatalogId;
+      && this.state.selectedCatalogId === this.selectedCatalogId
+      && this.state.sort === this.sort;
   }
 
   async onUnifiedSearch(): Promise<void> {

@@ -120,9 +120,12 @@
             @if (offerTab === 'private') {
             <p class="mb-2 text-[14px] text-content-muted">{{ 'DASHBOARD._private_offers_desc' | translate }}</p>
             @if (!privateLoading) {
-            <span class="mb-4 block text-[14px] text-content-muted">
-              {{ 'DASHBOARD._results_of_total' | translate: { count: privateItems.length, total: privateTotal } }}
-            </span>
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+              <span class="text-[14px] text-content-muted">
+                {{ 'DASHBOARD._results_of_total' | translate: { count: privateItems.length, total: privateTotal } }}
+              </span>
+              <app-sort-dropdown [options]="sortOptions" [value]="sort" (valueChange)="selectSort($any($event))" />
+            </div>
             }
             @if (privateLoading) {
             <app-loading-spinner />
@@ -151,10 +154,11 @@
             }
             } @else {
             @if (!publicLoading) {
-            <div class="mb-4 flex items-center justify-between">
+            <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
               <span class="text-[14px] text-content-muted">
                 {{ 'DASHBOARD._results_of_total' | translate: { count: publicItems.length, total: publicTotal } }}
               </span>
+              <app-sort-dropdown [options]="sortOptions" [value]="sort" (valueChange)="selectSort($any($event))" />
             </div>
             }
 
