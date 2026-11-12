@@ -1,8 +1,8 @@
 <div class="w-full">
   <div class="relative flex items-center">
-    <button type="button" (click)="prefixMenuOpen = !prefixMenuOpen" [disabled]="isReadonly"
+    <button type="button" (click)="togglePrefixMenu()" [disabled]="isReadonly"
       [class.opacity-60]="isReadonly" [class.cursor-not-allowed]="isReadonly"
-      class="mb-2 flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-content bg-surface-muted border border-line-input rounded-s-lg hover:bg-skeleton focus:ring-4 focus:outline-none focus:ring-focus">
+      class="flex-shrink-0 z-10 inline-flex items-center py-2.5 px-4 text-sm font-medium text-center text-content bg-surface-muted border border-line-input rounded-s-lg hover:bg-skeleton focus:ring-4 focus:outline-none focus:ring-focus">
       {{ prefix.flag }} {{ prefix.code }}
       <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
         viewBox="0 0 10 6">
@@ -12,22 +12,30 @@
     </button>
     @if (prefixMenuOpen) {
     <div
-      class="absolute bottom-12 right-0 z-20 max-h-48 w-full bg-surface-input divide-y divide-line border-line-input text-content rounded-lg shadow overflow-y-auto">
-      <ul class="py-2 text-sm text-content-secondary" aria-labelledby="dropdown-phone-button">
-        <li>
-          @for (pref of prefixes; track pref.code) {
+      class="absolute bottom-full left-0 z-20 mb-1 w-full overflow-hidden bg-surface-input border border-line-input text-content rounded-lg shadow">
+      <div class="p-2 border-b border-line">
+        <input #prefixSearch type="text" [value]="prefixQuery" (input)="prefixQuery = $any($event.target).value"
+          (keydown.escape)="closePrefixMenu(); $event.stopPropagation()" [attr.aria-label]="'FORMS.PHONE_INPUT._search_placeholder' | translate"
+          [placeholder]="'FORMS.PHONE_INPUT._search_placeholder' | translate" data-cy="phonePrefixSearch"
+          class="bg-surface-input border border-line-input text-content text-sm rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2" />
+      </div>
+      <ul class="max-h-48 overflow-y-auto py-2 text-sm text-content-secondary" role="listbox">
+        @for (pref of filteredPrefixes; track pref.country) {
+        <li role="presentation">
           <button type="button" (click)="selectPrefix(pref)"
             class="inline-flex w-full px-4 py-2 text-sm text-content-secondary hover:bg-surface-muted"
-            role="menuitem">
+            role="option" [attr.aria-selected]="pref.country === prefix.country">
             <div class="inline-flex items-center">{{ pref.text }}</div>
           </button>
-          }
         </li>
+        } @empty {
+        <li class="px-4 py-2 text-content-muted" data-cy="phonePrefixNoResults">{{ 'COMMON._no_results' | translate }}</li>
+        }
       </ul>
     </div>
     }
     <input min="0" type="number" [attr.placeholder]="placeholder || null" [value]="nationalNumber" (input)="onNumberInput($any($event.target).value)"
       [disabled]="isReadonly" [class.opacity-60]="isReadonly" [class.cursor-not-allowed]="isReadonly"
-      class="mb-2 bg-surface-input border text-content text-sm rounded-r-lg focus:ring-focus focus:border-primary-100 block w-full p-2.5">
+      class="-ms-px bg-surface-input border border-line-input text-content text-sm rounded-r-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5">
   </div>
 </div>

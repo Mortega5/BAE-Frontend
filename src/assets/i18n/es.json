@@ -3177,6 +3177,9 @@
       "_period": "Periodo",
       "_price": "Precio"
     },
+    "PHONE_INPUT": {
+      "_search_placeholder": "Busca por país o prefijo"
+    },
     "PAGINATED_TABLE": {
       "_rows_per_page": "Filas por página",
       "_showing": "Mostrando {{rangeStart}}-{{rangeEnd}} de {{total}}",
