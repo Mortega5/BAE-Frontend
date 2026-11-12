@@ -1279,7 +1279,11 @@
     "_price": "Precio",
     "_img": "Imagen",
     "_custom": "Personalizado",
-    "_free": "Gratis"
+    "_free": "Gratis",
+    "_general_user_subtitle": "Los datos de tu cuenta y tu información personal",
+    "_general_org_subtitle": "Los datos de tu organización, su logo y sus contactos",
+    "_mybills_subtitle": "Las direcciones a las que se facturan tus compras",
+    "_revenue_subtitle": "Cómo se reparte el ingreso de tus ventas"
   },
   "PRODUCT_INVENTORY": {
     "_loading": "Cargando...",

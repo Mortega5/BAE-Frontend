@@ -1279,7 +1279,11 @@
     "_price": "Price",
     "_img": "Img",
     "_custom": "Custom",
-    "_free": "Free"
+    "_free": "Free",
+    "_general_user_subtitle": "Your account details and personal information",
+    "_general_org_subtitle": "The details of your organization, its logo and its contacts",
+    "_mybills_subtitle": "The addresses your purchases are billed to",
+    "_revenue_subtitle": "How the revenue of your sales is shared"
   },
   "PRODUCT_INVENTORY": {
     "_loading": "Loading...",

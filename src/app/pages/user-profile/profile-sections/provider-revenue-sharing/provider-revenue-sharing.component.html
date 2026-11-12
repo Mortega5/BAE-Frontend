@@ -1,7 +1,7 @@
 <app-card>
   <div appCardHeader>
-    <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-content m-4">Provider revenue sharing
-    </h2>
+    <h2 class="text-2xl font-bold text-content">{{ 'PROFILE._revenue' | translate }}</h2>
+    <p class="mt-1 text-sm text-content-muted">{{ 'PROFILE._revenue_subtitle' | translate }}</p>
   </div>
   <div appCardContent>
     @if (loading) {
@@ -9,7 +9,7 @@
     } @else {
 
     @for (section of report; track section) {
-    <app-card class="m-4">
+    <app-card variant="inset" class="mb-4 block last:mb-0">
       <div appCardContent>
         <app-revenue-report [node]="section"></app-revenue-report>
       </div>

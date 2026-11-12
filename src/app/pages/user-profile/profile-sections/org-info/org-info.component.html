@@ -1,19 +1,24 @@
 @if (loading) {
 <app-loading-spinner containerClass="w-3/4 md:w-4/5 h-full flex justify-center align-middle" />
 } @else {
-<app-card>
-  <div appCardBody>
-    <div>
-      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-content m-4">{{ 'PROFILE._organization'
-        |
-        translate }}</h2>
-    </div>
-    <app-dynamic-form class="block m-4" [fields]="orgFields" [formGroup]="profileForm" [columns]="2" />
+<div class="mb-6">
+  <h2 class="text-2xl font-bold text-content">{{ 'PROFILE._general' | translate }}</h2>
+  <p class="mt-1 text-sm text-content-muted">{{ 'PROFILE._general_org_subtitle' | translate }}</p>
+</div>
 
-    @if(!isReadOnly){
-    <div class="flex">
-      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-content m-4">{{ 'PROFILE._add_logo' |
-        translate }}</h2>
+<div class="flex flex-col gap-6">
+  <app-card>
+    <div appCardHeader>
+      <h3 class="text-xl font-bold text-content">{{ 'PROFILE._organization' | translate }}</h3>
+    </div>
+    <app-dynamic-form class="block" [fields]="orgFields" [formGroup]="profileForm" [columns]="2" />
+  </app-card>
+
+  @if(!isReadOnly){
+  <app-card>
+    <div appCardHeader class="flex items-center">
+      <h3 class="text-xl font-bold text-content">{{ 'PROFILE._add_logo' |
+        translate }}</h3>
       <div class="flex inline-flex ml-2 align-middle">
         <svg data-popover-target="popover-logo" class="flex self-center w-6 h-6 text-primary-100" clip-rule="evenodd"
           aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
@@ -33,17 +38,16 @@
       </div>
       <div data-popper-arrow></div>
     </div>
-    <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-content border-0">
     @if(showImgPreview){
     <div
-      class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl px-8 pb-8 pt-40 max-w-sm mx-auto m-4 shadow-lg">
+      class="relative isolate flex flex-col justify-end overflow-hidden rounded-2xl px-8 pb-8 pt-40 max-w-sm mx-auto shadow-lg">
       <img src="{{imgPreview}}" class="absolute inset-0 h-full w-full object-cover">
       <app-button (click)="removeImg()" variant="danger" size="sm" prefixIcon="xmark"
         class="z-10 absolute top-2 right-2" />
     </div>
     } @else {
     <div class="flex w-full justify-center justify-items-center">
-      <ngx-file-drop class="m-4 p-4 w-full" dropZoneLabel="Drop files here" (onFileDrop)="dropped($event,'img')"
+      <ngx-file-drop class="p-4 w-full" dropZoneLabel="Drop files here" (onFileDrop)="dropped($event,'img')"
         (onFileOver)="fileOver($event)" (onFileLeave)="fileLeave($event)" accept="image/png,image/svg">
         <ng-template class="w-full" ngx-file-drop-content-tmp let-openFileSelector="openFileSelector">
           <div class="w-full flex flex-col justify-items-center justify-center">
@@ -62,8 +66,8 @@
         </ng-template>
       </ngx-file-drop>
     </div>
-    <label class="font-bold pl-6 text-content">{{ 'PROFILE._add_logo_url' | translate }}</label>
-    <div class="relative w-full pl-6 mt-2 mb-2">
+    <label class="font-bold text-content">{{ 'PROFILE._add_logo_url' | translate }}</label>
+    <div class="relative w-full mt-2 mb-2">
       <!-- Tooltip (Above the Input, Positioned Up) -->
       <div *ngIf="attImageName.invalid && attImageName.touched"
         class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max bg-gray-900 text-white text-xs rounded-lg p-2 shadow-lg z-50">
@@ -84,20 +88,21 @@
       </div>
     </div>
     }
-    }
+  </app-card>
+  }
 
-    <div class="flex items-center justify-between">
-      <h2 class="md:text-3xl lg:text-4xl font-bold text-primary-100 ml-4 dark:text-content m-4">{{ 'PROFILE._contact_info'
+  <app-card>
+    <div appCardHeader class="flex w-full items-center justify-between gap-3">
+      <h3 class="text-xl font-bold text-content">{{ 'PROFILE._contact_info'
         |
-        translate }}</h2>
+        translate }}</h3>
       @if (!isReadOnly && contactmediums.length > 0) {
-      <app-button type="button" (click)="openAddMedium()" suffixIcon="plus" class="mr-4">
+      <app-button type="button" (click)="openAddMedium()" suffixIcon="plus">
         {{ 'PROFILE._add_new_contact' | translate }}
       </app-button>
       }
     </div>
-    <hr class="h-px mr-4 ml-4 bg-primary-100 dark:bg-content border-0">
-    <div class="m-4">
+    <div>
       @if (contactmediums.length === 0) {
       <div
         class="rounded-2xl border border-dashed border-line-input flex flex-col items-center justify-center px-6 py-12 text-center">
@@ -123,15 +128,16 @@
       <app-table-input [columns]="contactMediumColumns" [items]="contactmediums" [selectable]="false" />
       }
     </div>
-  </div>
+  </app-card>
+
   @if(!isReadOnly){
-  <div appCardFooter>
+  <div class="flex justify-end">
     <app-button data-cy="orgUpdate" type="button" [disabled]="!profileForm.valid" (click)="updateProfile()">
       {{ 'PROFILE._update' | translate }}
     </app-button>
   </div>
   }
-</app-card>
+</div>
 }
 @if(showError){
 <error-message
