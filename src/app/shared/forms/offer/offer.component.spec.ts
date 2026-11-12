@@ -869,6 +869,16 @@ describe('OfferComponent', () => {
     });
   });
 
+  describe('previewable', () => {
+    it('can be previewed, except while a dataset is being made: it does not exist yet', () => {
+      expect(component.previewable).toBeTrue();
+
+      component.dataset = true;
+
+      expect(component.previewable).toBeFalse();
+    });
+  });
+
   describe('goBack', () => {
     it('should navigate to the offers list', () => {
       const navigateSpy = spyOn(router, 'navigate');

@@ -2462,6 +2462,8 @@
     "_leave_save_draft": "Salir y guardar borrador",
     "_preview_product_details": "Detalles del producto",
     "_preview_card": "Vista previa de la tarjeta",
+    "_create_confirm_title": "Crear oferta",
+    "_create_confirm_desc": "Guárdala como borrador para revisarla después, o publícala ahora.",
     "_preview_overview": "Descripción general",
     "_preview_pricing": "Precios",
     "_preview_compliance": "Cumplimiento",

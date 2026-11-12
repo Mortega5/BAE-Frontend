@@ -12,6 +12,10 @@ export class OfferPreviewModalComponent {
   @Output() closed = new EventEmitter<void>();
   @Output() submitted = new EventEmitter<'draft' | 'publish' | 'update'>();
 
+  /** The product the offer sells does not exist yet (a dataset or an API is made when the offer is saved), so there is nothing real to
+   * preview: the modal only asks whether to save the offer as a draft or to publish it. */
+  @Input() confirmOnly = false;
+
   activeTab: 'details' | 'card' = 'details';
 
   submit(action: 'draft' | 'publish' | 'update'): void {

@@ -1,26 +1,30 @@
-<app-modal [visible]="!!previewProductOff" width="max-w-6xl" (closed)="close()">
+<app-modal [visible]="!!previewProductOff" [width]="confirmOnly ? 'max-w-lg' : 'max-w-6xl'" (closed)="close()">
   <div appCardHeader class="flex flex-col gap-4">
       <div class="flex items-center justify-between">
-        <h2 class="text-xl font-extrabold text-content">{{ 'CREATE_OFFER._preview' | translate }}</h2>
+        <h2 class="text-xl font-extrabold text-content">{{ (confirmOnly ? 'CREATE_OFFER._create_confirm_title' : 'CREATE_OFFER._preview') | translate }}</h2>
         <app-button type="button" (click)="close()" variant="ghost" size="sm" prefixIcon="xmark" />
       </div>
 
-      <div class="flex items-stretch -mb-4">
-        <button type="button" (click)="activeTab = 'details'"
-          class="px-6 py-3 text-base font-semibold border-b-[3px] -mb-px transition-colors"
-          [ngClass]="activeTab === 'details' ? 'text-content border-primary-100 dark:border-primary-50' : 'text-content-muted border-transparent hover:text-content'">
-          {{ 'CREATE_OFFER._preview_product_details' | translate }}
-        </button>
-        <button type="button" (click)="activeTab = 'card'"
-          class="px-6 py-3 text-base font-semibold border-b-[3px] -mb-px transition-colors"
-          [ngClass]="activeTab === 'card' ? 'text-content border-primary-100 dark:border-primary-50' : 'text-content-muted border-transparent hover:text-content'">
-          {{ 'CREATE_OFFER._preview_card' | translate }}
-        </button>
-      </div>
+      @if (!confirmOnly) {
+        <div class="flex items-stretch -mb-4">
+          <button type="button" (click)="activeTab = 'details'"
+            class="px-6 py-3 text-base font-semibold border-b-[3px] -mb-px transition-colors"
+            [ngClass]="activeTab === 'details' ? 'text-content border-primary-100 dark:border-primary-50' : 'text-content-muted border-transparent hover:text-content'">
+            {{ 'CREATE_OFFER._preview_product_details' | translate }}
+          </button>
+          <button type="button" (click)="activeTab = 'card'"
+            class="px-6 py-3 text-base font-semibold border-b-[3px] -mb-px transition-colors"
+            [ngClass]="activeTab === 'card' ? 'text-content border-primary-100 dark:border-primary-50' : 'text-content-muted border-transparent hover:text-content'">
+            {{ 'CREATE_OFFER._preview_card' | translate }}
+          </button>
+        </div>
+      }
     </div>
 
     <div>
-      @if (activeTab === 'details' && previewProductOff) {
+      @if (confirmOnly) {
+      <p data-cy="createConfirmDesc" class="text-sm text-content-muted">{{ 'CREATE_OFFER._create_confirm_desc' | translate }}</p>
+      } @else if (activeTab === 'details' && previewProductOff) {
       <app-product-details [previewProductOff]="previewProductOff" />
       } @else {
       <div style="zoom: 0.72; pointer-events: none;">

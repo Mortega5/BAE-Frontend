@@ -2462,6 +2462,8 @@
     "_leave_save_draft": "Leave and save draft",
     "_preview_product_details": "Product details",
     "_preview_card": "Card preview",
+    "_create_confirm_title": "Create offer",
+    "_create_confirm_desc": "Save it as a draft to review it later, or publish it now.",
     "_preview_overview": "Overview",
     "_preview_pricing": "Pricing",
     "_preview_compliance": "Compliance",

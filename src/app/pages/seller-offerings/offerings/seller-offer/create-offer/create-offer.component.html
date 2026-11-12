@@ -11,7 +11,7 @@
     (previewRequested)="onPreviewRequested($event)"
     (submitPreviewRequested)="onPreviewRequested($event, 'create')"></app-offer-form>
 
-  <app-offer-preview-modal [previewProductOff]="previewProductOff" [submitMode]="previewSubmitMode"
+  <app-offer-preview-modal [previewProductOff]="previewProductOff" [confirmOnly]="dataset" [submitMode]="previewSubmitMode"
     (submitted)="onPreviewSubmitted($event)" (closed)="closePreview()" />
 
   @if(showError){
