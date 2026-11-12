@@ -3,9 +3,11 @@
   <div [class.hidden]="showDetails">
     <app-card>
       <div appCardHeader>
-        <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_INVENTORY._resources' | translate }}</h2>
-        <p class="text-sm text-content-muted mt-1">{{ 'PRODUCT_INVENTORY._resources_subtitle' | translate }}</p>
+        <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_INVENTORY._inventory' | translate }}</h2>
+        <p class="text-sm text-content-muted mt-1">{{ 'PRODUCT_INVENTORY._inventory_subtitle' | translate }}</p>
+        <app-inventory-tabs class="block mt-4" [active]="'resources'" />
       </div>
+      <p class="text-sm text-content-muted mb-4">{{ 'PRODUCT_INVENTORY._resources_subtitle' | translate }}</p>
       <app-filtered-paginated-table data-cy="resourcesTable" [columns]="resourceColumns" [fetchPage]="fetchResources"
         [filters]="resourceFilters" [filterColumns]="1" [clickable]="true" (rowClick)="selectResource($event)"
         [emptyMessage]="'PRODUCT_INVENTORY._no_resources'">

@@ -40,6 +40,7 @@ import { ProductInvDetailComponent } from './pages/product-inventory/inventory-i
 import { InventoryResourcesComponent } from './pages/product-inventory/inventory-resources/inventory-resources.component';
 import { InventoryServicesComponent } from './pages/product-inventory/inventory-services/inventory-services.component';
 import { ProductInventoryComponent } from "./pages/product-inventory/product-inventory.component";
+import { InventoryTabsComponent } from "./pages/product-inventory/inventory-tabs/inventory-tabs.component";
 import { SearchComponent } from "./pages/search/search.component";
 import { SellerCatalogsComponent } from './pages/seller-offerings/offerings/seller-catalogs/seller-catalogs.component';
 import { UpdateCatalogComponent } from './pages/seller-offerings/offerings/seller-catalogs/update-catalog/update-catalog.component';
@@ -200,6 +201,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     FilterBarComponent,
     FilteredPaginatedTableComponent,
     TileCardComponent,
+    InventoryTabsComponent,
     SearchInputComponent,
     ViewToggleComponent,
     EmptyStateComponent,

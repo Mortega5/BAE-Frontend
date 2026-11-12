@@ -1291,6 +1291,7 @@
     "_products_subtitle": "Products you have purchased",
     "_services_subtitle": "Services provisioned by your purchased products",
     "_resources_subtitle": "Resources provisioned by your purchased products",
+    "_inventory_subtitle": "Everything you have purchased: products, and the services and resources they provision",
     "_service_specs": "Service specifications",
     "_resource_specs": "Resource specifications",
     "_orders": "Orders",

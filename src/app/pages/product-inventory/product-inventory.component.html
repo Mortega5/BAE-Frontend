@@ -1,8 +1,1 @@
-@if (showTabs) {
-<app-tabs [activeTab]="activeTab" (activeTabChange)="onTabChange($event)">
-  <ng-template appTab="PRODUCT_INVENTORY._products" [tabId]="segments.products" dataCy="inventoryProducts"></ng-template>
-  <ng-template appTab="PRODUCT_INVENTORY._services" [tabId]="segments.services"></ng-template>
-  <ng-template appTab="PRODUCT_INVENTORY._resources" [tabId]="segments.resources"></ng-template>
-</app-tabs>
-}
 <router-outlet></router-outlet>
