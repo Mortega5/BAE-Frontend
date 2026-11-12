@@ -16,7 +16,7 @@ import { NotificationService } from 'src/app/services/notification.service';
 import { PaginationService } from 'src/app/services/pagination.service';
 import { ProductOrderService } from 'src/app/services/product-order-service.service';
 import { ApiServiceService } from 'src/app/services/product-service.service';
-import { BadgeStatus } from 'src/app/shared/badge/badge.component';
+import { BadgeStatus, inventoryStatusBadgeVariant, inventoryStatusLabel } from 'src/app/shared/badge/badge.component';
 import { environment } from 'src/environments/environment';
 type ProductOffering = components["schemas"]["ProductOffering"];
 
@@ -139,23 +139,11 @@ export class InventoryProductsComponent implements OnInit, OnDestroy {
   }
 
   statusBadgeVariant(status: string): BadgeStatus {
-    switch (status) {
-      case 'active': return 'info';
-      case 'created': return 'success';
-      case 'suspended': return 'warning';
-      case 'terminated': return 'danger';
-      default: return 'neutral';
-    }
+    return inventoryStatusBadgeVariant(status);
   }
 
   statusLabel(status: string): string {
-    switch (status) {
-      case 'active': return 'PRODUCT_INVENTORY._active';
-      case 'created': return 'PRODUCT_INVENTORY._created';
-      case 'suspended': return 'PRODUCT_INVENTORY._suspended';
-      case 'terminated': return 'PRODUCT_INVENTORY._terminated';
-      default: return status;
-    }
+    return inventoryStatusLabel(status);
   }
 
   getProductImage(prod: ProductOffering) {

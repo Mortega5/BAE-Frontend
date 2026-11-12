@@ -3937,9 +3937,25 @@
     "_type_dataset": "Dataset",
     "_type_api": "API",
     "_no_products": "You have not created any product yet",
-    "_not_seller": "Nothing to show yet",
-    "_not_seller_desc": "When you start selling, the orders to attend and your latest products will show up here.",
     "_pending_orders_subtitle": "Orders received through your offers that need you to act",
-    "_refresh": "Refresh"
+    "_refresh": "Refresh",
+    "_overview_buyer_subtitle": "What you have acquired and what is pending",
+    "_acquire_title": "Get new products",
+    "_acquire_subtitle": "Discover datasets, APIs and services of the marketplace",
+    "_explore_marketplace": "Explore the marketplace",
+    "_no_news": "There is nothing new in the marketplace yet",
+    "_acquired_title": "My acquired products",
+    "_acquired_subtitle": "What you have contracted right now",
+    "_view_inventory": "View my inventory",
+    "_acquired_on": "Acquired on",
+    "_no_acquired": "You have not acquired any product yet",
+    "_no_acquired_desc": "The products you get from the marketplace will show up here.",
+    "_buyer_pending_orders": "Orders pending confirmation",
+    "_buyer_pending_orders_subtitle": "Orders you have made that the provider has not completed yet",
+    "_buyer_pending_all_clear_desc": "You have no orders pending confirmation.",
+    "_view_all_my_orders": "View all my orders",
+    "_view_as": "View the overview as",
+    "_view_as_seller": "Seller",
+    "_view_as_buyer": "Buyer"
   }
 }

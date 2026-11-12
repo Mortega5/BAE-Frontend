@@ -1,0 +1,43 @@
+<app-card>
+  <div appCardHeader class="flex w-full flex-wrap items-center justify-between gap-3">
+    <div>
+      <h3 class="text-xl font-bold text-content">{{ title | translate }}</h3>
+      <p class="mt-1 text-sm text-content-muted">{{ subtitle | translate }}</p>
+    </div>
+    <app-button dataCy="refreshOrders" variant="secondary" size="sm" prefixIcon="rotate" [disabled]="refreshing"
+      (click)="refresh()">
+      {{ 'WORKSPACE._refresh' | translate }}
+    </app-button>
+  </div>
+
+  @if (!countsLoaded) {
+  <app-loading-spinner containerClass="w-full flex justify-center my-8" />
+  } @else {
+  <!-- Refreshing dims what is there and puts the spinner over it, so the card keeps its size -->
+  <div class="relative" [attr.aria-busy]="refreshing">
+    <div class="transition-opacity" [class.opacity-40]="refreshing" [class.pointer-events-none]="refreshing">
+      @if (pending === 0) {
+      <app-empty-state data-cy="pendingOrdersEmpty" [icon]="checkIcon" [heading]="emptyHeading"
+        [description]="emptyDescription"></app-empty-state>
+      } @else {
+      <app-paginated-table #ordersTable data-cy="pendingOrdersTable" [columns]="orderColumns" [fetchPage]="fetchOrders"
+        [pageSizeOptions]="pageSizeOptions" [clickable]="true" (rowClick)="openOrder($event)">
+      </app-paginated-table>
+      }
+    </div>
+    @if (refreshing) {
+    <div class="absolute inset-0 flex items-center justify-center">
+      <app-loading-spinner data-cy="pendingOrdersLoading" containerClass="flex justify-center" />
+    </div>
+    }
+  </div>
+  }
+
+  <div appCardFooter class="flex justify-end">
+    <app-button variant="link" suffixIcon="arrow-right" dataCy="viewAllOrders" (click)="goToOrders()">
+      {{ allOrdersLabel | translate }}
+    </app-button>
+  </div>
+</app-card>
+
+<app-order-details [role]="role" (orderUpdated)="onOrderUpdated()"></app-order-details>

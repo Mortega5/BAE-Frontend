@@ -49,6 +49,28 @@ export function expandLifecycleStatusFilter(values: string[]): string[] {
   return values.flatMap(value => value === 'Retired' ? ['Retired', 'Obsolete'] : [value]);
 }
 
+/** Maps the `status` of a product of the inventory (what the user has acquired) to a bae-badge status color. */
+export function inventoryStatusBadgeVariant(status: string): BadgeStatus {
+  switch (status) {
+    case 'active': return 'info';
+    case 'created': return 'success';
+    case 'suspended': return 'warning';
+    case 'terminated': return 'danger';
+    default: return 'neutral';
+  }
+}
+
+/** i18n key for the `status` of a product of the inventory. */
+export function inventoryStatusLabel(status: string): string {
+  switch (status) {
+    case 'active': return 'PRODUCT_INVENTORY._active';
+    case 'created': return 'PRODUCT_INVENTORY._created';
+    case 'suspended': return 'PRODUCT_INVENTORY._suspended';
+    case 'terminated': return 'PRODUCT_INVENTORY._terminated';
+    default: return status;
+  }
+}
+
 /** Maps the resource operational-status vocabulary (standby/available/suspended/unknown —
  * see RESOURCE_STATUS_TYPES in software.model.ts) to a bae-badge status color. */
 export function resourceStatusBadgeVariant(status: string): BadgeStatus {

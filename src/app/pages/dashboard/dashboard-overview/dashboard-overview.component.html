@@ -1,0 +1,26 @@
+<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+  <div>
+    <h2 class="text-2xl font-bold text-content">{{ 'WORKSPACE._overview' | translate }}</h2>
+    <p class="mt-1 text-sm text-content-muted">
+      {{ (showingSeller ? 'WORKSPACE._overview_subtitle' : 'WORKSPACE._overview_buyer_subtitle') | translate }}
+    </p>
+  </div>
+  @if (canSwitch) {
+  <!-- Who sells and buys looks at the overview as one or the other -->
+  <app-segmented-toggle [options]="viewOptions" [value]="showingSeller ? 'seller' : 'buyer'" label="WORKSPACE._view_as"
+    dataCy="overviewViewToggle" (valueChange)="setView($any($event))" />
+  }
+</div>
+
+<div class="block" [@.disabled]="!switched || reducedMotion">
+  @if (showingSeller) {
+  <!-- The seller view comes in from the left, the buyer one from the right, like the toggle moves -->
+  <div class="block" [@slideIn]="{ value: 'seller', params: { from: '-16px' } }">
+    <app-seller-overview></app-seller-overview>
+  </div>
+  } @else {
+  <div class="block" [@slideIn]="{ value: 'buyer', params: { from: '16px' } }">
+    <app-buyer-overview></app-buyer-overview>
+  </div>
+  }
+</div>

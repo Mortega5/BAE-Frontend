@@ -1,0 +1,91 @@
+<div class="flex flex-col gap-6">
+
+  <!-- What the user has acquired -->
+  <app-card>
+    <div appCardHeader class="flex w-full flex-wrap items-center justify-between gap-3">
+      <div>
+        <h3 class="text-xl font-bold text-content">{{ 'WORKSPACE._acquired_title' | translate }}</h3>
+        <p class="mt-1 text-sm text-content-muted">{{ 'WORKSPACE._acquired_subtitle' | translate }}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <app-button dataCy="refreshAcquired" variant="secondary" size="sm" prefixIcon="rotate" [disabled]="refreshingAcquired"
+          (click)="refreshAcquired()">
+          {{ 'WORKSPACE._refresh' | translate }}
+        </app-button>
+        <app-button variant="link" suffixIcon="arrow-right" dataCy="viewInventory" (click)="goToInventory()">
+          {{ 'WORKSPACE._view_inventory' | translate }}
+        </app-button>
+      </div>
+    </div>
+    @if (loadingAcquired) {
+    <app-loading-spinner containerClass="w-full flex justify-center my-8" />
+    } @else {
+    <!-- Refreshing dims what is there and puts the spinner over it, so the card keeps its size -->
+    <div class="relative" [attr.aria-busy]="refreshingAcquired">
+      <div class="transition-opacity" [class.opacity-40]="refreshingAcquired" [class.pointer-events-none]="refreshingAcquired">
+        @if (acquired.length === 0) {
+        <app-empty-state data-cy="acquiredEmpty" heading="WORKSPACE._no_acquired" description="WORKSPACE._no_acquired_desc">
+          <app-button variant="primary" suffixIcon="arrow-right" (click)="goToMarketplace()">
+            {{ 'WORKSPACE._explore_marketplace' | translate }}
+          </app-button>
+        </app-empty-state>
+        } @else {
+        <div class="grid grid-cols-1 place-items-center gap-4 sm:grid-cols-2 xl:grid-cols-3" data-cy="acquiredProducts">
+          @for (inv of acquired; track inv.id) {
+          <app-tile-card data-cy="acquiredProduct" [image]="getProductImage(inv.product)" [clickable]="true" (cardClick)="goToInventory()">
+            <div tileCardMediaOverlay class="absolute left-2 top-2">
+              <bae-badge variant="status" [status]="inventoryStatusBadgeVariant(inv.status)"
+                [label]="inventoryStatusLabel(inv.status) | translate"></bae-badge>
+            </div>
+            <div class="flex items-start justify-between gap-2">
+              <h5 class="min-w-0 truncate text-lg font-semibold text-content" [title]="inv.product?.name ?? ''">{{ inv.product?.name }}</h5>
+              <bae-badge variant="plain" [label]="'V' + (inv.product?.version || 'latest')"></bae-badge>
+            </div>
+            @if (inv.startDate) {
+            <p class="mt-1 text-sm text-content-muted">{{ 'WORKSPACE._acquired_on' | translate }} {{ inv.startDate | date: 'dd/MM/yyyy' }}</p>
+            }
+          </app-tile-card>
+          }
+        </div>
+        }
+      </div>
+      @if (refreshingAcquired) {
+      <div class="absolute inset-0 flex items-center justify-center">
+        <app-loading-spinner data-cy="acquiredLoading" containerClass="flex justify-center" />
+      </div>
+      }
+    </div>
+    }
+  </app-card>
+
+  <!-- The orders the user made that are not finished -->
+  <app-pending-orders-card [role]="buyerRole" title="WORKSPACE._buyer_pending_orders"
+    subtitle="WORKSPACE._buyer_pending_orders_subtitle" emptyDescription="WORKSPACE._buyer_pending_all_clear_desc"
+    allOrdersLabel="WORKSPACE._view_all_my_orders"></app-pending-orders-card>
+
+  <!-- Get new products from the marketplace -->
+  <app-card>
+    <div appCardHeader class="flex w-full flex-wrap items-center justify-between gap-3">
+      <div>
+        <h3 class="text-xl font-bold text-content">{{ 'WORKSPACE._acquire_title' | translate }}</h3>
+        <p class="mt-1 text-sm text-content-muted">{{ 'WORKSPACE._acquire_subtitle' | translate }}</p>
+      </div>
+      <app-button variant="link" suffixIcon="arrow-right" dataCy="exploreMarketplace" (click)="goToMarketplace()">
+        {{ 'WORKSPACE._explore_marketplace' | translate }}
+      </app-button>
+    </div>
+
+    @if (loadingOffers) {
+    <app-loading-spinner containerClass="w-full flex justify-center my-8" />
+    } @else if (newOffers.length === 0) {
+    <p class="text-sm text-content-muted">{{ 'WORKSPACE._no_news' | translate }}</p>
+    } @else {
+    <div class="grid grid-cols-1 place-items-center gap-4 sm:grid-cols-2 xl:grid-cols-4" data-cy="newOffers">
+      @for (offer of newOffers; track offer.id; let i = $index) {
+      <bae-off-card [productOff]="offer" [cardId]="i" viewMode="grid"></bae-off-card>
+      }
+    </div>
+    }
+  </app-card>
+
+</div>

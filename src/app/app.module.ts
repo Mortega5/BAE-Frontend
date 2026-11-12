@@ -40,6 +40,7 @@ import { ProductInvDetailComponent } from './pages/product-inventory/inventory-i
 import { InventoryResourcesComponent } from './pages/product-inventory/inventory-resources/inventory-resources.component';
 import { InventoryServicesComponent } from './pages/product-inventory/inventory-services/inventory-services.component';
 import { ProductInventoryComponent } from "./pages/product-inventory/product-inventory.component";
+import { SegmentedToggleComponent } from "./shared/segmented-toggle/segmented-toggle.component";
 import { OrderDetailsComponent } from "./shared/order-details/order-details.component";
 import { InventoryTabsComponent } from "./pages/product-inventory/inventory-tabs/inventory-tabs.component";
 import { SearchComponent } from "./pages/search/search.component";
@@ -72,6 +73,9 @@ import { SellerServiceSpecComponent } from './pages/seller-offerings/offerings/s
 import { DashboardComponent } from "./pages/dashboard/dashboard.component";
 import { DashboardComingSoonComponent } from "./pages/dashboard/dashboard-coming-soon/dashboard-coming-soon.component";
 import { DashboardOverviewComponent } from "./pages/dashboard/dashboard-overview/dashboard-overview.component";
+import { SellerOverviewComponent } from "./pages/dashboard/seller-overview/seller-overview.component";
+import { BuyerOverviewComponent } from "./pages/dashboard/buyer-overview/buyer-overview.component";
+import { PendingOrdersCardComponent } from "./pages/dashboard/pending-orders-card/pending-orders-card.component";
 import { BillingInfoComponent } from './pages/user-profile/profile-sections/billing-info/billing-info.component';
 import { OrgInfoComponent } from './pages/user-profile/profile-sections/org-info/org-info.component';
 import { ProfileGeneralComponent } from './pages/user-profile/profile-sections/profile-general/profile-general.component';
@@ -146,6 +150,9 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     OrgInfoComponent,
     DashboardComponent,
     DashboardOverviewComponent,
+    SellerOverviewComponent,
+    BuyerOverviewComponent,
+    PendingOrdersCardComponent,
     DashboardComingSoonComponent,
     InventoryProductsComponent,
     UserInfoComponent,
@@ -204,6 +211,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     TileCardComponent,
     InventoryTabsComponent,
     OrderDetailsComponent,
+    SegmentedToggleComponent,
     SearchInputComponent,
     ViewToggleComponent,
     EmptyStateComponent,

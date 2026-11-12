@@ -3937,9 +3937,25 @@
     "_type_dataset": "Dataset",
     "_type_api": "API",
     "_no_products": "Todavía no has creado ningún producto",
-    "_not_seller": "Todavía no hay nada que mostrar",
-    "_not_seller_desc": "Cuando empieces a vender, aquí verás los pedidos por atender y tus últimos productos.",
     "_pending_orders_subtitle": "Pedidos recibidos por tus ofertas que necesitan tu intervención",
-    "_refresh": "Actualizar"
+    "_refresh": "Actualizar",
+    "_overview_buyer_subtitle": "Lo que has adquirido y lo que está pendiente",
+    "_acquire_title": "Adquirir nuevos productos",
+    "_acquire_subtitle": "Descubre datasets, APIs y servicios del marketplace",
+    "_explore_marketplace": "Explorar el marketplace",
+    "_no_news": "Todavía no hay novedades en el marketplace",
+    "_acquired_title": "Mis productos adquiridos",
+    "_acquired_subtitle": "Lo que tienes contratado ahora mismo",
+    "_view_inventory": "Ver mi inventario",
+    "_acquired_on": "Adquirido el",
+    "_no_acquired": "Todavía no has adquirido ningún producto",
+    "_no_acquired_desc": "Los productos que consigas en el marketplace aparecerán aquí.",
+    "_buyer_pending_orders": "Pedidos pendientes de confirmación",
+    "_buyer_pending_orders_subtitle": "Pedidos que has hecho y que el proveedor todavía no ha completado",
+    "_buyer_pending_all_clear_desc": "No tienes pedidos pendientes de confirmación.",
+    "_view_all_my_orders": "Ver todos mis pedidos",
+    "_view_as": "Ver el resumen como",
+    "_view_as_seller": "Vendedor",
+    "_view_as_buyer": "Comprador"
   }
 }
