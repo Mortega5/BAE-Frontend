@@ -6,6 +6,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { embedDashboard, type EmbeddedDashboard } from '@superset-ui/embedded-sdk';
 import { firstValueFrom } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 
 type AnalyticsTabKey = 'businessInsights' | 'usageMonitor';
 
@@ -32,7 +33,7 @@ const TAB_CONFIG: Record<AnalyticsTabKey, AnalyticsTabConfig> = {
 @Component({
   selector: 'app-analytics-dashboard',
   standalone: true,
-  imports: [CommonModule, TranslateModule],
+  imports: [CommonModule, TranslateModule, ContentCardComponent],
   templateUrl: './analytics-dashboard.component.html',
   styleUrl: './analytics-dashboard.component.css'
 })

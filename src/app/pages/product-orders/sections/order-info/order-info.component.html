@@ -1,19 +1,21 @@
-<div class="mb-4">
-  <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_ORDERS._orders' | translate }}</h2>
-  <p class="mt-1 text-sm text-content-muted">{{ 'PRODUCT_ORDERS._orders_subtitle' | translate }}</p>
-</div>
-
-<app-tabs [activeTab]="role" (activeTabChange)="onRoleChange($event)" [fullWidth]="true">
-  <ng-template appTab="PRODUCT_ORDERS._as_customer" [tabId]="buyerRole" tabIcon="person-arrow-down-to-line" dataCy="asCustomerTab"></ng-template>
-  <ng-template appTab="PRODUCT_ORDERS._as_provider" [tabId]="sellerRole" tabIcon="person-arrow-up-from-line" [tabHidden]="!isSeller" dataCy="asProviderTab"></ng-template>
-
-  <div class="w-full h-fit mb-4 p-4">
-    <app-filtered-paginated-table data-cy="ordersTable" [columns]="orderColumns" [fetchPage]="fetchOrders"
-      [filters]="orderFilters" [filterColumns]="2" [clickable]="true" (rowClick)="orderDetails?.openDetails($event)"
-      [defaultSort]="defaultSort">
-    </app-filtered-paginated-table>
+<app-card>
+  <div appCardHeader>
+    <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_ORDERS._orders' | translate }}</h2>
+    <p class="mt-1 text-sm text-content-muted">{{ 'PRODUCT_ORDERS._orders_subtitle' | translate }}</p>
   </div>
-</app-tabs>
+
+  <app-tabs [activeTab]="role" (activeTabChange)="onRoleChange($event)" [fullWidth]="true">
+    <ng-template appTab="PRODUCT_ORDERS._as_customer" [tabId]="buyerRole" tabIcon="person-arrow-down-to-line" dataCy="asCustomerTab"></ng-template>
+    <ng-template appTab="PRODUCT_ORDERS._as_provider" [tabId]="sellerRole" tabIcon="person-arrow-up-from-line" [tabHidden]="!isSeller" dataCy="asProviderTab"></ng-template>
+
+    <div class="w-full h-fit mb-4 p-4">
+      <app-filtered-paginated-table data-cy="ordersTable" [columns]="orderColumns" [fetchPage]="fetchOrders"
+        [filters]="orderFilters" [filterColumns]="2" [clickable]="true" (rowClick)="orderDetails?.openDetails($event)"
+        [defaultSort]="defaultSort">
+      </app-filtered-paginated-table>
+    </div>
+  </app-tabs>
+</app-card>
 
 
 <app-order-details [role]="role" (orderUpdated)="onOrderUpdated($event)"></app-order-details>

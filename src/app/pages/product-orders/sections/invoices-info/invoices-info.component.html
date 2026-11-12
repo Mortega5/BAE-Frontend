@@ -1,18 +1,20 @@
-<div class="mb-4">
-  <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_ORDERS._invoices' | translate }}</h2>
-  <p class="mt-1 text-sm text-content-muted">{{ 'PRODUCT_ORDERS._invoices_subtitle' | translate }}</p>
-</div>
-
-<app-tabs [activeTab]="role" (activeTabChange)="onRoleChange($event)" [fullWidth]="true">
-  <ng-template appTab="INVOICES._as_customer" [tabId]="buyerRole" tabIcon="person-arrow-down-to-line"></ng-template>
-  <ng-template appTab="INVOICES._as_provider" [tabId]="sellerRole" tabIcon="person-arrow-up-from-line" [tabHidden]="!isSeller"></ng-template>
-
-  <div class="w-full h-fit mb-4 p-4">
-    <app-paginated-table data-cy="invoicesTable" [columns]="invoiceColumns" [fetchPage]="fetchInvoices" [clickable]="true"
-      (rowClick)="toggleShowDetails($event)" [defaultSort]="defaultSort" [pageSizeOptions]="pageSizeOptions">
-    </app-paginated-table>
+<app-card>
+  <div appCardHeader>
+    <h2 class="text-2xl font-bold text-content">{{ 'PRODUCT_ORDERS._invoices' | translate }}</h2>
+    <p class="mt-1 text-sm text-content-muted">{{ 'PRODUCT_ORDERS._invoices_subtitle' | translate }}</p>
   </div>
-</app-tabs>
+
+  <app-tabs [activeTab]="role" (activeTabChange)="onRoleChange($event)" [fullWidth]="true">
+    <ng-template appTab="INVOICES._as_customer" [tabId]="buyerRole" tabIcon="person-arrow-down-to-line"></ng-template>
+    <ng-template appTab="INVOICES._as_provider" [tabId]="sellerRole" tabIcon="person-arrow-up-from-line" [tabHidden]="!isSeller"></ng-template>
+
+    <div class="w-full h-fit mb-4 p-4">
+      <app-paginated-table data-cy="invoicesTable" [columns]="invoiceColumns" [fetchPage]="fetchInvoices" [clickable]="true"
+        (rowClick)="toggleShowDetails($event)" [defaultSort]="defaultSort" [pageSizeOptions]="pageSizeOptions">
+      </app-paginated-table>
+    </div>
+  </app-tabs>
+</app-card>
 
 
 <!-- INVOICE DETAILS modal-->

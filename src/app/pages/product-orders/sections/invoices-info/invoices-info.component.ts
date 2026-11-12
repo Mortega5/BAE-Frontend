@@ -22,13 +22,14 @@ import { ModalComponent } from 'src/app/shared/modal/modal.component';
 import { TabDirective } from 'src/app/shared/tabs/tab.directive';
 import { TabsComponent } from 'src/app/shared/tabs/tabs.component';
 import { environment } from 'src/environments/environment';
+import { ContentCardComponent } from 'src/app/shared/content-card/content-card.component';
 
 @Component({
   selector: 'app-invoices-info',
   standalone: true,
   imports: [TranslateModule, FontAwesomeModule, CommonModule, FormsModule,
     PaginatedTableComponent, LoadingSpinnerComponent, ButtonComponent, ModalComponent,
-    TabsComponent, TabDirective
+    TabsComponent, TabDirective, ContentCardComponent
   ],
   providers: [DatePipe],
   templateUrl: './invoices-info.component.html',
