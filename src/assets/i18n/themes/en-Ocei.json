@@ -1,4 +1,7 @@
 {
+  "DASHBOARD": {
+    "_subheader": "An open, interoperable marketplace for the Cloud-Edge-IoT continuum, built to power a cleaner energy future."
+  },
   "FEEDBACK": {
     "_thanks": "Thank you for contacting the O-CEI Marketplace.",
     "_footer_title": "How would you rate your overall experience with the O-CEI Marketplace?",
