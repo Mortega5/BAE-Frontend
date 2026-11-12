@@ -409,8 +409,10 @@ export class UpdateOfferComponent implements OnInit, OnDestroy, LeaveConfirmable
     return this.offerForm?.confirmLeave() ?? true;
   }
 
+  /** Back to the section the offer was opened from: the offers one, or the datasets one for the offer of a dataset. */
   goBack() {
-    this.router.navigate([SellerOfferingsPaths.offers.list()]);
+    const inDatasets = environment.DATASETS_ENABLED && this.route.snapshot.data['dataset'] === true;
+    this.router.navigate([inDatasets ? SellerOfferingsPaths.datasets.list() : SellerOfferingsPaths.offers.list()]);
   }
 
   onPreviewRequested(productOff: any, submitMode: 'create' | 'update' | null = null): void {

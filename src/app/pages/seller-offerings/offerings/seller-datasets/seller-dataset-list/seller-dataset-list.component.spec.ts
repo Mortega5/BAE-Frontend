@@ -43,10 +43,10 @@ describe('SellerDatasetListComponent', () => {
     expect(page.total).toBe(1);
   });
 
-  it('opens the offer form through the datasets and offers routes', () => {
+  it('opens the offer form through the datasets routes, so going back returns to the datasets', () => {
     component.goToCreate();
     expect(router.navigate).toHaveBeenCalledWith(['/my-offerings/datasets/new']);
     component.goToUpdate('urn:x:1');
-    expect(router.navigate).toHaveBeenCalledWith(['/my-offerings/offers/urn:x:1']);
+    expect(router.navigate).toHaveBeenCalledWith(['/my-offerings/datasets/urn:x:1']);
   });
 });

@@ -3,7 +3,7 @@ import { ResourceSpecServiceService } from 'src/app/services/resource-spec-servi
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import moment from 'moment';
 import { HttpEventType, HttpResponse } from '@angular/common/http';
@@ -273,6 +273,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     private eventMessage: EventMessageService,
     private fb: FormBuilder,
     private router: Router,
+    private route: ActivatedRoute,
     private accountService: AccountServiceService,
     private localStorage: LocalStorageService,
     private notificationService: NotificationService,
@@ -1411,8 +1412,10 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     return !this.loading && this.canSubmit;
   }
 
+  /** Back to the section the offer is in: the one of datasets when it was opened from there, even to edit an existing offer. */
   goBack() {
-    this.router.navigate([this.dataset ? SellerOfferingsPaths.datasets.list() : SellerOfferingsPaths.offers.list()]);
+    const inDatasets = this.dataset || (environment.DATASETS_ENABLED && this.route.snapshot.data['dataset'] === true);
+    this.router.navigate([inDatasets ? SellerOfferingsPaths.datasets.list() : SellerOfferingsPaths.offers.list()]);
   }
 
   statusBadgeVariant(status: string): BadgeStatus {

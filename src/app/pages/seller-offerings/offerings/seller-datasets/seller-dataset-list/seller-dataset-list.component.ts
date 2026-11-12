@@ -103,7 +103,8 @@ export class SellerDatasetListComponent implements OnInit, OnDestroy {
   }
 
   goToUpdate(id: string): void {
-    this.router.navigate([SellerOfferingsPaths.offers.edit(id)]);
+    // The offer of a dataset is opened inside the datasets section, so going back returns to it
+    this.router.navigate([SellerOfferingsPaths.datasets.edit(id)]);
   }
 
   private hasLongWord(text: string | undefined, threshold = 20): boolean {

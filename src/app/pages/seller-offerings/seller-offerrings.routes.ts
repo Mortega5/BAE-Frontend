@@ -57,7 +57,8 @@ export const sellerOfferingsRoutes: Routes = [
       { path: '', component: SellerDatasetListComponent },
       // Selling a dataset starts from the offer form: it makes the dataset and its product before the offer
       { path: segments.new, component: CreateOfferComponent, data: { dataset: true }, canDeactivate: [unsavedChangesGuard] },
-      { path: segments.id, component: UpdateProductSpecComponent, data: { dataset: true }, canDeactivate: [unsavedChangesGuard] },
+      // The rows of the list are the offers of the datasets: one opens here, so its back button returns to the datasets
+      { path: segments.id, component: UpdateOfferComponent, data: { dataset: true }, canDeactivate: [unsavedChangesGuard] },
     ],
   },
   {
