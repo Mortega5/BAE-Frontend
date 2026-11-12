@@ -32,7 +32,7 @@
         } @else {
         <div class="grid grid-cols-1 place-items-center gap-4 sm:grid-cols-2 xl:grid-cols-3" data-cy="acquiredProducts">
           @for (inv of acquired; track inv.id) {
-          <app-tile-card data-cy="acquiredProduct" [image]="getProductImage(inv.product)" [clickable]="true" (cardClick)="goToInventory()">
+          <app-tile-card data-cy="acquiredProduct" [image]="getProductImage(inv.product)" [clickable]="true" (cardClick)="openAcquired(inv)">
             <div tileCardMediaOverlay class="absolute left-2 top-2">
               <bae-badge variant="status" [status]="inventoryStatusBadgeVariant(inv.status)"
                 [label]="inventoryStatusLabel(inv.status) | translate"></bae-badge>

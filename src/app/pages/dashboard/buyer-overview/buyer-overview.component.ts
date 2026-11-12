@@ -128,6 +128,11 @@ export class BuyerOverviewComponent implements OnInit, OnDestroy {
     this.router.navigate(['/search']);
   }
 
+  /** The detail of the product, on its own route; the item it already has goes along, so it is not read again. */
+  openAcquired(inv: any): void {
+    this.router.navigate([ProductInventoryPaths.detail(inv.id)], { state: { inv } });
+  }
+
   goToInventory(): void {
     this.router.navigate([ProductInventoryPaths.root()]);
   }

@@ -96,7 +96,12 @@ export class ProductInvDetailComponent implements OnInit {
       if (this.inv) {
         this.prod = this.inv;
       } else {
-        this.prod = await this.inventoryServ.getProduct(this.id, this.partyId);
+        // Whoever navigated here can hand over the item it already has (`state: { inv }`), which spares the GET by id,
+        // and the backend authorization bug on it. A reload or a shared link has no state, and reads it by id.
+        const handedOver = history.state?.inv;
+        this.prod = handedOver && String(handedOver.id) === String(this.id)
+          ? handedOver
+          : await this.inventoryServ.getProduct(this.id, this.partyId);
       }
 
       const offering = await this.api.getProductById(this.prod.productOffering.id);
