@@ -68,6 +68,8 @@ export const sellerOfferingsRoutes: Routes = [
     children: [
       { path: '', component: SellerApiListComponent },
       { path: segments.new, component: CreateOfferComponent, data: { api: true }, canDeactivate: [unsavedChangesGuard] },
+      // The rows of the list are the offers of the APIs: one opens here, so its back button returns to the APIs
+      { path: segments.id, component: UpdateOfferComponent, data: { api: true }, canDeactivate: [unsavedChangesGuard] },
     ],
   },
   {

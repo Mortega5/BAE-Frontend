@@ -102,7 +102,7 @@ export class SellerApiListComponent implements OnInit, OnDestroy {
   }
 
   goToUpdate(id: string): void {
-    this.router.navigate([SellerOfferingsPaths.offers.edit(id)]);
+    this.router.navigate([SellerOfferingsPaths.apis.edit(id)]);
   }
 
   private hasLongWord(text: string | undefined, threshold = 20): boolean {

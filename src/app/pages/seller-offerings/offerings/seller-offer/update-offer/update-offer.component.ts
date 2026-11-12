@@ -412,7 +412,8 @@ export class UpdateOfferComponent implements OnInit, OnDestroy, LeaveConfirmable
   /** Back to the section the offer was opened from: the offers one, or the datasets one for the offer of a dataset. */
   goBack() {
     const inDatasets = environment.DATASETS_ENABLED && this.route.snapshot.data['dataset'] === true;
-    this.router.navigate([inDatasets ? SellerOfferingsPaths.datasets.list() : SellerOfferingsPaths.offers.list()]);
+    const inApis = environment.API_ACCESS_ENABLED && this.route.snapshot.data['api'] === true;
+    this.router.navigate([inDatasets ? SellerOfferingsPaths.datasets.list() : inApis ? SellerOfferingsPaths.apis.list() : SellerOfferingsPaths.offers.list()]);
   }
 
   onPreviewRequested(productOff: any, submitMode: 'create' | 'update' | null = null): void {
