@@ -3368,7 +3368,6 @@
     "_file": "Archivo",
     "_file_hint": "CSV o JSON, hasta {{size}}.",
     "_source": "Método de entrega de los datos",
-    "_source_desc": "Elige cómo recibirán los datos los compradores.",
     "_source_file": "Subir un fichero",
     "_source_file_badge": "Alojado en el marketplace",
     "_source_file_hint": "Subes un fichero CSV o JSON y el marketplace lo guarda y lo sirve a los compradores.",

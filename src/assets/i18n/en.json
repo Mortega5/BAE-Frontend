@@ -3368,7 +3368,6 @@
     "_file": "File",
     "_file_hint": "CSV or JSON, up to {{size}}.",
     "_source": "Data provision method",
-    "_source_desc": "Choose how buyers will get the data.",
     "_source_file": "Upload a file",
     "_source_file_badge": "Hosted by the marketplace",
     "_source_file_hint": "You upload a CSV or JSON file and the marketplace stores it and serves it to buyers.",

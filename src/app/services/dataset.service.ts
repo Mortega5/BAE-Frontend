@@ -15,7 +15,6 @@ export const DATASET_SOURCE_FIELD: FormField = {
     { value: 'file', icon: 'cloud', label: 'DATASETS._source_file', badge: 'DATASETS._source_file_badge', description: 'DATASETS._source_file_hint' },
     { value: 'url', icon: 'server', label: 'DATASETS._source_url', badge: 'DATASETS._source_url_badge', description: 'DATASETS._source_url_hint' },
   ],
-  hint: 'DATASETS._source_desc',
 };
 
 export type DatasetVisibility = 'private' | 'public' | 'custom';
