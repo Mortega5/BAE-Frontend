@@ -86,10 +86,6 @@ export class ApiOperationsEditorComponent implements OnChanges, OnDestroy {
     return row.group.invalid && row.group.touched;
   }
 
-  isUse(row: OperationRow): boolean {
-    return row.group.get('action')?.value === 'use';
-  }
-
   private buildRow(operation: ApiOperation, open: boolean): OperationRow {
     const row = { open } as OperationRow;
     row.fields = [
@@ -98,8 +94,10 @@ export class ApiOperationsEditorComponent implements OnChanges, OnDestroy {
         placeholder: 'API_ACCESS._operation_id_placeholder', validators: [this.checkOf(row, 'id')], errorMessages: ERROR_MESSAGES,
       },
       {
+        // A dropdown that says under each access what it allows
         type: 'select', name: 'action', label: 'API_ACCESS._operation_action', required: true, colSpan: 1, dataCy: 'apiOperationAction',
-        options: API_ACTIONS.map(action => ({ value: action, label: `API_ACCESS._action_${action}` })),
+        searchable: true, showSearch: false,
+        options: API_ACTIONS.map(action => ({ value: action, label: `API_ACCESS._action_${action}`, subtitle: `API_ACCESS._action_${action}_desc` })),
       },
       {
         type: 'string', name: 'path', label: 'API_ACCESS._operation_path', required: true, colSpan: 1, dataCy: 'apiOperationPath',

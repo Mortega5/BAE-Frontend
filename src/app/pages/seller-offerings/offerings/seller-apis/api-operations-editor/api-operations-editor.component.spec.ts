@@ -106,11 +106,10 @@ describe('ApiOperationsEditorComponent', () => {
     expect(control(1, 'id').errors).toBeNull();
   });
 
-  it('explains what the use action allows', () => {
-    control(0, 'action').setValue('use');
-    fixture.detectChanges();
+  it('describes what each access allows', () => {
+    const action: any = component.rows[0].fields.find(f => f.name === 'action');
 
-    expect(fixture.nativeElement.textContent).toContain('API_ACCESS._action_use_hint');
+    expect(action.options.map((o: any) => o.subtitle)).toEqual(['read', 'modify', 'delete', 'use'].map(a => `API_ACCESS._action_${a}_desc`));
   });
 
   describe('folding', () => {
