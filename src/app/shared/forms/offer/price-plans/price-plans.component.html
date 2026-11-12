@@ -7,28 +7,8 @@
   <!-- Price tier picker -->
   <div class="flex flex-col">
     @if (pricePlans.length == 0) {
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <button type="button" data-cy="pricePlanTypeFree" (click)="selectPriceTier('free')"
-        [class.is-selected]="priceType === 'free'"
-        class="option-card flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
-        <h3 class="text-base font-semibold text-content">{{ 'CREATE_OFFER._price_tier_free' | translate }}</h3>
-        <p class="text-sm text-content-muted">{{ 'CREATE_OFFER._price_tier_free_desc' | translate }}</p>
-      </button>
-      @if(!custom){
-      <button type="button" data-cy="pricePlanTypeTailored" (click)="selectPriceTier('tailored')"
-        [class.is-selected]="priceType === 'tailored'"
-        class="option-card flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
-        <h3 class="text-base font-semibold text-content">{{ 'CREATE_OFFER._price_tier_tailored' | translate }}</h3>
-        <p class="text-sm text-content-muted">{{ 'CREATE_OFFER._price_tier_tailored_desc' | translate }}</p>
-      </button>
-      }
-      <button type="button" data-cy="pricePlanTypePaid" (click)="selectPriceTier('paid')"
-        [class.is-selected]="priceType === 'paid'"
-        class="option-card flex flex-col text-left gap-2 rounded-2xl border p-5 transition-colors">
-        <h3 class="text-base font-semibold text-content">{{ 'CREATE_OFFER._price_tier_online' | translate }}</h3>
-        <p class="text-sm text-content-muted">{{ 'CREATE_OFFER._price_tier_online_desc' | translate }}</p>
-      </button>
-    </div>
+    <app-option-cards [options]="priceTierOptions" [columns]="3" [selected]="priceType" (selectedChange)="selectPriceTier($any($event))"
+      [label]="'CREATE_OFFER._price_plans' | translate" />
     } @else {
     <label class="text-sm text-content-muted">
       <span class="font-semibold text-content">

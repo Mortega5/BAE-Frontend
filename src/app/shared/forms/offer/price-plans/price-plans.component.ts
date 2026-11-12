@@ -1,3 +1,5 @@
+import { OptionCardsComponent } from 'src/app/shared/forms/option-cards/option-cards.component';
+import { OptionCardOption } from 'src/app/models/formFields/form-field.model';
 import { Component, Input, OnInit, forwardRef, ChangeDetectorRef, OnDestroy, Output, EventEmitter } from '@angular/core';
 import {
   ControlValueAccessor, FormArray,
@@ -84,6 +86,7 @@ interface PricePlanChange {
     TranslateModule,
     PricePlanDrawerComponent,
     PlanSubtypeModalComponent,
+    OptionCardsComponent,
     ReactiveFormsModule,
     NgClass,
     ButtonComponent
@@ -434,6 +437,21 @@ export class PricePlansComponent implements OnInit, OnDestroy, ControlValueAcces
     return pricePlans.some((plan: any) => 
       plan.productProfile?.dirty || plan.productProfile?.touched
     );
+  }
+
+  private tierOptions?: { custom: boolean; options: OptionCardOption[] };
+
+  /** The tiers that can be chosen: a custom offer has no tailored one. Kept while `custom` does not change, so the cards are not rebuilt on every check. */
+  get priceTierOptions(): OptionCardOption[] {
+    if (this.tierOptions?.custom !== !!this.custom) {
+      const tier = (value: string, key: string): OptionCardOption =>
+        ({ value, label: `CREATE_OFFER._price_tier_${key}`, description: `CREATE_OFFER._price_tier_${key}_desc`, dataCy: `pricePlanType${value[0].toUpperCase()}${value.slice(1)}` });
+      this.tierOptions = {
+        custom: !!this.custom,
+        options: [tier('free', 'free'), ...(this.custom ? [] : [tier('tailored', 'tailored')]), tier('paid', 'online')],
+      };
+    }
+    return this.tierOptions.options;
   }
 
   selectPriceTier(tier: 'free' | 'tailored' | 'paid') {

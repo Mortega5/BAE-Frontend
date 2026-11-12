@@ -2,8 +2,10 @@
   class="option-cards" [class.option-cards--2]="columns === 2" [class.option-cards--3]="columns === 3">
   @for (option of options; track option.value; let i = $index) {
   <button #card type="button" role="radio" class="option-card" [class.is-selected]="isSelected(option)"
-    [class.is-inactive]="inactive" [attr.aria-checked]="isSelected(option)" [attr.tabindex]="tabIndexOf(option, i)"
-    [attr.data-cy]="dataCy ? dataCy + '-' + option.value : null" (click)="select(option)" (blur)="touched()"
+    [class.is-inactive]="inactive || option.disabled" [attr.aria-checked]="isSelected(option)"
+    [attr.aria-disabled]="option.disabled || null" [attr.aria-describedby]="option.note ? id + '-note-' + i : null"
+    [attr.tabindex]="tabIndexOf(option, i)" [attr.data-cy]="option.dataCy ?? (dataCy ? dataCy + '-' + option.value : null)"
+    (click)="select(option)" (blur)="touched()"
     (keydown)="onKeydown($event, i)">
     @if (iconOf(option); as icon) {
     <span class="option-card__icon" aria-hidden="true"><fa-icon [icon]="icon" /></span>
@@ -15,6 +17,9 @@
       }
       @if (option.description) {
       <span class="text-sm text-content-muted">{{ option.description | translate }}</span>
+      }
+      @if (option.note) {
+      <span [id]="id + '-note-' + i" class="text-xs text-content-muted">{{ option.note | translate }}</span>
       }
     </span>
     <span class="option-card__radio" aria-hidden="true"></span>

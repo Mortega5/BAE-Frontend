@@ -101,6 +101,12 @@ export interface OptionCardOption {
   description?: string;
   badge?: string;
   icon?: string;
+  /** Cannot be chosen; shown dimmed. */
+  disabled?: boolean;
+  /** i18n key of a short line under the description, for what needs saying about this card alone (why it is disabled, say). */
+  note?: string;
+  /** Overrides the `data-cy` the card gets from the group (`<group>-<value>`). */
+  dataCy?: string;
 }
 
 /** Single-choice selector shown as cards (icon, title, badge, description and a radio mark). Use it for a few options that are
