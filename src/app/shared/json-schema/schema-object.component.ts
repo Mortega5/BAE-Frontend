@@ -3,6 +3,7 @@ import { Component, Input, forwardRef } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { DynamicFormComponent } from '../forms/dynamic-form/dynamic-form.component';
+import { ExpandableTextComponent } from '../expandable-text/expandable-text.component';
 import { humanize, SchemaObjectEntry } from './schema-fields';
 import { SchemaFormGroup } from './schema-form-group';
 
@@ -14,7 +15,7 @@ import { SchemaFormGroup } from './schema-form-group';
 @Component({
   selector: 'app-schema-object',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, DynamicFormComponent, forwardRef(() => SchemaObjectComponent)],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, DynamicFormComponent, ExpandableTextComponent, forwardRef(() => SchemaObjectComponent)],
   template: `
     <div class="flex flex-col gap-6">
       @if (group.fields.length > 0) {
@@ -31,7 +32,7 @@ import { SchemaFormGroup } from './schema-form-group';
           <label [for]="entry.pointer">{{ label(entry) | translate }}</label>
         </legend>
         @if (description(entry); as text) {
-        <p class="text-xs text-content-muted">{{ text | translate }}</p>
+        <p class="text-xs text-content-muted"><app-expandable-text [text]="text | translate" /></p>
         }
         @if (childGroup(entry); as child) {
         <app-schema-object [group]="child" [columns]="entry.hint.columns ?? columns"></app-schema-object>

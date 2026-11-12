@@ -3191,7 +3191,9 @@
       "_add_link": "Añadir enlace",
       "_add_emoji": "Añadir emoji",
       "_publish_post": "Publicar entrada"
-    }
+    },
+    "_show_more": "Ver más",
+    "_show_less": "Ver menos"
   },
   "USAGE_SPECS": {
     "_unique": "Ya existe una métrica de pago por uso con este nombre.",

@@ -198,7 +198,7 @@
     }
 
     @if (field.hint) {
-    <p class="mt-1 text-xs text-content-muted">{{ field.hint | translate }}</p>
+    <p class="mt-1 text-xs text-content-muted"><app-expandable-text [text]="field.hint | translate" /></p>
     }
 
     @if (fieldError(field); as errorKey) {

@@ -17,6 +17,7 @@ import { PaginatedTableComponent } from '../paginated-table/paginated-table.comp
 import { CodeEditorComponent } from '../code-editor/code-editor.component';
 import { MultipleSelectComponent } from 'src/app/shared/multiple-select/multiple-select.component';
 import { SearchSelectComponent } from 'src/app/shared/search-select/search-select.component';
+import { ExpandableTextComponent } from 'src/app/shared/expandable-text/expandable-text.component';
 
 /** Written out in full, not built as `col-span-${n}`: Tailwind only generates classes it finds
  * literally in the source, so an interpolated one that is never spelled elsewhere (e.g. col-span-4)
@@ -32,7 +33,7 @@ const COL_SPAN_CLASSES: Record<number, string> = {
   selector: 'app-dynamic-form',
   templateUrl: './dynamic-form.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent, MultiValueInputComponent, UnitValueInputComponent, RangeValueInputComponent, PhoneNumberInputComponent, TableInputComponent, PaginatedTableComponent, CodeEditorComponent, MultipleSelectComponent, SearchSelectComponent, AttachmentUploadComponent, FaIconComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent, MultiValueInputComponent, UnitValueInputComponent, RangeValueInputComponent, PhoneNumberInputComponent, TableInputComponent, PaginatedTableComponent, CodeEditorComponent, MultipleSelectComponent, SearchSelectComponent, AttachmentUploadComponent, FaIconComponent, ExpandableTextComponent],
 })
 export class DynamicFormComponent {
   @Input() fields: FormField[] = [];

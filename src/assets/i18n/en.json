@@ -3191,7 +3191,9 @@
       "_add_link": "Add link",
       "_add_emoji": "Add emoji",
       "_publish_post": "Publish post"
-    }
+    },
+    "_show_more": "Show more",
+    "_show_less": "Show less"
   },
   "USAGE_SPECS": {
     "_unique": "A pay per use metric with this name already exists.",
