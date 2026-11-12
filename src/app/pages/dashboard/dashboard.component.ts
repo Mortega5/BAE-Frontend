@@ -103,7 +103,7 @@ export class DashboardComponent implements OnInit, OnDestroy {
         items: [
           { label: 'WORKSPACE._overview', routerLink: DashboardPaths.overview(), icon: 'chart-pie' as IconName, dataCy: 'overviewSection' },
           // One entry: products, services and resources are tabs inside the page
-          { label: 'HEADER._inventory', routerLink: ProductInventoryPaths.root(), icon: 'layer-group' as IconName, dataCy: 'inventorySection' },
+          { label: 'PRODUCT_INVENTORY._inventory', routerLink: ProductInventoryPaths.root(), icon: 'layer-group' as IconName, dataCy: 'inventorySection' },
         ],
       },
     ];
