@@ -1,0 +1,16 @@
+{
+  "FEEDBACK": {
+    "_thanks": "Thank you for contacting the O-CEI Marketplace.",
+    "_footer_title": "How would you rate your overall experience with the O-CEI Marketplace?",
+    "_footer_improve": "How can we improve the O-CEI Marketplace?",
+    "_search_rate": "Based on your recent experience, how likely are you to recommend the O-CEI Marketplace to a colleague or a partner?"
+  },
+  "ContactUs": {
+    "hero": {
+      "description": "We are glad you are interested in the O-CEI Marketplace! Please share your questions or thoughts with us and we'll get back to you shortly."
+    },
+    "checkboxes": {
+      "marketing": "I agree to receive marketing and commercial communications from the O-CEI Marketplace."
+    }
+  }
+}
