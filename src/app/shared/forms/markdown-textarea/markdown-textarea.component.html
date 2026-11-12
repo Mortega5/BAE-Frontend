@@ -137,7 +137,7 @@
     }@else{
     <textarea [id]="editorId" data-cy="textArea"
       class="px-4 py-2 block w-full h-fit px-0 text-sm text-content md-body rounded-b-lg border-0" [placeholder]="placeholder | translate"
-      [value]="value" [rows]="rows" [attr.maxLength]="maxLength" (input)="updateValue($event)"></textarea>
+      [value]="value" [rows]="rows" [attr.maxLength]="maxLength" (input)="updateValue($event)" (paste)="onPaste($event)"></textarea>
     }
     @if(showEmoji){
     <div class="absolute z-50 top-[-100px] right-0">

@@ -113,6 +113,9 @@ export class MarkdownTextareaComponent implements ControlValueAccessor {
     const beforeText = this.value.substring(0, selectionStart);
     let selectedText = this.value.substring(selectionStart, selectionEnd);
     const afterText = this.value.substring(selectionEnd);
+    // Where the cursor, or the selection, goes inside what is inserted; at its end unless an action says otherwise
+    let cursorFrom: number | null = null;
+    let cursorTo: number | null = null;
 
     switch (tag) {
       case 'bold':
@@ -122,7 +125,19 @@ export class MarkdownTextareaComponent implements ControlValueAccessor {
         selectedText = `*${selectedText || 'italic text'}*`;
         break;
       case 'link':
-        selectedText = `[${selectedText || 'link text'}](http://)`;
+        if (!selectedText) {
+          selectedText = '[link text](http://)';
+        } else if (this.looksLikeUrl(selectedText)) {
+          // What is selected is the address: the text of the link is what is missing, and it is the part to write
+          const text = 'link text';
+          selectedText = `[${text}](${this.asUrl(selectedText)})`;
+          cursorFrom = 1;
+          cursorTo = 1 + text.length;
+        } else {
+          // What is selected is the text of the link: the cursor waits inside the parentheses for the address to be pasted
+          selectedText = `[${selectedText}]()`;
+          cursorFrom = cursorTo = selectedText.length - 1;
+        }
         break;
       case 'list':
         selectedText = `- ${selectedText || 'list item'}`;
@@ -147,11 +162,42 @@ export class MarkdownTextareaComponent implements ControlValueAccessor {
     this.value = beforeText + selectedText + afterText;
     this.onChange(this.value);
 
-    // Restaurar el cursor al final del texto insertado
+    // Restaurar el cursor al final del texto insertado, o donde la acción lo necesite
+    const from = selectionStart + (cursorFrom ?? selectedText.length);
+    const to = selectionStart + (cursorTo ?? selectedText.length);
     setTimeout(() => {
-      textarea.selectionStart = textarea.selectionEnd = selectionStart + selectedText.length;
+      textarea.selectionStart = from;
+      textarea.selectionEnd = to;
       textarea.focus();
     }, 0);
+  }
+
+  /** Pasting an address over a selected text makes that text a link to it; anything else is pasted as usual. */
+  onPaste(event: ClipboardEvent): void {
+    const textarea = event.target as HTMLTextAreaElement;
+    const { selectionStart, selectionEnd } = textarea;
+    if (selectionStart === selectionEnd) return;
+    const pasted = event.clipboardData?.getData('text')?.trim() ?? '';
+    if (!this.looksLikeUrl(pasted)) return;
+
+    event.preventDefault();
+    const link = `[${this.value.substring(selectionStart, selectionEnd)}](${this.asUrl(pasted)})`;
+    this.value = this.value.substring(0, selectionStart) + link + this.value.substring(selectionEnd);
+    this.onChange(this.value);
+    setTimeout(() => {
+      textarea.selectionStart = textarea.selectionEnd = selectionStart + link.length;
+      textarea.focus();
+    }, 0);
+  }
+
+  /** An address with its protocol, or one that starts with `www.`, and nothing else in it. */
+  private looksLikeUrl(text: string): boolean {
+    return /^(https?:\/\/|www\.)\S+$/i.test(text.trim());
+  }
+
+  private asUrl(text: string): string {
+    const url = text.trim();
+    return /^www\./i.test(url) ? `https://${url}` : url;
   }
 
   hasLongWord(str: string | undefined, threshold = 20) {
