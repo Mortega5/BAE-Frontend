@@ -2842,6 +2842,7 @@
     },
     "FEATURES": {
       "_title": "Funcionalidades",
+      "_search_placeholder": "Buscar una funcionalidad...",
       "_quotes_label": "Presupuestos",
       "_quotes_description": "Activa los flujos de solicitud de presupuesto y las páginas de presupuestos.",
       "_purchases_label": "Compras",

@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup } from '@angular/forms';
+import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { NotificationService } from 'src/app/services/notification.service';
@@ -11,6 +11,9 @@ import {
   readFeaturesConfig
 } from 'src/app/data/featuresConfig';
 import { environment } from 'src/environments/environment';
+
+/** Lowercase and without accents, so that "presupuesto" finds "Presupuestos". */
+const normalize = (text: string): string => text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 
 type FeatureFlagFormGroup = FormGroup<{
   key: FormControl<string>;
@@ -26,6 +29,9 @@ export class FeaturesConfigComponent implements OnInit {
   readonly definitions = FEATURE_FLAG_DEFINITIONS;
   loading = false;
   saving = false;
+
+  /** Narrows the features that are shown; every feature stays in the form, so saving does not drop the hidden ones. */
+  readonly searchField = new FormControl<string | null>(null);
 
   featuresForm = new FormGroup({
     flags: new FormArray<FeatureFlagFormGroup>([])
@@ -43,6 +49,24 @@ export class FeaturesConfigComponent implements OnInit {
 
   get flagsArray(): FormArray<FeatureFlagFormGroup> {
     return this.featuresForm.get('flags') as FormArray<FeatureFlagFormGroup>;
+  }
+
+  /** Whether a feature matches what was typed: every word of it must be in its name, its description or its key. */
+  isVisible(flagControl: AbstractControl): boolean {
+    const words = normalize(this.searchField.value ?? '').split(/\s+/).filter(Boolean);
+    if (words.length === 0) return true;
+    const key: string = flagControl.get('key')?.value ?? '';
+    const definition = this.getDefinition(key);
+    const text = normalize([
+      key,
+      definition ? this.translate.instant(definition.labelKey) : '',
+      definition ? this.translate.instant(definition.descriptionKey) : '',
+    ].join(' '));
+    return words.every(word => text.includes(word));
+  }
+
+  get hasMatches(): boolean {
+    return this.flagsArray.controls.some(flagControl => this.isVisible(flagControl));
   }
 
   getDefinition(key: string): FeatureFlagDefinition | undefined {

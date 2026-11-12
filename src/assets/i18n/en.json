@@ -2842,6 +2842,7 @@
     },
     "FEATURES": {
       "_title": "Features",
+      "_search_placeholder": "Search a feature...",
       "_quotes_label": "Quotes",
       "_quotes_description": "Enable quote request flows and quote pages.",
       "_purchases_label": "Purchases",
