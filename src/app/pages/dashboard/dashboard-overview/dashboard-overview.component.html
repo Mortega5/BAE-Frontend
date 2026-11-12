@@ -1,7 +1,111 @@
+<div class="mb-6">
+  <h2 class="text-2xl font-bold text-content">{{ 'WORKSPACE._overview' | translate }}</h2>
+  <p class="mt-1 text-sm text-content-muted">{{ 'WORKSPACE._overview_subtitle' | translate }}</p>
+</div>
+
+@if (!isSeller) {
 <app-card>
-  <div appCardHeader>
-    <h2 class="text-2xl font-bold text-content">{{ 'WORKSPACE._overview' | translate }}</h2>
-    <p class="text-sm text-content-muted mt-1">{{ 'WORKSPACE._overview_subtitle' | translate }}</p>
-  </div>
-  <app-empty-state heading="WORKSPACE._overview_soon" description="WORKSPACE._overview_soon_desc"></app-empty-state>
+  <app-empty-state heading="WORKSPACE._not_seller" description="WORKSPACE._not_seller_desc"></app-empty-state>
 </app-card>
+} @else {
+<div class="flex flex-col gap-6">
+
+  <!-- Shortcuts to create a product, one per kind -->
+  <app-card>
+    <div appCardHeader>
+      <h3 class="text-xl font-bold text-content">{{ 'WORKSPACE._create_product' | translate }}</h3>
+      <p class="mt-1 text-sm text-content-muted">{{ 'WORKSPACE._create_product_desc' | translate }}</p>
+    </div>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+      @for (shortcut of shortcuts; track shortcut.dataCy) {
+      <div class="flex flex-col justify-between gap-4 rounded-xl border border-line p-4">
+        <div class="flex items-start gap-3">
+          <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-secondary-50 text-primary-100">
+            @if (iconOf(shortcut.icon); as icon) {
+            <fa-icon [icon]="icon"></fa-icon>
+            }
+          </span>
+          <div>
+            <h4 class="font-semibold text-content">{{ shortcut.label | translate }}</h4>
+            <p class="mt-0.5 text-sm text-content-muted">{{ shortcut.description | translate }}</p>
+          </div>
+        </div>
+        <div>
+          <app-button variant="secondary" size="sm" prefixIcon="plus" [dataCy]="shortcut.dataCy" (click)="go(shortcut.path)">
+            {{ shortcut.label | translate }}
+          </app-button>
+        </div>
+      </div>
+      }
+    </div>
+  </app-card>
+
+  <!-- The received orders that wait for the provider: not started yet, or being treated -->
+  <app-card>
+    <div appCardHeader class="flex w-full flex-wrap items-center justify-between gap-3">
+      <div>
+        <h3 class="text-xl font-bold text-content">{{ 'WORKSPACE._pending_orders' | translate }}</h3>
+        <p class="mt-1 text-sm text-content-muted">{{ 'WORKSPACE._pending_orders_subtitle' | translate }}</p>
+      </div>
+      <app-button dataCy="refreshOrders" variant="secondary" size="sm" prefixIcon="rotate" [disabled]="refreshingOrders"
+        (click)="refreshOrders()">
+        {{ 'WORKSPACE._refresh' | translate }}
+      </app-button>
+    </div>
+
+    @if (!countsLoaded) {
+    <app-loading-spinner containerClass="w-full flex justify-center my-8" />
+    } @else {
+    <!-- Refreshing dims what is there and puts the spinner over it, so the card keeps its size -->
+    <div class="relative" [attr.aria-busy]="refreshingOrders">
+      <div class="transition-opacity" [class.opacity-40]="refreshingOrders" [class.pointer-events-none]="refreshingOrders">
+        @if (pending === 0) {
+        <app-empty-state data-cy="pendingOrdersEmpty" [icon]="checkIcon" heading="WORKSPACE._pending_all_clear"
+          description="WORKSPACE._pending_all_clear_desc"></app-empty-state>
+        } @else {
+        <app-paginated-table #ordersTable data-cy="pendingOrdersTable" [columns]="orderColumns" [fetchPage]="fetchOrders"
+          [pageSizeOptions]="pageSizeOptions" [clickable]="true" (rowClick)="openOrder($event)">
+        </app-paginated-table>
+        }
+      </div>
+      @if (refreshingOrders) {
+      <div class="absolute inset-0 flex items-center justify-center">
+        <app-loading-spinner data-cy="pendingOrdersLoading" containerClass="flex justify-center" />
+      </div>
+      }
+    </div>
+    }
+
+    <div appCardFooter class="flex justify-end">
+      <app-button variant="link" suffixIcon="arrow-right" dataCy="viewAllOrders" (click)="goToOrders()">
+        {{ 'WORKSPACE._view_all_orders' | translate }}
+      </app-button>
+    </div>
+  </app-card>
+
+  <!-- The latest products -->
+  <app-card>
+    <div appCardHeader class="flex w-full flex-wrap items-center justify-between gap-3">
+      <div>
+        <h3 class="text-xl font-bold text-content">{{ 'WORKSPACE._latest_products' | translate }}</h3>
+        <p class="mt-1 text-sm text-content-muted">{{ 'WORKSPACE._latest_products_subtitle' | translate }}</p>
+      </div>
+      <div class="flex items-center gap-2">
+        <app-button dataCy="refreshProducts" variant="secondary" size="sm" prefixIcon="rotate" (click)="refreshProducts()">
+          {{ 'WORKSPACE._refresh' | translate }}
+        </app-button>
+        <app-button variant="link" suffixIcon="arrow-right" dataCy="viewAllProducts" (click)="goToProducts()">
+          {{ 'WORKSPACE._view_all' | translate }}
+        </app-button>
+      </div>
+    </div>
+    <app-paginated-table #productsTable data-cy="latestProductsTable" [columns]="productColumns" [fetchPage]="fetchLatestProducts"
+      [pageSizeOptions]="pageSizeOptions" [clickable]="true" (rowClick)="openProduct($event)"
+      emptyMessage="WORKSPACE._no_products">
+    </app-paginated-table>
+  </app-card>
+
+</div>
+}
+
+<app-order-details [role]="sellerRole" (orderUpdated)="onOrderUpdated()"></app-order-details>
