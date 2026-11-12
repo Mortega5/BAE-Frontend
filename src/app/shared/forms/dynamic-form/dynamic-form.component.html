@@ -64,6 +64,12 @@
     </div>
     }
 
+    @if (field.type === 'optionCards') {
+    <app-option-cards [formControlName]="field.name" [options]="asOptionCards(field).options"
+      [columns]="asOptionCards(field).columns ?? 2" [label]="field.label | translate" [dataCy]="field.dataCy ?? field.name"
+      [isReadonly]="field.readonly ?? false" />
+    }
+
     @if (field.type === 'bubbleSelect') {
     <div class="flex flex-wrap gap-2">
       @for (opt of asBubbleSelect(field).options; track opt.value) {

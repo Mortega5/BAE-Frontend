@@ -1,0 +1,115 @@
+// Colors come from the card tokens in styles.css, which already have a light and a dark value.
+.option-cards {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: minmax(0, 1fr);
+
+  @media (min-width: 640px) {
+    &--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    &--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+}
+
+.option-card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  width: 100%;
+  padding: 1.25rem 3rem 1.25rem 1.25rem;
+  text-align: left;
+  border: 1px solid var(--card-border);
+  border-radius: 0.75rem;
+  background: var(--card-bg);
+  cursor: pointer;
+  transition: border-color 150ms ease, background-color 150ms ease, box-shadow 150ms ease;
+
+  &:hover:not(.is-inactive) {
+    border-color: var(--card-hover-border);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--theme-focus-ring);
+    outline-offset: 2px;
+  }
+
+  &.is-selected {
+    border-color: var(--card-selected-border);
+    background: var(--card-selected-bg);
+    // A second pixel of border without moving the content
+    box-shadow: 0 0 0 1px var(--card-selected-border);
+  }
+
+  &.is-inactive {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.option-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.625rem;
+  background: var(--card-inset-bg);
+  color: var(--card-selected-border);
+  font-size: 1.25rem;
+}
+
+.option-card__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.option-card__badge {
+  padding: 0.125rem 0.5rem;
+  border-radius: 0.375rem;
+  background: var(--card-inset-bg);
+  color: var(--card-selected-border);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.option-card__radio {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  box-sizing: border-box;
+  border: 2px solid var(--theme-input-border);
+  border-radius: 9999px;
+  transition: border-color 150ms ease;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 3px;
+    border-radius: 9999px;
+    background: var(--card-selected-border);
+    transform: scale(0);
+    transition: transform 150ms ease;
+  }
+
+  .is-selected & {
+    border-color: var(--card-selected-border);
+
+    &::after {
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    &, &::after { transition: none; }
+  }
+}

@@ -10,13 +10,13 @@ export type DatasetSource = 'file' | 'url';
 
 /** What a dataset is made from, to choose when the marketplace has a file service: without one it is always an address. */
 export const DATASET_SOURCE_FIELD: FormField = {
-  type: 'select', name: 'source', label: 'DATASETS._source', required: true, defaultValue: 'file', dataCy: 'datasetSource',
+  type: 'optionCards', name: 'source', label: 'DATASETS._source', required: true, defaultValue: 'file', dataCy: 'datasetSource',
   options: [
-    { value: 'file', label: 'DATASETS._source_file', subtitle: 'DATASETS._source_file_hint' },
-    { value: 'url', label: 'DATASETS._source_url', subtitle: 'DATASETS._source_url_hint' },
+    { value: 'file', icon: 'cloud', label: 'DATASETS._source_file', badge: 'DATASETS._source_file_badge', description: 'DATASETS._source_file_hint' },
+    { value: 'url', icon: 'server', label: 'DATASETS._source_url', badge: 'DATASETS._source_url_badge', description: 'DATASETS._source_url_hint' },
   ],
-  searchable: true, showSearch: false,
-} as FormField;
+  hint: 'DATASETS._source_desc',
+};
 
 export type DatasetVisibility = 'private' | 'public' | 'custom';
 export const DATASET_VISIBILITIES: DatasetVisibility[] = ['private', 'public', 'custom'];

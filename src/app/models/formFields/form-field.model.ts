@@ -94,6 +94,24 @@ export interface BubbleSelectFormField extends BaseFormField {
   options: SelectOption[];
 }
 
+/** One card of an `optionCards` field. `label`, `description` and `badge` are i18n keys; `icon` is a name from the button icon registry. */
+export interface OptionCardOption {
+  value: any;
+  label: string;
+  description?: string;
+  badge?: string;
+  icon?: string;
+}
+
+/** Single-choice selector shown as cards (icon, title, badge, description and a radio mark). Use it for a few options that are
+ * really different things, where a dropdown would hide what each one means. */
+export interface OptionCardsFormField extends BaseFormField {
+  type: 'optionCards';
+  options: OptionCardOption[];
+  /** Cards side by side from the small breakpoint up (one column below it). Defaults to 2. */
+  columns?: 1 | 2 | 3;
+}
+
 export interface MarkdownTextareaFormField extends TextBaseFormField {
   type: 'markdownTextarea';
   rows?: number;
@@ -230,4 +248,4 @@ export interface AttachmentFormField extends BaseFormField {
   deferUpload?: boolean;
 }
 
-export type FormField = StringFormField | NumberFormField | DateFormField | PhoneNumberFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | SliderFormField | TableFormField | PaginatedTableFormField | CodeFormField | AttachmentFormField;
+export type FormField = StringFormField | NumberFormField | DateFormField | PhoneNumberFormField | SelectableFormField | BooleanFormField | BubbleSelectFormField | OptionCardsFormField | MarkdownTextareaFormField | TextareaFormField | StatusPickerFormField | MultiValueStringFormField | UnitValueFormField | RangeValueFormField | SliderFormField | TableFormField | PaginatedTableFormField | CodeFormField | AttachmentFormField;
