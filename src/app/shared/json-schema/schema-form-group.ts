@@ -35,6 +35,11 @@ export class SchemaFormGroup extends FormGroup {
   schemaUrl?: string;
 
   private readonly initialKeys: Set<string>;
+  /** What the user had typed in fields that are hidden now (another branch, or no branch chosen
+   * yet), as control values, so choosing that branch again brings it back. */
+  private readonly stash = new Map<string, unknown>();
+  /** Discriminators that still have no value: only they are shown until they do. */
+  pendingDiscriminators: string[] = [];
   private discriminatorSubscriptions: Subscription[] = [];
   private rebuilding = false;
 
@@ -95,7 +100,17 @@ export class SchemaFormGroup extends FormGroup {
     try {
       const resolved = resolveObjectSchema(this.node, value);
       this.branchTitle = resolved.branchTitle;
-      this.entries = buildEntries(resolved, this.pointer, this.context.overlay, this.rootValue());
+      const all = buildEntries(resolved, this.pointer, this.context.overlay, this.rootValue());
+      // A field that decides which others apply (`type`, `backend`) comes first: until it has a value,
+      // only it is shown, so no field appears that the choice could take away again.
+      this.pendingDiscriminators = resolved.discriminators.filter(name => {
+        const entry = all.find(e => e.name === name);
+        const current = name in value ? value[name] : entry?.kind === 'field' ? entry.codec.fromControl(entry.field.defaultValue) : undefined;
+        return entry !== undefined && (current === undefined || current === null || current === '');
+      });
+      this.entries = this.pendingDiscriminators.length > 0
+        ? all.filter(e => resolved.discriminators.includes(e.name))
+        : all;
       this.fields = this.entries.filter((e): e is SchemaFieldEntry => e.kind === 'field').map(e => e.field);
       this.objects = this.entries.filter((e): e is SchemaObjectEntry => e.kind === 'object');
 
@@ -110,7 +125,10 @@ export class SchemaFormGroup extends FormGroup {
         }
       }
       for (const name of Object.keys(this.controls)) {
-        if (!wanted.has(name)) this.removeControl(name, { emitEvent: false });
+        if (wanted.has(name)) continue;
+        const control = this.get(name)!;
+        this.stash.set(name, control instanceof SchemaFormGroup ? control.schemaValue() : control.value);
+        this.removeControl(name, { emitEvent: false });
       }
       this.watchDiscriminators(resolved.discriminators);
       // A discriminator may only now have its value (a default, e.g. `type: helm`), and the branch it
@@ -136,7 +154,8 @@ export class SchemaFormGroup extends FormGroup {
       existing.updateValueAndValidity({ emitEvent: false });
       return;
     }
-    const initial = entry.name in value ? entry.codec.toControl(value[entry.name]) : entry.field.defaultValue;
+    const initial = entry.name in value ? entry.codec.toControl(value[entry.name])
+      : this.stash.has(entry.name) ? this.stash.get(entry.name) : entry.field.defaultValue;
     if (existing) this.removeControl(entry.name, { emitEvent: false });
     this.addControl(entry.name, new FormControl(initial, validators), { emitEvent: false });
   }
@@ -147,7 +166,7 @@ export class SchemaFormGroup extends FormGroup {
       existing.setNode(entry.schema);
     } else {
       if (existing) this.removeControl(entry.name, { emitEvent: false });
-      const childValue = value[entry.name];
+      const childValue = value[entry.name] ?? this.stash.get(entry.name);
       const child = new SchemaFormGroup(entry.schema, entry.pointer, this.context,
         childValue && typeof childValue === 'object' && !Array.isArray(childValue) ? childValue as ObjectValue : undefined);
       this.addControl(entry.name, child, { emitEvent: false });

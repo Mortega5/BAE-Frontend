@@ -15,7 +15,7 @@ const OPENNEBULA = { '/type': 'opennebula' };
  */
 export const DEPLOYMENT_DEFINITION_OVERLAY: SchemaUiOverlay = {
   '/type': {
-    label: 'PACKAGE_DEPLOYMENT._type', order: 0, colSpan: 2, defaultValue: 'helm',
+    label: 'PACKAGE_DEPLOYMENT._type', order: 0, colSpan: 2,
     optionLabels: {
       helm: 'PACKAGE_DEPLOYMENT._type_helm',
       docker: 'PACKAGE_DEPLOYMENT._type_docker',

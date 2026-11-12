@@ -45,9 +45,17 @@ describe('SchemaFormGroup (deployment-definition v1)', () => {
   });
 
   describe('a new definition', () => {
-    it('starts as helm, schema version 1.0, invalid until the chart is given', () => {
+    it('shows only the type until one is chosen', () => {
       const f = form();
-      expect(f.get('type')!.value).toBe('helm');
+      expect(Object.keys(f.controls)).toEqual(['type']);
+      expect(f.get('type')!.value).toBe('');
+      expect(f.pendingDiscriminators).toEqual(['type']);
+      expect(f.valid).toBeFalse();
+    });
+
+    it('as helm: schema version 1.0, invalid until the chart is given', () => {
+      const f = form();
+      f.get('type')!.setValue('helm');
       expect(f.get('version')!.value).toBe('1.0');
       expect(Object.keys(props(f).controls)).toEqual(['repository', 'chart', 'version', 'values', 'enforcedValues']);
       expect(f.valid).toBeFalse();
@@ -69,6 +77,40 @@ describe('SchemaFormGroup (deployment-definition v1)', () => {
       f.get('type')!.setValue('opennebula');
       expect(props(f).get('backend')).toBeTruthy();
       expect(props(f).get('image')).toBeNull();
+    });
+
+    it('shows only the backend until one is chosen', () => {
+      const f = form({ type: 'opennebula', version: '1.0', properties: {} });
+      expect(Object.keys(props(f).controls)).toEqual(['backend']);
+      expect(props(f).fields.map(field => field.name)).toEqual(['backend']);
+      expect(props(f).objects).toEqual([]);
+
+      props(f).get('backend')!.setValue('lxc');
+      expect(Object.keys(props(f).controls)).toContain('templateId');
+      expect(props(f).objects.map(o => o.name)).toEqual(['healthCheck']);
+    });
+
+    it('keeps what was typed when the backend changes and comes back', () => {
+      const f = form({ type: 'opennebula', version: '1.0', properties: { backend: 'lxc' } });
+      const p = props(f);
+      p.get('templateId')!.setValue(237);
+      p.get('servicePort')!.setValue(8080);
+
+      p.get('backend')!.setValue('oneks');
+      expect(p.get('templateId')).toBeNull();
+      p.get('backend')!.setValue('vm');
+      expect(p.get('templateId')!.value).toBe(237);
+      expect(p.get('servicePort')!.value).toBe(8080);
+    });
+
+    it('keeps the type\'s fields when the type is cleared and chosen again', () => {
+      const f = form();
+      f.get('type')!.setValue('helm');
+      props(f).patchValue({ chart: 'redis' });
+      f.get('type')!.setValue('');
+      expect(Object.keys(f.controls)).toEqual(['type']);
+      f.get('type')!.setValue('helm');
+      expect(props(f).get('chart')!.value).toBe('redis');
     });
 
     it('follows the OpenNebula backend', () => {
@@ -119,7 +161,7 @@ describe('SchemaFormGroup (deployment-definition v1)', () => {
   });
 
   it('labels Helm fields from the overlay and OpenNebula fields from the schema', () => {
-    const helm = form();
+    const helm = form({ type: 'helm', version: '1.0', properties: {} });
     expect(props(helm).fields.find(f => f.name === 'values')!.label).toBe('PACKAGE_DEPLOYMENT._default_helm_values');
 
     const one = form({ type: 'opennebula', version: '1.0', properties: { backend: 'vm' } });
