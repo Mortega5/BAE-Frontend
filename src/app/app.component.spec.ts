@@ -1,3 +1,4 @@
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -8,7 +9,7 @@ import { AppComponent } from './app.component';
 describe('AppComponent', () => {
   beforeEach(() => TestBed.configureTestingModule({
       schemas: [NO_ERRORS_SCHEMA],
-      imports: [HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()],
+      imports: [NoopAnimationsModule, HttpClientTestingModule, RouterTestingModule, TranslateModule.forRoot()],
       declarations: [AppComponent]
     }));
 
