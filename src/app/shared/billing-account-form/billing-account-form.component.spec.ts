@@ -26,4 +26,13 @@ describe('BillingAccountFormComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('hints what goes in every text field the user fills in', () => {
+    const typed = component.billingFields.filter(field => ['string', 'textarea', 'phoneNumber'].includes(field.type));
+
+    expect(typed.length).toBeGreaterThan(0);
+    for (const field of typed) {
+      expect((field as any).placeholder).withContext(`placeholder of ${field.name}`).toMatch(/^BILLING\._[a-z_]+_placeholder$/);
+    }
+  });
 });

@@ -27,15 +27,15 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
 
   readonly billingFields: FormField[] = [
     {
-      type: 'string', name: 'name', label: 'BILLING._title', required: true, colSpan: 2, dataCy: 'billingTitle',
+      type: 'string', name: 'name', label: 'BILLING._title', required: true, colSpan: 2, dataCy: 'billingTitle', placeholder: 'BILLING._title_placeholder',
       validators: [Validators.maxLength(250)], errorMessages: { maxlength: 'BILLING._too_long' },
     },
     {
-      type: 'string', name: 'city', label: 'BILLING._city', required: true, dataCy: 'billingCity', colSpan: 1,
+      type: 'string', name: 'city', label: 'BILLING._city', required: true, dataCy: 'billingCity', colSpan: 1, placeholder: 'BILLING._city_placeholder',
       validators: [Validators.maxLength(250)], errorMessages: { maxlength: 'BILLING._too_long' },
     },
     {
-      type: 'string', name: 'stateOrProvince', label: 'BILLING._state', required: true, dataCy: 'billingState', colSpan: 1,
+      type: 'string', name: 'stateOrProvince', label: 'BILLING._state', required: true, dataCy: 'billingState', colSpan: 1, placeholder: 'BILLING._state_placeholder',
       validators: [Validators.maxLength(250)], errorMessages: { maxlength: 'BILLING._too_long' },
     },
     {
@@ -43,15 +43,15 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
       options: euCountries.map(country => ({ value: country.code, label: country.name })),
     },
     {
-      type: 'string', name: 'postCode', label: 'BILLING._post_code', required: true, dataCy: 'billingZip', colSpan: 1,
+      type: 'string', name: 'postCode', label: 'BILLING._post_code', required: true, dataCy: 'billingZip', colSpan: 1, placeholder: 'BILLING._post_code_placeholder',
       validators: [Validators.maxLength(250)], errorMessages: { maxlength: 'BILLING._too_long' },
     },
     {
-      type: 'textarea', name: 'street', label: 'BILLING._street', required: true, colSpan: 2, rows: 4, dataCy: 'billingAddress',
+      type: 'textarea', name: 'street', label: 'BILLING._street', required: true, colSpan: 2, rows: 4, dataCy: 'billingAddress', placeholder: 'BILLING._street_placeholder',
       validators: [Validators.maxLength(1000)], errorMessages: { maxlength: 'BILLING._too_long_larger' },
     },
     {
-      type: 'string', name: 'email', label: 'BILLING._email', required: true, colSpan: 2, dataCy: 'billingEmail',
+      type: 'string', name: 'email', label: 'BILLING._email', required: true, colSpan: 2, dataCy: 'billingEmail', placeholder: 'BILLING._email_placeholder',
       validators: [Validators.email, Validators.pattern('^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$'), Validators.maxLength(320)],
       errorMessages: { email: 'BILLING._email_format', pattern: 'BILLING._email_format', maxlength: 'BILLING._too_long_email' },
     },
@@ -64,7 +64,7 @@ export class BillingAccountFormComponent implements OnInit, OnDestroy {
       colSpan: 1
     },
     {
-      type: 'phoneNumber', name: 'telephoneNumber', label: 'BILLING._phone', required: true, dataCy: 'billingPhone', colSpan: 1,
+      type: 'phoneNumber', name: 'telephoneNumber', label: 'BILLING._phone', required: true, dataCy: 'billingPhone', colSpan: 1, placeholder: 'BILLING._phone_placeholder',
       errorMessages: { invalidPhoneNumber: 'BILLING._invalid_phone' },
     },
   ];

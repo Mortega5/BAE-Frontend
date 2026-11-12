@@ -21,6 +21,8 @@ type PhonePrefix = typeof phoneNumbers[number];
 })
 export class PhoneNumberInputComponent implements ControlValueAccessor {
   @Input() isReadonly: boolean = false;
+  /** Already translated hint for the number box while it is empty. */
+  @Input() placeholder: string = '';
 
   readonly prefixes: PhonePrefix[] = phoneNumbers;
 

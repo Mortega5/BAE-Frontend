@@ -59,6 +59,8 @@ export interface DateFormField extends BaseFormField {
  * by hand as `phonePrefix.code + telephoneNumber`. */
 export interface PhoneNumberFormField extends BaseFormField {
   type: 'phoneNumber';
+  /** i18n key of the hint shown in the number box while it is empty. */
+  placeholder?: string;
 }
 
 export interface SelectOption {

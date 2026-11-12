@@ -1379,7 +1379,14 @@
     "_email_format": "Email must follow the following format: example@example.example",
     "_save_success": "Billing details saved successfully.",
     "_save_error": "There was an error while saving the billing account.",
-    "_preferred_error": "There was an error while updating the preferred billing account."
+    "_preferred_error": "There was an error while updating the preferred billing account.",
+    "_title_placeholder": "Enter a title for this address",
+    "_city_placeholder": "Enter the city",
+    "_state_placeholder": "Enter the state or province",
+    "_post_code_placeholder": "Enter the ZIP / postal code",
+    "_street_placeholder": "Enter the street address",
+    "_email_placeholder": "Enter the billing email address",
+    "_phone_placeholder": "Enter the phone number"
   },
   "INVOICES": {
     "_invoice_id": "Invoice ID",

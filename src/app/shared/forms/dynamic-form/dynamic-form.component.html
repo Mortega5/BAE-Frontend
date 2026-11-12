@@ -38,6 +38,7 @@
 
     @if (field.type === 'phoneNumber') {
     <app-phone-number-input [formControlName]="field.name" [isReadonly]="field.readonly ?? false"
+      [placeholder]="($any(field).placeholder ?? '') | translate"
       [attr.data-cy]="field.dataCy ?? field.name" />
     }
 

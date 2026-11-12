@@ -1379,7 +1379,14 @@
     "_email_format": "El correo electrónico debe seguir el siguiente formato: example@example.example",
     "_save_success": "Datos de facturación guardados correctamente.",
     "_save_error": "Se produjo un error al guardar la cuenta de facturación.",
-    "_preferred_error": "Se produjo un error al actualizar la cuenta de facturación predeterminada."
+    "_preferred_error": "Se produjo un error al actualizar la cuenta de facturación predeterminada.",
+    "_title_placeholder": "Introduce un título para esta dirección",
+    "_city_placeholder": "Introduce la ciudad",
+    "_state_placeholder": "Introduce el estado o la provincia",
+    "_post_code_placeholder": "Introduce el código postal",
+    "_street_placeholder": "Introduce la dirección",
+    "_email_placeholder": "Introduce el correo electrónico de facturación",
+    "_phone_placeholder": "Introduce el número de teléfono"
   },
   "INVOICES": {
     "_invoice_id": "ID de factura",
