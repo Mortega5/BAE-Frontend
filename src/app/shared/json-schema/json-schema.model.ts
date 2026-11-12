@@ -12,6 +12,8 @@ export interface JsonSchema {
   const?: unknown;
   default?: unknown;
   format?: string;
+  /** What a string holds (e.g. `application/yaml`); picks the editor for it. */
+  contentMediaType?: string;
   pattern?: string;
   minLength?: number;
   maxLength?: number;

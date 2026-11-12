@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { DateFormField, SelectableFormField } from 'src/app/models/formFields/form-field.model';
 import { JsonSchema } from './json-schema.model';
+import { editorForMediaType } from './schema-fields';
 import { createSchemaForm } from './schema-form-group';
 import { SchemaRegistryService } from './schema-registry.service';
 
@@ -15,6 +16,10 @@ const SCHEMA: JsonSchema = {
     protocol: { type: 'string', enum: ['http', 'https'], default: 'http' },
     flavour: { type: 'string', enum: ['standalone', 'ha'] },
     backend: { type: 'string', enum: ['vm', 'lxc'] },
+    values: { type: 'string', contentMediaType: 'application/yaml' },
+    manifest: { type: 'string', contentMediaType: 'application/json' },
+    env: { type: 'string', contentMediaType: 'text/plain' },
+    blob: { type: 'string', contentMediaType: 'application/octet-stream' },
   },
   required: ['backend'],
 };
@@ -52,6 +57,41 @@ describe('schema field mapping', () => {
       const value = form.schemaValue()['instant'] as string;
       expect(value).toMatch(/Z$/);
       expect(new Date(value).getTime()).toBe(new Date('2026-06-01T08:15').getTime());
+    });
+  });
+
+  describe('contentMediaType', () => {
+    const field = (name: string) => create().fields.find(f => f.name === name)! as any;
+
+    it('edits YAML text in a YAML editor and keeps it as text', () => {
+      expect(field('values').type).toBe('code');
+      expect(field('values').language).toBe('yaml');
+      const form = create({ values: 'replicaCount: 1' });
+      expect(form.schemaValue()['values']).toBe('replicaCount: 1');
+    });
+
+    it('edits JSON text in a JSON editor', () => {
+      expect(field('manifest').type).toBe('code');
+      expect(field('manifest').language).toBe('json');
+    });
+
+    it('edits other text in a textarea, and anything else in a plain input', () => {
+      expect(field('env').type).toBe('textarea');
+      expect(field('blob').type).toBe('string');
+    });
+
+    it('recognises the YAML media type variants', () => {
+      for (const media of ['application/yaml', 'application/x-yaml', 'text/yaml', 'application/vnd.k8s+yaml', 'application/yaml; charset=utf-8']) {
+        expect(editorForMediaType(media)).toEqual({ type: 'code', language: 'yaml' });
+      }
+      expect(editorForMediaType(undefined)).toBeUndefined();
+    });
+
+    it('lets the overlay override it', () => {
+      const schema: JsonSchema = { $id: 'https://example.test/override.json', type: 'object', properties: { values: { type: 'string', contentMediaType: 'application/yaml' } } };
+      const loaded = new SchemaRegistryService({} as HttpClient).compile(schema.$id!, schema);
+      const form = createSchemaForm(loaded, undefined, { '/values': { type: 'textarea' } });
+      expect(form.fields[0].type).toBe('textarea');
     });
   });
 

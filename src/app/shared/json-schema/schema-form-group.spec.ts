@@ -5,6 +5,8 @@ import { LoadedSchema, SchemaRegistryService } from './schema-registry.service';
 import {
   DEPLOYMENT_DEFINITION_V1,
   DEPLOYMENT_DEFINITION_V1_URL,
+  DEPLOYMENT_DEFINITION_V2,
+  DEPLOYMENT_DEFINITION_V2_URL,
   LEGACY_DEPLOYMENT_DEFINITIONS,
   MODEL_DEPLOYMENT_DEFINITIONS,
 } from './testing/model-fixtures';
@@ -158,6 +160,20 @@ describe('SchemaFormGroup (deployment-definition v1)', () => {
       props(f).get('enforcedValues')!.setValue('kubernetesVersion: v1.34.2');
       expect(f.valid).toBeFalse();
     });
+  });
+
+  it('takes the editors from deployment-definition v2, with no editor configured in the overlay', () => {
+    const v2 = new SchemaRegistryService({} as HttpClient).compile(DEPLOYMENT_DEFINITION_V2_URL, DEPLOYMENT_DEFINITION_V2);
+    const fieldsOf = (value: any) => (createSchemaForm(v2, value, DEPLOYMENT_DEFINITION_OVERLAY).get('properties') as SchemaFormGroup).fields;
+    const helm = fieldsOf({ type: 'helm', version: '1.0', properties: {} });
+    expect(helm.find(f => f.name === 'values')).toEqual(jasmine.objectContaining({ type: 'code', language: 'yaml' }));
+    expect(helm.find(f => f.name === 'enforcedValues')).toEqual(jasmine.objectContaining({ type: 'code', language: 'yaml' }));
+    const docker = fieldsOf({ type: 'docker', version: '1.0', properties: {} });
+    expect(docker.find(f => f.name === 'composeFile')).toEqual(jasmine.objectContaining({ type: 'code', language: 'yaml' }));
+    expect(docker.find(f => f.name === 'envFile')!.type).toBe('textarea');
+    // Free objects get a YAML editor by default
+    const one = fieldsOf({ type: 'opennebula', version: '1.0', properties: { backend: 'lxc' } });
+    expect(one.find(f => f.name === 'context')).toEqual(jasmine.objectContaining({ type: 'code', language: 'yaml' }));
   });
 
   it('labels Helm fields from the overlay and OpenNebula fields from the schema', () => {

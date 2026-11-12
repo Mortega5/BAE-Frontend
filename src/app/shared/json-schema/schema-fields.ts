@@ -127,7 +127,11 @@ function buildFieldEntry(name: string, pointer: string, schema: JsonSchema, requ
     });
   }
 
-  if (hint.type === 'textarea') {
+  // The editor: what the overlay says, else what the schema says the string holds.
+  const media = hint.type ? undefined : editorForMediaType(schema.contentMediaType);
+  const fieldType = hint.type ?? media?.type;
+
+  if (fieldType === 'textarea') {
     const codec = scalarCodec();
     return entry(name, pointer, schema, codec, {
       ...base, type: 'textarea', placeholder: hint.placeholder, defaultValue: codec.toControl(initial),
@@ -135,8 +139,8 @@ function buildFieldEntry(name: string, pointer: string, schema: JsonSchema, requ
     });
   }
 
-  if (hint.type === 'code' || !isScalar(type)) {
-    const language: CodeLanguage = hint.language ?? 'yaml';
+  if (fieldType === 'code' || !isScalar(type)) {
+    const language: CodeLanguage = hint.language ?? media?.language ?? 'yaml';
     // A string property holds the text itself; anything else holds the parsed document.
     const codec = type === 'string' ? scalarCodec() : documentCodec(language);
     return entry(name, pointer, schema, codec, {
@@ -173,6 +177,21 @@ function buildFieldEntry(name: string, pointer: string, schema: JsonSchema, requ
     ...base, type: 'string', colSpan: hint.colSpan ?? 2, placeholder: hint.placeholder, defaultValue: codec.toControl(initial),
     validators: stringValidators(schema),
   });
+}
+
+/**
+ * The editor for a string with a `contentMediaType`: a code editor for YAML and JSON, a textarea for
+ * any other text, nothing special otherwise.
+ */
+export function editorForMediaType(mediaType: string | undefined): { type: 'code' | 'textarea'; language?: CodeLanguage } | undefined {
+  const media = mediaType?.split(';')[0].trim().toLowerCase();
+  if (!media) return undefined;
+  if (['application/yaml', 'application/x-yaml', 'text/yaml', 'text/x-yaml'].includes(media) || media.endsWith('+yaml')) {
+    return { type: 'code', language: 'yaml' };
+  }
+  if (media === 'application/json' || media.endsWith('+json')) return { type: 'code', language: 'json' };
+  if (media.startsWith('text/')) return { type: 'textarea' };
+  return undefined;
 }
 
 function entry(name: string, pointer: string, schema: JsonSchema, codec: ValueCodec, field: FormField): SchemaFieldEntry {

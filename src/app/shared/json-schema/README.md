@@ -58,15 +58,22 @@ translated (a draft-07 subset, see `json-schema.model.ts`).
 
 | Schema | Control (`FormField.type`) | Value | Default width (`colSpan`) |
 |---|---|---|---|
-| `enum` | `select` | The chosen value. An empty option is added when the field is optional or has no default. | 2 |
+| `enum` | `select` | The chosen value. An empty option is added only when there is no default: a placeholder when required, "—" when optional. | 2 |
 | `array` whose `items` are an `enum` | `select` with `multiple` | Array. When empty, the property is omitted. | 2 |
 | `string` | `string` | Text. Omitted when empty. | 2 |
+| `string` with `contentMediaType: application/yaml` (or `application/x-yaml`, `text/yaml`, `*+yaml`) | `code` (`yaml`) | The text itself, checked as YAML. | Full width |
+| `string` with `contentMediaType: application/json` (or `*+json`) | `code` (`json`) | The text itself, checked as JSON. | Full width |
+| `string` with any other `contentMediaType: text/*` | `textarea` | Text. | Full width |
 | `string` with `format: date` | `date` (`inputType: date`) | `YYYY-MM-DD` text. | 2 |
 | `string` with `format: date-time` | `date` (`inputType: datetime-local`) | RFC 3339 instant in UTC (`…Z`). The control shows local time. | 2 |
 | `integer`, `number` | `number` | Number. `integer` forces step 1 and validates that the value is whole. | 1 |
 | `boolean` | `boolean` | Boolean. `false` is only written when it carries information (see section 5). | 2 |
 | `object` with `properties` | Nested section (not `app-dynamic-form`) | Object. When optional, it is enabled with a switch. | — |
 | Anything else (free `array`, maps, objects without `properties`) | `code` (YAML by default) | The parsed content of the editor. | Full width |
+
+**Deciding fields first.** A property that selects a branch (pinned with `const` in a `oneOf` branch
+or in an `if`) is shown alone while it has no value; the rest appear once it is chosen. What was
+typed in a field that gets hidden comes back if the field applies again.
 
 Schema rules carried over to the control: `required`, `pattern`, `minLength`, `maxLength`,
 `minimum`, `maximum`, `format: uri`, `default`, `title` (label) and `description` (help text).
@@ -115,7 +122,7 @@ used.
 |---|---|---|
 | `when` | all | Applied only if every pointer holds the given value, e.g. `{ '/type': 'helm' }`. |
 | `label`, `hint`, `placeholder`, `colSpan`, `defaultValue` | fields | Same name and meaning as in `FormField`. `label` and `hint` are i18n keys. |
-| `type` | fields | Forces the control: `code` or `textarea`. |
+| `type` | fields | Forces the control: `code` or `textarea`. Takes precedence over `contentMediaType`; prefer annotating the schema. |
 | `language` | `code` | `yaml` (default) or `json`. |
 | `order` | fields and objects | Ascending; without a value, schema order is kept, after those that have one. |
 | `optionLabels` | `enum` | i18n key for each value. |
