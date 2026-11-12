@@ -8,10 +8,12 @@ export type FeatureFlagKey =
   | 'dspEnabled'
   | 'catalogManagementEnabled'
   | 'launchValidationEnabled'
-  | 'tenderDevButtonsOpenCloseEnabled';
+  | 'tenderDevButtonsOpenCloseEnabled'
+  | 'datasetsEnabled';
 
-// Runtime-only flags come from the deployment, not from the admin toggles in FEATURE_FLAG_DEFINITIONS
-export type RuntimeFeatureFlagKey = FeatureFlagKey | 'searchEnabled' | 'datasetsEnabled' | 'datasetFilesEnabled';
+// Runtime-only flags come from the deployment, not from the admin toggles in FEATURE_FLAG_DEFINITIONS.
+// Whether datasets can be made from a file depends on a file service being deployed, which an admin toggle cannot guarantee.
+export type RuntimeFeatureFlagKey = FeatureFlagKey | 'searchEnabled' | 'datasetFilesEnabled';
 
 export type FeaturesConfig = Partial<Record<RuntimeFeatureFlagKey, boolean>> & Record<string, boolean | undefined>;
 
@@ -61,6 +63,11 @@ export const FEATURE_FLAG_DEFINITIONS: FeatureFlagDefinition[] = [
     key: 'tenderDevButtonsOpenCloseEnabled',
     labelKey: 'ADMIN.FEATURES._tender_dev_actions_label',
     descriptionKey: 'ADMIN.FEATURES._tender_dev_actions_description'
+  },
+  {
+    key: 'datasetsEnabled',
+    labelKey: 'ADMIN.FEATURES._datasets_label',
+    descriptionKey: 'ADMIN.FEATURES._datasets_description'
   }
 ];
 

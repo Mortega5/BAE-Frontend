@@ -2853,6 +2853,8 @@
       "_launch_validation_description": "Enable launch validation requests for offerings.",
       "_tender_dev_actions_label": "Tender dev actions",
       "_tender_dev_actions_description": "Enable tender open and close development controls.",
+      "_datasets_label": "Datasets",
+      "_datasets_description": "Enable selling datasets: the Datasets section in My offerings and the dataset offers.",
       "_load_error": "There was an error while loading features configuration.",
       "_save_success": "Features configuration saved successfully.",
       "_save_error": "There was an error while saving features configuration.",

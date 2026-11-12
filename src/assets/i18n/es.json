@@ -2853,6 +2853,8 @@
       "_launch_validation_description": "Activa las solicitudes de validación de lanzamiento para las ofertas.",
       "_tender_dev_actions_label": "Acciones de desarrollo de licitaciones",
       "_tender_dev_actions_description": "Activa los controles de desarrollo de apertura y cierre de licitaciones.",
+      "_datasets_label": "Datasets",
+      "_datasets_description": "Activa la venta de datasets: la sección Datasets en Mis ofertas y las ofertas de datasets.",
       "_load_error": "Se ha producido un error al cargar la configuración de funcionalidades.",
       "_save_success": "La configuración de funcionalidades se ha guardado correctamente.",
       "_save_error": "Se ha producido un error al guardar la configuración de funcionalidades.",
