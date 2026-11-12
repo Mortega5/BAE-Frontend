@@ -1,4 +1,4 @@
-<div class="container mx-auto pt-4 pb-8">
+<div class="container mx-auto pb-8">
   <app-card>
     <div appCardHeader class="flex w-full flex-col md:flex-row md:items-center justify-between gap-3">
       <div>
@@ -6,8 +6,7 @@
           <h2 class="text-2xl font-bold text-content">{{ 'TENDERS._title' | translate }}</h2>
           @if (guideUrl) {
           <a [href]="guideUrl" target="_blank" rel="noopener noreferrer" [title]="'TENDERS._guide' | translate"
-            data-cy="tenderGuide"
-            class="text-content-muted hover:text-content transition-colors">
+            data-cy="tenderGuide" class="text-content-muted hover:text-content transition-colors">
             <fa-icon [icon]="faCircleQuestion" aria-hidden="true" />
             <span class="sr-only">{{ 'TENDERS._guide' | translate }}</span>
           </a>
