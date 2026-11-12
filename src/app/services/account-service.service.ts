@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { lastValueFrom, map } from 'rxjs';
+import { lastValueFrom, map, tap } from 'rxjs';
 import { Category, LoginInfo } from '../models/interfaces';
 import { environment } from 'src/environments/environment';
 import {components} from "../models/product-catalog";
@@ -22,9 +22,36 @@ export class AccountServiceService {
     return lastValueFrom(this.http.get<any[]>(url));
   }
 
+  /** A list of orders points to the same billing account over and over, and each order of a page asks for its own:
+   * the calls for one account that are in flight are collapsed into a single HTTP request (same idea as
+   * `pendingOrgInfoRequests`). */
+  private pendingBillingAccountRequests = new Map<string, Promise<any>>();
+
+  /** Short-lived cache on top of that, for the pages of a list that are read a moment apart. An account edited or
+   * deleted from this app is dropped from it right away; one changed elsewhere is picked up when it expires. */
+  private billingAccountCache = new Map<string, { value: any; expiresAt: number }>();
+  private static BILLING_ACCOUNT_CACHE_TTL_MS = 60_000;
+
   getBillingAccountById(id:any){
+    const key = String(id);
+    const cached = this.billingAccountCache.get(key);
+    if (cached && cached.expiresAt > Date.now()) {
+      return Promise.resolve(cached.value);
+    }
+
+    const existing = this.pendingBillingAccountRequests.get(key);
+    if (existing) return existing;
+
     let url = `${AccountServiceService.BASE_URL}${AccountServiceService.API_ACCOUNT}/billingAccount/${id}`;
-    return lastValueFrom(this.http.get<any>(url));
+    const request = lastValueFrom(this.http.get<any>(url))
+      .then(account => {
+        this.billingAccountCache.set(key, { value: account, expiresAt: Date.now() + AccountServiceService.BILLING_ACCOUNT_CACHE_TTL_MS });
+        return account;
+      })
+      .finally(() => this.pendingBillingAccountRequests.delete(key));
+
+    this.pendingBillingAccountRequests.set(key, request);
+    return request;
   }
 
   postBillingAccount(item:any){
@@ -34,12 +61,12 @@ export class AccountServiceService {
 
   updateBillingAccount(id:any,item:any){
     let url = `${AccountServiceService.BASE_URL}${AccountServiceService.API_ACCOUNT}/billingAccount/${id}`;
-    return this.http.patch<any>(url, item);
+    return this.http.patch<any>(url, item).pipe(tap(() => this.billingAccountCache.delete(String(id))));
   }
 
   deleteBillingAccount(id:any){
     let url = `${AccountServiceService.BASE_URL}${AccountServiceService.API_ACCOUNT}/billingAccount/${id}`;
-    return this.http.delete<any>(url);
+    return this.http.delete<any>(url).pipe(tap(() => this.billingAccountCache.delete(String(id))));
   }
 
   getUserInfo(partyId:any){

@@ -61,6 +61,77 @@ describe('AccountServiceService', () => {
     await expectAsync(promise).toBeResolvedTo(responseBody);
   });
 
+  describe('billing account by id, read once for the many orders that point to it', () => {
+    const url = (id: string) => `${environment.BASE_URL}${environment.ACCOUNT}/billingAccount/${id}`;
+
+    it('collapses the calls for the same account that are in flight into a single HTTP request', async () => {
+      const promises = [1, 2, 3].map(() => service.getBillingAccountById('ba-1'));
+
+      httpMock.expectOne(url('ba-1')).flush({ id: 'ba-1' });
+
+      for (const promise of promises) {
+        await expectAsync(promise).toBeResolvedTo({ id: 'ba-1' });
+      }
+    });
+
+    it('asks once per account when the accounts differ', async () => {
+      const first = service.getBillingAccountById('ba-1');
+      const second = service.getBillingAccountById('ba-2');
+
+      httpMock.expectOne(url('ba-1')).flush({ id: 'ba-1' });
+      httpMock.expectOne(url('ba-2')).flush({ id: 'ba-2' });
+
+      await expectAsync(first).toBeResolvedTo({ id: 'ba-1' });
+      await expectAsync(second).toBeResolvedTo({ id: 'ba-2' });
+    });
+
+    it('serves a settled account from cache, then reads it again once the cache expires', async () => {
+      let now = 1_000_000;
+      spyOn(Date, 'now').and.callFake(() => now);
+
+      const first = service.getBillingAccountById('ba-1');
+      httpMock.expectOne(url('ba-1')).flush({ id: 'ba-1', name: 'First' });
+      await first;
+
+      await expectAsync(service.getBillingAccountById('ba-1')).toBeResolvedTo({ id: 'ba-1', name: 'First' });
+      httpMock.expectNone(url('ba-1'));
+
+      now += 60_001;
+      const second = service.getBillingAccountById('ba-1');
+      httpMock.expectOne(url('ba-1')).flush({ id: 'ba-1', name: 'Updated' });
+      await expectAsync(second).toBeResolvedTo({ id: 'ba-1', name: 'Updated' });
+    });
+
+    it('does not keep a failure: the next call asks again', async () => {
+      const failed = service.getBillingAccountById('ba-1');
+      httpMock.expectOne(url('ba-1')).flush('boom', { status: 500, statusText: 'Server Error' });
+      await expectAsync(failed).toBeRejected();
+
+      const retry = service.getBillingAccountById('ba-1');
+      httpMock.expectOne(url('ba-1')).flush({ id: 'ba-1' });
+      await expectAsync(retry).toBeResolvedTo({ id: 'ba-1' });
+    });
+
+    it('drops the cached account when it is edited or deleted from the app', async () => {
+      const changes: [string, () => any][] = [
+        ['ba-edited', () => service.updateBillingAccount('ba-edited', { name: 'new' })],
+        ['ba-deleted', () => service.deleteBillingAccount('ba-deleted')],
+      ];
+      for (const [id, change] of changes) {
+        const read = service.getBillingAccountById(id);
+        httpMock.expectOne(url(id)).flush({ id });
+        await read;
+
+        change().subscribe();
+        httpMock.expectOne(r => r.url === url(id) && r.method !== 'GET').flush({});
+
+        const again = service.getBillingAccountById(id);
+        httpMock.expectOne(url(id)).flush({ id, name: 'fresh' });
+        await expectAsync(again).toBeResolvedTo({ id, name: 'fresh' });
+      }
+    });
+  });
+
   it('postBillingAccount should perform POST with payload', () => {
     const payload = { name: 'Billing A' };
     const responseBody = { id: 'new-id' };
