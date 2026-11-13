@@ -259,8 +259,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
   /** The seller's access policy for a custom dataset; kept while the same dataset stays selected. */
   readonly policyForm = new FormGroup({ policy: new FormControl(DATASET_POLICY_TEMPLATE) });
   readonly policyFields: FormField[] = [{
-    type: 'code', language: 'json', name: 'policy', label: 'DATASETS._policy_title', hint: 'DATASETS._policy_hint',
-    formatOnPaste: true, formatButton: true, lineNumbers: false, dataCy: 'datasetPolicy',
+    type: 'odrlPolicy', name: 'policy', label: 'DATASETS._policy_title', hint: 'DATASETS._policy_hint', rows: 12, dataCy: 'datasetPolicy',
   }];
   /** The proxy's message when it refuses the policy (422), shown next to the editor */
   policyServerError = '';

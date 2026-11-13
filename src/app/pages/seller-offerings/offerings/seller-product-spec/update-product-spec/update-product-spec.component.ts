@@ -374,7 +374,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
   /** The policy of a custom dataset as stored (the proxy has added the path of the file); read-only. */
   readonly datasetPolicyForm = new FormGroup({ policy: new FormControl('') });
   readonly datasetPolicyFields: FormField[] = [{
-    type: 'code', language: 'json', name: 'policy', label: 'DATASETS._policy_title', readonly: true, lineNumbers: false, dataCy: 'datasetPolicy',
+    type: 'odrlPolicy', name: 'policy', label: 'DATASETS._policy_title', readonly: true, rows: 12, dataCy: 'datasetPolicy',
   }];
   showDatasetPolicy = false;
 
