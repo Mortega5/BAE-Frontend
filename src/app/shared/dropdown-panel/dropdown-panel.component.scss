@@ -25,3 +25,13 @@
   background-color: var(--card-bg);
   border-color: var(--card-border);
 }
+
+/* Anything clickable inside a panel shows it: pointer cursor, and a hover background for
+   items that do not set their own. Content is projected, hence ::ng-deep. */
+:host ::ng-deep .app-dropdown-panel :is(button, a, [role='option'], [role='menuitem']):not(:disabled) {
+  cursor: pointer;
+}
+
+:host ::ng-deep .app-dropdown-panel :is(button, a, [role='option'], [role='menuitem']):not(:disabled, [aria-selected='true']):hover {
+  background-color: var(--dropdown-item-hover-bg);
+}
