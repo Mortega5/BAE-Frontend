@@ -3,9 +3,10 @@
  * contract-management installs. The seller's own data space connector serves and protects the API, so the address is
  * public and nothing here goes through the proxy. */
 
-/** ODRL action of an operation. `use` allows any HTTP method on its path. */
-export type ApiAction = 'read' | 'modify' | 'delete' | 'use';
-export const API_ACTIONS: ApiAction[] = ['read', 'modify', 'delete', 'use'];
+/** What a policy of the API allows: an ODRL action on its path (`use` allows any HTTP method), or `custom`, a policy the
+ * seller writes whole. */
+export type ApiAction = 'read' | 'modify' | 'delete' | 'use' | 'custom';
+export const API_ACTIONS: ApiAction[] = ['read', 'modify', 'delete', 'use', 'custom'];
 
 /** Names of the ServiceSpecification characteristics that make an API. */
 export const API_CHARACTERISTICS = {
@@ -25,12 +26,17 @@ export const API_PRODUCT_MARKER = 'apiAccess';
 /** Query of the product specs that sell an API: the TM Forum filters on the name of their marker characteristic. */
 export const API_PRODUCT_FILTER = { 'productSpecCharacteristic.name': API_PRODUCT_MARKER };
 
+/** A policy of the API: a path with the kind of access it needs, or a custom ODRL policy (stored under the name
+ * `apiOperations`, which is what makes a service an API). */
 export interface ApiOperation {
   id: string;
   action: ApiAction;
-  /** Template relative to the API address, e.g. `/items/{id}` */
+  /** Template relative to the API address, e.g. `/items/{id}`. Empty in a custom policy, which says its own target. */
   path: string;
   description?: string;
+  /** Only when `action` is `custom`: the ODRL policy as JSON text. It is kept as text because the TM Forum stores
+   * JSON-LD and would reshape a nested object. */
+  policy?: string;
 }
 
 /** The API as the seller edits it; the ServiceSpecification characteristics are built from and read into it. */

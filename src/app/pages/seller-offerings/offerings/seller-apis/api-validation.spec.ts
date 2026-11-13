@@ -74,6 +74,18 @@ describe('operationErrors', () => {
   });
 });
 
+describe('operationErrors of a custom policy', () => {
+  const custom = (policy: string | undefined, id = 'mine'): ApiOperation => ({ id, action: 'custom', path: '', policy });
+
+  it('asks for no path, only for a policy that is valid', () => {
+    const policy = JSON.stringify({ 'odrl:permission': { 'odrl:action': { '@id': 'odrl:read' } } });
+
+    expect(operationErrors([custom(policy)])).toEqual([{}]);
+    expect(operationErrors([custom('')])).toEqual([{ policy: 'DATASETS._policy_error_empty' }]);
+    expect(operationErrors([custom('nope')])).toEqual([{ policy: 'DATASETS._policy_error_invalid_json' }]);
+  });
+});
+
 describe('API address', () => {
   it('accepts an absolute http or https URL', () => {
     expect(apiUrlError('https://api.acme.example/v1')).toBeNull();

@@ -48,6 +48,13 @@ describe('api policy', () => {
     expect('odrl:assignee' in policy['odrl:permission']).toBeFalse();
   });
 
+  it('installs a custom policy as the seller wrote it, with the uid forced', () => {
+    const written = { '@type': 'odrl:Policy', 'odrl:uid': 'urn:policy:mine', 'odrl:permission': { 'odrl:action': { '@id': 'odrl:use' } } };
+    const policy = buildOperationPolicy(SERVICE_ID, 'https://api.acme.example/v1', op({ id: 'mine', action: 'custom', path: '', policy: JSON.stringify(written) }));
+
+    expect(policy).toEqual({ ...written, 'odrl:uid': 'urn:policy:api:5f1e:mine' });
+  });
+
   it('writes one policy per operation in the authorizationPolicy characteristic', () => {
     const characteristic = buildApiPolicyCharacteristic(SERVICE_ID, 'https://api.acme.example', [op(), op({ id: 'get', path: '/items/{id}' })]);
 

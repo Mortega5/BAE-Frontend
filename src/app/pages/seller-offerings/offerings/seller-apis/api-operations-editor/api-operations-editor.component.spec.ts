@@ -1,3 +1,4 @@
+import { SimpleChange } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { ApiOperation } from 'src/app/models/api-access.model';
@@ -28,14 +29,52 @@ describe('ApiOperationsEditorComponent', () => {
   it('renders each operation as a dynamic form', () => {
     expect(fixture.nativeElement.querySelectorAll('[data-cy="apiOperationRow"]').length).toBe(2);
     expect(fixture.nativeElement.querySelectorAll('app-dynamic-form').length).toBe(2);
-    expect(component.rows[0].group.getRawValue()).toEqual({ id: 'list', action: 'read', path: '/items', description: '' });
+    expect(component.rows[0].group.getRawValue()).toEqual({ id: 'list', action: 'read', path: '/items', policy: '', description: '' });
   });
 
-  it('offers the four accesses in a select', () => {
+  it('offers the four accesses and a custom policy in a select', () => {
     const action: any = component.rows[0].fields.find(f => f.name === 'action');
 
     expect(action.type).toBe('select');
-    expect(action.options.map((o: any) => o.value)).toEqual(['read', 'modify', 'delete', 'use']);
+    expect(action.options.map((o: any) => o.value)).toEqual(['read', 'modify', 'delete', 'use', 'custom']);
+  });
+
+  it('swaps the path for the policy to write when the access is custom, starting from a template', () => {
+    control(0, 'action').setValue('custom');
+
+    expect(component.rows[0].fields.map(f => f.name)).toEqual(['id', 'action', 'policy', 'description']);
+    expect(control(0, 'path').disabled).toBeTrue();
+    expect(JSON.parse(control(0, 'policy').value)['odrl:permission']['odrl:action']).toEqual({ '@id': 'odrl:read' });
+    expect(emitted[emitted.length - 1][0]).toEqual(jasmine.objectContaining({ id: 'list', action: 'custom', path: '' }));
+    expect(emitted[emitted.length - 1][0].policy).toContain('odrl:permission');
+  });
+
+  it('is valid with a custom policy and no path, and invalid when the policy is not one', () => {
+    control(0, 'action').setValue('custom');
+    expect(component.rows[0].group.valid).toBeTrue();
+
+    control(0, 'policy').setValue('{ not json');
+    expect(component.rows[0].group.valid).toBeFalse();
+    expect(control(0, 'policy').errors).toEqual({ 'DATASETS._policy_error_invalid_json': true });
+  });
+
+  it('goes back to the path when the access is a guided one again', () => {
+    control(0, 'action').setValue('custom');
+    control(0, 'action').setValue('modify');
+
+    expect(component.rows[0].fields.map(f => f.name)).toEqual(['id', 'action', 'path', 'description']);
+    expect(control(0, 'path').enabled).toBeTrue();
+    expect(emitted[emitted.length - 1][0].policy).toBeUndefined();
+  });
+
+  it('loads a custom policy in its row', () => {
+    const policy = '{"odrl:permission":{"odrl:action":{"@id":"odrl:read"}}}';
+    // Without rendering it: the code editor builds its view after the first check
+    component.operations = [{ id: 'mine', action: 'custom', path: '', policy }];
+    component.ngOnChanges({ operations: new SimpleChange(undefined, component.operations, false) });
+
+    expect(component.rows[0].fields.map(f => f.name)).toContain('policy');
+    expect(control(0, 'policy').value).toBe(policy);
   });
 
   it('adds an empty read operation without touching the others', () => {
@@ -109,7 +148,7 @@ describe('ApiOperationsEditorComponent', () => {
   it('describes what each access allows', () => {
     const action: any = component.rows[0].fields.find(f => f.name === 'action');
 
-    expect(action.options.map((o: any) => o.subtitle)).toEqual(['read', 'modify', 'delete', 'use'].map(a => `API_ACCESS._action_${a}_desc`));
+    expect(action.options.map((o: any) => o.subtitle)).toEqual(['read', 'modify', 'delete', 'use', 'custom'].map(a => `API_ACCESS._action_${a}_desc`));
   });
 
   describe('folding', () => {

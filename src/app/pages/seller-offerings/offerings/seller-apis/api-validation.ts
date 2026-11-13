@@ -1,4 +1,5 @@
 import { API_ACTIONS, ApiOperation } from 'src/app/models/api-access.model';
+import { checkDatasetPolicy } from '../seller-datasets/dataset-policy';
 
 /** Client-side checks of an API definition: nothing else validates them, the proxy does not look at an API. Every error is a suffix of an `API_ACCESS._err_*` translation key. */
 
@@ -43,6 +44,8 @@ export interface ApiOperationErrors {
   id?: ApiIdError;
   action?: 'action_invalid';
   path?: ApiPathError;
+  /** Translation key of the first problem of a custom policy */
+  policy?: string;
 }
 
 /** One entry per operation (same order); an empty object means the row is fine. */
@@ -54,6 +57,12 @@ export function operationErrors(operations: ApiOperation[]): ApiOperationErrors[
     if (id) errors.id = id;
     if (operation.id) seen.add(operation.id);
     if (!API_ACTIONS.includes(operation.action)) errors.action = 'action_invalid';
+    if (operation.action === 'custom') {
+      // A custom policy says its own target, so there is no path to check; the same rules as for a dataset's apply
+      const policy = checkDatasetPolicy(operation.policy).error;
+      if (policy) errors.policy = policy;
+      return errors;
+    }
     const path = apiPathError(operation.path);
     if (path) errors.path = path;
     return errors;

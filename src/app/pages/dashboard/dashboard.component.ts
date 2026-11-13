@@ -111,10 +111,10 @@ export class DashboardComponent implements OnInit, OnDestroy {
     if (isSeller) {
       sections.push(
         {
-          label: 'WORKSPACE._products',
+          label: 'WORKSPACE._offers',
           items: [
             // The product list: the offers the seller sells
-            { label: 'WORKSPACE._products', routerLink: SellerOfferingsPaths.offers.list(), icon: 'box' as IconName, dataCy: 'offerSection' },
+            { label: 'WORKSPACE._all_offers', routerLink: SellerOfferingsPaths.offers.list(), icon: 'box' as IconName, dataCy: 'offerSection' },
             ...(environment.DATASETS_ENABLED
               ? [{ label: 'WORKSPACE._datasets', routerLink: SellerOfferingsPaths.datasets.list(), icon: 'database' as IconName, dataCy: 'datasetSection' }]
               : []),
@@ -123,6 +123,21 @@ export class DashboardComponent implements OnInit, OnDestroy {
               : []),
           ],
         },
+      );
+    }
+
+    sections.push(
+      {
+        label: 'WORKSPACE._billing',
+        items: [
+          { label: 'PRODUCT_ORDERS._orders', routerLink: ProductOrdersPaths.orders(), icon: 'clipboard-list' as IconName, dataCy: 'ordersSection' },
+          { label: 'PRODUCT_ORDERS._invoices', routerLink: ProductOrdersPaths.invoice(), icon: 'file-lines' as IconName, dataCy: 'invoices' },
+        ],
+      },
+    );
+
+    if (isSeller) {
+      sections.push(
         {
           label: 'WORKSPACE._product_specs',
           defaultCollapsed: true,
@@ -135,28 +150,27 @@ export class DashboardComponent implements OnInit, OnDestroy {
                 dataCy: 'catalogSection',
               }]
               : []),
-            { label: 'OFFERINGS._products', routerLink: SellerOfferingsPaths.productSpecs.list(), icon: 'layer-group' as IconName, dataCy: 'prdSpecSection' },
-            { label: 'OFFERINGS._services', routerLink: SellerOfferingsPaths.serviceSpecs.list(), icon: 'plug-circle-plus' as IconName, dataCy: 'servSpecSection' },
-            { label: 'OFFERINGS._resources', routerLink: SellerOfferingsPaths.resourceSpecs.list(), icon: 'server' as IconName, dataCy: 'resSpecSection' },
+            { label: 'WORKSPACE._product_spec', routerLink: SellerOfferingsPaths.productSpecs.list(), icon: 'layer-group' as IconName, dataCy: 'prdSpecSection' },
+            { label: 'WORKSPACE._service_spec', routerLink: SellerOfferingsPaths.serviceSpecs.list(), icon: 'plug-circle-plus' as IconName, dataCy: 'servSpecSection' },
+            { label: 'WORKSPACE._resource_spec', routerLink: SellerOfferingsPaths.resourceSpecs.list(), icon: 'server' as IconName, dataCy: 'resSpecSection' },
             { label: 'USAGE_SPECS._usage_spec', routerLink: SellerOfferingsPaths.usageSpecs.list(), icon: 'chart-line' as IconName, dataCy: 'usageSpecSection' },
           ],
         },
       );
     }
 
-    sections.push({
-      label: 'WORKSPACE._activity',
-      items: [
-        { label: 'PRODUCT_ORDERS._orders', routerLink: ProductOrdersPaths.orders(), icon: 'clipboard-list' as IconName, dataCy: 'ordersSection' },
-        { label: 'PRODUCT_ORDERS._invoices', routerLink: ProductOrdersPaths.invoice(), icon: 'file-lines' as IconName, dataCy: 'invoices' },
-        ...(environment.QUOTES_ENABLED
-          ? [{ label: 'WORKSPACE._quotes', routerLink: DashboardPaths.quotes(), icon: 'handshake' as IconName, dataCy: 'quotesSection' }]
-          : []),
-        ...(tendersEnabled
-          ? [{ label: 'WORKSPACE._tenders', routerLink: DashboardPaths.tenders(), icon: 'scale-balanced' as IconName, dataCy: 'tendersSection' }]
-          : []),
-      ],
-    });
+    // Only what is enabled: without quotes nor tenders there is nothing to negotiate, so the section is not shown
+    const negotiation = [
+      ...(tendersEnabled
+        ? [{ label: 'WORKSPACE._tenders', routerLink: DashboardPaths.tenders(), icon: 'scale-balanced' as IconName, dataCy: 'tendersSection' }]
+        : []),
+      ...(environment.QUOTES_ENABLED
+        ? [{ label: 'WORKSPACE._quotes', routerLink: DashboardPaths.quotes(), icon: 'handshake' as IconName, dataCy: 'quotesSection' }]
+        : []),
+    ];
+    if (negotiation.length > 0) {
+      sections.push({ label: 'WORKSPACE._negotiation', items: negotiation });
+    }
 
     if (environment.analyticsEnabled) {
       sections.push({

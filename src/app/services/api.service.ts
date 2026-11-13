@@ -34,6 +34,7 @@ function asList<T>(value: unknown): T[] {
 function storedOperation(operation: any): ApiOperation {
   const result: ApiOperation = { id: single(operation?.id), action: single(operation?.action), path: single(operation?.path) };
   if (operation?.description !== undefined) result.description = single(operation.description);
+  if (operation?.policy !== undefined) result.policy = single(operation.policy);
   return result;
 }
 
