@@ -694,7 +694,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
     { type: 'code', name: 'targetSpecification', label: 'CREATE_PROD_SPEC._dsp_targetSpecification', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
     { type: 'code', name: 'serviceConfiguration', label: 'CREATE_PROD_SPEC._dsp_serviceConfiguration', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
     { type: 'code', name: 'credentialsConfig', label: 'CREATE_PROD_SPEC._dsp_credentialsConfig', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' },
-    { type: 'code', name: 'policyConfig', label: 'CREATE_PROD_SPEC._dsp_policyConfig', language: 'json', required: true, lineNumbers: false, placeholder: '{"key": "value"}' }
+    { type: 'odrlPolicy', name: 'policyConfig', label: 'CREATE_PROD_SPEC._dsp_policyConfig', required: true }
   ];
 
   get canAdvance(): boolean {

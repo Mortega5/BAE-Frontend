@@ -43,6 +43,10 @@ export class CharacteristicValueSpecFormComponent {
           { type: 'number', name: 'valueTo', label: 'CHAR_SPEC._value_to', required: valueRequired, readonly: ro, colSpan: 1, dataCy: 'charRangeTo', placeholder: 'CHAR_SPEC._value_to_placeholder' },
           { type: 'string', name: 'unitOfMeasure', label: 'CHAR_SPEC._unit', required: true, readonly: ro, colSpan: 1, dataCy: 'charRangeUnit', placeholder: 'CHAR_SPEC._unit_placeholder' }
         ];
+      case 'authorizationPolicy':
+        return [
+          { type: 'odrlPolicy', name: 'value', label: 'CHAR_SPEC._value', required: valueRequired, readonly: ro, colSpan: 3, dataCy: 'charOdrlPolicyValue' }
+        ];
       default:
         if (JSON_VALUE_TYPES.includes(this.valueType)) {
           return [

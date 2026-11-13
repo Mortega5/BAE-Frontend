@@ -2,6 +2,8 @@
 <div [formGroup]="formGroup" class="grid gap-4" [ngClass]="gridColsClass()">
   @for (field of fields; track field.name) {
   <div [ngClass]="colSpanClass(field)" class="min-w-0">
+    <!-- odrlPolicy draws its own label row: its open-editor button has to sit on the title's line. -->
+    @if (field.type !== 'odrlPolicy') {
     <label [for]="field.name" class="font-bold text-sm text-content flex items-center gap-2 pb-2">
       @if (field.icon) { <fa-icon [icon]="field.icon" class="text-primary-100"></fa-icon> }
       <span>
@@ -9,6 +11,7 @@
         @if (field.required) { <span class="text-danger">*</span> }
       </span>
     </label>
+    }
 
     @if (field.type === 'string') {
     <input [id]="field.name" [formControlName]="field.name" [type]="$any(field).inputType ?? 'text'"
@@ -201,6 +204,13 @@
       [selectLabel]="asAttachment(field).selectLabel ?? 'FORMS.ATTACHMENT._select_label'"
       [dataCy]="field.dataCy ?? field.name" [files]="formGroup.get(field.name)?.value"
       (filesChange)="formGroup.get(field.name)?.setValue($event); formGroup.get(field.name)?.markAsDirty()" />
+    }
+
+    @if (field.type === 'odrlPolicy') {
+    <app-odrl-policy-input [formControlName]="field.name" [label]="field.label" [required]="field.required ?? false"
+      [icon]="field.icon" [inputId]="field.name" [rows]="asOdrlPolicy(field).rows ?? 8"
+      [placeholder]="asOdrlPolicy(field).placeholder ?? 'FORMS.ODRL_POLICY._placeholder'" [readonly]="field.readonly ?? false"
+      [dataCy]="field.dataCy ?? field.name" />
     }
 
     @if (field.hint) {

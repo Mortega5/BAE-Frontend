@@ -6,8 +6,8 @@ import { Subject } from "rxjs";
 import { takeUntil } from 'rxjs/operators';
 import { FormField } from 'src/app/models/formFields/form-field.model';
 import { EventMessageService } from "src/app/services/event-message.service";
-import { jsonValidator } from "src/app/validators/validators";
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
+import { jsonValidator } from "src/app/validators/validators";
 import { FormChangeState } from "../../../../models/interfaces";
 
 interface EdcContractDefinition {
@@ -94,8 +94,8 @@ export class EdcContractDefinitionComponent implements OnInit, OnDestroy {
 
   get policyFormFields(): FormField[] {
     return [
-      { type: 'code', name: 'accessPolicy', label: 'CREATE_OFFER._dsp_access_policy', language: 'json', formatOnPaste: true, formatButton: true, required: this.dspCompatible, lineNumbers: false, placeholder: '{"example": "Enter your JSON here"}' },
-      { type: 'code', name: 'contractPolicy', label: 'CREATE_OFFER._dsp_contract_policy', language: 'json', formatOnPaste: true, formatButton: true, required: this.dspCompatible, lineNumbers: false, placeholder: '{"example": "Enter your JSON here"}' },
+      { type: 'odrlPolicy', name: 'accessPolicy', label: 'CREATE_OFFER._dsp_access_policy', required: this.dspCompatible },
+      { type: 'odrlPolicy', name: 'contractPolicy', label: 'CREATE_OFFER._dsp_contract_policy', required: this.dspCompatible },
     ];
   }
 

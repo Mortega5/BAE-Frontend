@@ -55,7 +55,7 @@ describe('ApiOperationsEditorComponent', () => {
 
     control(0, 'policy').setValue('{ not json');
     expect(component.rows[0].group.valid).toBeFalse();
-    expect(control(0, 'policy').errors).toEqual({ 'DATASETS._policy_error_invalid_json': true });
+    expect(control(0, 'policy').errors).toEqual(jasmine.objectContaining({ 'DATASETS._policy_error_invalid_json': true }));
   });
 
   it('goes back to the path when the access is a guided one again', () => {

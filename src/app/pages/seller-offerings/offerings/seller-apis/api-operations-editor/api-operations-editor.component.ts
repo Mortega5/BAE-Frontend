@@ -110,10 +110,10 @@ export class ApiOperationsEditorComponent implements OnChanges, OnDestroy {
         placeholder: 'API_ACCESS._operation_path_placeholder', validators: [this.checkOf(row, 'path')], errorMessages: ERROR_MESSAGES,
       };
     const policy: FormField = {
-        type: 'code', language: 'json', name: 'policy', label: 'API_ACCESS._operation_policy', hint: 'API_ACCESS._operation_policy_hint',
-        colSpan: 3, formatOnPaste: true, formatButton: true, lineNumbers: false, dataCy: 'apiOperationPolicy',
+        type: 'odrlPolicy', name: 'policy', label: 'API_ACCESS._operation_policy', hint: 'API_ACCESS._operation_policy_hint',
+        colSpan: 3, rows: 12, dataCy: 'apiOperationPolicy',
         validators: [this.checkOf(row, 'policy')], errorMessages: ERROR_MESSAGES,
-      } as FormField;
+      };
     const description: FormField = {
       type: 'textarea', name: 'description', label: 'API_ACCESS._operation_description', placeholder: 'API_ACCESS._operation_description_placeholder',
     };

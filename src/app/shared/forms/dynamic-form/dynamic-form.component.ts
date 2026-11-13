@@ -4,7 +4,7 @@ import { Component, Input } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { FaIconComponent } from '@fortawesome/angular-fontawesome';
-import { AttachmentFormField, BubbleSelectFormField, CodeFormField, FormField, MultiValueStringFormField, OptionCardsFormField, PaginatedTableFormField, RangeValueFormField, SelectableFormField, SliderFormField, StatusPickerFormField, StatusPickerOption, TableFormField, UnitValueFormField } from 'src/app/models/formFields/form-field.model';
+import { AttachmentFormField, BubbleSelectFormField, CodeFormField, FormField, MultiValueStringFormField, OdrlPolicyFormField, OptionCardsFormField, PaginatedTableFormField, RangeValueFormField, SelectableFormField, SliderFormField, StatusPickerFormField, StatusPickerOption, TableFormField, UnitValueFormField } from 'src/app/models/formFields/form-field.model';
 import { environment } from 'src/environments/environment';
 import { AttachmentUploadComponent } from '../attachment-upload/attachment-upload.component';
 import { MarkdownTextareaComponent } from '../markdown-textarea/markdown-textarea.component';
@@ -16,6 +16,7 @@ import { StatusFieldComponent } from '../../status-field/status-field.component'
 import { TableInputComponent } from '../table-input/table-input.component';
 import { PaginatedTableComponent } from '../paginated-table/paginated-table.component';
 import { CodeEditorComponent } from '../code-editor/code-editor.component';
+import { OdrlPolicyInputComponent } from '../odrl-policy-input/odrl-policy-input.component';
 import { MultipleSelectComponent } from 'src/app/shared/multiple-select/multiple-select.component';
 import { SearchSelectComponent } from 'src/app/shared/search-select/search-select.component';
 
@@ -33,7 +34,7 @@ const COL_SPAN_CLASSES: Record<number, string> = {
   selector: 'app-dynamic-form',
   templateUrl: './dynamic-form.component.html',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent, OptionCardsComponent, MultiValueInputComponent, UnitValueInputComponent, RangeValueInputComponent, PhoneNumberInputComponent, TableInputComponent, PaginatedTableComponent, CodeEditorComponent, MultipleSelectComponent, SearchSelectComponent, AttachmentUploadComponent, FaIconComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, MarkdownTextareaComponent, StatusFieldComponent, OptionCardsComponent, MultiValueInputComponent, UnitValueInputComponent, RangeValueInputComponent, PhoneNumberInputComponent, TableInputComponent, PaginatedTableComponent, CodeEditorComponent, MultipleSelectComponent, SearchSelectComponent, AttachmentUploadComponent, OdrlPolicyInputComponent, FaIconComponent],
 })
 export class DynamicFormComponent {
   @Input() fields: FormField[] = [];
@@ -103,6 +104,10 @@ export class DynamicFormComponent {
 
   asAttachment(field: FormField): AttachmentFormField {
     return field as AttachmentFormField;
+  }
+
+  asOdrlPolicy(field: FormField): OdrlPolicyFormField {
+    return field as OdrlPolicyFormField;
   }
 
   attachmentMaxFileSize(field: FormField): number {

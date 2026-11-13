@@ -1,0 +1,60 @@
+<div class="flex items-center justify-between gap-2 pb-2">
+  <label [for]="inputId ?? ''" class="font-bold text-sm text-content flex items-center gap-2">
+    @if (icon) { <fa-icon [icon]="icon" class="text-primary-100"></fa-icon> }
+    <span>
+      {{ label | translate }}
+      @if (required) { <span class="text-danger">*</span> }
+    </span>
+  </label>
+  @if (!locked) {
+  <app-button variant="neutral" size="sm" [disabled]="!canOpenEditor"
+    [dataCy]="dataCy ? dataCy + '-open-editor' : undefined" (click)="openEditor()">
+    {{ (loadingEditor ? 'FORMS.ODRL_POLICY._loading_editor' : 'FORMS.ODRL_POLICY._open_editor') | translate }}
+  </app-button>
+  }
+</div>
+
+<textarea [id]="inputId ?? ''" [value]="value" (input)="onInput($any($event.target).value)" (blur)="onBlur()"
+  [rows]="rows" [placeholder]="placeholder | translate" [attr.readonly]="locked || null"
+  [class.pointer-events-none]="locked" [class.opacity-60]="locked" [class.cursor-not-allowed]="locked"
+  [attr.data-cy]="dataCy ? dataCy + '-raw' : null" spellcheck="false"
+  class="bg-surface-input border border-line-input text-content text-sm font-mono rounded-lg focus:ring-primary-100 focus:border-primary-100 block w-full p-2.5 resize-y"></textarea>
+@if (!validJson) {
+<p class="mt-1 text-sm text-danger">{{ 'FORMS.ODRL_POLICY._invalid_json' | translate }}</p>
+}
+@if (editorLoadFailed) {
+<p class="mt-1 text-sm text-danger">{{ 'FORMS.ODRL_POLICY._editor_load_failed' | translate }}</p>
+}
+
+@if (editorOpen) {
+<div #portal>
+  <app-modal [visible]="true" width="max-w-6xl" (closed)="cancelEditor()">
+    <div appCardHeader class="flex justify-between items-start gap-4">
+      <h2 class="text-2xl font-bold text-content">{{ 'FORMS.ODRL_POLICY._editor_title' | translate }}</h2>
+      <app-button type="button" variant="ghost" size="sm" prefixIcon="xmark"
+        [dataCy]="dataCy ? dataCy + '-close-editor' : undefined" (click)="cancelEditor()" />
+    </div>
+
+    <!-- The editor is tall: it scrolls in its own area. The area has a fixed height (what is left of the
+         viewport once the modal's header, footer and padding are taken off, up to 44rem), so the modal
+         keeps its size whichever tab is open. app-card's own cap does not apply here. Cancel
+         lives in the modal footer, the summary is a tab because the side column follows the
+         viewport width, not this modal's, and the editor is plain because the modal is already a card. -->
+    <div class="h-[min(44rem,calc(100vh-16rem))] overflow-y-auto">
+      <odrl-policy-editor load="none" save="none" validate="none" templates="none" mappings="none"
+        hide-template-create-tab hide-cancel-button summary="tab" variant="plain" [attr.theme]="editorTheme" [attr.locale]="editorLocale"
+        [policy]="editorPolicy" (policy-changed)="onPolicyChanged($event)"></odrl-policy-editor>
+    </div>
+
+    <div appCardFooter>
+      <app-button type="button" variant="ghost" [dataCy]="dataCy ? dataCy + '-cancel-editor' : undefined"
+        (click)="cancelEditor()">
+        {{ 'FORMS.ODRL_POLICY._cancel' | translate }}
+      </app-button>
+      <app-button type="button" [dataCy]="dataCy ? dataCy + '-apply-editor' : undefined" (click)="applyEditor()">
+        {{ 'FORMS.ODRL_POLICY._apply' | translate }}
+      </app-button>
+    </div>
+  </app-modal>
+</div>
+}
