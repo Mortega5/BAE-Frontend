@@ -126,16 +126,6 @@ export class DashboardComponent implements OnInit, OnDestroy {
       );
     }
 
-    sections.push(
-      {
-        label: 'WORKSPACE._billing',
-        items: [
-          { label: 'PRODUCT_ORDERS._orders', routerLink: ProductOrdersPaths.orders(), icon: 'clipboard-list' as IconName, dataCy: 'ordersSection' },
-          { label: 'PRODUCT_ORDERS._invoices', routerLink: ProductOrdersPaths.invoice(), icon: 'file-lines' as IconName, dataCy: 'invoices' },
-        ],
-      },
-    );
-
     if (isSeller) {
       sections.push(
         {
@@ -158,6 +148,16 @@ export class DashboardComponent implements OnInit, OnDestroy {
         },
       );
     }
+
+    sections.push(
+      {
+        label: 'WORKSPACE._billing',
+        items: [
+          { label: 'PRODUCT_ORDERS._orders', routerLink: ProductOrdersPaths.orders(), icon: 'clipboard-list' as IconName, dataCy: 'ordersSection' },
+          { label: 'PRODUCT_ORDERS._invoices', routerLink: ProductOrdersPaths.invoice(), icon: 'file-lines' as IconName, dataCy: 'invoices' },
+        ],
+      },
+    );
 
     // Only what is enabled: without quotes nor tenders there is nothing to negotiate, so the section is not shown
     const negotiation = [
