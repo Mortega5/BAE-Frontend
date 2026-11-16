@@ -315,6 +315,8 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
 
   //ATTACHMENT INFO
   prodAttachments: AttachmentRefOrValue[] = [];
+  /** Optional product image, stored as the 'Profile Picture' attachment the rest of the app reads. */
+  prodImage: AttachmentRefOrValue | null = null;
 
   //FINAL PRODUCT USING API CALL STRUCTURE
   productSpecToCreate: ProductSpecification_Create | undefined;
@@ -1054,7 +1056,7 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
         bundledProductSpecification: this.datasetMode ? [] : this.prodSpecsBundle,
         productSpecCharacteristic: this.finishChars,
         productSpecificationRelationship: this.datasetMode ? [] : rels,
-        attachment: this.prodAttachments,
+        attachment: this.buildAttachments(),
         relatedParty: [
           {
             id: this.partyId,
@@ -1268,5 +1270,10 @@ export class CreateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
       name: item.name,
       productSpec: item
     }));
+  }
+
+  private buildAttachments(): AttachmentRefOrValue[] {
+    const image = this.prodImage ? [{ ...this.prodImage, name: 'Profile Picture' }] : [];
+    return [...image, ...this.prodAttachments];
   }
 }

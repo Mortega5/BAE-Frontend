@@ -7,7 +7,7 @@ import { hasErrors, operationErrors } from 'src/app/pages/seller-offerings/offer
 import { ResourceSpecServiceService } from 'src/app/services/resource-spec-service.service';
 import { ServiceSpecServiceService } from 'src/app/services/service-spec-service.service';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { ActivatedRoute, Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
 import moment from 'moment';
@@ -58,6 +58,7 @@ type ProductOfferingPrice = components["schemas"]["ProductOfferingPrice"]
 const CONSTRAINT_PRICE_TYPE = 'constraint';
 const DISCOUNT_PRICE_TYPE = 'discount';
 
+import { AttachmentUploadComponent } from 'src/app/shared/forms/attachment-upload/attachment-upload.component';
 import { previewPricesFromPlans } from './offer-preview.util';
 @Component({
   animations: [reveal],
@@ -68,6 +69,7 @@ import { previewPricesFromPlans } from './offer-preview.util';
     TranslateModule,
     ProdSpecComponent,
     ReactiveFormsModule,
+    FormsModule,
     LicenseComponent,
     PricePlansComponent,
     ProcurementModeComponent,
@@ -83,6 +85,7 @@ import { previewPricesFromPlans } from './offer-preview.util';
     DynamicFormComponent,
     DatasetUploadProgressComponent,
     DatasetFilePanelComponent,
+    AttachmentUploadComponent,
     ApiDefinitionFieldsComponent,
   ],
   templateUrl: './offer.component.html',
@@ -110,6 +113,39 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   private storedApi?: { id: string; definition: ApiDefinition };
   /** The API and product made so far, kept so that saving again after a later request fails does not duplicate them. */
   private createdApi: any = null;
+
+  /** Optional image of the product a dataset or an API is sold as, kept as the 'Profile Picture' attachment the rest of the app reads. */
+  soldImage: any = null;
+  private storedSoldImageUrl: string | null = null;
+
+  private get soldImageAttachments(): any[] {
+    return this.soldImage ? [{ ...this.soldImage, name: 'Profile Picture' }] : [];
+  }
+
+  get soldImageChanged(): boolean {
+    return (this.soldImage?.url ?? null) !== this.storedSoldImageUrl;
+  }
+
+  private loadSoldImage(prodSpec: any): void {
+    const picture = (prodSpec?.attachment ?? []).find((a: any) => a?.name === 'Profile Picture');
+    this.soldImage = picture ?? null;
+    this.storedSoldImageUrl = picture?.url ?? null;
+  }
+
+  /** Writes the image of the sold product, keeping the rest of its attachments. Resolves false, after telling the seller, when it fails. */
+  private async saveSoldImage(): Promise<boolean> {
+    const others = (this.selectedProdSpec?.attachment ?? []).filter((a: any) => a?.name !== 'Profile Picture');
+    try {
+      await lastValueFrom(this.prodSpecService.updateProdSpec({ attachment: [...this.soldImageAttachments, ...others] }, this.selectedProdSpec.id));
+      this.storedSoldImageUrl = this.soldImage?.url ?? null;
+      return true;
+    } catch (error: any) {
+      console.error('There was an error while saving the product image!', error);
+      this.loading = false;
+      this.notificationService.showError('CREATE_PROD_SPEC._save_error', { details: this.extractErrorDetail(error) });
+      return false;
+    }
+  }
 
   get apiValid(): boolean {
     return this.apiForm.valid && this.apiOperations.length > 0 && !hasErrors(operationErrors(this.apiOperations));
@@ -731,6 +767,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
       })
       await this.loadStoredDataset(this.selectedProdSpec);
       await this.loadStoredApi(this.selectedProdSpec);
+      if (this.datasetProduct || this.apiProduct) this.loadSoldImage(this.selectedProdSpec);
       this.productOfferForm.patchValue({
         prodSpec: this.selectedProdSpec || null // Cargar si existe, o dejar en null
       });
@@ -1308,7 +1345,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
           bundledProductSpecification: [],
           productSpecCharacteristic: policy ? [buildDatasetPolicyCharacteristic(dataset.id, policy)] : [],
           productSpecificationRelationship: [],
-          attachment: [],
+          attachment: this.soldImageAttachments,
           relatedParty: [{ id: this.partyId, role: environment.SELLER_ROLE, '@referredType': '' }],
           // A file is a resource of the marketplace, an address is a service the seller offers: the id says which
           ...datasetReference(dataset),
@@ -1352,7 +1389,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
       }
       step = 'product';
       if (!this.createdSpec) {
-        this.createdSpec = await lastValueFrom(this.apiAccess.createProduct(this.createdApi, definition, this.partyId, lifecycleStatus));
+        this.createdSpec = await lastValueFrom(this.apiAccess.createProduct(this.createdApi, definition, this.partyId, lifecycleStatus, this.soldImageAttachments));
       }
       this.productOfferForm.patchValue({ prodSpec: { ...this.createdSpec, href: this.createdSpec.href ?? this.createdSpec.id } });
       return true;
@@ -1511,7 +1548,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
   }
 
   get leaveNeedsConfirmation(): boolean {
-    return !this.leaveAllowed && (this.productOfferForm.dirty || this.canReplace || this.apiChanged || (this.isUpdate && this.hasChanges));
+    return !this.leaveAllowed && (this.productOfferForm.dirty || this.canReplace || this.apiChanged || this.soldImageChanged || (this.isUpdate && this.hasChanges));
   }
 
   confirmLeave(): boolean | Promise<boolean> {
@@ -1654,6 +1691,7 @@ export class OfferComponent implements OnInit, OnDestroy, LeaveConfirmable {
     this.loading = true;
     if (this.canReplace && !(await this.replaceDatasetFile())) return;
     if (this.apiChanged && !(await this.saveApi())) return;
+    if ((this.datasetProduct || this.apiProduct) && this.soldImageChanged && !(await this.saveSoldImage())) return;
     console.log('🔄 Starting offer update process...');
     console.log('📝 Current form changes:', this.formChanges);
 

@@ -39,10 +39,17 @@
         }
 
         <div>
+          <label class="font-bold text-sm text-content block mb-2">{{ 'CREATE_PROD_SPEC._product_image' | translate
+            }}</label>
+          <app-attachment-upload [(ngModel)]="prodImage" [ngModelOptions]="{standalone: true}"
+            data-cy="prodSpecImage" accept="image/svg+xml,image/png,image/jpeg,image/gif" [multiple]="false" />
+        </div>
+
+        <div>
           <label class="font-bold text-sm text-content block mb-2">{{ 'CREATE_PROD_SPEC._attachments' | translate
             }}</label>
           <app-attachment-upload [(ngModel)]="prodAttachments" [ngModelOptions]="{standalone: true}"
-            data-cy="prodSpecAttachments" accept="image/*,.pdf,.doc,.docx" [multiple]="true" />
+            data-cy="prodSpecAttachments" accept=".pdf,.doc,.docx" [multiple]="true" />
         </div>
       </div>
     </ng-template>

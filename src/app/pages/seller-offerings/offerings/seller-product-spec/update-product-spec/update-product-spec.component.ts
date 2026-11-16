@@ -270,6 +270,8 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
 
   //ATTACHMENT INFO
   prodAttachments: AttachmentRefOrValue[] = [];
+  /** Optional product image, stored as the 'Profile Picture' attachment the rest of the app reads. */
+  prodImage: AttachmentRefOrValue | null = null;
 
   //FINAL PRODUCT USING API CALL STRUCTURE
   productSpecToUpdate: ProductSpecification_Update | undefined;
@@ -855,7 +857,9 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
 
     //ATTACHMENTS
     if (this.prod.attachment) {
-      this.prodAttachments = this.prod.attachment;
+      const picture = this.prod.attachment.find((a: any) => a?.name === 'Profile Picture');
+      this.prodImage = picture ?? null;
+      this.prodAttachments = this.prod.attachment.filter((a: any) => a !== picture);
     }
 
     //RELATIONSHIPS
@@ -914,7 +918,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
       resources: ids(this.selectedResourceSpecs),
       relationships: ids(this.prodRelationships),
       bundle: ids(this.prodSpecsBundle),
-      attachments: this.prodAttachments,
+      attachments: this.buildAttachments(),
       compliance: this.getCurrentComplianceEvidenceSignature(),
     });
   }
@@ -1441,7 +1445,7 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
         //bundledProductSpecification: this.prodSpecsBundle,
         productSpecCharacteristic: this.finishChars,
         productSpecificationRelationship: rels,
-        attachment: this.prodAttachments,
+        attachment: this.buildAttachments(),
         resourceSpecification: this.selectedResourceSpecs.map((res: any) => ({ id: res.id, href: res.href })),
         serviceSpecification: this.selectedServiceSpecs.map((res: any) => ({ id: res.id, href: res.href }))
       }
@@ -1665,5 +1669,10 @@ export class UpdateProductSpecComponent implements OnInit, OnDestroy, DoCheck, L
       relationshipType: 'dependency',
       name: item.name,
     }));
+  }
+
+  private buildAttachments(): AttachmentRefOrValue[] {
+    const image = this.prodImage ? [{ ...this.prodImage, name: 'Profile Picture' }] : [];
+    return [...image, ...this.prodAttachments];
   }
 }

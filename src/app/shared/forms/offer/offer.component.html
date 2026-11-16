@@ -58,6 +58,13 @@
         <app-general-info-form [data]="offer" [formType]="formType" [form]="productOfferForm.controls['generalInfo']"
           [catalogSelectionRequired]="catalogSelectionRequired()" [availableCatalogs]="availableCatalogs"
           (catalogCreated)="onCatalogCreated($event)" />
+        @if (dataset || apiOffer || datasetProduct || apiProduct) {
+        <div>
+          <label class="font-bold text-sm text-content block mb-2">{{ 'CREATE_PROD_SPEC._product_image' | translate }}</label>
+          <app-attachment-upload [(ngModel)]="soldImage" [ngModelOptions]="{standalone: true}"
+            data-cy="soldImage" accept="image/svg+xml,image/png,image/jpeg,image/gif" [multiple]="false" />
+        </div>
+        }
       </div>
     </ng-template>
 

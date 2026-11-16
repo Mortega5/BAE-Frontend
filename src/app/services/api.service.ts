@@ -126,6 +126,7 @@ export function buildApiProductSpec(
   definition: ApiDefinition,
   partyId: string,
   lifecycleStatus: 'Active' | 'Launched' = 'Active',
+  attachment: any[] = [],
 ): any {
   return {
     name: `${definition.name} product spec`,
@@ -137,7 +138,7 @@ export function buildApiProductSpec(
     isBundle: false,
     bundledProductSpecification: [],
     productSpecificationRelationship: [],
-    attachment: [],
+    attachment,
     productSpecCharacteristic: buildApiProductCharacteristics(service.id, definition),
     relatedParty: [{ id: partyId, role: environment.SELLER_ROLE, '@referredType': '' }],
     resourceSpecification: [],
@@ -173,8 +174,8 @@ export class ApiService {
   }
 
   /** The product that goes with a new API. It is its own request, so the API may exist without it if this one fails. */
-  createProduct(service: { id: string; href?: string; name?: string }, definition: ApiDefinition, partyId: string, lifecycleStatus: 'Active' | 'Launched' = 'Active') {
-    return this.productSpecs.postProdSpec(buildApiProductSpec(service, definition, partyId, lifecycleStatus));
+  createProduct(service: { id: string; href?: string; name?: string }, definition: ApiDefinition, partyId: string, lifecycleStatus: 'Active' | 'Launched' = 'Active', attachment: any[] = []) {
+    return this.productSpecs.postProdSpec(buildApiProductSpec(service, definition, partyId, lifecycleStatus, attachment));
   }
 
   /** Writes the policy of the product again after the API changed, so it grants what the API has now. Purchases already made keep
