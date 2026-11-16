@@ -39,7 +39,7 @@
     "@fortawesome/sharp-solid-svg-icons": "^6.4.2",
     "@ngx-translate/core": "^15.0.0",
     "@ngx-translate/http-loader": "^8.0.0",
-    "@seamware/odrl-policy-editor": "^1.9.1",
+    "@seamware/odrl-policy-editor": "^1.9.2",
     "@superset-ui/embedded-sdk": "^0.4.0",
     "@types/tailwindcss": "^3.1.0",
     "codemirror": "^6.0.2",
