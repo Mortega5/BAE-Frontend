@@ -65,7 +65,7 @@
           <label class="font-bold text-sm text-content block mb-2">{{ 'CREATE_PROD_SPEC._product_image' | translate
             }}</label>
           <app-attachment-upload [(ngModel)]="prodImage" [ngModelOptions]="{standalone: true}"
-            data-cy="prodSpecImage" accept="image/svg+xml,image/png,image/jpeg,image/gif" [multiple]="false" />
+            data-cy="prodSpecImage" accept="image/svg+xml,image/png,image/jpeg,image/gif" [multiple]="false" [validateImage]="true" />
         </div>
 
         <div>

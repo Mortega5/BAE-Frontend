@@ -3211,6 +3211,7 @@
       "_select_label": "select a file.",
       "_uploading": "Uploading...",
       "_invalid_type": "This file type isn't allowed.",
+      "_invalid_image": "This file could not be read as a valid image.",
       "_too_large": "File size must be under 3MB.",
       "_invalid_name": "File names can only include letters, numbers, underscores, hyphens and periods.",
       "_upload_error": "There was an error while uploading the file.",

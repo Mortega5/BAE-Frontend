@@ -47,6 +47,8 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
   /** Keep picked files local instead of uploading them to the media service right away: the
    * value carries the `File` (and a local preview URL) so the caller uploads it on save. */
   @Input() deferUpload = false;
+  /** Also check that the picked file really decodes as an image (not just that its name/MIME says so). */
+  @Input() validateImage = false;
   @Output() filesChange = new EventEmitter<any>();
 
   /** Plain, forms-independent binding — mirrors app-search-select's `[selected]`. */
@@ -57,6 +59,8 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
 
   attachments: UploadedAttachment[] = [];
   uploading: boolean = false;
+  /** True while a picked image is being decoded to check it is a real image. */
+  private checking = false;
   uploadProgress: number | null = null;
   errorMessage: string | null = null;
 
@@ -90,7 +94,7 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
   }
 
   dropped(files: NgxFileDropEntry[]): void {
-    if (this.isReadonly || this.uploading) return;
+    if (this.isReadonly || this.uploading || this.checking) return;
     for (const droppedFile of files) {
       if (!droppedFile.fileEntry.isFile) continue;
       const fileEntry = droppedFile.fileEntry as FileSystemFileEntry;
@@ -107,6 +111,31 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
       this.showInlineUploadError('FORMS.ATTACHMENT._too_large');
       return;
     }
+    if (!this.validateImage) {
+      this.processFile(file);
+      return;
+    }
+    this.checking = true;
+    this.decodesAsImage(file).then(valid => {
+      this.checking = false;
+      if (valid) this.processFile(file);
+      else this.showInlineUploadError('FORMS.ATTACHMENT._invalid_image');
+    });
+  }
+
+  /** The browser can decode it as an image; non-SVG images must also have a real size
+   * (SVGs without explicit dimensions legitimately report 0). */
+  private decodesAsImage(file: File): Promise<boolean> {
+    const url = URL.createObjectURL(file);
+    const image = new Image();
+    image.src = url;
+    return image.decode()
+      .then(() => file.type === 'image/svg+xml' || (image.naturalWidth > 0 && image.naturalHeight > 0))
+      .catch(() => false)
+      .finally(() => URL.revokeObjectURL(url));
+  }
+
+  private processFile(file: File): void {
     if (this.deferUpload) {
       const local: UploadedAttachment = { name: file.name, url: URL.createObjectURL(file), attachmentType: file.type, file };
       this.attachments.filter(a => a.file).forEach(a => this.multiple || URL.revokeObjectURL(a.url));
@@ -149,13 +178,24 @@ export class AttachmentUploadComponent implements ControlValueAccessor {
           this.uploading = false;
           this.uploadProgress = null;
           this.notificationService.showError(
-            error?.status === 413 ? 'FORMS.ATTACHMENT._too_large' : 'FORMS.ATTACHMENT._upload_error',
+            this.isSizeError(error) ? 'FORMS.ATTACHMENT._too_large' : 'FORMS.ATTACHMENT._upload_error',
             { details: error?.error?.error || error?.error?.message || error?.message }
           );
         },
       });
     };
     reader.readAsDataURL(file);
+  }
+
+  /** A 413, or the 400 some backends (Django, Express) answer when the request body exceeds their limit. */
+  private isSizeError(error: any): boolean {
+    if (error?.status === 413) return true;
+    if (error?.status !== 400) return false;
+    const body = error?.error;
+    const reason = typeof body === 'string'
+      ? body
+      : [body?.error, body?.message, body?.detail].filter(v => typeof v === 'string').join(' ');
+    return /DATA_UPLOAD_MAX_MEMORY_SIZE|RequestDataTooBig|Request body exceeded|(?:request (?:body|entity)|payload) (?:is )?too large/i.test(reason);
   }
 
   private isAcceptedType(file: File): boolean {

@@ -158,6 +158,38 @@ describe('AttachmentUploadComponent', () => {
     }, 50);
   });
 
+  it('should treat a 400 about the request body being too large as the too-large message', (done) => {
+    const errorSpy = spyOn(notificationService, 'showError');
+    spyOn(attachmentService, 'uploadFileWithProgress').and.returnValue(
+      throwError(() => ({ status: 400, error: { error: 'RequestDataTooBig: Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE' } })));
+    (component as any).handleFile(makeFile('a.pdf', 'application/pdf', 5));
+    setTimeout(() => {
+      expect(errorSpy).toHaveBeenCalledWith('FORMS.ATTACHMENT._too_large', jasmine.any(Object));
+      done();
+    }, 50);
+  });
+
+  it('should keep a generic upload error for an unrelated 400', (done) => {
+    const errorSpy = spyOn(notificationService, 'showError');
+    spyOn(attachmentService, 'uploadFileWithProgress').and.returnValue(throwError(() => ({ status: 400, error: { error: 'bad name' } })));
+    (component as any).handleFile(makeFile('a.pdf', 'application/pdf', 5));
+    setTimeout(() => {
+      expect(errorSpy).toHaveBeenCalledWith('FORMS.ATTACHMENT._upload_error', jasmine.any(Object));
+      done();
+    }, 50);
+  });
+
+  it('should reject a file that is not a real image when validateImage is on', (done) => {
+    component.validateImage = true;
+    const uploadSpy = spyOn(attachmentService, 'uploadFileWithProgress');
+    (component as any).handleFile(makeFile('fake.png', 'image/png', 5));
+    setTimeout(() => {
+      expect(component.errorMessage).toBe('FORMS.ATTACHMENT._invalid_image');
+      expect(uploadSpy).not.toHaveBeenCalled();
+      done();
+    }, 200);
+  });
+
   it('should remove an attachment', () => {
     const onChange = jasmine.createSpy('onChange');
     component.registerOnChange(onChange);
