@@ -301,6 +301,44 @@ describe('AccountServiceService', () => {
     await promise;
   });
 
+  it('completeOrgProfile should add country and email in a single patch, keeping the other entries', async () => {
+    const partyId = 'org-1';
+
+    const promise = service.completeOrgProfile(partyId, { country: 'FR', email: 'a@b.com' });
+    httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`).flush({
+      id: partyId,
+      partyCharacteristic: [{ name: 'logo', value: 'https://logo' }],
+      contactMedium: [{ mediumType: 'PostalAddress', characteristic: { city: 'Paris' } }],
+    });
+    await new Promise(resolve => setTimeout(resolve));
+
+    const patchReq = httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`);
+    expect(patchReq.request.method).toBe('PATCH');
+    expect(patchReq.request.body).toEqual({
+      partyCharacteristic: [{ name: 'logo', value: 'https://logo' }, { name: 'country', value: 'FR' }],
+      contactMedium: [
+        { mediumType: 'PostalAddress', characteristic: { city: 'Paris' } },
+        { mediumType: 'Email', preferred: true, characteristic: { contactType: 'Email', emailAddress: 'a@b.com' } },
+      ],
+    });
+    patchReq.flush({});
+    await promise;
+  });
+
+  it('completeOrgProfile should not add an email when the org already has one, and skip the patch if nothing changes', async () => {
+    const partyId = 'org-1';
+
+    const promise = service.completeOrgProfile(partyId, { email: 'a@b.com' });
+    httpMock.expectOne(`${environment.BASE_URL}/party/organization/${partyId}`).flush({
+      id: partyId,
+      contactMedium: [{ mediumType: 'email', characteristic: { emailAddress: 'old@b.com' } }],
+    });
+    await new Promise(resolve => setTimeout(resolve));
+
+    httpMock.expectNone(`${environment.BASE_URL}/party/organization/${partyId}`);
+    await expectAsync(promise).toBeResolvedTo(undefined);
+  });
+
   it('getOrgList should perform GET on organization collection endpoint', async () => {
     const responseBody = [{ id: 'org-1' }];
 

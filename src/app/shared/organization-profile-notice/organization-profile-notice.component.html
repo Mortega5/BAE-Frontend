@@ -1,0 +1,49 @@
+<app-modal data-cy="organizationProfileNotice" [visible]="isOpen" width="max-w-md" (closed)="dismiss()">
+  <div appCardHeader class="flex items-center justify-between">
+    <h3 class="text-xl font-bold text-content">{{ 'ORGANIZATION_PROFILE_NOTICE._title' | translate }}</h3>
+    <app-button data-cy="closeOrganizationProfileNotice" type="button" (click)="dismiss()" variant="ghost" size="sm" prefixIcon="xmark" />
+  </div>
+
+  @if (loadFailed) {
+    <p role="alert" class="text-sm text-content-muted mb-4">{{ 'ORGANIZATION_PROFILE_NOTICE._load_error' | translate }}</p>
+    <app-button type="button" variant="secondary" (click)="checkOrganization(true)">
+      {{ 'ORGANIZATION_PROFILE_NOTICE._retry' | translate }}
+    </app-button>
+  } @else {
+    <p class="text-sm text-content-muted mb-4">
+      @if (canEdit) {
+        {{ 'ORGANIZATION_PROFILE_NOTICE._intro' | translate: { organization: organizationName } }}
+      } @else {
+        {{ 'ORGANIZATION_PROFILE_NOTICE._member_message' | translate: { organization: organizationName } }}
+      }
+    </p>
+
+    @if (canEdit) {
+      @if (hasFormFields) {
+        <app-dynamic-form [fields]="fields" [formGroup]="form" [columns]="1" />
+      }
+      @if (missingPaymentInfo) {
+        <div class="mt-4">
+          <p class="text-sm font-semibold text-content mb-2">{{ 'ORGANIZATION_PROFILE_NOTICE._payment_info' | translate }}</p>
+          <app-button data-cy="organizationNoticePaymentDashboard" type="button" variant="secondary" (click)="openPaymentDashboard()">
+            {{ 'PROFILE._payment_dashboard' | translate }}
+          </app-button>
+        </div>
+      }
+    } @else {
+      <ul class="list-inside list-disc space-y-1 text-sm font-semibold text-content">
+        @if (missingCountry) { <li>{{ 'PROFILE._country' | translate }}</li> }
+        @if (missingEmail) { <li>{{ 'PROFILE._email' | translate }}</li> }
+        @if (missingPaymentInfo) { <li>{{ 'ORGANIZATION_PROFILE_NOTICE._payment_info' | translate }}</li> }
+      </ul>
+    }
+  }
+
+  @if (canEdit && hasFormFields && !loadFailed) {
+    <div appCardFooter class="flex justify-end gap-3">
+      <app-button data-cy="saveOrganizationProfileNotice" type="button" (click)="save()" [disabled]="form.invalid || saving">
+        {{ 'PROFILE._save' | translate }}
+      </app-button>
+    </div>
+  }
+</app-modal>

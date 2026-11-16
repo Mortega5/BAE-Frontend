@@ -101,6 +101,7 @@ import { OfferComponent } from "./shared/forms/offer/offer.component";
 import { LoadingSpinnerComponent } from './shared/loading-spinner/loading-spinner.component';
 import { NotFoundStateComponent } from './shared/not-found-state/not-found-state.component';
 import { NotificationComponent } from './shared/notification/notification.component';
+import { OrganizationProfileNoticeComponent } from './shared/organization-profile-notice/organization-profile-notice.component';
 import { PricePlanDrawerComponent } from "./shared/price-plan-drawer/price-plan-drawer.component";
 import { RevenueReportComponent } from './shared/revenue-report/revenue-report.component';
 import { SharedModule } from "./shared/shared.module";
@@ -221,6 +222,7 @@ import { StepperComponent } from './shared/stepper/stepper.component';
     NgxFileDropModule,
     ChatbotWidgetComponent,
     NotificationComponent,
+    OrganizationProfileNoticeComponent,
     MarkdownModule.forRoot(),
     TranslateModule.forRoot({
       loader: {

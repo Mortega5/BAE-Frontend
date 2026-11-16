@@ -3231,6 +3231,15 @@
       "_publish_post": "Publish post"
     }
   },
+  "ORGANIZATION_PROFILE_NOTICE": {
+    "_title": "Organization details incomplete",
+    "_intro": "{{organization}} needs to complete some details before it can operate on the marketplace.",
+    "_member_message": "{{organization}} needs to complete some details before it can operate on the marketplace. Ask your organization administrator to add the following:",
+    "_payment_info": "Payment information",
+    "_email_invalid": "Enter a valid email address.",
+    "_load_error": "We couldn't check the organization's details. Try again.",
+    "_retry": "Retry"
+  },
   "USAGE_SPECS": {
     "_unique": "A pay per use metric with this name already exists.",
     "_metrics_required": "Add at least one metric to continue.",

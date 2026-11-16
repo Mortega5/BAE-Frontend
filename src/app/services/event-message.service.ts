@@ -6,7 +6,7 @@ import { cartProduct, Category, FormChangeState, PricePlanChangeState } from "..
 export interface EventMessage {
   type: 'AddedFilter' | 'RemovedFilter' | 'AddedCartItem' | 'RemovedCartItem' | 'ToggleCartDrawer' | 'LoginProcess' | 'BillAccChanged' |
   'SellerProductSpec' |
-  'CategoryAdded' | 'ChangedSession' | 'CloseCartCard' |
+  'CategoryAdded' | 'ChangedSession' | 'OrganizationProfileUpdated' | 'CloseCartCard' |
   'SavePricePlan' | 'UpdatePricePlan' |
   'SubformChange' | 'CloseFeedback' | 'UpdateOffer' | 'CloseQuoteRequest' | 'FiltersCommitted';
   text?: string,
@@ -64,6 +64,11 @@ export class EventMessageService {
 
   emitChangedSession(session: any) {
     this.eventMessageSubject.next({ type: 'ChangedSession', value: session });
+  }
+
+  /** An organization's profile was changed outside the profile page (e.g. by the incomplete-profile notice). */
+  emitOrganizationProfileUpdated(partyId: string): void {
+    this.eventMessageSubject.next({ type: 'OrganizationProfileUpdated', value: { partyId } });
   }
 
   emitCloseCartCard(val: cartProduct | undefined) {

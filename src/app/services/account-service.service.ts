@@ -137,19 +137,48 @@ export class AccountServiceService {
     return chars.find((c: any) => c?.name === 'country')?.value || null;
   }
 
-  /** Rebuilds the full partyCharacteristic array with the country entry set/replaced,
-   * keeping every other characteristic (logo, description, website, contractManagement)
-   * untouched — PATCHing just `{name: 'country', ...}` alone would wipe out the rest,
-   * since the backend replaces the whole array with whatever is sent. */
-  async updateOrgCountry(partyId: any, countryCode: string): Promise<any> {
+  /** Sets the org's country and/or adds a contact email in ONE patch. Both live in arrays the
+   * backend replaces wholesale (partyCharacteristic / contactMedium), so they are rebuilt from a
+   * fresh read, keeping every other entry (logo, description, website, contractManagement, the
+   * other contact mediums) untouched — PATCHing just the new entry alone would wipe the rest.
+   * The country is set or replaced; the email is only added when the org has none yet. */
+  async completeOrgProfile(partyId: any, changes: { country?: string; email?: string }): Promise<any> {
     const profile = await this.getOrgInfo(partyId);
-    const chars = Array.isArray(profile?.partyCharacteristic) ? [...profile.partyCharacteristic] : [];
-    const index = chars.findIndex((c: any) => c?.name === 'country');
-    if (index !== -1) {
-      chars[index] = { ...chars[index], value: countryCode };
-    } else {
-      chars.push({ name: 'country', value: countryCode });
+    const patch: any = {};
+
+    if (changes.country) {
+      const chars = Array.isArray(profile?.partyCharacteristic) ? [...profile.partyCharacteristic] : [];
+      const index = chars.findIndex((c: any) => c?.name === 'country');
+      if (index !== -1) {
+        chars[index] = { ...chars[index], value: changes.country };
+      } else {
+        chars.push({ name: 'country', value: changes.country });
+      }
+      patch.partyCharacteristic = chars;
     }
-    return lastValueFrom(this.updateOrgInfo(partyId, { partyCharacteristic: chars }));
+
+    if (changes.email) {
+      const mediums = Array.isArray(profile?.contactMedium) ? profile.contactMedium : [];
+      if (!mediums.some((m: any) => m?.mediumType?.toLowerCase() === 'email')) {
+        patch.contactMedium = [...mediums, {
+          mediumType: 'Email',
+          preferred: true,
+          characteristic: { contactType: 'Email', emailAddress: changes.email }
+        }];
+      }
+    }
+
+    return Object.keys(patch).length > 0
+      ? lastValueFrom(this.updateOrgInfo(partyId, patch))
+      : undefined;
+  }
+
+  async updateOrgCountry(partyId: any, countryCode: string): Promise<any> {
+    return this.completeOrgProfile(partyId, { country: countryCode });
+  }
+
+  /** The seller's payment gateway info: how many gateways it has and the link to its dashboard. */
+  getPaymentInfo(): Promise<{ gatewaysCount?: number | string | null; providerUrl?: string | null }> {
+    return lastValueFrom(this.http.get<any>(`${environment.BASE_URL}/paymentInfo`));
   }
 }
