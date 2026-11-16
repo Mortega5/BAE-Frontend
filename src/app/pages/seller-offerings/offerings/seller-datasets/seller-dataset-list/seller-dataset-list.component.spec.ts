@@ -1,6 +1,7 @@
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { DATASET_PRODUCTS_FILTER, SellerDatasetListComponent } from './seller-dataset-list.component';
+import { SellerOfferingsPaths } from '../../../seller-offerings.paths';
 
 describe('SellerDatasetListComponent', () => {
   let component: SellerDatasetListComponent;
@@ -45,8 +46,8 @@ describe('SellerDatasetListComponent', () => {
 
   it('opens the offer form through the datasets routes, so going back returns to the datasets', () => {
     component.goToCreate();
-    expect(router.navigate).toHaveBeenCalledWith(['/my-offerings/datasets/new']);
+    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.datasets.new()]);
     component.goToUpdate('urn:x:1');
-    expect(router.navigate).toHaveBeenCalledWith(['/my-offerings/datasets/urn:x:1']);
+    expect(router.navigate).toHaveBeenCalledWith([SellerOfferingsPaths.datasets.edit('urn:x:1')]);
   });
 });

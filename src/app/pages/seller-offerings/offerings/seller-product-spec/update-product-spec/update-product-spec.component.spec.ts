@@ -339,19 +339,22 @@ describe('UpdateProductSpecComponent', () => {
       expect(component.prodSpecsBundle).toEqual([{ id: 'b1' } as any]);
     });
 
-    it('should populate resource, service and attachment selections', () => {
+    it('should populate resource, service and attachment selections, keeping the product image apart from the attachments', () => {
+      const picture = { name: 'Profile Picture', url: 'https://img', attachmentType: 'image/png' };
+      const document = { name: 'terms.pdf', url: 'https://doc', attachmentType: 'application/pdf' };
       component.prod = {
         ...baseProd,
         resourceSpecification: [{ id: 'res-1' }],
         serviceSpecification: [{ id: 'serv-1' }],
-        attachment: [{ name: 'Profile Picture', url: 'https://img', attachmentType: 'image/png' }]
+        attachment: [picture, document]
       };
 
       component.populateProductInfo();
 
       expect(component.selectedResourceSpecs).toEqual([{ id: 'res-1' }] as any);
       expect(component.selectedServiceSpecs).toEqual([{ id: 'serv-1' }] as any);
-      expect(component.prodAttachments).toEqual([{ name: 'Profile Picture', url: 'https://img', attachmentType: 'image/png' }] as any);
+      expect(component.prodImage).toEqual(picture as any);
+      expect(component.prodAttachments).toEqual([document] as any);
     });
 
     it('should mark dspCompatible based on whether the loaded product has an externalId', () => {

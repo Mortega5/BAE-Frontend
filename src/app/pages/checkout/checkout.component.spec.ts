@@ -6,6 +6,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 
 import { CheckoutComponent } from './checkout.component';
+import { ProductOrdersPaths } from '../product-orders/product-orders.paths';
 import { LocalStorageService } from '../../services/local-storage.service';
 import { AccountServiceService } from '../../services/account-service.service';
 import { ProductOrderService } from '../../services/product-order-service.service';
@@ -393,7 +394,7 @@ describe('CheckoutComponent', () => {
     component.goToInventory();
     component.goToProdDetails({ id: 'prod-9' } as any);
 
-    expect(routerSpy.navigate).toHaveBeenCalledWith(['/product-orders']);
+    expect(routerSpy.navigate).toHaveBeenCalledWith([ProductOrdersPaths.root()]);
     expect(routerSpy.navigate).toHaveBeenCalledWith(['/search/', 'prod-9']);
   });
 
