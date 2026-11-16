@@ -3243,6 +3243,8 @@
     "_delete_success": "Métrica de pago por uso eliminada correctamente",
     "_delete_error": "¡Se produjo un error al eliminar la métrica de pago por uso!",
     "_publish_confirm_title": "¿Publicar métrica de pago por uso?",
+    "_metric_name_unique": "Ya existe una métrica con este nombre.",
+    "_duplicate_metric_names": "Los nombres de las métricas deben ser únicos dentro de esta métrica de pago por uso. Elimina las filas duplicadas en el paso Métricas.",
     "_publish_confirm_message": "Una vez publicada, la métrica podrá usarse en planes de precios. Las métricas publicadas no pueden volver a borrador.",
     "_publish_success": "Métrica de pago por uso publicada correctamente",
     "_publish_error": "¡Se produjo un error al publicar la métrica de pago por uso!",

@@ -25,4 +25,24 @@ describe('UsageSpecMetricsComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('should not accept a metric whose name already exists, ignoring case', () => {
+    component.writeValue([{ id: 'm1', name: 'CPU', description: '', valueType: 'number' }]);
+    component.metricsForm.setValue({ name: ' cpu ', description: '' });
+    expect(component.metricsForm.controls.name.hasError('nonUniqueName')).toBeTrue();
+    component.saveMetric();
+    expect(component.metrics.length).toBe(1);
+  });
+
+  it('should save a trimmed, unique metric and report it as a metrics change', () => {
+    const emitted: any[] = [];
+    (component as any).eventMessage.emitSubformChange = (c: any) => emitted.push(c);
+    component.metricsForm.setValue({ name: ' ram ', description: 'd' });
+    component.saveMetric();
+    expect(component.metrics.map(m => m.name)).toEqual(['ram']);
+    expect(emitted[0].subformType).toBe('metrics');
+    component.deleteMetric(component.metrics[0]);
+    expect(component.metrics).toEqual([]);
+    expect(emitted[1].subformType).toBe('metrics');
+  });
 });

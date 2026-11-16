@@ -9,7 +9,7 @@ import { EventMessageService } from "src/app/services/event-message.service";
 import { ButtonComponent } from 'src/app/shared/button/button.component';
 import { DynamicFormComponent } from 'src/app/shared/forms/dynamic-form/dynamic-form.component';
 import { TableInputComponent } from 'src/app/shared/forms/table-input/table-input.component';
-import { noWhitespaceValidator } from 'src/app/validators/validators';
+import { noWhitespaceValidator, uniqueValueValidatorFactory } from 'src/app/validators/validators';
 import { v4 as uuidv4 } from 'uuid';
 
 @Component({
@@ -45,12 +45,16 @@ export class UsageSpecMetricsComponent {
 
   //CHARS INFO
   metricsForm = new FormGroup({
-    name: new FormControl('', [Validators.required, Validators.maxLength(100), noWhitespaceValidator]),
+    name: new FormControl('', [
+      Validators.required, Validators.maxLength(100), noWhitespaceValidator,
+      uniqueValueValidatorFactory(() => this.metrics.map(metric => metric.name))
+    ]),
     description: new FormControl('')
   });
 
   metricFields: FormField[] = [
-    { type: 'string', name: 'name', label: 'USAGE_SPECS._name', required: true, maxLength: 100, placeholder: 'USAGE_SPECS._metric_name_placeholder', dataCy: 'metricName' },
+    { type: 'string', name: 'name', label: 'USAGE_SPECS._name', required: true, maxLength: 100, placeholder: 'USAGE_SPECS._metric_name_placeholder', dataCy: 'metricName',
+      errorMessages: { nonUniqueName: 'USAGE_SPECS._metric_name_unique' } },
     { type: 'textarea', name: 'description', label: 'USAGE_SPECS._description', placeholder: 'USAGE_SPECS._metric_description_placeholder', dataCy: 'metricDescription' },
   ];
 
@@ -92,15 +96,13 @@ export class UsageSpecMetricsComponent {
   }
 
   deleteMetric(metric: any) {
-    const index = this.metrics.findIndex(m => m.id === metric.id);
-    if (index !== -1) {
-      this.metrics.splice(index, 1);
-    }
+    this.metrics = this.metrics.filter(m => m.id !== metric.id);
+    this.metricsForm.controls.name.updateValueAndValidity();
     this.onChange([...this.metrics]);
     const currentValue = [...this.metrics];
     const dirtyFields = this.getDirtyFields(currentValue);
     const changeState: FormChangeState = {
-      subformType: 'category',
+      subformType: 'metrics',
       isDirty: true,
       dirtyFields,
       originalValue: this.originalValue,
@@ -111,12 +113,17 @@ export class UsageSpecMetricsComponent {
   }
 
   saveMetric() {
-    this.metrics.push({
+    this.metricsForm.controls.name.updateValueAndValidity();
+    if (!this.metricsForm.valid) {
+      this.metricsForm.markAllAsTouched();
+      return;
+    }
+    this.metrics = [...this.metrics, {
       id: uuidv4(),
-      name: this.metricsForm.value.name,
+      name: this.metricsForm.value.name!.trim(),
       description: this.metricsForm.value.description,
       valueType: 'number'
-    })
+    }];
     this.onChange([...this.metrics]);
     this.cdr.detectChanges();
     this.showCreateMetric = false;
@@ -152,7 +159,7 @@ export class UsageSpecMetricsComponent {
 
       if (dirtyFields.length > 0) {
         const changeState: FormChangeState = {
-          subformType: 'category',
+          subformType: 'metrics',
           isDirty: true,
           dirtyFields,
           originalValue: this.originalValue,
@@ -182,7 +189,8 @@ export class UsageSpecMetricsComponent {
 
   writeValue(metrics: any[]): void {
     console.log('📝 Writing value to form:', metrics);
-    this.metrics = metrics || [];
+    this.metrics = [...(metrics || [])];
+    this.metricsForm.controls.name.updateValueAndValidity();
     // Store original value only in edit mode
     if (this.isEditMode && metrics) {
       this.originalValue = JSON.parse(JSON.stringify(metrics));

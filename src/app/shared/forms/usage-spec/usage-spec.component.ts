@@ -24,8 +24,11 @@ import { UsageSpecGeneralInfoComponent } from './usage-spec-general-info/usage-s
 import { UsageSpecMetricsComponent } from './usage-spec-metrics/usage-spec-metrics.component';
 import { UsageSpecSummaryComponent } from './usage-spec-summary/usage-spec-summary.component';
 
-function atLeastOneMetricValidator(control: AbstractControl): ValidationErrors | null {
-  return Array.isArray(control.value) && control.value.length > 0 ? null : { metricsRequired: true };
+/** At least one metric, and no two with the same name (usage prices reference a metric by its name). */
+function metricsValidator(control: AbstractControl): ValidationErrors | null {
+  if (!Array.isArray(control.value) || control.value.length === 0) return { metricsRequired: true };
+  const names = control.value.map(metric => String(metric?.name ?? '').trim().toLowerCase());
+  return new Set(names).size !== names.length ? { duplicateMetricNames: true } : null;
 }
 
 const DELETED_STATUSES = ['Retired', 'Obsolete'];
@@ -91,7 +94,7 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges, LeaveCo
 
     this.usageSpecForm = this.fb.group({
       generalInfo: this.fb.group({}),
-      metrics: new FormControl([], [atLeastOneMetricValidator])
+      metrics: new FormControl([], [metricsValidator])
     });
 
     // Subscribe to form validation changes
@@ -193,11 +196,6 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges, LeaveCo
 
   submitForm() {
     if (this.formType === 'update') {
-      console.log('🔄 Starting offer update process...');
-      console.log('📝 Current form changes:', this.formChanges);
-
-      // Aquí irá la lógica de actualización
-      // Por ahora solo mostramos los cambios
       this.updateUsageSpec();
     } else {
       this.showPublishDraftModal = true;
@@ -214,7 +212,7 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges, LeaveCo
 
   loadUsageSpecData() {
     if (this.usageSpec) {
-      const metrics = this.usageSpec.specCharacteristic = this.usageSpec.specCharacteristic.map((item: any) => ({
+      const metrics = this.usageSpec.specCharacteristic = (this.usageSpec.specCharacteristic || []).map((item: any) => ({
         ...item,
         id: uuidv4()
       }));
@@ -241,10 +239,10 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges, LeaveCo
 
     const formValue = this.usageSpecForm.value;
     const generalInfo = formValue.generalInfo;
-    const metrics = formValue.metrics.map(({ id, ...rest }: any) => rest);
+    const metrics = this.metricsForPayload();
 
     const usageSpec: any = {
-      name: generalInfo.name,
+      name: generalInfo.name?.trim(),
       description: generalInfo.description || '',
       lifecycleStatus,
       specCharacteristic: metrics,
@@ -274,40 +272,21 @@ export class UsageSpecComponent implements OnInit, OnDestroy, OnChanges, LeaveCo
 
   }
 
-  async updateUsageSpec() {
-    console.log('🔄 Starting offer update process...');
-    console.log('📝 Current form changes:', this.formChanges);
+  /** Metrics without the local id; the rest of each metric is kept as is (usage prices reference its exact name). */
+  private metricsForPayload(): any[] {
+    return (this.usageSpecForm.get('metrics')!.value as any[]).map(({ id, ...metric }) => metric);
+  }
 
-    // Preparar el payload base con los datos que no han cambiado
+  async updateUsageSpec() {
+    if (!this.usageSpecForm.valid) return;
+
+    // The form already holds the current value of every step, so build the payload from it.
     const basePayload: any = {
-      name: this.usageSpec.name,
-      description: this.usageSpec.description,
-      specCharacteristic: this.usageSpec.specCharacteristic
+      name: (this.usageSpecForm.get('generalInfo.name')?.value ?? this.usageSpec.name)?.trim(),
+      description: this.usageSpecForm.get('generalInfo.description')?.value ?? this.usageSpec.description,
+      specCharacteristic: this.metricsForPayload()
     };
 
-    // Procesar cada cambio emitido por los subformularios
-    for (const [subformType, change] of Object.entries(this.formChanges)) {
-      console.log(`📝 Processing changes for ${subformType}:`, change);
-
-      switch (subformType) {
-        case 'generalInfo':
-          // Actualizar información general
-          basePayload.name = change.currentValue.name;
-          basePayload.description = change.currentValue.description;
-          break;
-        case 'metrics':
-          // Actualizar metricas
-          const metrics = change.currentValue.map((metric: any) => ({
-            name: metric.name,
-            description: metric.description,
-            valueType: 'number'
-          }));
-          basePayload.specCharacteristic = metrics
-          console.log('------ here')
-          console.log(metrics)
-          break;
-      }
-    }
     console.log('📝 Final update payload:', basePayload);
 
     try {

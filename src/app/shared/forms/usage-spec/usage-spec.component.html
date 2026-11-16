@@ -51,6 +51,11 @@
       <usage-spec-metrics [data]="usageSpec" [formType]="formType" formControlName="metrics"
         (formChange)="handleSubformChange($event)">
       </usage-spec-metrics>
+      @if (usageSpecForm.get('metrics')?.hasError('duplicateMetricNames')) {
+        <p data-cy="duplicateMetricNamesError" role="alert" class="mt-4 text-sm text-status-danger">
+          {{ 'USAGE_SPECS._duplicate_metric_names' | translate }}
+        </p>
+      }
     </ng-template>
 
     <ng-template stepperStep="USAGE_SPECS._summary" stepId="summary">

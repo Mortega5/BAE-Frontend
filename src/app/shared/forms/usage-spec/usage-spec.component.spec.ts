@@ -1,3 +1,4 @@
+import { FormControl } from '@angular/forms';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -164,5 +165,30 @@ describe('UsageSpecComponent', () => {
 
     expect(component.usageSpec.lifecycleStatus).toBe('Active');
     expect(component.actionLoading).toBeFalse();
+  });
+
+  it('should reject metrics with the same name, ignoring case and surrounding spaces', () => {
+    const metrics = component.usageSpecForm.get('metrics')!;
+    metrics.setValue([{ name: 'CPU' }, { name: ' cpu ' }]);
+    expect(metrics.hasError('duplicateMetricNames')).toBeTrue();
+    metrics.setValue([{ name: 'cpu' }, { name: 'ram' }]);
+    expect(metrics.valid).toBeTrue();
+  });
+
+  it('should update from the form values, keeping each metric but not its local id', () => {
+    const usageService = TestBed.inject(UsageServiceService);
+    const updateSpy = spyOn(usageService, 'updateUsageSpec').and.returnValue(of({}));
+    spyOn(component, 'goBack');
+    component.formType = 'update';
+    component.usageSpec = { id: 'u1', name: 'Old', description: 'old' };
+    (component.usageSpecForm.get('generalInfo') as any).addControl('name', new FormControl(' New '));
+    (component.usageSpecForm.get('generalInfo') as any).addControl('description', new FormControl('desc'));
+    component.usageSpecForm.patchValue({ metrics: [{ id: 'local', name: 'cpu', description: 'd', valueType: 'number', '@type': 'X' }] });
+    component.updateUsageSpec();
+    expect(updateSpy).toHaveBeenCalledWith({
+      name: 'New',
+      description: 'desc',
+      specCharacteristic: [{ name: 'cpu', description: 'd', valueType: 'number', '@type': 'X' }]
+    }, 'u1');
   });
 });
